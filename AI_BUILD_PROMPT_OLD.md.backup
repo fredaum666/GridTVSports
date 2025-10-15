@@ -1,0 +1,1352 @@
+# AI Build Prompt: Multi-Sport Live Games & Sports Bar Mode Application
+
+## Project Overview
+Build a comprehensive real-time sports monitoring web application with two primary viewing modes:
+1. **Standard Live Games View** - Scrollable list showing all live and upcoming games with detailed statistics
+2. **Sports Bar Mode** - Full-screen multi-game grid view (2/4/6 games simultaneously) optimized for watching multiple games at once
+
+The application should support NFL initially, with architecture designed for easy expansion to NBA, MLB, and NHL.
+
+---
+
+## Technology Stack
+
+### Backend
+- **Runtime**: Node.js with Express.js
+- **Database**: PostgreSQL with pg driver
+- **APIs**: RapidAPI NFL endpoints (ESPN data)
+- **Authentication**: JWT + cookie-based auth
+- **Cron Jobs**: node-cron for scheduled tasks
+- **Additional**: axios, bcryptjs, cors, cookie-parser
+
+### Frontend
+- **Pure HTML/CSS/JavaScript** (no frameworks)
+- **Responsive Design**: Mobile-first approach
+- **Real-time Updates**: 15-second polling intervals
+- **Animations**: CSS keyframes for score changes and play alerts
+
+---
+
+## Core Features Required
+
+### 1. Server-Side Smart Caching System
+
+**Purpose**: Reduce API costs by caching scoreboard data and only updating when necessary.
+
+**Implementation**:
+```javascript
+// Cache structure
+const nflScoreboardCache = {
+  data: {},                    // { week: { data, timestamp } }
+  activeWeeks: new Set(),      // Weeks with live games
+  CACHE_DURATION: 15000,       // 15 seconds for live games
+  COMPLETED_CACHE_DURATION: 3600000  // 1 hour for completed weeks
+};
+
+// Smart invalidation logic
+- Fetch data every 15 seconds in background
+- Check if all games in a week are completed
+- If all completed: stop updating that week (mark inactive)
+- Only update weeks with live/upcoming games
+- Reduces API calls by 99%+ regardless of user count
+```
+
+**Background Job**:
+- Run every 15 seconds
+- Iterate through `activeWeeks` Set
+- Fetch fresh data from RapidAPI for each active week
+- Update cache with new data
+- Check completion status and remove from activeWeeks if done
+- Log cache statistics
+
+### 2. RapidAPI Integration
+
+**Endpoints to Implement**:
+
+```javascript
+// 1. NFL Scoreboard (Primary data source)
+GET https://tank01-fantasy-stats.p.rapidapi.com/getNFLScoresOnly
+Query params: { week: 6, fantasyPoints: false }
+Headers: {
+  'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+  'X-RapidAPI-Host': 'tank01-fantasy-stats.p.rapidapi.com'
+}
+
+// 2. Game Summary (Comprehensive stats)
+GET https://tank01-fantasy-stats.p.rapidapi.com/getNFLGamesForDate
+- Box score data
+- Player leaders
+- Team statistics
+- Win probability data
+
+// 3. Win Probability
+GET https://tank01-fantasy-stats.p.rapidapi.com/getNFLWinProbability
+- Real-time win percentage for each team
+- Play-by-play probability changes
+
+// 4. Game Predictions
+GET https://tank01-fantasy-stats.p.rapidapi.com/getNFLPredictor
+- AI-powered game predictions
+- Point differentials
+- Matchup quality ratings
+```
+
+**Server Endpoints to Create**:
+```javascript
+app.get('/api/nfl-scoreboard-rapid/:week', async (req, res) => {
+  // Check cache first
+  // If cache valid, return cached data
+  // If cache stale, fetch from RapidAPI, update cache, return
+});
+
+app.get('/api/nfl-gamesummary/:gameId', async (req, res) => {
+  // Fetch comprehensive game data
+});
+
+app.get('/api/nfl-winprobability/:gameId', async (req, res) => {
+  // Fetch win probability chart
+});
+
+app.get('/api/nfl-predictor/:gameId', async (req, res) => {
+  // Fetch AI predictions
+});
+
+app.get('/api/nfl-boxscore/:gameId', async (req, res) => {
+  // Fetch detailed box score
+});
+
+app.get('/api/nfl-current-week', (req, res) => {
+  // Calculate current NFL week based on season start date
+  // Week 1 starts September 5, 2024
+});
+```
+
+### 3. RapidAPI Usage Tracker
+
+**Purpose**: Monitor daily API usage against 9000 calls/day quota to prevent overruns.
+
+**Implementation**:
+```javascript
+const rapidAPIUsage = {
+  dailyCount: 0,
+  dailyQuota: 9000,
+  resetTime: null,  // Next midnight
+  callLog: []       // Last 1000 calls with timestamps
+};
+
+function trackRapidAPICall(endpoint, success = true) {
+  checkAndResetDailyCounter();
+  rapidAPIUsage.dailyCount++;
+  rapidAPIUsage.callLog.push({
+    timestamp: new Date(),
+    endpoint,
+    success
+  });
+  
+  // Keep only last 1000 calls
+  if (rapidAPIUsage.callLog.length > 1000) {
+    rapidAPIUsage.callLog.shift();
+  }
+  
+  // Console warnings at thresholds
+  const percentUsed = (rapidAPIUsage.dailyCount / rapidAPIUsage.dailyQuota) * 100;
+  
+  if (percentUsed >= 95) {
+    console.error(`🚨 CRITICAL: ${rapidAPIUsage.dailyCount}/${rapidAPIUsage.dailyQuota} (${percentUsed.toFixed(2)}%)`);
+  } else if (percentUsed >= 90) {
+    console.warn(`⚠️ HIGH: ${rapidAPIUsage.dailyCount}/${rapidAPIUsage.dailyQuota} (${percentUsed.toFixed(2)}%)`);
+  } else if (percentUsed >= 75) {
+    console.warn(`⚠️ API Usage: ${rapidAPIUsage.dailyCount}/${rapidAPIUsage.dailyQuota} (${percentUsed.toFixed(2)}%)`);
+  }
+}
+
+function checkAndResetDailyCounter() {
+  const now = new Date();
+  if (now >= rapidAPIUsage.resetTime) {
+    console.log(`📅 Daily API counter reset - Previous: ${rapidAPIUsage.dailyCount} calls`);
+    rapidAPIUsage.dailyCount = 0;
+    rapidAPIUsage.callLog = [];
+    initializeResetTime();
+  }
+}
+
+function initializeResetTime() {
+  const tomorrow = new Date();
+  tomorrow.setHours(24, 0, 0, 0);
+  rapidAPIUsage.resetTime = tomorrow;
+  console.log(`📅 API quota will reset at: ${rapidAPIUsage.resetTime.toLocaleString()}`);
+}
+
+// Track every API call
+async function fetchNFLScoreboardFromAPI(week) {
+  const response = await fetch(url, options);
+  trackRapidAPICall(`nfl-scoreboard-week-${week}`, response.ok);
+  // ... rest of implementation
+}
+```
+
+**Add endpoint to expose usage stats**:
+```javascript
+app.get('/api/nfl-cache-status', (req, res) => {
+  res.json({
+    cache: {
+      activeWeeks: Array.from(nflScoreboardCache.activeWeeks),
+      cachedWeeks: Object.keys(nflScoreboardCache.data)
+    },
+    apiUsage: {
+      dailyCount: rapidAPIUsage.dailyCount,
+      dailyQuota: rapidAPIUsage.dailyQuota,
+      remaining: rapidAPIUsage.dailyQuota - rapidAPIUsage.dailyCount,
+      percentUsed: ((rapidAPIUsage.dailyCount / rapidAPIUsage.dailyQuota) * 100).toFixed(2),
+      resetTime: rapidAPIUsage.resetTime.toISOString(),
+      hoursUntilReset: ((rapidAPIUsage.resetTime - new Date()) / 3600000).toFixed(2),
+      recentCalls: rapidAPIUsage.callLog.slice(-50)
+    }
+  });
+});
+```
+
+---
+
+## Frontend - LiveGames.html
+
+### HTML Structure
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Games - NFL Predictions</title>
+  <style>
+    /* STYLES GO HERE */
+  </style>
+</head>
+<body>
+  <!-- STICKY HEADER -->
+  <div class="header">
+    <div class="header-content">
+      <h1>
+        🏈 Live Games
+        <span class="live-indicator">
+          <span class="live-dot"></span>
+          LIVE
+        </span>
+      </h1>
+      <div style="display: flex; gap: 10px;">
+        <button class="sports-bar-btn" id="sports-bar-btn">
+          📺 Sports Bar Mode
+        </button>
+        <button class="back-btn" onclick="window.location.href='/nfl'">
+          ← Back to Predictions
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+    <div class="live-games-panel">
+      <div class="panel-header">
+        <div>
+          <span>🔴 Live & Upcoming Games</span>
+          <div class="auto-refresh-info">
+            <span>●</span>
+            <span>Auto-refreshing every 15 seconds</span>
+          </div>
+        </div>
+        <button class="refresh-btn" onclick="manualRefresh()">
+          <span>🔄</span>
+          <span>Refresh Now</span>
+        </button>
+      </div>
+      <div class="games-grid" id="games-list">
+        <!-- Game cards populated here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME DETAIL MODAL -->
+  <div class="modal-overlay" id="game-detail-modal">
+    <div class="game-detail-panel">
+      <div class="detail-header">
+        <div class="detail-matchup" id="detail-matchup"></div>
+        <button class="close-detail-btn" onclick="closeGameDetail()">✕ Close</button>
+      </div>
+      
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('boxscore')">📊 Box Score</button>
+        <button class="tab" onclick="switchTab('stats')">📈 Game Stats</button>
+        <button class="tab" onclick="switchTab('probability')">🎯 Win Probability</button>
+        <button class="tab" onclick="switchTab('predictions')">🔮 Predictions</button>
+      </div>
+      
+      <div class="tab-content active" id="tab-boxscore"></div>
+      <div class="tab-content" id="tab-stats"></div>
+      <div class="tab-content" id="tab-probability"></div>
+      <div class="tab-content" id="tab-predictions"></div>
+    </div>
+  </div>
+
+  <!-- SPORTS BAR MODE SELECTION MODAL -->
+  <div id="game-selection-modal" class="modal">
+    <div class="modal-content">
+      <h2>📺 Sports Bar Mode - Select Grid Layout</h2>
+      
+      <div class="layout-options">
+        <label>
+          <input type="radio" name="layout" value="2"> 2 Games
+        </label>
+        <label>
+          <input type="radio" name="layout" value="4" checked> 4 Games
+        </label>
+        <label>
+          <input type="radio" name="layout" value="6"> 6 Games
+        </label>
+      </div>
+      
+      <div id="grid-preview" class="grid-preview">
+        <!-- Grid slots with game selectors -->
+      </div>
+      
+      <div class="modal-buttons">
+        <button id="enter-fullscreen">Enter Sports Bar Mode</button>
+        <button id="cancel-modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL SCREEN SPORTS BAR CONTAINER -->
+  <div id="fullscreen-container" class="fullscreen-container">
+    <div class="fullscreen-hover-trigger"></div>
+    
+    <div class="fullscreen-controls" id="fullscreen-controls">
+      <div>
+        <button id="change-layout-fs">Change Layout</button>
+      </div>
+      <button id="exit-fullscreen">Exit Sports Bar Mode</button>
+    </div>
+    
+    <div id="fullscreen-grid" class="fullscreen-grid grid-4">
+      <!-- Game cards populated here -->
+    </div>
+  </div>
+
+  <script>
+    /* JAVASCRIPT GO HERE */
+  </script>
+</body>
+</html>
+```
+
+### Critical CSS Features
+
+**1. Game Card Layout**:
+```css
+.game-card {
+  background: linear-gradient(135deg, #242b3d 0%, #2d3548 100%);
+  border-radius: 12px;
+  border: 2px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Quarter header with scores */
+.quarter-header {
+  display: flex;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.scores-header {
+  display: flex;
+  gap: 16px;
+}
+
+.quarter-label {
+  font-size: 11px;
+  color: #9ca3af;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Team rows */
+.team-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.team-row.winning {
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.team-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quarter-scores {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.quarter-score.total-score {
+  font-size: 24px;
+  font-weight: 700;
+  color: #e0e0e0;
+}
+
+.team-row.winning .total-score {
+  color: #10b981;
+}
+```
+
+**2. Sports Bar Mode Grid Layouts**:
+```css
+.fullscreen-grid.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr;
+}
+
+.fullscreen-grid.grid-4 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.fullscreen-grid.grid-6 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+/* Responsive font scaling for different grids */
+.fullscreen-grid.grid-6 .fullscreen-team-name {
+  font-size: 1.6rem !important;
+}
+
+.fullscreen-grid.grid-6 .fullscreen-score {
+  font-size: 3rem !important;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-team-name {
+  font-size: 1.8rem !important;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-score {
+  font-size: 3.5rem !important;
+}
+
+.fullscreen-grid.grid-2 .fullscreen-team-name {
+  font-size: 3.5rem !important;
+}
+
+.fullscreen-grid.grid-2 .fullscreen-score {
+  font-size: 6rem !important;
+}
+```
+
+**3. Play Animations**:
+```css
+@keyframes scoreUpdate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); color: #22c55e; }
+  100% { transform: scale(1); }
+}
+
+.play-animation {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeOut 3s forwards;
+}
+
+.play-animation.touchdown .play-animation-text {
+  background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+```
+
+**4. Hover Controls (Full-Screen)**:
+```css
+.fullscreen-hover-trigger {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 80px;
+  z-index: 999;
+}
+
+.fullscreen-controls {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+  background: rgba(26, 31, 46, 0.95);
+  padding: 15px 20px;
+}
+
+.fullscreen-hover-trigger:hover ~ .fullscreen-controls,
+.fullscreen-controls:hover {
+  transform: translateY(0);
+}
+```
+
+---
+
+## JavaScript Implementation
+
+### Core Variables
+
+```javascript
+let refreshInterval = null;
+let liveGames = [];
+let currentWeek = 1;
+let gridGames = {};  // { 0: gameId, 1: gameId, ... }
+let currentLayout = 4;
+let fullscreenRefreshInterval = null;
+let selectedGame = null;
+let modalRefreshInterval = null;
+
+const teams = [
+  { name: "Arizona Cardinals", logo: "https://static.www.nfl.com/t_q-best/league/api/clubs/logos/ARI" },
+  { name: "Atlanta Falcons", logo: "https://static.www.nfl.com/t_q-best/league/api/clubs/logos/ATL" },
+  // ... all 32 NFL teams
+];
+```
+
+### Main Game Fetching Function
+
+```javascript
+async function fetchLiveGames() {
+  try {
+    // 1. Fetch current week if not set
+    if (currentWeek === 1) {
+      const weekResponse = await fetch('/api/nfl-current-week');
+      const weekData = await weekResponse.json();
+      currentWeek = weekData.week;
+      console.log(`📅 Current NFL week: ${currentWeek}`);
+    }
+    
+    // 2. Fetch scoreboard data from backend (cached)
+    const response = await fetch(`/api/nfl-scoreboard-rapid/${currentWeek}`);
+    
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+    
+    const rapidData = await response.json();
+    
+    // 3. Map events to game objects
+    if (rapidData.events && rapidData.events.length > 0) {
+      const allGames = rapidData.events.map(event => ({
+        id: event.id,
+        date: event.date,
+        name: event.name,
+        competitions: event.competitions
+      }));
+      
+      // 4. Filter for LIVE and UPCOMING games only
+      liveGames = allGames.filter(game => {
+        const comp = game.competitions[0];
+        const statusState = comp.status.type.state;
+        const isCompleted = comp.status.type.completed;
+        
+        // Skip completed games
+        if (isCompleted || statusState === 'post') return false;
+        
+        // Include live games
+        const isLive = statusState === 'in' || comp.status.period > 0;
+        if (isLive) return true;
+        
+        // Include upcoming games within 36 hours
+        const gameTime = new Date(game.date);
+        const hoursUntil = (gameTime - new Date()) / 3600000;
+        return statusState === 'pre' && hoursUntil >= 0 && hoursUntil <= 36;
+      });
+      
+      console.log(`🏈 ${liveGames.length} live/upcoming games found`);
+    } else {
+      liveGames = [];
+    }
+    
+    // 5. Store globally for Sports Bar Mode
+    window.liveGamesData = liveGames;
+    
+    // 6. Render game cards
+    renderGamesList();
+    
+  } catch (error) {
+    console.error('Error fetching games:', error);
+    document.getElementById('games-list').innerHTML = `
+      <div style="padding: 20px; text-align: center; color: #ef4444;">
+        <div style="font-size: 32px; margin-bottom: 12px;">⚠️</div>
+        <div>Error Loading Games: ${error.message}</div>
+        <button onclick="fetchLiveGames()">🔄 Retry</button>
+      </div>
+    `;
+  }
+}
+```
+
+### Game Card Rendering
+
+```javascript
+function renderGamesList() {
+  const container = document.getElementById('games-list');
+  
+  if (liveGames.length === 0) {
+    container.innerHTML = `
+      <div class="no-games-message">
+        <div class="icon">🏈</div>
+        <h3>No Live Games</h3>
+        <p>Check back during game time!</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = '';
+  
+  liveGames.forEach((game, index) => {
+    const comp = game.competitions[0];
+    const home = comp.competitors.find(c => c.homeAway === 'home');
+    const away = comp.competitors.find(c => c.homeAway === 'away');
+    
+    const homeScore = parseInt(home.score) || 0;
+    const awayScore = parseInt(away.score) || 0;
+    
+    const statusState = comp.status.type.state;
+    const isLive = statusState === 'in' || comp.status.period > 0;
+    const isUpcoming = statusState === 'pre';
+    
+    const quarter = comp.status.period || 1;
+    const clock = comp.status.displayClock || '15:00';
+    
+    const possession = comp.situation?.possession;
+    const awayHasBall = possession === away.id;
+    const homeHasBall = possession === home.id;
+    
+    const downDistance = comp.situation?.downDistanceText || '';
+    
+    const awayLineScores = away.linescores || [];
+    const homeLineScores = home.linescores || [];
+    
+    const cardHtml = `
+      <div class="game-card" data-game-id="${game.id}">
+        <div class="quarter-header">
+          <div class="team-column"></div>
+          <div class="scores-header">
+            <span class="quarter-label">1</span>
+            <span class="quarter-label">2</span>
+            <span class="quarter-label">3</span>
+            <span class="quarter-label">T</span>
+          </div>
+        </div>
+        
+        <div class="team-row ${awayScore > homeScore && isLive ? 'winning' : ''}">
+          ${awayHasBall ? '<div class="possession-arrow">▶</div>' : '<div class="possession-arrow" style="opacity:0">▶</div>'}
+          <div class="team-info">
+            <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo">
+            <span class="team-name">${away.team.displayName}</span>
+          </div>
+          <div class="quarter-scores">
+            <span class="quarter-score">${awayLineScores[0]?.value || 0}</span>
+            <span class="quarter-score">${awayLineScores[1]?.value || 0}</span>
+            <span class="quarter-score">${awayLineScores[2]?.value || 0}</span>
+            <span class="quarter-score total-score">${awayScore}</span>
+          </div>
+        </div>
+        
+        <div class="team-row ${homeScore > awayScore && isLive ? 'winning' : ''}">
+          ${homeHasBall ? '<div class="possession-arrow">▶</div>' : '<div class="possession-arrow" style="opacity:0">▶</div>'}
+          <div class="team-info">
+            <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo">
+            <span class="team-name">${home.team.displayName}</span>
+          </div>
+          <div class="quarter-scores">
+            <span class="quarter-score">${homeLineScores[0]?.value || 0}</span>
+            <span class="quarter-score">${homeLineScores[1]?.value || 0}</span>
+            <span class="quarter-score">${homeLineScores[2]?.value || 0}</span>
+            <span class="quarter-score total-score">${homeScore}</span>
+          </div>
+        </div>
+        
+        <div class="game-footer-info">
+          ${isLive ? `
+            <div class="live-badge">
+              <span class="live-dot"></span>
+              <span>LIVE</span>
+            </div>
+          ` : `
+            <div class="live-badge" style="background: #f59e0b;">
+              <span>⏰</span>
+              <span>UPCOMING</span>
+            </div>
+          `}
+          <div class="game-situation">
+            <span class="quarter-clock">${isLive ? `Q${quarter} - ${clock}` : comp.status.type.name}</span>
+            ${isLive && downDistance ? `<span class="down-distance">${downDistance}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', cardHtml);
+  });
+  
+  // Add click handlers
+  container.querySelectorAll('.game-card').forEach((card, idx) => {
+    card.addEventListener('click', () => showGameDetail(liveGames[idx]));
+  });
+}
+```
+
+### Sports Bar Mode - Game Selection
+
+```javascript
+function openGameSelectionModal() {
+  const modal = document.getElementById('game-selection-modal');
+  modal.classList.add('show');
+  renderGridPreview();
+}
+
+function renderGridPreview() {
+  const container = document.getElementById('grid-preview');
+  const layout = parseInt(document.querySelector('input[name="layout"]:checked').value);
+  currentLayout = layout;
+  
+  container.innerHTML = '';
+  container.className = `grid-preview grid-${layout}`;
+  
+  const liveGames = window.liveGamesData || [];
+  
+  if (liveGames.length === 0) {
+    container.innerHTML = `<p style="color: #ef4444;">No live games available</p>`;
+    document.getElementById('enter-fullscreen').disabled = true;
+    return;
+  }
+  
+  for (let i = 0; i < layout; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'grid-slot';
+    slot.innerHTML = `
+      <div class="slot-label">Position ${i + 1}</div>
+      <select class="game-selector" data-slot="${i}">
+        <option value="">-- Select Game --</option>
+      </select>
+    `;
+    container.appendChild(slot);
+  }
+  
+  updateAllGameSelectors();
+  document.getElementById('enter-fullscreen').disabled = false;
+}
+
+function updateAllGameSelectors() {
+  const selectors = document.querySelectorAll('.game-selector');
+  const liveGames = window.liveGamesData || [];
+  const usedGameIds = Object.values(gridGames);
+  
+  selectors.forEach(selector => {
+    const slotIndex = parseInt(selector.dataset.slot);
+    const currentSelection = gridGames[slotIndex];
+    
+    selector.innerHTML = '<option value="">-- Select Game --</option>';
+    
+    liveGames.forEach(game => {
+      if (!usedGameIds.includes(game.id) || currentSelection === game.id) {
+        const comp = game.competitions[0];
+        const away = comp.competitors[1].team.shortDisplayName;
+        const home = comp.competitors[0].team.shortDisplayName;
+        const status = comp.status.type.state === 'in' ? 'LIVE' : 'UPCOMING';
+        
+        const option = document.createElement('option');
+        option.value = game.id;
+        option.textContent = `${away} @ ${home} - ${status}`;
+        if (currentSelection === game.id) option.selected = true;
+        
+        selector.appendChild(option);
+      }
+    });
+    
+    selector.addEventListener('change', (e) => {
+      const gameId = e.target.value;
+      if (gameId === '') {
+        delete gridGames[slotIndex];
+      } else {
+        gridGames[slotIndex] = gameId;
+      }
+      updateAllGameSelectors();
+    });
+  });
+}
+```
+
+### Sports Bar Mode - Full Screen Display
+
+```javascript
+function enterFullScreenMode() {
+  const modal = document.getElementById('game-selection-modal');
+  const container = document.getElementById('fullscreen-container');
+  
+  modal.classList.remove('show');
+  container.classList.add('active');
+  
+  renderFullScreenGames();
+  
+  // Start auto-refresh (15 seconds)
+  fullscreenRefreshInterval = setInterval(() => {
+    updateFullScreenScores();
+  }, 15000);
+  
+  // Request browser fullscreen
+  if (container.requestFullscreen) {
+    container.requestFullscreen().catch(err => console.log('Fullscreen failed:', err));
+  }
+}
+
+function renderFullScreenGames() {
+  const grid = document.getElementById('fullscreen-grid');
+  grid.className = `fullscreen-grid grid-${currentLayout}`;
+  grid.innerHTML = '';
+  
+  const liveGames = window.liveGamesData || [];
+  
+  for (let slotIndex = 0; slotIndex < currentLayout; slotIndex++) {
+    const gameId = gridGames[slotIndex];
+    const game = liveGames.find(g => g.id === gameId);
+    
+    if (game) {
+      const card = createFullScreenGameCard(game, slotIndex);
+      grid.appendChild(card);
+    } else {
+      const card = createEmptySlotCard(slotIndex);
+      grid.appendChild(card);
+    }
+  }
+}
+
+function createFullScreenGameCard(game, slotIndex) {
+  const div = document.createElement('div');
+  const comp = game.competitions[0];
+  const away = comp.competitors[1];
+  const home = comp.competitors[0];
+  const awayScore = parseInt(away.score || 0);
+  const homeScore = parseInt(home.score || 0);
+  
+  const statusState = comp.status.type.state;
+  const isLive = statusState === 'in' || comp.status.period > 0;
+  const isUpcoming = statusState === 'pre';
+  
+  let cardClass = 'fullscreen-game-card';
+  if (isUpcoming) {
+    cardClass += ' upcoming-game';
+  } else {
+    if (awayScore > homeScore) cardClass += ' winning-away';
+    else if (homeScore > awayScore) cardClass += ' winning-home';
+    else cardClass += ' tied';
+  }
+  
+  let statusDisplay = comp.status.type.shortDetail;
+  if (isUpcoming) {
+    const gameDate = new Date(game.date);
+    const hoursUntil = Math.round((gameDate - new Date()) / 3600000);
+    statusDisplay = `⏰ STARTS IN ${hoursUntil}H`;
+  }
+  
+  const possession = comp.situation?.possession;
+  const downDistance = comp.situation?.downDistanceText || '';
+  
+  div.className = cardClass;
+  div.dataset.slotIndex = slotIndex;
+  div.dataset.isLive = isLive ? 'true' : 'false';
+  div.dataset.gameId = game.id;
+  div.dataset.prevAwayScore = awayScore;
+  div.dataset.prevHomeScore = homeScore;
+  
+  div.innerHTML = `
+    <div class="fullscreen-refresh-indicator"></div>
+    
+    <div class="fullscreen-quarter">${statusDisplay}</div>
+    
+    <div class="fullscreen-team ${!isUpcoming && awayScore > homeScore ? 'winning' : ''}">
+      <div class="fullscreen-team-header">
+        <img src="${away.team.logo}" class="fullscreen-team-logo">
+        <div class="fullscreen-team-name">
+          ${away.team.shortDisplayName}
+          ${isLive && possession === away.id ? '<span class="fullscreen-possession"></span>' : ''}
+        </div>
+      </div>
+      <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
+    </div>
+    
+    <div class="fullscreen-vs">VS</div>
+    
+    <div class="fullscreen-team ${!isUpcoming && homeScore > awayScore ? 'winning' : ''}">
+      <div class="fullscreen-team-header">
+        <img src="${home.team.logo}" class="fullscreen-team-logo">
+        <div class="fullscreen-team-name">
+          ${home.team.shortDisplayName}
+          ${isLive && possession === home.id ? '<span class="fullscreen-possession"></span>' : ''}
+        </div>
+      </div>
+      <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
+    </div>
+    
+    ${isLive && downDistance ? `<div class="fullscreen-down-distance">${downDistance}</div>` : ''}
+  `;
+  
+  return div;
+}
+
+function createEmptySlotCard(slotIndex) {
+  const div = document.createElement('div');
+  div.className = 'fullscreen-game-card empty-slot';
+  div.dataset.slotIndex = slotIndex;
+  
+  const logoSize = currentLayout === 6 ? '50%' : currentLayout === 4 ? '55%' : '60%';
+  
+  div.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; opacity: 0.6;">
+      <img src="/assets/tiktalksports-logo.png" style="max-width: ${logoSize}; margin-bottom: 15px;">
+      <div style="font-size: 1.2rem; color: #64748b;">
+        No game selected
+      </div>
+    </div>
+  `;
+  
+  return div;
+}
+```
+
+### Auto-Update System (Critical)
+
+```javascript
+async function updateFullScreenScores() {
+  try {
+    const response = await fetch(`/api/nfl-scoreboard-rapid/${currentWeek}`);
+    const rapidData = await response.json();
+    
+    if (rapidData.events) {
+      window.liveGamesData = rapidData.events.map(event => ({
+        id: event.id,
+        date: event.date,
+        name: event.name,
+        competitions: event.competitions
+      }));
+    }
+    
+    const grid = document.getElementById('fullscreen-grid');
+    const cards = grid.querySelectorAll('.fullscreen-game-card');
+    
+    cards.forEach(card => {
+      const slotIndex = parseInt(card.dataset.slotIndex);
+      const gameId = gridGames[slotIndex];
+      const game = window.liveGamesData.find(g => g.id === gameId);
+      
+      if (!game || card.classList.contains('empty-slot')) return;
+      
+      const comp = game.competitions[0];
+      const statusState = comp.status.type.state;
+      const wasUpcoming = card.dataset.isLive === 'false';
+      const isNowLive = statusState === 'in' || comp.status.period > 0;
+      
+      // Game started - recreate card
+      if (wasUpcoming && isNowLive) {
+        const newCard = createFullScreenGameCard(game, slotIndex);
+        card.replaceWith(newCard);
+        return;
+      }
+      
+      // Update upcoming countdown
+      if (statusState === 'pre') {
+        const quarterEl = card.querySelector('.fullscreen-quarter');
+        const gameDate = new Date(game.date);
+        const hoursUntil = Math.round((gameDate - new Date()) / 3600000);
+        if (quarterEl) quarterEl.textContent = `⏰ STARTS IN ${hoursUntil}H`;
+        return;
+      }
+      
+      // Update live game
+      const indicator = card.querySelector('.fullscreen-refresh-indicator');
+      if (indicator) {
+        indicator.classList.add('active');
+        setTimeout(() => indicator.classList.remove('active'), 1000);
+      }
+      
+      const away = comp.competitors[1];
+      const home = comp.competitors[0];
+      const awayScore = parseInt(away.score || 0);
+      const homeScore = parseInt(home.score || 0);
+      
+      // Detect score changes
+      const prevAwayScore = parseInt(card.dataset.prevAwayScore || 0);
+      const prevHomeScore = parseInt(card.dataset.prevHomeScore || 0);
+      const awayScoreChange = awayScore - prevAwayScore;
+      const homeScoreChange = homeScore - prevHomeScore;
+      
+      if (awayScoreChange > 0) {
+        detectAndAnimatePlay(card, awayScoreChange, away.team.displayName);
+      } else if (homeScoreChange > 0) {
+        detectAndAnimatePlay(card, homeScoreChange, home.team.displayName);
+      }
+      
+      // Store new scores
+      card.dataset.prevAwayScore = awayScore;
+      card.dataset.prevHomeScore = homeScore;
+      
+      // Update scores with animation
+      const scores = card.querySelectorAll('.fullscreen-score');
+      if (scores[0] && scores[0].textContent !== awayScore.toString()) {
+        scores[0].textContent = awayScore;
+        scores[0].style.animation = 'scoreUpdate 0.5s ease-out';
+      }
+      if (scores[1] && scores[1].textContent !== homeScore.toString()) {
+        scores[1].textContent = homeScore;
+        scores[1].style.animation = 'scoreUpdate 0.5s ease-out';
+      }
+      
+      // Update status
+      const quarterEl = card.querySelector('.fullscreen-quarter');
+      if (quarterEl) quarterEl.textContent = comp.status.type.shortDetail;
+      
+      // Update winning class
+      card.className = 'fullscreen-game-card';
+      if (awayScore > homeScore) card.classList.add('winning-away');
+      else if (homeScore > awayScore) card.classList.add('winning-home');
+      else card.classList.add('tied');
+    });
+    
+  } catch (error) {
+    console.error('Error updating scores:', error);
+  }
+}
+
+function detectAndAnimatePlay(card, scoreChange, teamName) {
+  let playType, playText;
+  
+  if (scoreChange === 6 || scoreChange === 7 || scoreChange === 8) {
+    playType = 'touchdown';
+    playText = 'TOUCHDOWN!';
+  } else if (scoreChange === 3) {
+    playType = 'field-goal';
+    playText = 'FIELD GOAL!';
+  } else if (scoreChange === 2) {
+    playType = 'field-goal';
+    playText = 'SAFETY!';
+  } else {
+    return;
+  }
+  
+  showPlayAnimation(card, playType, playText, teamName);
+}
+
+function showPlayAnimation(card, playType, playText, teamName = '') {
+  const existingAnimation = card.querySelector('.play-animation');
+  if (existingAnimation) existingAnimation.remove();
+  
+  const icon = playType === 'touchdown' ? '🏈' : '🥅';
+  
+  const animationDiv = document.createElement('div');
+  animationDiv.className = `play-animation ${playType}`;
+  animationDiv.innerHTML = `
+    <div class="play-animation-icon">${icon}</div>
+    <div class="play-animation-text">${playText}</div>
+    ${teamName ? `<div class="play-animation-text" style="font-size: 2.5rem;">${teamName}</div>` : ''}
+  `;
+  
+  card.appendChild(animationDiv);
+  setTimeout(() => animationDiv.remove(), 3000);
+}
+```
+
+### Initialize & Auto-Refresh
+
+```javascript
+// Initialize on page load
+fetchLiveGames();
+
+// Auto-refresh every 15 seconds
+refreshInterval = setInterval(() => {
+  console.log('🔄 Auto-refreshing games...');
+  fetchLiveGames();
+}, 15000);
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+  if (refreshInterval) clearInterval(refreshInterval);
+  if (fullscreenRefreshInterval) clearInterval(fullscreenRefreshInterval);
+  if (modalRefreshInterval) clearInterval(modalRefreshInterval);
+});
+```
+
+---
+
+## Multi-Sport Expansion
+
+### Architecture for NBA/MLB/NHL Support
+
+**1. Sport Configuration Object**:
+```javascript
+const SPORT_CONFIG = {
+  NFL: {
+    endpoint: '/api/nfl-scoreboard-rapid',
+    paramType: 'week',
+    quarters: 4,
+    quarterLabel: 'Q',
+    showPossession: true,
+    downDistance: true
+  },
+  NBA: {
+    endpoint: '/api/nba-scoreboard-rapid',
+    paramType: 'date',
+    quarters: 4,
+    quarterLabel: 'Q',
+    showPossession: false,
+    downDistance: false
+  },
+  MLB: {
+    endpoint: '/api/mlb-scoreboard-rapid',
+    paramType: 'date',
+    quarters: 9,
+    quarterLabel: 'INN',
+    showPossession: false,
+    downDistance: false,
+    inningHalf: true
+  },
+  NHL: {
+    endpoint: '/api/nhl-scoreboard-rapid',
+    paramType: 'date',
+    quarters: 3,
+    quarterLabel: 'P',
+    showPossession: false,
+    downDistance: false
+  }
+};
+```
+
+**2. Generic Game Card Renderer**:
+```javascript
+function createGameCard(game, sport) {
+  const config = SPORT_CONFIG[sport];
+  const comp = game.competitions[0];
+  const home = comp.competitors.find(c => c.homeAway === 'home');
+  const away = comp.competitors.find(c => c.homeAway === 'away');
+  
+  // Generic quarter/period rendering
+  const periods = [...Array(config.quarters)].map((_, i) => {
+    const awayScore = away.linescores?.[i]?.value || 0;
+    const homeScore = home.linescores?.[i]?.value || 0;
+    return { period: i + 1, away: awayScore, home: homeScore };
+  });
+  
+  // Build card HTML with sport-specific features
+  return `
+    <div class="game-card ${sport.toLowerCase()}-card">
+      ${renderPeriodScores(periods, config.quarterLabel)}
+      ${config.showPossession ? renderPossession(comp) : ''}
+      ${config.downDistance ? renderDownDistance(comp) : ''}
+      ${config.inningHalf ? renderInningHalf(comp) : ''}
+    </div>
+  `;
+}
+```
+
+**3. Mixed Sport Sports Bar Mode**:
+```javascript
+// Grid selection modal with sport tabs
+<div class="sport-tabs">
+  <button class="active" data-sport="NFL">🏈 NFL</button>
+  <button data-sport="NBA">🏀 NBA</button>
+  <button data-sport="MLB">⚾ MLB</button>
+  <button data-sport="NHL">🏒 NHL</button>
+</div>
+
+// Enhanced gridGames structure
+gridGames = {
+  0: { sport: 'NFL', gameId: '401547402' },
+  1: { sport: 'NBA', gameId: '401584975' },
+  2: { sport: 'MLB', gameId: '745188' }
+};
+
+// Update card creation to use sport
+function createFullScreenGameCard(game, sport, slotIndex) {
+  const config = SPORT_CONFIG[sport];
+  // ... render with sport-specific config
+}
+```
+
+---
+
+## Environment Variables
+
+```env
+# .env file
+PORT=8080
+DATABASE_URL=postgresql://user:password@localhost:5432/nflapp
+JWT_SECRET=your-super-secret-jwt-key-change-this
+RAPIDAPI_KEY=your-rapidapi-key-here
+NODE_ENV=production
+```
+
+---
+
+## Database Schema (PostgreSQL)
+
+```sql
+-- Users table
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- NFL cache status tracking (optional)
+CREATE TABLE nfl_cache_log (
+  id SERIAL PRIMARY KEY,
+  week INTEGER NOT NULL,
+  last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  games_count INTEGER,
+  all_completed BOOLEAN DEFAULT false
+);
+
+-- API usage tracking (optional)
+CREATE TABLE api_usage_log (
+  id SERIAL PRIMARY KEY,
+  date DATE NOT NULL,
+  total_calls INTEGER DEFAULT 0,
+  endpoint VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## Deployment Checklist
+
+```markdown
+✅ Node.js 18+ installed
+✅ PostgreSQL database configured
+✅ RapidAPI account with NFL API access
+✅ Environment variables set (.env file)
+✅ npm install dependencies
+✅ Database migrations run
+✅ Server starts without errors
+✅ /api/nfl-current-week returns valid week
+✅ /api/nfl-scoreboard-rapid/:week returns data
+✅ Frontend loads and displays games
+✅ Sports Bar Mode opens and displays grid
+✅ Auto-refresh working (15 second intervals)
+✅ Game detail modal opens with stats
+✅ Win probability chart renders
+✅ Play animations trigger on score changes
+✅ Full-screen mode activates properly
+✅ Hover controls work in full-screen
+✅ ESC key exits full-screen
+✅ Mobile responsive (game cards stack)
+✅ API usage tracker shows counts
+✅ Cache monitor accessible
+```
+
+---
+
+## Testing Scenarios
+
+1. **Live Game Display**:
+   - Start server during NFL game day
+   - Verify live games appear with LIVE badge
+   - Check quarter-by-quarter scores display
+   - Confirm possession arrow appears
+   - Verify auto-refresh updates scores
+
+2. **Sports Bar Mode - 4 Games**:
+   - Click Sports Bar Mode button
+   - Select 4 different games
+   - Enter full-screen
+   - Verify all 4 games display correctly
+   - Check scores update every 15 seconds
+   - Verify play animations appear on touchdowns
+
+3. **Game State Transitions**:
+   - Load page with upcoming game
+   - Wait for game to start
+   - Verify card transitions from UPCOMING to LIVE
+   - Check countdown timer accuracy
+
+4. **API Usage Tracking**:
+   - Monitor console for tracking logs
+   - Check /api/nfl-cache-status endpoint
+   - Verify dailyCount increments
+   - Confirm warnings appear at 75%, 90%, 95%
+
+5. **Error Handling**:
+   - Disconnect internet
+   - Verify error message displays
+   - Check retry button works
+   - Confirm graceful degradation
+
+---
+
+## Performance Targets
+
+- **Page Load**: < 2 seconds
+- **API Response**: < 500ms (cached), < 2s (fresh)
+- **Auto-Refresh Impact**: < 100ms DOM update
+- **Full-Screen Entry**: < 500ms
+- **Score Update Animation**: Smooth 60fps
+- **Memory Usage**: < 150MB for full-screen mode
+- **API Calls**: < 300/day on non-game days, < 3000/day on game days
+
+---
+
+## Success Criteria
+
+The application is complete when:
+1. ✅ Live games page displays all in-progress and upcoming games
+2. ✅ Game cards show quarter-by-quarter scoring
+3. ✅ Sports Bar Mode supports 2/4/6 game grids
+4. ✅ Full-screen mode auto-updates every 15 seconds
+5. ✅ Play animations trigger automatically (TD, FG, INT)
+6. ✅ Upcoming game countdown timers work
+7. ✅ Game detail modal shows all tabs (Box Score, Stats, Win Probability, Predictions)
+8. ✅ API usage tracker prevents quota overruns
+9. ✅ Server-side caching reduces API costs
+10. ✅ Mobile responsive design works on phones
+
+---
+
+## Additional Features (Optional)
+
+- **Sound Alerts**: Audio notification on touchdowns
+- **Picture-in-Picture**: Move any game to PiP mode
+- **Dark/Light Theme**: Toggle UI theme
+- **Game History**: Store and replay past games
+- **Betting Lines**: Display live odds alongside scores
+- **Social Sharing**: Share game cards on social media
+- **Custom Layouts**: Save preferred grid configurations
+- **Multi-Monitor**: Extend grid across multiple screens
+
+---
+
+This comprehensive prompt provides everything needed to build a production-ready live sports monitoring application with advanced Sports Bar Mode functionality. The system is designed for scalability, performance, and user experience.
