@@ -1,0 +1,23 @@
+# Environment variables (contains sensitive database credentials)
+.env
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Test files
+*.test.js
+
+# Temporary files
+*.tmp
+*.temp
