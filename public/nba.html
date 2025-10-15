@@ -713,14 +713,14 @@
       animation: playTextSlide 0.8s ease-out;
     }
 
-    /* Touchdown Animation - Green/Gold */
-    .play-animation.touchdown .play-animation-icon {
-      color: #fbbf24;
-      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    /* 3-Pointer Animation - Orange/Fire */
+    .play-animation.three-pointer .play-animation-icon {
+      color: #f97316;
+      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
     }
 
-    .play-animation.touchdown .play-animation-text {
-      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
+    .play-animation.three-pointer .play-animation-text {
+      background: linear-gradient(90deg, #f97316, #fbbf24, #f97316);
       background-size: 200% auto;
       background-clip: text;
       -webkit-background-clip: text;
@@ -728,37 +728,56 @@
       animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
     }
 
-    /* Field Goal Animation - Blue */
-    .play-animation.field-goal .play-animation-icon {
+    /* Dunk Animation - Purple/Red */
+    .play-animation.dunk .play-animation-icon {
+      color: #dc2626;
+      text-shadow: 0 0 30px #dc2626, 0 0 60px #dc2626;
+    }
+
+    .play-animation.dunk .play-animation-text {
+      background: linear-gradient(90deg, #dc2626, #a855f7, #dc2626);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* Block Animation - Blue */
+    .play-animation.block .play-animation-icon {
       color: #3b82f6;
       text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
     }
 
-    .play-animation.field-goal .play-animation-text {
+    .play-animation.block .play-animation-text {
       color: #3b82f6;
       text-shadow: 0 0 20px #3b82f6;
     }
 
-    /* Interception Animation - Red */
-    .play-animation.interception .play-animation-icon {
-      color: #ef4444;
-      text-shadow: 0 0 30px #ef4444, 0 0 60px #ef4444;
+    /* Steal Animation - Green */
+    .play-animation.steal .play-animation-icon {
+      color: #22c55e;
+      text-shadow: 0 0 30px #22c55e, 0 0 60px #22c55e;
     }
 
-    .play-animation.interception .play-animation-text {
-      color: #ef4444;
-      text-shadow: 0 0 20px #ef4444;
+    .play-animation.steal .play-animation-text {
+      color: #22c55e;
+      text-shadow: 0 0 20px #22c55e;
     }
 
-    /* Fumble Animation - Orange */
-    .play-animation.fumble .play-animation-icon {
-      color: #f97316;
-      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+    /* Buzzer Beater Animation - Gold */
+    .play-animation.buzzer-beater .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
     }
 
-    .play-animation.fumble .play-animation-text {
-      color: #f97316;
-      text-shadow: 0 0 20px #f97316;
+    .play-animation.buzzer-beater .play-animation-text {
+      background: linear-gradient(90deg, #fbbf24, #fff, #fbbf24);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
     }
 
     @keyframes fadeOut {
