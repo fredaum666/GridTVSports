@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏒 NHL Live Games - GridTV Sports</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #0a0e1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .header-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #dc2626;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .back-btn, .sports-bar-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .sports-bar-btn {
+      background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    }
+
+    .back-btn:hover {
+      background: #0056b3;
+      transform: translateY(-1px);
+    }
+
+    .sports-bar-btn:hover {
+      background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+      transform: translateY(-1px);
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .game-card {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      border-color: #22c55e;
+    }
+
+    .game-card.live {
+      border-color: #dc2626;
+      box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+    }
+
+    .game-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .status-badge {
+      background: #10b981;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-badge.live {
+      background: #dc2626;
+      animation: pulse 2s infinite;
+    }
+
+    .status-badge.scheduled {
+      background: #6366f1;
+    }
+
+    .game-time {
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .teams-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .team {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .team.winner {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+    }
+
+    .team:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .team-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .team-logo {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    .team-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .team-record {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .team-score {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    /* NHL-Specific: Period and Shots */
+    .period-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      margin: 16px 0;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .period-display {
+      font-weight: 700;
+      color: #22c55e;
+      font-size: 16px;
+    }
+
+    .shots-display {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+    }
+
+    .shots-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shots-label {
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    .shots-value {
+      color: #fff;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* Power Play Indicator */
+    .power-play {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #000;
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+    }
+
+    .power-play-icon {
+      font-size: 18px;
+    }
+
+    /* Period Scores */
+    .period-scores {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    .period-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .period-table th,
+    .period-table td {
+      padding: 8px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .period-table th {
+      background: rgba(255, 255, 255, 0.1);
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .period-table td {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .period-table .team-name-cell {
+      text-align: left;
+      font-weight: 700;
+      color: #22c55e;
+    }
+
+    .period-table .total-cell {
+      background: rgba(34, 197, 94, 0.1);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* Modal and Fullscreen styles - same as MLB */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1f2e;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 700px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid #334155;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 24px;
+      color: #fff;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .layout-options {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 24px;
+      justify-content: center;
+    }
+
+    .layout-options label {
+      background: #334155;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .layout-options label:hover {
+      background: #475569;
+      border-color: #17a2b8;
+    }
+
+    .layout-options label:has(input[type="radio"]:checked) {
+      background: #17a2b8;
+      border-color: #17a2b8;
+      font-weight: 700;
+    }
+
+    .grid-preview {
+      margin-bottom: 24px;
+      display: grid;
+      gap: 15px;
+      padding: 20px;
+      background: #0a0e1a;
+      border-radius: 8px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .grid-preview.grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-preview.grid-4 {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .grid-preview.grid-6 {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .preview-card {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 15px;
+      border: 2px solid #334155;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .preview-card.selected {
+      border-color: #17a2b8;
+      background: #0f172a;
+    }
+
+    .game-checkbox {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .activate-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 16px;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .activate-btn:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
+    .activate-btn:disabled {
+      background: #475569;
+      cursor: not-allowed;
+    }
+
+    .close-btn {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .fullscreen-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 9999;
+      overflow: auto;
+    }
+
+    .fullscreen-overlay.active {
+      display: block;
+    }
+
+    .fullscreen-header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .fullscreen-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .exit-fullscreen-btn {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .fullscreen-grid {
+      display: grid;
+      gap: 20px;
+      padding: 20px;
+      height: calc(100vh - 80px);
+    }
+
+    .fullscreen-grid.grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .fullscreen-grid.grid-4 {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .fullscreen-grid.grid-6 {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .fullscreen-game-card {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 3px solid transparent;
+    }
+
+    .fullscreen-game-card.live {
+      border-color: #dc2626;
+      box-shadow: 0 0 30px rgba(220, 38, 38, 0.4);
+    }
+
+    .fullscreen-badge {
+      display: inline-block;
+      background: #dc2626;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 24px;
+      font-size: 16px;
+      font-weight: 700;
+      animation: pulse 2s infinite;
+    }
+
+    .fullscreen-badge.scheduled {
+      background: #6366f1;
+      animation: none;
+    }
+
+    .fullscreen-teams {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .fullscreen-team {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .fullscreen-team.winner {
+      background: rgba(16, 185, 129, 0.15);
+      border: 2px solid #10b981;
+    }
+
+    .fullscreen-team-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .fullscreen-team-logo {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+    }
+
+    .fullscreen-team-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .fullscreen-team-score {
+      font-size: 48px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .fullscreen-period {
+      text-align: center;
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .fullscreen-period-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #22c55e;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .loading-spinner {
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top: 4px solid #22c55e;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #94a3b8;
+      font-size: 16px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .empty-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .empty-message {
+      font-size: 16px;
+      color: #94a3b8;
+    }
+
+    /* Play Animations */
+    .play-animation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 100;
+      pointer-events: none;
+      animation: fadeOut 3s forwards;
+    }
+
+    .play-animation-icon {
+      font-size: 8rem;
+      margin-bottom: 20px;
+      animation: playIconBounce 0.8s ease-out;
+    }
+
+    .play-animation-text {
+      font-size: 4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      animation: playTextSlide 0.8s ease-out;
+    }
+
+    /* Goal Animation - Red/White */
+    .play-animation.goal .play-animation-icon {
+      color: #dc2626;
+      text-shadow: 0 0 30px #dc2626, 0 0 60px #dc2626;
+    }
+
+    .play-animation.goal .play-animation-text {
+      background: linear-gradient(90deg, #dc2626, #fff, #dc2626);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* Power Play Goal Animation - Yellow/Orange */
+    .play-animation.pp-goal .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    }
+
+    .play-animation.pp-goal .play-animation-text {
+      background: linear-gradient(90deg, #fbbf24, #f97316, #fbbf24);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* Hat Trick Animation - Gold/Rainbow */
+    .play-animation.hat-trick .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    }
+
+    .play-animation.hat-trick .play-animation-text {
+      background: linear-gradient(90deg, #ef4444, #fbbf24, #22c55e, #3b82f6);
+      background-size: 300% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 3s linear infinite;
+    }
+
+    /* Big Save Animation - Blue */
+    .play-animation.big-save .play-animation-icon {
+      color: #3b82f6;
+      text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
+    }
+
+    .play-animation.big-save .play-animation-text {
+      color: #3b82f6;
+      text-shadow: 0 0 20px #3b82f6;
+    }
+
+    /* Penalty Animation - Orange */
+    .play-animation.penalty .play-animation-icon {
+      color: #f97316;
+      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+    }
+
+    .play-animation.penalty .play-animation-text {
+      color: #f97316;
+      text-shadow: 0 0 20px #f97316;
+    }
+
+    /* Fight Animation - Red */
+    .play-animation.fight .play-animation-icon {
+      color: #dc2626;
+      text-shadow: 0 0 30px #dc2626, 0 0 60px #dc2626;
+    }
+
+    .play-animation.fight .play-animation-text {
+      color: #dc2626;
+      text-shadow: 0 0 20px #dc2626;
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      70% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes playIconBounce {
+      0% { transform: scale(0) rotate(0deg); }
+      50% { transform: scale(1.2) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+
+    @keyframes playTextSlide {
+      0% { transform: translateY(50px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @media (max-width: 768px) {
+      .games-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .team-logo {
+        width: 40px;
+        height: 40px;
+      }
+
+      .team-name {
+        font-size: 16px;
+      }
+
+      .team-score {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <h1>
+        🏒 NHL Live Games
+        <span class="live-indicator">
+          <span class="live-dot"></span>
+          LIVE
+        </span>
+      </h1>
+      <div style="display: flex; gap: 12px;">
+        <button class="sports-bar-btn" onclick="openSportsBarModal()">🏟️ Sports Bar Mode</button>
+        <button class="back-btn" onclick="window.location.href='/'">← Back to Sports</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="gamesContainer" class="games-grid">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading NHL games...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="sportsBarModal" class="modal">
+    <div class="modal-content">
+      <h2>🏟️ Sports Bar Mode - Select Games</h2>
+      
+      <div class="layout-options">
+        <label>
+          <input type="radio" name="layout" value="2" checked>
+          <span>2 Games</span>
+        </label>
+        <label>
+          <input type="radio" name="layout" value="4">
+          <span>4 Games</span>
+        </label>
+        <label>
+          <input type="radio" name="layout" value="6">
+          <span>6 Games</span>
+        </label>
+      </div>
+
+      <div id="gridPreview" class="grid-preview grid-2"></div>
+
+      <button class="activate-btn" onclick="activateSportsBarMode()" id="activateBtn">
+        Activate Sports Bar Mode
+      </button>
+
+      <button class="close-btn" onclick="closeSportsBarModal()">Cancel</button>
+    </div>
+  </div>
+
+  <div id="fullscreenOverlay" class="fullscreen-overlay">
+    <div class="fullscreen-header">
+      <div class="fullscreen-title">
+        🏒 NHL Sports Bar Mode
+        <span class="live-indicator">
+          <span class="live-dot"></span>
+          LIVE
+        </span>
+      </div>
+      <button class="exit-fullscreen-btn" onclick="exitFullscreen()">Exit Fullscreen</button>
+    </div>
+    <div id="fullscreenGrid" class="fullscreen-grid grid-2"></div>
+  </div>
+
+  <script>
+    let liveGames = [];
+    let currentDate = new Date().toISOString().split('T')[0].replace(/-/g, '');
+
+    const teams = [
+      { name: "Anaheim Ducks", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/ana.png" },
+      { name: "Arizona Coyotes", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/ari.png" },
+      { name: "Utah Hockey Club", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/utah.png" },
+      { name: "Boston Bruins", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/bos.png" },
+      { name: "Buffalo Sabres", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/buf.png" },
+      { name: "Calgary Flames", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/cgy.png" },
+      { name: "Carolina Hurricanes", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/car.png" },
+      { name: "Chicago Blackhawks", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/chi.png" },
+      { name: "Colorado Avalanche", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/col.png" },
+      { name: "Columbus Blue Jackets", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/cbj.png" },
+      { name: "Dallas Stars", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/dal.png" },
+      { name: "Detroit Red Wings", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/det.png" },
+      { name: "Edmonton Oilers", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/edm.png" },
+      { name: "Florida Panthers", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/fla.png" },
+      { name: "Los Angeles Kings", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/la.png" },
+      { name: "Minnesota Wild", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/min.png" },
+      { name: "Montreal Canadiens", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/mtl.png" },
+      { name: "Nashville Predators", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/nsh.png" },
+      { name: "New Jersey Devils", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/nj.png" },
+      { name: "New York Islanders", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/nyi.png" },
+      { name: "New York Rangers", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/nyr.png" },
+      { name: "Ottawa Senators", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/ott.png" },
+      { name: "Philadelphia Flyers", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/phi.png" },
+      { name: "Pittsburgh Penguins", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/pit.png" },
+      { name: "San Jose Sharks", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/sj.png" },
+      { name: "Seattle Kraken", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/sea.png" },
+      { name: "St. Louis Blues", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/stl.png" },
+      { name: "Tampa Bay Lightning", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/tb.png" },
+      { name: "Toronto Maple Leafs", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/tor.png" },
+      { name: "Vancouver Canucks", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/van.png" },
+      { name: "Vegas Golden Knights", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/vgk.png" },
+      { name: "Washington Capitals", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/wsh.png" },
+      { name: "Winnipeg Jets", logo: "https://a.espncdn.com/i/teamlogos/nhl/500/wpg.png" }
+    ];
+
+    function getTeamLogo(teamName) {
+      const team = teams.find(t => t.name === teamName);
+      return team ? team.logo : '';
+    }
+
+    async function fetchLiveGames() {
+      try {
+        console.log(`🔍 Fetching NHL games for ${currentDate}...`);
+        
+        const response = await fetch(`/api/nhl/scoreboard?date=${currentDate}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.events && data.events.length > 0) {
+          const allGames = data.events.map(event => ({
+            id: event.id,
+            date: event.date,
+            name: event.name,
+            competitions: event.competitions
+          }));
+
+          liveGames = allGames.filter(game => {
+            const comp = game.competitions[0];
+            const isCompleted = comp.status.type.completed;
+            const statusState = comp.status.type.state;
+            const isFinal = statusState === 'post';
+            
+            if (isCompleted || isFinal) return false;
+            
+            const isLive = statusState === 'in' || comp.status.period > 0;
+            const isUpcoming = statusState === 'pre';
+            const gameTime = new Date(game.date);
+            const hoursUntilGame = (gameTime - new Date()) / (1000 * 60 * 60);
+            const isWithin36Hours = hoursUntilGame >= 0 && hoursUntilGame <= 36;
+            
+            return (isLive || (isUpcoming && isWithin36Hours));
+          });
+
+          if (liveGames.length > 0) {
+            renderGames();
+          } else {
+            showEmptyState('No live or upcoming NHL games right now.');
+          }
+        } else {
+          showEmptyState('No NHL games found for today.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showError(error.message);
+      }
+    }
+
+    function renderGames() {
+      const container = document.getElementById('gamesContainer');
+      
+      container.innerHTML = liveGames.map(game => {
+        const comp = game.competitions[0];
+        const home = comp.competitors.find(c => c.homeAway === 'home');
+        const away = comp.competitors.find(c => c.homeAway === 'away');
+        
+        const status = comp.status.type;
+        const isLive = status.state === 'in' || comp.status.period > 0;
+        const periodText = comp.status.type.shortDetail || comp.status.type.detail;
+        
+        const homeLinescores = home.linescores || [];
+        const awayLinescores = away.linescores || [];
+        
+        const gameTime = new Date(game.date);
+        const formattedTime = gameTime.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        });
+
+        const homeWinning = parseInt(home.score) > parseInt(away.score);
+        const awayWinning = parseInt(away.score) > parseInt(home.score);
+
+        // Get shots on goal
+        const homeShots = home.statistics?.find(s => s.name === 'shots')?.displayValue || home.shots || '0';
+        const awayShots = away.statistics?.find(s => s.name === 'shots')?.displayValue || away.shots || '0';
+
+        // Check for power play
+        const situation = comp.situation || {};
+        const isPowerPlay = situation.homeTeamPowerPlay || situation.awayTeamPowerPlay;
+        const powerPlayTeam = situation.homeTeamPowerPlay ? home.team.displayName : away.team.displayName;
+
+        return `
+          <div class="game-card ${isLive ? 'live' : ''}">
+            <div class="game-status">
+              <span class="status-badge ${isLive ? 'live' : 'scheduled'}">
+                ${isLive ? '<span class="live-dot"></span>' : ''}
+                ${isLive ? periodText : 'Scheduled'}
+              </span>
+              <span class="game-time">${formattedTime}</span>
+            </div>
+
+            <div class="teams-container">
+              <div class="team ${awayWinning && isLive ? 'winner' : ''}">
+                <div class="team-info">
+                  <img src="${getTeamLogo(away.team.displayName)}" alt="${away.team.displayName}" class="team-logo">
+                  <div>
+                    <div class="team-name">${away.team.displayName}</div>
+                    <div class="team-record">${away.records?.[0]?.summary || ''}</div>
+                  </div>
+                </div>
+                <div class="team-score">${away.score || '0'}</div>
+              </div>
+
+              <div class="team ${homeWinning && isLive ? 'winner' : ''}">
+                <div class="team-info">
+                  <img src="${getTeamLogo(home.team.displayName)}" alt="${home.team.displayName}" class="team-logo">
+                  <div>
+                    <div class="team-name">${home.team.displayName}</div>
+                    <div class="team-record">${home.records?.[0]?.summary || ''}</div>
+                  </div>
+                </div>
+                <div class="team-score">${home.score || '0'}</div>
+              </div>
+            </div>
+
+            ${isLive ? `
+              <div class="period-info">
+                <div class="period-display">${periodText}</div>
+                <div class="shots-display">
+                  <div class="shots-item">
+                    <span class="shots-label">SOG:</span>
+                    <span class="shots-value">${awayShots}-${homeShots}</span>
+                  </div>
+                </div>
+              </div>
+
+              ${isPowerPlay ? `
+                <div class="power-play">
+                  <span class="power-play-icon">⚡</span>
+                  POWER PLAY: ${powerPlayTeam}
+                </div>
+              ` : ''}
+
+              ${homeLinescores.length > 0 ? `
+                <div class="period-scores">
+                  <table class="period-table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        ${homeLinescores.map((_, i) => `<th>P${i + 1}</th>`).join('')}
+                        <th>T</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="team-name-cell">${away.team.abbreviation}</td>
+                        ${awayLinescores.map(p => `<td>${p.value}</td>`).join('')}
+                        <td class="total-cell">${away.score}</td>
+                      </tr>
+                      <tr>
+                        <td class="team-name-cell">${home.team.abbreviation}</td>
+                        ${homeLinescores.map(p => `<td>${p.value}</td>`).join('')}
+                        <td class="total-cell">${home.score}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ` : ''}
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showEmptyState(message) {
+      document.getElementById('gamesContainer').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🏒</div>
+          <div class="empty-title">No Games Available</div>
+          <div class="empty-message">${message}</div>
+        </div>
+      `;
+    }
+
+    function showError(message) {
+      document.getElementById('gamesContainer').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">❌</div>
+          <div class="empty-title">Error Loading Games</div>
+          <div class="empty-message">${message}</div>
+        </div>
+      `;
+    }
+
+    function openSportsBarModal() {
+      if (liveGames.length === 0) {
+        alert('No games available for Sports Bar Mode');
+        return;
+      }
+      document.getElementById('sportsBarModal').classList.add('show');
+      updateGridPreview();
+    }
+
+    function closeSportsBarModal() {
+      document.getElementById('sportsBarModal').classList.remove('show');
+    }
+
+    function updateGridPreview() {
+      const preview = document.getElementById('gridPreview');
+      const layout = document.querySelector('input[name="layout"]:checked').value;
+      
+      preview.className = `grid-preview grid-${layout}`;
+      preview.innerHTML = liveGames.map((game, index) => {
+        const comp = game.competitions[0];
+        const home = comp.competitors.find(c => c.homeAway === 'home');
+        const away = comp.competitors.find(c => c.homeAway === 'away');
+        const isLive = comp.status.type.state === 'in' || comp.status.period > 0;
+        
+        return `
+          <div class="preview-card" id="preview-${index}">
+            <input type="checkbox" 
+                   class="game-checkbox" 
+                   id="game-${index}" 
+                   value="${index}"
+                   onchange="updatePreviewSelection(${index})"
+                   ${index < parseInt(layout) ? 'checked' : ''}>
+            <label for="game-${index}" style="cursor: pointer; flex: 1;">
+              <strong>${away.team.displayName}</strong> vs <strong>${home.team.displayName}</strong>
+              ${isLive ? '<br><span style="color: #dc2626;">● LIVE</span>' : ''}
+            </label>
+          </div>
+        `;
+      }).join('');
+
+      updateActivateButton();
+    }
+
+    function updatePreviewSelection(index) {
+      const card = document.getElementById(`preview-${index}`);
+      const checkbox = document.getElementById(`game-${index}`);
+      
+      if (checkbox.checked) {
+        card.classList.add('selected');
+      } else {
+        card.classList.remove('selected');
+      }
+
+      updateActivateButton();
+    }
+
+    function updateActivateButton() {
+      const layout = parseInt(document.querySelector('input[name="layout"]:checked').value);
+      const selected = document.querySelectorAll('.game-checkbox:checked').length;
+      const btn = document.getElementById('activateBtn');
+      
+      if (selected > layout) {
+        const checkboxes = Array.from(document.querySelectorAll('.game-checkbox:checked'));
+        checkboxes[0].checked = false;
+        updatePreviewSelection(parseInt(checkboxes[0].value));
+      }
+      
+      btn.disabled = selected === 0;
+      btn.textContent = selected > 0 
+        ? `Activate Sports Bar Mode (${selected} game${selected > 1 ? 's' : ''})` 
+        : 'Select at least one game';
+    }
+
+    function activateSportsBarMode() {
+      const selectedGames = Array.from(document.querySelectorAll('.game-checkbox:checked'))
+        .map(cb => parseInt(cb.value));
+      
+      if (selectedGames.length === 0) {
+        alert('Please select at least one game');
+        return;
+      }
+
+      const layout = document.querySelector('input[name="layout"]:checked').value;
+      closeSportsBarModal();
+      enterFullscreen(selectedGames, layout);
+    }
+
+    function enterFullscreen(selectedGames, layout) {
+      const overlay = document.getElementById('fullscreenOverlay');
+      const grid = document.getElementById('fullscreenGrid');
+      
+      grid.className = `fullscreen-grid grid-${layout}`;
+      grid.innerHTML = selectedGames.map(index => {
+        const game = liveGames[index];
+        const comp = game.competitions[0];
+        const home = comp.competitors.find(c => c.homeAway === 'home');
+        const away = comp.competitors.find(c => c.homeAway === 'away');
+        
+        const status = comp.status.type;
+        const isLive = status.state === 'in' || comp.status.period > 0;
+        const periodText = comp.status.type.shortDetail || comp.status.type.detail;
+        
+        const homeWinning = parseInt(home.score) > parseInt(away.score);
+        const awayWinning = parseInt(away.score) > parseInt(home.score);
+
+        return `
+          <div class="fullscreen-game-card ${isLive ? 'live' : ''}">
+            <div style="text-align: center; margin-bottom: 16px;">
+              <span class="fullscreen-badge ${isLive ? 'live' : 'scheduled'}">
+                ${isLive ? periodText : 'Scheduled'}
+              </span>
+            </div>
+
+            <div class="fullscreen-teams">
+              <div class="fullscreen-team ${awayWinning && isLive ? 'winner' : ''}">
+                <div class="fullscreen-team-info">
+                  <img src="${getTeamLogo(away.team.displayName)}" alt="${away.team.displayName}" class="fullscreen-team-logo">
+                  <div class="fullscreen-team-name">${away.team.displayName}</div>
+                </div>
+                <div class="fullscreen-team-score">${away.score || '0'}</div>
+              </div>
+
+              <div class="fullscreen-team ${homeWinning && isLive ? 'winner' : ''}">
+                <div class="fullscreen-team-info">
+                  <img src="${getTeamLogo(home.team.displayName)}" alt="${home.team.displayName}" class="fullscreen-team-logo">
+                  <div class="fullscreen-team-name">${home.team.displayName}</div>
+                </div>
+                <div class="fullscreen-team-score">${home.score || '0'}</div>
+              </div>
+            </div>
+
+            ${isLive ? `
+              <div class="fullscreen-period">
+                <div class="fullscreen-period-text">${periodText}</div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      overlay.classList.add('active');
+    }
+
+    function exitFullscreen() {
+      const overlay = document.getElementById('fullscreenOverlay');
+      overlay.classList.remove('active');
+      
+      // Exit browser fullscreen if active
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
+    }
+
+    document.querySelectorAll('input[name="layout"]').forEach(radio => {
+      radio.addEventListener('change', updateGridPreview);
+    });
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('sportsBarModal');
+      if (event.target === modal) {
+        closeSportsBarModal();
+      }
+    };
+
+    fetchLiveGames();
+    setInterval(fetchLiveGames, 15000);
+  </script>
+</body>
+</html>

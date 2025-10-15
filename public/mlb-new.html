@@ -2081,8 +2081,12 @@
         const statusName = comp.status.type.name;
         const isCompleted = comp.status.type.completed;
         
-        // Simple live detection - trust the status state from ESPN API
-        const isLive = statusType === 'in';
+        // Enhanced live detection
+        const isLive = statusType === 'in' || 
+                       (comp.status.period && comp.status.period > 0 && !isCompleted) ||
+                       statusName.toLowerCase().includes('progress') ||
+                       statusName.toLowerCase().includes('halftime') ||
+                       statusName.toLowerCase().includes('inning');
         
         const isFinal = isCompleted || statusType === 'post';
         const isPregame = statusType === 'pre';
