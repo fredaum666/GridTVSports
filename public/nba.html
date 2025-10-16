@@ -1811,8 +1811,9 @@
 <body>
   <div class="header">
     <div class="header-content">
-      <h1>
-        � NBA Live Games
+      <h1 style="display: flex; align-items: center; gap: 15px;">
+        <img src="/assets/NBA-Logo.png" alt="NBA" style="height: 50px; width: auto; object-fit: contain;">
+        NBA Live Games
         <span class="live-indicator">
           <span class="live-dot"></span>
           LIVE
@@ -1887,7 +1888,6 @@
   <script>
     let refreshInterval = null;
     let liveGames = [];
-    let currentDate = new Date().toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD format
 
     // NBA Team data for logos
     const teams = [
@@ -1930,11 +1930,11 @@
 
     async function fetchLiveGames() {
       try {
-        // NBA uses date instead of week
-        console.log(`🔍 Fetching NBA games for ${currentDate}...`);
+        // Fetch games without date parameter - server will fetch yesterday + today
+        console.log(`🔍 Fetching NBA games...`);
         
         // Fetch FULL data from our backend which calls ESPN API
-        const response = await fetch(`/api/nba/scoreboard?date=${currentDate}`);
+        const response = await fetch(`/api/nba/scoreboard`);
         
         if (!response.ok) {
           let errorText = '';
@@ -1954,16 +1954,16 @@
           }
         }
         
-        const rapidData = await response.json();
+        const espnData = await response.json();
         
-        console.log('📊 RapidAPI Full Response:', {
-          totalEvents: rapidData.events?.length || 0,
-          events: rapidData.events
+        console.log('📊 ESPN API Response:', {
+          totalEvents: espnData.events?.length || 0,
+          events: espnData.events
         });
 
-        // Use the FULL events data from RapidAPI (has period, clock, etc.)
-        if (rapidData.events && rapidData.events.length > 0) {
-          const allGames = rapidData.events.map(event => {
+        // Use the FULL events data from ESPN API (has period, clock, etc.)
+        if (espnData.events && espnData.events.length > 0) {
+          const allGames = espnData.events.map(event => {
             // Get competition data
             const comp = event.competitions[0];
             const home = comp.competitors.find(c => c.homeAway === 'home');
@@ -3048,15 +3048,15 @@
     async function updateModalHeader(gameId) {
       try {
         // Fetch fresh game data from the API
-        const response = await fetch(`/api/nfl-scoreboard-rapid/${currentWeek}`);
+        const response = await fetch(`/api/nba/scoreboard`);
         
         if (!response.ok) {
           console.warn('Failed to fetch updated game data for modal');
           return;
         }
         
-        const rapidData = await response.json();
-        const updatedGame = rapidData.events?.find(event => event.id === gameId);
+        const espnData = await response.json();
+        const updatedGame = espnData.events?.find(event => event.id === gameId);
         
         if (!updatedGame) {
           console.warn('Game not found in updated data');
@@ -3518,7 +3518,7 @@
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; opacity: 0.6;">
-          <img src="/assets/tiktalksports-logo.png" alt="TikTalkSports" style="max-width: ${logoSize}; max-height: 35%; object-fit: contain; margin-bottom: 15px;">
+          <img src="/assets/logo.png" alt="GridTV Sports" style="max-width: ${logoSize}; max-height: 35%; object-fit: contain; margin-bottom: 15px;">
           <div style="font-size: ${textSize}; color: #64748b; text-align: center; line-height: 1.4;">
             Select a game above<br>to display
           </div>
@@ -3739,21 +3739,20 @@
     function detectAndAnimatePlay(card, scoreChange, teamName) {
       let playType, playText;
       
-      if (scoreChange === 6) {
-        playType = 'touchdown';
-        playText = 'TOUCHDOWN!';
-      } else if (scoreChange === 7 || scoreChange === 8) {
-        playType = 'touchdown';
-        playText = 'TOUCHDOWN!';
-      } else if (scoreChange === 3) {
-        playType = 'field-goal';
-        playText = 'FIELD GOAL!';
+      // NBA scoring: 1 (free throw), 2 (field goal), 3 (three-pointer)
+      if (scoreChange === 3) {
+        playType = 'three-pointer';
+        playText = '3-POINTER!';
       } else if (scoreChange === 2) {
-        playType = 'field-goal';
-        playText = 'SAFETY!';
+        playType = 'dunk';
+        playText = 'BUCKET!';
       } else if (scoreChange === 1) {
-        playType = 'field-goal';
-        playText = 'EXTRA POINT!';
+        playType = 'dunk';
+        playText = 'FREE THROW!';
+      } else if (scoreChange >= 4) {
+        // Multiple quick points (and-1, quick buckets)
+        playType = 'three-pointer';
+        playText = 'SCORING RUN!';
       } else {
         return; // Unknown score change
       }
@@ -3776,20 +3775,23 @@
       // Choose icon based on play type
       let icon;
       switch(playType) {
-        case 'touchdown':
-          icon = '🏈';
+        case 'three-pointer':
+          icon = '�';
           break;
-        case 'field-goal':
-          icon = '🥅';
+        case 'dunk':
+          icon = '💪';
           break;
-        case 'interception':
+        case 'block':
           icon = '🚫';
           break;
-        case 'fumble':
-          icon = '💨';
+        case 'steal':
+          icon = '�';
+          break;
+        case 'buzzer-beater':
+          icon = '⏰';
           break;
         default:
-          icon = '⚡';
+          icon = '🏀';
       }
       
       animationDiv.innerHTML = `
@@ -3811,16 +3813,16 @@
     async function updateFullScreenScores() {
       try {
         // Fetch updated game data from the same endpoint
-        const response = await fetch(`/api/nfl-scoreboard-rapid/${currentWeek}`);
+        const response = await fetch(`/api/nba/scoreboard`);
         if (!response.ok) {
           throw new Error(`Failed to fetch scores: ${response.status}`);
         }
         
-        const rapidData = await response.json();
+        const espnData = await response.json();
         
         // Update the global games data
-        if (rapidData.events && rapidData.events.length > 0) {
-          const allGames = rapidData.events.map(event => {
+        if (espnData.events && espnData.events.length > 0) {
+          const allGames = espnData.events.map(event => {
             const comp = event.competitions[0];
             const home = comp.competitors.find(c => c.homeAway === 'home');
             const away = comp.competitors.find(c => c.homeAway === 'away');

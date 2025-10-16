@@ -1,7 +1,7 @@
 # GridTVSports - Complete Development Changelog
 
 > **Purpose**: Single source of truth for all code changes, annotations, and important development information.  
-> **Last Updated**: October 15, 2025
+> **Last Updated**: October 15, 2025 - 6:30 PM
 
 ---
 
@@ -9,11 +9,12 @@
 1. [Project Overview](#project-overview)
 2. [Technology Stack](#technology-stack)
 3. [Major Milestones](#major-milestones)
-4. [Database Architecture](#database-architecture)
-5. [Sports Bar Mode Evolution](#sports-bar-mode-evolution)
-6. [Animation System](#animation-system)
-7. [Bug Fixes & Issues](#bug-fixes--issues)
-8. [Deployment Notes](#deployment-notes)
+4. [Recent Critical Fixes (Oct 15)](#recent-critical-fixes-oct-15)
+5. [Database Architecture](#database-architecture)
+6. [Sports Bar Mode Evolution](#sports-bar-mode-evolution)
+7. [Animation System](#animation-system)
+8. [Bug Fixes & Issues](#bug-fixes--issues)
+9. [Deployment Notes](#deployment-notes)
 
 ---
 
@@ -75,44 +76,59 @@
 - ✅ Sport-specific stats and data endpoints
 - ✅ Unified design system across all sports
 
-### Phase 3: Animation System
+### Phase 3: Complete Sport Redesigns (Oct 15, 2025)
+**MLB Redesign**:
+- ✅ Rebuilt `mlb.html` from `nfl.html` template (4031 lines)
+- ✅ Applied baseball-specific terminology (quarter→inning, down→outs)
+- ✅ Fixed isLive detection bug (inning > 0 instead of period)
+- ✅ Implemented baseball animations (homerun, strikeout, etc.)
+
+**NHL Redesign**:
+- ✅ Rebuilt `nhl-new.html` from `nfl.html` template (4035 lines)
+- ✅ Applied hockey-specific terminology (quarter→period, down→shots)
+- ✅ Fixed isLive detection bug (different period structure than NFL)
+- ✅ Updated NHL branding and team colors
+- ✅ Implemented hockey animations (goal, save, hattrick, etc.)
+
+### Phase 4: Animation System
 **Total: 20 Sport-Specific Animations**
 
 #### NFL (4 animations)
-1. **Touchdown** - Fireworks burst effect
-2. **Field Goal** - Goal post swing animation
-3. **Interception** - Ball snatch with rotation
-4. **Fumble** - Wobbling ball effect
+1. **Touchdown** - Fireworks burst effect (🏈)
+2. **Field Goal** - Goal post swing animation (🥅)
+3. **Interception** - Ball snatch with rotation (🔄)
+4. **Fumble** - Wobbling ball effect (💥)
 
 #### NBA (5 animations)
-1. **3-Pointer** - Swish arc with trail
-2. **Dunk** - Rim shake with impact
-3. **Block** - Rejection hand swipe
-4. **Steal** - Quick grab animation
-5. **Buzzer-Beater** - Clock flash with sparkle
+1. **3-Pointer** - Swish arc with trail (🏀)
+2. **Dunk** - Rim shake with impact (💪)
+3. **Block** - Rejection hand swipe (🚫)
+4. **Steal** - Quick grab animation (💨)
+5. **Buzzer-Beater** - Clock flash with sparkle (⏰)
 
 #### MLB (5 animations)
-1. **Home Run** - Ball arc over fence
-2. **Strikeout** - Swing and miss
-3. **Stolen Base** - Slide into base
-4. **Double Play** - Sequential tag animation
-5. **Grand Slam** - Bases clearing effect
+1. **Home Run** - Ball arc over fence (⚾)
+2. **Strikeout** - Swing and miss (K)
+3. **Stolen Base** - Slide into base (💨)
+4. **Double Play** - Sequential tag animation (2️⃣)
+5. **Grand Slam** - Bases clearing effect (💥)
 
 #### NHL (6 animations)
-1. **Goal** - Net ripple with red light
-2. **Power Play Goal** - Electric surge effect
-3. **Hat Trick** - Three hats falling
-4. **Big Save** - Goalie sprawl
-5. **Penalty** - Penalty box door slam
-6. **Fight** - Gloves dropping
+1. **Goal** - Net ripple with red light (🚨)
+2. **Save** - Goalie sprawl (🧤)
+3. **Power Play Goal** - Electric surge effect (⚡)
+4. **Hat Trick** - Three hats falling (🎩)
+5. **Penalty** - Penalty box door slam (⚠️)
+6. **Shootout** - One-on-one spotlight (🥅)
 
 **Implementation Details**:
 - CSS `@keyframes` animations in each sport's HTML file
 - Triggered by game state changes from ESPN API
 - 2-3 second duration per animation
 - Positioned overlay system (non-intrusive)
+- **Critical Fix (Oct 15)**: All sports had NFL animations - completely replaced with sport-specific logic
 
-### Phase 4: Database Strategy
+### Phase 5: Database Strategy
 - ✅ Created `DATABASE_STRATEGY.md` - 71% API call reduction plan
 - ✅ PostgreSQL schema: `games`, `teams`, `game_stats` tables
 - ✅ Azure Flexible Server setup
@@ -126,7 +142,7 @@
 - **Fix Applied**: Corrected server name from `gridtvsports` to `gridtvsport`
 - ✅ Database successfully connected and initialized
 
-### Phase 5: Sports Bar Mode UX Consistency Fix
+### Phase 6: Sports Bar Mode UX Consistency Fix
 **Problem Identified**: NFL/NBA used dropdown-based game selection, MLB/NHL used checkbox-based selection (inconsistent UX)
 
 **Analysis Document**: `SPORTS_BAR_MODE_FIX.md`
@@ -138,6 +154,104 @@
 - No duplicate game selection across multiple slots
 
 **Implementation Strategy**: Update MLB first, test, then apply to NHL
+
+---
+
+## Recent Critical Fixes (Oct 15)
+
+### 1. ❌ Wrong Animations in All Sports
+**Problem**: NHL showed "EXTRA POINT!" animation, MLB showed "TOUCHDOWN!", NBA showed "FIELD GOAL!"  
+**Root Cause**: When rebuilding from NFL template, forgot to update animation CSS and JS logic  
+**Solution**:
+- Completely replaced animation CSS for NHL, MLB, NBA (60+ lines each)
+- Rewrote animation JS logic to detect sport-specific plays
+- Added proper icons for each sport (🚨 goal, ⚾ homerun, 🏀 three-pointer)
+
+**Files Modified**:
+- `nhl.html` - Lines 716-783 (CSS), Lines 3713-3773 (JS)
+- `mlb.html` - Lines 716-781 (CSS), Lines 3713-3773 (JS)
+- `nba.html` - Lines 3738-3798 (JS only, CSS was already correct)
+
+### 2. ❌ NFL Not Showing Upcoming Games
+**Problem**: NFL page wouldn't show tomorrow night's game despite being within 36 hours  
+**Root Cause**: Only fetching current week (7), but game is in next week (8)  
+**Solution**: Implemented dual-week fetch
+
+**server.js Changes** (Lines 51-59):
+```javascript
+function getCurrentNFLWeek() {
+  const seasonStart = new Date('2025-09-04'); // Fixed: Was 2024
+  const now = new Date();
+  const diffDays = Math.floor((now - seasonStart) / (1000 * 60 * 60 * 24));
+  const week = Math.floor(diffDays / 7) + 1;
+  console.log(`📅 NFL Week Calculation: Days since season start = ${diffDays}, Calculated week = ${week}`);
+  return Math.max(1, Math.min(week, 18));
+}
+```
+
+**nfl.html Changes** (Lines 1930-1956):
+```javascript
+// Fetch BOTH current week AND next week to catch upcoming games within 36 hours
+const [currentWeekResponse, nextWeekResponse] = await Promise.all([
+  fetch(`/api/nfl/scoreboard?week=${currentWeek}`),
+  fetch(`/api/nfl/scoreboard?week=${currentWeek + 1}`)
+]);
+
+const currentWeekData = await currentWeekResponse.json();
+const nextWeekData = await nextWeekResponse.json();
+
+// Combine games from both weeks
+const allEvents = [
+  ...(currentWeekData.events || []),
+  ...(nextWeekData.events || [])
+];
+```
+
+**Why This Works**:
+- Oct 15 = Week 7 in 2025 season (Sept 4 start)
+- Tomorrow's game might be in Week 8
+- Fetching both weeks ensures we catch all games within 36-hour window
+- Matches how NBA/MLB/NHL work (they use dates, not weeks)
+
+### 3. ❌ Old RapidAPI Endpoints Causing 404s
+**Problem**: Console showing `GET /api/nfl-scoreboard-rapid/1 404 (Not Found)`  
+**Root Cause**: Old RapidAPI code not updated during ESPN migration  
+**Solution**: Updated all modal and fullscreen update functions
+
+**Files Modified**:
+- `nfl.html` - Lines 3046, 3809
+- `nba.html` - Lines 3051, 3814
+- `mlb.html` - Lines 3026, 3789
+- `nhl.html` - Lines 3030, 3793
+
+**Before**: `/api/nfl-scoreboard-rapid/${currentWeek}`  
+**After**: `/api/nfl/scoreboard?week=${currentWeek}`
+
+### 4. ❌ Console Logs Saying "RapidAPI" Instead of "ESPN API"
+**Problem**: All console logs referenced RapidAPI despite using ESPN API  
+**Solution**: Updated all console.log messages and variable names
+
+**Changes Across All 4 Sports**:
+- "RapidAPI Full Response" → "ESPN API Response"
+- `rapidData` → `espnData`
+- Updated error messages to reference ESPN API
+
+### 5. ❌ Missing Logo Causing 404 Errors
+**Problem**: `tiktalksports-logo.png:1 GET 404 (Not Found)`  
+**Solution**: Updated logo paths to use existing `logo.png` asset
+
+**Files Modified**: All 4 sport HTML files  
+**Change**: `/assets/tiktalksports-logo.png` → `/assets/logo.png`
+
+### 6. ✅ League Logos Added to Headers
+**Enhancement**: Added sport-specific logos to page headers
+
+**Files Modified**: All 4 sport HTML files (around Line 1795-1813 each)  
+**New Assets**:
+- `NFL-logo.png`
+- `NBA-Logo.png`
+- `MLB-Logo.png`
+- `NHL-Logo.png`
 
 ---
 
@@ -520,6 +634,117 @@ document.addEventListener('change', (e) => {
 **Remaining NHL-Specific Work**:
 - ⏳ Add NHL animations (goal, save, power play goal, hat trick, penalty, shootout)
 - ⏳ Test NHL page functionality
+
+### Backend & Console Log Cleanup (October 15, 2025)
+
+**Issue**: Console logs still referenced "RapidAPI" even though app uses ESPN API exclusively
+- ✅ Updated all frontend console logs from "RapidAPI Full Response" → "ESPN API Response"
+- ✅ Changed variable names from `rapidData` → `espnData` for clarity
+- ✅ Updated comments from "RapidAPI structure" → "Generic structure"
+- ✅ All 4 sports (NFL, NBA, MLB, NHL) now have correct ESPN API references
+
+**NFL Week Calculation Fix**:
+- ❌ **Bug**: Season start was set to `2024-09-05` (2024 season)
+- ✅ **Fix**: Updated to `2025-09-04` (2025 season start)
+- ✅ Added off-season default (Week 7) for testing when before season start
+- ✅ Now correctly calculates current NFL week for 2025 season
+
+**Files Updated**:
+- `server.js` - Fixed `getCurrentNFLWeek()` function
+- `nfl.html` - Updated console logs and variable names
+- `nba.html` - Updated console logs and variable names  
+- `mlb.html` - Updated console logs and comments
+- `nhl.html` - Updated console logs and variable names
+
+**Old RapidAPI Endpoint References**: 🚨 CRITICAL FIX
+- ❌ **Bug**: All 4 sport pages had hardcoded `/api/nfl-scoreboard-rapid/${currentWeek}` in modal and fullscreen functions
+- 🐛 **Impact**: Modal headers and fullscreen score updates were calling non-existent endpoints (404 errors)
+- ✅ **Fix**: Updated all references to correct ESPN API endpoints:
+  - **NFL**: `/api/nfl/scoreboard?week=${currentWeek}`
+  - **NBA**: `/api/nba/scoreboard`
+  - **MLB**: `/api/mlb/scoreboard`
+  - **NHL**: `/api/nhl/scoreboard`
+- ✅ Fixed in **2 functions per sport** (8 total fixes):
+  - `updateModalHeader()` - Updates game info when modal is open
+  - `updateFullScreenScores()` - Updates scores in Sports Bar Mode fullscreen
+- ✅ Changed all `rapidData` → `espnData` variable names for consistency
+
+**Files Updated**:
+- `nfl.html` - Lines 3046, 3809 (modal + fullscreen updates)
+- `nba.html` - Lines 3051, 3814 (modal + fullscreen updates)
+- `mlb.html` - Lines 3026, 3789 (modal + fullscreen updates)
+- `nhl.html` - Lines 3030, 3793 (modal + fullscreen updates)
+
+**Logo Asset Fix**:
+- ❌ **Bug**: All pages referenced non-existent `/assets/tiktalksports-logo.png` (404 errors)
+- ✅ **Fix**: Updated to use existing `/assets/logo.png` (multi-sport logo with NFL 🏈, NBA 🏀, MLB ⚾, NHL 🏒)
+- 📍 **Location**: Empty slot placeholders in Sports Bar Mode fullscreen
+- ✅ Changed alt text from "TikTalkSports" → "GridTV Sports"
+
+**Files Updated**:
+- `nfl.html` - Line 3516 (fullscreen empty slot logo)
+- `nba.html` - Line 3521 (fullscreen empty slot logo)
+- `mlb.html` - Line 3496 (fullscreen empty slot logo)
+- `nhl.html` - Line 3500 (fullscreen empty slot logo)
+
+**League Logos in Headers**: ✨ UI ENHANCEMENT
+- ✅ **Enhancement**: Added official league logos to page headers for professional branding
+- 📍 **Location**: Main header `<h1>` element on each sport page
+- ✅ **Logos Used**:
+  - **NFL**: `/assets/NFL-logo.png` (50px height)
+  - **NBA**: `/assets/NBA-Logo.png` (50px height)
+  - **MLB**: `/assets/MLB-Logo.png` (50px height)
+  - **NHL**: `/assets/NHL-Logo.png` (50px height)
+- ✅ **Styling**: Flexbox layout with 15px gap, vertical alignment, auto width for aspect ratio preservation
+- ✅ **Replaced**: Emoji icons (🏈 🏀 ⚾ 🏒) with official league logos for cleaner, more professional look
+
+**Files Updated**:
+- `nfl.html` - Line 1795 (header with NFL logo)
+- `nba.html` - Line 1813 (header with NBA logo)
+- `mlb.html` - Line 1795 (header with MLB logo)
+- `nhl.html` - Line 1795 (header with NHL logo)
+
+### Sport-Specific Animations Fix (October 15, 2025) 🚨 CRITICAL
+
+**Issue**: MLB, NHL, and NBA had leftover NFL animations (TOUCHDOWN, FIELD GOAL, EXTRA POINT)
+- ❌ **Bug**: When redesigning from NFL template, animation logic wasn't updated for each sport
+- 🐛 **Impact**: NHL showed "EXTRA POINT!" on goals, MLB showed "TOUCHDOWN!", NBA showed "FIELD GOAL!"
+- 🔍 **Root Cause**: Copy/paste from NFL template left touchdown/field-goal detection in non-football sports
+
+**NHL Animations - Fixed**:
+- ✅ Replaced: touchdown → **goal** (🚨 red/white)
+- ✅ Replaced: field-goal → **save** (🧤 blue)
+- ✅ Added: **powerplay** (⚡ yellow/gold)
+- ✅ Added: **hattrick** (🎩 purple/gold)
+- ✅ Added: **penalty** (⚠️ orange/red)
+- ✅ Added: **shootout** (🥅 cyan/white)
+- ✅ Score detection: 1 point = GOAL, 3 points in one update = HAT TRICK
+
+**MLB Animations - Fixed**:
+- ✅ Replaced: touchdown → **homerun** (⚾ yellow/orange)
+- ✅ Replaced: field-goal → **strikeout** (K red)
+- ✅ Added: **stolenbase** (💨 blue)
+- ✅ Added: **doubleplay** (2️⃣ purple)
+- ✅ Added: **grandslam** (💥 rainbow/gold)
+- ✅ Score detection: 1 run = RUN SCORED, 2+ runs = HOME RUN, 4 runs = GRAND SLAM
+
+**NBA Animations - Fixed**:
+- ✅ CSS was correct, but JavaScript had NFL logic
+- ✅ Fixed score detection: 3 points = 3-POINTER (🏀), 2 points = BUCKET (💪), 1 point = FREE THROW
+- ✅ Existing animations: three-pointer, dunk, block (🚫), steal (💨), buzzer-beater (⏰)
+- ✅ Removed ALL touchdown/field-goal references
+
+**Files Updated**:
+- `nhl.html` - Lines 716-783 (CSS), Lines 3713-3773 (JS detection + icons)
+- `mlb.html` - Lines 716-781 (CSS), Lines 3713-3773 (JS detection + icons)
+- `nba.html` - Lines 3738-3798 (JS detection + icons, CSS was already correct)
+
+**NFL Animations** (verified correct):
+- ✅ touchdown (🏈 green/gold) - 6, 7, or 8 points
+- ✅ field-goal (🥅 blue) - 3 points
+- ✅ safety (🥅 blue) - 2 points
+- ✅ extra-point (🥅 blue) - 1 point
+- ✅ interception (🚫 red), fumble (💨 orange)
 
 ---
 

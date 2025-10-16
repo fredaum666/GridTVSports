@@ -59,9 +59,12 @@
 
     .sports-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 30px;
       margin-bottom: 40px;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .sport-card {
@@ -142,6 +145,19 @@
     .sport-icon {
       font-size: 80px;
       margin-bottom: 10px;
+    }
+
+    .sport-logo {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+      transition: transform 0.3s ease;
+    }
+
+    .sport-card:hover .sport-logo {
+      transform: scale(1.1);
     }
 
     .sport-name {
@@ -247,6 +263,84 @@
       line-height: 1.5;
     }
 
+    .mixed-sports-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 20px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+      border: 3px solid #a855f7;
+      border-radius: 16px;
+      padding: 25px 40px;
+      text-decoration: none;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mixed-sports-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .mixed-sports-btn:hover::before {
+      left: 100%;
+    }
+
+    .mixed-sports-btn:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(139, 92, 246, 0.5);
+      border-color: #c084fc;
+    }
+
+    .btn-icon {
+      font-size: 32px;
+      animation: tvPulse 2s infinite;
+    }
+
+    @keyframes tvPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .btn-text {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      text-align: left;
+    }
+
+    .btn-text small {
+      font-size: 13px;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
+    .btn-arrow {
+      font-size: 24px;
+      transition: transform 0.3s ease;
+    }
+
+    .mixed-sports-btn:hover .btn-arrow {
+      transform: translateX(5px);
+    }
+
+    @media (max-width: 1200px) {
+      .sports-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+      }
+    }
+
     @media (max-width: 768px) {
       .header h1 {
         font-size: 32px;
@@ -265,12 +359,27 @@
         padding: 30px 20px;
       }
 
+      .sport-logo {
+        width: 80px;
+        height: 80px;
+      }
+
       .sport-icon {
         font-size: 60px;
       }
 
       .sport-name {
         font-size: 24px;
+      }
+
+      .mixed-sports-btn {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .btn-text {
+        align-items: center;
       }
 
       .features-list {
@@ -288,7 +397,7 @@
 
     <div class="sports-grid">
       <a href="/nfl.html" class="sport-card nfl">
-        <div class="sport-icon">🏈</div>
+        <img src="/assets/NFL-logo.png" alt="NFL Logo" class="sport-logo">
         <div class="sport-name">NFL</div>
         <div class="sport-description">
           Live NFL games with real-time scores, downs, field position, and Sports Bar Mode
@@ -300,7 +409,7 @@
       </a>
 
       <a href="/nba.html" class="sport-card nba">
-        <div class="sport-icon">🏀</div>
+        <img src="/assets/NBA-Logo.png" alt="NBA Logo" class="sport-logo">
         <div class="sport-name">NBA</div>
         <div class="sport-description">
           Live NBA games with quarter-by-quarter scoring, fouls, and leading scorers
@@ -312,7 +421,7 @@
       </a>
 
       <a href="/mlb.html" class="sport-card mlb">
-        <div class="sport-icon">⚾</div>
+        <img src="/assets/MLB-Logo.png" alt="MLB Logo" class="sport-logo">
         <div class="sport-name">MLB</div>
         <div class="sport-description">
           Live MLB games with inning-by-inning scoring, pitch count, and base runners
@@ -324,7 +433,7 @@
       </a>
 
       <a href="/nhl.html" class="sport-card nhl">
-        <div class="sport-icon">🏒</div>
+        <img src="/assets/NHL-Logo.png" alt="NHL Logo" class="sport-logo">
         <div class="sport-name">NHL</div>
         <div class="sport-description">
           Live NHL games with period-by-period scoring, shots, and power play tracking
@@ -333,6 +442,18 @@
           <div class="live-dot"></div>
           LIVE UPDATES
         </div>
+      </a>
+    </div>
+
+    <!-- Mixed Sports Bar Mode Button -->
+    <div style="text-align: center; margin-bottom: 40px;">
+      <a href="/LiveGames.html" class="mixed-sports-btn">
+        <span class="btn-icon">📺</span>
+        <span class="btn-text">
+          <strong>Mixed Sports Bar Mode</strong>
+          <small>Watch All Sports Together - NFL, NBA, MLB & NHL</small>
+        </span>
+        <span class="btn-arrow">→</span>
       </a>
     </div>
 
