@@ -713,14 +713,14 @@
       animation: playTextSlide 0.8s ease-out;
     }
 
-    /* Touchdown Animation - Green/Gold */
-    .play-animation.touchdown .play-animation-icon {
-      color: #fbbf24;
-      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    /* Goal Animation - Red/White (NHL Standard) */
+    .play-animation.goal .play-animation-icon {
+      color: #dc2626;
+      text-shadow: 0 0 30px #dc2626, 0 0 60px #dc2626;
     }
 
-    .play-animation.touchdown .play-animation-text {
-      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
+    .play-animation.goal .play-animation-text {
+      background: linear-gradient(90deg, #dc2626, #ffffff, #dc2626);
       background-size: 200% auto;
       background-clip: text;
       -webkit-background-clip: text;
@@ -728,37 +728,63 @@
       animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
     }
 
-    /* Field Goal Animation - Blue */
-    .play-animation.field-goal .play-animation-icon {
+    /* Save Animation - Blue */
+    .play-animation.save .play-animation-icon {
       color: #3b82f6;
       text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
     }
 
-    .play-animation.field-goal .play-animation-text {
+    .play-animation.save .play-animation-text {
       color: #3b82f6;
       text-shadow: 0 0 20px #3b82f6;
     }
 
-    /* Interception Animation - Red */
-    .play-animation.interception .play-animation-icon {
-      color: #ef4444;
-      text-shadow: 0 0 30px #ef4444, 0 0 60px #ef4444;
+    /* Power Play Goal Animation - Yellow/Gold */
+    .play-animation.powerplay .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
     }
 
-    .play-animation.interception .play-animation-text {
-      color: #ef4444;
-      text-shadow: 0 0 20px #ef4444;
+    .play-animation.powerplay .play-animation-text {
+      color: #fbbf24;
+      text-shadow: 0 0 20px #fbbf24;
     }
 
-    /* Fumble Animation - Orange */
-    .play-animation.fumble .play-animation-icon {
+    /* Hat Trick Animation - Purple/Gold */
+    .play-animation.hattrick .play-animation-icon {
+      color: #a855f7;
+      text-shadow: 0 0 30px #a855f7, 0 0 60px #a855f7;
+    }
+
+    .play-animation.hattrick .play-animation-text {
+      background: linear-gradient(90deg, #a855f7, #fbbf24, #a855f7);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* Penalty Animation - Orange/Red */
+    .play-animation.penalty .play-animation-icon {
       color: #f97316;
       text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
     }
 
-    .play-animation.fumble .play-animation-text {
+    .play-animation.penalty .play-animation-text {
       color: #f97316;
       text-shadow: 0 0 20px #f97316;
+    }
+
+    /* Shootout Animation - Cyan/White */
+    .play-animation.shootout .play-animation-icon {
+      color: #06b6d4;
+      text-shadow: 0 0 30px #06b6d4, 0 0 60px #06b6d4;
+    }
+
+    .play-animation.shootout .play-animation-text {
+      color: #06b6d4;
+      text-shadow: 0 0 20px #06b6d4;
     }
 
     @keyframes fadeOut {
@@ -1792,8 +1818,9 @@
 <body>
   <div class="header">
     <div class="header-content">
-      <h1>
-        � NHL Live Games
+      <h1 style="display: flex; align-items: center; gap: 15px;">
+        <img src="/assets/NHL-Logo.png" alt="NHL" style="height: 50px; width: auto; object-fit: contain;">
+        NHL Live Games
         <span class="live-indicator">
           <span class="live-dot"></span>
           LIVE
@@ -1936,16 +1963,16 @@
           }
         }
         
-        const rapidData = await response.json();
+        const espnData = await response.json();
         
-        console.log('📊 RapidAPI Full Response:', {
-          totalEvents: rapidData.events?.length || 0,
-          events: rapidData.events
+        console.log('📊 ESPN API Response:', {
+          totalEvents: espnData.events?.length || 0,
+          events: espnData.events
         });
 
-        // Use the FULL events data from RapidAPI (has period, clock, etc.)
-        if (rapidData.events && rapidData.events.length > 0) {
-          const allGames = rapidData.events.map(event => {
+        // Use the FULL events data from ESPN API (has period, clock, etc.)
+        if (espnData.events && espnData.events.length > 0) {
+          const allGames = espnData.events.map(event => {
             // Get competition data
             const comp = event.competitions[0];
             const home = comp.competitors.find(c => c.homeAway === 'home');
@@ -3027,15 +3054,15 @@
     async function updateModalHeader(gameId) {
       try {
         // Fetch fresh game data from the API
-        const response = await fetch(`/api/nfl-scoreboard-rapid/${currentWeek}`);
+        const response = await fetch(`/api/nhl/scoreboard`);
         
         if (!response.ok) {
           console.warn('Failed to fetch updated game data for modal');
           return;
         }
         
-        const rapidData = await response.json();
-        const updatedGame = rapidData.events?.find(event => event.id === gameId);
+        const espnData = await response.json();
+        const updatedGame = espnData.events?.find(event => event.id === gameId);
         
         if (!updatedGame) {
           console.warn('Game not found in updated data');
@@ -3497,7 +3524,7 @@
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; opacity: 0.6;">
-          <img src="/assets/tiktalksports-logo.png" alt="TikTalkSports" style="max-width: ${logoSize}; max-height: 35%; object-fit: contain; margin-bottom: 15px;">
+          <img src="/assets/logo.png" alt="GridTV Sports" style="max-width: ${logoSize}; max-height: 35%; object-fit: contain; margin-bottom: 15px;">
           <div style="font-size: ${textSize}; color: #64748b; text-align: center; line-height: 1.4;">
             Select a game above<br>to display
           </div>
@@ -3718,21 +3745,14 @@
     function detectAndAnimatePlay(card, scoreChange, teamName) {
       let playType, playText;
       
-      if (scoreChange === 6) {
-        playType = 'touchdown';
-        playText = 'TOUCHDOWN!';
-      } else if (scoreChange === 7 || scoreChange === 8) {
-        playType = 'touchdown';
-        playText = 'TOUCHDOWN!';
+      // NHL scoring: 1 point per goal
+      if (scoreChange === 1) {
+        playType = 'goal';
+        playText = 'GOAL!';
       } else if (scoreChange === 3) {
-        playType = 'field-goal';
-        playText = 'FIELD GOAL!';
-      } else if (scoreChange === 2) {
-        playType = 'field-goal';
-        playText = 'SAFETY!';
-      } else if (scoreChange === 1) {
-        playType = 'field-goal';
-        playText = 'EXTRA POINT!';
+        // Hat trick (3 goals in one update - rare but possible)
+        playType = 'hattrick';
+        playText = 'HAT TRICK!';
       } else {
         return; // Unknown score change
       }
@@ -3755,20 +3775,26 @@
       // Choose icon based on play type
       let icon;
       switch(playType) {
-        case 'touchdown':
-          icon = '🏈';
+        case 'goal':
+          icon = '🚨';
           break;
-        case 'field-goal':
+        case 'save':
+          icon = '🧤';
+          break;
+        case 'powerplay':
+          icon = '⚡';
+          break;
+        case 'hattrick':
+          icon = '🎩';
+          break;
+        case 'penalty':
+          icon = '⚠️';
+          break;
+        case 'shootout':
           icon = '🥅';
           break;
-        case 'interception':
-          icon = '🚫';
-          break;
-        case 'fumble':
-          icon = '💨';
-          break;
         default:
-          icon = '⚡';
+          icon = '🏒';
       }
       
       animationDiv.innerHTML = `
@@ -3790,16 +3816,16 @@
     async function updateFullScreenScores() {
       try {
         // Fetch updated game data from the same endpoint
-        const response = await fetch(`/api/nfl-scoreboard-rapid/${currentWeek}`);
+        const response = await fetch(`/api/nhl/scoreboard`);
         if (!response.ok) {
           throw new Error(`Failed to fetch scores: ${response.status}`);
         }
         
-        const rapidData = await response.json();
+        const espnData = await response.json();
         
         // Update the global games data
-        if (rapidData.events && rapidData.events.length > 0) {
-          const allGames = rapidData.events.map(event => {
+        if (espnData.events && espnData.events.length > 0) {
+          const allGames = espnData.events.map(event => {
             const comp = event.competitions[0];
             const home = comp.competitors.find(c => c.homeAway === 'home');
             const away = comp.competitors.find(c => c.homeAway === 'away');

@@ -713,14 +713,14 @@
       animation: playTextSlide 0.8s ease-out;
     }
 
-    /* TouchOuts Animation - Green/Gold */
-    .play-animation.touchOuts .play-animation-icon {
+    /* Home Run Animation - Yellow/Orange */
+    .play-animation.homerun .play-animation-icon {
       color: #fbbf24;
       text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
     }
 
-    .play-animation.touchOuts .play-animation-text {
-      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
+    .play-animation.homerun .play-animation-text {
+      background: linear-gradient(90deg, #f97316, #fbbf24, #f97316);
       background-size: 200% auto;
       background-clip: text;
       -webkit-background-clip: text;
@@ -728,37 +728,52 @@
       animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
     }
 
-    /* Field Goal Animation - Blue */
-    .play-animation.field-goal .play-animation-icon {
+    /* Strikeout Animation - Red */
+    .play-animation.strikeout .play-animation-icon {
+      color: #dc2626;
+      text-shadow: 0 0 30px #dc2626, 0 0 60px #dc2626;
+    }
+
+    .play-animation.strikeout .play-animation-text {
+      color: #dc2626;
+      text-shadow: 0 0 20px #dc2626;
+    }
+
+    /* Stolen Base Animation - Blue */
+    .play-animation.stolenbase .play-animation-icon {
       color: #3b82f6;
       text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
     }
 
-    .play-animation.field-goal .play-animation-text {
+    .play-animation.stolenbase .play-animation-text {
       color: #3b82f6;
       text-shadow: 0 0 20px #3b82f6;
     }
 
-    /* Interception Animation - Red */
-    .play-animation.interception .play-animation-icon {
+    /* Double Play Animation - Purple */
+    .play-animation.doubleplay .play-animation-icon {
+      color: #a855f7;
+      text-shadow: 0 0 30px #a855f7, 0 0 60px #a855f7;
+    }
+
+    .play-animation.doubleplay .play-animation-text {
+      color: #a855f7;
+      text-shadow: 0 0 20px #a855f7;
+    }
+
+    /* Grand Slam Animation - Rainbow/Gold */
+    .play-animation.grandslam .play-animation-icon {
       color: #ef4444;
       text-shadow: 0 0 30px #ef4444, 0 0 60px #ef4444;
     }
 
-    .play-animation.interception .play-animation-text {
-      color: #ef4444;
-      text-shadow: 0 0 20px #ef4444;
-    }
-
-    /* Fumble Animation - Orange */
-    .play-animation.fumble .play-animation-icon {
-      color: #f97316;
-      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
-    }
-
-    .play-animation.fumble .play-animation-text {
-      color: #f97316;
-      text-shadow: 0 0 20px #f97316;
+    .play-animation.grandslam .play-animation-text {
+      background: linear-gradient(90deg, #ef4444, #fbbf24, #22c55e, #3b82f6);
+      background-size: 300% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
     }
 
     @keyframes fadeOut {
@@ -1792,8 +1807,9 @@
 <body>
   <div class="header">
     <div class="header-content">
-      <h1>
-        ⚾ MLB Live Games
+      <h1 style="display: flex; align-items: center; gap: 15px;">
+        <img src="/assets/MLB-Logo.png" alt="MLB" style="height: 50px; width: auto; object-fit: contain;">
+        MLB Live Games
         <span class="live-indicator">
           <span class="live-dot"></span>
           LIVE
@@ -2549,7 +2565,7 @@
         // Handle different API response structures
         let plays = [];
         if (data.items && Array.isArray(data.items)) {
-          // RapidAPI structure: { items: [...] }
+          // Generic structure: { items: [...] }
           plays = data.items;
         } else if (data.drives?.previous) {
           // ESPN structure: { drives: { previous: [{ plays: [...] }] } }
@@ -3023,15 +3039,15 @@
     async function updateModalHeader(gameId) {
       try {
         // Fetch fresh game data from the API
-        const response = await fetch(`/api/nfl-scoreboard-rapid/${currentWeek}`);
+        const response = await fetch(`/api/mlb/scoreboard`);
         
         if (!response.ok) {
           console.warn('Failed to fetch updated game data for modal');
           return;
         }
         
-        const rapidData = await response.json();
-        const updatedGame = rapidData.events?.find(event => event.id === gameId);
+        const espnData = await response.json();
+        const updatedGame = espnData.events?.find(event => event.id === gameId);
         
         if (!updatedGame) {
           console.warn('Game not found in updated data');
@@ -3493,7 +3509,7 @@
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; opacity: 0.6;">
-          <img src="/assets/tiktalksports-logo.png" alt="TikTalkSports" style="max-width: ${logoSize}; max-height: 35%; object-fit: contain; margin-bottom: 15px;">
+          <img src="/assets/logo.png" alt="GridTV Sports" style="max-width: ${logoSize}; max-height: 35%; object-fit: contain; margin-bottom: 15px;">
           <div style="font-size: ${textSize}; color: #64748b; text-align: center; line-height: 1.4;">
             Select a game above<br>to display
           </div>
@@ -3714,21 +3730,19 @@
     function detectAndAnimatePlay(card, scoreChange, teamName) {
       let playType, playText;
       
-      if (scoreChange === 6) {
-        playType = 'touchOuts';
-        playText = 'TOUCHOuts!';
-      } else if (scoreChange === 7 || scoreChange === 8) {
-        playType = 'touchOuts';
-        playText = 'TOUCHOuts!';
-      } else if (scoreChange === 3) {
-        playType = 'field-goal';
-        playText = 'FIELD GOAL!';
-      } else if (scoreChange === 2) {
-        playType = 'field-goal';
-        playText = 'SAFETY!';
+      // MLB scoring: typically 1-4 runs at a time
+      if (scoreChange === 4) {
+        // Grand Slam or 4 runs scored
+        playType = 'grandslam';
+        playText = 'GRAND SLAM!';
+      } else if (scoreChange >= 2) {
+        // Multiple runs (could be home run)
+        playType = 'homerun';
+        playText = 'HOME RUN!';
       } else if (scoreChange === 1) {
-        playType = 'field-goal';
-        playText = 'EXTRA POINT!';
+        // Single run scored
+        playType = 'homerun';
+        playText = 'RUN SCORED!';
       } else {
         return; // Unknown score change
       }
@@ -3751,20 +3765,23 @@
       // Choose icon based on play type
       let icon;
       switch(playType) {
-        case 'touchOuts':
-          icon = '🏈';
+        case 'homerun':
+          icon = '⚾';
           break;
-        case 'field-goal':
-          icon = '🥅';
+        case 'strikeout':
+          icon = 'K';
           break;
-        case 'interception':
-          icon = '🚫';
+        case 'stolenbase':
+          icon = '�';
           break;
-        case 'fumble':
-          icon = '💨';
+        case 'doubleplay':
+          icon = '2️⃣';
+          break;
+        case 'grandslam':
+          icon = '�';
           break;
         default:
-          icon = '⚡';
+          icon = '⚾';
       }
       
       animationDiv.innerHTML = `
@@ -3786,16 +3803,16 @@
     async function updateFullScreenScores() {
       try {
         // Fetch updated game data from the same endpoint
-        const response = await fetch(`/api/nfl-scoreboard-rapid/${currentWeek}`);
+        const response = await fetch(`/api/mlb/scoreboard`);
         if (!response.ok) {
           throw new Error(`Failed to fetch scores: ${response.status}`);
         }
         
-        const rapidData = await response.json();
+        const espnData = await response.json();
         
         // Update the global games data
-        if (rapidData.events && rapidData.events.length > 0) {
-          const allGames = rapidData.events.map(event => {
+        if (espnData.events && espnData.events.length > 0) {
+          const allGames = espnData.events.map(event => {
             const comp = event.competitions[0];
             const home = comp.competitors.find(c => c.homeAway === 'home');
             const away = comp.competitors.find(c => c.homeAway === 'away');

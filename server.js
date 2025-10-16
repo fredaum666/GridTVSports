@@ -48,10 +48,15 @@ async function fetchESPN(url) {
 // ============================================
 
 function getCurrentNFLWeek() {
-  const seasonStart = new Date('2024-09-05');
+  // 2025 NFL Season started September 4, 2025 (Thursday Night Football)
+  const seasonStart = new Date('2025-09-04');
   const now = new Date();
   const diffDays = Math.floor((now - seasonStart) / (1000 * 60 * 60 * 24));
   const week = Math.floor(diffDays / 7) + 1;
+  
+  console.log(`📅 NFL Week Calculation: Days since season start = ${diffDays}, Calculated week = ${week}`);
+  
+  // Return week 1-18
   return Math.max(1, Math.min(week, 18));
 }
 
@@ -60,13 +65,57 @@ function areAllGamesComplete(scoreboard) {
   return scoreboard.events.every(e => e.status?.type?.state === 'post');
 }
 
+// Cleanup function to remove invalid dates from active tracking
+function cleanupActiveDates() {
+  const today = getTodayDate();
+  const yesterday = getYesterdayDate();
+  const validDates = new Set([today, yesterday]);
+  
+  // Remove any dates that aren't today or yesterday
+  for (const date of sportsCache.nba.activeDates) {
+    if (!validDates.has(date)) {
+      console.log(`🧹 Removing stale NBA date: ${date}`);
+      sportsCache.nba.activeDates.delete(date);
+    }
+  }
+  
+  for (const date of sportsCache.mlb.activeDates) {
+    if (!validDates.has(date)) {
+      console.log(`🧹 Removing stale MLB date: ${date}`);
+      sportsCache.mlb.activeDates.delete(date);
+    }
+  }
+  
+  for (const date of sportsCache.nhl.activeDates) {
+    if (!validDates.has(date)) {
+      console.log(`🧹 Removing stale NHL date: ${date}`);
+      sportsCache.nhl.activeDates.delete(date);
+    }
+  }
+}
+
 // ============================================
 // DATE HELPERS (NBA, MLB, NHL)
 // ============================================
 
 function getTodayDate() {
+  // Use local time zone instead of UTC to get correct date
   const now = new Date();
-  return now.toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const dateStr = `${year}${month}${day}`;
+  console.log(`📅 Current Date: ${dateStr} (${now.toLocaleDateString()})`);
+  return dateStr; // YYYYMMDD
+}
+
+function getYesterdayDate() {
+  const now = new Date();
+  now.setDate(now.getDate() - 1); // Subtract one day
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`; // YYYYMMDD
 }
 
 // ============================================
@@ -87,6 +136,15 @@ app.get('/api/nfl/scoreboard', async (req, res) => {
     const url = `${ESPN_BASE}/football/nfl/scoreboard?week=${week}`;
     const data = await fetchESPN(url);
     const isComplete = areAllGamesComplete(data);
+    
+    // Count game statuses for better logging
+    const statusCount = data.events?.reduce((acc, e) => {
+      const state = e.status?.type?.state || 'unknown';
+      acc[state] = (acc[state] || 0) + 1;
+      return acc;
+    }, {}) || {};
+    
+    console.log(`[NFL] Week ${week} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
 
     sportsCache.nfl.data.set(cacheKey, { data, timestamp: now, isComplete });
     
@@ -122,28 +180,90 @@ app.get('/api/nfl/current-week', (req, res) => {
 
 app.get('/api/nba/scoreboard', async (req, res) => {
   try {
-    const date = req.query.date || getTodayDate();
-    const cacheKey = `date-${date}`;
-    const cached = sportsCache.nba.data.get(cacheKey);
-    const now = Date.now();
-
-    if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
-      return res.json(cached.data);
-    }
-
-    const url = `${ESPN_BASE}/basketball/nba/scoreboard?dates=${date}`;
-    const data = await fetchESPN(url);
-    const isComplete = areAllGamesComplete(data);
-
-    sportsCache.nba.data.set(cacheKey, { data, timestamp: now, isComplete });
+    const requestedDate = req.query.date;
     
-    if (!isComplete) {
-      sportsCache.nba.activeDates.add(date);
-    } else {
-      sportsCache.nba.activeDates.delete(date);
+    if (requestedDate) {
+      // If specific date requested, use it
+      const cacheKey = `date-${requestedDate}`;
+      const cached = sportsCache.nba.data.get(cacheKey);
+      const now = Date.now();
+
+      if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
+        return res.json(cached.data);
+      }
+
+      const url = `${ESPN_BASE}/basketball/nba/scoreboard?dates=${requestedDate}`;
+      const data = await fetchESPN(url);
+      const isComplete = areAllGamesComplete(data);
+
+      const statusCount = data.events?.reduce((acc, e) => {
+        const state = e.status?.type?.state || 'unknown';
+        acc[state] = (acc[state] || 0) + 1;
+        return acc;
+      }, {}) || {};
+
+      console.log(`[NBA] Date ${requestedDate} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
+
+      sportsCache.nba.data.set(cacheKey, { data, timestamp: now, isComplete });
+      
+      if (!isComplete) {
+        sportsCache.nba.activeDates.add(requestedDate);
+      } else {
+        sportsCache.nba.activeDates.delete(requestedDate);
+      }
+
+      return res.json(data);
     }
 
-    res.json(data);
+    // No specific date - fetch today AND yesterday to catch live games
+    const today = getTodayDate();
+    const yesterday = getYesterdayDate();
+    
+    const [todayUrl, yesterdayUrl] = [
+      `${ESPN_BASE}/basketball/nba/scoreboard?dates=${today}`,
+      `${ESPN_BASE}/basketball/nba/scoreboard?dates=${yesterday}`
+    ];
+
+    const [todayData, yesterdayData] = await Promise.all([
+      fetchESPN(todayUrl),
+      fetchESPN(yesterdayUrl)
+    ]);
+
+    // Merge games from both days, prioritizing live games
+    const allGames = [
+      ...(yesterdayData.events || []),
+      ...(todayData.events || [])
+    ];
+
+    // Create combined response
+    const combinedData = {
+      ...todayData,
+      events: allGames
+    };
+
+    const statusCount = allGames.reduce((acc, e) => {
+      const state = e.status?.type?.state || 'unknown';
+      acc[state] = (acc[state] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log(`[NBA] Combined (${yesterday} + ${today}) - Games: ${allGames.length}, Statuses:`, statusCount);
+
+    // Cache both dates
+    const now = Date.now();
+    const todayComplete = areAllGamesComplete(todayData);
+    const yesterdayComplete = areAllGamesComplete(yesterdayData);
+
+    sportsCache.nba.data.set(`date-${today}`, { data: todayData, timestamp: now, isComplete: todayComplete });
+    sportsCache.nba.data.set(`date-${yesterday}`, { data: yesterdayData, timestamp: now, isComplete: yesterdayComplete });
+
+    if (!todayComplete) sportsCache.nba.activeDates.add(today);
+    else sportsCache.nba.activeDates.delete(today);
+    
+    if (!yesterdayComplete) sportsCache.nba.activeDates.add(yesterday);
+    else sportsCache.nba.activeDates.delete(yesterday);
+
+    res.json(combinedData);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -165,28 +285,89 @@ app.get('/api/nba/summary/:gameId', async (req, res) => {
 
 app.get('/api/mlb/scoreboard', async (req, res) => {
   try {
-    const date = req.query.date || getTodayDate();
-    const cacheKey = `date-${date}`;
-    const cached = sportsCache.mlb.data.get(cacheKey);
-    const now = Date.now();
-
-    if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
-      return res.json(cached.data);
-    }
-
-    const url = `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${date}`;
-    const data = await fetchESPN(url);
-    const isComplete = areAllGamesComplete(data);
-
-    sportsCache.mlb.data.set(cacheKey, { data, timestamp: now, isComplete });
+    const requestedDate = req.query.date;
     
-    if (!isComplete) {
-      sportsCache.mlb.activeDates.add(date);
-    } else {
-      sportsCache.mlb.activeDates.delete(date);
+    if (requestedDate) {
+      // If specific date requested, use it
+      const cacheKey = `date-${requestedDate}`;
+      const cached = sportsCache.mlb.data.get(cacheKey);
+      const now = Date.now();
+
+      if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
+        return res.json(cached.data);
+      }
+
+      const url = `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${requestedDate}`;
+      const data = await fetchESPN(url);
+      const isComplete = areAllGamesComplete(data);
+
+      const statusCount = data.events?.reduce((acc, e) => {
+        const state = e.status?.type?.state || 'unknown';
+        acc[state] = (acc[state] || 0) + 1;
+        return acc;
+      }, {}) || {};
+
+      console.log(`[MLB] Date ${requestedDate} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
+
+      sportsCache.mlb.data.set(cacheKey, { data, timestamp: now, isComplete });
+      
+      if (!isComplete) {
+        sportsCache.mlb.activeDates.add(requestedDate);
+      } else {
+        sportsCache.mlb.activeDates.delete(requestedDate);
+      }
+
+      return res.json(data);
     }
 
-    res.json(data);
+    // No specific date - fetch today AND yesterday to catch live games
+    const today = getTodayDate();
+    const yesterday = getYesterdayDate();
+    
+    const [todayUrl, yesterdayUrl] = [
+      `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${today}`,
+      `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${yesterday}`
+    ];
+
+    const [todayData, yesterdayData] = await Promise.all([
+      fetchESPN(todayUrl),
+      fetchESPN(yesterdayUrl)
+    ]);
+
+    // Merge games from both days
+    const allGames = [
+      ...(yesterdayData.events || []),
+      ...(todayData.events || [])
+    ];
+
+    const combinedData = {
+      ...todayData,
+      events: allGames
+    };
+
+    const statusCount = allGames.reduce((acc, e) => {
+      const state = e.status?.type?.state || 'unknown';
+      acc[state] = (acc[state] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log(`[MLB] Combined (${yesterday} + ${today}) - Games: ${allGames.length}, Statuses:`, statusCount);
+
+    // Cache both dates
+    const now = Date.now();
+    const todayComplete = areAllGamesComplete(todayData);
+    const yesterdayComplete = areAllGamesComplete(yesterdayData);
+
+    sportsCache.mlb.data.set(`date-${today}`, { data: todayData, timestamp: now, isComplete: todayComplete });
+    sportsCache.mlb.data.set(`date-${yesterday}`, { data: yesterdayData, timestamp: now, isComplete: yesterdayComplete });
+
+    if (!todayComplete) sportsCache.mlb.activeDates.add(today);
+    else sportsCache.mlb.activeDates.delete(today);
+    
+    if (!yesterdayComplete) sportsCache.mlb.activeDates.add(yesterday);
+    else sportsCache.mlb.activeDates.delete(yesterday);
+
+    res.json(combinedData);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -208,28 +389,89 @@ app.get('/api/mlb/summary/:gameId', async (req, res) => {
 
 app.get('/api/nhl/scoreboard', async (req, res) => {
   try {
-    const date = req.query.date || getTodayDate();
-    const cacheKey = `date-${date}`;
-    const cached = sportsCache.nhl.data.get(cacheKey);
-    const now = Date.now();
-
-    if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
-      return res.json(cached.data);
-    }
-
-    const url = `${ESPN_BASE}/hockey/nhl/scoreboard?dates=${date}`;
-    const data = await fetchESPN(url);
-    const isComplete = areAllGamesComplete(data);
-
-    sportsCache.nhl.data.set(cacheKey, { data, timestamp: now, isComplete });
+    const requestedDate = req.query.date;
     
-    if (!isComplete) {
-      sportsCache.nhl.activeDates.add(date);
-    } else {
-      sportsCache.nhl.activeDates.delete(date);
+    if (requestedDate) {
+      // If specific date requested, use it
+      const cacheKey = `date-${requestedDate}`;
+      const cached = sportsCache.nhl.data.get(cacheKey);
+      const now = Date.now();
+
+      if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
+        return res.json(cached.data);
+      }
+
+      const url = `${ESPN_BASE}/hockey/nhl/scoreboard?dates=${requestedDate}`;
+      const data = await fetchESPN(url);
+      const isComplete = areAllGamesComplete(data);
+
+      const statusCount = data.events?.reduce((acc, e) => {
+        const state = e.status?.type?.state || 'unknown';
+        acc[state] = (acc[state] || 0) + 1;
+        return acc;
+      }, {}) || {};
+
+      console.log(`[NHL] Date ${requestedDate} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
+
+      sportsCache.nhl.data.set(cacheKey, { data, timestamp: now, isComplete });
+      
+      if (!isComplete) {
+        sportsCache.nhl.activeDates.add(requestedDate);
+      } else {
+        sportsCache.nhl.activeDates.delete(requestedDate);
+      }
+
+      return res.json(data);
     }
 
-    res.json(data);
+    // No specific date - fetch today AND yesterday to catch live games
+    const today = getTodayDate();
+    const yesterday = getYesterdayDate();
+    
+    const [todayUrl, yesterdayUrl] = [
+      `${ESPN_BASE}/hockey/nhl/scoreboard?dates=${today}`,
+      `${ESPN_BASE}/hockey/nhl/scoreboard?dates=${yesterday}`
+    ];
+
+    const [todayData, yesterdayData] = await Promise.all([
+      fetchESPN(todayUrl),
+      fetchESPN(yesterdayUrl)
+    ]);
+
+    // Merge games from both days
+    const allGames = [
+      ...(yesterdayData.events || []),
+      ...(todayData.events || [])
+    ];
+
+    const combinedData = {
+      ...todayData,
+      events: allGames
+    };
+
+    const statusCount = allGames.reduce((acc, e) => {
+      const state = e.status?.type?.state || 'unknown';
+      acc[state] = (acc[state] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log(`[NHL] Combined (${yesterday} + ${today}) - Games: ${allGames.length}, Statuses:`, statusCount);
+
+    // Cache both dates
+    const now = Date.now();
+    const todayComplete = areAllGamesComplete(todayData);
+    const yesterdayComplete = areAllGamesComplete(yesterdayData);
+
+    sportsCache.nhl.data.set(`date-${today}`, { data: todayData, timestamp: now, isComplete: todayComplete });
+    sportsCache.nhl.data.set(`date-${yesterday}`, { data: yesterdayData, timestamp: now, isComplete: yesterdayComplete });
+
+    if (!todayComplete) sportsCache.nhl.activeDates.add(today);
+    else sportsCache.nhl.activeDates.delete(today);
+    
+    if (!yesterdayComplete) sportsCache.nhl.activeDates.add(yesterday);
+    else sportsCache.nhl.activeDates.delete(yesterday);
+
+    res.json(combinedData);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -265,9 +507,14 @@ cron.schedule('*/15 * * * * *', async () => {
       
       if (isComplete) {
         sportsCache.nfl.activeWeeks.delete(week);
+        console.log(`[NFL] Week ${week} marked complete - removed from active tracking`);
       }
       
-      console.log(`[NFL] Updated week ${week} - Complete: ${isComplete}`);
+      // Count live and upcoming games
+      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
+      const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
+      
+      console.log(`[NFL] Week ${week} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
     } catch (error) {
       console.error(`[NFL] Failed to update week ${week}:`, error.message);
     }
@@ -292,7 +539,11 @@ cron.schedule('*/15 * * * * *', async () => {
         sportsCache.nba.activeDates.delete(date);
       }
       
-      console.log(`[NBA] Updated ${date} - Complete: ${isComplete}`);
+      // Enhanced logging
+      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
+      const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
+      
+      console.log(`[NBA] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
     } catch (error) {
       console.error(`[NBA] Failed to update ${date}:`, error.message);
     }
@@ -317,7 +568,11 @@ cron.schedule('*/15 * * * * *', async () => {
         sportsCache.mlb.activeDates.delete(date);
       }
       
-      console.log(`[MLB] Updated ${date} - Complete: ${isComplete}`);
+      // Enhanced logging
+      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
+      const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
+      
+      console.log(`[MLB] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
     } catch (error) {
       console.error(`[MLB] Failed to update ${date}:`, error.message);
     }
@@ -342,7 +597,11 @@ cron.schedule('*/15 * * * * *', async () => {
         sportsCache.nhl.activeDates.delete(date);
       }
       
-      console.log(`[NHL] Updated ${date} - Complete: ${isComplete}`);
+      // Enhanced logging
+      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
+      const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
+      
+      console.log(`[NHL] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
     } catch (error) {
       console.error(`[NHL] Failed to update ${date}:`, error.message);
     }
@@ -360,4 +619,7 @@ app.listen(PORT, () => {
   console.log(`⚾ MLB API: http://localhost:${PORT}/api/mlb/scoreboard`);
   console.log(`🏒 NHL API: http://localhost:${PORT}/api/nhl/scoreboard`);
   console.log(`🌐 Frontend: http://localhost:${PORT}`);
+  
+  // Clean up any stale dates from cache
+  cleanupActiveDates();
 });

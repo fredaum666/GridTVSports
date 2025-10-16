@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏆 Mixed Sports Bar Mode - GridTV Sports</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #0a0e1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .header-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #dc2626;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .back-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #0056b3;
+      transform: translateY(-1px);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .section-header {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Layout Options */
+    .layout-options {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .layout-options label {
+      background: #334155;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .layout-options label:hover {
+      background: #475569;
+      border-color: #17a2b8;
+    }
+
+    .layout-options input[type="radio"] {
+      margin: 0;
+    }
+
+    .layout-options input[type="radio"]:checked + span {
+      font-weight: 700;
+    }
+
+    .layout-options label:has(input[type="radio"]:checked) {
+      background: #17a2b8;
+      border-color: #17a2b8;
+      font-weight: 700;
+    }
+
+    /* Grid Preview */
+    .grid-preview {
+      display: grid;
+      gap: 15px;
+      padding: 20px;
+      background: #1a1f2e;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+
+    .grid-preview.grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-preview.grid-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-preview.grid-6 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .grid-preview.grid-8 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .grid-slot {
+      background: #242b3d;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 15px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .slot-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #17a2b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .game-selector {
+      width: 100%;
+      padding: 10px;
+      background: #334155;
+      color: #fff;
+      border: 2px solid #475569;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .game-selector:hover {
+      border-color: #17a2b8;
+      background: #3d4d63;
+    }
+
+    .game-selector:focus {
+      outline: none;
+      border-color: #17a2b8;
+      box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.2);
+    }
+
+    .game-selector option {
+      background: #1a1f2e;
+      color: #fff;
+      padding: 10px;
+    }
+
+    /* Launch Button */
+    .fullscreen-btn {
+      width: 100%;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+    }
+
+    .fullscreen-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(23, 162, 184, 0.5);
+    }
+
+    .fullscreen-btn:disabled {
+      background: #475569;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    /* Full Screen Container */
+    .fullscreen-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #0a0e1a;
+      z-index: 99999;
+      overflow: hidden;
+    }
+
+    .fullscreen-container.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .fullscreen-hover-trigger {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      z-index: 999;
+      pointer-events: auto;
+    }
+
+    .fullscreen-hover-trigger:hover ~ .fullscreen-controls {
+      transform: translateY(0);
+    }
+
+    .fullscreen-controls {
+      background: rgba(26, 31, 46, 0.95);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #334155;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .fullscreen-controls:hover {
+      transform: translateY(0);
+    }
+
+    .fullscreen-controls button {
+      background: #334155;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .fullscreen-controls button:hover {
+      background: #475569;
+    }
+
+    #exit-fullscreen {
+      background: #ef4444;
+    }
+
+    #exit-fullscreen:hover {
+      background: #dc2626;
+    }
+
+    .fullscreen-grid {
+      flex: 1;
+      display: grid;
+      gap: 20px;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .fullscreen-grid.grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .fullscreen-grid.grid-4 {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .fullscreen-grid.grid-6 {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .fullscreen-grid.grid-8 {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .fullscreen-game-card {
+      background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+      border-radius: 16px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border: 3px solid #334155;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fullscreen-game-slot {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-radius: 16px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border: 3px dashed #475569;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .empty-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      opacity: 0.5;
+    }
+
+    .empty-slot-text {
+      font-size: 1.5rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    .fullscreen-game-card.winning-home,
+    .fullscreen-game-card.winning-away {
+      border-color: #22c55e;
+      background: linear-gradient(135deg, #1a1f2e 0%, #1e3a2e 100%);
+    }
+
+    .fullscreen-game-card.tied {
+      border-color: #fbbf24;
+      background: linear-gradient(135deg, #1a1f2e 0%, #3a2e1e 100%);
+    }
+
+    .fullscreen-game-card.upcoming-game {
+      border-color: #6366f1;
+      background: linear-gradient(135deg, #1a1f2e 0%, #1e2a3a 100%);
+      opacity: 0.95;
+    }
+
+    .fullscreen-quarter {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #17a2b8;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .fullscreen-team {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .fullscreen-team-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .fullscreen-team-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .fullscreen-team-name {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1.1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .fullscreen-score {
+      font-size: 6rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .fullscreen-team.winning .fullscreen-team-name {
+      color: #22c55e;
+    }
+
+    .fullscreen-team.losing .fullscreen-team-name {
+      color: #ef4444;
+    }
+
+    .fullscreen-vs {
+      font-size: 2rem;
+      color: #64748b;
+      margin: 10px 0;
+      font-weight: 700;
+    }
+
+    .fullscreen-possession {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      background: #fbbf24;
+      border-radius: 50%;
+      margin-left: 10px;
+      animation: possessionBlink 1s infinite;
+    }
+
+    @keyframes possessionBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .fullscreen-refresh-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 12px;
+      height: 12px;
+      background: #22c55e;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .fullscreen-refresh-indicator.active {
+      opacity: 1;
+      animation: pulse 1s;
+    }
+
+    .fs-game-selector-container {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 1100;
+      animation: fadeIn 0.2s;
+    }
+
+    /* Show selector on empty slots by default, hide on game cards */
+    .fullscreen-game-card .fs-game-selector-container {
+      display: none;
+    }
+
+    .fullscreen-game-slot .fs-game-selector-container {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fs-game-selector {
+      width: 100%;
+      padding: 8px 12px;
+      background: rgba(26, 31, 46, 0.95);
+      color: #fff;
+      border: 2px solid #17a2b8;
+      border-radius: 6px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .fs-game-selector:focus {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+    }
+
+    .fs-game-selector option {
+      background: #1a1f2e;
+      color: #fff;
+      padding: 10px;
+      font-size: 1rem;
+    }
+
+    /* Sport Logo in Top Left */
+    .sport-logo-indicator {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      opacity: 0.9;
+      filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Sport Badges */
+    .sport-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 900;
+      margin-right: 8px;
+    }
+
+    .sport-badge.nfl {
+      background: #17a2b8;
+      color: white;
+    }
+
+    .sport-badge.nba {
+      background: #ef4444;
+      color: white;
+    }
+
+    .sport-badge.mlb {
+      background: #fbbf24;
+      color: #000;
+    }
+
+    .sport-badge.nhl {
+      background: #22c55e;
+      color: white;
+    }
+
+    /* Grid Responsive Sizing */
+    .fullscreen-grid.grid-6 .sport-logo-indicator {
+      width: 70px !important;
+      height: 70px !important;
+      top: 10px !important;
+      left: 10px !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-team-logo {
+      width: 45px !important;
+      height: 45px !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-team-name {
+      font-size: 1.6rem !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-score {
+      font-size: 3rem !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-quarter {
+      font-size: 1.2rem !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-vs {
+      font-size: 1rem !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-game-card,
+    .fullscreen-grid.grid-6 .fullscreen-game-slot {
+      padding: 15px !important;
+    }
+
+    .fullscreen-grid.grid-4 .sport-logo-indicator {
+      width: 85px !important;
+      height: 85px !important;
+      top: 12px !important;
+      left: 12px !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-team-logo {
+      width: 55px !important;
+      height: 55px !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-team-name {
+      font-size: 1.8rem !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-score {
+      font-size: 3.5rem !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-quarter {
+      font-size: 1.3rem !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-vs {
+      font-size: 1.1rem !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-game-card,
+    .fullscreen-grid.grid-4 .fullscreen-game-slot {
+      padding: 18px !important;
+    }
+
+    .fullscreen-grid.grid-8 .sport-logo-indicator {
+      width: 55px !important;
+      height: 55px !important;
+      top: 8px !important;
+      left: 8px !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-team-logo {
+      width: 40px !important;
+      height: 40px !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-team-name {
+      font-size: 1.3rem !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-score {
+      font-size: 2.5rem !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-quarter {
+      font-size: 1rem !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-vs {
+      font-size: 0.9rem !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-game-card,
+    .fullscreen-grid.grid-8 .fullscreen-game-slot {
+      padding: 12px !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <h1>
+        🏆 Mixed Sports Bar Mode
+        <span class="live-indicator">
+          <span class="live-dot"></span>
+          LIVE
+        </span>
+      </h1>
+      <button class="back-btn" onclick="window.location.href='/'">← Back to Home</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section-header">
+      🎮 Select Your Sports Bar Layout
+    </div>
+
+    <!-- Layout Options -->
+    <div class="layout-options">
+      <label>
+        <input type="radio" name="layout" value="2">
+        <span>2 Games</span>
+      </label>
+      <label>
+        <input type="radio" name="layout" value="4" checked>
+        <span>4 Games</span>
+      </label>
+      <label>
+        <input type="radio" name="layout" value="6">
+        <span>6 Games</span>
+      </label>
+      <label>
+        <input type="radio" name="layout" value="8">
+        <span>8 Games</span>
+      </label>
+    </div>
+
+    <!-- Grid Preview -->
+    <div id="grid-preview" class="grid-preview grid-4">
+      <!-- Grid slots populated by JavaScript -->
+    </div>
+
+    <!-- Launch Button -->
+    <button id="launch-fullscreen" class="fullscreen-btn" disabled>🚀 Launch Sports Bar Mode (Select at least 1 game)</button>
+  </div>
+
+  <!-- Fullscreen Container -->
+  <div id="fullscreen-container" class="fullscreen-container">
+    <div class="fullscreen-hover-trigger"></div>
+    <div class="fullscreen-controls">
+      <button id="change-layout-fs">🔄 Change Layout</button>
+      <button id="exit-fullscreen">✕ Exit</button>
+    </div>
+    <div id="fullscreen-grid" class="fullscreen-grid grid-4">
+      <!-- Fullscreen games populated by JavaScript -->
+    </div>
+  </div>
+
+  <script>
+    let allGames = [];
+    let gridGames = {};
+    let currentLayout = 4;
+    let fullscreenRefreshInterval;
+
+    // Load all games from all sports
+    async function loadAllGames() {
+      try {
+        console.log('🔍 Loading games from all sports...');
+
+        const weekResponse = await fetch('/api/nfl/current-week');
+        const { week } = await weekResponse.json();
+
+        const [nflResponse, nbaResponse, mlbResponse, nhlResponse] = await Promise.all([
+          fetch(`/api/nfl/scoreboard?week=${week}`),
+          fetch('/api/nba/scoreboard'),
+          fetch('/api/mlb/scoreboard'),
+          fetch('/api/nhl/scoreboard')
+        ]);
+
+        const [nflData, nbaData, mlbData, nhlData] = await Promise.all([
+          nflResponse.json(),
+          nbaResponse.json(),
+          mlbResponse.json(),
+          nhlResponse.json()
+        ]);
+
+        allGames = [];
+        
+        if (nflData.events) {
+          nflData.events.forEach(game => allGames.push({ ...game, sport: 'nfl' }));
+        }
+        
+        if (nbaData.events) {
+          nbaData.events.forEach(game => allGames.push({ ...game, sport: 'nba' }));
+        }
+        
+        if (mlbData.events) {
+          mlbData.events.forEach(game => allGames.push({ ...game, sport: 'mlb' }));
+        }
+        
+        if (nhlData.events) {
+          nhlData.events.forEach(game => allGames.push({ ...game, sport: 'nhl' }));
+        }
+
+        console.log(`✅ Loaded ${allGames.length} total games`);
+        updateAllGameSelectors();
+      } catch (error) {
+        console.error('Error loading games:', error);
+      }
+    }
+
+    // Render grid preview
+    function renderGridPreview() {
+      const preview = document.getElementById('grid-preview');
+      preview.className = `grid-preview grid-${currentLayout}`;
+      preview.innerHTML = '';
+
+      for (let i = 0; i < currentLayout; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'grid-slot';
+        slot.innerHTML = `
+          <div class="slot-label">Game ${i + 1}</div>
+          <select class="game-selector" data-slot="${i}">
+            <option value="">-- Select Game --</option>
+          </select>
+        `;
+        preview.appendChild(slot);
+      }
+
+      updateAllGameSelectors();
+      checkAllSlotsSelected();
+    }
+
+    // Update all game selectors
+    function updateAllGameSelectors() {
+      const selectedGames = Object.values(gridGames);
+
+      document.querySelectorAll('.game-selector').forEach(selector => {
+        const slotIndex = parseInt(selector.dataset.slot);
+        const currentSelection = gridGames[slotIndex];
+
+        selector.innerHTML = '<option value="">-- Select Game --</option>';
+
+        allGames.forEach(game => {
+          const gameId = game.id;
+          
+          if (selectedGames.includes(gameId) && currentSelection !== gameId) {
+            return;
+          }
+
+          const comp = game.competitions?.[0];
+          const awayTeam = comp?.competitors?.[1]?.team?.shortDisplayName || 'Away';
+          const homeTeam = comp?.competitors?.[0]?.team?.shortDisplayName || 'Home';
+          const awayScore = comp?.competitors?.[1]?.score || '0';
+          const homeScore = comp?.competitors?.[0]?.score || '0';
+          const statusState = comp?.status?.type?.state;
+
+          let statusText;
+          if (statusState === 'in') {
+            statusText = `LIVE - ${comp?.status?.type?.shortDetail || 'Live'}`;
+          } else if (statusState === 'pre') {
+            const gameDate = new Date(game.date);
+            const hoursUntil = Math.round((gameDate - new Date()) / 3600000);
+            statusText = `UPCOMING (${hoursUntil}h)`;
+          } else {
+            statusText = comp?.status?.type?.shortDetail || 'Final';
+          }
+
+          const option = document.createElement('option');
+          option.value = gameId;
+          option.textContent = `[${game.sport.toUpperCase()}] ${awayTeam} (${awayScore}) @ ${homeTeam} (${homeScore}) - ${statusText}`;
+          
+          if (currentSelection === gameId) {
+            option.selected = true;
+          }
+
+          selector.appendChild(option);
+        });
+
+        selector.removeEventListener('change', handleGameSelection);
+        selector.addEventListener('change', handleGameSelection);
+      });
+    }
+
+    // Handle game selection
+    function handleGameSelection(e) {
+      const slotIndex = parseInt(e.target.dataset.slot);
+      const gameId = e.target.value;
+
+      if (gameId) {
+        gridGames[slotIndex] = gameId;
+      } else {
+        delete gridGames[slotIndex];
+      }
+
+      updateAllGameSelectors();
+      checkAllSlotsSelected();
+    }
+
+    // Check if at least one slot is selected
+    function checkAllSlotsSelected() {
+      const launchBtn = document.getElementById('launch-fullscreen');
+      const selectedCount = Object.keys(gridGames).length;
+      
+      if (selectedCount === 0) {
+        launchBtn.disabled = true;
+        launchBtn.textContent = '🚀 Launch Sports Bar Mode (Select at least 1 game)';
+      } else {
+        launchBtn.disabled = false;
+        launchBtn.textContent = `🚀 Launch Sports Bar Mode (${selectedCount} of ${currentLayout} selected)`;
+      }
+    }
+
+    // Layout change handlers
+    document.querySelectorAll('input[name="layout"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        currentLayout = parseInt(radio.value);
+        gridGames = {};
+        renderGridPreview();
+      });
+    });
+
+    // Launch fullscreen
+    document.getElementById('launch-fullscreen').addEventListener('click', enterFullscreen);
+
+    function enterFullscreen() {
+      document.getElementById('fullscreen-container').classList.add('active');
+      
+      const fullscreenGrid = document.getElementById('fullscreen-grid');
+      fullscreenGrid.className = `fullscreen-grid grid-${currentLayout}`;
+      
+      renderFullscreenGames();
+      
+      fullscreenRefreshInterval = setInterval(updateFullscreenGames, 15000);
+      
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      }
+    }
+
+    // Exit fullscreen
+    document.getElementById('exit-fullscreen').addEventListener('click', exitFullscreen);
+
+    function exitFullscreen() {
+      document.getElementById('fullscreen-container').classList.remove('active');
+      
+      if (fullscreenRefreshInterval) {
+        clearInterval(fullscreenRefreshInterval);
+      }
+      
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+
+    // Change layout from fullscreen
+    document.getElementById('change-layout-fs').addEventListener('click', () => {
+      exitFullscreen();
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 300);
+    });
+
+    // Render fullscreen games
+    function renderFullscreenGames() {
+      const fullscreenGrid = document.getElementById('fullscreen-grid');
+      fullscreenGrid.innerHTML = '';
+
+      for (let i = 0; i < currentLayout; i++) {
+        const gameId = gridGames[i];
+        const game = allGames.find(g => g.id === gameId);
+
+        if (game) {
+          fullscreenGrid.appendChild(createFullscreenGameCard(game, i));
+        } else {
+          fullscreenGrid.appendChild(createEmptyFullscreenSlot(i));
+        }
+      }
+    }
+
+    // Create empty fullscreen slot
+    function createEmptyFullscreenSlot(slotIndex) {
+      const div = document.createElement('div');
+      div.className = 'fullscreen-game-slot';
+
+      const logoSize = currentLayout === 6 ? '50%' : currentLayout === 4 ? '55%' : '60%';
+
+      div.innerHTML = `
+        <div class="empty-slot">
+          <img src="/assets/logo.png" alt="GridTV Sports" style="max-width: ${logoSize};">
+          <div class="empty-slot-text">
+            Select a game below<br>to display
+          </div>
+        </div>
+        
+        <div class="fs-game-selector-container">
+          <select class="fs-game-selector" data-slot="${slotIndex}">
+            <option value="">-- Select Game --</option>
+          </select>
+        </div>
+      `;
+
+      const selector = div.querySelector('.fs-game-selector');
+      populateFullscreenGameSelector(selector, slotIndex);
+
+      return div;
+    }
+
+    // Create fullscreen game card
+    function createFullscreenGameCard(game, slotIndex) {
+      const div = document.createElement('div');
+      
+      const comp = game.competitions?.[0];
+      const awayTeam = comp?.competitors?.[1];
+      const homeTeam = comp?.competitors?.[0];
+      const awayScore = parseInt(awayTeam?.score || 0);
+      const homeScore = parseInt(homeTeam?.score || 0);
+      
+      const statusState = comp?.status?.type?.state;
+      const isLive = statusState === 'in';
+      const isUpcoming = statusState === 'pre';
+      
+      let cardClass = 'fullscreen-game-card';
+      
+      if (isUpcoming) {
+        cardClass += ' upcoming-game';
+      } else {
+        if (awayScore > homeScore) cardClass += ' winning-away';
+        else if (homeScore > awayScore) cardClass += ' winning-home';
+        else cardClass += ' tied';
+      }
+
+      let statusDisplay = comp?.status?.type?.shortDetail || 'Live';
+      
+      if (isUpcoming) {
+        const gameDate = new Date(game.date);
+        const now = new Date();
+        const hoursUntil = Math.round((gameDate - now) / (1000 * 60 * 60));
+        const minutesUntil = Math.round((gameDate - now) / (1000 * 60));
+        
+        if (minutesUntil < 60) {
+          statusDisplay = `⏰ STARTS IN ${minutesUntil} MIN`;
+        } else if (hoursUntil < 24) {
+          statusDisplay = `⏰ STARTS IN ${hoursUntil}H`;
+        } else {
+          statusDisplay = `⏰ ${gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+        }
+      }
+
+      div.className = cardClass;
+      div.dataset.slotIndex = slotIndex;
+      div.dataset.gameId = game.id;
+      
+      // Sport logos
+      const sportLogos = {
+        'nfl': '/assets/NFL-logo.png',
+        'nba': '/assets/NBA-logo.png',
+        'mlb': '/assets/MLB-logo.png',
+        'nhl': '/assets/NHL-logo.png'
+      };
+      const sportLogo = sportLogos[game.sport] || '/assets/logo.png';
+      
+      div.innerHTML = `
+        <img src="${sportLogo}" alt="${game.sport.toUpperCase()}" class="sport-logo-indicator">
+        <div class="fullscreen-refresh-indicator"></div>
+        
+        <div class="fs-game-selector-container">
+          <select class="fs-game-selector" data-slot="${slotIndex}">
+          </select>
+        </div>
+
+        <div class="fullscreen-quarter">${statusDisplay}</div>
+        
+        <div class="fullscreen-team ${!isUpcoming && awayScore > homeScore ? 'winning' : !isUpcoming && awayScore < homeScore ? 'losing' : ''}">
+          <div class="fullscreen-team-header">
+            ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+            <div class="fullscreen-team-name">
+              ${awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away'}
+            </div>
+          </div>
+          <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
+        </div>
+
+        <div class="fullscreen-vs">VS</div>
+
+        <div class="fullscreen-team ${!isUpcoming && homeScore > awayScore ? 'winning' : !isUpcoming && homeScore < awayScore ? 'losing' : ''}">
+          <div class="fullscreen-team-header">
+            ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+            <div class="fullscreen-team-name">
+              ${homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home'}
+            </div>
+          </div>
+          <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
+        </div>
+      `;
+
+      const selector = div.querySelector('.fs-game-selector');
+      populateFullscreenGameSelector(selector, slotIndex);
+
+      div.addEventListener('mouseenter', () => {
+        div.querySelector('.fs-game-selector-container').style.display = 'block';
+      });
+      div.addEventListener('mouseleave', () => {
+        div.querySelector('.fs-game-selector-container').style.display = 'none';
+      });
+
+      return div;
+    }
+
+    // Populate fullscreen game selector
+    function populateFullscreenGameSelector(selector, slotIndex) {
+      const selectedGames = Object.values(gridGames);
+      const currentSelection = gridGames[slotIndex];
+
+      selector.innerHTML = '<option value="">-- Select Game --</option>';
+
+      allGames.forEach(game => {
+        const gameId = game.id;
+        
+        if (selectedGames.includes(gameId) && currentSelection !== gameId) {
+          return;
+        }
+
+        const comp = game.competitions?.[0];
+        const awayTeam = comp?.competitors?.[1]?.team?.shortDisplayName || 'Away';
+        const homeTeam = comp?.competitors?.[0]?.team?.shortDisplayName || 'Home';
+        const statusState = comp?.status?.type?.state;
+
+        let statusText;
+        if (statusState === 'in') {
+          statusText = `LIVE`;
+        } else if (statusState === 'pre') {
+          statusText = `UPCOMING`;
+        } else {
+          statusText = 'FINAL';
+        }
+
+        const option = document.createElement('option');
+        option.value = gameId;
+        option.textContent = `[${game.sport.toUpperCase()}] ${awayTeam} @ ${homeTeam} - ${statusText}`;
+        
+        if (currentSelection === gameId) {
+          option.selected = true;
+        }
+
+        selector.appendChild(option);
+      });
+
+      selector.removeEventListener('change', handleFullscreenGameSelection);
+      selector.addEventListener('change', handleFullscreenGameSelection);
+    }
+
+    // Handle fullscreen game selection
+    function handleFullscreenGameSelection(e) {
+      const slotIndex = parseInt(e.target.dataset.slot);
+      const gameId = e.target.value;
+
+      if (gameId) {
+        gridGames[slotIndex] = gameId;
+      } else {
+        delete gridGames[slotIndex];
+      }
+
+      renderFullscreenGames();
+    }
+
+    // Update fullscreen games
+    async function updateFullscreenGames() {
+      await loadAllGames();
+      
+      document.querySelectorAll('.fullscreen-game-slot, .fullscreen-game-card').forEach((slot, index) => {
+        const indicator = slot.querySelector('.fullscreen-refresh-indicator');
+        if (indicator) {
+          indicator.classList.add('active');
+          setTimeout(() => indicator.classList.remove('active'), 1000);
+        }
+      });
+
+      renderFullscreenGames();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAllGames();
+      renderGridPreview();
+    });
+  </script>
+</body>
+</html>
