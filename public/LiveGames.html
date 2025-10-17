@@ -697,6 +697,352 @@
     .fullscreen-grid.grid-8 .fullscreen-game-slot {
       padding: 12px !important;
     }
+
+    /* ============================================
+       SPORT ANIMATIONS (NFL, NBA, MLB, NHL)
+       ============================================ */
+
+    /* Play/Score Animations */
+    .play-animation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.90);
+      z-index: 100;
+      pointer-events: none;
+      animation: fadeOut 3s forwards;
+    }
+
+    .play-animation-icon {
+      font-size: 8rem;
+      margin-bottom: 20px;
+      animation: playIconBounce 0.8s ease-out;
+    }
+
+    .play-animation-text {
+      font-size: 4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      animation: playTextSlide 0.8s ease-out;
+      text-shadow: 0 0 20px currentColor;
+    }
+
+    /* NFL Animations */
+    .play-animation.nfl-touchdown .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    }
+
+    .play-animation.nfl-touchdown .play-animation-text {
+      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    .play-animation.nfl-field-goal .play-animation-icon {
+      color: #3b82f6;
+      text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
+    }
+
+    .play-animation.nfl-interception .play-animation-icon {
+      color: #ef4444;
+      text-shadow: 0 0 30px #ef4444, 0 0 60px #ef4444;
+    }
+
+    .play-animation.nfl-fumble .play-animation-icon {
+      color: #f97316;
+      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+    }
+
+    /* NBA Animations */
+    .play-animation.nba-score .play-animation-icon {
+      color: #f97316;
+      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+    }
+
+    .play-animation.nba-three-pointer .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    }
+
+    .play-animation.nba-three-pointer .play-animation-text {
+      background: linear-gradient(90deg, #ef4444, #fbbf24, #ef4444);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* MLB Animations */
+    .play-animation.mlb-home-run .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    }
+
+    .play-animation.mlb-home-run .play-animation-text {
+      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    .play-animation.mlb-score .play-animation-icon {
+      color: #3b82f6;
+      text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
+    }
+
+    /* NHL Animations */
+    .play-animation.nhl-goal .play-animation-icon {
+      color: #ef4444;
+      text-shadow: 0 0 30px #ef4444, 0 0 60px #ef4444;
+    }
+
+    .play-animation.nhl-goal .play-animation-text {
+      background: linear-gradient(90deg, #ef4444, #fbbf24, #ef4444);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      70% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes playIconBounce {
+      0% { transform: scale(0) rotate(0deg); }
+      50% { transform: scale(1.2) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+
+    @keyframes playTextSlide {
+      0% { transform: translateY(50px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @keyframes castPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    /* ============================================
+       END SPORT ANIMATIONS
+       ============================================ */
+
+    /* Cast Button Styles */
+    .cast-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: 10px;
+    }
+
+    .cast-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      transform: translateY(-1px);
+    }
+
+    .cast-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .cast-btn.casting {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      animation: castPulse 2s infinite;
+    }
+
+    /* Mobile Responsive Styles */
+    @media screen and (max-width: 768px) {
+      /* Header adjustments */
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .back-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      /* Container padding */
+      .container {
+        padding: 20px 10px;
+      }
+
+      /* Fullscreen controls for mobile */
+      .fullscreen-controls {
+        padding: 8px;
+        gap: 8px;
+      }
+
+      .fullscreen-controls button {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .cast-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      /* Mobile fullscreen grid - Force single column layout */
+      .fullscreen-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+        padding: 10px !important;
+      }
+
+      /* Mobile fullscreen game cards */
+      .fullscreen-game-card,
+      .fullscreen-game-slot {
+        padding: 20px !important;
+        min-height: auto !important;
+      }
+
+      /* Mobile sport logos */
+      .sport-logo-indicator {
+        width: 60px !important;
+        height: 60px !important;
+        top: 10px !important;
+        left: 10px !important;
+      }
+
+      /* Mobile team logos */
+      .fullscreen-team-logo {
+        width: 50px !important;
+        height: 50px !important;
+      }
+
+      /* Mobile team names */
+      .fullscreen-team-name {
+        font-size: 1.8rem !important;
+      }
+
+      /* Mobile scores */
+      .fullscreen-score {
+        font-size: 4rem !important;
+      }
+
+      /* Mobile quarter/status */
+      .fullscreen-quarter {
+        font-size: 1.4rem !important;
+        margin-bottom: 15px !important;
+      }
+
+      /* Mobile VS text */
+      .fullscreen-vs {
+        font-size: 1.2rem !important;
+        margin: 15px 0 !important;
+      }
+
+      /* Mobile dropdown selectors */
+      .fs-game-selector {
+        font-size: 14px !important;
+        padding: 10px !important;
+      }
+
+      /* Mobile empty slot logo */
+      .empty-slot img {
+        max-width: 120px !important;
+      }
+
+      .empty-slot-text {
+        font-size: 1.2rem !important;
+      }
+    }
+
+    /* Tablet landscape adjustments */
+    @media screen and (min-width: 769px) and (max-width: 1024px) {
+      .fullscreen-grid.grid-8,
+      .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+
+      .fullscreen-grid.grid-4 {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
+    /* Presentation display (TV) - Hide controls and show only fullscreen */
+    body.presentation-mode .header,
+    body.presentation-mode .container {
+      display: none !important;
+    }
+
+    body.presentation-mode .fullscreen-container {
+      display: block !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    body.presentation-mode .fullscreen-controls {
+      display: none !important;
+    }
+
+    body.presentation-mode .fs-game-selector-container {
+      display: none !important;
+    }
+
+    body.presentation-mode .fullscreen-hover-trigger {
+      display: none !important;
+    }
+
+    /* Alternative: Use media query for presentation mode */
+    @media (display-mode: presentation) {
+      .header,
+      .container {
+        display: none !important;
+      }
+
+      .fullscreen-container {
+        display: block !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+      }
+
+      .fullscreen-controls {
+        display: none !important;
+      }
+
+      .fs-game-selector-container {
+        display: none !important;
+      }
+
+      .fullscreen-hover-trigger {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -751,6 +1097,9 @@
   <div id="fullscreen-container" class="fullscreen-container">
     <div class="fullscreen-hover-trigger"></div>
     <div class="fullscreen-controls">
+      <button id="cast-btn" class="cast-btn" style="display: none;">
+        📺 Cast to TV
+      </button>
       <button id="change-layout-fs">🔄 Change Layout</button>
       <button id="exit-fullscreen">✕ Exit</button>
     </div>
@@ -764,6 +1113,8 @@
     let gridGames = {};
     let currentLayout = 4;
     let fullscreenRefreshInterval;
+    let presentationRequest = null;
+    let presentationConnection = null;
 
     // Load all games from all sports
     async function loadAllGames() {
@@ -1167,25 +1518,544 @@
       renderFullscreenGames();
     }
 
+    // ============================================
+    // SPORT ANIMATIONS
+    // ============================================
+
+    // Show play animation on game card
+    function showPlayAnimation(card, sport, playType, playText, teamName = '') {
+      // Remove any existing animation
+      const existingAnimation = card.querySelector('.play-animation');
+      if (existingAnimation) {
+        existingAnimation.remove();
+      }
+
+      // Create animation overlay
+      const animationDiv = document.createElement('div');
+      animationDiv.className = `play-animation ${sport}-${playType}`;
+      
+      // Choose icon based on sport and play type
+      let icon;
+      switch(`${sport}-${playType}`) {
+        // NFL
+        case 'nfl-touchdown':
+          icon = '🏈';
+          break;
+        case 'nfl-field-goal':
+          icon = '🥅';
+          break;
+        case 'nfl-interception':
+          icon = '🚫';
+          break;
+        case 'nfl-fumble':
+          icon = '💨';
+          break;
+        
+        // NBA
+        case 'nba-score':
+          icon = '🏀';
+          break;
+        case 'nba-three-pointer':
+          icon = '🎯';
+          break;
+        
+        // MLB
+        case 'mlb-home-run':
+          icon = '⚾';
+          break;
+        case 'mlb-score':
+          icon = '⚾';
+          break;
+        
+        // NHL
+        case 'nhl-goal':
+          icon = '🏒';
+          break;
+        
+        default:
+          icon = '⚡';
+      }
+      
+      animationDiv.innerHTML = `
+        <div class="play-animation-icon">${icon}</div>
+        <div class="play-animation-text">${playText}</div>
+        ${teamName ? `<div class="play-animation-text" style="font-size: 2.5rem; margin-top: 10px;">${teamName}</div>` : ''}
+      `;
+      
+      card.style.position = 'relative';
+      card.appendChild(animationDiv);
+      
+      // Remove after animation completes (3 seconds)
+      setTimeout(() => {
+        animationDiv.remove();
+      }, 3000);
+    }
+
+    // Detect score changes and show appropriate animation
+    function detectScoreChange(card, game, prevAwayScore, prevHomeScore) {
+      const comp = game.competitions?.[0];
+      const awayTeam = comp?.competitors?.[1];
+      const homeTeam = comp?.competitors?.[0];
+      const awayScore = parseInt(awayTeam?.score || 0);
+      const homeScore = parseInt(homeTeam?.score || 0);
+      const sport = game.sport;
+
+      const awayScoreChange = awayScore - prevAwayScore;
+      const homeScoreChange = homeScore - prevHomeScore;
+
+      // Detect which team scored and how much
+      if (awayScoreChange > 0) {
+        const teamName = awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away';
+        detectPlayType(card, sport, awayScoreChange, teamName);
+      } else if (homeScoreChange > 0) {
+        const teamName = homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home';
+        detectPlayType(card, sport, homeScoreChange, teamName);
+      }
+    }
+
+    // Determine play type based on sport and point change
+    function detectPlayType(card, sport, pointChange, teamName) {
+      let playType, playText;
+
+      switch(sport) {
+        case 'nfl':
+          if (pointChange === 6) {
+            playType = 'touchdown';
+            playText = 'TOUCHDOWN!';
+          } else if (pointChange === 7 || pointChange === 8) {
+            playType = 'touchdown';
+            playText = pointChange === 7 ? 'TOUCHDOWN! +PAT' : 'TOUCHDOWN! +2PT';
+          } else if (pointChange === 3) {
+            playType = 'field-goal';
+            playText = 'FIELD GOAL!';
+          } else if (pointChange === 2) {
+            playType = 'field-goal';
+            playText = 'SAFETY!';
+          } else {
+            playType = 'touchdown';
+            playText = `+${pointChange} POINTS!`;
+          }
+          break;
+
+        case 'nba':
+          if (pointChange === 3) {
+            playType = 'three-pointer';
+            playText = 'THREE POINTER!';
+          } else if (pointChange === 2) {
+            playType = 'score';
+            playText = 'BASKET!';
+          } else if (pointChange === 1) {
+            playType = 'score';
+            playText = 'FREE THROW!';
+          } else {
+            playType = 'score';
+            playText = `+${pointChange} POINTS!`;
+          }
+          break;
+
+        case 'mlb':
+          if (pointChange >= 4) {
+            playType = 'home-run';
+            playText = 'GRAND SLAM!';
+          } else if (pointChange >= 2) {
+            playType = 'home-run';
+            playText = `HOME RUN! +${pointChange}`;
+          } else {
+            playType = 'score';
+            playText = `+${pointChange} RUN${pointChange > 1 ? 'S' : ''}!`;
+          }
+          break;
+
+        case 'nhl':
+          playType = 'goal';
+          playText = pointChange > 1 ? `${pointChange} GOALS!` : 'GOAL!';
+          break;
+
+        default:
+          playType = 'score';
+          playText = `+${pointChange}!`;
+      }
+
+      showPlayAnimation(card, sport, playType, playText, teamName);
+    }
+
+    // ============================================
+    // END SPORT ANIMATIONS
+    // ============================================
+
     // Update fullscreen games
     async function updateFullscreenGames() {
+      console.log('🔄 Controller auto-refreshing game data...');
+      
+      // Store previous scores before loading new data
+      const previousScores = {};
+      document.querySelectorAll('.fullscreen-game-card').forEach((card) => {
+        const gameId = card.dataset.gameId;
+        if (gameId) {
+          const awayScoreEl = card.querySelectorAll('.fullscreen-score')[0];
+          const homeScoreEl = card.querySelectorAll('.fullscreen-score')[1];
+          previousScores[gameId] = {
+            away: parseInt(awayScoreEl?.textContent || 0),
+            home: parseInt(homeScoreEl?.textContent || 0)
+          };
+        }
+      });
+      
       await loadAllGames();
       
-      document.querySelectorAll('.fullscreen-game-slot, .fullscreen-game-card').forEach((slot, index) => {
-        const indicator = slot.querySelector('.fullscreen-refresh-indicator');
+      // Check for score changes and show animations
+      document.querySelectorAll('.fullscreen-game-card').forEach((card) => {
+        const gameId = card.dataset.gameId;
+        const game = allGames.find(g => g.id === gameId);
+        
+        if (game && previousScores[gameId]) {
+          const prevScores = previousScores[gameId];
+          detectScoreChange(card, game, prevScores.away, prevScores.home);
+        }
+        
+        // Show refresh indicator
+        const indicator = card.querySelector('.fullscreen-refresh-indicator');
         if (indicator) {
           indicator.classList.add('active');
           setTimeout(() => indicator.classList.remove('active'), 1000);
         }
       });
 
-      renderFullscreenGames();
+      renderFullscreenGames(); // This will trigger sendStateToPresentationDisplay() via override
+      console.log('✅ Controller refreshed and synced to TV');
+    }
+
+    // ============================================
+    // PRESENTATION API - CAST TO TV FUNCTIONALITY
+    // ============================================
+
+    // Initialize Presentation API
+    function initializePresentationAPI() {
+      const castBtn = document.getElementById('cast-btn');
+      
+      // Check if Presentation API is available
+      if ('PresentationRequest' in window) {
+        try {
+          // Create presentation URL with parameter to indicate presentation mode
+          const baseUrl = window.location.origin + window.location.pathname;
+          const presentationUrl = baseUrl + '?presentation=true';
+          presentationRequest = new PresentationRequest([presentationUrl]);
+
+          // Show cast button
+          castBtn.style.display = 'inline-flex';
+
+          // Monitor availability of presentation displays
+          presentationRequest.addEventListener('connectionavailable', handleConnectionAvailable);
+
+          // Check for available displays
+          presentationRequest.getAvailability()
+            .then(availability => {
+              availability.addEventListener('change', () => {
+                castBtn.disabled = !availability.value;
+                if (availability.value) {
+                  console.log('✅ Cast devices available');
+                } else {
+                  console.log('⚠️ No cast devices found');
+                }
+              });
+              castBtn.disabled = !availability.value;
+            })
+            .catch(err => {
+              console.log('⚠️ Presentation availability check not supported:', err);
+              // Show button anyway, let user try
+              castBtn.disabled = false;
+            });
+
+        } catch (error) {
+          console.error('Error initializing Presentation API:', error);
+          castBtn.style.display = 'none';
+        }
+      } else {
+        console.log('⚠️ Presentation API not supported in this browser');
+        // Try Chrome/Edge specific message
+        if (!navigator.userAgent.includes('Chrome') && !navigator.userAgent.includes('Edg')) {
+          console.log('💡 Try using Chrome or Edge for casting support');
+        }
+      }
+    }
+
+    // Start casting to TV
+    async function startCasting() {
+      const castBtn = document.getElementById('cast-btn');
+      
+      try {
+        // Start presentation connection
+        const connection = await presentationRequest.start();
+        presentationConnection = connection;
+
+        console.log('🎬 Casting started to:', connection.id);
+        
+        // Update button state
+        castBtn.textContent = '📺 Casting...';
+        castBtn.classList.add('casting');
+
+        // Handle connection state changes
+        connection.addEventListener('close', () => {
+          console.log('📴 Presentation closed');
+          resetCastButton();
+        });
+
+        connection.addEventListener('terminate', () => {
+          console.log('🛑 Presentation terminated');
+          resetCastButton();
+        });
+
+        // Wait a moment for connection to stabilize, then send initial state
+        setTimeout(() => {
+          sendStateToPresentationDisplay();
+        }, 500);
+
+      } catch (error) {
+        console.error('Error starting presentation:', error);
+        alert('Unable to cast. Make sure your TV/Chromecast is on the same network.');
+      }
+    }
+
+    // Stop casting
+    function stopCasting() {
+      if (presentationConnection) {
+        presentationConnection.terminate();
+        presentationConnection = null;
+      }
+      resetCastButton();
+    }
+
+    // Reset cast button to default state
+    function resetCastButton() {
+      const castBtn = document.getElementById('cast-btn');
+      castBtn.textContent = '📺 Cast to TV';
+      castBtn.classList.remove('casting');
+      presentationConnection = null;
+    }
+
+    // Handle incoming connections (for reconnection scenarios)
+    function handleConnectionAvailable(event) {
+      const connection = event.connection;
+      presentationConnection = connection;
+      
+      const castBtn = document.getElementById('cast-btn');
+      castBtn.textContent = '📺 Casting...';
+      castBtn.classList.add('casting');
+
+      connection.addEventListener('close', resetCastButton);
+      connection.addEventListener('terminate', resetCastButton);
+    }
+
+    // Send state updates to presentation display
+    function sendStateToPresentationDisplay() {
+      if (!presentationConnection) {
+        // Not casting, skip
+        return;
+      }
+      
+      if (presentationConnection.state !== 'connected') {
+        console.log('⚠️ Presentation connection not ready:', presentationConnection.state);
+        return;
+      }
+
+      // Build game objects for selected games
+      const selectedGames = {};
+      Object.entries(gridGames).forEach(([slotIndex, gameId]) => {
+        const game = allGames.find(g => g.id === gameId);
+        if (game) {
+          selectedGames[slotIndex] = game;
+        }
+      });
+
+      const state = {
+        type: 'update',
+        gridGames: gridGames, // Keep IDs for reference
+        selectedGames: selectedGames, // Include full game objects
+        currentLayout: currentLayout,
+        timestamp: Date.now()
+      };
+      
+      try {
+        presentationConnection.send(JSON.stringify(state));
+        console.log('📤 Sent state to TV:', {
+          layout: currentLayout,
+          gameCount: Object.keys(gridGames).length,
+          timestamp: new Date().toLocaleTimeString()
+        });
+      } catch (error) {
+        console.error('❌ Error sending to presentation:', error);
+      }
+    }
+
+    // Listen for messages from controller (if this page is the presentation display)
+    if (navigator.presentation && navigator.presentation.receiver) {
+      navigator.presentation.receiver.connectionList.then(list => {
+        list.connections.forEach(connection => {
+          connection.addEventListener('message', event => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'update') {
+              // Update the TV display with new state
+              gridGames = data.gridGames;
+              currentLayout = data.currentLayout;
+              renderFullscreenGames();
+              console.log('📥 Received update from controller:', data);
+            }
+          });
+        });
+
+        list.addEventListener('connectionavailable', event => {
+          const connection = event.connection;
+          connection.addEventListener('message', event => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'update') {
+              gridGames = data.gridGames;
+              currentLayout = data.currentLayout;
+              renderFullscreenGames();
+            }
+          });
+        });
+      });
+    }
+
+    // Cast button click handler
+    document.getElementById('cast-btn')?.addEventListener('click', () => {
+      const castBtn = document.getElementById('cast-btn');
+      if (castBtn.classList.contains('casting')) {
+        // Stop casting
+        stopCasting();
+      } else {
+        // Start casting
+        startCasting();
+      }
+    });
+
+    // Override renderFullscreenGames to sync with TV when casting
+    const originalRenderFullscreenGames = renderFullscreenGames;
+    renderFullscreenGames = function() {
+      originalRenderFullscreenGames();
+      sendStateToPresentationDisplay();
+    };
+
+    // ============================================
+    // END PRESENTATION API
+    // ============================================
+
+    // Check if this page is loaded in presentation mode (on TV)
+    function checkPresentationMode() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isPresentationMode = urlParams.get('presentation') === 'true';
+      
+      if (isPresentationMode) {
+        console.log('🖥️ Running in PRESENTATION MODE (TV Display)');
+        
+        // Add presentation mode class to body
+        document.body.classList.add('presentation-mode');
+        
+        // Hide header and container, show fullscreen immediately
+        document.querySelector('.header').style.display = 'none';
+        document.querySelector('.container').style.display = 'none';
+        
+        const fullscreenContainer = document.getElementById('fullscreen-container');
+        fullscreenContainer.classList.add('active');
+        fullscreenContainer.style.display = 'block';
+        fullscreenContainer.style.opacity = '1';
+        fullscreenContainer.style.pointerEvents = 'auto';
+        
+        // Listen for state updates from controller
+        if (navigator.presentation && navigator.presentation.receiver) {
+          navigator.presentation.receiver.connectionList.then(list => {
+            list.connections.forEach(connection => {
+              console.log('📥 Connected to controller');
+              connection.addEventListener('message', handlePresentationMessage);
+            });
+
+            list.addEventListener('connectionavailable', event => {
+              console.log('📥 New controller connection');
+              event.connection.addEventListener('message', handlePresentationMessage);
+            });
+          });
+        }
+        
+        return true;
+      }
+      
+      return false;
+    }
+
+    // Handle messages from controller device
+    function handlePresentationMessage(event) {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('📥 Received from controller:', {
+          type: data.type,
+          layout: data.currentLayout,
+          gameCount: Object.keys(data.gridGames || {}).length
+        });
+        
+        if (data.type === 'update') {
+          // Update the TV display with new state
+          gridGames = data.gridGames;
+          currentLayout = data.currentLayout;
+          
+          // If we received full game objects, merge them into allGames
+          if (data.selectedGames) {
+            Object.values(data.selectedGames).forEach(game => {
+              const existingIndex = allGames.findIndex(g => g.id === game.id);
+              if (existingIndex === -1) {
+                allGames.push(game);
+              } else {
+                allGames[existingIndex] = game;
+              }
+            });
+          }
+          
+          // Update grid layout class
+          const fullscreenGrid = document.getElementById('fullscreen-grid');
+          fullscreenGrid.className = `fullscreen-grid grid-${currentLayout}`;
+          
+          // Render the games
+          renderFullscreenGames();
+        }
+      } catch (error) {
+        console.error('Error handling presentation message:', error);
+      }
     }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
-      loadAllGames();
-      renderGridPreview();
+      // Check if we're in presentation mode (TV display)
+      const isPresentationMode = checkPresentationMode();
+      
+      if (isPresentationMode) {
+        // In presentation mode (TV), setup auto-refresh
+        loadAllGames();
+        console.log('📺 TV Display ready - waiting for controller...');
+        
+        // TV needs its own refresh interval to update live scores
+        setInterval(async () => {
+          console.log('� TV auto-refreshing game data...');
+          await loadAllGames();
+          
+          // Show refresh indicators
+          document.querySelectorAll('.fullscreen-game-slot, .fullscreen-game-card').forEach((slot) => {
+            const indicator = slot.querySelector('.fullscreen-refresh-indicator');
+            if (indicator) {
+              indicator.classList.add('active');
+              setTimeout(() => indicator.classList.remove('active'), 1000);
+            }
+          });
+          
+          // Re-render with updated data
+          renderFullscreenGames();
+          console.log('✅ TV display refreshed');
+        }, 15000); // Refresh every 15 seconds
+        
+      } else {
+        // Normal mode - show selection interface
+        loadAllGames();
+        renderGridPreview();
+        initializePresentationAPI();
+      }
     });
   </script>
 </body>

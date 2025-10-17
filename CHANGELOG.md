@@ -1,7 +1,7 @@
 # GridTVSports - Complete Development Changelog
 
 > **Purpose**: Single source of truth for all code changes, annotations, and important development information.  
-> **Last Updated**: October 15, 2025 - 6:30 PM
+> **Last Updated**: October 16, 2025 - 8:45 PM
 
 ---
 
@@ -154,6 +154,182 @@
 - No duplicate game selection across multiple slots
 
 **Implementation Strategy**: Update MLB first, test, then apply to NHL
+
+---
+
+## Recent Updates (Oct 16, 2025)
+
+### 🎥 Mixed Sports Bar Mode - Cast to TV Feature
+
+**Problem**: User wanted to cast fullscreen game cards to TV/Chromecast
+**Solution**: Implemented Web Presentation API with URL parameter system
+
+**Implementation** (`LiveGames.html`):
+1. **Presentation API Integration** (Lines 1391-1570):
+   - `initializePresentationAPI()` - Setup with URL parameter
+   - `startCasting()` - Establish connection to TV
+   - `sendStateToPresentationDisplay()` - Sync game data to TV
+   - `checkPresentationMode()` - Detect if running on TV display
+   - `handlePresentationMessage()` - Receive updates from controller
+
+2. **URL Parameter System**:
+   - Controller: `http://localhost:3001/LiveGames.html`
+   - TV Display: `http://localhost:3001/LiveGames.html?presentation=true`
+   - JavaScript detects `?presentation=true` and applies `presentation-mode` class
+
+3. **Presentation Mode CSS** (Lines 860-905):
+   ```css
+   body.presentation-mode .header,
+   body.presentation-mode .container {
+     display: none !important;
+   }
+   
+   body.presentation-mode .fullscreen-container {
+     display: block !important;
+   }
+   ```
+
+**Result**: ✅ TV shows ONLY fullscreen game cards, controller keeps selection interface
+
+---
+
+### 📱 Mobile Responsive Design
+
+**Problem**: Game cards not optimized for phones and tablets
+**Solution**: Added responsive CSS with breakpoints
+
+**Implementation** (`LiveGames.html`, Lines 889-1014):
+
+**Phone (≤768px)**:
+- Single column grid
+- 4rem score font size
+- 60px sport logos
+- Full-width cards
+
+**Tablet (769-1024px)**:
+- 2-column grid
+- 3rem score font size
+- Responsive spacing
+
+**Desktop (≥1025px)**:
+- Original 2x2/3x2/4x2 grid layouts
+- Full-size elements
+
+---
+
+### 🔄 Auto-Refresh Bug Fixes
+
+**Problem 1**: TV display not auto-refreshing (showing stale scores)
+**Solution**: Dual refresh strategy
+
+**Implementation**:
+1. **TV Independent Refresh** (Lines 1850-1880):
+   ```javascript
+   if (checkPresentationMode()) {
+     setInterval(async () => {
+       await updateFullscreenGames();
+     }, 15000);
+   }
+   ```
+
+2. **Controller Refresh with TV Sync** (Lines 1685-1720):
+   ```javascript
+   async function updateFullscreenGames() {
+     await loadAllGames();
+     renderFullscreenGames();
+     sendStateToPresentationDisplay(); // Sync to TV
+   }
+   ```
+
+**Result**: ✅ Both TV and controller refresh every 15 seconds independently
+
+---
+
+### 🎬 Sport-Specific Animations System
+
+**Problem**: Mixed Sports Bar Mode had no animations (individual sport pages had them)
+**Solution**: Unified animation system supporting all 4 sports
+
+**Animation CSS** (`LiveGames.html`, Lines 693-850):
+- Base animation container with fadeOut (3 seconds)
+- Sport-specific classes: `nfl-touchdown`, `nba-three-pointer`, `mlb-home-run`, `nhl-goal`
+- Color schemes per sport:
+  - NFL: Gold/Green (touchdown), Blue (field goal), Red (interception)
+  - NBA: Gold/Red (three-pointer), Orange (basket)
+  - MLB: Gold/Green (home run), Blue (run)
+  - NHL: Red/Gold (goal)
+- Keyframe animations:
+  - `playIconBounce` - 0.8s spinning icon (0° → 180° → 360°)
+  - `playTextSlide` - 0.8s text slide-in
+  - `gradientShift` - 2s gradient shimmer (special plays)
+  - `fadeOut` - 3s fade to transparent
+
+**Animation JavaScript** (Lines 1520-1683):
+1. **showPlayAnimation(card, sport, playType, playText, teamName)**:
+   - Creates overlay div
+   - Selects icon: 🏈 (NFL), 🎯/🏀 (NBA), ⚾ (MLB), 🏒 (NHL)
+   - Adds sport-specific CSS class
+   - Displays for 3 seconds, then removes
+
+2. **detectScoreChange(card, game, prevAwayScore, prevHomeScore)**:
+   - Compares previous vs current scores
+   - Determines which team scored
+   - Calculates point change
+   - Calls `detectPlayType`
+
+3. **detectPlayType(card, sport, pointChange, teamName)**:
+   - NFL logic: 6=touchdown, 7=TD+PAT, 8=TD+2PT, 3=field goal, 2=safety
+   - NBA logic: 3=three-pointer, 2=basket, 1=free throw
+   - MLB logic: 4+=grand slam, 2-3=home run, 1=run
+   - NHL logic: any=goal, 2+=multiple goals
+
+**Refresh Integration** (Lines 1685-1720):
+```javascript
+async function updateFullscreenGames() {
+  // 1. Store previous scores
+  const previousScores = {};
+  document.querySelectorAll('.fullscreen-game-card').forEach((card) => {
+    const gameId = card.dataset.gameId;
+    previousScores[gameId] = {
+      away: parseInt(awayScoreEl?.textContent || 0),
+      home: parseInt(homeScoreEl?.textContent || 0)
+    };
+  });
+  
+  // 2. Load fresh data
+  await loadAllGames();
+  
+  // 3. Detect changes and animate
+  document.querySelectorAll('.fullscreen-game-card').forEach((card) => {
+    const gameId = card.dataset.gameId;
+    const game = allGames.find(g => g.id === gameId);
+    if (game && previousScores[gameId]) {
+      detectScoreChange(card, game, prevScores.away, prevScores.home);
+    }
+  });
+  
+  // 4. Re-render
+  renderFullscreenGames();
+}
+```
+
+**Animation Trigger Matrix**:
+| Sport | Score Change | Animation | Icon | Duration |
+|-------|-------------|-----------|------|----------|
+| NFL | +6 | TOUCHDOWN! | 🏈 | 3s |
+| NFL | +7 | TOUCHDOWN! +PAT | 🏈 | 3s |
+| NFL | +3 | FIELD GOAL! | 🥅 | 3s |
+| NFL | +2 | SAFETY! | 🥅 | 3s |
+| NBA | +3 | THREE POINTER! | 🎯 | 3s |
+| NBA | +2 | BASKET! | 🏀 | 3s |
+| NBA | +1 | FREE THROW! | 🏀 | 3s |
+| MLB | +4+ | GRAND SLAM! | ⚾ | 3s |
+| MLB | +2-3 | HOME RUN! +X | ⚾ | 3s |
+| MLB | +1 | +1 RUN! | ⚾ | 3s |
+| NHL | +1 | GOAL! | 🏒 | 3s |
+| NHL | +2+ | X GOALS! | 🏒 | 3s |
+
+**Result**: ✅ Animations appear automatically every 15 seconds when scores change on both controller and TV display
 
 ---
 
