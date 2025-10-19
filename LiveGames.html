@@ -3638,7 +3638,11 @@
           <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
         </div>
 
-        ${isLive && downDistance ? `<div class="fullscreen-down-distance">${downDistance}</div>` : ''}
+        ${isLive && (downDistance || fieldPosition) ? `
+          <div class="fullscreen-down-distance">
+            ${downDistance}${downDistance && fieldPosition ? ' • ' : ''}${fieldPosition}
+          </div>
+        ` : ''}
       `;
 
       // Populate game selector

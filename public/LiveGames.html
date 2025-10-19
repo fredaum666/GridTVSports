@@ -358,7 +358,7 @@
     .fullscreen-game-card {
       background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
       border-radius: 16px;
-      padding: 30px;
+      padding: 30px 30px 40px 30px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -367,7 +367,7 @@
       border: 3px solid #334155;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .fullscreen-game-slot {
@@ -490,6 +490,21 @@
       50% { opacity: 0.4; }
     }
 
+    .fullscreen-down-distance {
+      font-size: 1.8rem;
+      color: #fbbf24;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      padding: 8px 16px;
+      background: rgba(251, 191, 36, 0.1);
+      border-radius: 8px;
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      white-space: nowrap;
+      overflow: visible;
+    }
+
     .fullscreen-refresh-indicator {
       position: absolute;
       top: 10px;
@@ -528,6 +543,120 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-5px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================================================
+       NFL PLAY ANIMATIONS (Touchdown, Field Goal, Interception, Fumble)
+       ================================================== */
+    
+    .play-animation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      animation: fadeOut 3s forwards;
+      pointer-events: none;
+    }
+
+    .play-animation-icon {
+      font-size: 6rem;
+      margin-bottom: 20px;
+      animation: playIconBounce 0.8s ease-out;
+    }
+
+    .play-animation-text {
+      font-size: 4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      animation: playTextSlide 0.8s ease-out;
+    }
+
+    /* Touchdown Animation - Green/Gold */
+    .play-animation.nfl-touchdown .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    }
+
+    .play-animation.nfl-touchdown .play-animation-text {
+      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* Field Goal Animation - Blue */
+    .play-animation.nfl-field-goal .play-animation-icon {
+      color: #3b82f6;
+      text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
+    }
+
+    .play-animation.nfl-field-goal .play-animation-text {
+      color: #3b82f6;
+      text-shadow: 0 0 20px #3b82f6;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* Interception Animation - Red */
+    .play-animation.nfl-interception .play-animation-icon {
+      color: #ef4444;
+      text-shadow: 0 0 30px #ef4444, 0 0 60px #ef4444;
+    }
+
+    .play-animation.nfl-interception .play-animation-text {
+      color: #ef4444;
+      text-shadow: 0 0 20px #ef4444;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* Fumble Animation - Orange */
+    .play-animation.nfl-fumble .play-animation-icon {
+      color: #f97316;
+      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+    }
+
+    .play-animation.nfl-fumble .play-animation-text {
+      color: #f97316;
+      text-shadow: 0 0 20px #f97316;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      70% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes playIconBounce {
+      0% { transform: scale(0) rotate(0deg); }
+      50% { transform: scale(1.2) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+
+    @keyframes playTextSlide {
+      0% { transform: translateY(50px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* Score update animation */
+    @keyframes scoreUpdate {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); color: #fbbf24; }
+      100% { transform: scale(1); }
     }
 
     .fs-game-selector {
@@ -982,15 +1111,231 @@
       }
     }
 
-    /* Tablet landscape adjustments */
+    /* ==================================================
+       MOBILE RESPONSIVE - PHONE (≤768px)
+       Single column layout for all grid sizes
+       ================================================== */
+    @media screen and (max-width: 768px) {
+      /* Force all grid layouts to single column on phones */
+      .fullscreen-grid.grid-2,
+      .fullscreen-grid.grid-4,
+      .fullscreen-grid.grid-6,
+      .fullscreen-grid.grid-8 {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto !important;
+        gap: 15px !important;
+        padding: 15px !important;
+      }
+
+      /* Adjust card sizing for phones */
+      .fullscreen-game-card {
+        padding: 20px 20px 30px 20px !important;
+        min-height: 300px !important;
+        overflow: visible !important;
+      }
+
+      /* Scale down fonts for mobile */
+      .fullscreen-quarter {
+        font-size: 1.4rem !important;
+      }
+
+      .fullscreen-team-name {
+        font-size: 1.6rem !important;
+      }
+
+      .fullscreen-score {
+        font-size: 4.5rem !important;
+      }
+
+      .fullscreen-vs {
+        font-size: 1.5rem !important;
+        margin: 8px 0 !important;
+      }
+
+      .fullscreen-team-logo {
+        width: 50px !important;
+        height: 50px !important;
+      }
+
+      .sport-logo-indicator {
+        width: 45px !important;
+        height: 45px !important;
+      }
+
+      .fullscreen-down-distance {
+        font-size: 1.4rem !important;
+        padding: 6px 12px !important;
+        margin-top: 10px !important;
+      }
+
+      .fullscreen-possession {
+        width: 22px !important;
+        height: 22px !important;
+        margin-left: 8px !important;
+      }
+
+      /* Controls adjustments for mobile */
+      .fullscreen-controls {
+        padding: 10px !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+
+      .fullscreen-controls button {
+        padding: 10px 16px !important;
+        font-size: 0.9rem !important;
+        width: 100% !important;
+      }
+
+      /* Modal adjustments for mobile */
+      .modal-content {
+        width: 95% !important;
+        padding: 20px !important;
+        margin: 10px !important;
+      }
+
+      .modal-content h2 {
+        font-size: 1.3rem !important;
+      }
+
+      .layout-options {
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+
+      .layout-options label {
+        padding: 10px !important;
+        font-size: 0.95rem !important;
+      }
+
+      .grid-preview {
+        gap: 10px !important;
+        padding: 10px !important;
+      }
+
+      .grid-slot {
+        min-height: 80px !important;
+        padding: 10px !important;
+      }
+
+      .slot-label {
+        font-size: 0.8rem !important;
+      }
+
+      .game-selector {
+        font-size: 0.85rem !important;
+        padding: 8px !important;
+      }
+
+      /* Hide unnecessary elements on phone */
+      .empty-slot-logo {
+        max-width: 40% !important;
+      }
+
+      .empty-slot-text {
+        font-size: 1rem !important;
+      }
+
+      /* Adjust game selector dropdown for mobile */
+      .fs-game-selector {
+        font-size: 1rem !important;
+        padding: 8px 10px !important;
+      }
+
+      /* Cast button mobile adjustments */
+      #cast-btn {
+        padding: 8px 12px !important;
+        font-size: 0.9rem !important;
+      }
+    }
+
+    /* ==================================================
+       TABLET RESPONSIVE (769px - 1024px)
+       Keep 2-column layouts for most grids
+       ================================================== */
     @media screen and (min-width: 769px) and (max-width: 1024px) {
-      .fullscreen-grid.grid-8,
+      /* 2 games: Keep 2 columns (1 row) */
+      .fullscreen-grid.grid-2 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: 1fr !important;
+      }
+
+      /* 4 games: 2x2 grid */
+      .fullscreen-grid.grid-4 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      /* 6 games: 2x3 grid (2 columns, 3 rows) */
       .fullscreen-grid.grid-6 {
         grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(3, 1fr) !important;
+      }
+
+      /* 8 games: 2x4 grid (2 columns, 4 rows) */
+      .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(4, 1fr) !important;
+      }
+
+      /* Adjust fonts for tablet */
+      .fullscreen-score {
+        font-size: 5rem !important;
+      }
+
+      .fullscreen-team-name {
+        font-size: 1.8rem !important;
+      }
+
+      .fullscreen-quarter {
+        font-size: 1.6rem !important;
+      }
+
+      .fullscreen-down-distance {
+        font-size: 1.6rem !important;
+      }
+
+      /* Card padding for tablet */
+      .fullscreen-game-card {
+        padding: 25px 25px 35px 25px !important;
+        overflow: visible !important;
+      }
+
+      /* Controls for tablet */
+      .fullscreen-controls {
+        padding: 12px 15px !important;
+      }
+
+      .fullscreen-controls button {
+        padding: 10px 18px !important;
+        font-size: 0.95rem !important;
+      }
+    }
+
+    /* ==================================================
+       DESKTOP RESPONSIVE (≥1025px)
+       Keep original layouts
+       ================================================== */
+    @media screen and (min-width: 1025px) {
+      /* Desktop keeps the original grid layouts */
+      .fullscreen-grid.grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: 1fr;
       }
 
       .fullscreen-grid.grid-4 {
-        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+      }
+
+      .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+      }
+
+      .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, 1fr);
       }
     }
 
@@ -1099,6 +1444,12 @@
     <div class="fullscreen-controls">
       <button id="cast-btn" class="cast-btn" style="display: none;">
         📺 Cast to TV
+      </button>
+      <button id="test-animation-btn" style="background: #f97316;">
+        🧪 Test Animation
+      </button>
+      <button id="test-score-change-btn" style="background: #10b981;">
+        🏈 Simulate Score
       </button>
       <button id="change-layout-fs">🔄 Change Layout</button>
       <button id="exit-fullscreen">✕ Exit</button>
@@ -1285,6 +1636,7 @@
       
       renderFullscreenGames();
       
+      console.log('⏱️ Starting auto-refresh interval (every 15 seconds)');
       fullscreenRefreshInterval = setInterval(updateFullscreenGames, 15000);
       
       if (document.documentElement.requestFullscreen) {
@@ -1374,6 +1726,12 @@
       const isLive = statusState === 'in';
       const isUpcoming = statusState === 'pre';
       
+      // Get possession and situation info (for NFL)
+      const possession = comp?.situation?.possession;
+      const downDistanceText = comp?.situation?.downDistanceText || '';
+      const awayHasBall = possession === awayTeam?.id;
+      const homeHasBall = possession === homeTeam?.id;
+      
       let cardClass = 'fullscreen-game-card';
       
       if (isUpcoming) {
@@ -1430,6 +1788,7 @@
             ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
               ${awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away'}
+              ${isLive && awayHasBall ? '<span class="fullscreen-possession"></span>' : ''}
             </div>
           </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
@@ -1442,10 +1801,17 @@
             ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
               ${homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home'}
+              ${isLive && homeHasBall ? '<span class="fullscreen-possession"></span>' : ''}
             </div>
           </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
         </div>
+
+        ${isLive && game.sport === 'nfl' && downDistanceText ? `
+          <div class="fullscreen-down-distance">
+            ${downDistanceText}
+          </div>
+        ` : ''}
       `;
 
       const selector = div.querySelector('.fs-game-selector');
@@ -1524,15 +1890,20 @@
 
     // Show play animation on game card
     function showPlayAnimation(card, sport, playType, playText, teamName = '') {
+      console.log(`🎭 showPlayAnimation called:`, { sport, playType, playText, teamName, cardExists: !!card });
+      
       // Remove any existing animation
       const existingAnimation = card.querySelector('.play-animation');
       if (existingAnimation) {
+        console.log(`🗑️ Removing existing animation`);
         existingAnimation.remove();
       }
 
       // Create animation overlay
       const animationDiv = document.createElement('div');
       animationDiv.className = `play-animation ${sport}-${playType}`;
+      
+      console.log(`✨ Creating animation with class: ${animationDiv.className}`);
       
       // Choose icon based on sport and play type
       let icon;
@@ -1585,9 +1956,12 @@
       card.style.position = 'relative';
       card.appendChild(animationDiv);
       
+      console.log(`✅ Animation added to card! Will remove in 3 seconds.`);
+      
       // Remove after animation completes (3 seconds)
       setTimeout(() => {
         animationDiv.remove();
+        console.log(`🔚 Animation removed`);
       }, 3000);
     }
 
@@ -1599,16 +1973,31 @@
       const awayScore = parseInt(awayTeam?.score || 0);
       const homeScore = parseInt(homeTeam?.score || 0);
       const sport = game.sport;
+      const statusState = comp?.status?.type?.state;
+      const statusDetail = comp?.status?.type?.shortDetail;
 
       const awayScoreChange = awayScore - prevAwayScore;
       const homeScoreChange = homeScore - prevHomeScore;
 
+      const awayTeamName = awayTeam?.team?.shortDisplayName || 'Away';
+      const homeTeamName = homeTeam?.team?.shortDisplayName || 'Home';
+
+      console.log(`🔍 Score check for ${sport} (${awayTeamName} @ ${homeTeamName}):`, {
+        status: statusDetail,
+        state: statusState,
+        isLive: statusState === 'in',
+        awayScore, prevAwayScore, awayScoreChange,
+        homeScore, prevHomeScore, homeScoreChange
+      });
+
       // Detect which team scored and how much
       if (awayScoreChange > 0) {
         const teamName = awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away';
+        console.log(`🎯 Away team scored! ${teamName} +${awayScoreChange}`);
         detectPlayType(card, sport, awayScoreChange, teamName);
       } else if (homeScoreChange > 0) {
         const teamName = homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home';
+        console.log(`🎯 Home team scored! ${teamName} +${homeScoreChange}`);
         detectPlayType(card, sport, homeScoreChange, teamName);
       }
     }
@@ -1616,6 +2005,8 @@
     // Determine play type based on sport and point change
     function detectPlayType(card, sport, pointChange, teamName) {
       let playType, playText;
+
+      console.log(`🎬 detectPlayType called:`, { sport, pointChange, teamName });
 
       switch(sport) {
         case 'nfl':
@@ -1701,9 +2092,13 @@
         }
       });
       
+      console.log(`📊 Stored previous scores for ${Object.keys(previousScores).length} games`);
+      
       await loadAllGames();
       
-      // Check for score changes and show animations
+      renderFullscreenGames(); // Render first to create fresh cards
+      
+      // THEN check for score changes and show animations on the NEW cards
       document.querySelectorAll('.fullscreen-game-card').forEach((card) => {
         const gameId = card.dataset.gameId;
         const game = allGames.find(g => g.id === gameId);
@@ -1711,6 +2106,24 @@
         if (game && previousScores[gameId]) {
           const prevScores = previousScores[gameId];
           detectScoreChange(card, game, prevScores.away, prevScores.home);
+          
+          // For NFL games, also check for turnovers from play description
+          if (game.sport === 'nfl') {
+            const comp = game.competitions?.[0];
+            const lastPlay = comp?.situation?.lastPlay?.text || '';
+            
+            if (lastPlay.toLowerCase().includes('interception') || lastPlay.toLowerCase().includes('intercepted')) {
+              if (!card.dataset.lastInterception || card.dataset.lastInterception !== lastPlay) {
+                showPlayAnimation(card, 'nfl', 'interception', 'INTERCEPTION!');
+                card.dataset.lastInterception = lastPlay;
+              }
+            } else if (lastPlay.toLowerCase().includes('fumble')) {
+              if (!card.dataset.lastFumble || card.dataset.lastFumble !== lastPlay) {
+                showPlayAnimation(card, 'nfl', 'fumble', 'FUMBLE!');
+                card.dataset.lastFumble = lastPlay;
+              }
+            }
+          }
         }
         
         // Show refresh indicator
@@ -1721,7 +2134,7 @@
         }
       });
 
-      renderFullscreenGames(); // This will trigger sendStateToPresentationDisplay() via override
+      // This will trigger sendStateToPresentationDisplay() via override
       console.log('✅ Controller refreshed and synced to TV');
     }
 
@@ -2055,6 +2468,77 @@
         loadAllGames();
         renderGridPreview();
         initializePresentationAPI();
+        
+        // Test Animation Button
+        document.getElementById('test-animation-btn')?.addEventListener('click', () => {
+          const cards = document.querySelectorAll('.fullscreen-game-card');
+          if (cards.length > 0) {
+            const firstCard = cards[0];
+            const gameId = firstCard.dataset.gameId;
+            const game = allGames.find(g => g.id === gameId);
+            
+            if (game && game.sport === 'nfl') {
+              console.log('🧪 Testing NFL Touchdown animation...');
+              showPlayAnimation(firstCard, 'nfl', 'touchdown', 'TOUCHDOWN!', 'TEST TEAM');
+            } else if (game) {
+              console.log(`🧪 Testing ${game.sport} animation...`);
+              showPlayAnimation(firstCard, game.sport, 'score', `${game.sport.toUpperCase()} SCORE!`, 'TEST TEAM');
+            } else {
+              alert('Please add a game to the grid first!');
+            }
+          } else {
+            alert('Please enter Sports Bar Mode and add games first!');
+          }
+        });
+        
+        // Simulate Score Change Button
+        document.getElementById('test-score-change-btn')?.addEventListener('click', () => {
+          const cards = document.querySelectorAll('.fullscreen-game-card');
+          if (cards.length > 0) {
+            const firstCard = cards[0];
+            const gameId = firstCard.dataset.gameId;
+            const game = allGames.find(g => g.id === gameId);
+            
+            if (game && game.sport === 'nfl') {
+              console.log('🏈 Simulating touchdown score change...');
+              
+              // Get current scores
+              const scoreEls = firstCard.querySelectorAll('.fullscreen-score');
+              const awayScoreEl = scoreEls[0];
+              const homeScoreEl = scoreEls[1];
+              const currentAwayScore = parseInt(awayScoreEl?.textContent || 0);
+              const currentHomeScore = parseInt(homeScoreEl?.textContent || 0);
+              
+              // Simulate score change (+7 for touchdown)
+              const newHomeScore = currentHomeScore + 7;
+              homeScoreEl.textContent = newHomeScore;
+              
+              // Update the game object in allGames
+              const comp = game.competitions?.[0];
+              if (comp && comp.competitors?.[0]) {
+                comp.competitors[0].score = newHomeScore.toString();
+              }
+              
+              console.log(`📊 Simulated score: ${currentAwayScore}-${currentHomeScore} → ${currentAwayScore}-${newHomeScore}`);
+              
+              // Trigger animation through score detection
+              detectScoreChange(firstCard, game, currentAwayScore, currentHomeScore);
+              
+              // Show refresh indicator
+              const indicator = firstCard.querySelector('.fullscreen-refresh-indicator');
+              if (indicator) {
+                indicator.classList.add('active');
+                setTimeout(() => indicator.classList.remove('active'), 1000);
+              }
+            } else if (game) {
+              alert('Simulate Score only works for NFL games. Try the Test Animation button instead!');
+            } else {
+              alert('Please add an NFL game to the grid first!');
+            }
+          } else {
+            alert('Please enter Sports Bar Mode and add games first!');
+          }
+        });
       }
     });
   </script>
