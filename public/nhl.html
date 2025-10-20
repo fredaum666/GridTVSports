@@ -2301,12 +2301,12 @@
         container.insertAdjacentHTML('beforeend', cardHtml);
       });
       
-      // Add click event listeners to all cards
-      container.querySelectorAll('.game-card').forEach((card, idx) => {
-        card.addEventListener('click', () => {
-          showGameDetail(liveGames[idx]);
-        });
-      });
+      // // Add click event listeners to all cards
+      // container.querySelectorAll('.game-card').forEach((card, idx) => {
+      //   card.addEventListener('click', () => {
+      //     showGameDetail(liveGames[idx]);
+      //   });
+      // });
     }
 
     async function loadWinProbability(gameId, awayTeam, homeTeam) {

@@ -1670,6 +1670,7 @@
     // Update all game selectors
     function updateAllGameSelectors() {
       const selectedGames = Object.values(gridGames);
+      const TWO_HOURS_MS = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
       document.querySelectorAll('.game-selector').forEach(selector => {
         const slotIndex = parseInt(selector.dataset.slot);
@@ -1690,6 +1691,17 @@
           const awayScore = comp?.competitors?.[1]?.score || '0';
           const homeScore = comp?.competitors?.[0]?.score || '0';
           const statusState = comp?.status?.type?.state;
+
+          // Filter out final games older than 2 hours
+          if (statusState === 'post') {
+            const gameDate = new Date(game.date);
+            const timeSinceGame = Date.now() - gameDate.getTime();
+            
+            // Skip if game finished more than 2 hours ago
+            if (timeSinceGame > TWO_HOURS_MS) {
+              return;
+            }
+          }
 
           let statusText;
           if (statusState === 'in') {
@@ -1765,21 +1777,37 @@
     document.getElementById('launch-fullscreen').addEventListener('click', enterFullscreen);
 
     // Mobile cast button - triggers cast instead of fullscreen
-    document.getElementById('mobile-cast-only').addEventListener('click', () => {
+    document.getElementById('mobile-cast-only').addEventListener('click', async () => {
       console.log('📱 Mobile cast button clicked - initiating cast to TV');
-      const castBtn = document.getElementById('cast-btn');
-      if (castBtn) {
-        // Trigger the existing cast functionality
-        castBtn.click();
-      } else {
-        alert('Cast functionality is not available. Please ensure your device supports the Presentation API or Chromecast.');
+      
+      // First, ensure Presentation API is initialized
+      if (!presentationRequest) {
+        console.log('📱 Initializing Presentation API for mobile...');
+        initializePresentationAPI();
+        
+        // Wait a moment for initialization
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
+      
+      // Check if Presentation API is available
+      if (!presentationRequest) {
+        alert('Cast functionality is not available on this device/browser. Please try using Chrome or Edge.');
+        return;
+      }
+      
+      // Enter fullscreen first to populate the grid
+      enterFullscreen(true); // Pass true to bypass mobile check for casting
+      
+      // Wait for fullscreen to be ready, then start casting
+      setTimeout(() => {
+        startCasting();
+      }, 300);
     });
 
-    function enterFullscreen() {
-      // Check if on mobile - prevent fullscreen mode
+    function enterFullscreen(bypassMobileCheck = false) {
+      // Check if on mobile - prevent fullscreen mode (unless casting)
       const isMobile = window.innerWidth <= 768;
-      if (isMobile) {
+      if (isMobile && !bypassMobileCheck) {
         console.log('📱 Mobile device detected - fullscreen mode disabled on mobile');
         alert('Fullscreen mode is not available on mobile devices. Please use the "Cast to TV" button to display on an external screen.');
         return;

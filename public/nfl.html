@@ -698,6 +698,27 @@
       font-weight: 600;
     }
 
+    /* Timeout Indicators */
+    .fullscreen-timeouts {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .timeout-bar {
+      width: 24px;
+      height: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.9);
+      transition: background 0.3s ease;
+    }
+
+    .timeout-bar.used {
+      background: transparent;
+    }
+
     .fullscreen-field-position {
       font-size: 2rem;
       color: #64748b;
@@ -872,6 +893,17 @@
       margin-left: 4px !important;
     }
 
+    .fullscreen-grid.grid-6 .timeout-bar {
+      width: 16px !important;
+      height: 5px !important;
+      border-width: 1.5px !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-timeouts {
+      gap: 4px !important;
+      margin-top: 4px !important;
+    }
+
     .fullscreen-grid.grid-6 .sport-logo-indicator {
       width: 70px !important;
       height: 70px !important;
@@ -913,6 +945,17 @@
 
     .fullscreen-grid.grid-4 .fullscreen-down-distance {
       font-size: 1.6rem !important;
+      margin-top: 6px !important;
+    }
+
+    .fullscreen-grid.grid-4 .timeout-bar {
+      width: 18px !important;
+      height: 6px !important;
+      border-width: 1.5px !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-timeouts {
+      gap: 5px !important;
       margin-top: 6px !important;
     }
 
@@ -1927,40 +1970,13 @@
       </div>
       <div class="games-grid" id="games-list"></div>
     </div>
-  </div>
 
-  <!-- Game Detail Modal -->
-  <div class="modal-overlay" id="game-detail-modal">
-    <div class="game-detail-panel">
-      <div class="detail-header">
-        <div class="detail-matchup" id="detail-matchup">
-          <!-- Will be populated with game info -->
-        </div>
-        <button class="close-detail-btn" onclick="closeGameDetail()">✕ Close</button>
-      </div>
-
-      <div class="tabs">
-        <button class="tab active" onclick="switchTab('boxscore')">📊 Box Score</button>
-        <button class="tab" onclick="switchTab('stats')">📈 Game Stats</button>
-        <button class="tab" onclick="switchTab('probability')">🎯 Win Probability</button>
-        <button class="tab" onclick="switchTab('predictions')">🔮 Predictions</button>
-      </div>
-
-      <div class="tab-content active" id="tab-boxscore">
-        <div class="loading">Loading box score...</div>
-      </div>
-
-      <div class="tab-content" id="tab-stats">
-        <div class="loading">Loading game stats...</div>
-      </div>
-
-      <div class="tab-content" id="tab-probability">
-        <div class="loading">Loading win probability...</div>
-      </div>
-
-      <div class="tab-content" id="tab-predictions">
-        <div class="loading">Loading predictions...</div>
-      </div>
+    <!-- Final Games Section -->
+    <div id="final-games-section" style="margin-top: 60px; display: none;">
+      <h2 style="margin-bottom: 20px; font-size: 28px; font-weight: 700; color: #f3f4f6;">
+        🏁 Final Games
+      </h2>
+      <div class="games-grid" id="final-games-list"></div>
     </div>
   </div>
 
@@ -2082,14 +2098,26 @@
             const home = comp.competitors.find(c => c.homeAway === 'home');
             const away = comp.competitors.find(c => c.homeAway === 'away');
             
-            // Skip completed/final games
-            if (isCompleted || isFinal) {
-              console.log(`🏈 ${game.name}: COMPLETED - Excluded ❌`);
-              return false;
+            // Check if this game is completed and save it to database
+            if (isFinal || isCompleted) {
+              console.log(`💾 Game completed, saving to database: ${game.name}`);
+              fetch('/api/final-games/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  sport: 'nfl',
+                  gameId: game.id,
+                  gameData: game,
+                  week: currentWeek
+                })
+              }).catch(err => console.error('Error saving final game:', err));
+              
+              console.log(`🏈 ${game.name}: COMPLETED - Will show in Final Games section ✅`);
+              // Don't return false - keep completed games so they appear in Final Games section
             }
             
             // Game is live if status state is 'in' OR if not completed/final and has started playing (period > 0)
-            const isLive = statusState === 'in' || comp.status.period > 0;
+            const isLive = statusState === 'in' || (comp.status.period > 0 && !isCompleted && !isFinal);
             
             // Game is upcoming if it's scheduled (pre) and within next 36 hours
             const isUpcoming = statusState === 'pre';
@@ -2106,10 +2134,11 @@
               score: `${away.score}-${home.score}`,
               isLive: isLive ? 'LIVE ✅' : 'Not live',
               isUpcoming: isUpcoming && isWithin36Hours ? 'UPCOMING ⏰' : 'Not upcoming',
+              isFinal: isFinal || isCompleted ? 'FINAL 🏁' : 'Not final',
               hoursUntilGame: hoursUntilGame.toFixed(1)
             });
             
-            // Show only live games OR upcoming games within 36 hours
+            // Show only live games OR upcoming games within 36 hours (exclude completed/final games)
             return isLive || (isUpcoming && isWithin36Hours);
           });
 
@@ -2139,6 +2168,7 @@
         window.liveGamesData = liveGames;
 
         renderGamesList();
+        renderFinalGames(); // Also render final games section
 
       } catch (error) {
         console.error('Error fetching games:', error);
@@ -2161,6 +2191,106 @@
             </div>
           </div>
         `;
+      }
+    }
+
+    async function renderFinalGames() {
+      try {
+        const response = await fetch('/api/final-games/nfl');
+        const { games } = await response.json();
+        
+        if (!games || games.length === 0) {
+          document.getElementById('final-games-section').style.display = 'none';
+          return;
+        }
+        
+        // Filter games to only show current week
+        const currentWeekGames = games.filter(game => game.week === currentWeek);
+        
+        console.log(`📊 Total final games in database: ${games.length}, Current week ${currentWeek}: ${currentWeekGames.length}`);
+        
+        if (currentWeekGames.length === 0) {
+          document.getElementById('final-games-section').style.display = 'none';
+          return;
+        }
+        
+        document.getElementById('final-games-section').style.display = 'block';
+        const container = document.getElementById('final-games-list');
+        container.innerHTML = '';
+        
+        currentWeekGames.forEach(game => {
+          const comp = game.competitions[0];
+          const home = comp.competitors.find(c => c.homeAway === 'home');
+          const away = comp.competitors.find(c => c.homeAway === 'away');
+          
+          const homeScore = parseInt(home.score) || 0;
+          const awayScore = parseInt(away.score) || 0;
+          const homeRecord = home.records?.[0]?.summary || '';
+          const awayRecord = away.records?.[0]?.summary || '';
+          
+          // Get quarter scores from linescores
+          const awayLineScores = away.linescores || [];
+          const homeLineScores = home.linescores || [];
+          
+          const cardHtml = `
+            <div class="game-card">
+              <div class="quarter-header">
+                <div class="team-column"></div>
+                <div class="scores-header">
+                  <span class="quarter-label">1</span>
+                  <span class="quarter-label">2</span>
+                  <span class="quarter-label">3</span>
+                  <span class="quarter-label">4</span>
+                  <span class="quarter-label">T</span>
+                </div>
+              </div>
+              
+              <div class="team-row ${awayScore > homeScore ? 'winning' : ''}">
+                <div class="possession-arrow" style="opacity: 0;">▶</div>
+                <div class="team-info">
+                  <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo" />
+                  <span class="team-name">${away.team.displayName}</span>
+                </div>
+                <div class="quarter-scores">
+                  <span class="quarter-score">${awayLineScores[0]?.value || 0}</span>
+                  <span class="quarter-score">${awayLineScores[1]?.value || 0}</span>
+                  <span class="quarter-score">${awayLineScores[2]?.value || 0}</span>
+                  <span class="quarter-score">${awayLineScores[3]?.value || 0}</span>
+                  <span class="quarter-score total-score">${awayScore}</span>
+                </div>
+              </div>
+              
+              <div class="team-row ${homeScore > awayScore ? 'winning' : ''}">
+                <div class="possession-arrow" style="opacity: 0;">▶</div>
+                <div class="team-info">
+                  <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo" />
+                  <span class="team-name">${home.team.displayName}</span>
+                </div>
+                <div class="quarter-scores">
+                  <span class="quarter-score">${homeLineScores[0]?.value || 0}</span>
+                  <span class="quarter-score">${homeLineScores[1]?.value || 0}</span>
+                  <span class="quarter-score">${homeLineScores[2]?.value || 0}</span>
+                  <span class="quarter-score">${homeLineScores[3]?.value || 0}</span>
+                  <span class="quarter-score total-score">${homeScore}</span>
+                </div>
+              </div>
+              
+              <div class="game-footer-info">
+                <div class="live-badge" style="background: #6b7280;">
+                  <span>FINAL</span>
+                </div>
+                <div class="game-situation">
+                  <span class="quarter-clock">Final</span>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          container.insertAdjacentHTML('beforeend', cardHtml);
+        });
+      } catch (error) {
+        console.error('Error loading final games:', error);
+        document.getElementById('final-games-section').style.display = 'none';
       }
     }
 
@@ -2258,6 +2388,7 @@
                 <span class="quarter-label">1</span>
                 <span class="quarter-label">2</span>
                 <span class="quarter-label">3</span>
+                <span class="quarter-label">4</span>
                 <span class="quarter-label">T</span>
               </div>
             </div>
@@ -2272,6 +2403,7 @@
                 <span class="quarter-score">${awayLineScores[0]?.value || 0}</span>
                 <span class="quarter-score">${awayLineScores[1]?.value || 0}</span>
                 <span class="quarter-score">${awayLineScores[2]?.value || 0}</span>
+                <span class="quarter-score">${awayLineScores[3]?.value || 0}</span>
                 <span class="quarter-score total-score">${awayScore}</span>
               </div>
             </div>
@@ -2286,6 +2418,7 @@
                 <span class="quarter-score">${homeLineScores[0]?.value || 0}</span>
                 <span class="quarter-score">${homeLineScores[1]?.value || 0}</span>
                 <span class="quarter-score">${homeLineScores[2]?.value || 0}</span>
+                <span class="quarter-score">${homeLineScores[3]?.value || 0}</span>
                 <span class="quarter-score total-score">${homeScore}</span>
               </div>
             </div>
@@ -2314,13 +2447,6 @@
         
         // Add card to container
         container.insertAdjacentHTML('beforeend', cardHtml);
-      });
-      
-      // Add click event listeners to all cards
-      container.querySelectorAll('.game-card').forEach((card, idx) => {
-        card.addEventListener('click', () => {
-          showGameDetail(liveGames[idx]);
-        });
       });
     }
 
@@ -3064,247 +3190,6 @@
       }
     }
 
-    // Game Detail Modal Functions
-    let selectedGame = null;
-    let currentActiveTab = 'boxscore';
-    let modalRefreshInterval = null;
-
-    function showGameDetail(game) {
-      selectedGame = game;
-      const comp = game.competitions[0];
-      const home = comp.competitors.find(c => c.homeAway === 'home');
-      const away = comp.competitors.find(c => c.homeAway === 'away');
-
-      const homeScore = parseInt(home.score) || 0;
-      const awayScore = parseInt(away.score) || 0;
-
-      // Check if game is live
-      const statusState = comp.status.type.state;
-      const isLive = statusState === 'in' || comp.status.period > 0;
-
-      // Populate modal header with matchup info
-      document.getElementById('detail-matchup').innerHTML = `
-        <div class="detail-team">
-          <img src="${away.team.logo}" alt="${away.team.displayName}" class="detail-team-logo" />
-          <div class="detail-team-name">${away.team.displayName}</div>
-          <div class="detail-team-score">${awayScore}</div>
-        </div>
-        <div class="detail-vs">
-          VS
-          ${isLive ? '<div class="refresh-indicator" id="modal-refresh-indicator"><span class="spin">🔄</span> Auto-updating</div>' : ''}
-        </div>
-        <div class="detail-team">
-          <img src="${home.team.logo}" alt="${home.team.displayName}" class="detail-team-logo" />
-          <div class="detail-team-name">${home.team.displayName}</div>
-          <div class="detail-team-score">${homeScore}</div>
-        </div>
-      `;
-
-      // Show modal
-      document.getElementById('game-detail-modal').classList.add('active');
-
-      // Load initial tab content
-      loadBoxScore(game.id, away.team.displayName, home.team.displayName);
-      loadGameStats(game.id, away.team.displayName, home.team.displayName);
-      loadWinProbability(game.id, away.team.displayName, home.team.displayName);
-      loadPredictions(game.id, away.team.displayName, home.team.displayName);
-
-      // Start auto-refresh for live games
-      if (isLive) {
-        console.log('🔴 LIVE GAME - Starting auto-refresh for modal stats');
-        startModalRefresh(game.id, away.team.displayName, home.team.displayName);
-      } else {
-        console.log('⏰ UPCOMING/FINAL GAME - No auto-refresh needed');
-        stopModalRefresh();
-      }
-    }
-
-    function startModalRefresh(gameId, awayTeam, homeTeam) {
-      // Clear any existing interval
-      stopModalRefresh();
-      
-      // Refresh every 15 seconds for live games
-      modalRefreshInterval = setInterval(() => {
-        console.log('🔄 Auto-refreshing modal stats for game:', gameId);
-        
-        // Show refresh animation
-        const indicator = document.getElementById('modal-refresh-indicator');
-        if (indicator) {
-          indicator.classList.add('active');
-          setTimeout(() => indicator.classList.remove('active'), 1000);
-        }
-        
-        // Refresh ALL tabs (not just active one) to keep data fresh
-        loadBoxScore(gameId, awayTeam, homeTeam);
-        loadGameStats(gameId, awayTeam, homeTeam);
-        loadWinProbability(gameId, awayTeam, homeTeam);
-        
-        // Also update the modal header scores
-        updateModalHeader(gameId);
-      }, 15000); // 15 seconds
-    }
-
-    function stopModalRefresh() {
-      if (modalRefreshInterval) {
-        clearInterval(modalRefreshInterval);
-        modalRefreshInterval = null;
-        console.log('⏹️ Stopped modal auto-refresh');
-      }
-    }
-
-    async function updateModalHeader(gameId) {
-      try {
-        // Fetch fresh game data from the API
-        const response = await fetch(`/api/nfl/scoreboard?week=${currentWeek}`);
-        
-        if (!response.ok) {
-          console.warn('Failed to fetch updated game data for modal');
-          return;
-        }
-        
-        const espnData = await response.json();
-        const updatedGame = espnData.events?.find(event => event.id === gameId);
-        
-        if (!updatedGame) {
-          console.warn('Game not found in updated data');
-          return;
-        }
-
-        const comp = updatedGame.competitions[0];
-        const home = comp.competitors.find(c => c.homeAway === 'home');
-        const away = comp.competitors.find(c => c.homeAway === 'away');
-
-        // Update scores in the header
-        const awayScoreEl = document.querySelector('.detail-team:first-child .detail-team-score');
-        const homeScoreEl = document.querySelector('.detail-team:last-child .detail-team-score');
-        
-        if (awayScoreEl) {
-          const newAwayScore = parseInt(away.score) || 0;
-          awayScoreEl.textContent = newAwayScore;
-          console.log(`✅ Updated away score: ${newAwayScore}`);
-        }
-        if (homeScoreEl) {
-          const newHomeScore = parseInt(home.score) || 0;
-          homeScoreEl.textContent = newHomeScore;
-          console.log(`✅ Updated home score: ${newHomeScore}`);
-        }
-      } catch (error) {
-        console.error('Error updating modal header:', error);
-      }
-    }
-
-    function closeGameDetail() {
-      document.getElementById('game-detail-modal').classList.remove('active');
-      selectedGame = null;
-      stopModalRefresh(); // Stop auto-refresh when closing modal
-    }
-
-    // Close modal when clicking outside
-    document.getElementById('game-detail-modal').addEventListener('click', (e) => {
-      if (e.target.id === 'game-detail-modal') {
-        closeGameDetail();
-      }
-    });
-
-    // Cleanup on page unload
-    window.addEventListener('beforeunload', () => {
-      if (refreshInterval) clearInterval(refreshInterval);
-      if (modalRefreshInterval) clearInterval(modalRefreshInterval);
-    });
-
-    async function loadBoxScore(gameId, awayTeam, homeTeam) {
-      try {
-        console.log('📊 Loading box score for game:', gameId);
-        
-        // Fetch comprehensive game summary with detailed boxscore
-        const response = await fetch(`/api/nfl-gamesummary/${gameId}`);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch game summary: ${response.status}`);
-        }
-        
-        const gameSummary = await response.json();
-        console.log('📊 Game Summary boxscore:', gameSummary.boxscore);
-        
-        // Use the selectedGame data for basic info
-        if (!selectedGame) {
-          document.getElementById('tab-boxscore').innerHTML = `
-            <div style="text-align: center; padding: 40px; color: #9ca3af;">
-              Box score data not yet available
-            </div>
-          `;
-          return;
-        }
-
-        const comp = selectedGame.competitions[0];
-        const home = comp.competitors.find(c => c.homeAway === 'home');
-        const away = comp.competitors.find(c => c.homeAway === 'away');
-        
-        const homeLineScores = home.linescores || [];
-        const awayLineScores = away.linescores || [];
-        
-        // Start building HTML
-        let html = `
-          <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">Scoring Summary</h3>
-          <div style="background: #242b3d; border-radius: 10px; padding: 20px;">
-            <div style="margin-bottom: 20px;">
-              <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #3b82f6;">${awayTeam}</div>
-              <div style="display: flex; gap: 16px; align-items: center;">
-                ${awayLineScores.map((score, idx) => `
-                  <div style="text-align: center;">
-                    <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">Q${idx + 1}</div>
-                    <div style="font-size: 20px; font-weight: 700;">${score.value}</div>
-                  </div>
-                `).join('')}
-                <div style="text-align: center; margin-left: 16px; padding-left: 16px; border-left: 2px solid #2d3548;">
-                  <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">Total</div>
-                  <div style="font-size: 24px; font-weight: 700; color: #10b981;">${away.score || 0}</div>
-                </div>
-              </div>
-            </div>
-            
-            <div style="border-top: 1px solid #2d3548; padding-top: 20px;">
-              <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #10b981;">${homeTeam}</div>
-              <div style="display: flex; gap: 16px; align-items: center;">
-                ${homeLineScores.map((score, idx) => `
-                  <div style="text-align: center;">
-                    <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">Q${idx + 1}</div>
-                    <div style="font-size: 20px; font-weight: 700;">${score.value}</div>
-                  </div>
-                `).join('')}
-                <div style="text-align: center; margin-left: 16px; padding-left: 16px; border-left: 2px solid #2d3548;">
-                  <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">Total</div>
-                  <div style="font-size: 24px; font-weight: 700; color: #10b981;">${home.score || 0}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        
-        document.getElementById('tab-boxscore').innerHTML = html;
-      } catch (error) {
-        console.error('Error loading box score:', error);
-        document.getElementById('tab-boxscore').innerHTML = `
-          <div style="text-align: center; padding: 40px; color: #9ca3af;">
-            Error loading box score data
-          </div>
-        `;
-      }
-    }
-
-    function switchTab(tabName) {
-      // Store the active tab
-      currentActiveTab = tabName;
-
-      // Update tab buttons
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      event.target.classList.add('active');
-
-      // Update tab content
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-      document.getElementById(`tab-${tabName}`).classList.add('active');
-    }
-
     function refreshLiveGames() {
       fetchLiveGames();
     }
@@ -3335,6 +3220,10 @@
       fetchLiveGames();
     }, 15000);
 
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    });
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
       if (refreshInterval) clearInterval(refreshInterval);
@@ -3714,6 +3603,10 @@
       const possession = comp?.situation?.possession;
       const downDistance = comp?.situation?.downDistanceText || '';
       const fieldPosition = comp?.situation?.possessionText || '';
+      
+      // Get timeout information - ESPN API provides this in competitors array
+      const awayTimeouts = awayTeam?.timeoutsUsed !== undefined ? 3 - (awayTeam.timeoutsUsed || 0) : 3;
+      const homeTimeouts = homeTeam?.timeoutsUsed !== undefined ? 3 - (homeTeam.timeoutsUsed || 0) : 3;
 
       div.className = cardClass;
       div.dataset.slotIndex = slotIndex;
@@ -3742,6 +3635,11 @@
               ${isLive && possession === awayTeam?.id ? '<span class="fullscreen-possession"></span>' : ''}
             </div>
           </div>
+          <div class="fullscreen-timeouts">
+            <div class="timeout-bar ${awayTimeouts >= 1 ? '' : 'used'}"></div>
+            <div class="timeout-bar ${awayTimeouts >= 2 ? '' : 'used'}"></div>
+            <div class="timeout-bar ${awayTimeouts >= 3 ? '' : 'used'}"></div>
+          </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
         </div>
 
@@ -3755,6 +3653,11 @@
               ${homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home'}
               ${isLive && possession === homeTeam?.id ? '<span class="fullscreen-possession"></span>' : ''}
             </div>
+          </div>
+          <div class="fullscreen-timeouts">
+            <div class="timeout-bar ${homeTimeouts >= 1 ? '' : 'used'}"></div>
+            <div class="timeout-bar ${homeTimeouts >= 2 ? '' : 'used'}"></div>
+            <div class="timeout-bar ${homeTimeouts >= 3 ? '' : 'used'}"></div>
           </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
         </div>
@@ -4104,6 +4007,33 @@
             const existingPossession = name.querySelector('.fullscreen-possession');
             if (existingPossession) existingPossession.remove();
           });
+          
+          // Update timeouts
+          const awayTimeoutsRemaining = awayTeam?.timeoutsUsed !== undefined ? 3 - (awayTeam.timeoutsUsed || 0) : 3;
+          const homeTimeoutsRemaining = homeTeam?.timeoutsUsed !== undefined ? 3 - (homeTeam.timeoutsUsed || 0) : 3;
+          
+          const timeoutContainers = card.querySelectorAll('.fullscreen-timeouts');
+          if (timeoutContainers.length >= 2) {
+            // Update away team timeouts (first container)
+            const awayTimeoutBars = timeoutContainers[0].querySelectorAll('.timeout-bar');
+            awayTimeoutBars.forEach((bar, idx) => {
+              if (idx < awayTimeoutsRemaining) {
+                bar.classList.remove('used');
+              } else {
+                bar.classList.add('used');
+              }
+            });
+            
+            // Update home team timeouts (second container)
+            const homeTimeoutBars = timeoutContainers[1].querySelectorAll('.timeout-bar');
+            homeTimeoutBars.forEach((bar, idx) => {
+              if (idx < homeTimeoutsRemaining) {
+                bar.classList.remove('used');
+              } else {
+                bar.classList.add('used');
+              }
+            });
+          }
           
           if (possession === awayTeam?.id && teamNames[0]) {
             teamNames[0].insertAdjacentHTML('beforeend', '<span class="fullscreen-possession"></span>');
