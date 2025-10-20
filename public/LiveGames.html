@@ -160,6 +160,12 @@
       margin-bottom: 24px;
     }
 
+    .grid-preview.grid-1 {
+      grid-template-columns: 1fr;
+      max-width: 600px;
+      margin: 0 auto 24px;
+    }
+
     .grid-preview.grid-2 {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -336,8 +342,26 @@
       overflow-y: auto;
     }
 
+    .fullscreen-grid.grid-1 {
+      grid-template-columns: 1fr;
+      place-items: center;
+      padding: 40px;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-game-card,
+    .fullscreen-grid.grid-1 .fullscreen-game-slot {
+      max-width: 900px;
+      width: 100%;
+    }
+
     .fullscreen-grid.grid-2 {
       grid-template-columns: repeat(2, 1fr);
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-team-record {
+      font-size: 1.3rem !important;
+      min-width: 58px !important;
+      padding-right: 10px !important;
     }
 
     .fullscreen-grid.grid-4 {
@@ -451,6 +475,16 @@
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    .fullscreen-team-record {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: #94a3b8;
+      text-align: right;
+      opacity: 0.9;
+      min-width: 60px;
+      padding-right: 10px;
     }
 
     .fullscreen-score {
@@ -756,6 +790,12 @@
       font-size: 1rem !important;
     }
 
+    .fullscreen-grid.grid-6 .fullscreen-team-record {
+      font-size: 0.9rem !important;
+      min-width: 45px !important;
+      padding-right: 8px !important;
+    }
+
     .fullscreen-grid.grid-6 .fullscreen-game-card,
     .fullscreen-grid.grid-6 .fullscreen-game-slot {
       padding: 15px !important;
@@ -789,6 +829,12 @@
       font-size: 1.1rem !important;
     }
 
+    .fullscreen-grid.grid-4 .fullscreen-team-record {
+      font-size: 1.1rem !important;
+      min-width: 52px !important;
+      padding-right: 9px !important;
+    }
+
     .fullscreen-grid.grid-4 .fullscreen-game-card,
     .fullscreen-grid.grid-4 .fullscreen-game-slot {
       padding: 18px !important;
@@ -820,6 +866,12 @@
 
     .fullscreen-grid.grid-8 .fullscreen-vs {
       font-size: 0.9rem !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-team-record {
+      font-size: 0.8rem !important;
+      min-width: 40px !important;
+      padding-right: 6px !important;
     }
 
     .fullscreen-grid.grid-8 .fullscreen-game-card,
@@ -1095,6 +1147,13 @@
         margin: 15px 0 !important;
       }
 
+      /* Mobile team records */
+      .fullscreen-team-record {
+        font-size: 1rem !important;
+        min-width: 50px !important;
+        padding-right: 8px !important;
+      }
+
       /* Mobile dropdown selectors */
       .fs-game-selector {
         font-size: 14px !important;
@@ -1117,6 +1176,7 @@
        ================================================== */
     @media screen and (max-width: 768px) {
       /* Force all grid layouts to single column on phones */
+      .fullscreen-grid.grid-1,
       .fullscreen-grid.grid-2,
       .fullscreen-grid.grid-4,
       .fullscreen-grid.grid-6,
@@ -1141,6 +1201,13 @@
 
       .fullscreen-team-name {
         font-size: 1.6rem !important;
+      }
+
+      .fullscreen-team-record {
+        font-size: 1rem !important;
+        margin-top: 4px !important;
+        min-width: 48px !important;
+        padding-right: 8px !important;
       }
 
       .fullscreen-score {
@@ -1287,6 +1354,12 @@
         font-size: 1.8rem !important;
       }
 
+      .fullscreen-team-record {
+        font-size: 1.2rem !important;
+        min-width: 55px !important;
+        padding-right: 9px !important;
+      }
+
       .fullscreen-quarter {
         font-size: 1.6rem !important;
       }
@@ -1412,6 +1485,10 @@
     <!-- Layout Options -->
     <div class="layout-options">
       <label>
+        <input type="radio" name="layout" value="1">
+        <span>1 Game</span>
+      </label>
+      <label>
         <input type="radio" name="layout" value="2">
         <span>2 Games</span>
       </label>
@@ -1444,12 +1521,6 @@
     <div class="fullscreen-controls">
       <button id="cast-btn" class="cast-btn" style="display: none;">
         📺 Cast to TV
-      </button>
-      <button id="test-animation-btn" style="background: #f97316;">
-        🧪 Test Animation
-      </button>
-      <button id="test-score-change-btn" style="background: #10b981;">
-        🏈 Simulate Score
       </button>
       <button id="change-layout-fs">🔄 Change Layout</button>
       <button id="exit-fullscreen">✕ Exit</button>
@@ -1726,6 +1797,10 @@
       const isLive = statusState === 'in';
       const isUpcoming = statusState === 'pre';
       
+      // Get team records
+      const awayRecord = awayTeam?.records?.[0]?.summary || awayTeam?.record?.displayValue || '';
+      const homeRecord = homeTeam?.records?.[0]?.summary || homeTeam?.record?.displayValue || '';
+      
       // Get possession and situation info (for NFL)
       const possession = comp?.situation?.possession;
       const downDistanceText = comp?.situation?.downDistanceText || '';
@@ -1785,6 +1860,7 @@
         
         <div class="fullscreen-team ${!isUpcoming && awayScore > homeScore ? 'winning' : !isUpcoming && awayScore < homeScore ? 'losing' : ''}">
           <div class="fullscreen-team-header">
+            ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
             ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
               ${awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away'}
@@ -1798,6 +1874,7 @@
 
         <div class="fullscreen-team ${!isUpcoming && homeScore > awayScore ? 'winning' : !isUpcoming && homeScore < awayScore ? 'losing' : ''}">
           <div class="fullscreen-team-header">
+            ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
             ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
               ${homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home'}
@@ -2078,8 +2155,10 @@
     async function updateFullscreenGames() {
       console.log('🔄 Controller auto-refreshing game data...');
       
-      // Store previous scores before loading new data
+      // Store previous scores AND play data before loading new data
       const previousScores = {};
+      const previousPlays = {}; // Store last interceptions and fumbles
+      
       document.querySelectorAll('.fullscreen-game-card').forEach((card) => {
         const gameId = card.dataset.gameId;
         if (gameId) {
@@ -2089,10 +2168,17 @@
             away: parseInt(awayScoreEl?.textContent || 0),
             home: parseInt(homeScoreEl?.textContent || 0)
           };
+          
+          // Store play data to prevent re-triggering animations
+          previousPlays[gameId] = {
+            lastInterception: card.dataset.lastInterception || '',
+            lastFumble: card.dataset.lastFumble || ''
+          };
         }
       });
       
       console.log(`📊 Stored previous scores for ${Object.keys(previousScores).length} games`);
+      console.log(`🏈 Stored previous play data for ${Object.keys(previousPlays).length} games`);
       
       await loadAllGames();
       
@@ -2106,6 +2192,12 @@
         if (game && previousScores[gameId]) {
           const prevScores = previousScores[gameId];
           detectScoreChange(card, game, prevScores.away, prevScores.home);
+          
+          // Restore previous play data to the new card
+          if (previousPlays[gameId]) {
+            card.dataset.lastInterception = previousPlays[gameId].lastInterception;
+            card.dataset.lastFumble = previousPlays[gameId].lastFumble;
+          }
           
           // For NFL games, also check for turnovers from play description
           if (game.sport === 'nfl') {
@@ -2468,77 +2560,6 @@
         loadAllGames();
         renderGridPreview();
         initializePresentationAPI();
-        
-        // Test Animation Button
-        document.getElementById('test-animation-btn')?.addEventListener('click', () => {
-          const cards = document.querySelectorAll('.fullscreen-game-card');
-          if (cards.length > 0) {
-            const firstCard = cards[0];
-            const gameId = firstCard.dataset.gameId;
-            const game = allGames.find(g => g.id === gameId);
-            
-            if (game && game.sport === 'nfl') {
-              console.log('🧪 Testing NFL Touchdown animation...');
-              showPlayAnimation(firstCard, 'nfl', 'touchdown', 'TOUCHDOWN!', 'TEST TEAM');
-            } else if (game) {
-              console.log(`🧪 Testing ${game.sport} animation...`);
-              showPlayAnimation(firstCard, game.sport, 'score', `${game.sport.toUpperCase()} SCORE!`, 'TEST TEAM');
-            } else {
-              alert('Please add a game to the grid first!');
-            }
-          } else {
-            alert('Please enter Sports Bar Mode and add games first!');
-          }
-        });
-        
-        // Simulate Score Change Button
-        document.getElementById('test-score-change-btn')?.addEventListener('click', () => {
-          const cards = document.querySelectorAll('.fullscreen-game-card');
-          if (cards.length > 0) {
-            const firstCard = cards[0];
-            const gameId = firstCard.dataset.gameId;
-            const game = allGames.find(g => g.id === gameId);
-            
-            if (game && game.sport === 'nfl') {
-              console.log('🏈 Simulating touchdown score change...');
-              
-              // Get current scores
-              const scoreEls = firstCard.querySelectorAll('.fullscreen-score');
-              const awayScoreEl = scoreEls[0];
-              const homeScoreEl = scoreEls[1];
-              const currentAwayScore = parseInt(awayScoreEl?.textContent || 0);
-              const currentHomeScore = parseInt(homeScoreEl?.textContent || 0);
-              
-              // Simulate score change (+7 for touchdown)
-              const newHomeScore = currentHomeScore + 7;
-              homeScoreEl.textContent = newHomeScore;
-              
-              // Update the game object in allGames
-              const comp = game.competitions?.[0];
-              if (comp && comp.competitors?.[0]) {
-                comp.competitors[0].score = newHomeScore.toString();
-              }
-              
-              console.log(`📊 Simulated score: ${currentAwayScore}-${currentHomeScore} → ${currentAwayScore}-${newHomeScore}`);
-              
-              // Trigger animation through score detection
-              detectScoreChange(firstCard, game, currentAwayScore, currentHomeScore);
-              
-              // Show refresh indicator
-              const indicator = firstCard.querySelector('.fullscreen-refresh-indicator');
-              if (indicator) {
-                indicator.classList.add('active');
-                setTimeout(() => indicator.classList.remove('active'), 1000);
-              }
-            } else if (game) {
-              alert('Simulate Score only works for NFL games. Try the Test Animation button instead!');
-            } else {
-              alert('Please add an NFL game to the grid first!');
-            }
-          } else {
-            alert('Please enter Sports Bar Mode and add games first!');
-          }
-        });
       }
     });
   </script>

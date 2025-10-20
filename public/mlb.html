@@ -193,6 +193,12 @@
       overflow-y: auto;
     }
 
+    .grid-preview.grid-1 {
+      grid-template-columns: 1fr;
+      max-width: 600px;
+      margin: 0 auto 24px;
+    }
+
     .grid-preview.grid-2 {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -489,6 +495,17 @@
       overflow-y: auto;
     }
 
+    .fullscreen-grid.grid-1 {
+      grid-template-columns: 1fr;
+      place-items: center;
+      padding: 40px;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-game-card {
+      max-width: 900px;
+      width: 100%;
+    }
+
     .fullscreen-grid.grid-2 {
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: 1fr;
@@ -516,7 +533,19 @@
       border: 3px solid #334155;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
-      overflow: hidden;
+      overflow: visible;
+    }
+
+    /* Sport Logo in Top Left */
+    .sport-logo-indicator {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      opacity: 0.9;
+      filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.6));
     }
 
     .fullscreen-game-card.empty-slot {
@@ -842,6 +871,13 @@
       margin-left: 4px !important;
     }
 
+    .fullscreen-grid.grid-6 .sport-logo-indicator {
+      width: 70px !important;
+      height: 70px !important;
+      top: 10px !important;
+      left: 10px !important;
+    }
+
     .fullscreen-grid.grid-6 .fullscreen-game-card {
       padding: 15px !important;
     }
@@ -887,6 +923,13 @@
       width: 18px !important;
       height: 18px !important;
       margin-left: 5px !important;
+    }
+
+    .fullscreen-grid.grid-4 .sport-logo-indicator {
+      width: 85px !important;
+      height: 85px !important;
+      top: 12px !important;
+      left: 12px !important;
     }
 
     .fullscreen-grid.grid-4 .fullscreen-game-card {
@@ -1071,11 +1114,38 @@
       border: 2px solid transparent;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       overflow: hidden;
+      position: relative;
     }
 
     .game-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Game Start Time Badge for Upcoming Games */
+    .game-start-time-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(99, 102, 241, 0.95);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .game-start-date-badge {
+      font-size: 0.75rem;
+      opacity: 0.95;
     }
 
     .inning-header {
@@ -2133,9 +2203,25 @@
           statusText = statusName;
         }
 
+        // Format game start time for upcoming games
+        let gameStartTimeBadgeHTML = '';
+        if (isPregame && game.date) {
+          const gameDate = new Date(game.date);
+          const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+          gameStartTimeBadgeHTML = `
+            <div class="game-start-time-badge">
+              <span class="game-start-date-badge">${dateStr}</span>
+              <span>•</span>
+              <span>${timeStr}</span>
+            </div>
+          `;
+        }
+
         // Create card HTML
         const cardHtml = `
           <div class="game-card" data-game-id="${game.id}" style="cursor: pointer;">
+            ${gameStartTimeBadgeHTML}
             <div class="inning-header">
               <div class="team-column"></div>
               <div class="scores-header">
@@ -3233,6 +3319,9 @@
       <!-- Layout Selection -->
       <div class="layout-options">
         <label>
+          <input type="radio" name="layout" value="1"> 1 Game
+        </label>
+        <label>
           <input type="radio" name="layout" value="2"> 2 Games
         </label>
         <label>
@@ -3598,6 +3687,7 @@
       div.dataset.gameId = game.id;
       
       div.innerHTML = `
+        <img src="/assets/MLB-logo.png" alt="MLB" class="sport-logo-indicator">
         <div class="fullscreen-refresh-indicator"></div>
         
         <!-- Game Selector DropOuts (hidden initially) -->
