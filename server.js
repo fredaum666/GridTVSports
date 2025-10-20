@@ -25,6 +25,17 @@ const sportsCache = {
 };
 
 // ============================================
+// FINAL GAMES STORAGE (In-Memory)
+// ============================================
+
+const finalGamesStore = {
+  nfl: new Map(),
+  nba: new Map(),
+  mlb: new Map(),
+  nhl: new Map()
+};
+
+// ============================================
 // ESPN API HELPERS
 // ============================================
 
@@ -69,9 +80,10 @@ function areAllGamesComplete(scoreboard) {
 function cleanupActiveDates() {
   const today = getTodayDate();
   const yesterday = getYesterdayDate();
-  const validDates = new Set([today, yesterday]);
+  const tomorrow = getTomorrowDate();
+  const validDates = new Set([yesterday, today, tomorrow]);
   
-  // Remove any dates that aren't today or yesterday
+  // Remove any dates that aren't yesterday, today, or tomorrow
   for (const date of sportsCache.nba.activeDates) {
     if (!validDates.has(date)) {
       console.log(`🧹 Removing stale NBA date: ${date}`);
@@ -112,6 +124,15 @@ function getTodayDate() {
 function getYesterdayDate() {
   const now = new Date();
   now.setDate(now.getDate() - 1); // Subtract one day
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`; // YYYYMMDD
+}
+
+function getTomorrowDate() {
+  const now = new Date();
+  now.setDate(now.getDate() + 1); // Add one day
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
@@ -215,24 +236,28 @@ app.get('/api/nba/scoreboard', async (req, res) => {
       return res.json(data);
     }
 
-    // No specific date - fetch today AND yesterday to catch live games
+    // No specific date - fetch yesterday, today, AND tomorrow to catch live and upcoming games
     const today = getTodayDate();
     const yesterday = getYesterdayDate();
+    const tomorrow = getTomorrowDate();
     
-    const [todayUrl, yesterdayUrl] = [
+    const [todayUrl, yesterdayUrl, tomorrowUrl] = [
       `${ESPN_BASE}/basketball/nba/scoreboard?dates=${today}`,
-      `${ESPN_BASE}/basketball/nba/scoreboard?dates=${yesterday}`
+      `${ESPN_BASE}/basketball/nba/scoreboard?dates=${yesterday}`,
+      `${ESPN_BASE}/basketball/nba/scoreboard?dates=${tomorrow}`
     ];
 
-    const [todayData, yesterdayData] = await Promise.all([
+    const [todayData, yesterdayData, tomorrowData] = await Promise.all([
       fetchESPN(todayUrl),
-      fetchESPN(yesterdayUrl)
+      fetchESPN(yesterdayUrl),
+      fetchESPN(tomorrowUrl)
     ]);
 
-    // Merge games from both days, prioritizing live games
+    // Merge games from all three days, prioritizing live games
     const allGames = [
       ...(yesterdayData.events || []),
-      ...(todayData.events || [])
+      ...(todayData.events || []),
+      ...(tomorrowData.events || [])
     ];
 
     // Create combined response
@@ -247,21 +272,26 @@ app.get('/api/nba/scoreboard', async (req, res) => {
       return acc;
     }, {});
 
-    console.log(`[NBA] Combined (${yesterday} + ${today}) - Games: ${allGames.length}, Statuses:`, statusCount);
+    console.log(`[NBA] Combined (${yesterday} + ${today} + ${tomorrow}) - Games: ${allGames.length}, Statuses:`, statusCount);
 
-    // Cache both dates
+    // Cache all three dates
     const now = Date.now();
     const todayComplete = areAllGamesComplete(todayData);
     const yesterdayComplete = areAllGamesComplete(yesterdayData);
+    const tomorrowComplete = areAllGamesComplete(tomorrowData);
 
     sportsCache.nba.data.set(`date-${today}`, { data: todayData, timestamp: now, isComplete: todayComplete });
     sportsCache.nba.data.set(`date-${yesterday}`, { data: yesterdayData, timestamp: now, isComplete: yesterdayComplete });
+    sportsCache.nba.data.set(`date-${tomorrow}`, { data: tomorrowData, timestamp: now, isComplete: tomorrowComplete });
 
     if (!todayComplete) sportsCache.nba.activeDates.add(today);
     else sportsCache.nba.activeDates.delete(today);
     
     if (!yesterdayComplete) sportsCache.nba.activeDates.add(yesterday);
     else sportsCache.nba.activeDates.delete(yesterday);
+
+    if (!tomorrowComplete) sportsCache.nba.activeDates.add(tomorrow);
+    else sportsCache.nba.activeDates.delete(tomorrow);
 
     res.json(combinedData);
   } catch (error) {
@@ -605,6 +635,88 @@ cron.schedule('*/15 * * * * *', async () => {
     } catch (error) {
       console.error(`[NHL] Failed to update ${date}:`, error.message);
     }
+  }
+});
+
+// ============================================
+// FINAL GAMES API ENDPOINTS
+// ============================================
+
+// Save a final game to storage
+app.post('/api/final-games/save', (req, res) => {
+  try {
+    const { sport, gameId, gameData, week } = req.body;
+    
+    if (!sport || !gameId || !gameData) {
+      return res.status(400).json({ error: 'Missing required fields: sport, gameId, gameData' });
+    }
+    
+    if (!finalGamesStore[sport]) {
+      return res.status(400).json({ error: 'Invalid sport. Must be: nfl, nba, mlb, or nhl' });
+    }
+    
+    finalGamesStore[sport].set(gameId, {
+      ...gameData,
+      savedAt: Date.now(),
+      week: week || null
+    });
+    
+    console.log(`💾 Saved final game: ${sport.toUpperCase()} - ${gameId}`);
+    res.json({ success: true, gameId });
+  } catch (error) {
+    console.error('Error saving final game:', error);
+    res.status(500).json({ error: 'Failed to save final game' });
+  }
+});
+
+// Get all final games for a sport
+app.get('/api/final-games/:sport', (req, res) => {
+  try {
+    const { sport } = req.params;
+    
+    if (!finalGamesStore[sport]) {
+      return res.status(400).json({ error: 'Invalid sport' });
+    }
+    
+    const games = Array.from(finalGamesStore[sport].values());
+    res.json({ games, count: games.length });
+  } catch (error) {
+    console.error('Error fetching final games:', error);
+    res.status(500).json({ error: 'Failed to fetch final games' });
+  }
+});
+
+// Clear final games (optionally by week)
+app.delete('/api/final-games/clear/:sport', (req, res) => {
+  try {
+    const { sport } = req.params;
+    const { week } = req.query;
+    
+    if (!finalGamesStore[sport]) {
+      return res.status(400).json({ error: 'Invalid sport' });
+    }
+    
+    if (week) {
+      // Clear only games from previous weeks
+      let cleared = 0;
+      for (const [gameId, gameData] of finalGamesStore[sport]) {
+        if (gameData.week && gameData.week < parseInt(week)) {
+          finalGamesStore[sport].delete(gameId);
+          cleared++;
+        }
+      }
+      console.log(`🗑️ Cleared ${cleared} old final games for ${sport.toUpperCase()} (before week ${week})`);
+    } else {
+      // Clear all
+      const count = finalGamesStore[sport].size;
+      finalGamesStore[sport].clear();
+      console.log(`🗑️ Cleared all ${count} final games for ${sport.toUpperCase()}`);
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error clearing final games:', error);
+    res.status(500).json({ error: 'Failed to clear final games' });
   }
 });
 

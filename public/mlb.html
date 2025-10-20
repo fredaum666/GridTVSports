@@ -1162,7 +1162,7 @@
 
     .scores-header {
       display: flex;
-      gap: 16px;
+      gap: 8px; /* Reduced from 16px to fit 9 innings */
       align-items: center;
     }
 
@@ -1176,7 +1176,7 @@
 
     .inning-label:last-child {
       min-width: 36px;
-      margin-left: 8px;
+      margin-left: 4px; /* Reduced from 8px */
     }
 
     .possession-arrow {
@@ -1227,7 +1227,7 @@
 
     .inning-scores {
       display: flex;
-      gap: 16px;
+      gap: 8px; /* Reduced from 16px to match header */
       align-items: center;
       margin-left: auto;
     }
@@ -1245,7 +1245,7 @@
       font-weight: 700;
       color: #e0e0e0;
       min-width: 36px;
-      margin-left: 8px;
+      margin-left: 4px; /* Reduced from 8px */
     }
 
     .team-row.winning .inning-score.total-score {
@@ -1723,7 +1723,7 @@
       }
       
       .inning-scores {
-        gap: 12px;
+        gap: 6px; /* Match header gap for mobile */
         flex-shrink: 0;
       }
       
@@ -1734,7 +1734,8 @@
       
       .inning-score.total-score {
         font-size: 20px;
-        min-width: 34px;
+        min-width: 32px;
+        margin-left: 2px;
         font-weight: 700;
       }
       
@@ -1743,7 +1744,7 @@
       }
       
       .scores-header {
-        gap: 12px;
+        gap: 6px; /* Further reduced for mobile to fit 9 innings */
       }
       
       .inning-label {
@@ -1752,7 +1753,8 @@
       }
       
       .inning-label:last-child {
-        min-width: 34px;
+        min-width: 32px;
+        margin-left: 2px;
       }
 
       .game-footer-info {
@@ -2228,6 +2230,12 @@
                 <span class="inning-label">1</span>
                 <span class="inning-label">2</span>
                 <span class="inning-label">3</span>
+                <span class="inning-label">4</span>
+                <span class="inning-label">5</span>
+                <span class="inning-label">6</span>
+                <span class="inning-label">7</span>
+                <span class="inning-label">8</span>
+                <span class="inning-label">9</span>
                 <span class="inning-label">T</span>
               </div>
             </div>
@@ -2242,6 +2250,12 @@
                 <span class="inning-score">${awayLineScores[0]?.value || 0}</span>
                 <span class="inning-score">${awayLineScores[1]?.value || 0}</span>
                 <span class="inning-score">${awayLineScores[2]?.value || 0}</span>
+                <span class="inning-score">${awayLineScores[3]?.value || 0}</span>
+                <span class="inning-score">${awayLineScores[4]?.value || 0}</span>
+                <span class="inning-score">${awayLineScores[5]?.value || 0}</span>
+                <span class="inning-score">${awayLineScores[6]?.value || 0}</span>
+                <span class="inning-score">${awayLineScores[7]?.value || 0}</span>
+                <span class="inning-score">${awayLineScores[8]?.value || 0}</span>
                 <span class="inning-score total-score">${awayScore}</span>
               </div>
             </div>
@@ -2256,6 +2270,12 @@
                 <span class="inning-score">${homeLineScores[0]?.value || 0}</span>
                 <span class="inning-score">${homeLineScores[1]?.value || 0}</span>
                 <span class="inning-score">${homeLineScores[2]?.value || 0}</span>
+                <span class="inning-score">${homeLineScores[3]?.value || 0}</span>
+                <span class="inning-score">${homeLineScores[4]?.value || 0}</span>
+                <span class="inning-score">${homeLineScores[5]?.value || 0}</span>
+                <span class="inning-score">${homeLineScores[6]?.value || 0}</span>
+                <span class="inning-score">${homeLineScores[7]?.value || 0}</span>
+                <span class="inning-score">${homeLineScores[8]?.value || 0}</span>
                 <span class="inning-score total-score">${homeScore}</span>
               </div>
             </div>
@@ -2286,12 +2306,12 @@
         container.insertAdjacentHTML('beforeend', cardHtml);
       });
       
-      // Add click event listeners to all cards
-      container.querySelectorAll('.game-card').forEach((card, idx) => {
-        card.addEventListener('click', () => {
-          showGameDetail(liveGames[idx]);
-        });
-      });
+      // // Add click event listeners to all cards
+      // container.querySelectorAll('.game-card').forEach((card, idx) => {
+      //   card.addEventListener('click', () => {
+      //     showGameDetail(liveGames[idx]);
+      //   });
+      // });
     }
 
     async function loadWinProbability(gameId, awayTeam, homeTeam) {
