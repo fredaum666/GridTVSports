@@ -2085,6 +2085,8 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="/styles/themes.css">
+  <script src="/scripts/theme-manager.js"></script>
 </head>
 <body>
   <div class="header">
@@ -2097,7 +2099,11 @@
           LIVE
         </span>
       </h1>
-      <div style="display: flex; gap: 10px;">
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <select id="theme-select" class="theme-select">
+          <option value="default">Default Dark</option>
+          <option value="apple">Apple UI</option>
+        </select>
         <button class="sports-bar-btn" id="sports-bar-btn">
           📺 Sports Bar Mode
         </button>
