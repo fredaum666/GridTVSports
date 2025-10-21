@@ -694,6 +694,46 @@
       margin-top: 10px;
     }
 
+    /* MLB Fullscreen Baseball-Specific Styles */
+    .fullscreen-game-title {
+      font-size: 1.4rem;
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .fullscreen-inning.live {
+      color: #ef4444;
+    }
+
+    .fullscreen-baseball-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .fullscreen-diamond-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+    }
+
+    .fullscreen-count {
+      display: flex;
+      gap: 14px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #9ca3af;
+    }
+
+    .fullscreen-count span {
+      letter-spacing: 0.5px;
+    }
+
     .fullscreen-refresh-indicator {
       position: absolute;
       top: 10px;
@@ -882,6 +922,25 @@
       padding: 15px !important;
     }
 
+    .fullscreen-grid.grid-6 .fullscreen-baseball-status {
+      gap: 12px !important;
+      margin-top: 8px !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-diamond-container svg {
+      width: 28px !important;
+      height: 28px !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-count {
+      font-size: 1.1rem !important;
+      gap: 10px !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-game-title {
+      font-size: 1.1rem !important;
+    }
+
     /* 4-Grid Layout - Medium text */
     .fullscreen-grid.grid-4 .fullscreen-team-logo {
       width: 55px !important;
@@ -934,6 +993,25 @@
 
     .fullscreen-grid.grid-4 .fullscreen-game-card {
       padding: 18px !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-baseball-status {
+      gap: 16px !important;
+      margin-top: 12px !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-diamond-container svg {
+      width: 32px !important;
+      height: 32px !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-count {
+      font-size: 1.3rem !important;
+      gap: 12px !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-game-title {
+      font-size: 1.3rem !important;
     }
 
     /* 2-Grid Layout - Keep large text (default) */
@@ -1074,9 +1152,19 @@
       justify-content: center;
     }
 
+    .game-card {
+      min-width: 480px;
+    }
+
     @media (max-width: 1100px) {
       .games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      }
+      
+      .team-logo-large {
+        width: 52px !important;
+        height: 52px !important;
+        display: block !important;
       }
     }
 
@@ -1147,48 +1235,129 @@
       font-size: 0.75rem;
       opacity: 0.95;
     }
-
-    .inning-header {
-      display: flex;
-      align-items: center;
-      padding: 8px 16px;
+    /* Game Title/Series */
+    .game-title {
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #9ca3af;
       background: rgba(0, 0, 0, 0.3);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .team-column {
-      flex: 1;
-    }
-
-    .scores-header {
-      display: flex;
-      gap: 8px; /* Reduced from 16px to fit 9 innings */
-      align-items: center;
-    }
-
-    .inning-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #9ca3af;
-      min-width: 24px;
-      text-align: center;
-    }
-
-    .inning-label:last-child {
-      min-width: 36px;
-      margin-left: 4px; /* Reduced from 8px */
-    }
-
-    .possession-arrow {
-      color: #10b981;
-      font-size: 16px;
-      margin-right: 8px;
-      width: 20px;
+    /* Score Container */
+    .score-container {
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 24px 20px;
+      gap: 20px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4));
     }
 
+    .team-display {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .team-logo-large {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .team-info-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 120px;
+      gap: 8px;
+    }
+
+    .team-abbr {
+      display: none; /* Hide abbreviation */
+    }
+
+    .team-full-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #e0e0e0;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .team-score {
+      font-size: 56px;
+      font-weight: 900;
+      color: #e0e0e0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .team-score.winning {
+      color: #10b981;
+    }
+
+    .score-divider {
+      font-size: 40px;
+      font-weight: 300;
+      color: #64748b;
+      margin: 0 12px;
+    }
+
+    /* Game Status Row */
+    .game-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 16px 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .inning-display {
+      font-size: 16px;
+      font-weight: 600;
+      color: #9ca3af;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .inning-display.live {
+      color: #ef4444;
+    }
+
+    .diamond-bases {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+    }
+
+    .count-display {
+      display: flex;
+      gap: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #9ca3af;
+      min-width: 140px;
+      justify-content: center;
+    }
+
+    .count-display span {
+      letter-spacing: 0.5px;
+    }
+
+    /* Old styles - keep for compatibility but override as needed */
     .team-row {
       display: flex;
       align-items: center;
@@ -1225,30 +1394,22 @@
       min-width: 150px;
     }
 
-    .inning-scores {
+    .score-display {
       display: flex;
-      gap: 8px; /* Reduced from 16px to match header */
       align-items: center;
       margin-left: auto;
+      padding-right: 16px;
     }
 
-    .inning-score {
-      font-size: 14px;
-      font-weight: 600;
-      color: #9ca3af;
-      min-width: 24px;
+    .score-display .total-score {
+      font-size: 28px;
+      font-weight: 700;
+      color: #e0e0e0;
+      min-width: 40px;
       text-align: center;
     }
 
-    .inning-score.total-score {
-      font-size: 24px;
-      font-weight: 700;
-      color: #e0e0e0;
-      min-width: 36px;
-      margin-left: 4px; /* Reduced from 8px */
-    }
-
-    .team-row.winning .inning-score.total-score {
+    .team-row.winning .total-score {
       color: #10b981;
     }
 
@@ -1628,7 +1789,15 @@
     /* Responsive Design */
     @media (max-width: 1200px) {
       .games-grid {
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      }
+      
+      .team-logo-large {
+        width: 56px !important;
+        height: 56px !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
       }
     }
 
@@ -1637,22 +1806,28 @@
         grid-template-columns: 1fr;
       }
       
-      .inning-scores {
-        gap: 12px;
+      .team-logo-large {
+        width: 48px !important;
+        height: 48px !important;
+        display: block !important;
       }
       
-      .inning-score {
+      .team-score {
+        font-size: 44px;
+        min-width: 70px;
+      }
+      
+      .score-divider {
+        font-size: 32px;
+      }
+      
+      .team-full-name {
         font-size: 13px;
-        min-width: 20px;
       }
       
-      .inning-score.total-score {
-        font-size: 22px;
-      }
-      
-      .team-name {
-        font-size: 14px;
-        min-width: 120px;
+      .diamond-bases svg {
+        width: 32px;
+        height: 32px;
       }
     }
 
@@ -1696,6 +1871,66 @@
         min-height: 200px;
       }
       
+      .score-container {
+        padding: 16px 12px;
+        gap: 12px;
+      }
+      
+      .team-display {
+        gap: 8px;
+      }
+
+      .team-logo-large {
+        width: 36px !important;
+        height: 36px !important;
+        display: block !important;
+      }
+      
+      .team-score {
+        font-size: 32px;
+        min-width: 56px;
+      }
+      
+      .score-divider {
+        font-size: 24px;
+        margin: 0 6px;
+      }
+      
+      .team-info-block {
+        min-width: 90px;
+      }
+      
+      .team-full-name {
+        font-size: 11px;
+      }
+      
+      .game-status-row {
+        padding: 12px 16px;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      
+      .inning-display {
+        font-size: 14px;
+        min-width: 70px;
+      }
+      
+      .count-display {
+        gap: 10px;
+        font-size: 13px;
+        min-width: 120px;
+      }
+      
+      .diamond-bases svg {
+        width: 28px;
+        height: 28px;
+      }
+      
+      .game-title {
+        font-size: 11px;
+        padding: 10px 16px;
+      }
+      
       .team-row {
         padding: 20px 16px;
         flex-wrap: nowrap;
@@ -1722,39 +1957,14 @@
         text-overflow: ellipsis;
       }
       
-      .inning-scores {
-        gap: 6px; /* Match header gap for mobile */
-        flex-shrink: 0;
+      .score-display {
+        padding-right: 8px;
       }
       
-      .inning-score {
-        font-size: 11px;
-        min-width: 20px;
-      }
-      
-      .inning-score.total-score {
-        font-size: 20px;
-        min-width: 32px;
-        margin-left: 2px;
+      .score-display .total-score {
+        font-size: 22px;
+        min-width: 36px;
         font-weight: 700;
-      }
-      
-      .inning-header {
-        padding: 12px 16px;
-      }
-      
-      .scores-header {
-        gap: 6px; /* Further reduced for mobile to fit 9 innings */
-      }
-      
-      .inning-label {
-        font-size: 10px;
-        min-width: 20px;
-      }
-      
-      .inning-label:last-child {
-        min-width: 32px;
-        margin-left: 2px;
       }
 
       .game-footer-info {
@@ -2174,36 +2384,38 @@
         
         const isFinal = isCompleted || statusType === 'post';
         const isPregame = statusType === 'pre';
+        const isUpcoming = isPregame; // Add this for upcoming game detection
 
         // Get inning scores from linescores
         const awayLineScores = away.linescores || [];
         const homeLineScores = home.linescores || [];
         
-        // Get current period and clock
+        // Get current inning and inning state
         const inning = comp.status.period || 1;
-        const clock = comp.status.displayClock || '15:00';
+        const inningState = comp.status.type.shortDetail || '';
         
-        // Get possession info (which team has the ball)
-        const possession = comp.situation?.possession || null;
-        const awayHasBall = possession === away.id;
-        const homeHasBall = possession === home.id;
+        // Get baseball situation data
+        const situation = comp.situation || {};
+        const balls = situation.balls || 0;
+        const strikes = situation.strikes || 0;
+        const outs = situation.outs || 0;
+        const onFirst = situation.onFirst || false;
+        const onSecond = situation.onSecond || false;
+        const onThird = situation.onThird || false;
         
-        // Get Outs and distance info
-        const OutsDistanceText = comp.situation?.OutsDistanceText || '';
-        const yardLine = comp.situation?.possessionText || '';
-
-        let statusBadge = 'pregame';
-        let statusText = 'Upcoming';
-        
+        // Determine inning display (Top/Mid/Bottom/End)
+        let inningDisplay = '';
         if (isLive) {
-          statusBadge = 'live';
-          statusText = `${inning === 1 ? '1st' : inning === 2 ? '2nd' : inning === 3 ? '3rd' : '4th'} - ${clock}`;
+          // Use the shortDetail from ESPN which contains "Top 6th", "Mid 6th", "Bot 6th", etc.
+          inningDisplay = inningState;
+        } else if (isPregame) {
+          inningDisplay = statusName;
         } else if (isFinal) {
-          statusBadge = 'final';
-          statusText = 'Final';
-        } else if (isPregame && statusName && !statusName.includes('STATUS_')) {
-          statusText = statusName;
+          inningDisplay = 'Final';
         }
+        
+        // Get game description (e.g., "ALCS Game 7")
+        const gameNote = comp.notes?.[0]?.headline || comp.series?.summary || '';
 
         // Format game start time for upcoming games
         let gameStartTimeBadgeHTML = '';
@@ -2224,80 +2436,55 @@
         const cardHtml = `
           <div class="game-card" data-game-id="${game.id}" style="cursor: pointer;">
             ${gameStartTimeBadgeHTML}
-            <div class="inning-header">
-              <div class="team-column"></div>
-              <div class="scores-header">
-                <span class="inning-label">1</span>
-                <span class="inning-label">2</span>
-                <span class="inning-label">3</span>
-                <span class="inning-label">4</span>
-                <span class="inning-label">5</span>
-                <span class="inning-label">6</span>
-                <span class="inning-label">7</span>
-                <span class="inning-label">8</span>
-                <span class="inning-label">9</span>
-                <span class="inning-label">T</span>
+            
+            <!-- Game Title/Series Info -->
+            ${gameNote ? `
+              <div class="game-title">
+                ${gameNote}
+              </div>
+            ` : ''}
+            
+            <!-- Score Display -->
+            <div class="score-container">
+              <div class="team-display away-team">
+                <div class="team-info-block">
+                  <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo-large" />
+                  <div class="team-full-name">${away.team.displayName}</div>
+                </div>
+                <div class="team-score ${awayScore > homeScore && (isLive || isFinal) ? 'winning' : ''}">${isUpcoming ? '-' : awayScore}</div>
+              </div>
+              
+              <div class="score-divider">-</div>
+              
+              <div class="team-display home-team">
+                <div class="team-score ${homeScore > awayScore && (isLive || isFinal) ? 'winning' : ''}">${isUpcoming ? '-' : homeScore}</div>
+                <div class="team-info-block">
+                  <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo-large" />
+                  <div class="team-full-name">${home.team.displayName}</div>
+                </div>
               </div>
             </div>
             
-            <div class="team-row ${awayScore > homeScore && (isLive || isFinal) ? 'winning' : ''}">
-              ${awayHasBall ? '<div class="possession-arrow">▶</div>' : '<div class="possession-arrow" style="opacity: 0;">▶</div>'}
-              <div class="team-info">
-                <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo" />
-                <span class="team-name">${away.team.displayName}</span>
-              </div>
-              <div class="inning-scores">
-                <span class="inning-score">${awayLineScores[0]?.value || 0}</span>
-                <span class="inning-score">${awayLineScores[1]?.value || 0}</span>
-                <span class="inning-score">${awayLineScores[2]?.value || 0}</span>
-                <span class="inning-score">${awayLineScores[3]?.value || 0}</span>
-                <span class="inning-score">${awayLineScores[4]?.value || 0}</span>
-                <span class="inning-score">${awayLineScores[5]?.value || 0}</span>
-                <span class="inning-score">${awayLineScores[6]?.value || 0}</span>
-                <span class="inning-score">${awayLineScores[7]?.value || 0}</span>
-                <span class="inning-score">${awayLineScores[8]?.value || 0}</span>
-                <span class="inning-score total-score">${awayScore}</span>
-              </div>
-            </div>
-            
-            <div class="team-row ${homeScore > awayScore && (isLive || isFinal) ? 'winning' : ''}">
-              ${homeHasBall ? '<div class="possession-arrow">▶</div>' : '<div class="possession-arrow" style="opacity: 0;">▶</div>'}
-              <div class="team-info">
-                <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo" />
-                <span class="team-name">${home.team.displayName}</span>
-              </div>
-              <div class="inning-scores">
-                <span class="inning-score">${homeLineScores[0]?.value || 0}</span>
-                <span class="inning-score">${homeLineScores[1]?.value || 0}</span>
-                <span class="inning-score">${homeLineScores[2]?.value || 0}</span>
-                <span class="inning-score">${homeLineScores[3]?.value || 0}</span>
-                <span class="inning-score">${homeLineScores[4]?.value || 0}</span>
-                <span class="inning-score">${homeLineScores[5]?.value || 0}</span>
-                <span class="inning-score">${homeLineScores[6]?.value || 0}</span>
-                <span class="inning-score">${homeLineScores[7]?.value || 0}</span>
-                <span class="inning-score">${homeLineScores[8]?.value || 0}</span>
-                <span class="inning-score total-score">${homeScore}</span>
-              </div>
-            </div>
-            
-            <div class="game-footer-info">
+            <!-- Game Status -->
+            <div class="game-status-row">
+              <div class="inning-display ${isLive ? 'live' : ''}">${inningDisplay}</div>
               ${isLive ? `
-                <div class="live-badge">
-                  <span class="live-dot"></span>
-                  <span>LIVE</span>
+               <div class="fullscreen-diamond-container">
+              <svg width="40" height="40" viewBox="0 -8 42 50" style="transform: rotate(45deg);">
+                <!-- Second base (top) -->
+                <rect x="13" y="-4" width="12" height="12" fill="${onSecond ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                <!-- First base (right) -->
+                <rect x="28" y="20" width="12" height="12" fill="${onFirst ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                <!-- Third base (left) -->
+                <rect x="0" y="20" width="12" height="12" fill="${onThird ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+              </svg>
+            </div>
+                <div class="count-display">
+                  <span>B:${balls}</span>
+                  <span>S:${strikes}</span>
+                  <span>O:${outs}</span>
                 </div>
-              ` : `
-                <div class="live-badge" style="background: #f59e0b;">
-                  <span>⏰</span>
-                  <span>UPCOMING</span>
-                </div>
-              `}
-              <div class="game-situation">
-                <span class="inning-clock">${isLive ? `${inning === 1 ? '1st' : inning === 2 ? '2nd' : inning === 3 ? '3rd' : '4th'} - ${clock}` : statusText}</span>
-                ${isLive && OutsDistanceText ? `
-                  <span class="Outs-distance">${OutsDistanceText}</span>
-                ` : ''}
-              </div>
+              ` : ''}
             </div>
           </div>
         `;
@@ -3646,15 +3833,42 @@
       const statusState = comp?.status?.type?.state;
       const isLive = statusState === 'in' || comp?.status?.period > 0;
       const isUpcoming = statusState === 'pre';
+      const isPregame = isUpcoming;
+      const isFinal = comp?.status?.type?.completed;
       
-      console.log('🎮 Creating game card:', {
+      // Baseball-specific data
+      const inning = comp?.status?.period;
+      const inningState = comp?.status?.type?.shortDetail; // "Top 6th", "Mid 6th", "Bot 6th"
+      const situation = comp?.situation || {};
+      const balls = situation.balls || 0;
+      const strikes = situation.strikes || 0;
+      const outs = situation.outs || 0;
+      const onFirst = situation.onFirst || false;
+      const onSecond = situation.onSecond || false;
+      const onThird = situation.onThird || false;
+      
+      // Game title (series info)
+      const gameNote = comp?.notes?.[0]?.headline || comp?.series?.summary || '';
+      
+      // Inning display
+      let inningDisplay;
+      if (isLive) {
+        inningDisplay = inningState || `Inning ${inning}`;
+      } else if (isPregame) {
+        const gameDate = new Date(game.date);
+        inningDisplay = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      } else {
+        inningDisplay = 'Final';
+      }
+      
+      console.log('🎮 Creating MLB fullscreen card:', {
         gameName: game.name,
         statusState: statusState,
-        statusName: comp?.status?.type?.name,
-        period: comp?.status?.period,
         isLive: isLive,
         isUpcoming: isUpcoming,
-        gameDate: game.date
+        inningDisplay: inningDisplay,
+        balls, strikes, outs,
+        bases: { onFirst, onSecond, onThird }
       });
       
       let cardClass = 'fullscreen-game-card';
@@ -3669,38 +3883,6 @@
         else cardClass += ' tied';
       }
 
-      // Get status display text
-      let statusDisplay = comp?.status?.type?.shortDetail || 'Live';
-      
-      // For upcoming games, show scheduled time
-      if (isUpcoming) {
-        const gameDate = new Date(game.date);
-        const now = new Date();
-        const hoursUntil = Math.round((gameDate - now) / (1000 * 60 * 60));
-        const minutesUntil = Math.round((gameDate - now) / (1000 * 60));
-        
-        console.log('⏰ Upcoming game countOuts:', {
-          gameDate: gameDate.toLocaleString(),
-          now: now.toLocaleString(),
-          minutesUntil: minutesUntil,
-          hoursUntil: hoursUntil
-        });
-        
-        if (minutesUntil < 60) {
-          statusDisplay = `⏰ STARTS IN ${minutesUntil} MIN`;
-        } else if (hoursUntil < 24) {
-          statusDisplay = `⏰ STARTS IN ${hoursUntil}H`;
-        } else {
-          statusDisplay = `⏰ ${gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
-        }
-        
-        console.log('⏰ Status display:', statusDisplay);
-      }
-      
-      const possession = comp?.situation?.possession;
-      const OutsDistance = comp?.situation?.OutsDistanceText || '';
-      const fieldPosition = comp?.situation?.possessionText || '';
-
       div.className = cardClass;
       div.dataset.slotIndex = slotIndex;
       div.dataset.isLive = isLive ? 'true' : 'false';
@@ -3710,21 +3892,22 @@
         <img src="/assets/MLB-logo.png" alt="MLB" class="sport-logo-indicator">
         <div class="fullscreen-refresh-indicator"></div>
         
-        <!-- Game Selector DropOuts (hidden initially) -->
+        <!-- Game Selector Dropdown (hidden initially) -->
         <div class="fs-game-selector-container">
           <select class="fs-game-selector" data-slot="${slotIndex}">
             <!-- Populated dynamically -->
           </select>
         </div>
 
-        <div class="fullscreen-inning">${statusDisplay}</div>
+        ${gameNote ? `<div class="fullscreen-game-title">${gameNote}</div>` : ''}
+
+        <div class="fullscreen-inning ${isLive ? 'live' : ''}">${inningDisplay}</div>
         
         <div class="fullscreen-team ${!isUpcoming && awayScore > homeScore ? 'winning' : !isUpcoming && awayScore < homeScore ? 'losing' : ''}">
           <div class="fullscreen-team-header">
             ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away'}
-              ${isLive && possession === awayTeam?.id ? '<span class="fullscreen-possession"></span>' : ''}
+              ${awayTeam?.team?.displayName || 'Away'}
             </div>
           </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
@@ -3736,14 +3919,31 @@
           <div class="fullscreen-team-header">
             ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home'}
-              ${isLive && possession === homeTeam?.id ? '<span class="fullscreen-possession"></span>' : ''}
+              ${homeTeam?.team?.displayName || 'Home'}
             </div>
           </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
         </div>
 
-        ${isLive && OutsDistance ? `<div class="fullscreen-Outs-distance">${OutsDistance}</div>` : ''}
+        ${isLive ? `
+          <div class="fullscreen-baseball-status">
+            <div class="fullscreen-diamond-container">
+              <svg width="50" height="50" viewBox="0 -8 42 50" style="transform: rotate(45deg);">
+                <!-- Second base (top) -->
+                <rect x="13" y="-4" width="16" height="16" fill="${onSecond ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                <!-- First base (right) -->
+                <rect x="28" y="20" width="16" height="16" fill="${onFirst ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                <!-- Third base (left) -->
+                <rect x="0" y="20" width="16" height="16" fill="${onThird ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="fullscreen-count">
+              <span>B:${balls}</span>
+              <span>S:${strikes}</span>
+              <span>O:${outs}</span>
+            </div>
+          </div>
+        ` : ''}
       `;
 
       // Populate game selector
@@ -4045,7 +4245,38 @@
           // Update status
           const inningEl = card.querySelector('.fullscreen-inning');
           if (inningEl) {
-            inningEl.textContent = comp?.status?.type?.shortDetail || 'Live';
+            const inningState = comp?.status?.type?.shortDetail || 'Live';
+            inningEl.textContent = inningState;
+          }
+
+          // Update baseball-specific elements (diamond and count)
+          const diamondContainer = card.querySelector('.fullscreen-diamond-container');
+          if (diamondContainer) {
+            const situation = comp?.situation || {};
+            const onFirst = situation.onFirst || false;
+            const onSecond = situation.onSecond || false;
+            const onThird = situation.onThird || false;
+            
+            const svg = diamondContainer.querySelector('svg');
+            if (svg) {
+              const rects = svg.querySelectorAll('rect');
+              if (rects[0]) rects[0].setAttribute('fill', onSecond ? '#fbbf24' : 'rgba(255,255,255,0.2)');
+              if (rects[1]) rects[1].setAttribute('fill', onFirst ? '#fbbf24' : 'rgba(255,255,255,0.2)');
+              if (rects[2]) rects[2].setAttribute('fill', onThird ? '#fbbf24' : 'rgba(255,255,255,0.2)');
+            }
+          }
+
+          const countEl = card.querySelector('.fullscreen-count');
+          if (countEl) {
+            const situation = comp?.situation || {};
+            const balls = situation.balls || 0;
+            const strikes = situation.strikes || 0;
+            const outs = situation.outs || 0;
+            
+            const spans = countEl.querySelectorAll('span');
+            if (spans[0]) spans[0].textContent = `B:${balls}`;
+            if (spans[1]) spans[1].textContent = `S:${strikes}`;
+            if (spans[2]) spans[2].textContent = `O:${outs}`;
           }
 
           // Update card class for winner
