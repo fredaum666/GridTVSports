@@ -587,6 +587,27 @@
       overflow: visible;
     }
 
+    /* Timeout Indicators */
+    .fullscreen-timeouts {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .timeout-bar {
+      width: 24px;
+      height: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.9);
+      transition: background 0.3s ease;
+    }
+
+    .timeout-bar.used {
+      background: transparent;
+    }
+
     .fullscreen-refresh-indicator {
       position: absolute;
       top: 10px;
@@ -1511,6 +1532,8 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="/styles/themes.css">
+  <script src="/scripts/theme-manager.js"></script>
 </head>
 <body>
   <div class="header">
@@ -1522,7 +1545,13 @@
           LIVE
         </span>
       </h1>
-      <button class="back-btn" onclick="window.location.href='/'">← Back to Home</button>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <select id="theme-select" class="theme-select">
+          <option value="default">Default Dark</option>
+          <option value="apple">Apple UI</option>
+        </select>
+        <button class="back-btn" onclick="window.location.href='/'">← Back to Home</button>
+      </div>
     </div>
   </div>
 
@@ -1920,6 +1949,11 @@
       const awayHasBall = possession === awayTeam?.id;
       const homeHasBall = possession === homeTeam?.id;
       
+      // Get timeout information - ESPN API provides this in competitors array
+      // Each team starts with 3 timeouts; timeoutsUsed tells us how many are gone
+      const awayTimeouts = awayTeam?.timeoutsUsed !== undefined ? 3 - (awayTeam.timeoutsUsed || 0) : 3;
+      const homeTimeouts = homeTeam?.timeoutsUsed !== undefined ? 3 - (homeTeam.timeoutsUsed || 0) : 3;
+      
       let cardClass = 'fullscreen-game-card';
       
       if (isUpcoming) {
@@ -1980,6 +2014,13 @@
               ${isLive && awayHasBall ? '<span class="fullscreen-possession"></span>' : ''}
             </div>
           </div>
+          ${(game.sport === 'nfl' || game.sport === 'nba') ? `
+            <div class="fullscreen-timeouts">
+              <div class="timeout-bar ${awayTimeouts >= 1 ? '' : 'used'}"></div>
+              <div class="timeout-bar ${awayTimeouts >= 2 ? '' : 'used'}"></div>
+              <div class="timeout-bar ${awayTimeouts >= 3 ? '' : 'used'}"></div>
+            </div>
+          ` : ''}
           <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
         </div>
 
@@ -1994,6 +2035,13 @@
               ${isLive && homeHasBall ? '<span class="fullscreen-possession"></span>' : ''}
             </div>
           </div>
+          ${(game.sport === 'nfl' || game.sport === 'nba') ? `
+            <div class="fullscreen-timeouts">
+              <div class="timeout-bar ${homeTimeouts >= 1 ? '' : 'used'}"></div>
+              <div class="timeout-bar ${homeTimeouts >= 2 ? '' : 'used'}"></div>
+              <div class="timeout-bar ${homeTimeouts >= 3 ? '' : 'used'}"></div>
+            </div>
+          ` : ''}
           <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
         </div>
 

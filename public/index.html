@@ -369,6 +369,8 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="/styles/themes.css">
+  <script src="/scripts/theme-manager.js"></script>
 </head>
 <body>
   <div class="container">
@@ -428,7 +430,7 @@
     </div>
 
     <!-- Mixed Sports Bar Mode Button -->
-    <div style="text-align: center; margin-bottom: 40px;">
+    <div style="text-align: center; margin-bottom: 20px;">
       <a href="/LiveGames.html" class="mixed-sports-btn">
         <span class="btn-icon">📺</span>
         <span class="btn-text">
@@ -439,7 +441,16 @@
       </a>
     </div>
 
-    <div class="features">
+    <!-- Theme Selector -->
+    <div class="theme-selector">
+      <label for="theme-select">🎨 Theme:</label>
+      <select id="theme-select" class="theme-select">
+        <option value="default">Default Dark</option>
+        <option value="apple">Apple UI</option>
+      </select>
+    </div>
+
+    <div class="features" style="margin-top: 40px;">
       <h2>✨ Features</h2>
       <div class="features-list">
         <div class="feature-item">
