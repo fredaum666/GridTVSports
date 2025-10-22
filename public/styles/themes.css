@@ -67,6 +67,9 @@ body[data-theme="default"] {
   --card-down-distance-bg: rgba(251, 191, 36, 0.1);
   --card-possession-indicator: #fbbf24;
   --card-yard-line: #3b82f6;
+  --card-quarter-label: #94a3b8;
+  --card-quarter-score: #e0e0e0;
+  --card-timeouts: #64748b;
   
   /* Fullscreen Cards (Sports Bar Mode) */
   --fullscreen-card-bg: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
@@ -94,20 +97,60 @@ body[data-theme="default"] {
   /* NFL Specific - Fullscreen */
   --fullscreen-down-distance: #fbbf24;
   --fullscreen-yard-line: #3b82f6;
+  --fullscreen-quarter: #94a3b8;
+  --fullscreen-timeouts: #64748b;
   
-  /* MLB Specific */
+  /* MLB Specific - Regular Cards */
   --card-balls-strikes: #94a3b8;
   --card-outs: #ef4444;
   --card-runners-on: #22c55e;
+  --card-inning-label: #94a3b8;
+  --card-inning-score: #e0e0e0;
+  --card-pitcher: #94a3b8;
+  --card-batter: #94a3b8;
+  
+  /* MLB Specific - Fullscreen */
   --fullscreen-balls-strikes: #94a3b8;
   --fullscreen-outs: #ef4444;
   --fullscreen-runners-on: #22c55e;
+  --fullscreen-inning: #94a3b8;
+  --fullscreen-pitcher: #94a3b8;
+  --fullscreen-batter: #94a3b8;
   
-  /* NBA/NHL Specific */
+  /* NBA Specific - Regular Cards */
   --card-fouls: #fbbf24;
   --card-turnovers: #ef4444;
+  --card-quarter-nba: #94a3b8;
+  --card-assists: #17a2b8;
+  --card-rebounds: #a855f7;
+  --card-blocks: #64748b;
+  --card-steals: #22c55e;
+  
+  /* NBA Specific - Fullscreen */
   --fullscreen-fouls: #fbbf24;
   --fullscreen-turnovers: #ef4444;
+  --fullscreen-quarter-nba: #94a3b8;
+  --fullscreen-assists: #17a2b8;
+  --fullscreen-rebounds: #a855f7;
+  --fullscreen-blocks: #64748b;
+  --fullscreen-steals: #22c55e;
+  
+  /* NHL Specific - Regular Cards */
+  --card-period-label: #94a3b8;
+  --card-period-score: #e0e0e0;
+  --card-shots: #17a2b8;
+  --card-power-play: #fbbf24;
+  --card-penalty: #ef4444;
+  
+  /* NHL Specific - Fullscreen */
+  --fullscreen-period-label: #94a3b8;
+  --fullscreen-shots: #17a2b8;
+  --fullscreen-power-play: #fbbf24;
+  --fullscreen-penalty: #ef4444;
+  
+  /* NHL Period Clock */
+  --card-period-clock: #2d2f33;
+  --fullscreen-period-clock: #2d2f33;
   
   /* Additional Game Elements */
   --card-refresh-indicator: #3b82f6;
@@ -177,8 +220,8 @@ body[data-theme="apple"] {
   /* Card Text */
   --card-team-name: #2c2c2e;
   --card-score: #2c2c2e;
-  --card-status: #3a3a3c;
-  --card-time: #3a3a3c;
+  --card-status: #202022;
+  --card-time: #202022;
   
   /* Card Winning State */
   --card-winning-name: #34c759;
@@ -191,10 +234,13 @@ body[data-theme="apple"] {
   --card-live-glow: rgba(255, 59, 48, 0.25);
   
   /* NFL Specific - Regular Cards */
-  --card-down-distance: #241c50;
-  --card-down-distance-bg: rgba(255, 149, 0, 0.1);
+  --card-down-distance: #321cad;
+  --card-down-distance-bg: rgba(255, 149, 0, 0);
   --card-possession-indicator: #0066cc;
   --card-yard-line: #0066cc;
+  --card-quarter-label: #3a3a3c;
+  --card-quarter-score: #2c2c2e;
+  --card-timeouts: #6e6e73;
   
   /* Fullscreen Cards (Sports Bar Mode) */
   --fullscreen-card-bg: #ffffff;
@@ -222,20 +268,60 @@ body[data-theme="apple"] {
   /* NFL Specific - Fullscreen */
   --fullscreen-down-distance: #ff9500;
   --fullscreen-yard-line: #0066cc;
+  --fullscreen-quarter: #3a3a3c;
+  --fullscreen-timeouts: #6e6e73;
   
-  /* MLB Specific */
+  /* MLB Specific - Regular Cards */
   --card-balls-strikes: #3a3a3c;
   --card-outs: #ff3b30;
   --card-runners-on: #34c759;
+  --card-inning-label: #3a3a3c;
+  --card-inning-score: #2c2c2e;
+  --card-pitcher: #3a3a3c;
+  --card-batter: #3a3a3c;
+  
+  /* MLB Specific - Fullscreen */
   --fullscreen-balls-strikes: #3a3a3c;
   --fullscreen-outs: #ff3b30;
   --fullscreen-runners-on: #34c759;
+  --fullscreen-inning: #3a3a3c;
+  --fullscreen-pitcher: #3a3a3c;
+  --fullscreen-batter: #3a3a3c;
   
-  /* NBA/NHL Specific */
+  /* NBA Specific - Regular Cards */
   --card-fouls: #ff9500;
   --card-turnovers: #ff3b30;
+  --card-quarter-nba: #3a3a3c;
+  --card-assists: #0066cc;
+  --card-rebounds: #af52de;
+  --card-blocks: #6e6e73;
+  --card-steals: #34c759;
+  
+  /* NBA Specific - Fullscreen */
   --fullscreen-fouls: #ff9500;
   --fullscreen-turnovers: #ff3b30;
+  --fullscreen-quarter-nba: #3a3a3c;
+  --fullscreen-assists: #0066cc;
+  --fullscreen-rebounds: #af52de;
+  --fullscreen-blocks: #6e6e73;
+  --fullscreen-steals: #34c759;
+  
+  /* NHL Specific - Regular Cards */
+  --card-period-label: #3a3a3c;
+  --card-period-score: #2c2c2e;
+  --card-shots: #0066cc;
+  --card-power-play: #ff9500;
+  --card-penalty: #ff3b30;
+  
+  /* NHL Specific - Fullscreen */
+  --fullscreen-period-label: #3a3a3c;
+  --fullscreen-shots: #0066cc;
+  --fullscreen-power-play: #ff9500;
+  --fullscreen-penalty: #ff3b30;
+  
+  /* NHL Period Clock */
+  --card-period-clock: #3a3a3c;
+  --fullscreen-period-clock: #3a3a3c;
   
   /* Additional Game Elements */
   --card-refresh-indicator: #0066cc;
@@ -380,7 +466,7 @@ body[data-theme="default"] .inning-score {
 body[data-theme="default"] .quarter-clock,
 body[data-theme="default"] .period-time,
 body[data-theme="default"] .game-clock {
-  color: var(--text-muted);
+  color: var(--card-period-clock);
   font-weight: 500;
 }
 
@@ -421,7 +507,7 @@ body[data-theme="default"] .fullscreen-team-record {
 body[data-theme="default"] .fullscreen-down-distance,
 body[data-theme="default"] .fullscreen-clock,
 body[data-theme="default"] .fullscreen-time {
-  color: var(--fullscreen-status);
+  color: var(--fullscreen-period-clock);
   font-weight: 500;
 }
 
@@ -757,7 +843,7 @@ body[data-theme="apple"] .inning-score {
 body[data-theme="apple"] .quarter-clock,
 body[data-theme="apple"] .period-time,
 body[data-theme="apple"] .game-clock {
-  color: var(--text-muted);
+  color: var(--card-period-clock);
   font-weight: 500;
 }
 
@@ -968,7 +1054,7 @@ body[data-theme="apple"] .fullscreen-team-record {
 body[data-theme="apple"] .fullscreen-down-distance,
 body[data-theme="apple"] .fullscreen-clock,
 body[data-theme="apple"] .fullscreen-time {
-  color: var(--fullscreen-status);
+  color: var(--fullscreen-period-clock);
   font-weight: 500;
 }
 

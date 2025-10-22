@@ -25,6 +25,9 @@ const ThemeManager = {
     const savedTheme = this.getCurrentTheme();
     this.setTheme(savedTheme);
     
+    // Load and apply custom colors
+    this.loadCustomColors();
+    
     // Setup theme selector if it exists
     const themeSelect = document.getElementById('theme-select');
     if (themeSelect) {
@@ -32,6 +35,25 @@ const ThemeManager = {
       themeSelect.addEventListener('change', (e) => {
         this.setTheme(e.target.value);
       });
+    }
+  },
+  
+  // Load and apply custom colors
+  loadCustomColors() {
+    const customColors = localStorage.getItem('gridtv-custom-colors');
+    if (customColors) {
+      try {
+        const colors = JSON.parse(customColors);
+        // Apply all custom colors
+        Object.values(colors).forEach(sportColors => {
+          Object.entries(sportColors).forEach(([variable, color]) => {
+            document.documentElement.style.setProperty(variable, color);
+          });
+        });
+        console.log('🎨 Custom colors loaded');
+      } catch (e) {
+        console.error('Failed to load custom colors:', e);
+      }
     }
   },
   
