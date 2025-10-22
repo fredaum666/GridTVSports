@@ -1598,8 +1598,23 @@
     }
 
     @media (max-width: 600px) {
+      .header {
+        padding: 15px 10px;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+      }
+
       .header h1 {
         font-size: 18px;
+        justify-content: center;
+      }
+
+      .header h1 img {
+        height: 35px !important;
       }
 
       .live-indicator {
@@ -1607,9 +1622,31 @@
         padding: 3px 8px;
       }
 
+      .header-content > div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+      }
+
+      .theme-select {
+        min-width: 140px;
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+
       .back-btn {
         font-size: 12px;
         padding: 8px 12px;
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .sports-bar-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+        flex: 1;
+        min-width: 140px;
       }
       
       .panel-header {

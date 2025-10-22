@@ -28,6 +28,34 @@
 --card-live-indicator        /* Live badge/dot color */
 --card-live-text             /* "LIVE" text color */
 --card-live-glow             /* Glow effect for live */
+
+/* NFL Specific */
+--card-down-distance         /* Down & distance text (1st & 10) */
+--card-down-distance-bg      /* Down & distance background */
+--card-possession-indicator  /* Possession indicator color */
+--card-yard-line             /* Yard line text color */
+
+/* MLB Specific */
+--card-balls-strikes         /* Ball/strike count color */
+--card-outs                  /* Outs count color */
+--card-runners-on            /* Runners on base indicator */
+
+/* NBA/NHL Specific */
+--card-fouls                 /* Fouls count color */
+--card-turnovers             /* Turnovers count color */
+
+/* Additional Elements */
+--card-refresh-indicator     /* Refresh spinner/icon color */
+--card-auto-refresh-text     /* Auto-refresh info text */
+--card-game-detail-label     /* Detail labels (e.g., "Away:", "Home:") */
+--card-game-detail-value     /* Detail values */
+
+/* Button Hover Colors */
+--btn-back-hover             /* Back button hover color */
+--btn-sports-bar-hover       /* Sports Bar Mode button hover */
+--btn-refresh-hover          /* Refresh button hover color */
+--btn-modal-primary-hover    /* Modal primary button hover */
+--btn-modal-cancel-hover     /* Modal cancel button hover */
 ```
 
 ### FULLSCREEN CARDS (Sports Bar Mode)
@@ -55,6 +83,19 @@
 --fullscreen-timeout-bar     /* Timeout bar (filled) */
 --fullscreen-timeout-used    /* Timeout bar (empty) */
 --fullscreen-timeout-border  /* Timeout bar border */
+
+/* NFL Specific */
+--fullscreen-down-distance   /* Down & distance in fullscreen */
+--fullscreen-yard-line       /* Yard line in fullscreen */
+
+/* MLB Specific */
+--fullscreen-balls-strikes   /* Ball/strike count fullscreen */
+--fullscreen-outs            /* Outs count fullscreen */
+--fullscreen-runners-on      /* Runners on base fullscreen */
+
+/* NBA/NHL Specific */
+--fullscreen-fouls           /* Fouls count fullscreen */
+--fullscreen-turnovers       /* Turnovers count fullscreen */
 ```
 
 ## 🔧 Quick Examples
@@ -81,6 +122,14 @@ body[data-theme="default"] {
 }
 ```
 
+### Change NFL Down/Distance Color
+```css
+body[data-theme="default"] {
+  --card-down-distance: #3b82f6;              /* Blue text */
+  --card-down-distance-bg: rgba(59, 130, 246, 0.1);  /* Blue background */
+}
+```
+
 ### Make Text Brighter
 ```css
 body[data-theme="default"] {
@@ -102,6 +151,16 @@ body[data-theme="default"] {
   --card-winning-name: #22c55e;
   --card-live-indicator: #ef4444;
   
+  /* NFL Specific - Regular */
+  --card-down-distance: #fbbf24;
+  --card-down-distance-bg: rgba(251, 191, 36, 0.1);
+  --card-yard-line: #3b82f6;
+  
+  /* MLB Specific - Regular */
+  --card-balls-strikes: #94a3b8;
+  --card-outs: #ef4444;
+  --card-runners-on: #22c55e;
+  
   /* Fullscreen Cards */
   --fullscreen-card-bg: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
   --fullscreen-team-name: #e0e0e0;
@@ -110,6 +169,17 @@ body[data-theme="default"] {
   --fullscreen-live: #ef4444;
   --fullscreen-possession: #fbbf24;
   --fullscreen-timeout-bar: rgba(255, 255, 255, 0.9);
+  
+  /* NFL Specific - Fullscreen */
+  --fullscreen-down-distance: #fbbf24;
+  --fullscreen-yard-line: #3b82f6;
+  
+  /* Button Hover Colors */
+  --btn-back-hover: #0056b3;
+  --btn-sports-bar-hover: #138496;
+  --btn-refresh-hover: rgba(255, 255, 255, 0.1);
+  --btn-modal-primary-hover: #0056b3;
+  --btn-modal-cancel-hover: rgba(255, 255, 255, 0.1);
 }
 ```
 
@@ -124,6 +194,16 @@ body[data-theme="apple"] {
   --card-winning-name: #34c759;
   --card-live-indicator: #ff3b30;
   
+  /* NFL Specific - Regular */
+  --card-down-distance: #ff9500;
+  --card-down-distance-bg: rgba(255, 149, 0, 0.1);
+  --card-yard-line: #0066cc;
+  
+  /* MLB Specific - Regular */
+  --card-balls-strikes: #3a3a3c;
+  --card-outs: #ff3b30;
+  --card-runners-on: #34c759;
+  
   /* Fullscreen Cards */
   --fullscreen-card-bg: #ffffff;
   --fullscreen-team-name: #2c2c2e;
@@ -132,6 +212,17 @@ body[data-theme="apple"] {
   --fullscreen-live: #ff3b30;
   --fullscreen-possession: #ff9500;
   --fullscreen-timeout-bar: rgba(0, 0, 0, 0.8);
+  
+  /* NFL Specific - Fullscreen */
+  --fullscreen-down-distance: #ff9500;
+  --fullscreen-yard-line: #0066cc;
+  
+  /* Button Hover Colors */
+  --btn-back-hover: #d1d1d6;
+  --btn-sports-bar-hover: #0055b3;
+  --btn-refresh-hover: #d1d1d6;
+  --btn-modal-primary-hover: #0055b3;
+  --btn-modal-cancel-hover: #d1d1d6;
 }
 ```
 
@@ -170,6 +261,18 @@ body[data-theme="apple"] {
 ```css
 --card-border: #your-color;
 --fullscreen-card-border: #your-color;
+```
+
+### 6. Change Button Hover Colors
+```css
+/* Make Sports Bar button hover green */
+--btn-sports-bar-hover: #22c55e;
+
+/* Make Back button hover blue */
+--btn-back-hover: #3b82f6;
+
+/* Make Refresh button hover glow */
+--btn-refresh-hover: rgba(59, 130, 246, 0.2);
 ```
 
 ## 🎭 Theme Presets
@@ -289,6 +392,7 @@ To quickly find a variable in `themes.css`:
 | Borders | `--card-border*`, `--fullscreen-card-border` |
 | Timeouts | `--fullscreen-timeout-*` |
 | Possession | `--fullscreen-possession` |
+| Button hovers | `--btn-*-hover` |
 
 ---
 

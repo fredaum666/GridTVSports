@@ -693,7 +693,7 @@
 
     .fullscreen-down-distance {
       font-size: 2.8rem;
-      color: #94a3b8;
+      color: var(--fullscreen-down-distance, #fbbf24);
       margin-top: 15px;
       font-weight: 600;
     }
@@ -1351,15 +1351,15 @@
     }
 
     .down-distance {
-      color: #fbbf24;
+      color: var(--card-down-distance, #fbbf24);
       font-weight: 600;
       padding: 2px 8px;
-      background: rgba(251, 191, 36, 0.1);
+      background: var(--card-down-distance-bg, rgba(251, 191, 36, 0.1));
       border-radius: 4px;
     }
 
     .yard-line {
-      color: #3b82f6;
+      color: var(--card-yard-line, #3b82f6);
       font-weight: 600;
     }
 
@@ -1713,8 +1713,23 @@
     }
 
     @media (max-width: 600px) {
+      .header {
+        padding: 15px 10px;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+      }
+
       .header h1 {
         font-size: 18px;
+        justify-content: center;
+      }
+
+      .header h1 img {
+        height: 35px !important;
       }
 
       .live-indicator {
@@ -1722,9 +1737,31 @@
         padding: 3px 8px;
       }
 
+      .header-content > div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+      }
+
+      .theme-select {
+        min-width: 140px;
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+
       .back-btn {
         font-size: 12px;
         padding: 8px 12px;
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .sports-bar-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+        flex: 1;
+        min-width: 140px;
       }
       
       .panel-header {

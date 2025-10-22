@@ -62,6 +62,12 @@ body[data-theme="default"] {
   --card-live-text: #ef4444;
   --card-live-glow: rgba(239, 68, 68, 0.4);
   
+  /* NFL Specific - Regular Cards */
+  --card-down-distance: #fbbf24;
+  --card-down-distance-bg: rgba(251, 191, 36, 0.1);
+  --card-possession-indicator: #fbbf24;
+  --card-yard-line: #3b82f6;
+  
   /* Fullscreen Cards (Sports Bar Mode) */
   --fullscreen-card-bg: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
   --fullscreen-card-border: #334155;
@@ -84,6 +90,42 @@ body[data-theme="default"] {
   --fullscreen-timeout-bar: rgba(255, 255, 255, 0.9);
   --fullscreen-timeout-used: transparent;
   --fullscreen-timeout-border: rgba(255, 255, 255, 0.8);
+  
+  /* NFL Specific - Fullscreen */
+  --fullscreen-down-distance: #fbbf24;
+  --fullscreen-yard-line: #3b82f6;
+  
+  /* MLB Specific */
+  --card-balls-strikes: #94a3b8;
+  --card-outs: #ef4444;
+  --card-runners-on: #22c55e;
+  --fullscreen-balls-strikes: #94a3b8;
+  --fullscreen-outs: #ef4444;
+  --fullscreen-runners-on: #22c55e;
+  
+  /* NBA/NHL Specific */
+  --card-fouls: #fbbf24;
+  --card-turnovers: #ef4444;
+  --fullscreen-fouls: #fbbf24;
+  --fullscreen-turnovers: #ef4444;
+  
+  /* Additional Game Elements */
+  --card-refresh-indicator: #3b82f6;
+  --card-auto-refresh-text: #94a3b8;
+  --card-game-detail-label: #64748b;
+  --card-game-detail-value: #e0e0e0;
+  
+  /* Button Hover Colors */
+  --btn-back-hover: #0056b3;
+  --btn-sports-bar-hover: #138496;
+  --btn-refresh-hover: rgba(255, 255, 255, 0.1);
+  --btn-modal-primary-hover: #0056b3;
+  --btn-modal-cancel-hover: rgba(255, 255, 255, 0.1);
+  
+  /* League/Sport Card Hover Colors */
+  --sport-card-border-hover: #17a2b8;
+  --sport-card-shadow-hover: 0 8px 24px rgba(23, 162, 184, 0.4);
+  --sport-card-bg-hover: linear-gradient(135deg, #1e293b 0%, #334155 100%);
 }
 
 /* Apple UI Theme */
@@ -148,6 +190,12 @@ body[data-theme="apple"] {
   --card-live-text: #ff3b30;
   --card-live-glow: rgba(255, 59, 48, 0.25);
   
+  /* NFL Specific - Regular Cards */
+  --card-down-distance: #241c50;
+  --card-down-distance-bg: rgba(255, 149, 0, 0.1);
+  --card-possession-indicator: #0066cc;
+  --card-yard-line: #0066cc;
+  
   /* Fullscreen Cards (Sports Bar Mode) */
   --fullscreen-card-bg: #ffffff;
   --fullscreen-card-border: rgba(0, 0, 0, 0.1);
@@ -170,6 +218,42 @@ body[data-theme="apple"] {
   --fullscreen-timeout-bar: rgba(0, 0, 0, 0.8);
   --fullscreen-timeout-used: transparent;
   --fullscreen-timeout-border: rgba(0, 0, 0, 0.6);
+  
+  /* NFL Specific - Fullscreen */
+  --fullscreen-down-distance: #ff9500;
+  --fullscreen-yard-line: #0066cc;
+  
+  /* MLB Specific */
+  --card-balls-strikes: #3a3a3c;
+  --card-outs: #ff3b30;
+  --card-runners-on: #34c759;
+  --fullscreen-balls-strikes: #3a3a3c;
+  --fullscreen-outs: #ff3b30;
+  --fullscreen-runners-on: #34c759;
+  
+  /* NBA/NHL Specific */
+  --card-fouls: #ff9500;
+  --card-turnovers: #ff3b30;
+  --fullscreen-fouls: #ff9500;
+  --fullscreen-turnovers: #ff3b30;
+  
+  /* Additional Game Elements */
+  --card-refresh-indicator: #0066cc;
+  --card-auto-refresh-text: #3a3a3c;
+  --card-game-detail-label: #6e6e73;
+  --card-game-detail-value: #2c2c2e;
+  
+  /* Button Hover Colors */
+  --btn-back-hover: #d1d1d6;
+  --btn-sports-bar-hover: #0055b3;
+  --btn-refresh-hover: #d1d1d6;
+  --btn-modal-primary-hover: #0055b3;
+  --btn-modal-cancel-hover: #d1d1d6;
+  
+  /* League/Sport Card Hover Colors */
+  --sport-card-border-hover: #0066cc;
+  --sport-card-shadow-hover: 0 4px 12px rgba(0, 102, 204, 0.15);
+  --sport-card-bg-hover: #ffffff;
 }
 
 /* Base styles using CSS variables */
@@ -221,6 +305,61 @@ body[data-theme="default"] .status-live,
 body[data-theme="default"] .live-indicator {
   color: var(--card-live-indicator);
   font-weight: 700;
+}
+
+/* NFL Specific - Regular Cards - Default theme */
+body[data-theme="default"] .down-distance {
+  color: var(--card-down-distance);
+  background: var(--card-down-distance-bg);
+}
+
+body[data-theme="default"] .yard-line {
+  color: var(--card-yard-line);
+}
+
+body[data-theme="default"] .possession-indicator {
+  color: var(--card-possession-indicator);
+}
+
+/* MLB Specific - Regular Cards - Default theme */
+body[data-theme="default"] .balls-strikes,
+body[data-theme="default"] .count {
+  color: var(--card-balls-strikes);
+}
+
+body[data-theme="default"] .outs {
+  color: var(--card-outs);
+}
+
+body[data-theme="default"] .runners-on,
+body[data-theme="default"] .bases {
+  color: var(--card-runners-on);
+}
+
+/* NBA/NHL Specific - Regular Cards - Default theme */
+body[data-theme="default"] .fouls {
+  color: var(--card-fouls);
+}
+
+body[data-theme="default"] .turnovers {
+  color: var(--card-turnovers);
+}
+
+/* Additional Game Elements - Default theme */
+body[data-theme="default"] .refresh-indicator {
+  color: var(--card-refresh-indicator);
+}
+
+body[data-theme="default"] .auto-refresh-info {
+  color: var(--card-auto-refresh-text);
+}
+
+body[data-theme="default"] .game-detail-label {
+  color: var(--card-game-detail-label);
+}
+
+body[data-theme="default"] .game-detail-value {
+  color: var(--card-game-detail-value);
 }
 
 /* Period/Quarter/Inning elements - Default theme */
@@ -296,6 +435,39 @@ body[data-theme="default"] .fullscreen-status.live {
   font-weight: 700;
 }
 
+/* NFL Specific - Fullscreen - Default theme */
+body[data-theme="default"] .fullscreen-down-distance {
+  color: var(--fullscreen-down-distance);
+}
+
+body[data-theme="default"] .fullscreen-yard-line {
+  color: var(--fullscreen-yard-line);
+}
+
+/* MLB Specific - Fullscreen - Default theme */
+body[data-theme="default"] .fullscreen-balls-strikes,
+body[data-theme="default"] .fullscreen-count {
+  color: var(--fullscreen-balls-strikes);
+}
+
+body[data-theme="default"] .fullscreen-outs {
+  color: var(--fullscreen-outs);
+}
+
+body[data-theme="default"] .fullscreen-runners-on,
+body[data-theme="default"] .fullscreen-bases {
+  color: var(--fullscreen-runners-on);
+}
+
+/* NBA/NHL Specific - Fullscreen - Default theme */
+body[data-theme="default"] .fullscreen-fouls {
+  color: var(--fullscreen-fouls);
+}
+
+body[data-theme="default"] .fullscreen-turnovers {
+  color: var(--fullscreen-turnovers);
+}
+
 /* Fullscreen timeout indicators - Default theme */
 body[data-theme="default"] .timeout-bar {
   border: 2px solid var(--fullscreen-timeout-border);
@@ -330,6 +502,31 @@ body[data-theme="default"] .fs-game-selector:focus {
 body[data-theme="default"] .fs-game-selector option {
   background: var(--bg-secondary);
   color: var(--text-primary);
+}
+
+/* Button hover styles - Default theme */
+body[data-theme="default"] .back-btn:hover {
+  background: var(--btn-back-hover);
+}
+
+body[data-theme="default"] .sports-bar-btn:hover {
+  background: var(--btn-sports-bar-hover);
+}
+
+body[data-theme="default"] .mixed-sports-btn:hover {
+  background: var(--btn-sports-bar-hover);
+}
+
+body[data-theme="default"] .refresh-btn:hover {
+  background: var(--btn-refresh-hover);
+}
+
+body[data-theme="default"] #enter-fullscreen:hover {
+  background: var(--btn-modal-primary-hover);
+}
+
+body[data-theme="default"] #cancel-modal:hover {
+  background: var(--btn-modal-cancel-hover);
 }
 
 /* Apple UI specific overrides */
@@ -393,7 +590,13 @@ body[data-theme="apple"] .game-card {
   box-shadow: var(--card-shadow);
 }
 
-body[data-theme="apple"] .sport-card:hover,
+body[data-theme="apple"] .sport-card:hover {
+  background: var(--sport-card-bg-hover);
+  border-color: var(--sport-card-border-hover);
+  box-shadow: var(--sport-card-shadow-hover);
+  transform: scale(var(--card-hover-scale)) translateY(-2px);
+}
+
 body[data-theme="apple"] .game-card:hover {
   border-color: var(--card-border-hover);
   box-shadow: var(--card-shadow-hover);
@@ -408,7 +611,13 @@ body[data-theme="default"] .game-card {
   box-shadow: var(--card-shadow);
 }
 
-body[data-theme="default"] .sport-card:hover,
+body[data-theme="default"] .sport-card:hover {
+  background: var(--sport-card-bg-hover);
+  border-color: var(--sport-card-border-hover);
+  box-shadow: var(--sport-card-shadow-hover);
+  transform: scale(var(--card-hover-scale)) translateY(-2px);
+}
+
 body[data-theme="default"] .game-card:hover {
   border-color: var(--card-border-hover);
   box-shadow: var(--card-shadow-hover);
@@ -475,6 +684,61 @@ body[data-theme="apple"] .live-indicator {
   font-weight: 700;
 }
 
+/* NFL Specific - Regular Cards - Apple theme */
+body[data-theme="apple"] .down-distance {
+  color: var(--card-down-distance);
+  background: var(--card-down-distance-bg);
+}
+
+body[data-theme="apple"] .yard-line {
+  color: var(--card-yard-line);
+}
+
+body[data-theme="apple"] .possession-indicator {
+  color: var(--card-possession-indicator);
+}
+
+/* MLB Specific - Regular Cards - Apple theme */
+body[data-theme="apple"] .balls-strikes,
+body[data-theme="apple"] .count {
+  color: var(--card-balls-strikes);
+}
+
+body[data-theme="apple"] .outs {
+  color: var(--card-outs);
+}
+
+body[data-theme="apple"] .runners-on,
+body[data-theme="apple"] .bases {
+  color: var(--card-runners-on);
+}
+
+/* NBA/NHL Specific - Regular Cards - Apple theme */
+body[data-theme="apple"] .fouls {
+  color: var(--card-fouls);
+}
+
+body[data-theme="apple"] .turnovers {
+  color: var(--card-turnovers);
+}
+
+/* Additional Game Elements - Apple theme */
+body[data-theme="apple"] .refresh-indicator {
+  color: var(--card-refresh-indicator);
+}
+
+body[data-theme="apple"] .auto-refresh-info {
+  color: var(--card-auto-refresh-text);
+}
+
+body[data-theme="apple"] .game-detail-label {
+  color: var(--card-game-detail-label);
+}
+
+body[data-theme="apple"] .game-detail-value {
+  color: var(--card-game-detail-value);
+}
+
 /* Period/Quarter/Inning elements - Apple theme */
 body[data-theme="apple"] .quarter-label,
 body[data-theme="apple"] .period-label,
@@ -513,7 +777,7 @@ body[data-theme="apple"] .back-btn {
 }
 
 body[data-theme="apple"] .back-btn:hover {
-  background: var(--neutral-button-hover);
+  background: var(--btn-back-hover);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -526,7 +790,7 @@ body[data-theme="apple"] .sports-bar-btn {
 }
 
 body[data-theme="apple"] .sports-bar-btn:hover {
-  background: #0055b3;
+  background: var(--btn-sports-bar-hover);
   box-shadow: 0 4px 12px rgba(0, 102, 204, 0.35);
 }
 
@@ -538,7 +802,7 @@ body[data-theme="apple"] .mixed-sports-btn {
 }
 
 body[data-theme="apple"] .mixed-sports-btn:hover {
-  background: #0055b3;
+  background: var(--btn-sports-bar-hover);
   box-shadow: 0 4px 16px rgba(0, 102, 204, 0.35);
 }
 
@@ -551,7 +815,7 @@ body[data-theme="apple"] .refresh-btn {
 }
 
 body[data-theme="apple"] .refresh-btn:hover {
-  background: var(--neutral-button-hover);
+  background: var(--btn-refresh-hover);
 }
 
 /* Modal buttons */
@@ -568,11 +832,11 @@ body[data-theme="apple"] #cancel-modal {
 }
 
 body[data-theme="apple"] #enter-fullscreen:hover {
-  background: #0055b3;
+  background: var(--btn-modal-primary-hover);
 }
 
 body[data-theme="apple"] #cancel-modal:hover {
-  background: var(--neutral-button-hover);
+  background: var(--btn-modal-cancel-hover);
 }
 
 /* Score and status theme adaptations */
@@ -716,6 +980,39 @@ body[data-theme="apple"] .fullscreen-inning.live,
 body[data-theme="apple"] .fullscreen-status.live {
   color: var(--fullscreen-live);
   font-weight: 700;
+}
+
+/* NFL Specific - Fullscreen - Apple theme */
+body[data-theme="apple"] .fullscreen-down-distance {
+  color: var(--fullscreen-down-distance);
+}
+
+body[data-theme="apple"] .fullscreen-yard-line {
+  color: var(--fullscreen-yard-line);
+}
+
+/* MLB Specific - Fullscreen - Apple theme */
+body[data-theme="apple"] .fullscreen-balls-strikes,
+body[data-theme="apple"] .fullscreen-count {
+  color: var(--fullscreen-balls-strikes);
+}
+
+body[data-theme="apple"] .fullscreen-outs {
+  color: var(--fullscreen-outs);
+}
+
+body[data-theme="apple"] .fullscreen-runners-on,
+body[data-theme="apple"] .fullscreen-bases {
+  color: var(--fullscreen-runners-on);
+}
+
+/* NBA/NHL Specific - Fullscreen - Apple theme */
+body[data-theme="apple"] .fullscreen-fouls {
+  color: var(--fullscreen-fouls);
+}
+
+body[data-theme="apple"] .fullscreen-turnovers {
+  color: var(--fullscreen-turnovers);
 }
 
 /* Fullscreen timeout indicators - Apple theme */
@@ -863,4 +1160,40 @@ body[data-theme="apple"] .theme-select:focus {
               border-color 0.3s ease, 
               color 0.3s ease,
               box-shadow 0.3s ease;
+}
+
+/* ====================================
+   RESPONSIVE FIXES FOR MOBILE
+   ==================================== */
+
+@media screen and (max-width: 768px) {
+  /* Prevent horizontal scroll on mobile */
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Theme selector responsive */
+  .theme-selector {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .theme-select {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  /* Extra small screens */
+  .theme-selector label {
+    font-size: 14px;
+  }
+
+  .theme-select {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
 }
