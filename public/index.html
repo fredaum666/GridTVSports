@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GridTV Sports - Live Multi-Sport Monitoring</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
   <style>
     * {
       margin: 0;
@@ -245,6 +246,24 @@
       line-height: 1.5;
     }
 
+    .customize-colors-btn {
+      display: inline-block;
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .customize-colors-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
     .mixed-sports-btn {
       display: inline-flex;
       align-items: center;
@@ -448,6 +467,13 @@
         <option value="default">Default Dark</option>
         <option value="apple">Light Theme</option>
       </select>
+    </div>
+
+    <!-- Color Customization Button -->
+    <div style="text-align: center; margin-top: 20px;">
+      <a href="/customize-colors.html" class="customize-colors-btn">
+        🎨 Customize Colors
+      </a>
     </div>
 
     <div class="features" style="margin-top: 40px;">
