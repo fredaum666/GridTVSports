@@ -63,6 +63,7 @@ body[data-theme="default"] {
   --card-live-glow: rgba(239, 68, 68, 0.4);
   
   /* NFL Specific - Regular Cards */
+  --card-quarter-clock: #94a3b8;
   --card-down-distance: #fbbf24;
   --card-down-distance-bg: rgba(251, 191, 36, 0.1);
   --card-possession-indicator: #fbbf24;
@@ -234,6 +235,7 @@ body[data-theme="apple"] {
   --card-live-glow: rgba(255, 59, 48, 0.25);
   
   /* NFL Specific - Regular Cards */
+  --card-quarter-clock: #3a3a3c;
   --card-down-distance: #321cad;
   --card-down-distance-bg: rgba(255, 149, 0, 0);
   --card-possession-indicator: #0066cc;
