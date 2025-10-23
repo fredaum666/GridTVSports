@@ -653,13 +653,20 @@
       font-weight: 900;
       color: #fff;
       text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+      -webkit-animation: scoreUpdate 0.5s ease-out;
       animation: scoreUpdate 0.5s ease-out;
     }
 
+    @-webkit-keyframes scoreUpdate {
+      0% { -webkit-transform: scale(1); transform: scale(1); }
+      50% { -webkit-transform: scale(1.1); transform: scale(1.1); color: #22c55e; }
+      100% { -webkit-transform: scale(1); transform: scale(1); }
+    }
+
     @keyframes scoreUpdate {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); color: #22c55e; }
-      100% { transform: scale(1); }
+      0% { -webkit-transform: scale(1); transform: scale(1); }
+      50% { -webkit-transform: scale(1.1); transform: scale(1.1); color: #22c55e; }
+      100% { -webkit-transform: scale(1); transform: scale(1); }
     }
 
     .fullscreen-team.winning .fullscreen-team-name {
@@ -684,7 +691,13 @@
       background: #fbbf24;
       border-radius: 50%;
       margin-left: 10px;
+      -webkit-animation: possessionBlink 1s infinite;
       animation: possessionBlink 1s infinite;
+    }
+
+    @-webkit-keyframes possessionBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
     }
 
     @keyframes possessionBlink {
@@ -3991,13 +4004,21 @@
           if (awayScoreEl && awayScoreEl.textContent !== awayScore.toString()) {
             awayScoreEl.textContent = awayScore;
             awayScoreEl.style.animation = 'none';
-            setTimeout(() => awayScoreEl.style.animation = 'scoreUpdate 0.5s ease-out', 10);
+            awayScoreEl.style.webkitAnimation = 'none';
+            setTimeout(() => {
+              awayScoreEl.style.animation = 'scoreUpdate 0.5s ease-out';
+              awayScoreEl.style.webkitAnimation = 'scoreUpdate 0.5s ease-out';
+            }, 10);
           }
           
           if (homeScoreEl && homeScoreEl.textContent !== homeScore.toString()) {
             homeScoreEl.textContent = homeScore;
             homeScoreEl.style.animation = 'none';
-            setTimeout(() => homeScoreEl.style.animation = 'scoreUpdate 0.5s ease-out', 10);
+            homeScoreEl.style.webkitAnimation = 'none';
+            setTimeout(() => {
+              homeScoreEl.style.animation = 'scoreUpdate 0.5s ease-out';
+              homeScoreEl.style.webkitAnimation = 'scoreUpdate 0.5s ease-out';
+            }, 10);
           }
 
           // Update status

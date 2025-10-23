@@ -44,13 +44,21 @@ const ThemeManager = {
     if (customColors) {
       try {
         const colors = JSON.parse(customColors);
+        let totalColors = 0;
+        
         // Apply all custom colors
         Object.values(colors).forEach(sportColors => {
           Object.entries(sportColors).forEach(([variable, color]) => {
             document.documentElement.style.setProperty(variable, color);
+            document.body.style.setProperty(variable, color);
+            totalColors++;
           });
         });
-        console.log('🎨 Custom colors loaded');
+        
+        const currentTheme = this.getCurrentTheme();
+        const themeName = currentTheme === 'default' ? 'Dark' : 'Light';
+        console.log(`🎨 Custom colors loaded (${totalColors} variables)`);
+        console.log(`✨ Applied on top of ${themeName} theme`);
       } catch (e) {
         console.error('Failed to load custom colors:', e);
       }

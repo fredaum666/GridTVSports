@@ -234,8 +234,12 @@ const ColorCustomizer = {
     // Apply the selected theme
     document.body.setAttribute('data-theme', theme);
     
+    // Save theme to localStorage so it persists across pages
+    localStorage.setItem('gridtv-theme', theme);
+    
     const themeName = theme === 'default' ? '🌙 Dark Theme' : '☀️ Light Theme';
     console.log(`🎨 Switched to ${themeName} as baseline`);
+    console.log(`💾 Theme saved to localStorage`);
     console.log(`ℹ️ Your custom colors will be applied on top of this theme`);
     console.log(`ℹ️ The original theme remains unchanged`);
     
