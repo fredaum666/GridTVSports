@@ -21,6 +21,7 @@ const ColorCustomizer = {
         'Winning Score': '--card-winning-score',
         'Game Status': '--card-status',
         'Live Indicator': '--card-live-indicator',
+        'Quarter Clock': '--card-quarter-clock',
         'Down & Distance': '--card-down-distance',
         'Yard Line': '--card-yard-line',
         'Possession Indicator': '--card-possession-indicator',
@@ -156,6 +157,13 @@ const ColorCustomizer = {
 
   // Initialize
   init() {
+    // Load the current theme from theme-manager (or default to default/dark)
+    const currentTheme = document.body.getAttribute('data-theme') || 'default';
+    const themeSelect = document.getElementById('theme-select');
+    if (themeSelect) {
+      themeSelect.value = currentTheme;
+    }
+    
     this.loadCustomColors();
     this.setupEventListeners();
     
@@ -171,6 +179,7 @@ const ColorCustomizer = {
   // Setup event listeners
   setupEventListeners() {
     const sportSelect = document.getElementById('sport-select');
+    const themeSelect = document.getElementById('theme-select');
     const resetBtn = document.getElementById('reset-btn');
     const saveBtn = document.getElementById('save-btn');
     const exportBtn = document.getElementById('export-btn');
@@ -179,6 +188,10 @@ const ColorCustomizer = {
 
     sportSelect.addEventListener('change', (e) => {
       this.selectSport(e.target.value);
+    });
+
+    themeSelect.addEventListener('change', (e) => {
+      this.switchBaseTheme(e.target.value);
     });
 
     resetBtn.addEventListener('click', () => this.resetColors());
@@ -216,6 +229,37 @@ const ColorCustomizer = {
     }, 100);
   },
 
+  // Switch base theme (Dark or Light)
+  switchBaseTheme(theme) {
+    // Apply the selected theme
+    document.body.setAttribute('data-theme', theme);
+    
+    const themeName = theme === 'default' ? '🌙 Dark Theme' : '☀️ Light Theme';
+    console.log(`🎨 Switched to ${themeName} as baseline`);
+    console.log(`ℹ️ Your custom colors will be applied on top of this theme`);
+    console.log(`ℹ️ The original theme remains unchanged`);
+    
+    // If user has a sport selected, refresh the color options and preview
+    if (this.currentSport) {
+      // Reapply any custom colors they have
+      if (this.customColors[this.currentSport]) {
+        Object.entries(this.customColors[this.currentSport]).forEach(([variable, color]) => {
+          document.documentElement.style.setProperty(variable, color);
+          document.body.style.setProperty(variable, color);
+        });
+        console.log(`✅ Reapplied ${Object.keys(this.customColors[this.currentSport]).length} custom colors for ${this.currentSport.toUpperCase()}`);
+      }
+      
+      // Re-render the color options to show the new base theme colors
+      this.renderColorOptions();
+      
+      // Update preview with new theme
+      setTimeout(() => {
+        this.updatePreview();
+      }, 100);
+    }
+  },
+
   // Render color options
   renderColorOptions() {
     const regularContainer = document.getElementById('regular-colors');
@@ -243,25 +287,41 @@ const ColorCustomizer = {
     option.className = 'color-option';
 
     const currentColor = this.getColorValue(variable);
+    const hexColor = this.rgbToHex(currentColor);
 
     option.innerHTML = `
       <div class="color-picker-wrapper">
         <div class="color-swatch" style="background-color: ${currentColor};" data-variable="${variable}"></div>
-        <input type="color" value="${this.rgbToHex(currentColor)}" data-variable="${variable}">
+        <input type="color" value="${hexColor}" data-variable="${variable}">
       </div>
       <div style="flex: 1;">
         <div class="color-label">${label}</div>
         <div class="color-value">${variable}</div>
+        <input type="text" class="hex-input" value="${hexColor}" maxlength="7" placeholder="#000000" style="
+          width: 90px;
+          padding: 4px 8px;
+          margin-top: 5px;
+          font-family: 'Courier New', monospace;
+          font-size: 12px;
+          font-weight: 600;
+          background: var(--bg-tertiary);
+          border: 1px solid var(--border-primary);
+          border-radius: 4px;
+          color: var(--text-primary);
+          text-transform: uppercase;
+        ">
       </div>
     `;
 
     const colorInput = option.querySelector('input[type="color"]');
     const colorSwatch = option.querySelector('.color-swatch');
+    const hexInput = option.querySelector('.hex-input');
 
     // Update on every input change (real-time as user drags)
     colorInput.addEventListener('input', (e) => {
       const newColor = e.target.value;
       colorSwatch.style.backgroundColor = newColor;
+      hexInput.value = newColor.toUpperCase();
       this.updateColor(variable, newColor);
     });
 
@@ -269,7 +329,33 @@ const ColorCustomizer = {
     colorInput.addEventListener('change', (e) => {
       const newColor = e.target.value;
       colorSwatch.style.backgroundColor = newColor;
+      hexInput.value = newColor.toUpperCase();
       this.updateColor(variable, newColor);
+    });
+
+    // Update when HEX input is changed
+    hexInput.addEventListener('input', (e) => {
+      let hex = e.target.value;
+      // Auto-add # if user forgets
+      if (hex && !hex.startsWith('#')) {
+        hex = '#' + hex;
+        hexInput.value = hex;
+      }
+      // Validate hex color (3 or 6 digits after #)
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex) || /^#[0-9A-Fa-f]{3}$/.test(hex)) {
+        colorInput.value = hex;
+        colorSwatch.style.backgroundColor = hex;
+        this.updateColor(variable, hex);
+      }
+    });
+
+    // Format HEX on blur
+    hexInput.addEventListener('blur', (e) => {
+      let hex = e.target.value;
+      if (!hex.startsWith('#')) {
+        hex = '#' + hex;
+      }
+      hexInput.value = hex.toUpperCase();
     });
 
     colorSwatch.addEventListener('click', () => {
@@ -365,7 +451,12 @@ const ColorCustomizer = {
   saveColors() {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.customColors));
     this.applyCustomColors();
-    alert('✅ Colors saved successfully! Your customizations will be applied across all pages.');
+    
+    const themeSelect = document.getElementById('theme-select');
+    const baseTheme = themeSelect ? themeSelect.value : 'default';
+    const themeName = baseTheme === 'default' ? 'Dark' : 'Light';
+    
+    alert(`✅ Custom colors saved!\n\nYour customizations are applied on top of the ${themeName} theme.\nThe original ${themeName} theme remains unchanged.`);
   },
 
   // Load custom colors from localStorage
@@ -401,7 +492,11 @@ const ColorCustomizer = {
 
   // Reset colors to theme defaults
   resetColors() {
-    if (confirm('Are you sure you want to reset all colors for ' + this.currentSport.toUpperCase() + ' to defaults?')) {
+    const themeSelect = document.getElementById('theme-select');
+    const baseTheme = themeSelect ? themeSelect.value : 'default';
+    const themeName = baseTheme === 'default' ? 'Dark' : 'Light';
+    
+    if (confirm(`Reset ${this.currentSport.toUpperCase()} custom colors?\n\nThis will remove your customizations and return to the ${themeName} theme defaults.\nThe ${themeName} theme itself will not be modified.`)) {
       if (this.customColors[this.currentSport]) {
         delete this.customColors[this.currentSport];
       }

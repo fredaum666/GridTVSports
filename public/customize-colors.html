@@ -116,6 +116,24 @@
       background: var(--btn-back-hover);
     }
 
+    .info-banner {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 197, 94, 0.1));
+      border: 2px solid var(--accent-blue);
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .info-banner .icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
     .preview-section {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -296,7 +314,7 @@
     }
 
     .quarter-clock {
-      color: var(--card-period-clock, var(--text-muted));
+      color: var(--card-quarter-clock, #94a3b8);
       font-size: 14px;
       font-weight: 600;
     }
@@ -615,7 +633,7 @@
   <div class="container">
     <div class="header">
       <h1>🎨 Color Customization Studio</h1>
-      <p>Personalize your sports viewing experience with custom colors</p>
+      <p>Choose a base theme and customize colors. Your changes won't affect the original themes.</p>
     </div>
 
     <div class="controls">
@@ -630,6 +648,14 @@
         </select>
       </div>
 
+      <div class="control-group">
+        <label for="theme-select">Base Theme:</label>
+        <select id="theme-select">
+          <option value="default">🌙 Dark Theme</option>
+          <option value="apple">☀️ Light Theme</option>
+        </select>
+      </div>
+
       <button class="btn-back" onclick="window.location.href='/'">← Back to Home</button>
       <button class="btn-primary" id="reset-btn">Reset to Defaults</button>
       <button class="btn-secondary" id="export-btn">Export Colors</button>
@@ -637,6 +663,15 @@
     </div>
 
     <div id="customization-area" style="display: none;">
+      <!-- Info Banner -->
+      <div class="info-banner">
+        <span class="icon">💡</span>
+        <div>
+          <strong>How it works:</strong> Your custom colors are applied as an overlay on top of your selected base theme. 
+          The original Light and Dark themes remain unchanged. Changes are saved per sport.
+        </div>
+      </div>
+
       <!-- Preview Section -->
       <div class="preview-section">
         <div class="preview-card">
