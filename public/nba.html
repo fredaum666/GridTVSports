@@ -3616,13 +3616,21 @@
           if (awayScoreEl && awayScoreEl.textContent !== awayScore.toString()) {
             awayScoreEl.textContent = awayScore;
             awayScoreEl.style.animation = 'none';
-            setTimeout(() => awayScoreEl.style.animation = 'scoreUpdate 0.5s ease-out', 10);
+            awayScoreEl.style.webkitAnimation = 'none';
+            setTimeout(() => {
+              awayScoreEl.style.animation = 'scoreUpdate 0.5s ease-out';
+              awayScoreEl.style.webkitAnimation = 'scoreUpdate 0.5s ease-out';
+            }, 10);
           }
           
           if (homeScoreEl && homeScoreEl.textContent !== homeScore.toString()) {
             homeScoreEl.textContent = homeScore;
             homeScoreEl.style.animation = 'none';
-            setTimeout(() => homeScoreEl.style.animation = 'scoreUpdate 0.5s ease-out', 10);
+            homeScoreEl.style.webkitAnimation = 'none';
+            setTimeout(() => {
+              homeScoreEl.style.animation = 'scoreUpdate 0.5s ease-out';
+              homeScoreEl.style.webkitAnimation = 'scoreUpdate 0.5s ease-out';
+            }, 10);
           }
 
           // Update status
