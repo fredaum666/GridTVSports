@@ -134,11 +134,12 @@
       flex-shrink: 0;
     }
 
-    .preview-section {
+    .customization-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 30px;
       margin-bottom: 40px;
+      align-items: start;
     }
 
     .preview-card {
@@ -146,6 +147,9 @@
       border-radius: 12px;
       padding: 25px;
       box-shadow: var(--shadow-md);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
     }
 
     .preview-card h2 {
@@ -304,6 +308,11 @@
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
     }
 
     .game-situation {
@@ -523,6 +532,8 @@
       border-radius: 12px;
       padding: 25px;
       box-shadow: var(--shadow-md);
+      max-height: 800px;
+      overflow-y: auto;
     }
 
     .customization-panel h3 {
@@ -609,8 +620,12 @@
     }
 
     @media (max-width: 1024px) {
-      .preview-section {
+      .customization-row {
         grid-template-columns: 1fr;
+      }
+
+      .preview-card {
+        position: static;
       }
     }
 
@@ -667,17 +682,36 @@
       <div class="info-banner">
         <span class="icon">💡</span>
         <div>
-          <strong>How it works:</strong> Your custom colors are applied as an overlay on top of your selected base theme. 
+          <strong>How it works:</strong> Your custom colors are applied as an overlay on top of your selected base theme.
           The original Light and Dark themes remain unchanged. Changes are saved per sport.
         </div>
       </div>
 
-      <!-- Preview Section -->
-      <div class="preview-section">
+      <!-- Regular Card Section -->
+      <div class="customization-row">
+        <div class="customization-panel">
+          <h3>🎯 Regular Card Colors</h3>
+          <div class="color-options" id="regular-colors">
+            <!-- Color options will be dynamically added -->
+          </div>
+        </div>
+
         <div class="preview-card">
           <h2>Regular Card <span>Preview</span></h2>
           <div class="game-card-preview" id="regular-card-preview">
             <!-- Card will be dynamically generated based on sport -->
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- Fullscreen Card Section -->
+      <div class="customization-row">
+        <div class="customization-panel">
+          <h3>📺 Fullscreen Card Colors</h3>
+          <div class="color-options" id="fullscreen-colors">
+            <!-- Color options will be dynamically added -->
           </div>
         </div>
 
@@ -686,25 +720,6 @@
           <div class="fullscreen-card-preview" id="fullscreen-card-preview">
             <!-- Card will be dynamically generated based on sport -->
           </div>
-        </div>
-      </div>
-
-      <hr class="section-divider">
-
-      <!-- Customization Panels -->
-      <div class="customization-panel">
-        <h3>🎯 Regular Card Colors</h3>
-        <div class="color-options" id="regular-colors">
-          <!-- Color options will be dynamically added -->
-        </div>
-      </div>
-
-      <hr class="section-divider">
-
-      <div class="customization-panel">
-        <h3>📺 Fullscreen Card Colors</h3>
-        <div class="color-options" id="fullscreen-colors">
-          <!-- Color options will be dynamically added -->
         </div>
       </div>
 

@@ -660,6 +660,17 @@
       background: transparent;
     }
 
+    /* NBA timeout bars (7 total) - make them smaller to fit */
+    .fullscreen-game-card[data-sport="nba"] .timeout-bar {
+      width: 16px;
+      height: 6px;
+      border-width: 1.5px;
+    }
+
+    .fullscreen-game-card[data-sport="nba"] .fullscreen-timeouts {
+      gap: 4px;
+    }
+
     .fullscreen-refresh-indicator {
       position: absolute;
       top: 10px;
@@ -1996,11 +2007,23 @@
       const downDistanceText = comp?.situation?.downDistanceText || '';
       const awayHasBall = possession === awayTeam?.id;
       const homeHasBall = possession === homeTeam?.id;
-      
-      // Get timeout information - ESPN API provides this in competitors array
-      // Each team starts with 3 timeouts; timeoutsUsed tells us how many are gone
-      const awayTimeouts = awayTeam?.timeoutsUsed !== undefined ? 3 - (awayTeam.timeoutsUsed || 0) : 3;
-      const homeTimeouts = homeTeam?.timeoutsUsed !== undefined ? 3 - (homeTeam.timeoutsUsed || 0) : 3;
+
+      // Get timeout information - ESPN API provides this in the situation object for NFL
+      // NBA: ESPN API doesn't provide real-time timeout counts, so we default to 7 (NBA teams get 7 timeouts per game)
+      // NFL: ESPN API provides real-time timeout counts in situation.awayTimeouts/homeTimeouts
+      let awayTimeouts, homeTimeouts;
+      if (game.sport === 'nfl') {
+        awayTimeouts = comp?.situation?.awayTimeouts ?? 3;
+        homeTimeouts = comp?.situation?.homeTimeouts ?? 3;
+      } else if (game.sport === 'nba') {
+        // NBA teams get 7 timeouts per game (API doesn't provide real-time counts)
+        awayTimeouts = 7;
+        homeTimeouts = 7;
+      } else {
+        // Default for other sports
+        awayTimeouts = 3;
+        homeTimeouts = 3;
+      }
       
       let cardClass = 'fullscreen-game-card';
       
@@ -2032,6 +2055,7 @@
       div.className = cardClass;
       div.dataset.slotIndex = slotIndex;
       div.dataset.gameId = game.id;
+      div.dataset.sport = game.sport; // For sport-specific CSS styling
       
       // Sport logos
       const sportLogos = {
@@ -2064,9 +2088,19 @@
           </div>
           ${(game.sport === 'nfl' || game.sport === 'nba') ? `
             <div class="fullscreen-timeouts">
-              <div class="timeout-bar ${awayTimeouts >= 1 ? '' : 'used'}"></div>
-              <div class="timeout-bar ${awayTimeouts >= 2 ? '' : 'used'}"></div>
-              <div class="timeout-bar ${awayTimeouts >= 3 ? '' : 'used'}"></div>
+              ${game.sport === 'nba' ? `
+                <div class="timeout-bar ${awayTimeouts >= 1 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${awayTimeouts >= 2 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${awayTimeouts >= 3 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${awayTimeouts >= 4 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${awayTimeouts >= 5 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${awayTimeouts >= 6 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${awayTimeouts >= 7 ? '' : 'used'}"></div>
+              ` : `
+                <div class="timeout-bar ${awayTimeouts >= 1 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${awayTimeouts >= 2 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${awayTimeouts >= 3 ? '' : 'used'}"></div>
+              `}
             </div>
           ` : ''}
           <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
@@ -2085,9 +2119,19 @@
           </div>
           ${(game.sport === 'nfl' || game.sport === 'nba') ? `
             <div class="fullscreen-timeouts">
-              <div class="timeout-bar ${homeTimeouts >= 1 ? '' : 'used'}"></div>
-              <div class="timeout-bar ${homeTimeouts >= 2 ? '' : 'used'}"></div>
-              <div class="timeout-bar ${homeTimeouts >= 3 ? '' : 'used'}"></div>
+              ${game.sport === 'nba' ? `
+                <div class="timeout-bar ${homeTimeouts >= 1 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${homeTimeouts >= 2 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${homeTimeouts >= 3 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${homeTimeouts >= 4 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${homeTimeouts >= 5 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${homeTimeouts >= 6 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${homeTimeouts >= 7 ? '' : 'used'}"></div>
+              ` : `
+                <div class="timeout-bar ${homeTimeouts >= 1 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${homeTimeouts >= 2 ? '' : 'used'}"></div>
+                <div class="timeout-bar ${homeTimeouts >= 3 ? '' : 'used'}"></div>
+              `}
             </div>
           ` : ''}
           <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
