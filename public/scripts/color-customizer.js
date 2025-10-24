@@ -24,7 +24,6 @@ const ColorCustomizer = {
         'Quarter Clock': '--card-quarter-clock',
         'Down & Distance': '--card-down-distance',
         'Yard Line': '--card-yard-line',
-        'Possession Indicator': '--card-possession-indicator',
         'Quarter Label': '--card-quarter-label',
         'Quarter Score': '--card-quarter-score',
         'Timeouts': '--card-timeouts'
@@ -42,8 +41,7 @@ const ColorCustomizer = {
         'Down & Distance': '--fullscreen-down-distance',
         'Yard Line': '--fullscreen-yard-line',
         'Quarter': '--fullscreen-quarter',
-        'Timeouts': '--fullscreen-timeouts',
-        'Possession': '--fullscreen-possession'
+        'Timeouts': '--fullscreen-timeouts'
       }
     },
     nba: {
@@ -617,56 +615,37 @@ const ColorCustomizer = {
   // NFL Regular Card HTML
   getNFLRegularCard() {
     return `
-      <div class="quarter-header">
-        <div class="team-column"></div>
-        <div class="scores-header">
-          <span class="quarter-label">1</span>
-          <span class="quarter-label">2</span>
-          <span class="quarter-label">3</span>
-          <span class="quarter-label">4</span>
-          <span class="quarter-label">T</span>
+      <div style="padding: 10px;">
+        <div style="text-align: center; margin-bottom: 8px;">
+          <div style="display: inline-block; background: var(--card-live-indicator, #ef4444); color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase;">
+            <span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE
+          </div>
+          <div style="color: var(--card-quarter-clock, #9ca3af); font-size: 10px; margin-top: 3px; font-weight: 600;">
+            4th - 2:34
+          </div>
         </div>
-      </div>
-      
-      <div class="team-row winning">
-        <div class="possession-arrow">▶</div>
-        <div class="team-info">
-          <img src="/assets/NFL-logo.png" alt="Patriots" class="team-logo" style="width: 30px; height: 30px;">
-          <span class="team-name">Patriots</span>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <img src="/assets/NFL-logo.png" alt="MIN" style="width: 50px; height: 50px; object-fit: contain;">
+            <div style="font-size: 16px; font-weight: 700; color: var(--card-team-name, #e5e7eb); line-height: 1.1; text-align: center;">MIN</div>
+            <div style="font-size: 11px; color: #9ca3af; font-weight: 600; text-align: center;">3-3</div>
+          </div>
+          <div style="font-size: 48px; font-weight: 700; color: var(--card-score, #e5e7eb); min-width: 60px; text-align: center; line-height: 1;">10</div>
+          <div style="font-size: 14px; font-weight: 700; color: #6b7280; padding: 0 4px;">VS</div>
+          <div style="font-size: 48px; font-weight: 700; color: var(--card-winning-score, #10b981); min-width: 60px; text-align: center; line-height: 1;">37</div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <div style="position: relative;">
+              <img src="/assets/NFL-logo.png" alt="LAC" style="width: 50px; height: 50px; object-fit: contain;">
+              <span style="position: absolute; top: -5px; right: -5px; font-size: 20px; line-height: 1; animation: blink 1.5s infinite; filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.8));">🏈</span>
+            </div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--card-winning-name, #10b981); line-height: 1.1; text-align: center;">LAC</div>
+            <div style="font-size: 11px; color: #9ca3af; font-weight: 600; text-align: center;">4-3</div>
+          </div>
         </div>
-        <div class="quarter-scores">
-          <span class="quarter-score">7</span>
-          <span class="quarter-score">10</span>
-          <span class="quarter-score">0</span>
-          <span class="quarter-score">7</span>
-          <span class="quarter-score total-score">24</span>
-        </div>
-      </div>
-      
-      <div class="team-row">
-        <div class="possession-arrow" style="opacity: 0;">▶</div>
-        <div class="team-info">
-          <img src="/assets/NFL-logo.png" alt="Chiefs" class="team-logo" style="width: 30px; height: 30px;">
-          <span class="team-name">Chiefs</span>
-        </div>
-        <div class="quarter-scores">
-          <span class="quarter-score">3</span>
-          <span class="quarter-score">7</span>
-          <span class="quarter-score">7</span>
-          <span class="quarter-score">0</span>
-          <span class="quarter-score total-score">17</span>
-        </div>
-      </div>
-      
-      <div class="game-footer-info">
-        <div class="live-badge">
-          <span class="live-dot"></span>
-          <span>LIVE</span>
-        </div>
-        <div class="game-situation">
-          <span class="quarter-clock">4th - 2:34</span>
-          <span class="down-distance">2nd & 7</span>
-          <span class="yard-line">NE 45</span>
+
+        <div style="display: flex; align-items: center; justify-content: center; text-align: center; margin-top: 4px;">
+          <span style="font-size: 12px; font-weight: 700; color: var(--card-down-distance, #f59e0b);">2nd & 10 at MIN 45</span>
         </div>
       </div>
     `;
@@ -684,7 +663,7 @@ const ColorCustomizer = {
             <img src="/assets/NFL-logo.png" alt="Patriots" class="fullscreen-team-logo">
             <div class="fullscreen-team-name">
               Patriots
-              <span class="fullscreen-possession"></span>
+              <span class="fullscreen-possession">🏈</span>
             </div>
           </div>
           <div class="fullscreen-timeouts">

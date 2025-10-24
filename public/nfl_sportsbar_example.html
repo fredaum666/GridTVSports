@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏈 NFL - GridTV Sports</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="stylesheet" href="/styles/themes.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #0a0e1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .header-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #0056b3;
+      transform: translateY(-1px);
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .intro-text {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 40px;
+      color: #94a3b8;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: #94a3b8;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .game-card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #334155;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <h1>🏈 NFL Games</h1>
+      <button class="back-btn" onclick="window.location.href='/'">← Back to Home</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="intro-text">
+      <p>NFL games and scores</p>
+    </div>
+
+    <div id="loading" class="loading">Loading NFL games...</div>
+
+    <button id="sportsBarButton" class="sports-bar-button" style="display: none;">
+      📺 NFL Sports Bar Mode
+    </button>
+
+    <div id="gamesGrid" class="games-grid">
+      <!-- Regular games display here -->
+    </div>
+  </div>
+
+  <!-- Include theme manager first -->
+  <script src="/scripts/theme-manager.js"></script>
+
+  <!-- Include shared sports bar mode component -->
+  <script src="/sportsBarMode.js"></script>
+
+  <script>
+    let nflGames = [];
+    let barMode;
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Initialize sports bar mode (league-specific for NFL)
+      barMode = initSportsBarMode({
+        mode: 'league',
+        sport: 'nfl'
+      });
+
+      // Load games
+      await loadNFLGames();
+
+      // Show button
+      document.getElementById('loading').style.display = 'none';
+      if (nflGames.length > 0) {
+        document.getElementById('sportsBarButton').style.display = 'block';
+      }
+
+      // Attach button click handler
+      document.getElementById('sportsBarButton').addEventListener('click', () => {
+        barMode.setGames(nflGames);
+        barMode.openModal();
+      });
+
+      // Listen for update events from sports bar mode
+      window.addEventListener('sportsBarUpdateNeeded', async () => {
+        await loadNFLGames();
+        barMode.setGames(nflGames);
+        barMode.updateScores();
+      });
+    });
+
+    // Load NFL games only
+    async function loadNFLGames() {
+      try {
+        console.log('🔍 Loading NFL games...');
+
+        const weekResponse = await fetch('/api/nfl/current-week');
+        const { week } = await weekResponse.json();
+
+        const response = await fetch(`/api/nfl/scoreboard?week=${week}`);
+        const data = await response.json();
+
+        nflGames = data.events || [];
+
+        console.log(`✅ Loaded ${nflGames.length} NFL games`);
+
+        // Optional: render regular game cards
+        renderGamesGrid();
+      } catch (error) {
+        console.error('Error loading NFL games:', error);
+      }
+    }
+
+    // Optional: Render regular games grid
+    function renderGamesGrid() {
+      const grid = document.getElementById('gamesGrid');
+      grid.innerHTML = '';
+
+      nflGames.forEach(game => {
+        const card = document.createElement('div');
+        card.className = 'game-card';
+
+        const competition = game.competitions?.[0];
+        const competitors = competition?.competitors || [];
+        const away = competitors.find(c => c.homeAway === 'away');
+        const home = competitors.find(c => c.homeAway === 'home');
+
+        card.innerHTML = `
+          <div><strong>${away?.team?.abbreviation || 'TBD'}</strong> @ <strong>${home?.team?.abbreviation || 'TBD'}</strong></div>
+          <div>${competition?.status?.type?.shortDetail || 'Scheduled'}</div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
