@@ -119,6 +119,7 @@ body[data-theme="default"] {
   --fullscreen-batter: #94a3b8;
   
   /* NBA Specific - Regular Cards */
+  --card-quarter-clock: #94a3b8;
   --card-fouls: #fbbf24;
   --card-turnovers: #ef4444;
   --card-quarter-nba: #94a3b8;
@@ -150,8 +151,8 @@ body[data-theme="default"] {
   --fullscreen-penalty: #ef4444;
   
   /* NHL Period Clock */
-  --card-period-clock: #2d2f33;
-  --fullscreen-period-clock: #2d2f33;
+  --card-period-clock: #94a3b8;
+  --fullscreen-period-clock: #94a3b8;
   
   /* Additional Game Elements */
   --card-refresh-indicator: #3b82f6;
@@ -291,6 +292,7 @@ body[data-theme="apple"] {
   --fullscreen-batter: #3a3a3c;
   
   /* NBA Specific - Regular Cards */
+  --card-quarter-clock: #3a3a3c;
   --card-fouls: #ff9500;
   --card-turnovers: #ff3b30;
   --card-quarter-nba: #3a3a3c;
