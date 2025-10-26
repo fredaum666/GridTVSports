@@ -1,0 +1,465 @@
+/* ====================================
+   MOBILE FULLSCREEN MODE
+   GridTV Sports - Responsive Grid System
+   Optimized for Galaxy S24 Ultra and all mobile devices
+   ==================================== */
+
+/* Mobile Fullscreen Detection and Auto-Grid */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  
+  /* Base Fullscreen Container - Mobile */
+  .fullscreen-container {
+    background: #0a0e1a !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important; /* Dynamic viewport height for mobile browsers */
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .fullscreen-grid {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 8px !important;
+    gap: 8px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Mobile Grid Layouts */
+  
+  /* 1 Game - Full Screen */
+  .fullscreen-grid.grid-1 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
+    padding: 12px !important;
+    place-items: center !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-game-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    max-height: calc(100vh - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+  }
+
+  /* 2 Games - Vertical Stack */
+  .fullscreen-grid.grid-2 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    padding: 8px !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-game-card {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: calc((100vh - 24px) / 2) !important;
+    min-height: calc((100dvh - 24px) / 2) !important;
+  }
+
+  /* 3 Games - Vertical Stack */
+  .fullscreen-grid.grid-3 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+    padding: 8px !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-game-card {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: calc((100vh - 32px) / 3) !important;
+    min-height: calc((100dvh - 32px) / 3) !important;
+  }
+
+  /* 4 Games - 2x2 Grid */
+  .fullscreen-grid.grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    padding: 8px !important;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-game-card {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: calc((100vh - 24px) / 2) !important;
+    min-height: calc((100dvh - 24px) / 2) !important;
+  }
+
+  /* 6 Games - 3x2 Grid (3 rows x 2 columns for mobile portrait) */
+  .fullscreen-grid.grid-6 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+    padding: 8px !important;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-game-card {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: calc((100vh - 32px) / 3) !important;
+    min-height: calc((100dvh - 32px) / 3) !important;
+  }
+
+  /* Mobile Card Styling */
+  .fullscreen-game-card {
+    padding: 12px !important;
+    border-radius: 12px !important;
+    border-width: 2px !important;
+    font-size: 12px !important;
+  }
+
+  /* Mobile - Team Elements Scaling */
+  .fullscreen-team-logo {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-team-logo {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-logo,
+  .fullscreen-grid.grid-3 .fullscreen-team-logo {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  .fullscreen-team-name {
+    font-size: 14px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-team-name {
+    font-size: 24px !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-name,
+  .fullscreen-grid.grid-3 .fullscreen-team-name {
+    font-size: 16px !important;
+  }
+
+  .fullscreen-score {
+    font-size: 32px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-score {
+    font-size: 54px !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-score,
+  .fullscreen-grid.grid-3 .fullscreen-score {
+    font-size: 42px !important;
+  }
+
+  /* Mobile - Quarter/Period/Inning Display */
+  .fullscreen-quarter,
+  .fullscreen-inning {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-quarter,
+  .fullscreen-grid.grid-1 .fullscreen-inning {
+    font-size: 16px !important;
+    padding: 6px 12px !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-quarter,
+  .fullscreen-grid.grid-2 .fullscreen-inning,
+  .fullscreen-grid.grid-3 .fullscreen-quarter,
+  .fullscreen-grid.grid-3 .fullscreen-inning {
+    font-size: 13px !important;
+    padding: 5px 10px !important;
+  }
+
+  /* Mobile - VS Divider */
+  .fullscreen-vs {
+    font-size: 12px !important;
+    margin: 6px 0 !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-vs {
+    font-size: 18px !important;
+    margin: 12px 0 !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-vs,
+  .fullscreen-grid.grid-3 .fullscreen-vs {
+    font-size: 14px !important;
+    margin: 8px 0 !important;
+  }
+
+  /* Mobile - Sport Logo Indicator */
+  .sport-logo-indicator {
+    width: 30px !important;
+    height: 30px !important;
+    top: 8px !important;
+    left: 8px !important;
+  }
+
+  .fullscreen-grid.grid-1 .sport-logo-indicator {
+    width: 50px !important;
+    height: 50px !important;
+    top: 12px !important;
+    left: 12px !important;
+  }
+
+  .fullscreen-grid.grid-2 .sport-logo-indicator,
+  .fullscreen-grid.grid-3 .sport-logo-indicator {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  /* Mobile - Team Records */
+  .fullscreen-team-record {
+    font-size: 9px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-team-record {
+    font-size: 13px !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-record,
+  .fullscreen-grid.grid-3 .fullscreen-team-record {
+    font-size: 11px !important;
+  }
+
+  /* Mobile - NFL Specific */
+  .fullscreen-down-distance {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-down-distance {
+    font-size: 16px !important;
+    padding: 6px 12px !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-down-distance,
+  .fullscreen-grid.grid-3 .fullscreen-down-distance {
+    font-size: 13px !important;
+    padding: 5px 10px !important;
+  }
+
+  .fullscreen-field-position {
+    font-size: 10px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-field-position {
+    font-size: 14px !important;
+  }
+
+  .fullscreen-possession {
+    font-size: 16px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-possession {
+    font-size: 24px !important;
+  }
+
+  .fullscreen-timeouts {
+    gap: 3px !important;
+  }
+
+  .timeout-bar {
+    width: 25px !important;
+    height: 5px !important;
+  }
+
+  .fullscreen-grid.grid-1 .timeout-bar {
+    width: 40px !important;
+    height: 8px !important;
+  }
+
+  /* Mobile - NBA/NHL Specific */
+  .fullscreen-count,
+  .fullscreen-baseball-status {
+    font-size: 10px !important;
+    gap: 6px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-count,
+  .fullscreen-grid.grid-1 .fullscreen-baseball-status {
+    font-size: 14px !important;
+    gap: 10px !important;
+  }
+
+  /* Mobile - Baseball Diamond */
+  .fullscreen-diamond-container svg {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-diamond-container svg {
+    width: 55px !important;
+    height: 55px !important;
+  }
+
+  /* Mobile - Team Container Spacing */
+  .fullscreen-teams {
+    gap: 8px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-teams {
+    gap: 15px !important;
+  }
+
+  .fullscreen-team {
+    gap: 6px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-team {
+    gap: 10px !important;
+  }
+
+  .fullscreen-team-header {
+    gap: 6px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-team-header {
+    gap: 10px !important;
+  }
+
+  /* Mobile - Exit Button */
+  .exit-fullscreen-btn {
+    top: 8px !important;
+    right: 8px !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+
+  /* Mobile - Refresh Indicator */
+  .fullscreen-refresh-indicator {
+    top: 8px !important;
+    right: 50px !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Mobile - Hide game selector on hover (not applicable on mobile) */
+  .fs-game-selector-container {
+    display: none !important;
+  }
+
+  /* Mobile - Empty Slot Styling */
+  .fullscreen-game-card.empty-slot {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .fs-game-selector-text {
+    font-size: 12px !important;
+  }
+
+  .fullscreen-grid.grid-1 .fs-game-selector-text {
+    font-size: 16px !important;
+  }
+}
+
+/* Mobile Landscape Optimization */
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+  
+  .fullscreen-grid.grid-1 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
+  }
+
+  .fullscreen-grid.grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: 1fr !important;
+  }
+
+  .fullscreen-grid.grid-3 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: 1fr !important;
+  }
+
+  .fullscreen-grid.grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+  }
+
+  .fullscreen-grid.grid-6 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+  }
+
+  .fullscreen-game-card {
+    padding: 15px !important;
+    font-size: 13px !important;
+  }
+
+  .fullscreen-team-logo {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .fullscreen-team-name {
+    font-size: 15px !important;
+  }
+
+  .fullscreen-score {
+    font-size: 36px !important;
+  }
+}
+
+/* Tablet Portrait Mode */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  
+  .fullscreen-grid.grid-2 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+  }
+
+  .fullscreen-grid.grid-3 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+  }
+
+  .fullscreen-grid.grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+  }
+
+  .fullscreen-grid.grid-6 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+  }
+}
+
+/* Safe Area Handling for Notched Devices */
+@supports(padding: max(0px)) {
+  .fullscreen-container {
+    padding-left: max(8px, env(safe-area-inset-left)) !important;
+    padding-right: max(8px, env(safe-area-inset-right)) !important;
+    padding-top: max(8px, env(safe-area-inset-top)) !important;
+    padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Prevent text selection and callouts on mobile */
+@media screen and (max-width: 768px) {
+  .fullscreen-container,
+  .fullscreen-grid,
+  .fullscreen-game-card {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+  }
+
+  /* Enable smooth scrolling for better mobile experience */
+  .fullscreen-grid {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+  }
+
+  /* Optimize rendering for mobile */
+  .fullscreen-game-card {
+    will-change: transform !important;
+    transform: translateZ(0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+  }
+}
