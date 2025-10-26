@@ -17,7 +17,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const sportsCache = {
   nfl: { data: new Map(), activeWeeks: new Set() },
-  ncaa: { data: new Map(), activeWeeks: new Set() },
   nba: { data: new Map(), activeDates: new Set() },
   mlb: { data: new Map(), activeDates: new Set() },
   nhl: { data: new Map(), activeDates: new Set() },
@@ -31,7 +30,6 @@ const sportsCache = {
 
 const finalGamesStore = {
   nfl: new Map(),
-  ncaa: new Map(),
   nba: new Map(),
   mlb: new Map(),
   nhl: new Map()
@@ -195,61 +193,6 @@ app.get('/api/nfl/summary/:gameId', async (req, res) => {
 
 app.get('/api/nfl/current-week', (req, res) => {
   res.json({ week: getCurrentNFLWeek() });
-});
-
-// ============================================
-// API ROUTES - NCAA COLLEGE FOOTBALL
-// ============================================
-
-app.get('/api/ncaa/scoreboard', async (req, res) => {
-  try {
-    const week = req.query.week || getCurrentNFLWeek(); // Using same week logic as NFL
-    const cacheKey = `week-${week}`;
-    const cached = sportsCache.ncaa.data.get(cacheKey);
-    const now = Date.now();
-
-    if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
-      return res.json(cached.data);
-    }
-
-    const url = `${ESPN_BASE}/football/college-football/scoreboard?week=${week}&groups=80`; // Division I FBS
-    const data = await fetchESPN(url);
-    const isComplete = areAllGamesComplete(data);
-    
-    const statusCount = data.events?.reduce((acc, e) => {
-      const state = e.status?.type?.state || 'unknown';
-      acc[state] = (acc[state] || 0) + 1;
-      return acc;
-    }, {}) || {};
-    
-    console.log(`[NCAA] Week ${week} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
-
-    sportsCache.ncaa.data.set(cacheKey, { data, timestamp: now, isComplete });
-    
-    if (!isComplete) {
-      sportsCache.ncaa.activeWeeks.add(week);
-    } else {
-      sportsCache.ncaa.activeWeeks.delete(week);
-    }
-
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get('/api/ncaa/summary/:gameId', async (req, res) => {
-  try {
-    const url = `${ESPN_BASE}/football/college-football/summary?event=${req.params.gameId}`;
-    const data = await fetchESPN(url);
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get('/api/ncaa/current-week', (req, res) => {
-  res.json({ week: getCurrentNFLWeek() }); // Using same week logic as NFL
 });
 
 // ============================================
@@ -784,8 +727,7 @@ app.delete('/api/final-games/clear/:sport', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ GridTV Sports Multi-Sport Server running on port ${PORT}`);
   console.log(`🏈 NFL API: http://localhost:${PORT}/api/nfl/scoreboard`);
-  console.log(`� NCAA API: http://localhost:${PORT}/api/ncaa/scoreboard`);
-  console.log(`�🏀 NBA API: http://localhost:${PORT}/api/nba/scoreboard`);
+  console.log(`🏀 NBA API: http://localhost:${PORT}/api/nba/scoreboard`);
   console.log(`⚾ MLB API: http://localhost:${PORT}/api/mlb/scoreboard`);
   console.log(`🏒 NHL API: http://localhost:${PORT}/api/nhl/scoreboard`);
   console.log(`🌐 Frontend: http://localhost:${PORT}`);
