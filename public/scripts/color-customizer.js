@@ -53,7 +53,6 @@ const ColorCustomizer = {
         'Winning Team Name': '--card-winning-name',
         'Winning Score': '--card-winning-score',
         'Game Status': '--card-status',
-        'Quarter & Time': '--card-quarter-clock',
         'Live Indicator': '--card-live-indicator',
         'Fouls': '--card-fouls',
         'Turnovers': '--card-turnovers',
@@ -217,12 +216,6 @@ const ColorCustomizer = {
       Object.entries(this.customColors[sport]).forEach(([variable, color]) => {
         document.documentElement.style.setProperty(variable, color);
         document.body.style.setProperty(variable, color);
-        
-        // Also apply to preview cards
-        const regularCard = document.getElementById('regular-card-preview');
-        const fullscreenCard = document.getElementById('fullscreen-card-preview');
-        if (regularCard) regularCard.style.setProperty(variable, color);
-        if (fullscreenCard) fullscreenCard.style.setProperty(variable, color);
       });
     }
 
@@ -255,12 +248,6 @@ const ColorCustomizer = {
         Object.entries(this.customColors[this.currentSport]).forEach(([variable, color]) => {
           document.documentElement.style.setProperty(variable, color);
           document.body.style.setProperty(variable, color);
-          
-          // Also apply to preview cards
-          const regularCard = document.getElementById('regular-card-preview');
-          const fullscreenCard = document.getElementById('fullscreen-card-preview');
-          if (regularCard) regularCard.style.setProperty(variable, color);
-          if (fullscreenCard) fullscreenCard.style.setProperty(variable, color);
         });
         console.log(`✅ Reapplied ${Object.keys(this.customColors[this.currentSport]).length} custom colors for ${this.currentSport.toUpperCase()}`);
       }
@@ -410,12 +397,6 @@ const ColorCustomizer = {
     
     // Also apply to body for immediate effect
     document.body.style.setProperty(variable, color);
-    
-    // Apply directly to preview cards
-    const regularCard = document.getElementById('regular-card-preview');
-    const fullscreenCard = document.getElementById('fullscreen-card-preview');
-    if (regularCard) regularCard.style.setProperty(variable, color);
-    if (fullscreenCard) fullscreenCard.style.setProperty(variable, color);
 
     // Store in temporary customColors
     if (!this.customColors[this.currentSport]) {
@@ -499,12 +480,6 @@ const ColorCustomizer = {
       Object.entries(sportColors).forEach(([variable, color]) => {
         document.documentElement.style.setProperty(variable, color);
         document.body.style.setProperty(variable, color);
-        
-        // Also apply to preview cards directly
-        const regularCard = document.getElementById('regular-card-preview');
-        const fullscreenCard = document.getElementById('fullscreen-card-preview');
-        if (regularCard) regularCard.style.setProperty(variable, color);
-        if (fullscreenCard) fullscreenCard.style.setProperty(variable, color);
       });
     });
     
@@ -598,7 +573,6 @@ const ColorCustomizer = {
     const sportPreviews = {
       nfl: {
         regular: this.getNFLRegularCard(),
-        regularPage2: this.getNFLRegularCardPage2(),
         fullscreen: this.getNFLFullscreenCard()
       },
       nba: {
@@ -621,32 +595,19 @@ const ColorCustomizer = {
     // Update both card previews
     const regularCard = document.getElementById('regular-card-preview');
     const fullscreenCard = document.getElementById('fullscreen-card-preview');
-    const regularCardPage2 = document.getElementById('regular-card-page2-preview');
     
     if (regularCard && fullscreenCard) {
       regularCard.innerHTML = preview.regular;
       fullscreenCard.innerHTML = preview.fullscreen;
       
-      // Show/hide page 2 for NFL only
-      if (regularCardPage2) {
-        if (this.currentSport === 'nfl' && preview.regularPage2) {
-          regularCardPage2.innerHTML = preview.regularPage2;
-          regularCardPage2.style.display = 'block';
-        } else {
-          regularCardPage2.style.display = 'none';
-        }
-      }
-      
       // Force browser to recompute styles immediately
       void regularCard.offsetHeight;
       void fullscreenCard.offsetHeight;
-      if (regularCardPage2) void regularCardPage2.offsetHeight;
       
       // Use requestAnimationFrame for even smoother updates
       requestAnimationFrame(() => {
         void regularCard.offsetHeight;
         void fullscreenCard.offsetHeight;
-        if (regularCardPage2) void regularCardPage2.offsetHeight;
       });
     }
   },
@@ -690,55 +651,6 @@ const ColorCustomizer = {
     `;
   },
 
-  // NFL Regular Card Page 2 (Quarter Breakdown)
-  getNFLRegularCardPage2() {
-    return `
-      <div style="padding: 15px 10px;">
-        <!-- Quarter Header -->
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-          <div style="flex: 1;"></div>
-          <div style="display: flex; gap: 20px; padding-right: 8px;">
-            <span style="color: var(--card-quarter-label, #94a3b8); font-size: 11px; font-weight: 600; width: 20px; text-align: center;">1</span>
-            <span style="color: var(--card-quarter-label, #94a3b8); font-size: 11px; font-weight: 600; width: 20px; text-align: center;">2</span>
-            <span style="color: var(--card-quarter-label, #94a3b8); font-size: 11px; font-weight: 600; width: 20px; text-align: center;">3</span>
-            <span style="color: var(--card-quarter-label, #94a3b8); font-size: 11px; font-weight: 600; width: 20px; text-align: center;">4</span>
-            <span style="color: var(--card-quarter-label, #94a3b8); font-size: 11px; font-weight: 600; width: 20px; text-align: center;">T</span>
-          </div>
-        </div>
-
-        <!-- Away Team Row -->
-        <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 8px; background: var(--card-bg, rgba(26, 31, 46, 0.6)); border-radius: 8px;">
-          <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
-            <img src="/assets/NFL-logo.png" alt="MIN" style="width: 30px; height: 30px; object-fit: contain;">
-            <span style="color: var(--card-team-name, #e5e7eb); font-size: 13px; font-weight: 600;">MIN</span>
-          </div>
-          <div style="display: flex; gap: 20px;">
-            <span style="color: var(--card-quarter-score, #e0e0e0); font-size: 13px; font-weight: 600; width: 20px; text-align: center;">0</span>
-            <span style="color: var(--card-quarter-score, #e0e0e0); font-size: 13px; font-weight: 600; width: 20px; text-align: center;">3</span>
-            <span style="color: var(--card-quarter-score, #e0e0e0); font-size: 13px; font-weight: 600; width: 20px; text-align: center;">0</span>
-            <span style="color: var(--card-quarter-score, #e0e0e0); font-size: 13px; font-weight: 600; width: 20px; text-align: center;">7</span>
-            <span style="color: var(--card-score, #e5e7eb); font-size: 14px; font-weight: 700; width: 20px; text-align: center;">10</span>
-          </div>
-        </div>
-
-        <!-- Home Team Row (Winning) -->
-        <div style="display: flex; align-items: center; padding: 8px; background: var(--card-bg, rgba(26, 31, 46, 0.6)); border-radius: 8px;">
-          <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
-            <img src="/assets/NFL-logo.png" alt="LAC" style="width: 30px; height: 30px; object-fit: contain;">
-            <span style="color: var(--card-winning-name, #10b981); font-size: 13px; font-weight: 600;">LAC</span>
-          </div>
-          <div style="display: flex; gap: 20px;">
-            <span style="color: var(--card-quarter-score, #e0e0e0); font-size: 13px; font-weight: 600; width: 20px; text-align: center;">14</span>
-            <span style="color: var(--card-quarter-score, #e0e0e0); font-size: 13px; font-weight: 600; width: 20px; text-align: center;">10</span>
-            <span style="color: var(--card-quarter-score, #e0e0e0); font-size: 13px; font-weight: 600; width: 20px; text-align: center;">7</span>
-            <span style="color: var(--card-quarter-score, #e0e0e0); font-size: 13px; font-weight: 600; width: 20px; text-align: center;">6</span>
-            <span style="color: var(--card-winning-score, #10b981); font-size: 14px; font-weight: 700; width: 20px; text-align: center;">37</span>
-          </div>
-        </div>
-      </div>
-    `;
-  },
-
   // NFL Fullscreen Card HTML
   getNFLFullscreenCard() {
     return `
@@ -748,11 +660,11 @@ const ColorCustomizer = {
         <div class="fullscreen-team winning">
           <div class="fullscreen-team-header">
             <div class="fullscreen-team-record">10-2</div>
-            <div style="position: relative; display: inline-block;">
-              <img src="/assets/NFL-logo.png" alt="Patriots" class="fullscreen-team-logo">
-              <span style="position: absolute; top: -8px; right: -8px; font-size: 24px; line-height: 1; animation: blink 1.5s infinite; filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.8));">🏈</span>
+            <img src="/assets/NFL-logo.png" alt="Patriots" class="fullscreen-team-logo">
+            <div class="fullscreen-team-name">
+              Patriots
+              <span class="fullscreen-possession">🏈</span>
             </div>
-            <div class="fullscreen-team-name">Patriots</div>
           </div>
           <div class="fullscreen-timeouts">
             <div class="timeout-bar"></div>
@@ -787,7 +699,7 @@ const ColorCustomizer = {
   getNBARegularCard() {
     return `
       <div class="game-header">
-        <span class="game-status" style="color: var(--card-quarter-clock);">Q3 - 5:21</span>
+        <span class="game-status">Q3 - 5:21</span>
         <span class="live-badge">
           <span class="live-dot"></span>
           LIVE
@@ -856,7 +768,7 @@ const ColorCustomizer = {
   getNHLRegularCard() {
     return `
       <div class="game-header">
-        <span class="game-status" style="color: var(--card-period-clock);">P2 - 12:45</span>
+        <span class="game-status">P2 - 12:45</span>
         <span class="live-badge">
           <span class="live-dot"></span>
           LIVE
@@ -923,59 +835,33 @@ const ColorCustomizer = {
   // MLB Regular Card HTML
   getMLBRegularCard() {
     return `
-      <div style="padding: 12px;">
-        <!-- Game Title/Series Info -->
-        <div style="color: var(--card-game-note, #94a3b8); font-size: 11px; font-weight: 600; text-align: center; margin-bottom: 8px; text-transform: uppercase;">
-          AL East Division
+      <div class="game-header">
+        <span class="game-status">Top 7th</span>
+        <span class="live-badge">
+          <span class="live-dot"></span>
+          LIVE
+        </span>
+      </div>
+      <div class="teams">
+        <div class="team winning">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="/assets/MLB-Logo.png" alt="Yankees" class="team-logo">
+            <span class="team-name">Yankees</span>
+          </div>
+          <span class="team-score">5</span>
         </div>
-        
-        <!-- Score Display -->
-        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
-          <!-- Away Team -->
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
-              <img src="/assets/MLB-Logo.png" alt="Yankees" style="width: 35px; height: 35px; object-fit: contain;">
-              <div style="color: var(--card-team-name, #e5e7eb); font-size: 13px; font-weight: 600;">Yankees</div>
-            </div>
-            <div style="color: var(--card-winning-score, #10b981); font-size: 32px; font-weight: 700; min-width: 40px; text-align: right;">5</div>
+        <div class="team">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="/assets/MLB-Logo.png" alt="Red Sox" class="team-logo">
+            <span class="team-name">Red Sox</span>
           </div>
-          
-          <!-- Score Divider -->
-          <div style="text-align: center; color: #6b7280; font-size: 14px; font-weight: 700; margin: -4px 0;">-</div>
-          
-          <!-- Home Team -->
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div style="color: var(--card-score, #e5e7eb); font-size: 32px; font-weight: 700; min-width: 40px; text-align: left;">3</div>
-            <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end;">
-              <div style="color: var(--card-team-name, #e5e7eb); font-size: 13px; font-weight: 600;">Red Sox</div>
-              <img src="/assets/MLB-Logo.png" alt="Red Sox" style="width: 35px; height: 35px; object-fit: contain;">
-            </div>
-          </div>
+          <span class="team-score">3</span>
         </div>
-        
-        <!-- Game Status -->
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px;">
-          <div style="display: flex; align-items: center; gap: 4px;">
-            <div style="color: var(--card-live-indicator, #ef4444); font-size: 11px; font-weight: 700; background: var(--card-live-indicator, #ef4444); color: white; padding: 3px 8px; border-radius: 10px;">
-              <span style="display: inline-block; width: 4px; height: 4px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE
-            </div>
-            <div style="color: var(--card-inning, #94a3b8); font-size: 11px; font-weight: 600; margin-left: 6px;">Top 7th</div>
-          </div>
-          
-          <!-- Baseball Diamond -->
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <svg width="40" height="40" viewBox="0 -8 42 50" style="transform: rotate(45deg);">
-              <rect x="13" y="-4" width="12" height="12" fill="var(--card-runner-on-base, #fbbf24)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-              <rect x="28" y="20" width="12" height="12" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-              <rect x="0" y="20" width="12" height="12" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-            </svg>
-            <div style="display: flex; flex-direction: column; gap: 2px; font-size: 10px; font-weight: 600;">
-              <span style="color: var(--card-balls-strikes, #94a3b8);">B:2</span>
-              <span style="color: var(--card-balls-strikes, #94a3b8);">S:1</span>
-              <span style="color: var(--card-outs, #ef4444);">O:2</span>
-            </div>
-          </div>
-        </div>
+      </div>
+      <div class="game-details">
+        <span class="detail-item" style="color: var(--card-balls-strikes);">Count: 2-1</span>
+        <span class="detail-item" style="color: var(--card-outs);">2 Outs</span>
+        <span class="detail-item" style="color: var(--card-runners-on);">⚾ Runner on 2nd</span>
       </div>
     `;
   },
@@ -983,60 +869,34 @@ const ColorCustomizer = {
   // MLB Fullscreen Card HTML
   getMLBFullscreenCard() {
     return `
-      <img src="/assets/MLB-logo.png" alt="MLB" style="position: absolute; top: 10px; left: 10px; width: 35px; height: 35px; opacity: 0.7;">
+      <div class="fullscreen-quarter">Top 7th Inning</div>
       
-      <!-- Game Title -->
-      <div style="color: var(--fullscreen-game-note, #94a3b8); font-size: 14px; font-weight: 700; text-align: center; margin-bottom: 15px; text-transform: uppercase;">
-        AL East Division
-      </div>
-      
-      <!-- Inning Display -->
-      <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 20px;">
-        <div style="background: var(--fullscreen-live-indicator, #ef4444); color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-          <span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; animation: blink 1.5s infinite;"></span>LIVE
-        </div>
-        <div style="color: var(--fullscreen-inning, #94a3b8); font-size: 16px; font-weight: 700;">Top 7th</div>
-      </div>
-      
-      <!-- Teams -->
-      <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
-        <!-- Away Team (Winning) -->
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 20px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="/assets/MLB-Logo.png" alt="Yankees" style="width: 50px; height: 50px; object-fit: contain;">
-            <div style="color: var(--fullscreen-winning-name, #10b981); font-size: 22px; font-weight: 700;">Yankees</div>
+      <div class="fullscreen-teams">
+        <div class="fullscreen-team winning">
+          <div class="fullscreen-team-header">
+            <div class="fullscreen-team-record">45-30</div>
+            <img src="/assets/MLB-Logo.png" alt="Yankees" class="fullscreen-team-logo">
+            <div class="fullscreen-team-name">Yankees</div>
           </div>
-          <div style="color: var(--fullscreen-winning-score, #10b981); font-size: 48px; font-weight: 700;">5</div>
+          <div class="fullscreen-score">5</div>
         </div>
 
-        <!-- VS Divider -->
-        <div style="text-align: center; color: #6b7280; font-size: 18px; font-weight: 700; margin: -5px 0;">VS</div>
+        <div class="fullscreen-vs">VS</div>
 
-        <!-- Home Team -->
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 20px;">
-          <div style="color: var(--fullscreen-score, #e5e7eb); font-size: 48px; font-weight: 700;">3</div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="color: var(--fullscreen-team-name, #e5e7eb); font-size: 22px; font-weight: 700;">Red Sox</div>
-            <img src="/assets/MLB-Logo.png" alt="Red Sox" style="width: 50px; height: 50px; object-fit: contain;">
+        <div class="fullscreen-team">
+          <div class="fullscreen-team-header">
+            <div class="fullscreen-team-record">42-33</div>
+            <img src="/assets/MLB-Logo.png" alt="Red Sox" class="fullscreen-team-logo">
+            <div class="fullscreen-team-name">Red Sox</div>
           </div>
+          <div class="fullscreen-score">3</div>
         </div>
       </div>
 
-      <!-- Baseball Status -->
-      <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 20px;">
-        <!-- Diamond -->
-        <svg width="50" height="50" viewBox="0 -8 42 50" style="transform: rotate(45deg);">
-          <rect x="13" y="-4" width="16" height="16" fill="var(--fullscreen-runner-on-base, #fbbf24)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-          <rect x="28" y="20" width="16" height="16" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-          <rect x="0" y="20" width="16" height="16" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-        </svg>
-        
-        <!-- Count -->
-        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 700;">
-          <span style="color: var(--fullscreen-balls-strikes, #94a3b8);">B:2</span>
-          <span style="color: var(--fullscreen-balls-strikes, #94a3b8);">S:1</span>
-          <span style="color: var(--fullscreen-outs, #ef4444);">O:2</span>
-        </div>
+      <div class="fullscreen-status" style="display: flex; justify-content: center; gap: 15px;">
+        <span style="color: var(--fullscreen-balls-strikes);">Count: 2-1</span>
+        <span style="color: var(--fullscreen-outs);">2 Outs</span>
+        <span style="color: var(--fullscreen-runners-on);">Runner on 2nd</span>
       </div>
     `;
   }
