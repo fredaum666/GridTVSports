@@ -1,0 +1,944 @@
+/* ================================================================
+   GRIDTV SPORTS - FULLY RESPONSIVE GRID SYSTEM
+   No scrollbars, auto-scaling, viewport-based sizing
+   ================================================================ */
+
+/* ================================================================
+   ROOT VARIABLES - Viewport-based sizing
+   ================================================================ */
+:root {
+  /* Spacing scales with viewport */
+  --spacing-xs: clamp(4px, 0.5vw, 8px);
+  --spacing-sm: clamp(8px, 1vw, 12px);
+  --spacing-md: clamp(12px, 1.5vw, 20px);
+  --spacing-lg: clamp(16px, 2vw, 24px);
+
+  /* Font sizes scale with viewport */
+  --font-xs: clamp(10px, 1vw, 14px);
+  --font-sm: clamp(12px, 1.2vw, 16px);
+  --font-md: clamp(14px, 1.5vw, 18px);
+  --font-lg: clamp(16px, 2vw, 24px);
+  --font-xl: clamp(20px, 2.5vw, 32px);
+  --font-2xl: clamp(24px, 3vw, 40px);
+  --font-3xl: clamp(32px, 4vw, 56px);
+  --font-4xl: clamp(40px, 5vw, 72px);
+
+  /* Logo sizes */
+  --logo-sm: clamp(30px, 4vw, 50px);
+  --logo-md: clamp(40px, 5vw, 70px);
+  --logo-lg: clamp(50px, 6vw, 90px);
+
+  /* Card dimensions */
+  --card-padding: clamp(8px, 1.5vw, 20px);
+  --card-border-radius: clamp(8px, 1vw, 16px);
+}
+
+/* ================================================================
+   RESET & BASE STYLES
+   ================================================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  margin: 0;
+  padding: 0;
+}
+
+/* ================================================================
+   FULLSCREEN CONTAINER - 100vh, no overflow
+   ================================================================ */
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #0a0e1a;
+  z-index: 9999;
+  display: none;
+  overflow: hidden; /* Critical: no scrollbars */
+}
+
+.fullscreen-overlay.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================================================================
+   FULLSCREEN CONTROLS - Auto-hide header
+   ================================================================ */
+.fullscreen-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-md);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.fullscreen-overlay:hover .fullscreen-controls,
+.fullscreen-controls:hover {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.fullscreen-controls button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-sm);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+/* ================================================================
+   RESPONSIVE GRID LAYOUTS - No scrollbars, auto-fit
+   ================================================================ */
+.fullscreen-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  gap: clamp(4px, 0.5vw, 12px);
+  padding: clamp(4px, 0.5vw, 12px);
+  overflow: hidden; /* No scrollbars */
+}
+
+/* 1 Game - Full screen */
+.fullscreen-grid.grid-1x1,
+.fullscreen-grid.grid-1 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* 2 Games - Side by side */
+.fullscreen-grid.grid-1x2,
+.fullscreen-grid.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr;
+}
+
+/* 4 Games - 2x2 grid */
+.fullscreen-grid.grid-2x2,
+.fullscreen-grid.grid-4 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+/* 6 Games - 3x2 grid */
+.fullscreen-grid.grid-3x2,
+.fullscreen-grid.grid-6 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+/* 8 Games - 4x2 grid */
+.fullscreen-grid.grid-4x2,
+.fullscreen-grid.grid-8 {
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+/* 9 Games - 3x3 grid */
+.fullscreen-grid.grid-3x3,
+.fullscreen-grid.grid-9 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+
+/* ================================================================
+   GAME CARDS - Auto-scaling, no overflow
+   ================================================================ */
+.fullscreen-game-card {
+  position: relative;
+  background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+  border: 2px solid #334155;
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden; /* Prevent internal scrolling */
+  min-height: 0; /* Allow flexbox shrinking */
+  min-width: 0; /* Allow flexbox shrinking */
+}
+
+/* Empty slot styling */
+.fullscreen-game-card.empty-slot {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================================================================
+   CARD HEADER - Team names and logos
+   ================================================================ */
+.fs-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.fs-team-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+}
+
+.fs-team-logo {
+  width: var(--logo-md);
+  height: var(--logo-md);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.fs-team-name {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: #e0e0e0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+/* ================================================================
+   CARD SCORES - Huge, responsive
+   ================================================================ */
+.fs-scores-section {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: var(--spacing-md) 0;
+  flex-shrink: 0;
+}
+
+.fs-team-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.fs-score {
+  font-size: var(--font-4xl);
+  font-weight: 900;
+  color: #f3f4f6;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.fs-score.winning {
+  color: #22c55e;
+}
+
+.fs-team-abbr {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ================================================================
+   GAME STATUS - Period, time, etc
+   ================================================================ */
+.fs-game-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin: var(--spacing-md) 0;
+  flex-shrink: 0;
+}
+
+.fs-status-badge {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: 20px;
+  font-size: var(--font-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.fs-status-badge.live {
+  background: #dc2626;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.fs-status-badge.final {
+  background: #64748b;
+  color: white;
+}
+
+.fs-status-badge.upcoming {
+  background: #3b82f6;
+  color: white;
+}
+
+.fs-game-time {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.fs-game-detail {
+  font-size: var(--font-md);
+  color: #9ca3af;
+  text-align: center;
+}
+
+/* ================================================================
+   SPORT-SPECIFIC DETAILS
+   ================================================================ */
+.fs-sport-details {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.fs-detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.fs-detail-label {
+  font-size: var(--font-xs);
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fs-detail-value {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+/* ================================================================
+   GAME SELECTOR DROPDOWN
+   ================================================================ */
+.fs-game-selector-container {
+  position: absolute;
+  bottom: var(--spacing-md);
+  left: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.fullscreen-game-card:hover .fs-game-selector-container,
+.fullscreen-game-card.empty-slot .fs-game-selector-container {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.fs-game-selector {
+  width: 100%;
+  padding: var(--spacing-sm);
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  font-size: var(--font-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.fs-game-selector:hover {
+  border-color: #3b82f6;
+  background: rgba(0, 0, 0, 0.95);
+}
+
+/* ================================================================
+   RESPONSIVE BREAKPOINTS
+   ================================================================ */
+
+/* Extra Large Desktop - 4K+ (3840px+) */
+@media (min-width: 3840px) {
+  :root {
+    --font-4xl: 120px;
+    --font-3xl: 80px;
+    --logo-md: 120px;
+  }
+}
+
+/* Large Desktop (1920px - 3839px) */
+@media (min-width: 1920px) and (max-width: 3839px) {
+  :root {
+    --font-4xl: 80px;
+    --font-3xl: 60px;
+    --logo-md: 90px;
+  }
+}
+
+/* Standard Desktop (1280px - 1919px) */
+@media (min-width: 1280px) and (max-width: 1919px) {
+  :root {
+    --font-4xl: 60px;
+    --font-3xl: 48px;
+    --logo-md: 70px;
+  }
+}
+
+/* Laptop/Tablet Landscape (1024px - 1279px) */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  :root {
+    --font-4xl: 48px;
+    --font-3xl: 36px;
+    --logo-md: 60px;
+  }
+
+  /* Adjust 4x2 grid to 2x4 for better fit */
+  .fullscreen-grid.grid-4x2,
+  .fullscreen-grid.grid-8 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
+}
+
+/* Tablet Portrait (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --font-4xl: 40px;
+    --font-3xl: 32px;
+    --font-lg: 18px;
+    --logo-md: 50px;
+  }
+
+  /* 6+ games: convert to 2 columns */
+  .fullscreen-grid.grid-3x2,
+  .fullscreen-grid.grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+
+  .fullscreen-grid.grid-4x2,
+  .fullscreen-grid.grid-8 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
+
+  .fullscreen-grid.grid-3x3,
+  .fullscreen-grid.grid-9 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+  }
+}
+
+/* Mobile Landscape (568px - 767px) */
+@media (min-width: 568px) and (max-width: 767px) {
+  :root {
+    --font-4xl: 36px;
+    --font-3xl: 28px;
+    --font-lg: 16px;
+    --font-md: 14px;
+    --logo-md: 40px;
+  }
+
+  /* 2+ games: use 2 columns */
+  .fullscreen-grid.grid-1x2,
+  .fullscreen-grid.grid-2,
+  .fullscreen-grid.grid-2x2,
+  .fullscreen-grid.grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* 6+ games: use 2 columns, stack vertically */
+  .fullscreen-grid.grid-3x2,
+  .fullscreen-grid.grid-6,
+  .fullscreen-grid.grid-4x2,
+  .fullscreen-grid.grid-8,
+  .fullscreen-grid.grid-3x3,
+  .fullscreen-grid.grid-9 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+  }
+}
+
+/* Mobile Portrait (0 - 567px) */
+@media (max-width: 567px) {
+  :root {
+    --font-4xl: 32px;
+    --font-3xl: 24px;
+    --font-lg: 14px;
+    --font-md: 12px;
+    --logo-md: 35px;
+    --spacing-md: 8px;
+    --card-padding: 8px;
+  }
+
+  /* All grids: single column */
+  .fullscreen-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: minmax(150px, 1fr);
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .fullscreen-controls {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+  }
+
+  .fullscreen-controls button {
+    width: 100%;
+    padding: var(--spacing-sm);
+  }
+}
+
+/* ================================================================
+   HEIGHT-BASED RESPONSIVE - For constrained vertical space
+   ================================================================ */
+
+/* Medium height screens - SWITCH TO HORIZONTAL LAYOUT */
+@media (max-height: 900px) {
+  /* Use CSS Grid for horizontal layout */
+  .fullscreen-game-card {
+    padding: clamp(8px, 1.2vh, 15px) !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    grid-template-rows: auto 1fr auto !important;
+    gap: clamp(6px, 1vh, 12px) !important;
+    align-items: center !important;
+  }
+
+  /* Quarter/time at top - spans all columns */
+  .fullscreen-quarter {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    font-size: clamp(14px, 2.2vh, 22px) !important;
+    margin-bottom: 0 !important;
+    text-align: center !important;
+  }
+
+  /* First team - left column */
+  .fullscreen-team:nth-of-type(1) {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    margin-bottom: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: clamp(4px, 0.8vh, 8px) !important;
+  }
+
+  /* VS in middle column */
+  .fullscreen-vs {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    font-size: clamp(11px, 1.7vh, 17px) !important;
+    margin: 0 !important;
+    padding: 0 clamp(6px, 1.2vw, 15px) !important;
+  }
+
+  /* Second team - right column */
+  .fullscreen-team:nth-of-type(2) {
+    grid-column: 3 !important;
+    grid-row: 2 !important;
+    margin-bottom: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: clamp(4px, 0.8vh, 8px) !important;
+  }
+
+  /* Team header - keep vertical for compact */
+  .fullscreen-team-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: clamp(6px, 1.2vh, 12px) !important;
+    margin-bottom: 0 !important;
+  }
+
+  .fullscreen-team-logo {
+    width: clamp(28px, 5vh, 55px) !important;
+    height: clamp(28px, 5vh, 55px) !important;
+  }
+
+  .fullscreen-team-name {
+    font-size: clamp(14px, 2.5vh, 26px) !important;
+  }
+
+  .fullscreen-team-record {
+    font-size: clamp(10px, 1.5vh, 15px) !important;
+  }
+
+  /* Score below team info */
+  .fullscreen-score {
+    font-size: clamp(28px, 6vh, 60px) !important;
+  }
+
+  /* Sport logo at top left */
+  .sport-logo-indicator {
+    width: clamp(40px, 7vh, 70px) !important;
+    height: clamp(40px, 7vh, 70px) !important;
+    top: clamp(6px, 1vh, 12px) !important;
+    left: clamp(6px, 1vh, 12px) !important;
+  }
+
+  /* Down/distance at bottom - spans all columns */
+  .fullscreen-down-distance {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    margin-top: 0 !important;
+    font-size: clamp(10px, 1.5vh, 14px) !important;
+  }
+}
+
+/* Short screens - more aggressive shrinking (keeps horizontal layout from 900px) */
+@media (max-height: 600px) {
+  .fullscreen-game-card {
+    padding: clamp(6px, 1vh, 10px) !important;
+    gap: clamp(4px, 0.8vh, 8px) !important;
+  }
+
+  .fullscreen-score {
+    font-size: clamp(24px, 5vh, 50px) !important;
+  }
+
+  .fullscreen-team-logo {
+    width: clamp(25px, 4vh, 45px) !important;
+    height: clamp(25px, 4vh, 45px) !important;
+  }
+
+  .fullscreen-team-name {
+    font-size: clamp(12px, 2vh, 22px) !important;
+  }
+
+  .fullscreen-quarter {
+    font-size: clamp(12px, 1.8vh, 20px) !important;
+  }
+
+  .fullscreen-team-record {
+    font-size: clamp(9px, 1.3vh, 14px) !important;
+  }
+
+  .fullscreen-vs {
+    font-size: clamp(10px, 1.5vh, 16px) !important;
+    padding: 0 clamp(4px, 0.8vw, 10px) !important;
+  }
+
+  .fullscreen-team {
+    gap: clamp(3px, 0.6vh, 6px) !important;
+  }
+
+  .fullscreen-team-header {
+    gap: clamp(5px, 1vh, 10px) !important;
+  }
+
+  .sport-logo-indicator {
+    width: clamp(35px, 6vh, 65px) !important;
+    height: clamp(35px, 6vh, 65px) !important;
+  }
+
+  .fullscreen-down-distance {
+    font-size: clamp(9px, 1.3vh, 12px) !important;
+  }
+}
+
+/* Extremely short screens - minimal mode (keeps horizontal layout from 900px) */
+@media (max-height: 400px) {
+  .fullscreen-game-card {
+    padding: clamp(4px, 0.8vh, 8px) !important;
+    gap: clamp(3px, 0.6vh, 6px) !important;
+  }
+
+  .fullscreen-score {
+    font-size: clamp(20px, 4.5vh, 40px) !important;
+  }
+
+  .fullscreen-team-logo {
+    width: clamp(20px, 3.5vh, 35px) !important;
+    height: clamp(20px, 3.5vh, 35px) !important;
+  }
+
+  .fullscreen-team-name {
+    font-size: clamp(10px, 1.8vh, 18px) !important;
+  }
+
+  .fullscreen-quarter {
+    font-size: clamp(10px, 1.5vh, 16px) !important;
+  }
+
+  .fullscreen-team-record {
+    font-size: clamp(8px, 1.2vh, 12px) !important;
+  }
+
+  .fullscreen-vs {
+    font-size: clamp(9px, 1.3vh, 14px) !important;
+    padding: 0 clamp(3px, 0.6vw, 8px) !important;
+  }
+
+  .fullscreen-team {
+    gap: clamp(2px, 0.4vh, 5px) !important;
+  }
+
+  .fullscreen-team-header {
+    gap: clamp(4px, 0.8vh, 8px) !important;
+  }
+
+  .sport-logo-indicator {
+    width: clamp(30px, 5vh, 55px) !important;
+    height: clamp(30px, 5vh, 55px) !important;
+  }
+
+  .fullscreen-down-distance {
+    font-size: clamp(8px, 1.2vh, 11px) !important;
+  }
+}
+
+/* ================================================================
+   CONTAINER-BASED RESPONSIVE - Scale based on card size
+   ================================================================ */
+
+/* All grids - responsive padding */
+.fullscreen-grid.grid-2 .fullscreen-game-card {
+  padding: clamp(15px, 2.5vmin, 30px) !important;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-game-card {
+  padding: clamp(8px, 1.5vmin, 20px) !important;
+}
+
+.fullscreen-grid.grid-6 .fullscreen-game-card,
+.fullscreen-grid.grid-8 .fullscreen-game-card,
+.fullscreen-grid.grid-9 .fullscreen-game-card {
+  padding: clamp(6px, 1vmin, 15px) !important;
+}
+
+/* 2-card grid responsive scaling */
+.fullscreen-grid.grid-2 .fullscreen-score {
+  font-size: clamp(40px, 8vmin, 96px) !important;
+}
+
+.fullscreen-grid.grid-2 .fullscreen-team-logo {
+  width: clamp(40px, 6vmin, 80px) !important;
+  height: clamp(40px, 6vmin, 80px) !important;
+}
+
+.fullscreen-grid.grid-2 .fullscreen-team-name {
+  font-size: clamp(18px, 3.5vmin, 56px) !important;
+}
+
+.fullscreen-grid.grid-2 .fullscreen-quarter {
+  font-size: clamp(16px, 2.5vmin, 32px) !important;
+  margin-bottom: clamp(10px, 2vmin, 20px) !important;
+}
+
+.fullscreen-grid.grid-2 .fullscreen-team-record {
+  font-size: clamp(12px, 1.8vmin, 21px) !important;
+}
+
+.fullscreen-grid.grid-2 .fullscreen-vs {
+  font-size: clamp(14px, 2.2vmin, 24px) !important;
+  margin: clamp(6px, 1vmin, 15px) 0 !important;
+}
+
+/* 4-card grid responsive scaling */
+.fullscreen-grid.grid-4 .fullscreen-score {
+  font-size: clamp(32px, 6vmin, 70px) !important;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-team-logo {
+  width: clamp(30px, 5vmin, 60px) !important;
+  height: clamp(30px, 5vmin, 60px) !important;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-team-name {
+  font-size: clamp(14px, 2.5vmin, 28px) !important;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-quarter {
+  font-size: clamp(14px, 2vmin, 24px) !important;
+  margin-bottom: clamp(8px, 1.5vmin, 20px) !important;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-team-record {
+  font-size: clamp(10px, 1.5vmin, 16px) !important;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-vs {
+  font-size: clamp(12px, 1.8vmin, 18px) !important;
+  margin: clamp(4px, 0.8vmin, 10px) 0 !important;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-team {
+  margin-bottom: clamp(6px, 1.2vmin, 15px) !important;
+}
+
+/* 6+ card grids - ultra compact */
+.fullscreen-grid.grid-6 .fullscreen-score,
+.fullscreen-grid.grid-8 .fullscreen-score,
+.fullscreen-grid.grid-9 .fullscreen-score {
+  font-size: clamp(24px, 4.5vmin, 50px) !important;
+}
+
+.fullscreen-grid.grid-6 .fullscreen-team-logo,
+.fullscreen-grid.grid-8 .fullscreen-team-logo,
+.fullscreen-grid.grid-9 .fullscreen-team-logo {
+  width: clamp(25px, 4vmin, 45px) !important;
+  height: clamp(25px, 4vmin, 45px) !important;
+}
+
+.fullscreen-grid.grid-6 .fullscreen-team-name,
+.fullscreen-grid.grid-8 .fullscreen-team-name,
+.fullscreen-grid.grid-9 .fullscreen-team-name {
+  font-size: clamp(12px, 2vmin, 20px) !important;
+}
+
+.fullscreen-grid.grid-6 .fullscreen-quarter,
+.fullscreen-grid.grid-8 .fullscreen-quarter,
+.fullscreen-grid.grid-9 .fullscreen-quarter {
+  font-size: clamp(12px, 1.8vmin, 20px) !important;
+  margin-bottom: clamp(6px, 1vmin, 15px) !important;
+}
+
+.fullscreen-grid.grid-6 .fullscreen-team-record,
+.fullscreen-grid.grid-8 .fullscreen-team-record,
+.fullscreen-grid.grid-9 .fullscreen-team-record {
+  font-size: clamp(9px, 1.2vmin, 14px) !important;
+}
+
+.fullscreen-grid.grid-6 .fullscreen-vs,
+.fullscreen-grid.grid-8 .fullscreen-vs,
+.fullscreen-grid.grid-9 .fullscreen-vs {
+  font-size: clamp(10px, 1.5vmin, 16px) !important;
+  margin: clamp(3px, 0.6vmin, 8px) 0 !important;
+}
+
+.fullscreen-grid.grid-6 .fullscreen-team,
+.fullscreen-grid.grid-8 .fullscreen-team,
+.fullscreen-grid.grid-9 .fullscreen-team {
+  margin-bottom: clamp(4px, 0.8vmin, 12px) !important;
+}
+
+.fullscreen-grid.grid-6 .fullscreen-team-header,
+.fullscreen-grid.grid-8 .fullscreen-team-header,
+.fullscreen-grid.grid-9 .fullscreen-team-header {
+  gap: clamp(6px, 1vmin, 15px) !important;
+  margin-bottom: clamp(4px, 0.8vmin, 10px) !important;
+}
+
+/* ================================================================
+   SMALL VIEWPORT - Combined height + width constraints
+   ================================================================ */
+@media (max-width: 768px) and (max-height: 768px) {
+  :root {
+    --font-4xl: clamp(20px, 3.5vmin, 36px);
+    --font-3xl: clamp(18px, 3vmin, 28px);
+    --font-lg: clamp(11px, 1.8vmin, 16px);
+    --font-md: clamp(10px, 1.5vmin, 13px);
+    --logo-md: clamp(28px, 4.5vmin, 45px);
+    --card-padding: clamp(6px, 1.2vmin, 12px);
+  }
+
+  .fullscreen-game-card {
+    gap: clamp(4px, 0.8vmin, 10px);
+  }
+}
+
+/* Ultra-wide screens (21:9 aspect ratio) */
+@media (min-aspect-ratio: 21/9) {
+  .fullscreen-grid.grid-3x2,
+  .fullscreen-grid.grid-6 {
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: 1fr;
+  }
+
+  .fullscreen-grid.grid-4x2,
+  .fullscreen-grid.grid-8 {
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: 1fr;
+  }
+}
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fullscreen-game-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ================================================================
+   PRINT & ACCESSIBILITY
+   ================================================================ */
+@media print {
+  .fullscreen-controls,
+  .fs-game-selector-container {
+    display: none !important;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ================================================================
+   HIGH DPI SCREENS - Sharper rendering
+   ================================================================ */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .fs-team-logo,
+  .fs-sport-logo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}

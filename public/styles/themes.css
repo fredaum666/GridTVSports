@@ -687,11 +687,7 @@ body[data-theme="apple"] .sport-card:hover {
   transform: scale(var(--card-hover-scale)) translateY(-2px);
 }
 
-body[data-theme="apple"] .game-card:hover {
-  border-color: var(--card-border-hover);
-  box-shadow: var(--card-shadow-hover);
-  transform: scale(var(--card-hover-scale)) translateY(-2px);
-}
+/* Game card hover removed - cards are static */
 
 /* Default Dark Theme - Regular Cards */
 body[data-theme="default"] .sport-card,
@@ -708,11 +704,7 @@ body[data-theme="default"] .sport-card:hover {
   transform: scale(var(--card-hover-scale)) translateY(-2px);
 }
 
-body[data-theme="default"] .game-card:hover {
-  border-color: var(--card-border-hover);
-  box-shadow: var(--card-shadow-hover);
-  transform: scale(var(--card-hover-scale)) translateY(-2px);
-}
+/* Game card hover removed - cards are static */
 
 /* Remove colorful gradients - use clean backgrounds */
 body[data-theme="apple"] .score-container {

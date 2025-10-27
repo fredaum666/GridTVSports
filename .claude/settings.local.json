@@ -2,7 +2,24 @@
   "permissions": {
     "allow": [
       "Bash(powershell.exe:*)",
-      "Bash(node consolidate.js:*)"
+      "Bash(node consolidate.js:*)",
+      "Bash(node add-responsive-css.js:*)",
+      "Bash(node add-cards-css.js:*)",
+      "Bash(node verify-responsive.js:*)",
+      "Bash(node remove-hover-transform.js:*)",
+      "Bash(curl:*)",
+      "Bash(node -e:*)",
+      "Bash(node fix-game-transitions.js:*)",
+      "Bash(for file in nfl.html nba.html mlb.html nhl.html)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)",
+      "Bash(do echo \"--- $file ---\")",
+      "Bash(node force-refresh-css.js:*)",
+      "Bash(for file in nfl.html nba.html mlb.html nhl.html LiveGames.html)",
+      "Bash(do grep -n \"responsive-grid.css\" \"$file\")",
+      "Bash(node update-css-cache.js:*)",
+      "Bash(move \"C:\\Users\\HomePC\\OneDrive\\Desktop\\GridTVSports\\GridTVSports\\test-horizontal-layout.html\" \"C:\\Users\\HomePC\\OneDrive\\Desktop\\GridTVSports\\GridTVSports\\public\\test-horizontal-layout.html\")",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
