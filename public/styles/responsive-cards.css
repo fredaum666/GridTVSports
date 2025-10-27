@@ -1,0 +1,451 @@
+/* ================================================================
+   GRIDTV SPORTS - RESPONSIVE GAME CARDS (Non-Fullscreen View)
+   Auto-scaling cards for regular browsing view
+   ================================================================ */
+
+/* ================================================================
+   CONTAINER - No horizontal scroll
+   ================================================================ */
+.container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: clamp(12px, 2vw, 24px);
+  overflow-x: hidden;
+}
+
+/* ================================================================
+   GAMES GRID - Responsive columns
+   ================================================================ */
+.games-grid {
+  display: grid;
+  gap: clamp(12px, 2vw, 24px);
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+}
+
+/* ================================================================
+   GAME CARDS - Auto-scaling
+   ================================================================ */
+.game-card {
+  background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+  border: 2px solid #334155;
+  border-radius: clamp(8px, 1vw, 16px);
+  padding: clamp(12px, 2vw, 20px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1vw, 16px);
+  min-width: 0; /* Allow flex shrinking */
+  overflow: hidden;
+}
+
+/* Hover effect completely removed - cards are static */
+
+/* ================================================================
+   CARD HEADER
+   ================================================================ */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: clamp(8px, 1vw, 12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.game-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  padding: clamp(4px, 0.5vw, 8px) clamp(8px, 1vw, 16px);
+  border-radius: 12px;
+  font-size: clamp(11px, 1.2vw, 14px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-badge.live {
+  background: #dc2626;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.status-badge.final {
+  background: #64748b;
+  color: white;
+}
+
+.status-badge.scheduled {
+  background: #3b82f6;
+  color: white;
+}
+
+.game-time {
+  font-size: clamp(12px, 1.3vw, 16px);
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* ================================================================
+   TEAMS SECTION
+   ================================================================ */
+.teams-section {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1vw, 16px);
+}
+
+.team-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(8px, 1vw, 16px);
+  padding: clamp(8px, 1vw, 12px);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  min-width: 0; /* Allow flex shrinking */
+}
+
+.team-row.winning {
+  background: rgba(34, 197, 94, 0.1);
+  border-left: 3px solid #22c55e;
+}
+
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1vw, 12px);
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+}
+
+.team-logo {
+  width: clamp(35px, 5vw, 60px);
+  height: clamp(35px, 5vw, 60px);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.team-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.team-name {
+  font-size: clamp(14px, 1.8vw, 20px);
+  font-weight: 700;
+  color: #f3f4f6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-record {
+  font-size: clamp(11px, 1.2vw, 14px);
+  color: #9ca3af;
+}
+
+.team-score {
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 900;
+  color: #e0e0e0;
+  min-width: clamp(40px, 6vw, 60px);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.team-score.winning {
+  color: #22c55e;
+}
+
+/* ================================================================
+   GAME DETAILS - Sport-specific info
+   ================================================================ */
+.game-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: clamp(8px, 1vw, 12px);
+  padding: clamp(8px, 1vw, 12px);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: clamp(10px, 1.1vw, 12px);
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: clamp(13px, 1.5vw, 16px);
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+/* ================================================================
+   EMPTY STATE
+   ================================================================ */
+.no-games {
+  text-align: center;
+  padding: clamp(40px, 6vw, 80px) clamp(20px, 3vw, 40px);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+}
+
+.no-games-icon {
+  font-size: clamp(48px, 8vw, 80px);
+  margin-bottom: clamp(16px, 2vw, 24px);
+}
+
+.no-games h2 {
+  font-size: clamp(20px, 3vw, 32px);
+  margin-bottom: clamp(8px, 1vw, 12px);
+  color: #f3f4f6;
+}
+
+.no-games p {
+  font-size: clamp(14px, 1.5vw, 18px);
+  color: #9ca3af;
+}
+
+/* ================================================================
+   RESPONSIVE BREAKPOINTS - Cards View
+   ================================================================ */
+
+/* Desktop - 3 columns */
+@media (min-width: 1600px) {
+  .games-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Laptop - 2 columns */
+@media (min-width: 1024px) and (max-width: 1599px) {
+  .games-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet - 2 columns */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .games-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .team-name {
+    font-size: 16px;
+  }
+
+  .team-score {
+    font-size: 32px;
+  }
+}
+
+/* Mobile - 1 column */
+@media (max-width: 767px) {
+  .games-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .game-card {
+    padding: 16px;
+  }
+
+  .team-row {
+    padding: 12px;
+  }
+
+  .team-name {
+    font-size: 16px;
+  }
+
+  .team-score {
+    font-size: 28px;
+  }
+
+  .game-details {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Very Small Mobile */
+@media (max-width: 380px) {
+  .team-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .team-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .team-score {
+    font-size: 24px;
+  }
+
+  .game-details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ================================================================
+   LOADING STATE
+   ================================================================ */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: clamp(16px, 2vw, 24px);
+}
+
+.loading-spinner {
+  width: clamp(40px, 6vw, 60px);
+  height: clamp(40px, 6vw, 60px);
+  border: 4px solid rgba(59, 130, 246, 0.2);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: clamp(16px, 2vw, 20px);
+  color: #9ca3af;
+}
+
+/* ================================================================
+   SPORT LOGOS (Header)
+   ================================================================ */
+.sport-logo {
+  width: clamp(40px, 5vw, 70px);
+  height: clamp(40px, 5vw, 70px);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* ================================================================
+   BUTTONS - Responsive sizing
+   ================================================================ */
+.btn,
+button {
+  padding: clamp(8px, 1vw, 12px) clamp(16px, 2vw, 24px);
+  font-size: clamp(13px, 1.4vw, 16px);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.btn:hover,
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active,
+button:active {
+  transform: translateY(0);
+}
+
+/* ================================================================
+   SECTION HEADERS
+   ================================================================ */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: clamp(16px, 2vw, 24px);
+  flex-wrap: wrap;
+  gap: clamp(8px, 1vw, 16px);
+}
+
+.section-title {
+  font-size: clamp(20px, 3vw, 32px);
+  font-weight: 700;
+  color: #f3f4f6;
+}
+
+.section-actions {
+  display: flex;
+  gap: clamp(8px, 1vw, 12px);
+  flex-wrap: wrap;
+}
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.game-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ================================================================
+   SCROLLBAR STYLING (Optional)
+   ================================================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}
