@@ -3,25 +3,19 @@ const axios = require('axios');
 const cron = require('node-cron');
 const cors = require('cors');
 const path = require('path');
-const { Pool } = require('pg');
-require('dotenv').config();
+const { pool } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// PostgreSQL connection pool (only if DATABASE_URL is set)
-let pool = null;
-if (process.env.DATABASE_URL) {
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_URL.includes('sslmode=require') ? {
-      rejectUnauthorized: false
-    } : false
-  });
-  console.log('✅ PostgreSQL connection pool initialized');
-} else {
-  console.warn('⚠️  DATABASE_URL not set - Vows API will not work');
-}
+// Global error handlers
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+});
 
 // Auto-initialize vows database tables on startup
 async function initializeVowsDatabase() {

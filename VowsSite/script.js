@@ -1,7 +1,7 @@
 // Wedding Vows Access Control Script - Bilingual Version with API
 
 // API Configuration
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://gridtvsports.com/api';
 
 // Current language (default: English)
 let currentLanguage = localStorage.getItem('vowsLanguage') || 'en';
