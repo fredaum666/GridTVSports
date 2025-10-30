@@ -11,9 +11,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve VowsSite files under /vows route
-app.use('/vows', express.static(path.join(__dirname, 'VowsSite')));
-
 // ============================================
 // SMART CACHING SYSTEM (In-Memory)
 // ============================================
