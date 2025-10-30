@@ -1,6 +1,7 @@
 // VowsSite Database connection - SEPARATE from GridTVSports database
 const { Pool } = require('pg');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 // Validate VOWS_DATABASE_URL (separate from GridTVSports DATABASE_URL)
 if (!process.env.VOWS_DATABASE_URL) {
