@@ -1,0 +1,394 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', 'Garamond', serif;
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+}
+
+.view {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.6s ease-in;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Locked View Styles */
+#locked-view {
+    text-align: center;
+    padding: 60px 40px;
+}
+
+.lock-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+#locked-view h1 {
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 400;
+}
+
+.message {
+    font-size: 20px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: #999;
+    font-style: italic;
+}
+
+/* Vows View Styles */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+header h1 {
+    font-size: 42px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.date {
+    font-size: 18px;
+    color: #95a5a6;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+/* Language Switcher */
+.language-switcher {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.lang-btn-en,
+.lang-btn-pt {
+    padding: 10px 20px;
+    background: white;
+    border: 2px solid #d4a574;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: #2c3e50;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Georgia', 'Garamond', serif;
+}
+
+.lang-btn-en .flag,
+.lang-btn-pt .flag {
+    font-size: 20px;
+}
+
+.lang-btn-en:hover,
+.lang-btn-pt:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+    background: #fef9f5;
+}
+
+.lang-btn-en.active,
+.lang-btn-pt.active {
+    background: linear-gradient(135deg, #d4a574 0%, #b8935e 100%);
+    color: white;
+    border-color: #d4a574;
+}
+
+.vows-container {
+    margin: 40px 0;
+}
+
+.vow-section {
+    margin-bottom: 40px;
+}
+
+.name {
+    font-size: 28px;
+    color: #d4a574;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+.vow-text {
+    line-height: 1.8;
+    font-size: 18px;
+    color: #444;
+    text-align: left;
+}
+
+.vow-text p {
+    margin-bottom: 15px;
+}
+
+.divider {
+    text-align: center;
+    font-size: 32px;
+    margin: 30px 0;
+    opacity: 0.6;
+}
+
+footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f0f0;
+    text-align: center;
+}
+
+.blessing {
+    font-size: 16px;
+    color: #95a5a6;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .view {
+        padding: 30px 20px;
+        border-radius: 15px;
+    }
+
+    header {
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+    }
+
+    header h1 {
+        font-size: 32px;
+    }
+
+    .date {
+        font-size: 16px;
+    }
+
+    .language-switcher {
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    .lang-btn-en,
+    .lang-btn-pt {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .lang-btn-en .flag,
+    .lang-btn-pt .flag {
+        font-size: 18px;
+    }
+
+    .name {
+        font-size: 24px;
+    }
+
+    .vow-text {
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .vow-section {
+        margin-bottom: 30px;
+    }
+
+    .divider {
+        font-size: 28px;
+        margin: 25px 0;
+    }
+
+    #locked-view {
+        padding: 40px 20px;
+    }
+
+    #locked-view h1 {
+        font-size: 28px;
+    }
+
+    .lock-icon {
+        font-size: 48px;
+    }
+
+    .message {
+        font-size: 18px;
+    }
+
+    .subtitle {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .view {
+        padding: 20px 15px;
+        border-radius: 12px;
+    }
+
+    #locked-view {
+        padding: 30px 15px;
+    }
+
+    #locked-view h1 {
+        font-size: 24px;
+    }
+
+    .lock-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+    }
+
+    .message {
+        font-size: 16px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+    }
+
+    header {
+        margin-bottom: 25px;
+        padding-bottom: 12px;
+    }
+
+    header h1 {
+        font-size: 24px;
+        letter-spacing: 0.5px;
+    }
+
+    .date {
+        font-size: 14px;
+    }
+
+    .language-switcher {
+        gap: 6px;
+        margin-top: 15px;
+    }
+
+    .lang-btn-en,
+    .lang-btn-pt {
+        padding: 6px 12px;
+        font-size: 13px;
+        border-radius: 20px;
+    }
+
+    .lang-btn-en .flag,
+    .lang-btn-pt .flag {
+        font-size: 16px;
+    }
+
+    .name {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .vow-text {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .vow-text p {
+        margin-bottom: 12px;
+    }
+
+    .vow-section {
+        margin-bottom: 25px;
+    }
+
+    .vows-container {
+        margin: 25px 0;
+    }
+
+    .divider {
+        font-size: 24px;
+        margin: 20px 0;
+    }
+
+    footer {
+        margin-top: 25px;
+        padding-top: 15px;
+    }
+
+    .blessing {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 360px) {
+    .view {
+        padding: 15px 12px;
+    }
+
+    #locked-view {
+        padding: 25px 12px;
+    }
+
+    header h1 {
+        font-size: 22px;
+    }
+
+    .name {
+        font-size: 18px;
+    }
+
+    .vow-text {
+        font-size: 14px;
+    }
+}
