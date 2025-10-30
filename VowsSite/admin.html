@@ -966,20 +966,20 @@
 
                 const data = await response.json();
 
-                // Load groom data
-                if (data.groom) {
-                    document.getElementById('groom-name-en').value = data.groom.person_name_en || '';
-                    document.getElementById('groom-name-pt').value = data.groom.person_name_pt || '';
-                    document.getElementById('groom-vows-editor-en').innerHTML = data.groom.vow_text_en || '';
-                    document.getElementById('groom-vows-editor-pt').innerHTML = data.groom.vow_text_pt || '';
+                // Load groom data from wedding_vows
+                if (data.wedding_vows && data.wedding_vows.groom) {
+                    document.getElementById('groom-name-en').value = data.wedding_vows.groom.person_name_en || '';
+                    document.getElementById('groom-name-pt').value = data.wedding_vows.groom.person_name_pt || '';
+                    document.getElementById('groom-vows-editor-en').innerHTML = data.wedding_vows.groom.vow_text_en || '';
+                    document.getElementById('groom-vows-editor-pt').innerHTML = data.wedding_vows.groom.vow_text_pt || '';
                 }
 
-                // Load bride data
-                if (data.bride) {
-                    document.getElementById('bride-name-en').value = data.bride.person_name_en || '';
-                    document.getElementById('bride-name-pt').value = data.bride.person_name_pt || '';
-                    document.getElementById('bride-vows-editor-en').innerHTML = data.bride.vow_text_en || '';
-                    document.getElementById('bride-vows-editor-pt').innerHTML = data.bride.vow_text_pt || '';
+                // Load bride data from wedding_vows
+                if (data.wedding_vows && data.wedding_vows.bride) {
+                    document.getElementById('bride-name-en').value = data.wedding_vows.bride.person_name_en || '';
+                    document.getElementById('bride-name-pt').value = data.wedding_vows.bride.person_name_pt || '';
+                    document.getElementById('bride-vows-editor-en').innerHTML = data.wedding_vows.bride.vow_text_en || '';
+                    document.getElementById('bride-vows-editor-pt').innerHTML = data.wedding_vows.bride.vow_text_pt || '';
                 }
             } catch (error) {
                 console.error('Error loading vows:', error);
