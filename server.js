@@ -90,11 +90,29 @@ async function initializeVowsDatabase() {
 initializeVowsDatabase();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ charset: 'utf-8' }));
+app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
+
+// Set UTF-8 for all responses
+app.use((_req, res, next) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve VowsSite files under /vows route
-app.use('/vows', express.static(path.join(__dirname, 'VowsSite')));
+// Serve VowsSite files under /vows route with UTF-8 encoding
+app.use('/vows', express.static(path.join(__dirname, 'VowsSite'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    }
+  }
+}));
 
 // ============================================
 // SMART CACHING SYSTEM (In-Memory)
@@ -935,17 +953,20 @@ app.get('/api/vows', async (req, res) => {
   if (!pool) {
     return res.status(503).json({ error: 'Database not configured', wedding_vows: null, public_vows: [] });
   }
-  
+
   try {
+    // Set encoding to UTF-8 for PostgreSQL connection
+    await pool.query("SET CLIENT_ENCODING TO 'UTF8'");
+
     const result = await pool.query(
       'SELECT * FROM vows WHERE is_active = true ORDER BY person_type'
     );
-    
+
     const wedding_vows = {
       groom: null,
       bride: null
     };
-    
+
     result.rows.forEach(row => {
       if (row.person_type === 'groom') {
         wedding_vows.groom = {
@@ -963,7 +984,8 @@ app.get('/api/vows', async (req, res) => {
         };
       }
     });
-    
+
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.json({
       wedding_vows: (wedding_vows.groom || wedding_vows.bride) ? wedding_vows : null,
       public_vows: []
