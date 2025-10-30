@@ -737,6 +737,11 @@
                 }
             } catch (error) {
                 console.error('Error checking status:', error);
+                // Fallback for when API is not available
+                const statusDisplay = document.getElementById('status-display');
+                statusDisplay.className = 'status locked';
+                statusDisplay.textContent = '⚠️ API not available - Server may need updating';
+                document.getElementById('login-form').style.display = 'block';
             }
         }
 
@@ -978,6 +983,11 @@
                 }
             } catch (error) {
                 console.error('Error loading vows:', error);
+                // Fallback when API is not available
+                const vowsList = document.getElementById('saved-vows-list');
+                if (vowsList) {
+                    vowsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;"><h3>⚠️ Vows API Not Available</h3><p>The server needs to be updated with the new vows API endpoints.</p><p>Contact the administrator to deploy the updated server code.</p></div>';
+                }
             }
         }
 
