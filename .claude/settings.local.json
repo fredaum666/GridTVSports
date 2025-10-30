@@ -19,7 +19,9 @@
       "Bash(do grep -n \"responsive-grid.css\" \"$file\")",
       "Bash(node update-css-cache.js:*)",
       "Bash(move \"C:\\Users\\HomePC\\OneDrive\\Desktop\\GridTVSports\\GridTVSports\\test-horizontal-layout.html\" \"C:\\Users\\HomePC\\OneDrive\\Desktop\\GridTVSports\\GridTVSports\\public\\test-horizontal-layout.html\")",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npm run init-db:*)",
+      "Bash(npm start)"
     ],
     "deny": [],
     "ask": []
