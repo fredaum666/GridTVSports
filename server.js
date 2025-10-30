@@ -17,6 +17,73 @@ const pool = new Pool({
   } : false
 });
 
+// Auto-initialize vows database tables on startup
+async function initializeVowsDatabase() {
+  try {
+    // Create vows table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS vows (
+        id SERIAL PRIMARY KEY,
+        person_type VARCHAR(20) NOT NULL CHECK (person_type IN ('groom', 'bride')),
+        person_name_en VARCHAR(100),
+        person_name_pt VARCHAR(100),
+        vow_text_en TEXT NOT NULL,
+        vow_text_pt TEXT NOT NULL,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        last_updated TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Create indexes
+    await pool.query('CREATE INDEX IF NOT EXISTS idx_vows_person_type ON vows(person_type)');
+    await pool.query('CREATE INDEX IF NOT EXISTS idx_vows_active ON vows(is_active)');
+    
+    // Create unlock_status table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS unlock_status (
+        id SERIAL PRIMARY KEY,
+        is_unlocked BOOLEAN DEFAULT false,
+        unlocked_at TIMESTAMP,
+        locked_at TIMESTAMP,
+        last_updated TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Insert default unlock status if not exists
+    const checkStatus = await pool.query('SELECT COUNT(*) FROM unlock_status WHERE id = 1');
+    if (checkStatus.rows[0].count === '0') {
+      await pool.query(`
+        INSERT INTO unlock_status (id, is_unlocked)
+        VALUES (1, false)
+      `);
+    }
+    
+    // Create admin_settings table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin_settings (
+        setting_key VARCHAR(50) PRIMARY KEY,
+        setting_value TEXT,
+        last_updated TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Insert default admin password if not exists
+    await pool.query(`
+      INSERT INTO admin_settings (setting_key, setting_value)
+      VALUES ('admin_password', 'wedding2024')
+      ON CONFLICT (setting_key) DO NOTHING
+    `);
+    
+    console.log('✅ Vows database tables initialized');
+  } catch (error) {
+    console.error('⚠️  Error initializing vows database:', error.message);
+  }
+}
+
+// Initialize vows database
+initializeVowsDatabase();
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
