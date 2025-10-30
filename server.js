@@ -9,16 +9,27 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('sslmode=require') ? {
-    rejectUnauthorized: false
-  } : false
-});
+// PostgreSQL connection pool (only if DATABASE_URL is set)
+let pool = null;
+if (process.env.DATABASE_URL) {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL.includes('sslmode=require') ? {
+      rejectUnauthorized: false
+    } : false
+  });
+  console.log('✅ PostgreSQL connection pool initialized');
+} else {
+  console.warn('⚠️  DATABASE_URL not set - Vows API will not work');
+}
 
 // Auto-initialize vows database tables on startup
 async function initializeVowsDatabase() {
+  if (!pool) {
+    console.warn('⚠️  Skipping vows database initialization - DATABASE_URL not configured');
+    return;
+  }
+  
   try {
     // Create vows table
     await pool.query(`
@@ -863,18 +874,26 @@ app.delete('/api/final-games/clear/:sport', (req, res) => {
 
 // Get unlock status from database
 app.get('/api/unlock-status', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ error: 'Database not configured', message: 'DATABASE_URL environment variable is not set' });
+  }
+  
   try {
     const result = await pool.query('SELECT is_unlocked FROM unlock_status WHERE id = 1');
     const isUnlocked = result.rows[0]?.is_unlocked || false;
     res.json({ is_unlocked: isUnlocked });
   } catch (error) {
     console.error('Error getting unlock status:', error);
-    res.status(500).json({ error: 'Database error' });
+    res.status(500).json({ error: 'Database error', message: error.message, hint: 'Make sure database tables are initialized' });
   }
 });
 
 // Unlock vows (admin only)
 app.post('/api/unlock', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ success: false, message: 'Database not configured' });
+  }
+  
   try {
     const { password } = req.body;
     const ADMIN_PASSWORD = 'wedding2024';
@@ -895,6 +914,10 @@ app.post('/api/unlock', async (req, res) => {
 
 // Lock vows (admin only)
 app.post('/api/lock', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ success: false, message: 'Database not configured' });
+  }
+  
   try {
     const { password } = req.body;
     const ADMIN_PASSWORD = 'wedding2024';
@@ -915,6 +938,10 @@ app.post('/api/lock', async (req, res) => {
 
 // Get all vows from database
 app.get('/api/vows', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ error: 'Database not configured', wedding_vows: null, public_vows: [] });
+  }
+  
   try {
     const result = await pool.query(
       'SELECT * FROM vows WHERE is_active = true ORDER BY person_type'
@@ -949,12 +976,16 @@ app.get('/api/vows', async (req, res) => {
     });
   } catch (error) {
     console.error('Error getting vows:', error);
-    res.status(500).json({ error: 'Database error' });
+    res.status(500).json({ error: 'Database error', message: error.message, hint: 'Make sure vows table exists' });
   }
 });
 
 // Add new vow
 app.post('/api/vows', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ success: false, error: 'Database not configured' });
+  }
+  
   try {
     const { name, vow, password, groomNameEn, groomNamePt, groomVowsEn, groomVowsPt, 
             brideNameEn, brideNamePt, brideVowsEn, brideVowsPt } = req.body;
