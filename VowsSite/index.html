@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Wedding Vows</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div id="locked-view" class="view">
+            <div class="lock-icon">🔒</div>
+            <h1>Our Wedding Vows</h1>
+            <p class="message">The vows will be available during the ceremony.</p>
+            <p class="subtitle">Please wait for the moment...</p>
+        </div>
+
+        <div id="vows-view" class="view hidden">
+            <header>
+                <h1>Our Wedding Vows</h1>
+                <p class="date">A Promise of Forever</p>
+
+                <!-- Language Switcher -->
+                <div class="language-switcher">
+                    <button class="lang-btn-en active" onclick="switchLanguage('en')">
+                        <span class="flag">🇺🇸</span> English
+                    </button>
+                    <button class="lang-btn-pt" onclick="switchLanguage('pt')">
+                        <span class="flag">🇧🇷</span> Português
+                    </button>
+                </div>
+            </header>
+
+            <div class="vows-container">
+                <div class="vow-section">
+                    <h2 class="name" id="groom-name-display">Groom's Vows</h2>
+                    <div class="vow-text" id="groom-vows-display">
+                        <p>My dearest [Bride's Name],</p>
+                        <p>Today, I stand before you to make these promises...</p>
+                        <p>[Your vows here - You can edit this section with your actual vows]</p>
+                        <p>I promise to love you unconditionally, to support your dreams, and to be your partner in all of life's adventures.</p>
+                        <p>I vow to laugh with you in times of joy and comfort you in times of sorrow.</p>
+                        <p>From this day forward, you will never walk alone. My heart is your shelter, and my arms are your home.</p>
+                    </div>
+                </div>
+
+                <div class="divider">❤️</div>
+
+                <div class="vow-section">
+                    <h2 class="name" id="bride-name-display">Bride's Vows</h2>
+                    <div class="vow-text" id="bride-vows-display">
+                        <p>My darling [Groom's Name],</p>
+                        <p>Today, I give you my hand, my heart, and my love...</p>
+                        <p>[Your fiancée's vows here - You can edit this section with the actual vows]</p>
+                        <p>I promise to be your constant companion, your biggest cheerleader, and your safe haven.</p>
+                        <p>I vow to cherish every moment we share and to build a life filled with love and laughter.</p>
+                        <p>Together, we will write our story, and I promise it will be beautiful.</p>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <p class="blessing">May our love grow stronger with each passing day</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

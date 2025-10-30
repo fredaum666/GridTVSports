@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing Guide - Wedding Vows Site</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .step {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .step h2 {
+            color: #d4a574;
+            margin-top: 0;
+        }
+        .step-number {
+            background: #d4a574;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        button {
+            background: #d4a574;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #b8935e;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .test-result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .link-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        .link-button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #d4a574;">Wedding Vows Website - Testing Guide</h1>
+
+    <div class="step">
+        <h2><span class="step-number">1</span>Open Admin Panel</h2>
+        <p>First, open the admin panel to create and format your vows:</p>
+        <a href="admin.html" target="_blank" class="link-button">Open Admin Panel</a>
+        <p><strong>What to do:</strong></p>
+        <ul>
+            <li>Click the "Edit Vows" tab</li>
+            <li>Enter names for bride and groom</li>
+            <li>Type some test vows in the rich text editors</li>
+            <li>Try the formatting buttons (Bold, Italic, colors, etc.)</li>
+            <li>Click "Save Vows" button</li>
+            <li>You should see a green success message</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h2><span class="step-number">2</span>Test Data Storage</h2>
+        <p>Check if your vows were saved properly:</p>
+        <button onclick="checkStorage()">Check Saved Vows</button>
+        <div id="storage-result"></div>
+    </div>
+
+    <div class="step">
+        <h2><span class="step-number">3</span>View Main Page (Locked)</h2>
+        <p>Open the main page to see the locked view:</p>
+        <a href="index.html" target="_blank" class="link-button">Open Main Page</a>
+        <p><strong>Expected:</strong> You should see a locked screen with a lock icon and message.</p>
+    </div>
+
+    <div class="step">
+        <h2><span class="step-number">4</span>Unlock the Vows</h2>
+        <p>Go back to the admin panel and unlock:</p>
+        <ol>
+            <li>Click "Unlock Control" tab</li>
+            <li>Enter password: <code>wedding2024</code></li>
+            <li>Click "Unlock Vows"</li>
+            <li>You should see a green "Unlocked" status</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h2><span class="step-number">5</span>View Formatted Vows</h2>
+        <p>Refresh or reopen the main page:</p>
+        <a href="index.html" target="_blank" class="link-button">Open Main Page Again</a>
+        <p><strong>Expected:</strong> You should now see your beautifully formatted vows with all the styling you applied!</p>
+        <p><em>Note: The page auto-refreshes every 5 seconds, or you can refresh manually.</em></p>
+    </div>
+
+    <div class="step">
+        <h2><span class="step-number">6</span>Quick Actions</h2>
+        <p>Useful buttons for testing:</p>
+        <button onclick="unlockVows()">Unlock Vows Now</button>
+        <button onclick="lockVows()">Lock Vows</button>
+        <button onclick="clearAll()">Clear All Data</button>
+        <div id="action-result"></div>
+    </div>
+
+    <div class="step">
+        <h2>Current Status</h2>
+        <div id="current-status"></div>
+        <button onclick="refreshStatus()">Refresh Status</button>
+    </div>
+
+    <script>
+        function checkStorage() {
+            const saved = localStorage.getItem('weddingVows');
+            const resultDiv = document.getElementById('storage-result');
+
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    resultDiv.innerHTML = `
+                        <div class="test-result" style="background: #e8f8f5;">
+                            <p class="success">✓ Vows found in storage!</p>
+                            <p><strong>Groom's name:</strong> ${data.groomName || 'Not set'}</p>
+                            <p><strong>Bride's name:</strong> ${data.brideName || 'Not set'}</p>
+                            <p><strong>Groom's vows length:</strong> ${data.groomVows ? data.groomVows.length + ' characters' : 'Empty'}</p>
+                            <p><strong>Bride's vows length:</strong> ${data.brideVows ? data.brideVows.length + ' characters' : 'Empty'}</p>
+                            <details>
+                                <summary>Show HTML Content</summary>
+                                <pre style="background: #f0f0f0; padding: 10px; overflow-x: auto;">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+                            </details>
+                        </div>
+                    `;
+                } catch (e) {
+                    resultDiv.innerHTML = `<div class="test-result" style="background: #ffe6e6;"><p class="error">✗ Error parsing saved data: ${e.message}</p></div>`;
+                }
+            } else {
+                resultDiv.innerHTML = `<div class="test-result" style="background: #ffe6e6;"><p class="error">✗ No vows found in storage. Please save vows in the admin panel first.</p></div>`;
+            }
+        }
+
+        function unlockVows() {
+            localStorage.setItem('vowsUnlocked', 'true');
+            showActionResult('Vows unlocked! Refresh the main page to see them.', 'success');
+            refreshStatus();
+        }
+
+        function lockVows() {
+            localStorage.removeItem('vowsUnlocked');
+            showActionResult('Vows locked. Main page will show locked view.', 'success');
+            refreshStatus();
+        }
+
+        function clearAll() {
+            if (confirm('This will delete all saved vows and unlock status. Are you sure?')) {
+                localStorage.removeItem('weddingVows');
+                localStorage.removeItem('vowsUnlocked');
+                showActionResult('All data cleared!', 'success');
+                refreshStatus();
+            }
+        }
+
+        function showActionResult(message, type) {
+            const resultDiv = document.getElementById('action-result');
+            resultDiv.innerHTML = `<div class="test-result" style="background: ${type === 'success' ? '#e8f8f5' : '#ffe6e6'};"><p class="${type}">${message}</p></div>`;
+            setTimeout(() => {
+                resultDiv.innerHTML = '';
+            }, 3000);
+        }
+
+        function refreshStatus() {
+            const statusDiv = document.getElementById('current-status');
+            const isUnlocked = localStorage.getItem('vowsUnlocked') === 'true';
+            const hasSaved = localStorage.getItem('weddingVows') !== null;
+
+            statusDiv.innerHTML = `
+                <div class="test-result" style="background: #f8f9fa;">
+                    <p><strong>Lock Status:</strong> <span class="${isUnlocked ? 'success' : 'error'}">${isUnlocked ? '🔓 UNLOCKED' : '🔒 LOCKED'}</span></p>
+                    <p><strong>Vows Saved:</strong> <span class="${hasSaved ? 'success' : 'error'}">${hasSaved ? '✓ YES' : '✗ NO'}</span></p>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Auto-refresh status on load
+        refreshStatus();
+
+        // Auto-refresh status every 3 seconds
+        setInterval(refreshStatus, 3000);
+    </script>
+</body>
+</html>
