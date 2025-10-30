@@ -3,9 +3,19 @@ const axios = require('axios');
 const cron = require('node-cron');
 const cors = require('cors');
 const path = require('path');
+const { Pool } = require('pg');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// PostgreSQL connection pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('sslmode=require') ? {
+    rejectUnauthorized: false
+  } : false
+});
 
 app.use(cors());
 app.use(express.json());
@@ -784,56 +794,136 @@ app.delete('/api/final-games/clear/:sport', (req, res) => {
 // VOWS API ENDPOINTS
 // ============================================
 
-// In-memory storage for vows system
-let vowsData = {
-  is_unlocked: false,
-  vows: []
-};
-
-// Get unlock status
-app.get('/api/unlock-status', (req, res) => {
-  res.json({ is_unlocked: vowsData.is_unlocked });
+// Get unlock status from database
+app.get('/api/unlock-status', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT is_unlocked FROM unlock_status WHERE id = 1');
+    const isUnlocked = result.rows[0]?.is_unlocked || false;
+    res.json({ is_unlocked: isUnlocked });
+  } catch (error) {
+    console.error('Error getting unlock status:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // Unlock vows (admin only)
-app.post('/api/unlock', (req, res) => {
-  const { password } = req.body;
-  
-  // You should change this password to match your admin.html password
-  const ADMIN_PASSWORD = 'wedding2024';
-  
-  if (password === ADMIN_PASSWORD) {
-    vowsData.is_unlocked = true;
-    res.json({ success: true, message: 'Vows unlocked successfully!' });
-  } else {
-    res.status(401).json({ success: false, message: 'Invalid password' });
+app.post('/api/unlock', async (req, res) => {
+  try {
+    const { password } = req.body;
+    const ADMIN_PASSWORD = 'wedding2024';
+    
+    if (password === ADMIN_PASSWORD) {
+      await pool.query(
+        'UPDATE unlock_status SET is_unlocked = true, unlocked_at = NOW(), last_updated = NOW() WHERE id = 1'
+      );
+      res.json({ success: true, message: 'Vows unlocked successfully!' });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid password' });
+    }
+  } catch (error) {
+    console.error('Error unlocking vows:', error);
+    res.status(500).json({ success: false, message: 'Database error' });
   }
 });
 
 // Lock vows (admin only)
-app.post('/api/lock', (req, res) => {
-  const { password } = req.body;
-  
-  const ADMIN_PASSWORD = 'wedding2024';
-  
-  if (password === ADMIN_PASSWORD) {
-    vowsData.is_unlocked = false;
-    res.json({ success: true, message: 'Vows locked successfully!' });
-  } else {
-    res.status(401).json({ success: false, message: 'Invalid password' });
+app.post('/api/lock', async (req, res) => {
+  try {
+    const { password } = req.body;
+    const ADMIN_PASSWORD = 'wedding2024';
+    
+    if (password === ADMIN_PASSWORD) {
+      await pool.query(
+        'UPDATE unlock_status SET is_unlocked = false, locked_at = NOW(), last_updated = NOW() WHERE id = 1'
+      );
+      res.json({ success: true, message: 'Vows locked successfully!' });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid password' });
+    }
+  } catch (error) {
+    console.error('Error locking vows:', error);
+    res.status(500).json({ success: false, message: 'Database error' });
   }
 });
 
-// Get all vows
-app.get('/api/vows', (req, res) => {
-  res.json(vowsData.vows);
+// Get all vows from database
+app.get('/api/vows', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM vows WHERE is_active = true ORDER BY person_type'
+    );
+    
+    const wedding_vows = {
+      groom: null,
+      bride: null
+    };
+    
+    result.rows.forEach(row => {
+      if (row.person_type === 'groom') {
+        wedding_vows.groom = {
+          person_name_en: row.person_name_en,
+          person_name_pt: row.person_name_pt,
+          vow_text_en: row.vow_text_en,
+          vow_text_pt: row.vow_text_pt
+        };
+      } else if (row.person_type === 'bride') {
+        wedding_vows.bride = {
+          person_name_en: row.person_name_en,
+          person_name_pt: row.person_name_pt,
+          vow_text_en: row.vow_text_en,
+          vow_text_pt: row.vow_text_pt
+        };
+      }
+    });
+    
+    res.json({
+      wedding_vows: (wedding_vows.groom || wedding_vows.bride) ? wedding_vows : null,
+      public_vows: []
+    });
+  } catch (error) {
+    console.error('Error getting vows:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // Add new vow
-app.post('/api/vows', (req, res) => {
+app.post('/api/vows', async (req, res) => {
   try {
-    const { name, vow } = req.body;
+    const { name, vow, password, groomNameEn, groomNamePt, groomVowsEn, groomVowsPt, 
+            brideNameEn, brideNamePt, brideVowsEn, brideVowsPt } = req.body;
     
+    // Check if this is an admin save (with all wedding vows data)
+    if (password && groomNameEn && brideNameEn) {
+      const ADMIN_PASSWORD = 'wedding2024';
+      
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Invalid password' });
+      }
+      
+      // Validate all required fields
+      if (!groomNameEn || !groomNamePt || !groomVowsEn || !groomVowsPt ||
+          !brideNameEn || !brideNamePt || !brideVowsEn || !brideVowsPt) {
+        return res.status(400).json({ success: false, error: 'All fields are required for both languages' });
+      }
+      
+      // Save groom vows to database (delete old and insert new)
+      await pool.query('DELETE FROM vows WHERE person_type = $1', ['groom']);
+      await pool.query(`
+        INSERT INTO vows (person_type, person_name_en, person_name_pt, vow_text_en, vow_text_pt, is_active, last_updated)
+        VALUES ('groom', $1, $2, $3, $4, true, NOW())
+      `, [groomNameEn, groomNamePt, groomVowsEn, groomVowsPt]);
+      
+      // Save bride vows to database (delete old and insert new)
+      await pool.query('DELETE FROM vows WHERE person_type = $1', ['bride']);
+      await pool.query(`
+        INSERT INTO vows (person_type, person_name_en, person_name_pt, vow_text_en, vow_text_pt, is_active, last_updated)
+        VALUES ('bride', $1, $2, $3, $4, true, NOW())
+      `, [brideNameEn, brideNamePt, brideVowsEn, brideVowsPt]);
+      
+      return res.json({ success: true, message: 'Wedding vows saved successfully!' });
+    }
+    
+    // Otherwise, it's a simple public vow submission
     if (!name || !vow) {
       return res.status(400).json({ success: false, message: 'Name and vow are required' });
     }
