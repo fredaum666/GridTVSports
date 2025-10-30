@@ -781,6 +781,96 @@ app.delete('/api/final-games/clear/:sport', (req, res) => {
 });
 
 // ============================================
+// VOWS API ENDPOINTS
+// ============================================
+
+// In-memory storage for vows system
+let vowsData = {
+  is_unlocked: false,
+  vows: []
+};
+
+// Get unlock status
+app.get('/api/unlock-status', (req, res) => {
+  res.json({ is_unlocked: vowsData.is_unlocked });
+});
+
+// Unlock vows (admin only)
+app.post('/api/unlock', (req, res) => {
+  const { password } = req.body;
+  
+  // You should change this password to match your admin.html password
+  const ADMIN_PASSWORD = 'wedding2024';
+  
+  if (password === ADMIN_PASSWORD) {
+    vowsData.is_unlocked = true;
+    res.json({ success: true, message: 'Vows unlocked successfully!' });
+  } else {
+    res.status(401).json({ success: false, message: 'Invalid password' });
+  }
+});
+
+// Lock vows (admin only)
+app.post('/api/lock', (req, res) => {
+  const { password } = req.body;
+  
+  const ADMIN_PASSWORD = 'wedding2024';
+  
+  if (password === ADMIN_PASSWORD) {
+    vowsData.is_unlocked = false;
+    res.json({ success: true, message: 'Vows locked successfully!' });
+  } else {
+    res.status(401).json({ success: false, message: 'Invalid password' });
+  }
+});
+
+// Get all vows
+app.get('/api/vows', (req, res) => {
+  res.json(vowsData.vows);
+});
+
+// Add new vow
+app.post('/api/vows', (req, res) => {
+  try {
+    const { name, vow } = req.body;
+    
+    if (!name || !vow) {
+      return res.status(400).json({ success: false, message: 'Name and vow are required' });
+    }
+    
+    const newVow = {
+      id: Date.now(),
+      name: name.trim(),
+      vow: vow.trim(),
+      timestamp: new Date().toISOString()
+    };
+    
+    vowsData.vows.push(newVow);
+    res.json({ success: true, message: 'Vow saved successfully!', vow: newVow });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error saving vow' });
+  }
+});
+
+// Delete vow (admin only)
+app.delete('/api/vows/:id', (req, res) => {
+  try {
+    const vowId = parseInt(req.params.id);
+    const initialLength = vowsData.vows.length;
+    
+    vowsData.vows = vowsData.vows.filter(vow => vow.id !== vowId);
+    
+    if (vowsData.vows.length < initialLength) {
+      res.json({ success: true, message: 'Vow deleted successfully!' });
+    } else {
+      res.status(404).json({ success: false, message: 'Vow not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error deleting vow' });
+  }
+});
+
+// ============================================
 // START SERVER
 // ============================================
 
