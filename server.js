@@ -3,16 +3,116 @@ const axios = require('axios');
 const cron = require('node-cron');
 const cors = require('cors');
 const path = require('path');
+const { pool } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Global error handlers
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// Auto-initialize vows database tables on startup
+async function initializeVowsDatabase() {
+  if (!pool) {
+    console.warn('⚠️  Skipping vows database initialization - DATABASE_URL not configured');
+    return;
+  }
+  
+  try {
+    // Create vows table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS vows (
+        id SERIAL PRIMARY KEY,
+        person_type VARCHAR(20) NOT NULL CHECK (person_type IN ('groom', 'bride')),
+        person_name_en VARCHAR(100),
+        person_name_pt VARCHAR(100),
+        vow_text_en TEXT NOT NULL,
+        vow_text_pt TEXT NOT NULL,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        last_updated TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Create indexes
+    await pool.query('CREATE INDEX IF NOT EXISTS idx_vows_person_type ON vows(person_type)');
+    await pool.query('CREATE INDEX IF NOT EXISTS idx_vows_active ON vows(is_active)');
+    
+    // Create unlock_status table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS unlock_status (
+        id SERIAL PRIMARY KEY,
+        is_unlocked BOOLEAN DEFAULT false,
+        unlocked_at TIMESTAMP,
+        locked_at TIMESTAMP,
+        last_updated TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Insert default unlock status if not exists
+    const checkStatus = await pool.query('SELECT COUNT(*) FROM unlock_status WHERE id = 1');
+    if (checkStatus.rows[0].count === '0') {
+      await pool.query(`
+        INSERT INTO unlock_status (id, is_unlocked)
+        VALUES (1, false)
+      `);
+    }
+    
+    // Create admin_settings table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin_settings (
+        setting_key VARCHAR(50) PRIMARY KEY,
+        setting_value TEXT,
+        last_updated TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Insert default admin password if not exists
+    await pool.query(`
+      INSERT INTO admin_settings (setting_key, setting_value)
+      VALUES ('admin_password', 'wedding2024')
+      ON CONFLICT (setting_key) DO NOTHING
+    `);
+    
+    console.log('✅ Vows database tables initialized');
+  } catch (error) {
+    console.error('⚠️  Error initializing vows database:', error.message);
+  }
+}
+
+// Initialize vows database
+initializeVowsDatabase();
+
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ charset: 'utf-8' }));
+app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
+
+// Set UTF-8 for all responses
+app.use((_req, res, next) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve VowsSite files under /vows route
-app.use('/vows', express.static(path.join(__dirname, 'VowsSite')));
+// Serve VowsSite files under /vows route with UTF-8 encoding
+app.use('/vows', express.static(path.join(__dirname, 'VowsSite'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    }
+  }
+}));
 
 // ============================================
 // SMART CACHING SYSTEM (In-Memory)
@@ -777,6 +877,200 @@ app.delete('/api/final-games/clear/:sport', (req, res) => {
   } catch (error) {
     console.error('Error clearing final games:', error);
     res.status(500).json({ error: 'Failed to clear final games' });
+  }
+});
+
+// ============================================
+// VOWS API ENDPOINTS
+// ============================================
+
+// Get unlock status from database
+app.get('/api/unlock-status', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ error: 'Database not configured', message: 'DATABASE_URL environment variable is not set' });
+  }
+  
+  try {
+    const result = await pool.query('SELECT is_unlocked FROM unlock_status WHERE id = 1');
+    const isUnlocked = result.rows[0]?.is_unlocked || false;
+    res.json({ is_unlocked: isUnlocked });
+  } catch (error) {
+    console.error('Error getting unlock status:', error);
+    res.status(500).json({ error: 'Database error', message: error.message, hint: 'Make sure database tables are initialized' });
+  }
+});
+
+// Unlock vows (admin only)
+app.post('/api/unlock', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ success: false, message: 'Database not configured' });
+  }
+  
+  try {
+    const { password } = req.body;
+    const ADMIN_PASSWORD = 'wedding2024';
+    
+    if (password === ADMIN_PASSWORD) {
+      await pool.query(
+        'UPDATE unlock_status SET is_unlocked = true, unlocked_at = NOW(), last_updated = NOW() WHERE id = 1'
+      );
+      res.json({ success: true, message: 'Vows unlocked successfully!' });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid password' });
+    }
+  } catch (error) {
+    console.error('Error unlocking vows:', error);
+    res.status(500).json({ success: false, message: 'Database error' });
+  }
+});
+
+// Lock vows (admin only)
+app.post('/api/lock', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ success: false, message: 'Database not configured' });
+  }
+  
+  try {
+    const { password } = req.body;
+    const ADMIN_PASSWORD = 'wedding2024';
+    
+    if (password === ADMIN_PASSWORD) {
+      await pool.query(
+        'UPDATE unlock_status SET is_unlocked = false, locked_at = NOW(), last_updated = NOW() WHERE id = 1'
+      );
+      res.json({ success: true, message: 'Vows locked successfully!' });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid password' });
+    }
+  } catch (error) {
+    console.error('Error locking vows:', error);
+    res.status(500).json({ success: false, message: 'Database error' });
+  }
+});
+
+// Get all vows from database
+app.get('/api/vows', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ error: 'Database not configured', wedding_vows: null, public_vows: [] });
+  }
+
+  try {
+    // Set encoding to UTF-8 for PostgreSQL connection
+    await pool.query("SET CLIENT_ENCODING TO 'UTF8'");
+
+    const result = await pool.query(
+      'SELECT * FROM vows WHERE is_active = true ORDER BY person_type'
+    );
+
+    const wedding_vows = {
+      groom: null,
+      bride: null
+    };
+
+    result.rows.forEach(row => {
+      if (row.person_type === 'groom') {
+        wedding_vows.groom = {
+          person_name_en: row.person_name_en,
+          person_name_pt: row.person_name_pt,
+          vow_text_en: row.vow_text_en,
+          vow_text_pt: row.vow_text_pt
+        };
+      } else if (row.person_type === 'bride') {
+        wedding_vows.bride = {
+          person_name_en: row.person_name_en,
+          person_name_pt: row.person_name_pt,
+          vow_text_en: row.vow_text_en,
+          vow_text_pt: row.vow_text_pt
+        };
+      }
+    });
+
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.json({
+      wedding_vows: (wedding_vows.groom || wedding_vows.bride) ? wedding_vows : null,
+      public_vows: []
+    });
+  } catch (error) {
+    console.error('Error getting vows:', error);
+    res.status(500).json({ error: 'Database error', message: error.message, hint: 'Make sure vows table exists' });
+  }
+});
+
+// Add new vow
+app.post('/api/vows', async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({ success: false, error: 'Database not configured' });
+  }
+  
+  try {
+    const { name, vow, password, groomNameEn, groomNamePt, groomVowsEn, groomVowsPt, 
+            brideNameEn, brideNamePt, brideVowsEn, brideVowsPt } = req.body;
+    
+    // Check if this is an admin save (with all wedding vows data)
+    if (password && groomNameEn && brideNameEn) {
+      const ADMIN_PASSWORD = 'wedding2024';
+      
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Invalid password' });
+      }
+      
+      // Validate all required fields
+      if (!groomNameEn || !groomNamePt || !groomVowsEn || !groomVowsPt ||
+          !brideNameEn || !brideNamePt || !brideVowsEn || !brideVowsPt) {
+        return res.status(400).json({ success: false, error: 'All fields are required for both languages' });
+      }
+      
+      // Save groom vows to database (delete old and insert new)
+      await pool.query('DELETE FROM vows WHERE person_type = $1', ['groom']);
+      await pool.query(`
+        INSERT INTO vows (person_type, person_name_en, person_name_pt, vow_text_en, vow_text_pt, is_active, last_updated)
+        VALUES ('groom', $1, $2, $3, $4, true, NOW())
+      `, [groomNameEn, groomNamePt, groomVowsEn, groomVowsPt]);
+      
+      // Save bride vows to database (delete old and insert new)
+      await pool.query('DELETE FROM vows WHERE person_type = $1', ['bride']);
+      await pool.query(`
+        INSERT INTO vows (person_type, person_name_en, person_name_pt, vow_text_en, vow_text_pt, is_active, last_updated)
+        VALUES ('bride', $1, $2, $3, $4, true, NOW())
+      `, [brideNameEn, brideNamePt, brideVowsEn, brideVowsPt]);
+      
+      return res.json({ success: true, message: 'Wedding vows saved successfully!' });
+    }
+    
+    // Otherwise, it's a simple public vow submission
+    if (!name || !vow) {
+      return res.status(400).json({ success: false, message: 'Name and vow are required' });
+    }
+    
+    const newVow = {
+      id: Date.now(),
+      name: name.trim(),
+      vow: vow.trim(),
+      timestamp: new Date().toISOString()
+    };
+    
+    vowsData.vows.push(newVow);
+    res.json({ success: true, message: 'Vow saved successfully!', vow: newVow });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error saving vow' });
+  }
+});
+
+// Delete vow (admin only)
+app.delete('/api/vows/:id', (req, res) => {
+  try {
+    const vowId = parseInt(req.params.id);
+    const initialLength = vowsData.vows.length;
+    
+    vowsData.vows = vowsData.vows.filter(vow => vow.id !== vowId);
+    
+    if (vowsData.vows.length < initialLength) {
+      res.json({ success: true, message: 'Vow deleted successfully!' });
+    } else {
+      res.status(404).json({ success: false, message: 'Vow not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error deleting vow' });
   }
 });
 

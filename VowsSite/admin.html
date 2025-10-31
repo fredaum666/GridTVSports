@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Unlock Vows</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>">
     <link rel="stylesheet" href="styles.css">
     <style>
         .admin-container {
@@ -549,9 +550,10 @@
             <div class="info">
                 <strong>Instructions:</strong><br>
                 - Default password: <code>wedding2024</code><br>
-                - Change password in script.js<br>
+                - Password required only for unlocking vows<br>
                 - Unlock when ceremony begins<br>
-                - Guests will see vows immediately
+                - Guests will see vows immediately<br>
+                - Locking and saving vows do not require a password
             </div>
         </div>
 
@@ -603,6 +605,7 @@
                             <button type="button" onclick="formatText('groom-vows-editor-en', 'justifyLeft')" title="Align Left">⬅</button>
                             <button type="button" onclick="formatText('groom-vows-editor-en', 'justifyCenter')" title="Align Center">↔</button>
                             <button type="button" onclick="formatText('groom-vows-editor-en', 'justifyRight')" title="Align Right">➡</button>
+                            <button type="button" onclick="formatText('groom-vows-editor-en', 'justifyFull')" title="Justify">≡</button>
                         </div>
                         <div id="groom-vows-editor-en" class="rich-editor" contenteditable="true" data-placeholder="Start writing the groom's vows in English..."></div>
                     </div>
@@ -626,6 +629,7 @@
                             <button type="button" onclick="formatText('groom-vows-editor-pt', 'justifyLeft')" title="Alinhar à esquerda">⬅</button>
                             <button type="button" onclick="formatText('groom-vows-editor-pt', 'justifyCenter')" title="Centralizar">↔</button>
                             <button type="button" onclick="formatText('groom-vows-editor-pt', 'justifyRight')" title="Alinhar à direita">➡</button>
+                            <button type="button" onclick="formatText('groom-vows-editor-pt', 'justifyFull')" title="Justificar">≡</button>
                         </div>
                         <div id="groom-vows-editor-pt" class="rich-editor" contenteditable="true" data-placeholder="Comece a escrever os votos do noivo em português..."></div>
                     </div>
@@ -670,6 +674,7 @@
                             <button type="button" onclick="formatText('bride-vows-editor-en', 'justifyLeft')" title="Align Left">⬅</button>
                             <button type="button" onclick="formatText('bride-vows-editor-en', 'justifyCenter')" title="Align Center">↔</button>
                             <button type="button" onclick="formatText('bride-vows-editor-en', 'justifyRight')" title="Align Right">➡</button>
+                            <button type="button" onclick="formatText('bride-vows-editor-en', 'justifyFull')" title="Justify">≡</button>
                         </div>
                         <div id="bride-vows-editor-en" class="rich-editor" contenteditable="true" data-placeholder="Start writing the bride's vows in English..."></div>
                     </div>
@@ -693,6 +698,7 @@
                             <button type="button" onclick="formatText('bride-vows-editor-pt', 'justifyLeft')" title="Alinhar à esquerda">⬅</button>
                             <button type="button" onclick="formatText('bride-vows-editor-pt', 'justifyCenter')" title="Centralizar">↔</button>
                             <button type="button" onclick="formatText('bride-vows-editor-pt', 'justifyRight')" title="Alinhar à direita">➡</button>
+                            <button type="button" onclick="formatText('bride-vows-editor-pt', 'justifyFull')" title="Justificar">≡</button>
                         </div>
                         <div id="bride-vows-editor-pt" class="rich-editor" contenteditable="true" data-placeholder="Comece a escrever os votos da noiva em português..."></div>
                     </div>
@@ -702,7 +708,7 @@
                 <div id="save-message"></div>
 
                 <div class="info" style="margin-top: 20px;">
-                    <strong>Note:</strong> Your vows are saved in your browser's storage. Make sure to save your changes before the ceremony!
+                    <strong>Note:</strong> Your vows are saved to the database. No password required for saving or editing vows.
                 </div>
             </div>
         </div>
@@ -710,7 +716,7 @@
 
     <script>
         // API Configuration (must be defined first)
-        const API_URL = 'http://localhost:3001/api';
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001/api' : '/api';
 
         // CHANGE THIS PASSWORD to your own secure password
         const ADMIN_PASSWORD = 'wedding2024';
@@ -737,6 +743,11 @@
                 }
             } catch (error) {
                 console.error('Error checking status:', error);
+                // Fallback for when API is not available
+                const statusDisplay = document.getElementById('status-display');
+                statusDisplay.className = 'status locked';
+                statusDisplay.textContent = '⚠️ API not available - Server may need updating';
+                document.getElementById('login-form').style.display = 'block';
             }
         }
 
@@ -788,16 +799,13 @@
                 return;
             }
 
-            const password = prompt('Enter admin password to lock vows:');
-            if (!password) return;
-
             try {
                 const response = await fetch(`${API_URL}/lock`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ password }),
+                    body: JSON.stringify({}),
                 });
 
                 const data = await response.json();
@@ -896,9 +904,6 @@
 
         // Save vows to database via API
         async function saveVows() {
-            const password = prompt('Enter admin password to save vows:');
-            if (!password) return;
-
             // Get all field values
             const groomNameEn = document.getElementById('groom-name-en').value.trim();
             const groomNamePt = document.getElementById('groom-name-pt').value.trim();
@@ -924,7 +929,6 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        password,
                         groomNameEn,
                         groomNamePt,
                         groomVowsEn,
@@ -961,23 +965,28 @@
 
                 const data = await response.json();
 
-                // Load groom data
-                if (data.groom) {
-                    document.getElementById('groom-name-en').value = data.groom.person_name_en || '';
-                    document.getElementById('groom-name-pt').value = data.groom.person_name_pt || '';
-                    document.getElementById('groom-vows-editor-en').innerHTML = data.groom.vow_text_en || '';
-                    document.getElementById('groom-vows-editor-pt').innerHTML = data.groom.vow_text_pt || '';
+                // Load groom data from wedding_vows
+                if (data.wedding_vows && data.wedding_vows.groom) {
+                    document.getElementById('groom-name-en').value = data.wedding_vows.groom.person_name_en || '';
+                    document.getElementById('groom-name-pt').value = data.wedding_vows.groom.person_name_pt || '';
+                    document.getElementById('groom-vows-editor-en').innerHTML = data.wedding_vows.groom.vow_text_en || '';
+                    document.getElementById('groom-vows-editor-pt').innerHTML = data.wedding_vows.groom.vow_text_pt || '';
                 }
 
-                // Load bride data
-                if (data.bride) {
-                    document.getElementById('bride-name-en').value = data.bride.person_name_en || '';
-                    document.getElementById('bride-name-pt').value = data.bride.person_name_pt || '';
-                    document.getElementById('bride-vows-editor-en').innerHTML = data.bride.vow_text_en || '';
-                    document.getElementById('bride-vows-editor-pt').innerHTML = data.bride.vow_text_pt || '';
+                // Load bride data from wedding_vows
+                if (data.wedding_vows && data.wedding_vows.bride) {
+                    document.getElementById('bride-name-en').value = data.wedding_vows.bride.person_name_en || '';
+                    document.getElementById('bride-name-pt').value = data.wedding_vows.bride.person_name_pt || '';
+                    document.getElementById('bride-vows-editor-en').innerHTML = data.wedding_vows.bride.vow_text_en || '';
+                    document.getElementById('bride-vows-editor-pt').innerHTML = data.wedding_vows.bride.vow_text_pt || '';
                 }
             } catch (error) {
                 console.error('Error loading vows:', error);
+                // Fallback when API is not available
+                const vowsList = document.getElementById('saved-vows-list');
+                if (vowsList) {
+                    vowsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;"><h3>⚠️ Vows API Not Available</h3><p>The server needs to be updated with the new vows API endpoints.</p><p>Contact the administrator to deploy the updated server code.</p></div>';
+                }
             }
         }
 
