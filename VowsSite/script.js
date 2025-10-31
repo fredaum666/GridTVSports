@@ -1,7 +1,7 @@
 // Wedding Vows Access Control Script - Bilingual Version with API
 
 // API Configuration
-const API_URL = 'https://gridtvsports.com/api';
+const API_URL = 'http://localhost:3001/api';
 
 // Current language (default: English)
 let currentLanguage = localStorage.getItem('vowsLanguage') || 'en';
@@ -30,14 +30,14 @@ async function loadVowsContent() {
 
 // Display vows based on selected language
 function displayVows() {
-    if (!vowsData || !vowsData.wedding_vows) return;
+    if (!vowsData) return;
 
     const lang = currentLanguage;
 
     // Update groom's section
-    if (vowsData.wedding_vows.groom) {
-        const groomName = lang === 'en' ? vowsData.wedding_vows.groom.person_name_en : vowsData.wedding_vows.groom.person_name_pt;
-        const groomVows = lang === 'en' ? vowsData.wedding_vows.groom.vow_text_en : vowsData.wedding_vows.groom.vow_text_pt;
+    if (vowsData.groom) {
+        const groomName = lang === 'en' ? vowsData.groom.person_name_en : vowsData.groom.person_name_pt;
+        const groomVows = lang === 'en' ? vowsData.groom.vow_text_en : vowsData.groom.vow_text_pt;
 
         if (groomName) {
             document.getElementById('groom-name-display').textContent = groomName + "'s Vows";
@@ -48,9 +48,9 @@ function displayVows() {
     }
 
     // Update bride's section
-    if (vowsData.wedding_vows.bride) {
-        const brideName = lang === 'en' ? vowsData.wedding_vows.bride.person_name_en : vowsData.wedding_vows.bride.person_name_pt;
-        const brideVows = lang === 'en' ? vowsData.wedding_vows.bride.vow_text_en : vowsData.wedding_vows.bride.vow_text_pt;
+    if (vowsData.bride) {
+        const brideName = lang === 'en' ? vowsData.bride.person_name_en : vowsData.bride.person_name_pt;
+        const brideVows = lang === 'en' ? vowsData.bride.vow_text_en : vowsData.bride.vow_text_pt;
 
         if (brideName) {
             document.getElementById('bride-name-display').textContent = brideName + "'s Vows";
