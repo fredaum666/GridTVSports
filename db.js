@@ -15,19 +15,12 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL.includes('sslmode=require') ? {
     rejectUnauthorized: false
-  } : false,
-  // Ensure UTF-8 encoding for all connections
-  client_encoding: 'UTF8'
+  } : false
 });
 
-// Test connection and set encoding
-pool.on('connect', async (client) => {
+// Test connection
+pool.on('connect', () => {
   console.log('✅ Database connected successfully');
-  try {
-    await client.query("SET CLIENT_ENCODING TO 'UTF8'");
-  } catch (err) {
-    console.error('⚠️  Error setting client encoding:', err);
-  }
 });
 
 pool.on('error', (err) => {
