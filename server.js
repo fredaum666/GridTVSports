@@ -924,24 +924,17 @@ app.post('/api/unlock', async (req, res) => {
   }
 });
 
-// Lock vows (admin only)
+// Lock vows (no password required)
 app.post('/api/lock', async (req, res) => {
   if (!pool) {
     return res.status(503).json({ success: false, message: 'Database not configured' });
   }
   
   try {
-    const { password } = req.body;
-    const ADMIN_PASSWORD = '2025';
-    
-    if (password === ADMIN_PASSWORD) {
-      await pool.query(
-        'UPDATE unlock_status SET is_unlocked = false, locked_at = NOW(), last_updated = NOW() WHERE id = 1'
-      );
-      res.json({ success: true, message: 'Vows locked successfully!' });
-    } else {
-      res.status(401).json({ success: false, message: 'Invalid password' });
-    }
+    await pool.query(
+      'UPDATE unlock_status SET is_unlocked = false, locked_at = NOW(), last_updated = NOW() WHERE id = 1'
+    );
+    res.json({ success: true, message: 'Vows locked successfully!' });
   } catch (error) {
     console.error('Error locking vows:', error);
     res.status(500).json({ success: false, message: 'Database error' });
