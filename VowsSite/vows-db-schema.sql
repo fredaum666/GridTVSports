@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS admin_settings (
 
 -- Insert default admin password
 INSERT INTO admin_settings (setting_key, setting_value)
-VALUES ('admin_password', 'wedding2024')
+VALUES ('admin_password', '2025')
 ON CONFLICT (setting_key) DO NOTHING;
 
 COMMENT ON TABLE vows IS 'Stores wedding vows in English and Portuguese';

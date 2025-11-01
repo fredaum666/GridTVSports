@@ -6,6 +6,12 @@ const API_URL = 'https://gridtvsports.com/api';
 // Current language (default: English)
 let currentLanguage = localStorage.getItem('vowsLanguage') || 'en';
 
+// Font size control
+let currentFontSize = parseInt(localStorage.getItem('vowsFontSize')) || 100; // Default 100%
+const MIN_FONT_SIZE = 80;
+const MAX_FONT_SIZE = 150;
+const FONT_SIZE_STEP = 10;
+
 // Vows data cache
 let vowsData = null;
 
@@ -121,4 +127,45 @@ function autoRefresh() {
 document.addEventListener('DOMContentLoaded', function() {
     checkVowsAccess();
     autoRefresh();
+    applyFontSize(); // Apply saved font size on load
 });
+
+// Font size control functions
+function increaseFontSize() {
+    console.log('Increase font size clicked, current:', currentFontSize);
+    if (currentFontSize < MAX_FONT_SIZE) {
+        currentFontSize += FONT_SIZE_STEP;
+        applyFontSize();
+        saveFontSize();
+        console.log('New font size:', currentFontSize);
+    } else {
+        console.log('Max font size reached');
+    }
+}
+
+function decreaseFontSize() {
+    console.log('Decrease font size clicked, current:', currentFontSize);
+    if (currentFontSize > MIN_FONT_SIZE) {
+        currentFontSize -= FONT_SIZE_STEP;
+        applyFontSize();
+        saveFontSize();
+        console.log('New font size:', currentFontSize);
+    } else {
+        console.log('Min font size reached');
+    }
+}
+
+function applyFontSize() {
+    const root = document.documentElement;
+    
+    console.log('Applying font size:', currentFontSize + '%');
+    
+    // Set CSS custom property on root element
+    root.style.setProperty('--font-size-multiplier', currentFontSize / 100);
+    
+    console.log('Font size multiplier set to:', currentFontSize / 100);
+}
+
+function saveFontSize() {
+    localStorage.setItem('vowsFontSize', currentFontSize.toString());
+}
