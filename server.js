@@ -76,7 +76,7 @@ async function initializeVowsDatabase() {
     // Insert default admin password if not exists
     await pool.query(`
       INSERT INTO admin_settings (setting_key, setting_value)
-      VALUES ('admin_password', 'wedding2024')
+      VALUES ('admin_password', '2025')
       ON CONFLICT (setting_key) DO NOTHING
     `);
     
@@ -908,7 +908,7 @@ app.post('/api/unlock', async (req, res) => {
   
   try {
     const { password } = req.body;
-    const ADMIN_PASSWORD = 'wedding2024';
+    const ADMIN_PASSWORD = '2025';
     
     if (password === ADMIN_PASSWORD) {
       await pool.query(
@@ -932,7 +932,7 @@ app.post('/api/lock', async (req, res) => {
   
   try {
     const { password } = req.body;
-    const ADMIN_PASSWORD = 'wedding2024';
+    const ADMIN_PASSWORD = '2025';
     
     if (password === ADMIN_PASSWORD) {
       await pool.query(
@@ -1008,7 +1008,7 @@ app.post('/api/vows', async (req, res) => {
     
     // Check if this is an admin save (with all wedding vows data)
     if (password && groomNameEn && brideNameEn) {
-      const ADMIN_PASSWORD = 'wedding2024';
+      const ADMIN_PASSWORD = '2025';
       
       if (password !== ADMIN_PASSWORD) {
         return res.status(401).json({ success: false, error: 'Invalid password' });

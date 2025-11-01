@@ -4,6 +4,14 @@
     box-sizing: border-box;
 }
 
+:root {
+    --font-size-multiplier: 1;
+}
+
+html {
+    overflow-x: hidden; /* Prevent horizontal scrolling on root element */
+}
+
 body {
     font-family: 'Georgia', 'Garamond', serif;
     background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
@@ -12,11 +20,14 @@ body {
     align-items: center;
     justify-content: center;
     padding: 20px;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    font-size: calc(16px * var(--font-size-multiplier));
 }
 
 .container {
     width: 100%;
     max-width: 800px;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .view {
@@ -25,6 +36,9 @@ body {
     padding: 40px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.6s ease-in;
+    overflow-wrap: break-word; /* Break long words */
+    word-wrap: break-word; /* Legacy support */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .hidden {
@@ -49,7 +63,7 @@ body {
 }
 
 .lock-icon {
-    font-size: 64px;
+    font-size: calc(64px * var(--font-size-multiplier));
     margin-bottom: 20px;
     animation: pulse 2s infinite;
 }
@@ -64,20 +78,20 @@ body {
 }
 
 #locked-view h1 {
-    font-size: 36px;
+    font-size: calc(36px * var(--font-size-multiplier));
     color: #333;
     margin-bottom: 15px;
     font-weight: 400;
 }
 
 .message {
-    font-size: 20px;
+    font-size: calc(20px * var(--font-size-multiplier));
     color: #666;
     margin-bottom: 10px;
 }
 
 .subtitle {
-    font-size: 16px;
+    font-size: calc(16px * var(--font-size-multiplier));
     color: #999;
     font-style: italic;
 }
@@ -91,7 +105,7 @@ header {
 }
 
 header h1 {
-    font-size: 42px;
+    font-size: calc(42px * var(--font-size-multiplier));
     color: #2c3e50;
     margin-bottom: 10px;
     font-weight: 400;
@@ -99,10 +113,61 @@ header h1 {
 }
 
 .date {
-    font-size: 18px;
+    font-size: calc(18px * var(--font-size-multiplier));
     color: #95a5a6;
     font-style: italic;
     margin-bottom: 20px;
+}
+
+/* Font Size Controls */
+.font-size-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+.font-btn {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: 2px solid #d4a574;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: 600;
+    color: #d4a574;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+}
+
+.font-icon {
+    display: block;
+    margin-top: -2px;
+}
+
+.font-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+    background: #fef9f5;
+}
+
+.font-btn:active {
+    transform: scale(0.95);
+}
+
+.font-size-label {
+    font-size: 14px;
+    color: #95a5a6;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* Language Switcher */
@@ -158,7 +223,7 @@ header h1 {
 }
 
 .name {
-    font-size: 28px;
+    font-size: calc(28px * var(--font-size-multiplier));
     color: #d4a574;
     margin-bottom: 20px;
     text-align: center;
@@ -168,13 +233,18 @@ header h1 {
 
 .vow-text {
     line-height: 1.8;
-    font-size: 18px;
+    font-size: calc(18px * var(--font-size-multiplier));
     color: #444;
     text-align: left;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 .vow-text p {
     margin-bottom: 15px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .divider {
@@ -192,7 +262,7 @@ footer {
 }
 
 .blessing {
-    font-size: 16px;
+    font-size: calc(16px * var(--font-size-multiplier));
     color: #95a5a6;
     font-style: italic;
 }
@@ -215,6 +285,21 @@ footer {
 
     .date {
         font-size: 16px;
+    }
+
+    .font-size-controls {
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .font-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+
+    .font-size-label {
+        font-size: 12px;
     }
 
     .language-switcher {
@@ -317,6 +402,22 @@ footer {
         font-size: 14px;
     }
 
+    .font-size-controls {
+        gap: 6px;
+        margin-top: 12px;
+        margin-bottom: 12px;
+    }
+
+    .font-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+    }
+
+    .font-size-label {
+        font-size: 11px;
+    }
+
     .language-switcher {
         gap: 6px;
         margin-top: 15px;
@@ -382,6 +483,16 @@ footer {
 
     header h1 {
         font-size: 22px;
+    }
+
+    .font-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+
+    .font-size-label {
+        font-size: 10px;
     }
 
     .name {

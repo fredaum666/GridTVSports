@@ -27,7 +27,7 @@ async function setupVowsDatabase() {
     console.log('  - unlock_status (for tracking vows visibility)');
     console.log('  - admin_settings (for admin configuration)');
     console.log('');
-    console.log('Default admin password: wedding2024');
+    console.log('Default admin password: 2025');
     console.log('Default unlock status: locked');
     
   } catch (error) {
