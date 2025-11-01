@@ -1000,12 +1000,8 @@ app.post('/api/vows', async (req, res) => {
             brideNameEn, brideNamePt, brideVowsEn, brideVowsPt } = req.body;
     
     // Check if this is an admin save (with all wedding vows data)
-    if (password && groomNameEn && brideNameEn) {
-      const ADMIN_PASSWORD = '2025';
-      
-      if (password !== ADMIN_PASSWORD) {
-        return res.status(401).json({ success: false, error: 'Invalid password' });
-      }
+    if (groomNameEn && brideNameEn && groomVowsEn && brideVowsEn) {
+      // This is a wedding vows save (no password required)
       
       // Validate all required fields
       if (!groomNameEn || !groomNamePt || !groomVowsEn || !groomVowsPt ||
