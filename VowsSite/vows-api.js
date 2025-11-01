@@ -44,11 +44,10 @@ app.get('/api/vows', async (req, res) => {
   }
 });
 
-// POST /api/vows - Save vows (requires admin authentication)
+// POST /api/vows - Save vows (no authentication required)
 app.post('/api/vows', async (req, res) => {
   try {
     const {
-      password,
       groomNameEn,
       groomNamePt,
       groomVowsEn,
@@ -58,12 +57,6 @@ app.post('/api/vows', async (req, res) => {
       brideVowsEn,
       brideVowsPt,
     } = req.body;
-
-    // Verify admin password
-    const isValid = await verifyAdminPassword(password);
-    if (!isValid) {
-      return res.status(401).json({ error: 'Invalid admin password' });
-    }
 
     // Validate required fields
     if (!groomNameEn || !groomNamePt || !groomVowsEn || !groomVowsPt ||
@@ -115,17 +108,9 @@ app.post('/api/unlock', async (req, res) => {
   }
 });
 
-// POST /api/lock - Lock vows (requires admin authentication)
+// POST /api/lock - Lock vows (no authentication required)
 app.post('/api/lock', async (req, res) => {
   try {
-    const { password } = req.body;
-
-    // Verify admin password
-    const isValid = await verifyAdminPassword(password);
-    if (!isValid) {
-      return res.status(401).json({ error: 'Invalid admin password' });
-    }
-
     // Lock vows
     const result = await setUnlockStatus(false);
     res.json({ success: true, is_unlocked: false });
