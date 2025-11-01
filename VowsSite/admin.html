@@ -552,7 +552,8 @@
                 - Default password: <code>2025</code><br>
                 - Change password in script.js<br>
                 - Unlock when ceremony begins<br>
-                - Guests will see vows immediately
+                - Guests will see vows immediately<br>
+                - Locking and saving vows do not require a password
             </div>
         </div>
 
@@ -707,7 +708,7 @@
                 <div id="save-message"></div>
 
                 <div class="info" style="margin-top: 20px;">
-                    <strong>Note:</strong> Your vows are saved in your browser's storage. Make sure to save your changes before the ceremony!
+                    <strong>Note:</strong> Your vows are saved to the database. No password required for saving or editing vows.
                 </div>
             </div>
         </div>
@@ -798,16 +799,13 @@
                 return;
             }
 
-            const password = prompt('Enter admin password to lock vows:');
-            if (!password) return;
-
             try {
                 const response = await fetch(`${API_URL}/lock`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ password }),
+                    body: JSON.stringify({}),
                 });
 
                 const data = await response.json();
@@ -906,9 +904,6 @@
 
         // Save vows to database via API
         async function saveVows() {
-            const password = prompt('Enter admin password to save vows:');
-            if (!password) return;
-
             // Get all field values
             const groomNameEn = document.getElementById('groom-name-en').value.trim();
             const groomNamePt = document.getElementById('groom-name-pt').value.trim();
@@ -934,7 +929,6 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        password,
                         groomNameEn,
                         groomNamePt,
                         groomVowsEn,
