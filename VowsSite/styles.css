@@ -232,7 +232,7 @@ header h1 {
 
 .vow-text {
     line-height: 1.8;
-    font-size: calc(18px * var(--font-size-multiplier));
+    font-size: calc(18px * var(--font-size-multiplier)) !important;
     color: #444;
     text-align: left;
     word-wrap: break-word;
@@ -244,7 +244,11 @@ header h1 {
     margin-bottom: 15px;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    font-size: calc(18px * var(--font-size-multiplier));
+    font-size: calc(18px * var(--font-size-multiplier)) !important;
+}
+
+.vow-text * {
+    font-size: calc(18px * var(--font-size-multiplier)) !important;
 }
 
 .divider {
