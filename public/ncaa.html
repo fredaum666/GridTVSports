@@ -1146,6 +1146,8 @@
       padding-top: 10px;
       margin-top: 20px;
       justify-content: center;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     @media (max-width: 1100px) {
@@ -1157,6 +1159,19 @@
     @media (max-width: 768px) {
       .games-grid {
         grid-template-columns: 1fr;
+        padding-left: 0;
+        padding-right: 0;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .games-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0;
+        width: 100%;
+        overflow-x: hidden;
       }
     }
 
@@ -1189,6 +1204,9 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       overflow: hidden;
       position: relative;
+      width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
     }
 
     .game-card:hover {
@@ -2071,24 +2089,35 @@
         grid-template-columns: 1fr;
         gap: 20px;
         padding-right: 0;
+        padding-left: 0;
         max-height: none;
+        width: 100%;
+        overflow-x: hidden;
       }
       
       .game-card {
         padding: 0;
         border-radius: 12px;
         min-height: 200px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
       }
       
       .team-row {
-        padding: 20px 16px;
+        padding: 16px 12px;
         flex-wrap: nowrap;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
       }
 
       .team-info {
-        gap: 12px;
+        gap: 10px;
         flex-shrink: 1;
         min-width: 0;
+        max-width: 50%;
       }
 
       .team-logo {
@@ -2104,58 +2133,177 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 100%;
       }
       
       .quarter-scores {
-        gap: 12px;
+        gap: 8px;
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
       }
       
       .quarter-score {
         font-size: 11px;
-        min-width: 20px;
+        min-width: 18px;
+        max-width: 24px;
+        text-align: center;
       }
       
       .quarter-score.total-score {
         font-size: 20px;
-        min-width: 34px;
+        min-width: 32px;
+        max-width: 40px;
         font-weight: 700;
+        margin-left: 4px;
       }
       
       .quarter-header {
-        padding: 12px 16px;
+        padding: 10px 12px;
+        width: 100%;
+        box-sizing: border-box;
       }
       
       .scores-header {
-        gap: 12px;
+        gap: 8px;
       }
       
       .quarter-label {
-        font-size: 10px;
-        min-width: 20px;
+        font-size: 9px;
+        min-width: 18px;
+        max-width: 24px;
+        text-align: center;
       }
       
       .quarter-label:last-child {
-        min-width: 34px;
+        min-width: 32px;
+        max-width: 40px;
+        margin-left: 4px;
       }
 
       .game-footer-info {
-        padding: 16px;
+        padding: 12px;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 8px;
         min-height: 50px;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .live-badge {
-        font-size: 10px;
-        padding: 5px 10px;
+        font-size: 9px;
+        padding: 4px 8px;
       }
       
       .game-situation {
         flex-direction: row;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         flex-wrap: wrap;
+        font-size: 10px;
+      }
+      
+      .quarter-clock {
+        font-size: 10px;
+        font-weight: 600;
+      }
+      
+      .down-distance,
+      .yard-line {
+        font-size: 9px;
+        padding: 2px 6px;
+      }
+
+      /* Modal fixes for mobile */
+      .modal-overlay {
+        padding: 10px;
+      }
+    }
+
+    /* Extra small mobile devices */
+    @media (max-width: 400px) {
+      .game-card {
+        border-radius: 10px;
+      }
+
+      .team-row {
+        padding: 12px 8px;
+      }
+
+      .team-info {
+        gap: 8px;
+        max-width: 45%;
+      }
+
+      .team-logo {
+        width: 24px;
+        height: 24px;
+      }
+
+      .team-name {
+        font-size: 11px;
+      }
+
+      .quarter-scores {
+        gap: 6px;
+      }
+
+      .quarter-score {
+        font-size: 10px;
+        min-width: 16px;
+        max-width: 20px;
+      }
+
+      .quarter-score.total-score {
+        font-size: 18px;
+        min-width: 28px;
+        max-width: 36px;
+      }
+
+      .quarter-header {
+        padding: 8px;
+      }
+
+      .quarter-label {
+        font-size: 8px;
+        min-width: 16px;
+        max-width: 20px;
+      }
+
+      .quarter-label:last-child {
+        min-width: 28px;
+        max-width: 36px;
+      }
+
+      .game-footer-info {
+        padding: 10px 8px;
+        gap: 6px;
+      }
+
+      .live-badge {
+        font-size: 8px;
+        padding: 3px 6px;
+      }
+
+      .game-situation {
+        font-size: 9px;
+        gap: 6px;
+      }
+
+      .quarter-clock {
+        font-size: 9px;
+      }
+
+      .down-distance,
+      .yard-line {
+        font-size: 8px;
+        padding: 2px 4px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      /* Modal fixes for mobile */
+      .modal-overlay {
         font-size: 11px;
       }
       

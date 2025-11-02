@@ -352,6 +352,19 @@
     }
 
     @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .header {
+        margin-bottom: 40px;
+      }
+
       .header h1 {
         font-size: 32px;
       }
@@ -363,15 +376,18 @@
       .sports-grid {
         grid-template-columns: 1fr;
         gap: 20px;
+        max-width: 100%;
       }
 
       .sport-card {
         padding: 30px 20px;
+        width: 100%;
+        max-width: 100%;
       }
 
       .sport-logo {
-        width: 80px;
-        height: 80px;
+        width: 120px;
+        height: 120px;
       }
 
       .sport-icon {
@@ -382,18 +398,248 @@
         font-size: 24px;
       }
 
+      .sport-description {
+        font-size: 13px;
+      }
+
       .mixed-sports-btn {
         flex-direction: column;
         text-align: center;
         padding: 20px;
+        width: 100%;
+        max-width: 100%;
       }
 
       .btn-text {
         align-items: center;
       }
 
+      .btn-text small {
+        font-size: 12px;
+      }
+
+      .features {
+        padding: 20px;
+      }
+
+      .features h2 {
+        font-size: 20px;
+      }
+
       .features-list {
         grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .header {
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        line-height: 1.2;
+      }
+
+      .header p {
+        font-size: 14px;
+      }
+
+      .sports-grid {
+        gap: 15px;
+      }
+
+      .sport-card {
+        padding: 25px 15px;
+        border-width: 2px;
+        border-radius: 15px;
+      }
+
+      .sport-logo {
+        width: 100px;
+        height: 100px;
+      }
+
+      .sport-description {
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .live-badge {
+        font-size: 10px;
+        padding: 5px 10px;
+      }
+
+      .mixed-sports-btn {
+        padding: 15px;
+        font-size: 16px;
+        border-radius: 12px;
+      }
+
+      .btn-icon {
+        font-size: 28px;
+      }
+
+      .btn-text strong {
+        font-size: 16px;
+      }
+
+      .btn-text small {
+        font-size: 11px;
+      }
+
+      .btn-arrow {
+        font-size: 20px;
+      }
+
+      .features {
+        padding: 15px;
+        border-radius: 12px;
+      }
+
+      .features h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+
+      .feature-item {
+        gap: 10px;
+      }
+
+      .feature-icon {
+        font-size: 20px;
+      }
+
+      .feature-text h3 {
+        font-size: 14px;
+      }
+
+      .feature-text p {
+        font-size: 12px;
+      }
+
+      .customize-colors-btn {
+        padding: 12px 24px;
+        font-size: 14px;
+        border-radius: 10px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .header p {
+        font-size: 13px;
+      }
+
+      .sport-logo {
+        width: 80px;
+        height: 80px;
+      }
+
+      .sport-card {
+        padding: 20px 12px;
+      }
+
+      .sport-description {
+        font-size: 11px;
+      }
+
+      .mixed-sports-btn {
+        padding: 12px;
+        font-size: 14px;
+      }
+
+      .btn-text strong {
+        font-size: 14px;
+      }
+
+      .btn-text small {
+        font-size: 10px;
+      }
+    }
+
+    /* Theme Selector Styling */
+    .theme-selector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 30px;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(26, 31, 46, 0.6);
+      border: 2px solid #334155;
+      border-radius: 16px;
+    }
+
+    .theme-selector label {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+
+    .theme-select {
+      background: #1a1f2e;
+      color: #e0e0e0;
+      border: 2px solid #334155;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      outline: none;
+      min-width: 180px;
+    }
+
+    .theme-select:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .theme-select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .theme-select option {
+      background: #1a1f2e;
+      color: #e0e0e0;
+      padding: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .theme-selector {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+      }
+
+      .theme-select {
+        width: 100%;
+        max-width: 280px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .theme-selector {
+        padding: 12px;
+      }
+
+      .theme-selector label {
+        font-size: 14px;
+      }
+
+      .theme-select {
+        font-size: 14px;
+        padding: 10px 16px;
       }
     }
   </style>
