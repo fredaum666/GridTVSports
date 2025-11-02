@@ -1296,15 +1296,24 @@
       padding-top: 10px;
       margin-top: 20px;
       justify-content: center;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .game-card {
       min-width: 480px;
+      width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
     }
 
     @media (max-width: 1100px) {
       .games-grid {
         grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      }
+      
+      .game-card {
+        min-width: 0;
       }
       
       .team-logo-large {
@@ -1317,6 +1326,23 @@
     @media (max-width: 768px) {
       .games-grid {
         grid-template-columns: 1fr;
+        padding-left: 0;
+        padding-right: 0;
+        width: 100%;
+      }
+      
+      .game-card {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .games-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0;
+        width: 100%;
+        overflow-x: hidden;
       }
     }
 
@@ -1348,6 +1374,9 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       overflow: hidden;
       position: relative;
+      width: 100%;
+      box-sizing: border-box;
+      max-width: 100%;
     }
 
     /* Hover effect removed - cards are static */
@@ -2036,18 +2065,27 @@
         grid-template-columns: 1fr;
         gap: 20px;
         padding-right: 0;
+        padding-left: 0;
         max-height: none;
+        width: 100%;
+        overflow-x: hidden;
       }
       
       .game-card {
         padding: 0;
         border-radius: 12px;
         min-height: 200px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
       }
       
       .score-container {
         padding: 16px 12px;
         gap: 12px;
+        width: 100%;
+        box-sizing: border-box;
       }
       
       .team-display {
@@ -2058,6 +2096,7 @@
         width: 36px !important;
         height: 36px !important;
         display: block !important;
+        flex-shrink: 0;
       }
       
       .team-score {
@@ -2072,16 +2111,22 @@
       
       .team-info-block {
         min-width: 90px;
+        max-width: 45%;
       }
       
       .team-full-name {
         font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       
       .game-status-row {
-        padding: 12px 16px;
-        gap: 12px;
+        padding: 12px;
+        gap: 10px;
         flex-wrap: wrap;
+        width: 100%;
+        box-sizing: border-box;
       }
       
       .inning-display {
@@ -2156,26 +2201,84 @@
       .game-situation {
         flex-direction: row;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         flex-wrap: wrap;
-        font-size: 11px;
+        font-size: 10px;
       }
       
       .inning-clock {
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 600;
       }
       
       .Outs-distance,
       .yard-line {
-        font-size: 10px;
+        font-size: 9px;
       }
 
       /* Modal fixes for mobile */
       .modal-overlay {
         padding: 10px;
       }
+    }
 
+    /* Extra small mobile devices */
+    @media (max-width: 400px) {
+      .game-card {
+        border-radius: 10px;
+      }
+
+      .score-container {
+        padding: 12px 8px;
+        gap: 10px;
+      }
+
+      .team-logo-large {
+        width: 32px !important;
+        height: 32px !important;
+      }
+
+      .team-score {
+        font-size: 28px;
+        min-width: 48px;
+      }
+
+      .score-divider {
+        font-size: 20px;
+        margin: 0 4px;
+      }
+
+      .team-info-block {
+        min-width: 80px;
+        max-width: 40%;
+      }
+
+      .team-full-name {
+        font-size: 10px;
+      }
+
+      .game-status-row {
+        padding: 10px 8px;
+        gap: 8px;
+      }
+
+      .inning-display {
+        font-size: 12px;
+        min-width: 60px;
+      }
+
+      .live-badge {
+        font-size: 8px;
+        padding: 3px 6px;
+      }
+
+      .game-situation {
+        font-size: 9px;
+        gap: 6px;
+      }
+    }
+
+    @media (max-width: 400px) {
       .game-detail-panel {
         margin: 20px auto;
         max-height: 95vh;
