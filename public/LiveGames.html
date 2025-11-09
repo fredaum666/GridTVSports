@@ -2089,7 +2089,8 @@
             ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
             ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away'}
+              <span class="fullscreen-team-name-full">${awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away'}</span>
+              <span class="fullscreen-team-name-abbr">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || 'AWY'}</span>
               ${isLive && awayHasBall ? '<span class="fullscreen-possession"></span>' : ''}
             </div>
           </div>
@@ -2120,7 +2121,8 @@
             ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
             ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home'}
+              <span class="fullscreen-team-name-full">${homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home'}</span>
+              <span class="fullscreen-team-name-abbr">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || 'HME'}</span>
               ${isLive && homeHasBall ? '<span class="fullscreen-possession"></span>' : ''}
             </div>
           </div>

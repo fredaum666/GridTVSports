@@ -139,6 +139,32 @@
     font-size: 16px !important;
   }
 
+  /* Team name responsive display - Show/Hide full vs abbreviation */
+  .fullscreen-team-name-full {
+    display: inline;
+  }
+
+  .fullscreen-team-name-abbr {
+    display: none;
+  }
+
+  /* For 4+ games or very small screens, show abbreviations */
+  .fullscreen-grid.grid-4 .fullscreen-team-name-full,
+  .fullscreen-grid.grid-6 .fullscreen-team-name-full {
+    display: none;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-team-name-abbr,
+  .fullscreen-grid.grid-6 .fullscreen-team-name-abbr {
+    display: inline;
+  }
+
+  /* Adjust font size for abbreviations in multi-game grids */
+  .fullscreen-grid.grid-4 .fullscreen-team-name,
+  .fullscreen-grid.grid-6 .fullscreen-team-name {
+    font-size: 13px !important;
+  }
+
   .fullscreen-score {
     font-size: 32px !important;
   }

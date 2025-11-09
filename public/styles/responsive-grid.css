@@ -852,6 +852,45 @@ html, body {
 }
 
 /* ================================================================
+   RESPONSIVE TEAM NAME DISPLAY - Full vs Abbreviation
+   ================================================================ */
+
+/* Default: Show full names, hide abbreviations */
+.fullscreen-team-name-full {
+  display: inline;
+}
+
+.fullscreen-team-name-abbr {
+  display: none;
+}
+
+/* For 4+ game grids, show abbreviations instead of full names */
+.fullscreen-grid.grid-4 .fullscreen-team-name-full,
+.fullscreen-grid.grid-6 .fullscreen-team-name-full,
+.fullscreen-grid.grid-8 .fullscreen-team-name-full,
+.fullscreen-grid.grid-9 .fullscreen-team-name-full {
+  display: none;
+}
+
+.fullscreen-grid.grid-4 .fullscreen-team-name-abbr,
+.fullscreen-grid.grid-6 .fullscreen-team-name-abbr,
+.fullscreen-grid.grid-8 .fullscreen-team-name-abbr,
+.fullscreen-grid.grid-9 .fullscreen-team-name-abbr {
+  display: inline;
+}
+
+/* Additional breakpoint for very small screens - always show abbreviations */
+@media (max-width: 480px), (max-height: 480px) {
+  .fullscreen-team-name-full {
+    display: none !important;
+  }
+
+  .fullscreen-team-name-abbr {
+    display: inline !important;
+  }
+}
+
+/* ================================================================
    SMALL VIEWPORT - Combined height + width constraints
    ================================================================ */
 @media (max-width: 768px) and (max-height: 768px) {

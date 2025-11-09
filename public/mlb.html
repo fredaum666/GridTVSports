@@ -4195,7 +4195,8 @@
           <div class="fullscreen-team-header">
             ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${awayTeam?.team?.displayName || 'Away'}
+              <span class="fullscreen-team-name-full">${awayTeam?.team?.displayName || 'Away'}</span>
+              <span class="fullscreen-team-name-abbr">${awayTeam?.team?.abbreviation || 'AWY'}</span>
             </div>
           </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
@@ -4207,7 +4208,8 @@
           <div class="fullscreen-team-header">
             ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${homeTeam?.team?.displayName || 'Home'}
+              <span class="fullscreen-team-name-full">${homeTeam?.team?.displayName || 'Home'}</span>
+              <span class="fullscreen-team-name-abbr">${homeTeam?.team?.abbreviation || 'HME'}</span>
             </div>
           </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
