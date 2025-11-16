@@ -435,6 +435,9 @@
       gap: 20px;
       padding: 20px;
       overflow-y: auto;
+      overflow-x: hidden;
+      max-height: 100vh;
+      box-sizing: border-box;
     }
 
     .fullscreen-grid.grid-1 {
@@ -476,6 +479,8 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
       overflow: visible;
+      min-height: fit-content;
+      max-width: 100%;
     }
 
     /* Sport Logo in Top Left */
@@ -587,6 +592,8 @@
       color: #fff;
       text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
       animation: scoreUpdate 0.5s ease-out;
+      min-width: fit-content;
+      flex-shrink: 0;
     }
 
     @keyframes scoreUpdate {
@@ -1213,11 +1220,12 @@
       padding: 0;
       border: 2px solid transparent;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
+      overflow: visible;
       position: relative;
       width: 100%;
       box-sizing: border-box;
       max-width: 100%;
+      min-height: fit-content;
     }
 
     /* Hover effect removed - cards are static */
