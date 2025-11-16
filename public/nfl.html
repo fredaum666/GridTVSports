@@ -500,6 +500,9 @@
       gap: 20px;
       padding: 20px;
       overflow-y: auto;
+      overflow-x: hidden;
+      max-height: 100vh;
+      box-sizing: border-box;
     }
 
     .fullscreen-grid.grid-1 {
@@ -541,6 +544,9 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
       overflow: visible;
+      min-height: fit-content;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     /* Sport Logo in Top Left */
@@ -633,6 +639,8 @@
       height: 80px;
       object-fit: contain;
       flex-shrink: 0;
+      max-width: 100%;
+      height: auto;
     }
 
     .fullscreen-team-name {
@@ -642,6 +650,9 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .fullscreen-team-record {
@@ -661,6 +672,8 @@
       text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
       -webkit-animation: scoreUpdate 0.5s ease-out;
       animation: scoreUpdate 0.5s ease-out;
+      min-width: 120px;
+      text-align: center;
     }
 
     @-webkit-keyframes scoreUpdate {
@@ -1933,6 +1946,7 @@
       width: 55px;
       height: 55px;
       object-fit: contain;
+      flex-shrink: 0;
     }
 
     .page-1-upcoming .team-name-large {
@@ -1958,6 +1972,10 @@
     /* Page 1 - Live/Final with Play-by-Play */
     .page-1-live {
       padding: 10px;
+      padding-bottom: 36px;
+      min-height: fit-content;
+      box-sizing: border-box;
+      overflow: visible;
     }
 
     .live-score-header {
@@ -1979,6 +1997,7 @@
       width: 50px;
       height: 50px;
       object-fit: contain;
+      flex-shrink: 0;
     }
 
     .possession-icon {
