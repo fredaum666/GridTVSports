@@ -12,11 +12,19 @@
       box-sizing: border-box;
     }
 
+    html {
+      overflow-x: hidden;
+      width: 100%;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: #0a0e1a;
       color: #e0e0e0;
       min-height: 100vh;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
     }
 
     /* Header */
@@ -497,44 +505,65 @@
     .fullscreen-grid {
       flex: 1;
       display: grid;
-      gap: 20px;
-      padding: 20px;
+      gap: clamp(10px, 1.5vh, 20px);
+      padding: clamp(10px, 1.5vh, 20px);
       overflow-y: auto;
       overflow-x: hidden;
-      max-height: 100vh;
+      height: calc(100vh - 80px);
       box-sizing: border-box;
     }
 
     .fullscreen-grid.grid-1 {
       grid-template-columns: 1fr;
+      grid-template-rows: 1fr;
       place-items: center;
-      padding: 40px;
+      padding: clamp(20px, 3vh, 40px);
     }
 
     .fullscreen-grid.grid-1 .fullscreen-game-card {
-      max-width: 900px;
+      max-width: min(900px, 90vw);
+      max-height: 90vh;
       width: 100%;
+      height: 100%;
     }
 
     .fullscreen-grid.grid-2 {
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: 1fr;
+      gap: clamp(10px, 1.5vw, 20px);
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-game-card {
+      height: 100%;
+      max-height: calc(100vh - 120px);
     }
 
     .fullscreen-grid.grid-4 {
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: repeat(2, 1fr);
+      gap: clamp(8px, 1.2vh, 15px);
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-game-card {
+      height: 100%;
+      max-height: calc((100vh - 140px) / 2);
     }
 
     .fullscreen-grid.grid-6 {
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(2, 1fr);
+      gap: clamp(6px, 1vh, 12px);
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-game-card {
+      height: 100%;
+      max-height: calc((100vh - 150px) / 2);
     }
 
     .fullscreen-game-card {
       background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
-      border-radius: 16px;
-      padding: 30px;
+      border-radius: clamp(8px, 1.2vh, 16px);
+      padding: clamp(15px, 2.5vh, 30px);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -543,7 +572,7 @@
       border: 3px solid #334155;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
-      overflow: visible;
+      overflow: hidden;
       min-height: fit-content;
       max-width: 100%;
     }
@@ -1295,15 +1324,15 @@
     /* Games Grid */
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(500px, 520px));
+      grid-template-columns: repeat(auto-fill, minmax(min(500px, 100%), 1fr));
       gap: 20px;
-      max-height: calc(100vh - 280px);
-      overflow-y: auto;
       padding-right: 8px;
       padding-top: 10px;
+      padding-bottom: 40px;
       margin-top: 20px;
       justify-content: center;
       width: 100%;
+      max-width: 100%;
       box-sizing: border-box;
     }
 
@@ -2406,7 +2435,7 @@
     <div class="live-games-panel">
       <div class="panel-header">
         <div>
-          <span>🔴 Live & Upcoming Games</span>
+          <span>⚾ All Games</span>
           <div class="auto-refresh-info">
             <span>●</span>
             <span>Auto-refreshing every 15 seconds</span>
@@ -2547,72 +2576,47 @@
             };
           });
 
-          // FILTER FOR LIVE AND UPCOMING GAMES
-          // A game is shown if:
-          // 1. LIVE: Status state is 'in' (in progress) OR period > 0
-          // 2. UPCOMING: Status state is 'pre' (scheduled) and within next 36 hours
-          // 3. COMPLETED: Excluded (not shown)
-          liveGames = allGames.filter(game => {
+          // CATEGORIZE ALL GAMES
+          // Separate games into live, upcoming, and final categories
+          let liveGamesList = [];
+          let upcomingGamesList = [];
+          let finalGamesList = [];
+
+          allGames.forEach(game => {
             const comp = game.competitions[0];
             const isCompleted = comp.status.type.completed;
             const statusState = comp.status.type.state;
             const statusName = comp.status.type.name || '';
             const isFinal = statusName.includes('Final') || statusState === 'post';
-            const home = comp.competitors.find(c => c.homeAway === 'home');
-            const away = comp.competitors.find(c => c.homeAway === 'away');
-            
-            // Skip completed/final games
-            if (isCompleted || isFinal) {
-              console.log(`🏈 ${game.name}: COMPLETED - Excluded ❌`);
-              return false;
-            }
             
             // Game is live if status state is 'in' OR if not completed/final and has started playing (period > 0)
-            const isLive = statusState === 'in' || comp.status.period > 0;
+            const isLive = statusState === 'in' || (comp.status.period > 0 && !isCompleted && !isFinal);
             
-            // Game is upcoming if it's scheduled (pre) and within next 36 hours
+            // Game is upcoming if it's scheduled (pre)
             const isUpcoming = statusState === 'pre';
             const gameTime = new Date(game.date);
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
             const isWithin36Hours = hoursUntilGame >= 0 && hoursUntilGame <= 36;
             
-            console.log(`🏈 ${game.name}:`, {
-              status: statusName,
-              state: statusState,
-              period: comp.status.period,
-              clock: comp.status.displayClock,
-              score: `${away.score}-${home.score}`,
-              isLive: isLive ? 'LIVE ✅' : 'Not live',
-              isUpcoming: isUpcoming && isWithin36Hours ? 'UPCOMING ⏰' : 'Not upcoming',
-              hoursUntilGame: hoursUntilGame.toFixed(1)
-            });
-
-            // Don't show completed/final games
-            if (isCompleted || isFinal) return false;
-
-            // Show all non-completed games that are either live OR within 36 hours (handles transition states)
-            return isLive || isWithin36Hours;
+            // Categorize the game
+            if (isLive) {
+              liveGamesList.push(game);
+            } else if (isUpcoming && isWithin36Hours) {
+              upcomingGamesList.push(game);
+            } else if (isFinal || isCompleted) {
+              finalGamesList.push(game);
+            }
           });
 
-          console.log(`🏈 Found ${allGames.length} total games, ${liveGames.length} are LIVE or UPCOMING`);
-          console.log('Game status details:');
-          liveGames.forEach((game, idx) => {
-            const comp = game.competitions[0];
-            const home = comp.competitors.find(c => c.homeAway === 'home');
-            const away = comp.competitors.find(c => c.homeAway === 'away');
-            console.log(`Game ${idx + 1}: ${game.name}`, {
-              status: comp.status.type.name,
-              score: `${away.score}-${home.score}`,
-              completed: comp.status.type.completed,
-              state: comp.status.type.state
-            });
-          });
+          // Combine all games in order: Live -> Upcoming -> Final
+          liveGames = [...liveGamesList, ...upcomingGamesList, ...finalGamesList];
 
-          // If no live/upcoming games, show message
-          if (liveGames.length === 0) {
-            console.log('⚠️ No live or upcoming games found. Check back during game time!');
-          }
+          console.log(`⚾ Found ${allGames.length} total games:`);
+          console.log(`  🔴 ${liveGamesList.length} LIVE`);
+          console.log(`  ⏰ ${upcomingGamesList.length} UPCOMING`);
+          console.log(`  🏁 ${finalGamesList.length} FINAL`);
+
         } else {
           liveGames = [];
         }
@@ -4206,7 +4210,7 @@
           <div class="fullscreen-team-header">
             ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${awayTeam?.team?.displayName || 'Away'}
+              ${awayTeam?.team?.abbreviation || awayTeam?.team?.displayName || 'AWAY'}
             </div>
           </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
@@ -4218,7 +4222,7 @@
           <div class="fullscreen-team-header">
             ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${homeTeam?.team?.displayName || 'Home'}
+              ${homeTeam?.team?.abbreviation || homeTeam?.team?.displayName || 'HOME'}
             </div>
           </div>
           <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>

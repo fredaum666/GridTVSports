@@ -12,11 +12,19 @@
       box-sizing: border-box;
     }
 
+    html {
+      overflow-x: hidden;
+      width: 100%;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: #0a0e1a;
       color: #e0e0e0;
       min-height: 100vh;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
     }
 
     /* Header */
@@ -497,49 +505,71 @@
     .fullscreen-grid {
       flex: 1;
       display: grid;
-      gap: 20px;
-      padding: 20px;
+      gap: clamp(10px, 1.5vh, 20px);
+      padding: clamp(10px, 1.5vh, 20px);
       overflow-y: auto;
       overflow-x: hidden;
-      max-height: 100vh;
+      height: calc(100vh - 80px);
       box-sizing: border-box;
     }
 
     .fullscreen-grid.grid-1 {
       grid-template-columns: 1fr;
+      grid-template-rows: 1fr;
       place-items: center;
-      padding: 40px;
+      padding: clamp(20px, 3vh, 40px);
     }
 
     .fullscreen-grid.grid-1 .fullscreen-game-card {
-      max-width: 900px;
+      max-width: min(900px, 90vw);
+      max-height: 90vh;
       width: 100%;
+      height: 100%;
     }
 
     .fullscreen-grid.grid-2 {
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: 1fr;
+      gap: clamp(10px, 1.5vw, 20px);
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-game-card {
+      height: 100%;
+      max-height: calc(100vh - 120px);
     }
 
     .fullscreen-grid.grid-4 {
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: repeat(2, 1fr);
+      gap: clamp(8px, 1.2vh, 15px);
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-game-card {
+      height: 100%;
+      max-height: calc((100vh - 140px) / 2);
     }
 
     .fullscreen-grid.grid-6 {
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(2, 1fr);
+      gap: clamp(6px, 1vh, 12px);
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-game-card {
+      height: 100%;
+      max-height: calc((100vh - 150px) / 2);
     }
 
     .fullscreen-game-card {
       background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
-      border-radius: 16px;
-      padding: 30px;
+      border-radius: clamp(8px, 1.2vh, 16px);
+      padding: clamp(15px, 2.5vh, 30px);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
+      overflow: hidden;
       border: 3px solid #334155;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
@@ -1288,15 +1318,15 @@
     /* Games Grid */
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(500px, 520px));
+      grid-template-columns: repeat(auto-fill, minmax(min(500px, 100%), 1fr));
       gap: 20px;
-      max-height: calc(100vh - 280px);
-      overflow-y: auto;
       padding-right: 8px;
       padding-top: 10px;
+      padding-bottom: 40px;
       margin-top: 20px;
       justify-content: center;
       width: 100%;
+      max-width: 100%;
       box-sizing: border-box;
     }
 
@@ -1351,7 +1381,7 @@
       padding: 0;
       border: 2px solid transparent;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      overflow: visible;
+      overflow: hidden;
       position: relative;
       width: 100%;
       box-sizing: border-box;
@@ -1862,7 +1892,7 @@
     /* Sliding Card Pages */
     .card-slider-container {
       position: relative;
-      overflow: visible;
+      overflow: hidden;
       width: 100%;
       min-height: 100%;
       padding-bottom: 24px;
@@ -1872,12 +1902,14 @@
       display: flex;
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       min-height: 100%;
+      overflow: hidden;
     }
 
     .card-page {
       min-width: 100%;
       flex-shrink: 0;
       overflow: visible;
+      box-sizing: border-box;
     }
 
     .page-indicators {
@@ -2582,7 +2614,7 @@
     <div class="live-games-panel">
       <div class="panel-header">
         <div>
-          <span>🔴 Live & Upcoming Games</span>
+          <span>🏈 All Games</span>
           <div class="auto-refresh-info">
             <span>●</span>
             <span>Auto-refreshing every 15 seconds</span>
@@ -2595,19 +2627,12 @@
       </div>
       <div class="games-grid" id="games-list"></div>
     </div>
-
-    <!-- Final Games Section -->
-    <div id="final-games-section" style="margin-top: 60px; display: none;">
-      <h2 style="margin-bottom: 20px; font-size: 28px; font-weight: 700; color: #f3f4f6;">
-        🏁 Final Games
-      </h2>
-      <div class="games-grid" id="final-games-list"></div>
-    </div>
   </div>
 
   <script>
     let refreshInterval = null;
     let liveGames = [];
+    let finalGames = [];
     let currentWeek = 1; // Will be fetched from server
 
     // Team data for logos
@@ -2709,12 +2734,13 @@
             };
           });
 
-          // FILTER FOR LIVE AND UPCOMING GAMES
-          // A game is shown if:
-          // 1. LIVE: Status state is 'in' (in progress) OR period > 0
-          // 2. UPCOMING: Status state is 'pre' (scheduled) and within next 36 hours
-          // 3. COMPLETED: Excluded (not shown)
-          liveGames = allGames.filter(game => {
+          // CATEGORIZE ALL GAMES
+          // Separate games into live, upcoming, and final categories
+          let liveGamesList = [];
+          let upcomingGamesList = [];
+          let finalGamesList = [];
+
+          allGames.forEach(game => {
             const comp = game.competitions[0];
             const isCompleted = comp.status.type.completed;
             const statusState = comp.status.type.state;
@@ -2725,7 +2751,6 @@
             
             // Check if this game is completed and save it to database
             if (isFinal || isCompleted) {
-              console.log(`💾 Game completed, saving to database: ${game.name}`);
               fetch('/api/final-games/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2736,58 +2761,36 @@
                   week: currentWeek
                 })
               }).catch(err => console.error('Error saving final game:', err));
-              
-              console.log(`🏈 ${game.name}: COMPLETED - Will show in Final Games section ✅`);
-              // Don't return false - keep completed games so they appear in Final Games section
             }
             
             // Game is live if status state is 'in' OR if not completed/final and has started playing (period > 0)
             const isLive = statusState === 'in' || (comp.status.period > 0 && !isCompleted && !isFinal);
             
-            // Game is upcoming if it's scheduled (pre) and within next 36 hours
+            // Game is upcoming if it's scheduled (pre)
             const isUpcoming = statusState === 'pre';
             const gameTime = new Date(game.date);
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
             const isWithin36Hours = hoursUntilGame >= 0 && hoursUntilGame <= 36;
             
-            console.log(`🏈 ${game.name}:`, {
-              status: statusName,
-              state: statusState,
-              period: comp.status.period,
-              clock: comp.status.displayClock,
-              score: `${away.score}-${home.score}`,
-              isLive: isLive ? 'LIVE ✅' : 'Not live',
-              isUpcoming: isUpcoming && isWithin36Hours ? 'UPCOMING ⏰' : 'Not upcoming',
-              isFinal: isFinal || isCompleted ? 'FINAL 🏁' : 'Not final',
-              hoursUntilGame: hoursUntilGame.toFixed(1)
-            });
-
-            // Don't show completed/final games
-            if (isCompleted || isFinal) return false;
-
-            // Show all non-completed games that are either live OR within 36 hours (handles transition states)
-            return isLive || isWithin36Hours;
+            // Categorize the game
+            if (isLive) {
+              liveGamesList.push(game);
+            } else if (isUpcoming && isWithin36Hours) {
+              upcomingGamesList.push(game);
+            } else if (isFinal || isCompleted) {
+              finalGamesList.push(game);
+            }
           });
 
-          console.log(`🏈 Found ${allGames.length} total games, ${liveGames.length} are LIVE or UPCOMING`);
-          console.log('Game status details:');
-          liveGames.forEach((game, idx) => {
-            const comp = game.competitions[0];
-            const home = comp.competitors.find(c => c.homeAway === 'home');
-            const away = comp.competitors.find(c => c.homeAway === 'away');
-            console.log(`Game ${idx + 1}: ${game.name}`, {
-              status: comp.status.type.name,
-              score: `${away.score}-${home.score}`,
-              completed: comp.status.type.completed,
-              state: comp.status.type.state
-            });
-          });
+          // Combine all games in order: Live -> Upcoming -> Final
+          liveGames = [...liveGamesList, ...upcomingGamesList, ...finalGamesList];
 
-          // If no live/upcoming games, show message
-          if (liveGames.length === 0) {
-            console.log('⚠️ No live or upcoming games found. Check back during game time!');
-          }
+          console.log(`🏈 Found ${allGames.length} total games:`);
+          console.log(`  🔴 ${liveGamesList.length} LIVE`);
+          console.log(`  ⏰ ${upcomingGamesList.length} UPCOMING`);
+          console.log(`  🏁 ${finalGamesList.length} FINAL`);
+
         } else {
           liveGames = [];
         }
@@ -2796,7 +2799,6 @@
         window.liveGamesData = liveGames;
 
         renderGamesList();
-        renderFinalGames(); // Also render final games section
 
       } catch (error) {
         console.error('Error fetching games:', error);
@@ -2822,106 +2824,6 @@
       }
     }
 
-    async function renderFinalGames() {
-      try {
-        const response = await fetch('/api/final-games/nfl');
-        const { games } = await response.json();
-        
-        if (!games || games.length === 0) {
-          document.getElementById('final-games-section').style.display = 'none';
-          return;
-        }
-        
-        // Filter games to only show current week
-        const currentWeekGames = games.filter(game => game.week === currentWeek);
-        
-        console.log(`📊 Total final games in database: ${games.length}, Current week ${currentWeek}: ${currentWeekGames.length}`);
-        
-        if (currentWeekGames.length === 0) {
-          document.getElementById('final-games-section').style.display = 'none';
-          return;
-        }
-        
-        document.getElementById('final-games-section').style.display = 'block';
-        const container = document.getElementById('final-games-list');
-        container.innerHTML = '';
-        
-        currentWeekGames.forEach(game => {
-          const comp = game.competitions[0];
-          const home = comp.competitors.find(c => c.homeAway === 'home');
-          const away = comp.competitors.find(c => c.homeAway === 'away');
-          
-          const homeScore = parseInt(home.score) || 0;
-          const awayScore = parseInt(away.score) || 0;
-          const homeRecord = home.records?.[0]?.summary || '';
-          const awayRecord = away.records?.[0]?.summary || '';
-          
-          // Get quarter scores from linescores
-          const awayLineScores = away.linescores || [];
-          const homeLineScores = home.linescores || [];
-          
-          const cardHtml = `
-            <div class="game-card">
-              <div class="quarter-header">
-                <div class="team-column"></div>
-                <div class="scores-header">
-                  <span class="quarter-label">1</span>
-                  <span class="quarter-label">2</span>
-                  <span class="quarter-label">3</span>
-                  <span class="quarter-label">4</span>
-                  <span class="quarter-label">T</span>
-                </div>
-              </div>
-              
-              <div class="team-row ${awayScore > homeScore ? 'winning' : ''}">
-                <div class="possession-arrow" style="opacity: 0;">▶</div>
-                <div class="team-info">
-                  <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo" />
-                  <span class="team-name">${away.team.displayName}</span>
-                </div>
-                <div class="quarter-scores">
-                  <span class="quarter-score">${awayLineScores[0]?.value || 0}</span>
-                  <span class="quarter-score">${awayLineScores[1]?.value || 0}</span>
-                  <span class="quarter-score">${awayLineScores[2]?.value || 0}</span>
-                  <span class="quarter-score">${awayLineScores[3]?.value || 0}</span>
-                  <span class="quarter-score total-score">${awayScore}</span>
-                </div>
-              </div>
-              
-              <div class="team-row ${homeScore > awayScore ? 'winning' : ''}">
-                <div class="possession-arrow" style="opacity: 0;">▶</div>
-                <div class="team-info">
-                  <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo" />
-                  <span class="team-name">${home.team.displayName}</span>
-                </div>
-                <div class="quarter-scores">
-                  <span class="quarter-score">${homeLineScores[0]?.value || 0}</span>
-                  <span class="quarter-score">${homeLineScores[1]?.value || 0}</span>
-                  <span class="quarter-score">${homeLineScores[2]?.value || 0}</span>
-                  <span class="quarter-score">${homeLineScores[3]?.value || 0}</span>
-                  <span class="quarter-score total-score">${homeScore}</span>
-                </div>
-              </div>
-              
-              <div class="game-footer-info">
-                <div class="live-badge" style="background: #6b7280;">
-                  <span>FINAL</span>
-                </div>
-                <div class="game-situation">
-                  <span class="quarter-clock">Final</span>
-                </div>
-              </div>
-            </div>
-          `;
-          
-          container.insertAdjacentHTML('beforeend', cardHtml);
-        });
-      } catch (error) {
-        console.error('Error loading final games:', error);
-        document.getElementById('final-games-section').style.display = 'none';
-      }
-    }
-
     function renderGamesList() {
       const container = document.getElementById('games-list');
 
@@ -2929,8 +2831,8 @@
         container.innerHTML = `
           <div class="no-games-message">
             <div class="icon">🏈</div>
-            <h3>No Live Games</h3>
-            <p>There are no games in progress right now.<br>Check back during game time!</p>
+            <h3>No Games Available</h3>
+            <p>There are no games to display right now.<br>Check back later!</p>
           </div>
         `;
         return;
@@ -2988,7 +2890,10 @@
         }
 
         // Determine number of pages
-        const numPages = isPregame ? 1 : 2;
+        // Upcoming: 1 page
+        // Live: 2 pages (live score + quarter history)
+        // Final: 1 page (final score with quarter history combined)
+        const numPages = isLive ? 2 : 1;
 
         // Build the card HTML
         let cardHtml = `
@@ -3072,46 +2977,76 @@
                     <span class="down-distance">${downDistanceText}</span>
                   </div>
                 ` : ''}
+                
+                ${isFinal ? `
+                  <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div class="scoring-history-title">Scoring by Quarter</div>
+                    <div class="quarters-grid">
+                      <div class="quarter-header-cell"></div>
+                      <div class="quarter-header-cell">1</div>
+                      <div class="quarter-header-cell">2</div>
+                      <div class="quarter-header-cell">3</div>
+                      <div class="quarter-header-cell">4</div>
+                      <div class="quarter-header-cell">T</div>
+
+                      <div class="team-label-cell">${away.team.abbreviation}</div>
+                      <div class="score-cell ${awayLineScores[0] ? '' : 'empty'}">${awayLineScores[0]?.value || 0}</div>
+                      <div class="score-cell ${awayLineScores[1] ? '' : 'empty'}">${awayLineScores[1]?.value || 0}</div>
+                      <div class="score-cell ${awayLineScores[2] ? '' : 'empty'}">${awayLineScores[2]?.value || 0}</div>
+                      <div class="score-cell ${awayLineScores[3] ? '' : 'empty'}">${awayLineScores[3]?.value || 0}</div>
+                      <div class="score-cell total">${awayScore}</div>
+
+                      <div class="team-label-cell">${home.team.abbreviation}</div>
+                      <div class="score-cell ${homeLineScores[0] ? '' : 'empty'}">${homeLineScores[0]?.value || 0}</div>
+                      <div class="score-cell ${homeLineScores[1] ? '' : 'empty'}">${homeLineScores[1]?.value || 0}</div>
+                      <div class="score-cell ${homeLineScores[2] ? '' : 'empty'}">${homeLineScores[2]?.value || 0}</div>
+                      <div class="score-cell ${homeLineScores[3] ? '' : 'empty'}">${homeLineScores[3]?.value || 0}</div>
+                      <div class="score-cell total">${homeScore}</div>
+                    </div>
+                  </div>
+                ` : ''}
               </div>
             </div>
           `;
 
-          // PAGE 2 - Scoring History
-          cardHtml += `
-            <div class="card-page">
-              <div class="page-2-content">
-                <div class="scoring-history-header">
-                  <img src="${away.team.logo}" alt="${away.team.displayName}" class="scoring-team-logo">
-                  <img src="${home.team.logo}" alt="${home.team.displayName}" class="scoring-team-logo">
-                </div>
+          // PAGE 2 - Scoring History (ONLY FOR LIVE GAMES)
+          if (isLive) {
+            cardHtml += `
+              <div class="card-page">
+                <div class="page-2-content">
+                  <div class="scoring-history-header">
+                    <img src="${away.team.logo}" alt="${away.team.displayName}" class="scoring-team-logo">
+                    <img src="${home.team.logo}" alt="${home.team.displayName}" class="scoring-team-logo">
+                  </div>
 
-                <div class="scoring-history-title">Scoring by Quarter</div>
+                  <div class="scoring-history-title">Scoring by Quarter</div>
 
-                <div class="quarters-grid">
-                  <div class="quarter-header-cell"></div>
-                  <div class="quarter-header-cell">1</div>
-                  <div class="quarter-header-cell">2</div>
-                  <div class="quarter-header-cell">3</div>
-                  <div class="quarter-header-cell">4</div>
-                  <div class="quarter-header-cell">T</div>
+                  <div class="quarters-grid">
+                    <div class="quarter-header-cell"></div>
+                    <div class="quarter-header-cell">1</div>
+                    <div class="quarter-header-cell">2</div>
+                    <div class="quarter-header-cell">3</div>
+                    <div class="quarter-header-cell">4</div>
+                    <div class="quarter-header-cell">T</div>
 
-                  <div class="team-label-cell">${away.team.abbreviation}</div>
-                  <div class="score-cell ${awayLineScores[0] ? '' : 'empty'}">${awayLineScores[0]?.value || 0}</div>
-                  <div class="score-cell ${awayLineScores[1] ? '' : 'empty'}">${awayLineScores[1]?.value || 0}</div>
-                  <div class="score-cell ${awayLineScores[2] ? '' : 'empty'}">${awayLineScores[2]?.value || 0}</div>
-                  <div class="score-cell ${awayLineScores[3] ? '' : 'empty'}">${awayLineScores[3]?.value || 0}</div>
-                  <div class="score-cell total">${awayScore}</div>
+                    <div class="team-label-cell">${away.team.abbreviation}</div>
+                    <div class="score-cell ${awayLineScores[0] ? '' : 'empty'}">${awayLineScores[0]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[1] ? '' : 'empty'}">${awayLineScores[1]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[2] ? '' : 'empty'}">${awayLineScores[2]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[3] ? '' : 'empty'}">${awayLineScores[3]?.value || 0}</div>
+                    <div class="score-cell total">${awayScore}</div>
 
-                  <div class="team-label-cell">${home.team.abbreviation}</div>
-                  <div class="score-cell ${homeLineScores[0] ? '' : 'empty'}">${homeLineScores[0]?.value || 0}</div>
-                  <div class="score-cell ${homeLineScores[1] ? '' : 'empty'}">${homeLineScores[1]?.value || 0}</div>
-                  <div class="score-cell ${homeLineScores[2] ? '' : 'empty'}">${homeLineScores[2]?.value || 0}</div>
-                  <div class="score-cell ${homeLineScores[3] ? '' : 'empty'}">${homeLineScores[3]?.value || 0}</div>
-                  <div class="score-cell total">${homeScore}</div>
+                    <div class="team-label-cell">${home.team.abbreviation}</div>
+                    <div class="score-cell ${homeLineScores[0] ? '' : 'empty'}">${homeLineScores[0]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[1] ? '' : 'empty'}">${homeLineScores[1]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[2] ? '' : 'empty'}">${homeLineScores[2]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[3] ? '' : 'empty'}">${homeLineScores[3]?.value || 0}</div>
+                    <div class="score-cell total">${homeScore}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          `;
+            `;
+          }
         }
 
         // Close pages container
@@ -4413,7 +4348,7 @@
             ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
             ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away'}
+              ${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}
               ${isLive && possession === awayTeam?.id ? '<span class="fullscreen-possession">🏈</span>' : ''}
             </div>
           </div>
@@ -4432,7 +4367,7 @@
             ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
             ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
             <div class="fullscreen-team-name">
-              ${homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home'}
+              ${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}
               ${isLive && possession === homeTeam?.id ? '<span class="fullscreen-possession">🏈</span>' : ''}
             </div>
           </div>
