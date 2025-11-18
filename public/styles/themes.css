@@ -2,6 +2,64 @@
    GRIDTV SPORTS - THEME SYSTEM
    ==================================== */
 
+/* Root-level variables - default to dark theme */
+:root {
+  /* Background colors */
+  --bg-primary: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+  --bg-secondary: #1a1f2e;
+  --bg-tertiary: #2d3748;
+  --bg-card: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+  
+  /* Text colors */
+  --text-primary: #e0e0e0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  /* Border colors */
+  --border-primary: #334155;
+  --border-hover: #475569;
+  
+  /* Semantic/Accent colors */
+  --accent-blue: #17a2b8;
+  --accent-green: #22c55e;
+  --accent-yellow: #fbbf24;
+  --accent-red: #ef4444;
+  --accent-purple: #a855f7;
+  
+  /* Shadow system */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  
+  /* UI Components */
+  --select-bg: #1a1f2e;
+  --features-bg: rgba(26, 31, 46, 0.6);
+  --header-gradient: linear-gradient(90deg, #17a2b8, #22c55e, #fbbf24, #ef4444);
+  
+  /* Regular Game Cards */
+  --card-bg: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+  --card-border: #334155;
+  --card-border-hover: #475569;
+  
+  /* Sport-Specific Border Colors */
+  --nfl-border: #17a2b8;
+  --nfl-border-hover: #138496;
+  --nfl-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #1e3a3a 100%);
+  --nba-border: #ef4444;
+  --nba-border-hover: #dc2626;
+  --nba-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #3a1e1e 100%);
+  --mlb-border: #fbbf24;
+  --mlb-border-hover: #f59e0b;
+  --mlb-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #3a2e1e 100%);
+  --nhl-border: #22c55e;
+  --nhl-border-hover: #16a34a;
+  --nhl-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #1e3a2e 100%);
+  --ncaa-border: #8b5cf6;
+  --ncaa-border-hover: #7c3aed;
+  --ncaa-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #2e1e3a 100%);
+}
+
 /* Default Dark Theme (Current) */
 body[data-theme="default"] {
   /* Background colors */
@@ -30,6 +88,12 @@ body[data-theme="default"] {
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  
+  /* UI Components */
+  --select-bg: #1a1f2e;
+  --features-bg: rgba(26, 31, 46, 0.6);
+  --header-gradient: linear-gradient(90deg, #17a2b8, #22c55e, #fbbf24, #ef4444);
   
   /* Header & Layout */
   --header-bg: linear-gradient(135deg, #1e293b 0%, #334155 100%);
@@ -171,6 +235,23 @@ body[data-theme="default"] {
   --sport-card-border-hover: #17a2b8;
   --sport-card-shadow-hover: 0 8px 24px rgba(23, 162, 184, 0.4);
   --sport-card-bg-hover: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  
+  /* Sport-Specific Border Colors */
+  --nfl-border: #17a2b8;
+  --nfl-border-hover: #138496;
+  --nfl-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #1e3a3a 100%);
+  --nba-border: #ef4444;
+  --nba-border-hover: #dc2626;
+  --nba-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #3a1e1e 100%);
+  --mlb-border: #fbbf24;
+  --mlb-border-hover: #f59e0b;
+  --mlb-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #3a2e1e 100%);
+  --nhl-border: #22c55e;
+  --nhl-border-hover: #16a34a;
+  --nhl-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #1e3a2e 100%);
+  --ncaa-border: #8b5cf6;
+  --ncaa-border-hover: #7c3aed;
+  --ncaa-bg-hover: linear-gradient(135deg, #1a1f2e 0%, #2e1e3a 100%);
 }
 
 /* Apple UI Theme */
@@ -201,6 +282,12 @@ body[data-theme="apple"] {
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* UI Components */
+  --select-bg: #ffffff;
+  --features-bg: rgba(255, 255, 255, 0.8);
+  --header-gradient: linear-gradient(90deg, #0066cc, #34c759, #ff9500, #ff3b30);
   
   /* Apple-specific */
   --header-bg: rgba(255, 255, 255, 0.8);
@@ -344,6 +431,23 @@ body[data-theme="apple"] {
   --sport-card-border-hover: #0066cc;
   --sport-card-shadow-hover: 0 4px 12px rgba(0, 102, 204, 0.15);
   --sport-card-bg-hover: #ffffff;
+  
+  /* Sport-Specific Border Colors */
+  --nfl-border: #0066cc;
+  --nfl-border-hover: #0055b3;
+  --nfl-bg-hover: #ffffff;
+  --nba-border: #ff3b30;
+  --nba-border-hover: #e62e24;
+  --nba-bg-hover: #ffffff;
+  --mlb-border: #ff9500;
+  --mlb-border-hover: #e68600;
+  --mlb-bg-hover: #ffffff;
+  --nhl-border: #34c759;
+  --nhl-border-hover: #2db84d;
+  --nhl-bg-hover: #ffffff;
+  --ncaa-border: #af52de;
+  --ncaa-border-hover: #9c42c8;
+  --ncaa-bg-hover: #ffffff;
 }
 
 /* Base styles using CSS variables */
