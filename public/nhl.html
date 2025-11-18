@@ -513,6 +513,26 @@
       box-sizing: border-box;
     }
 
+    /* Custom scrollbar for fullscreen grid */
+    .fullscreen-grid::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .fullscreen-grid::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 6px;
+    }
+
+    .fullscreen-grid::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.6);
+      border-radius: 6px;
+      border: 2px solid rgba(15, 23, 42, 0.5);
+    }
+
+    .fullscreen-grid::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.8);
+    }
+
     .fullscreen-grid.grid-1 {
       grid-template-columns: 1fr;
       grid-template-rows: 1fr;
@@ -540,13 +560,36 @@
 
     .fullscreen-grid.grid-4 {
       grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(2, 1fr);
+      grid-template-rows: auto;
       gap: clamp(8px, 1.2vh, 15px);
+      height: calc(100vh - 80px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      align-content: start;
     }
 
     .fullscreen-grid.grid-4 .fullscreen-game-card {
-      height: 100%;
-      max-height: calc((100vh - 140px) / 2);
+      width: 100%;
+      height: auto;
+      min-height: 400px;
+      max-height: none;
+    }
+
+    .fullscreen-grid.grid-6 {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto;
+      gap: clamp(6px, 1vh, 12px);
+      height: calc(100vh - 80px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      align-content: start;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-game-card {
+      width: 100%;
+      height: auto;
+      min-height: 350px;
+      max-height: none;
     }
 
     .fullscreen-grid.grid-6 {
@@ -618,6 +661,22 @@
     }
 
     /* Upcoming game styling */
+    
+    /* Final game styling */
+    .fullscreen-game-card.final-game {
+      border-color: #64748b;
+      background: linear-gradient(135deg, #1a1f2e 0%, #2a2e3a 100%);
+      opacity: 0.92;
+    }
+
+    .fullscreen-final-status {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
     .fullscreen-game-card.upcoming-game {
       border-color: #6366f1;
       background: linear-gradient(135deg, #1a1f2e 0%, #1e2a3a 100%);
@@ -772,17 +831,29 @@
     }
 
     .play-animation-icon {
-      font-size: 8rem;
-      margin-bottom: 20px;
+      font-size: clamp(3rem, 8vh, 8rem);
+      margin-bottom: clamp(10px, 2vh, 20px);
       animation: playIconBounce 0.8s ease-out;
     }
 
     .play-animation-text {
-      font-size: 4rem;
+      font-size: clamp(1.5rem, 4vh, 4rem);
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 3px;
+      letter-spacing: clamp(1px, 0.3vh, 3px);
       animation: playTextSlide 0.8s ease-out;
+      text-align: center;
+      padding: 0 10px;
+      line-height: 1.2;
+    }
+
+    .play-animation-subtext {
+      font-size: clamp(1rem, 2.5vh, 2.5rem);
+      font-weight: 700;
+      margin-top: clamp(5px, 1vh, 10px);
+      text-align: center;
+      padding: 0 10px;
+      line-height: 1.2;
     }
 
     /* Goal Animation - Red/White (NHL Standard) */
@@ -1199,7 +1270,7 @@
     .container {
       max-width: 1800px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 10px;
     }
 
     /* Live Games List - Full Width Emphasis */
@@ -3791,6 +3862,7 @@
             const statusState = comp?.status?.type?.state;
             const isLive = statusState === 'in' || comp?.status?.period > 0;
             const isUpcoming = statusState === 'pre';
+      const isFinal = statusState === 'post';
             
             let statusLabel;
             if (isUpcoming) {
@@ -3951,6 +4023,286 @@
     }
 
     // Create full screen game card with game selector
+    
+    function calculateDynamicScaling() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const layout = currentLayout;
+      
+      console.log('🎨 Dynamic Scaling Calculation:', {
+        viewport: `${vw}x${vh}`,
+        layout: `grid-${layout}`,
+        aspectRatio: (vw / vh).toFixed(2)
+      });
+
+      // Calculate available space per card
+      const controlsHeight = 80; // Top controls bar
+      const availableHeight = vh - controlsHeight;
+      const availableWidth = vw;
+
+      // Grid configurations
+      let cols, rows, padding, gap;
+      
+      switch(layout) {
+        case 1:
+          cols = 1; rows = 1;
+          padding = Math.min(40, vh * 0.03);
+          gap = 0;
+          break;
+        case 2:
+          cols = 2; rows = 1;
+          padding = Math.min(25, vh * 0.025);
+          gap = Math.min(20, vw * 0.015);
+          break;
+        case 4:
+          cols = 2; rows = 2;
+          padding = Math.min(20, vh * 0.02);
+          gap = Math.min(15, vh * 0.012);
+          break;
+        case 6:
+          cols = 3; rows = 2;
+          padding = Math.min(15, vh * 0.015);
+          gap = Math.min(12, vh * 0.01);
+          break;
+        default:
+          cols = 2; rows = 2;
+          padding = 20;
+          gap = 15;
+      }
+
+      // Calculate card dimensions
+      const cardWidth = (availableWidth - (padding * 2) - (gap * (cols - 1))) / cols;
+      const cardHeight = (availableHeight - (padding * 2) - (gap * (rows - 1))) / rows;
+      
+      console.log('📐 Card Dimensions:', {
+        cardWidth: cardWidth.toFixed(0),
+        cardHeight: cardHeight.toFixed(0),
+        padding,
+        gap
+      });
+
+      // Calculate optimal font sizes based on card height
+      // Use card height as the primary scaling factor
+      const baseScale = cardHeight / 500; // 500px is reference height
+      const heightScale = Math.max(0.4, Math.min(1.5, baseScale)); // Limit scale range
+      
+      // Calculate element sizes based on available card space
+      const sizes = {
+        // Quarter/Status text
+        quarterFontSize: Math.max(12, Math.min(28, cardHeight * 0.038)),
+        quarterMargin: Math.max(6, Math.min(20, cardHeight * 0.025)),
+        
+        // Clock text
+        clockFontSize: Math.max(14, Math.min(32, cardHeight * 0.048)),
+        
+        // Game status container
+        statusMargin: Math.max(8, Math.min(20, cardHeight * 0.028)),
+        statusGap: Math.max(4, Math.min(8, cardHeight * 0.012)),
+        
+        // Team logo
+        logoSize: Math.max(35, Math.min(90, cardHeight * 0.15)),
+        
+        // Team name
+        teamNameFontSize: Math.max(14, Math.min(56, cardHeight * 0.075)),
+        
+        // Score
+        scoreFontSize: Math.max(24, Math.min(96, cardHeight * 0.14)),
+        scoreMinWidth: Math.max(50, Math.min(150, cardWidth * 0.15)),
+        
+        // Team record
+        recordFontSize: Math.max(10, Math.min(18, cardHeight * 0.022)),
+        
+        // VS text
+        vsFontSize: Math.max(12, Math.min(32, cardHeight * 0.04)),
+        vsMargin: Math.max(3, Math.min(12, cardHeight * 0.015)),
+        
+        // Team spacing
+        teamMargin: Math.max(6, Math.min(20, cardHeight * 0.025)),
+        teamGap: Math.max(8, Math.min(25, cardWidth * 0.025)),
+        teamInfoGap: Math.max(6, Math.min(15, cardWidth * 0.015)),
+        
+        // Down/Distance
+        downDistanceFontSize: Math.max(12, Math.min(32, cardHeight * 0.042)),
+        downDistanceMargin: Math.max(8, Math.min(15, cardHeight * 0.022)),
+        downDistanceGap: Math.max(4, Math.min(8, cardHeight * 0.012)),
+        fieldPositionFontSize: Math.max(10, Math.min(20, cardHeight * 0.028)),
+        
+        // Sport logo indicator
+        sportLogoSize: Math.max(40, Math.min(120, cardHeight * 0.18)),
+        sportLogoTop: Math.max(8, Math.min(15, cardHeight * 0.025)),
+        sportLogoLeft: Math.max(8, Math.min(15, cardWidth * 0.015)),
+        
+        // Card padding and border
+        cardPadding: Math.max(10, Math.min(30, cardHeight * 0.04)),
+        cardBorderRadius: Math.max(6, Math.min(16, cardHeight * 0.025)),
+        cardBorderWidth: cardHeight < 300 ? 2 : 3,
+        
+        // Timeouts
+        timeoutWidth: Math.max(12, Math.min(24, cardWidth * 0.025)),
+        timeoutHeight: Math.max(4, Math.min(8, cardHeight * 0.012)),
+        timeoutGap: Math.max(3, Math.min(6, cardWidth * 0.006)),
+        timeoutMargin: Math.max(3, Math.min(8, cardHeight * 0.012)),
+        
+        // Possession indicator
+        possessionSize: Math.max(16, Math.min(30, cardHeight * 0.05))
+      };
+
+      console.log('📊 Calculated Sizes:', {
+        teamName: sizes.teamNameFontSize.toFixed(1) + 'px',
+        score: sizes.scoreFontSize.toFixed(1) + 'px',
+        logo: sizes.logoSize.toFixed(1) + 'px',
+        cardPadding: sizes.cardPadding.toFixed(1) + 'px'
+      });
+
+      return { sizes, padding, gap };
+    }
+
+    
+    function applyDynamicScaling() {
+      const { sizes, padding, gap } = calculateDynamicScaling();
+      const layout = currentLayout;
+      
+      // Remove existing dynamic styles
+      if (dynamicStyles) {
+        dynamicStyles.remove();
+      }
+      
+      // Create new style element
+      dynamicStyles = document.createElement('style');
+      dynamicStyles.id = 'dynamic-fullscreen-styles';
+      dynamicStyles.textContent = `
+        /* Dynamic Responsive Scaling - Generated based on ${window.innerWidth}x${window.innerHeight} for grid-${layout} */
+        
+        .fullscreen-grid.grid-${layout} {
+          padding: ${padding}px !important;
+          gap: ${gap}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-game-card {
+          padding: ${sizes.cardPadding}px !important;
+          border-radius: ${sizes.cardBorderRadius}px !important;
+          border-width: ${sizes.cardBorderWidth}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-game-status {
+          margin-bottom: ${sizes.statusMargin}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-quarter-clock {
+          gap: ${sizes.statusGap}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-quarter-text,
+        .fullscreen-grid.grid-${layout} .fullscreen-upcoming-status,
+        .fullscreen-grid.grid-${layout} .fullscreen-final-status {
+          font-size: ${sizes.quarterFontSize}px !important;
+          line-height: 1.1 !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-clock {
+          font-size: ${sizes.clockFontSize}px !important;
+          line-height: 1 !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-quarter {
+          font-size: ${sizes.quarterFontSize}px !important;
+          margin-bottom: ${sizes.quarterMargin}px !important;
+          line-height: 1.2 !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-team-logo {
+          width: ${sizes.logoSize}px !important;
+          height: ${sizes.logoSize}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-team-name {
+          font-size: ${sizes.teamNameFontSize}px !important;
+          line-height: 1.1 !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-score {
+          font-size: ${sizes.scoreFontSize}px !important;
+          min-width: ${sizes.scoreMinWidth}px !important;
+          line-height: 1 !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-team-record {
+          font-size: ${sizes.recordFontSize}px !important;
+          line-height: 1.2 !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-vs {
+          font-size: ${sizes.vsFontSize}px !important;
+          margin: ${sizes.vsMargin}px 0 !important;
+          line-height: 1 !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-team {
+          margin-bottom: ${sizes.teamMargin}px !important;
+          gap: ${sizes.teamGap}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-team-info {
+          gap: ${sizes.teamInfoGap}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-down-distance-container {
+          margin-top: ${sizes.downDistanceMargin}px !important;
+          gap: ${sizes.downDistanceGap}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-down-distance {
+          font-size: ${sizes.downDistanceFontSize}px !important;
+          line-height: 1.1 !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-field-position {
+          font-size: ${sizes.fieldPositionFontSize}px !important;
+          line-height: 1 !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .sport-logo-indicator {
+          width: ${sizes.sportLogoSize}px !important;
+          height: ${sizes.sportLogoSize}px !important;
+          top: ${sizes.sportLogoTop}px !important;
+          left: ${sizes.sportLogoLeft}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .timeout-bar {
+          width: ${sizes.timeoutWidth}px !important;
+          height: ${sizes.timeoutHeight}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-timeouts {
+          gap: ${sizes.timeoutGap}px !important;
+          margin-top: ${sizes.timeoutMargin}px !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-possession {
+          font-size: ${sizes.possessionSize}px !important;
+          margin-left: ${Math.max(4, sizes.possessionSize * 0.3)}px !important;
+        }
+        
+        /* Ensure cards fit perfectly in grid */
+        .fullscreen-grid.grid-${layout} .fullscreen-game-card {
+          overflow: hidden !important;
+        }
+        
+        .fullscreen-grid.grid-${layout} .fullscreen-team-header {
+          gap: ${Math.max(2, sizes.recordFontSize * 0.3)}px !important;
+        }
+      `;
+      
+      document.head.appendChild(dynamicStyles);
+      
+      console.log('✅ Dynamic styles applied for grid-' + layout);
+    }
+
+    /**
+     * Handle window resize - recalculate and apply scaling
+     */
+    let resizeTimeout;
+
     function createFullScreenGameCard(game, slotIndex) {
       const div = document.createElement('div');
       
@@ -3964,6 +4316,7 @@
       const statusState = comp?.status?.type?.state;
       const isLive = statusState === 'in' || comp?.status?.period > 0;
       const isUpcoming = statusState === 'pre';
+      const isFinal = statusState === 'post';
       
       console.log('🎮 Creating game card:', {
         gameName: game.name,
@@ -4016,12 +4369,14 @@
       }
       
       const possession = comp?.situation?.possession;
+      const quarterText = comp?.status?.type?.shortDetail || '';
       const downDistance = comp?.situation?.downDistanceText || '';
       const fieldPosition = comp?.situation?.possessionText || '';
 
       div.className = cardClass;
       div.dataset.slotIndex = slotIndex;
       div.dataset.isLive = isLive ? 'true' : 'false';
+      div.dataset.isFinal = isFinal ? 'true' : 'false';
       div.dataset.gameId = game.id;
       
       div.innerHTML = `
@@ -4098,6 +4453,7 @@
           const statusState = comp?.status?.type?.state;
           const isLive = statusState === 'in' || comp?.status?.period > 0;
           const isUpcoming = statusState === 'pre';
+      const isFinal = statusState === 'post';
           
           let statusLabel;
           if (isUpcoming) {
@@ -4174,7 +4530,7 @@
     }
 
     // Show play animation overlay
-    function showPlayAnimation(card, playType, playText, teamName = '') {
+    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '') {
       // Remove any existing animation
       const existingAnimation = card.querySelector('.play-animation');
       if (existingAnimation) {
@@ -4213,7 +4569,9 @@
       animationDiv.innerHTML = `
         <div class="play-animation-icon">${icon}</div>
         <div class="play-animation-text">${playText}</div>
-        ${teamName ? `<div class="play-animation-text" style="font-size: 2.5rem; margin-top: 10px;">${teamName}</div>` : ''}
+        ${teamName || recoveryInfo ? `
+        <div class="play-animation-subtext">${teamName}${recoveryInfo ? ` - ${recoveryInfo}` : ''}</div>
+      ` : ''}
       `;
       
       card.style.position = 'relative';
@@ -4332,7 +4690,25 @@
             }
           } else if (lastPlay.toLowerCase().includes('fumble')) {
             if (!card.dataset.lastFumble || card.dataset.lastFumble !== lastPlay) {
-              showPlayAnimation(card, 'fumble', 'FUMBLE!');
+              // Extract recovery information from play text
+              let recoveryInfo = '';
+              const lowerPlay = lastPlay.toLowerCase();
+              
+              // Try to find who recovered
+              if (lowerPlay.includes('recovered by')) {
+                const recoveredIndex = lowerPlay.indexOf('recovered by');
+                const afterRecovered = lastPlay.substring(recoveredIndex + 13); // Skip 'recovered by '
+                const teamMatch = afterRecovered.match(/^([A-Z]{2,3}|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/); // Match team abbreviation or name
+                if (teamMatch) {
+                  recoveryInfo = `Recovered by ${teamMatch[1]}`;
+                }
+              } else if (lowerPlay.includes(awayTeam?.team?.abbreviation?.toLowerCase())) {
+                recoveryInfo = `Recovered by ${awayTeam.team.abbreviation}`;
+              } else if (lowerPlay.includes(homeTeam?.team?.abbreviation?.toLowerCase())) {
+                recoveryInfo = `Recovered by ${homeTeam.team.abbreviation}`;
+              }
+              
+              showPlayAnimation(card, 'fumble', 'FUMBLE!', '', recoveryInfo);
               card.dataset.lastFumble = lastPlay;
             }
           }
