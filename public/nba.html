@@ -2563,6 +2563,11 @@
                   <span class="live-dot"></span>
                   <span>LIVE</span>
                 </div>
+              ` : isFinal ? `
+                <div class="live-badge" style="background: #6b7280;">
+                  <span>🏁</span>
+                  <span>FINAL</span>
+                </div>
               ` : `
                 <div class="live-badge" style="background: #f59e0b;">
                   <span>⏰</span>
@@ -2570,7 +2575,7 @@
                 </div>
               `}
               <div class="game-situation">
-                <span class="quarter-clock">${isLive ? `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}` : statusText}</span>
+                <span class="quarter-clock">${isLive ? `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}` : isFinal ? 'Final' : statusText}</span>
                 ${isLive && downDistanceText ? `
                   <span class="down-distance">${downDistanceText}</span>
                 ` : ''}
