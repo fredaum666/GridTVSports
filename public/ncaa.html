@@ -1325,6 +1325,23 @@
       text-shadow: 0 0 20px #f97316;
     }
 
+    /* First Down Animation - Yellow/Gold */
+    .play-animation.first-down .play-animation-icon {
+      color: #eab308;
+      text-shadow: 0 0 30px #eab308, 0 0 60px #eab308;
+    }
+
+    .play-animation.first-down .play-animation-text {
+      color: #eab308;
+      text-shadow: 0 0 20px #eab308;
+      animation: playTextSlide 0.8s ease-out, firstDownPulse 0.5s ease-in-out 3;
+    }
+
+    @keyframes firstDownPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
     @keyframes fadeOut {
       0% { opacity: 1; }
       70% { opacity: 1; }
@@ -5762,7 +5779,7 @@
     }
 
     // Show play animation overlay
-    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '') {
+    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '') {
       // Remove any existing animation
       const existingAnimation = card.querySelector('.play-animation');
       if (existingAnimation) {
@@ -5772,7 +5789,7 @@
       // Create animation overlay
       const animationDiv = document.createElement('div');
       animationDiv.className = `play-animation ${playType}`;
-      
+
       // Choose icon based on play type
       let icon;
       switch(playType) {
@@ -5788,24 +5805,38 @@
         case 'fumble':
           icon = '💨';
           break;
+        case 'first-down':
+          icon = '🏃';
+          break;
         default:
           icon = '⚡';
       }
-      
+
+      // Build recovery HTML with logo for fumbles
+      let recoveryHTML = '';
+      if (playType === 'fumble' && recoveryLogo) {
+        recoveryHTML = `
+          <div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">Recovered by</div>
+          <img src="${recoveryLogo}" alt="Team" style="width: clamp(40px, 8vmin, 80px); height: clamp(40px, 8vmin, 80px); object-fit: contain; margin-top: clamp(5px, 1vh, 10px);">
+        `;
+      } else if (recoveryInfo) {
+        recoveryHTML = `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>`;
+      }
+
       animationDiv.innerHTML = `
         <div class="play-animation-icon">${icon}</div>
         <div class="play-animation-text">${playText}</div>
         ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
-        ${recoveryInfo ? `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>` : ''}
+        ${recoveryHTML}
       `;
-      
+
       card.style.position = 'relative';
       card.appendChild(animationDiv);
-      
-      // Remove after animation completes (3 seconds)
+
+      // Remove after animation completes (5 seconds)
       setTimeout(() => {
         animationDiv.remove();
-      }, 3000);
+      }, 5000);
     }
 
     // Update full screen scores
@@ -5944,28 +5975,61 @@
             }
           } else if (lastPlay.toLowerCase().includes('fumble')) {
             if (!card.dataset.lastFumble || card.dataset.lastFumble !== lastPlay) {
-              // Extract recovery information from play text
+              // Extract recovery information and team logo from play text
               let recoveryInfo = '';
+              let recoveryLogo = '';
               const lowerPlay = lastPlay.toLowerCase();
-              
-              // Try to find who recovered
+
+              // Try to find who recovered and get their logo
               if (lowerPlay.includes('recovered by')) {
                 const recoveredIndex = lowerPlay.indexOf('recovered by');
                 const afterRecovered = lastPlay.substring(recoveredIndex + 13); // Skip 'recovered by '
-                const teamMatch = afterRecovered.match(/^([A-Z]{2,3}|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/); // Match team abbreviation or name
-                if (teamMatch) {
-                  recoveryInfo = `Recovered by ${teamMatch[1]}`;
+
+                // Check if away team recovered
+                if (afterRecovered.toLowerCase().includes(awayTeam?.team?.abbreviation?.toLowerCase()) ||
+                    afterRecovered.toLowerCase().includes(awayTeam?.team?.shortDisplayName?.toLowerCase())) {
+                  recoveryLogo = awayTeam?.team?.logo || '';
+                }
+                // Check if home team recovered
+                else if (afterRecovered.toLowerCase().includes(homeTeam?.team?.abbreviation?.toLowerCase()) ||
+                         afterRecovered.toLowerCase().includes(homeTeam?.team?.shortDisplayName?.toLowerCase())) {
+                  recoveryLogo = homeTeam?.team?.logo || '';
                 }
               } else if (lowerPlay.includes(awayTeam?.team?.abbreviation?.toLowerCase())) {
-                recoveryInfo = `Recovered by ${awayTeam.team.abbreviation}`;
+                recoveryLogo = awayTeam?.team?.logo || '';
               } else if (lowerPlay.includes(homeTeam?.team?.abbreviation?.toLowerCase())) {
-                recoveryInfo = `Recovered by ${homeTeam.team.abbreviation}`;
+                recoveryLogo = homeTeam?.team?.logo || '';
               }
-              
-              showPlayAnimation(card, 'fumble', 'FUMBLE!', '', recoveryInfo);
+
+              showPlayAnimation(card, 'fumble', 'FUMBLE!', '', recoveryInfo, recoveryLogo);
               card.dataset.lastFumble = lastPlay;
             }
           }
+
+          // Check for 1st down - when down changes to 1 from 2, 3, or 4
+          const currentDown = comp?.situation?.down;
+          const prevDown = parseInt(card.dataset.prevDown) || 0;
+
+          // Only trigger if:
+          // - Current down is 1
+          // - Previous down was 2, 3, or 4 (not 0 or 1)
+          // - No score change (to avoid showing after touchdowns)
+          // - Not showing other animations (interception/fumble)
+          if (currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
+              awayScoreChange === 0 && homeScoreChange === 0 &&
+              !lastPlay.toLowerCase().includes('interception') &&
+              !lastPlay.toLowerCase().includes('intercepted') &&
+              !lastPlay.toLowerCase().includes('fumble')) {
+            // Check if we already showed this 1st down
+            const downDistanceText = comp?.situation?.downDistanceText || '';
+            if (card.dataset.lastFirstDown !== downDistanceText) {
+              showPlayAnimation(card, 'first-down', '1ST DOWN!');
+              card.dataset.lastFirstDown = downDistanceText;
+            }
+          }
+
+          // Store current down for next update
+          card.dataset.prevDown = currentDown || 0;
 
           // Store current scores for next update
           card.dataset.prevAwayScore = awayScore;
