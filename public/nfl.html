@@ -3149,6 +3149,11 @@
         font-size: 12px;
       }
 
+      /* Hide 6 game option on mobile - max 4 games */
+      .layout-options label:has(input[value="6"]) {
+        display: none;
+      }
+
       .grid-preview {
         padding: 8px;
         gap: 8px;
