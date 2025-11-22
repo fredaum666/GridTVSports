@@ -1347,10 +1347,11 @@
       transform: translateY(0);
     }
 
-    /* Games Grid - 3 column layout like NFL */
+    /* Games Grid - Fully Responsive */
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), max-content));
+      /* Auto-fill creates responsive columns - smaller min width allows more columns */
+      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
       gap: 15px;
       padding: 5px 10px 20px 10px;
       margin-top: 10px;
@@ -1360,47 +1361,56 @@
       justify-content: start;
     }
 
-    /* Large Desktop: 4+ cards per row (1920px+) */
-    @media (min-width: 1920px) {
+    /* Large Desktop: 4+ cards per row (1600px+) */
+    @media (min-width: 1600px) {
       .games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(420px, 420px));
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
         gap: 18px;
         padding: 5px 15px 20px 15px;
       }
     }
 
-    /* Desktop: 2-3 cards per row (1200px - 1919px) */
-    @media (min-width: 1200px) and (max-width: 1919px) {
+    /* Desktop: 3-4 cards per row (1200px - 1599px) */
+    @media (min-width: 1200px) and (max-width: 1599px) {
       .games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(400px, 400px));
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
         gap: 15px;
       }
     }
 
-    /* Tablet: 2 cards per row (900px - 1199px) */
+    /* Tablet Landscape: 3 cards per row (900px - 1199px) */
     @media (min-width: 900px) and (max-width: 1199px) {
       .games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(380px, 380px));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+      }
+    }
+
+    /* Tablet Portrait: 2-3 cards (650px - 899px) */
+    @media (min-width: 650px) and (max-width: 899px) {
+      .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 12px;
         padding: 5px 8px 20px 8px;
       }
     }
 
-    /* Small Tablet: 1-2 cards per row (600px - 899px) */
-    @media (min-width: 600px) and (max-width: 899px) {
+    /* Small Tablet / Large Mobile: 2 cards (500px - 649px) */
+    @media (min-width: 500px) and (max-width: 649px) {
       .games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(min(350px, 100%), 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
         padding: 5px 5px 20px 5px;
       }
     }
 
-    /* Mobile: 1 card per row (under 600px) */
-    @media (max-width: 599px) {
+    /* Mobile: 1 card per row (< 500px) */
+    @media (max-width: 499px) {
       .games-grid {
         grid-template-columns: 1fr;
-        gap: 10px;
-        padding: 5px 3px 20px 3px;
+        gap: 12px;
+        padding: 5px 5px 20px 5px;
+        overflow-x: hidden;
       }
     }
 
