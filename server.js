@@ -3,10 +3,219 @@ const axios = require('axios');
 const cron = require('node-cron');
 const cors = require('cors');
 const path = require('path');
+const http = require('http');
+const WebSocket = require('ws');
 const { pool } = require('./db');
 
 const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 const PORT = process.env.PORT || 3001;
+
+// ============================================
+// TV CASTING - ROOM MANAGEMENT
+// ============================================
+
+const tvRooms = new Map(); // roomCode -> { tv: WebSocket, remotes: Set<WebSocket>, state: Object, createdAt: Date }
+
+// Generate a random 4-character room code
+function generateRoomCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Excluded confusing chars: I, O, 0, 1
+  let code;
+  do {
+    code = '';
+    for (let i = 0; i < 4; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+  } while (tvRooms.has(code)); // Ensure unique
+  return code;
+}
+
+// Clean up stale rooms (older than 24 hours)
+function cleanupStaleRooms() {
+  const now = Date.now();
+  const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+
+  for (const [code, room] of tvRooms) {
+    if (now - room.createdAt > maxAge) {
+      console.log(`🧹 Cleaning up stale room: ${code}`);
+      if (room.tv && room.tv.readyState === WebSocket.OPEN) {
+        room.tv.close();
+      }
+      for (const remote of room.remotes) {
+        if (remote.readyState === WebSocket.OPEN) {
+          remote.close();
+        }
+      }
+      tvRooms.delete(code);
+    }
+  }
+}
+
+// Run cleanup every hour
+setInterval(cleanupStaleRooms, 60 * 60 * 1000);
+
+// WebSocket connection handler
+wss.on('connection', (ws, req) => {
+  console.log('📺 New WebSocket connection');
+
+  ws.isAlive = true;
+  ws.on('pong', () => { ws.isAlive = true; });
+
+  ws.on('message', (message) => {
+    try {
+      const data = JSON.parse(message);
+      handleWebSocketMessage(ws, data);
+    } catch (error) {
+      console.error('WebSocket message error:', error);
+      ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
+    }
+  });
+
+  ws.on('close', () => {
+    handleWebSocketClose(ws);
+  });
+
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+  });
+});
+
+// Heartbeat to keep connections alive
+const heartbeatInterval = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (ws.isAlive === false) {
+      return ws.terminate();
+    }
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000);
+
+wss.on('close', () => {
+  clearInterval(heartbeatInterval);
+});
+
+// Handle incoming WebSocket messages
+function handleWebSocketMessage(ws, data) {
+  switch (data.type) {
+    case 'tv-create-room':
+      // TV requests a new room
+      const roomCode = generateRoomCode();
+      tvRooms.set(roomCode, {
+        tv: ws,
+        remotes: new Set(),
+        state: data.initialState || {},
+        createdAt: Date.now()
+      });
+      ws.roomCode = roomCode;
+      ws.role = 'tv';
+      console.log(`📺 TV created room: ${roomCode}`);
+      ws.send(JSON.stringify({ type: 'room-created', roomCode }));
+      break;
+
+    case 'remote-join-room':
+      // Remote device joins a room
+      const joinCode = data.roomCode?.toUpperCase();
+      const room = tvRooms.get(joinCode);
+
+      if (!room) {
+        ws.send(JSON.stringify({ type: 'error', message: 'Room not found. Check the code and try again.' }));
+        return;
+      }
+
+      if (!room.tv || room.tv.readyState !== WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'error', message: 'TV is not connected. Make sure the TV display is open.' }));
+        return;
+      }
+
+      room.remotes.add(ws);
+      ws.roomCode = joinCode;
+      ws.role = 'remote';
+
+      console.log(`📱 Remote joined room: ${joinCode} (${room.remotes.size} remotes)`);
+
+      // Send current state to the remote
+      ws.send(JSON.stringify({ type: 'joined-room', roomCode: joinCode, state: room.state }));
+
+      // Notify TV that a remote connected
+      if (room.tv && room.tv.readyState === WebSocket.OPEN) {
+        room.tv.send(JSON.stringify({ type: 'remote-connected', remoteCount: room.remotes.size }));
+      }
+      break;
+
+    case 'update-state':
+      // Remote sends state update to TV
+      const updateRoom = tvRooms.get(ws.roomCode);
+      if (!updateRoom) return;
+
+      // Merge the state update
+      updateRoom.state = { ...updateRoom.state, ...data.state };
+
+      // Send to TV
+      if (updateRoom.tv && updateRoom.tv.readyState === WebSocket.OPEN) {
+        updateRoom.tv.send(JSON.stringify({ type: 'state-update', state: data.state, fullState: updateRoom.state }));
+      }
+
+      // Echo to other remotes (for multi-remote scenarios)
+      for (const remote of updateRoom.remotes) {
+        if (remote !== ws && remote.readyState === WebSocket.OPEN) {
+          remote.send(JSON.stringify({ type: 'state-sync', state: updateRoom.state }));
+        }
+      }
+      break;
+
+    case 'tv-state-sync':
+      // TV sends full state (for late-joining remotes or resync)
+      const tvRoom = tvRooms.get(ws.roomCode);
+      if (!tvRoom || ws.role !== 'tv') return;
+
+      tvRoom.state = data.state;
+
+      // Broadcast to all remotes
+      for (const remote of tvRoom.remotes) {
+        if (remote.readyState === WebSocket.OPEN) {
+          remote.send(JSON.stringify({ type: 'state-sync', state: data.state }));
+        }
+      }
+      break;
+
+    case 'ping':
+      ws.send(JSON.stringify({ type: 'pong' }));
+      break;
+
+    default:
+      console.log('Unknown message type:', data.type);
+  }
+}
+
+// Handle WebSocket disconnection
+function handleWebSocketClose(ws) {
+  if (!ws.roomCode) return;
+
+  const room = tvRooms.get(ws.roomCode);
+  if (!room) return;
+
+  if (ws.role === 'tv') {
+    // TV disconnected - notify all remotes and clean up room
+    console.log(`📺 TV disconnected from room: ${ws.roomCode}`);
+    for (const remote of room.remotes) {
+      if (remote.readyState === WebSocket.OPEN) {
+        remote.send(JSON.stringify({ type: 'tv-disconnected' }));
+      }
+    }
+    tvRooms.delete(ws.roomCode);
+  } else if (ws.role === 'remote') {
+    // Remote disconnected
+    room.remotes.delete(ws);
+    console.log(`📱 Remote disconnected from room: ${ws.roomCode} (${room.remotes.size} remotes remaining)`);
+
+    // Notify TV
+    if (room.tv && room.tv.readyState === WebSocket.OPEN) {
+      room.tv.send(JSON.stringify({ type: 'remote-disconnected', remoteCount: room.remotes.size }));
+    }
+  }
+}
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
@@ -801,15 +1010,16 @@ app.delete('/api/final-games/clear/:sport', (req, res) => {
 // START SERVER
 // ============================================
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`✅ GridTV Sports Multi-Sport Server running on port ${PORT}`);
   console.log(`🏈 NFL API: http://localhost:${PORT}/api/nfl/scoreboard`);
-  console.log(`� NCAA API: http://localhost:${PORT}/api/ncaa/scoreboard`);
-  console.log(`�🏀 NBA API: http://localhost:${PORT}/api/nba/scoreboard`);
+  console.log(`🏈 NCAA API: http://localhost:${PORT}/api/ncaa/scoreboard`);
+  console.log(`🏀 NBA API: http://localhost:${PORT}/api/nba/scoreboard`);
   console.log(`⚾ MLB API: http://localhost:${PORT}/api/mlb/scoreboard`);
   console.log(`🏒 NHL API: http://localhost:${PORT}/api/nhl/scoreboard`);
+  console.log(`📺 TV Display: http://localhost:${PORT}/tv.html`);
   console.log(`🌐 Frontend: http://localhost:${PORT}`);
-  
+
   // Clean up any stale dates from cache
   cleanupActiveDates();
 });
