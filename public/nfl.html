@@ -1328,7 +1328,7 @@
       animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
     }
 
-    /* Field Goal Animation - Blue */
+    /* Field Goal Animation - Blue with YFrame and spinning ball */
     .play-animation.field-goal .play-animation-icon {
       color: #3b82f6;
       text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
@@ -1337,6 +1337,53 @@
     .play-animation.field-goal .play-animation-text {
       color: #3b82f6;
       text-shadow: 0 0 20px #3b82f6;
+    }
+
+    .field-goal-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .yframe-image {
+      width: clamp(80px, 15vmin, 150px);
+      height: auto;
+      filter: drop-shadow(0 0 20px #3b82f6) drop-shadow(0 0 40px #3b82f6);
+      animation: yframeGlow 1s ease-in-out infinite alternate;
+    }
+
+    .spinning-football {
+      position: absolute;
+      font-size: clamp(1.5rem, 4vmin, 3rem);
+      animation: footballSpin 0.5s linear infinite, footballArc 1.5s ease-out forwards;
+      filter: drop-shadow(0 0 10px #8b4513);
+    }
+
+    @keyframes yframeGlow {
+      0% { filter: drop-shadow(0 0 20px #3b82f6) drop-shadow(0 0 40px #3b82f6); }
+      100% { filter: drop-shadow(0 0 30px #60a5fa) drop-shadow(0 0 60px #60a5fa); }
+    }
+
+    @keyframes footballSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes footballArc {
+      0% {
+        bottom: -50px;
+        opacity: 1;
+      }
+      50% {
+        bottom: 30%;
+        opacity: 1;
+      }
+      100% {
+        bottom: 80%;
+        opacity: 0;
+      }
     }
 
     /* Interception Animation - Red */
@@ -5847,12 +5894,24 @@
         recoveryHTML = `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>`;
       }
 
-      animationDiv.innerHTML = `
-        <div class="play-animation-icon">${icon}</div>
-        <div class="play-animation-text">${playText}</div>
-        ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
-        ${recoveryHTML}
-      `;
+      // Special HTML for field goal with YFrame and spinning ball
+      if (playType === 'field-goal') {
+        animationDiv.innerHTML = `
+          <div class="field-goal-container">
+            <img src="/assets/YFrame.png" alt="Goal Post" class="yframe-image">
+            <div class="spinning-football">🏈</div>
+          </div>
+          <div class="play-animation-text">${playText}</div>
+          ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+        `;
+      } else {
+        animationDiv.innerHTML = `
+          <div class="play-animation-icon">${icon}</div>
+          <div class="play-animation-text">${playText}</div>
+          ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+          ${recoveryHTML}
+        `;
+      }
 
       card.style.position = 'relative';
       card.appendChild(animationDiv);
