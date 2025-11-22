@@ -294,6 +294,55 @@
       letter-spacing: 0.5px;
     }
 
+    /* League Filter Buttons */
+    .league-filters {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .league-filter-btn {
+      padding: 4px 8px;
+      border: 2px solid #475569;
+      border-radius: 4px;
+      background: #1e293b;
+      color: #94a3b8;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .league-filter-btn:hover {
+      border-color: #64748b;
+      background: #334155;
+      color: #e2e8f0;
+    }
+
+    .league-filter-btn.active {
+      border-color: #22c55e;
+      background: #166534;
+      color: #fff;
+    }
+
+    .league-filter-btn.nfl { border-color: #1d4ed8; }
+    .league-filter-btn.nfl.active { background: #1e40af; border-color: #3b82f6; }
+
+    .league-filter-btn.ncaa { border-color: #7c3aed; }
+    .league-filter-btn.ncaa.active { background: #6d28d9; border-color: #8b5cf6; }
+
+    .league-filter-btn.nba { border-color: #ea580c; }
+    .league-filter-btn.nba.active { background: #c2410c; border-color: #f97316; }
+
+    .league-filter-btn.nhl { border-color: #0891b2; }
+    .league-filter-btn.nhl.active { background: #0e7490; border-color: #06b6d4; }
+
+    .league-filter-btn.mlb { border-color: #dc2626; }
+    .league-filter-btn.mlb.active { background: #b91c1c; border-color: #ef4444; }
+
     .game-selector {
       width: 100%;
       padding: 10px;
@@ -530,25 +579,41 @@
     .fullscreen-grid {
       flex: 1;
       display: grid;
-      gap: 20px;
-      padding: 20px;
-      overflow-y: auto;
+      gap: clamp(10px, 1.5vh, 20px);
+      padding: clamp(15px, 2vh, 25px);
+      overflow: hidden;
+      height: calc(100vh - 80px);
+      box-sizing: border-box;
     }
 
     .fullscreen-grid.grid-1 {
       grid-template-columns: 1fr;
+      grid-template-rows: 1fr;
       place-items: center;
-      padding: 40px;
+      padding: clamp(20px, 3vh, 40px);
     }
 
     .fullscreen-grid.grid-1 .fullscreen-game-card,
     .fullscreen-grid.grid-1 .fullscreen-game-slot {
-      max-width: 900px;
+      max-width: min(900px, 90vw);
+      max-height: 90vh;
       width: 100%;
+      height: 100%;
     }
 
     .fullscreen-grid.grid-2 {
       grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: 1fr;
+      gap: clamp(10px, 1.5vw, 20px);
+      height: calc(100vh - 80px);
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-game-card,
+    .fullscreen-grid.grid-2 .fullscreen-game-slot {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      max-height: 100%;
     }
 
     .fullscreen-grid.grid-2 .fullscreen-team-record {
@@ -565,39 +630,50 @@
       overflow: hidden;
     }
 
-    .fullscreen-grid.grid-4 .fullscreen-game-card {
+    .fullscreen-grid.grid-4 .fullscreen-game-card,
+    .fullscreen-grid.grid-4 .fullscreen-game-slot {
       width: 100%;
       height: 100%;
       min-height: 0;
       max-height: 100%;
-      flex-shrink: 1;
     }
 
     .fullscreen-grid.grid-6 {
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(2, 1fr);
-      gap: clamp(8px, 1.2vh, 15px);
+      gap: clamp(6px, 1vh, 12px);
       height: calc(100vh - 80px);
       overflow: hidden;
     }
 
-    .fullscreen-grid.grid-6 .fullscreen-game-card {
+    .fullscreen-grid.grid-6 .fullscreen-game-card,
+    .fullscreen-grid.grid-6 .fullscreen-game-slot {
       width: 100%;
       height: 100%;
       min-height: 0;
       max-height: 100%;
-      flex-shrink: 1;
     }
 
     .fullscreen-grid.grid-8 {
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(2, 1fr);
+      gap: clamp(4px, 0.8vh, 10px);
+      height: calc(100vh - 80px);
+      overflow: hidden;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-game-card,
+    .fullscreen-grid.grid-8 .fullscreen-game-slot {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      max-height: 100%;
     }
 
     .fullscreen-game-card {
       background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
-      border-radius: 16px;
-      padding: 30px 30px 40px 30px;
+      border-radius: clamp(8px, 1.2vh, 16px);
+      padding: clamp(15px, 2.5vh, 30px);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -606,13 +682,17 @@
       border: 3px solid #334155;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
-      overflow: visible;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      box-sizing: border-box;
+      overflow: hidden;
     }
 
     .fullscreen-game-slot {
       background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      border-radius: 16px;
-      padding: 30px;
+      border-radius: clamp(8px, 1.2vh, 16px);
+      padding: clamp(15px, 2.5vh, 30px);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -621,6 +701,10 @@
       border: 3px dashed #475569;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      box-sizing: border-box;
       overflow: hidden;
     }
 
@@ -1147,25 +1231,26 @@
       z-index: 1000;
       animation: fadeOut 5s forwards;
       pointer-events: none;
+      border-radius: inherit;
     }
 
     .play-animation-icon {
-      font-size: 6rem;
-      margin-bottom: 20px;
+      font-size: clamp(3rem, 8vh, 8rem);
+      margin-bottom: clamp(10px, 2vh, 20px);
       animation: playIconBounce 0.8s ease-out;
     }
 
     .play-animation-text {
-      font-size: 4rem;
+      font-size: clamp(1.5rem, 4vh, 4rem);
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 3px;
+      letter-spacing: clamp(1px, 0.3vw, 3px);
       animation: playTextSlide 0.8s ease-out;
     }
 
     .play-animation-subtext {
-      font-size: clamp(1.5rem, 3vmin, 2.5rem);
-      font-weight: 600;
+      font-size: clamp(1rem, 2.5vh, 2.5rem);
+      font-weight: 700;
       color: #e5e7eb;
       text-transform: uppercase;
       margin-top: clamp(5px, 1vh, 10px);
@@ -1279,6 +1364,84 @@
       animation: playTextSlide 0.8s ease-out, firstDownPulse 0.5s ease-in-out 3;
     }
 
+    /* ==================================================
+       NBA ANIMATIONS
+       ================================================== */
+
+    .play-animation.nba-score .play-animation-icon {
+      color: #f97316;
+      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+    }
+
+    .play-animation.nba-score .play-animation-text {
+      color: #f97316;
+      text-shadow: 0 0 20px #f97316;
+    }
+
+    .play-animation.nba-three-pointer .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    }
+
+    .play-animation.nba-three-pointer .play-animation-text {
+      background: linear-gradient(90deg, #ef4444, #fbbf24, #ef4444);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* ==================================================
+       MLB ANIMATIONS
+       ================================================== */
+
+    .play-animation.mlb-home-run .play-animation-icon {
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    }
+
+    .play-animation.mlb-home-run .play-animation-text {
+      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    .play-animation.mlb-score .play-animation-icon {
+      color: #3b82f6;
+      text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
+    }
+
+    .play-animation.mlb-score .play-animation-text {
+      color: #3b82f6;
+      text-shadow: 0 0 20px #3b82f6;
+    }
+
+    /* ==================================================
+       NHL ANIMATIONS
+       ================================================== */
+
+    .play-animation.nhl-goal .play-animation-icon {
+      color: #ef4444;
+      text-shadow: 0 0 30px #ef4444, 0 0 60px #ef4444;
+    }
+
+    .play-animation.nhl-goal .play-animation-text {
+      background: linear-gradient(90deg, #ef4444, #fbbf24, #ef4444);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* ==================================================
+       ANIMATION KEYFRAMES
+       ================================================== */
+
     @keyframes firstDownPulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
@@ -1311,6 +1474,11 @@
       0% { transform: scale(1); }
       50% { transform: scale(1.15); color: #fbbf24; }
       100% { transform: scale(1); }
+    }
+
+    @keyframes castPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
     }
 
     .fs-game-selector {
@@ -1504,158 +1672,136 @@
       padding: 12px !important;
     }
 
-    /* ============================================
-       SPORT ANIMATIONS (NFL, NBA, MLB, NHL)
-       ============================================ */
+    /* ==================================================
+       NFL/NCAA/NBA Layout Responsive Sizing
+       ================================================== */
 
-    /* Play/Score Animations */
-    .play-animation {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.90);
-      z-index: 100;
-      pointer-events: none;
-      animation: fadeOut 5s forwards;
+    /* Grid-6 (3x2) - Smallest cards */
+    .fullscreen-grid.grid-6 .fullscreen-live-team-name {
+      font-size: clamp(0.9rem, 2vmin, 1.2rem) !important;
     }
 
-    .play-animation-icon {
-      font-size: 8rem;
-      margin-bottom: 20px;
-      animation: playIconBounce 0.8s ease-out;
+    .fullscreen-grid.grid-6 .fullscreen-team-score {
+      font-size: clamp(2rem, 5vmin, 3rem) !important;
+      min-width: clamp(40px, 8vmin, 70px) !important;
     }
 
-    .play-animation-text {
-      font-size: 4rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      animation: playTextSlide 0.8s ease-out;
-      text-shadow: 0 0 20px currentColor;
+    .fullscreen-grid.grid-6 .fullscreen-status-text {
+      font-size: clamp(0.8rem, 1.8vmin, 1.1rem) !important;
     }
 
-    /* NFL Animations */
-    .play-animation.nfl-touchdown .play-animation-icon {
-      color: #fbbf24;
-      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
+      font-size: clamp(0.7rem, 1.5vmin, 1rem) !important;
     }
 
-    .play-animation.nfl-touchdown .play-animation-text {
-      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
-      background-size: 200% auto;
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    .fullscreen-grid.grid-6 .fullscreen-situation-info {
+      font-size: clamp(0.7rem, 1.5vmin, 0.9rem) !important;
     }
 
-    .play-animation.nfl-field-goal .play-animation-icon {
-      color: #3b82f6;
-      text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
+    .fullscreen-grid.grid-6 .fullscreen-team-stack {
+      gap: clamp(2px, 0.5vh, 5px) !important;
     }
 
-    .play-animation.nfl-interception .play-animation-icon {
-      color: #ef4444;
-      text-shadow: 0 0 30px #ef4444, 0 0 60px #ef4444;
+    .fullscreen-grid.grid-6 .fullscreen-live-score-header {
+      gap: clamp(8px, 2vw, 15px) !important;
     }
 
-    .play-animation.nfl-fumble .play-animation-icon {
-      color: #f97316;
-      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+    .fullscreen-grid.grid-6 .fullscreen-timeouts {
+      gap: clamp(2px, 0.4vw, 4px) !important;
     }
 
-    /* NBA Animations */
-    .play-animation.nba-score .play-animation-icon {
-      color: #f97316;
-      text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+    .fullscreen-grid.grid-6 .timeout-bar {
+      width: clamp(12px, 2vw, 18px) !important;
+      height: clamp(3px, 0.6vh, 5px) !important;
     }
 
-    .play-animation.nba-three-pointer .play-animation-icon {
-      color: #fbbf24;
-      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    .fullscreen-grid.grid-6 .field-visualizer {
+      transform: scale(0.8);
+      margin-top: 5px !important;
     }
 
-    .play-animation.nba-three-pointer .play-animation-text {
-      background: linear-gradient(90deg, #ef4444, #fbbf24, #ef4444);
-      background-size: 200% auto;
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    /* Grid-4 (2x2) - Medium cards */
+    .fullscreen-grid.grid-4 .fullscreen-live-team-name {
+      font-size: clamp(1rem, 2.5vmin, 1.5rem) !important;
     }
 
-    /* MLB Animations */
-    .play-animation.mlb-home-run .play-animation-icon {
-      color: #fbbf24;
-      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+    .fullscreen-grid.grid-4 .fullscreen-team-score {
+      font-size: clamp(2.5rem, 6vmin, 4rem) !important;
+      min-width: clamp(50px, 10vmin, 90px) !important;
     }
 
-    .play-animation.mlb-home-run .play-animation-text {
-      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
-      background-size: 200% auto;
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    .fullscreen-grid.grid-4 .fullscreen-status-text {
+      font-size: clamp(0.9rem, 2vmin, 1.3rem) !important;
     }
 
-    .play-animation.mlb-score .play-animation-icon {
-      color: #3b82f6;
-      text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
+    .fullscreen-grid.grid-4 .fullscreen-vs-divider-live {
+      font-size: clamp(0.8rem, 1.8vmin, 1.2rem) !important;
     }
 
-    /* NHL Animations */
-    .play-animation.nhl-goal .play-animation-icon {
-      color: #ef4444;
-      text-shadow: 0 0 30px #ef4444, 0 0 60px #ef4444;
+    .fullscreen-grid.grid-4 .fullscreen-situation-info {
+      font-size: clamp(0.8rem, 1.8vmin, 1.1rem) !important;
     }
 
-    .play-animation.nhl-goal .play-animation-text {
-      background: linear-gradient(90deg, #ef4444, #fbbf24, #ef4444);
-      background-size: 200% auto;
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    .fullscreen-grid.grid-4 .fullscreen-team-stack {
+      gap: clamp(3px, 0.7vh, 8px) !important;
     }
 
-    /* Animation Keyframes */
-    @keyframes fadeOut {
-      0% { opacity: 1; }
-      70% { opacity: 1; }
-      100% { opacity: 0; }
+    .fullscreen-grid.grid-4 .fullscreen-live-score-header {
+      gap: clamp(12px, 3vw, 25px) !important;
     }
 
-    @keyframes playIconBounce {
-      0% { transform: scale(0) rotate(0deg); }
-      50% { transform: scale(1.2) rotate(180deg); }
-      100% { transform: scale(1) rotate(360deg); }
+    .fullscreen-grid.grid-4 .fullscreen-timeouts {
+      gap: clamp(3px, 0.5vw, 6px) !important;
     }
 
-    @keyframes playTextSlide {
-      0% { transform: translateY(50px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+    .fullscreen-grid.grid-4 .timeout-bar {
+      width: clamp(15px, 2.5vw, 22px) !important;
+      height: clamp(4px, 0.7vh, 6px) !important;
     }
 
-    @keyframes gradientShift {
-      0% { background-position: 0% center; }
-      100% { background-position: 200% center; }
+    /* Grid-8 (4x2) - Smallest cards */
+    .fullscreen-grid.grid-8 .fullscreen-live-team-name {
+      font-size: clamp(0.7rem, 1.5vmin, 1rem) !important;
     }
 
-    @keyframes castPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
+    .fullscreen-grid.grid-8 .fullscreen-team-score {
+      font-size: clamp(1.5rem, 4vmin, 2.5rem) !important;
+      min-width: clamp(30px, 6vmin, 50px) !important;
     }
 
-    /* ============================================
-       END SPORT ANIMATIONS
-       ============================================ */
+    .fullscreen-grid.grid-8 .fullscreen-status-text {
+      font-size: clamp(0.6rem, 1.4vmin, 0.9rem) !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-vs-divider-live {
+      font-size: clamp(0.5rem, 1.2vmin, 0.8rem) !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-situation-info {
+      font-size: clamp(0.5rem, 1.2vmin, 0.7rem) !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-team-stack {
+      gap: clamp(1px, 0.3vh, 3px) !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-live-score-header {
+      gap: clamp(5px, 1.5vw, 10px) !important;
+    }
+
+    .fullscreen-grid.grid-8 .fullscreen-timeouts {
+      gap: clamp(1px, 0.3vw, 3px) !important;
+    }
+
+    .fullscreen-grid.grid-8 .timeout-bar {
+      width: clamp(8px, 1.5vw, 14px) !important;
+      height: clamp(2px, 0.4vh, 4px) !important;
+    }
+
+    .fullscreen-grid.grid-8 .field-visualizer {
+      transform: scale(0.6);
+      margin-top: 3px !important;
+    }
 
     /* Cast Button Styles */
     .cast-btn {
@@ -2180,10 +2326,60 @@
   <script>
     let allGames = [];
     let gridGames = {};
+    let slotFilters = {}; // Track selected sport filter per slot ('all', 'nfl', 'ncaa', 'nba', 'nhl', 'mlb')
     let currentLayout = 4;
     let fullscreenRefreshInterval;
     let presentationRequest = null;
     let presentationConnection = null;
+
+    // Calculate ball position percentage for field visualizer
+    // Field position format: "DAL 32" means Dallas has ball at their own 32 yard line
+    // 0% = offensive team's own endzone, 100% = opponent's endzone (target)
+    function calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam) {
+      if (!fieldPosition) return 50; // Default to midfield
+
+      // Parse field position (e.g., "DAL 32", "LV 45", "50")
+      const parts = fieldPosition.trim().split(' ');
+
+      let yardLine;
+      let teamAbbr = null;
+
+      if (parts.length === 2) {
+        teamAbbr = parts[0];
+        yardLine = parseInt(parts[1]);
+      } else if (parts.length === 1) {
+        yardLine = parseInt(parts[0]);
+      } else {
+        return 50;
+      }
+
+      if (isNaN(yardLine)) return 50;
+
+      // Determine which team has possession
+      const offensiveTeamId = possession;
+      const isAwayOffense = offensiveTeamId === awayTeam?.id;
+      const offensiveTeamAbbr = isAwayOffense ? awayTeam?.team?.abbreviation : homeTeam?.team?.abbreviation;
+      const defensiveTeamAbbr = isAwayOffense ? homeTeam?.team?.abbreviation : awayTeam?.team?.abbreviation;
+
+      // Calculate position: 0% = own endzone, 100% = opponent's endzone
+      let position;
+
+      if (teamAbbr === null) {
+        // Just a yard line number (e.g., "50") - it's the 50 yard line
+        position = 50;
+      } else if (teamAbbr === offensiveTeamAbbr) {
+        // Ball is on offensive team's side of field
+        position = yardLine;
+      } else if (teamAbbr === defensiveTeamAbbr) {
+        // Ball is on defensive team's side (closer to scoring)
+        position = 100 - yardLine;
+      } else {
+        // Unknown team abbreviation, default to midfield
+        position = 50;
+      }
+
+      return Math.max(0, Math.min(100, position));
+    }
 
     // Load all games from all sports
     async function loadAllGames() {
@@ -2272,10 +2468,22 @@
       preview.innerHTML = '';
 
       for (let i = 0; i < currentLayout; i++) {
+        // Initialize filter if not set (default to NFL)
+        if (!slotFilters[i]) {
+          slotFilters[i] = 'nfl';
+        }
+
         const slot = document.createElement('div');
         slot.className = 'grid-slot';
         slot.innerHTML = `
           <div class="slot-label">Game ${i + 1}</div>
+          <div class="league-filters" data-slot="${i}">
+            <button class="league-filter-btn nfl ${slotFilters[i] === 'nfl' ? 'active' : ''}" data-sport="nfl">NFL</button>
+            <button class="league-filter-btn ncaa ${slotFilters[i] === 'ncaa' ? 'active' : ''}" data-sport="ncaa">NCAA</button>
+            <button class="league-filter-btn nba ${slotFilters[i] === 'nba' ? 'active' : ''}" data-sport="nba">NBA</button>
+            <button class="league-filter-btn nhl ${slotFilters[i] === 'nhl' ? 'active' : ''}" data-sport="nhl">NHL</button>
+            <button class="league-filter-btn mlb ${slotFilters[i] === 'mlb' ? 'active' : ''}" data-sport="mlb">MLB</button>
+          </div>
           <select class="game-selector" data-slot="${i}">
             <option value="">-- Select Game --</option>
           </select>
@@ -2283,8 +2491,33 @@
         preview.appendChild(slot);
       }
 
+      // Add click handlers for filter buttons
+      document.querySelectorAll('.league-filter-btn').forEach(btn => {
+        btn.addEventListener('click', handleFilterClick);
+      });
+
       updateAllGameSelectors();
       checkAllSlotsSelected();
+    }
+
+    // Handle filter button click
+    function handleFilterClick(e) {
+      const btn = e.target;
+      const sport = btn.dataset.sport;
+      const filtersContainer = btn.closest('.league-filters');
+      const slotIndex = parseInt(filtersContainer.dataset.slot);
+
+      // Update filter state
+      slotFilters[slotIndex] = sport;
+
+      // Update button active states
+      filtersContainer.querySelectorAll('.league-filter-btn').forEach(b => {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+
+      // Update the dropdown for this slot
+      updateAllGameSelectors();
     }
 
     // Update all game selectors
@@ -2298,10 +2531,19 @@
 
         selector.innerHTML = '<option value="">-- Select Game --</option>';
 
+        // Get the selected filter for this slot
+        const activeFilter = slotFilters[slotIndex] || 'all';
+
         allGames.forEach(game => {
           const gameId = game.id;
-          
+
+          // Skip if already selected in another slot
           if (selectedGames.includes(gameId) && currentSelection !== gameId) {
+            return;
+          }
+
+          // Filter by selected sport
+          if (game.sport !== activeFilter) {
             return;
           }
 
@@ -2389,6 +2631,7 @@
       radio.addEventListener('change', () => {
         currentLayout = parseInt(radio.value);
         gridGames = {};
+        slotFilters = {}; // Reset filters on layout change
         renderGridPreview();
       });
     });
@@ -2535,11 +2778,15 @@
       const awayRecord = awayTeam?.records?.[0]?.summary || awayTeam?.record?.displayValue || '';
       const homeRecord = homeTeam?.records?.[0]?.summary || homeTeam?.record?.displayValue || '';
       
-      // Get possession and situation info (for NFL)
+      // Get possession and situation info (for NFL/NCAA)
       const possession = comp?.situation?.possession;
       const downDistanceText = comp?.situation?.downDistanceText || '';
+      const fieldPosition = comp?.situation?.possessionText || '';
       const awayHasBall = possession === awayTeam?.id;
       const homeHasBall = possession === homeTeam?.id;
+
+      // Calculate ball position for field visualizer
+      const ballPositionYard = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
 
       // Get timeout information - ESPN API provides this in the situation object for NFL/NCAA
       // NBA: ESPN API doesn't provide real-time timeout counts, so we default to 7 (NBA teams get 7 timeouts per game)
@@ -2721,7 +2968,7 @@
                 <div class="fullscreen-situation-info">${downDistanceText}</div>
               ` : ''}
 
-              ${isLive && (game.sport === 'nfl' || game.sport === 'ncaa') && downDistanceText && ballPositionYard !== null ? `
+              ${isLive && (game.sport === 'nfl' || game.sport === 'ncaa') && downDistanceText && fieldPosition ? `
                 <div class="field-visualizer">
                   <div class="field-container">
                     <div class="endzone-label left">${awayTeam?.team?.abbreviation || 'AWAY'}</div>
