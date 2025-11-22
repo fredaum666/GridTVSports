@@ -5102,7 +5102,43 @@
     function openGameSelectionModal() {
       const modal = document.getElementById('game-selection-modal');
       modal.classList.add('show');
+
+      // Auto-select 4-grid layout
+      const fourGridRadio = document.querySelector('input[name="layout"][value="4"]');
+      if (fourGridRadio) {
+        fourGridRadio.checked = true;
+      }
+
+      // Reset game selections and render
+      gridGames = {};
       renderGridPreview();
+
+      // Auto-select first 4 games
+      autoSelectFirstGames();
+    }
+
+    // Auto-select the first N games based on current layout
+    function autoSelectFirstGames() {
+      const liveGames = window.liveGamesData || [];
+      const layout = parseInt(document.querySelector('input[name="layout"]:checked').value);
+      const selectors = document.querySelectorAll('.game-selector');
+
+      // Reset gridGames
+      gridGames = {};
+
+      // Select first N games (up to available games)
+      const gamesToSelect = Math.min(layout, liveGames.length);
+
+      selectors.forEach((selector, index) => {
+        if (index < gamesToSelect && liveGames[index]) {
+          const gameId = liveGames[index].id;
+          gridGames[index] = gameId;
+        }
+      });
+
+      // Update selectors to reflect the auto-selection
+      updateAllGameSelectors();
+      checkAllSlotsSelected();
     }
 
     // Render grid preview with game selectors
@@ -5237,6 +5273,7 @@
       radio.addEventListener('change', (e) => {
         gridGames = {}; // Reset selections when layout changes
         renderGridPreview();
+        autoSelectFirstGames(); // Auto-select first N games for new layout
       });
     });
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏀 NBA Live Games - GridTV Sports</title>
+  <title>NBA Live Games - GridTV Sports</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
   <style>
     /* ============================================
@@ -52,6 +52,26 @@
       --fs-gap-vertical-min: 4px;
       --fs-gap-vertical-preferred: 1vh;
       --fs-gap-vertical-max: 12px;
+
+      /* ========== REGULAR CARD SIZES ========== */
+      /* Regular Card - Team Logos */
+      --regular-team-logo-large: 60px;
+      --regular-team-logo-live: 45px;
+
+      /* Regular Card - Team Names */
+      --regular-team-name-large: 14px;
+      --regular-team-name-live: 13px;
+
+      /* Regular Card - Scores */
+      --regular-score-size: 48px;
+
+      /* Regular Card - Records */
+      --regular-team-record: 11px;
+
+      /* Regular Card - Quarter Grid */
+      --regular-quarter-header: 10px;
+      --regular-quarter-score: 12px;
+      --regular-quarter-total: 14px;
     }
 
     * {
@@ -1298,42 +1318,61 @@
       transform: translateY(0);
     }
 
-    /* Games Grid */
+    /* Games Grid - 3 column layout like NFL */
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(500px, 100%), 1fr));
-      gap: 20px;
-      padding-right: 8px;
-      padding-top: 10px;
-      padding-bottom: 40px;
-      margin-top: 20px;
-      justify-content: center;
+      /* Auto-fill creates responsive columns without stretching cards */
+      /* Cards maintain fixed width instead of filling entire row */
+      grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), max-content));
+      gap: 15px;
+      padding: 5px 10px 20px 10px;
+      margin-top: 10px;
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
+      justify-content: start;
     }
 
-    @media (max-width: 1100px) {
+    /* Large Desktop: 4+ cards per row (1920px+) */
+    @media (min-width: 1920px) {
       .games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(420px, 420px));
+        gap: 18px;
+        padding: 5px 15px 20px 15px;
       }
     }
 
-    @media (max-width: 768px) {
+    /* Desktop: 2-3 cards per row (1200px - 1919px) */
+    @media (min-width: 1200px) and (max-width: 1919px) {
       .games-grid {
-        grid-template-columns: 1fr;
-        padding-left: 0;
-        padding-right: 0;
-        width: 100%;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 400px));
+        gap: 15px;
       }
     }
 
-    @media (max-width: 600px) {
+    /* Tablet Landscape: 2 cards per row (900px - 1199px) */
+    @media (min-width: 900px) and (max-width: 1199px) {
+      .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(380px, 380px));
+        gap: 12px;
+      }
+    }
+
+    /* Tablet Portrait & Mobile Landscape: 1-2 cards (600px - 899px) */
+    @media (min-width: 600px) and (max-width: 899px) {
+      .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 350px));
+        gap: 12px;
+        padding: 5px 8px 20px 8px;
+      }
+    }
+
+    /* Mobile: 1 card per row (< 600px) */
+    @media (max-width: 599px) {
       .games-grid {
         grid-template-columns: 1fr;
         gap: 15px;
-        padding: 0;
-        width: 100%;
+        padding: 5px 5px 20px 5px;
         overflow-x: hidden;
       }
     }
@@ -1357,14 +1396,14 @@
       background: #2563eb;
     }
 
-    /* Game Card - Prominent Display */
+    /* Game Card - NFL-style Layout */
     .game-card {
       background: linear-gradient(135deg, #242b3d 0%, #2d3548 100%);
       border-radius: 12px;
       padding: 0;
       border: 2px solid transparent;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      overflow: visible;
+      overflow: hidden;
       position: relative;
       width: 100%;
       box-sizing: border-box;
@@ -1372,147 +1411,274 @@
       min-height: fit-content;
     }
 
-    /* Hover effect removed - cards are static */
+    /* Card Slider Container */
+    .card-slider-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
 
-    /* Game Start Time Badge for Upcoming Games */
-    .game-start-time-badge {
+    .card-pages {
+      display: flex;
+      transition: transform 0.3s ease;
+      width: 100%;
+    }
+
+    .card-page {
+      flex: 0 0 100%;
+      width: 100%;
+      padding: 10px;
+      padding-bottom: 36px;
+      min-height: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Page Indicators */
+    .page-indicators {
       position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(99, 102, 241, 0.95);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      line-height: 1;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-      z-index: 10;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      align-items: center;
       gap: 6px;
-      white-space: nowrap;
+      z-index: 10;
     }
 
-    .game-start-date-badge {
-      font-size: 0.75rem;
-      opacity: 0.95;
+    .page-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
-    .quarter-header {
+    .page-dot.active {
+      background: #3b82f6;
+      transform: scale(1.2);
+    }
+
+    .page-dot:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Page 1 - Upcoming Games */
+    .page-1-upcoming {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      padding: 8px 16px;
-      background: rgba(0, 0, 0, 0.3);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      height: 100%;
+      min-height: 200px;
     }
 
-    .team-column {
-      flex: 1;
-    }
-
-    .scores-header {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .quarter-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #9ca3af;
-      min-width: 24px;
-      text-align: center;
-    }
-
-    .quarter-label:last-child {
-      min-width: 36px;
-      margin-left: 8px;
-    }
-
-    .possession-arrow {
-      color: #10b981;
-      font-size: 16px;
-      margin-right: 8px;
-      width: 20px;
+    .page-1-upcoming .team-display {
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 400px;
     }
 
-    .team-row {
-      display: flex;
-      align-items: center;
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      position: relative;
-    }
-
-    .team-row:last-of-type {
-      border-bottom: none;
-    }
-
-    .team-row.winning {
-      background: rgba(16, 185, 129, 0.05);
-    }
-
-    .team-info {
+    .page-1-upcoming .team-block {
       flex: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 6px;
     }
 
-    .team-logo {
+    .page-1-upcoming .team-logo-large {
+      width: var(--regular-team-logo-large, 60px);
+      height: var(--regular-team-logo-large, 60px);
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .page-1-upcoming .team-name-large {
+      font-size: var(--regular-team-name-large, 14px);
+      font-weight: 700;
+      text-align: center;
+      color: #e5e7eb;
+      line-height: 1.2;
+    }
+
+    .page-1-upcoming .team-standing {
+      font-size: var(--regular-team-record, 11px);
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .page-1-upcoming .vs-divider {
+      font-size: 14px;
+      font-weight: 700;
+      color: #6b7280;
+    }
+
+    /* Page 1 - Live/Final with Horizontal Layout */
+    .page-1-live {
+      padding: 10px;
+      padding-bottom: 36px;
+      min-height: fit-content;
+      box-sizing: border-box;
+      overflow: visible;
+    }
+
+    .live-score-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .team-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .live-team-logo {
+      width: var(--regular-team-logo-live, 45px);
+      height: var(--regular-team-logo-live, 45px);
+      object-fit: contain;
+      flex-shrink: 0;
+      max-width: 100%;
+    }
+
+    .possession-icon {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      font-size: 18px;
+      line-height: 1;
+      animation: blink 1.5s infinite;
+      filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.8));
+    }
+
+    .live-team-name {
+      font-size: var(--regular-team-name-live, 13px);
+      font-weight: 700;
+      color: #e5e7eb;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .live-team-name.winning {
+      color: #10b981;
+    }
+
+    .live-team-standing {
+      font-size: var(--regular-team-record, 11px);
+      color: #9ca3af;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .live-team-score {
+      font-size: var(--regular-score-size, 48px);
+      font-weight: 700;
+      color: #e5e7eb;
+      min-width: 60px;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .live-team-score.winning {
+      color: #10b981;
+    }
+
+    .live-team-score.losing {
+      color: #9ca3af;
+    }
+
+    .vs-divider-live {
+      font-size: 14px;
+      font-weight: 700;
+      color: #6b7280;
+      padding: 0 4px;
+    }
+
+    /* Page 2 - Scoring History */
+    .page-2-content {
+      padding: 16px;
+      padding-bottom: 36px;
+      min-height: 200px;
+      box-sizing: border-box;
+    }
+
+    .scoring-history-header {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .scoring-team-logo {
       width: 32px;
       height: 32px;
       object-fit: contain;
     }
 
-    .team-name {
-      font-weight: 600;
-      font-size: 15px;
-      color: #e0e0e0;
-      min-width: 150px;
-    }
-
-    .quarter-scores {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      margin-left: auto;
-    }
-
-    .quarter-score {
-      font-size: 14px;
-      font-weight: 600;
-      color: #9ca3af;
-      min-width: 24px;
+    .scoring-history-title {
       text-align: center;
-    }
-
-    .quarter-score.total-score {
-      font-size: 24px;
+      font-size: 11px;
       font-weight: 700;
-      color: #e0e0e0;
-      min-width: 36px;
-      margin-left: 8px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .team-row.winning .quarter-score.total-score {
-      color: #10b981;
-    }
-
-    .game-footer-info {
-      display: flex;
-      justify-content: space-between;
+    .quarters-grid {
+      display: grid;
+      grid-template-columns: auto repeat(5, 1fr);
+      gap: 5px;
       align-items: center;
-      padding: 10px 16px;
-      background: rgba(0, 0, 0, 0.2);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 
+    .quarter-header-cell {
+      font-size: var(--regular-quarter-header, 10px);
+      font-weight: 700;
+      color: #9ca3af;
+      text-align: center;
+      padding: 4px 2px;
+    }
+
+    .team-label-cell {
+      font-size: var(--regular-team-record, 11px);
+      font-weight: 600;
+      color: #e5e7eb;
+      padding: 6px 8px;
+    }
+
+    .score-cell {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+      padding: 6px 3px;
+      text-align: center;
+      font-size: var(--regular-quarter-score, 12px);
+      font-weight: 700;
+      color: #e5e7eb;
+    }
+
+    .score-cell.total {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      font-size: var(--regular-quarter-total, 14px);
+    }
+
+    .score-cell.empty {
+      opacity: 0.3;
+    }
+
+    /* Live Badge */
     .live-badge {
       display: flex;
       align-items: center;
@@ -1532,31 +1698,6 @@
       background: white;
       border-radius: 50%;
       animation: blink 1.5s infinite;
-    }
-
-    .game-situation {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-    }
-
-    .quarter-clock {
-      font-weight: 600;
-      color: #e0e0e0;
-    }
-
-    .down-distance {
-      color: #fbbf24;
-      font-weight: 600;
-      padding: 2px 8px;
-      background: rgba(251, 191, 36, 0.1);
-      border-radius: 4px;
-    }
-
-    .yard-line {
-      color: #3b82f6;
-      font-weight: 600;
     }
 
     /* Refresh indicator */
@@ -2094,6 +2235,64 @@
       .modal-overlay {
         padding: 10px;
       }
+
+      .modal-content {
+        padding: 15px;
+        width: 98%;
+        max-height: 98vh;
+      }
+
+      .modal-content h2 {
+        font-size: 16px;
+        margin-bottom: 12px;
+      }
+
+      .layout-options {
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+
+      .layout-options label {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .grid-preview {
+        padding: 8px;
+        gap: 8px;
+        max-height: 50vh;
+      }
+
+      .grid-preview.grid-2,
+      .grid-preview.grid-4,
+      .grid-preview.grid-6 {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-slot {
+        padding: 10px;
+        min-height: 70px;
+      }
+
+      .slot-label {
+        font-size: 11px;
+      }
+
+      .game-selector {
+        padding: 8px;
+        font-size: 12px;
+      }
+
+      .modal-buttons {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .modal-buttons button {
+        width: 100%;
+        padding: 10px 16px;
+        font-size: 14px;
+      }
     }
 
     /* Extra small mobile devices */
@@ -2173,6 +2372,40 @@
       /* Modal fixes for mobile */
       .modal-overlay {
         padding: 10px;
+      }
+
+      .modal-content {
+        padding: 12px;
+        width: 100%;
+      }
+
+      .modal-content h2 {
+        font-size: 14px;
+      }
+
+      .layout-options label {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+
+      .grid-preview {
+        padding: 6px;
+        gap: 6px;
+        max-height: 45vh;
+      }
+
+      .grid-slot {
+        padding: 8px;
+        min-height: 60px;
+      }
+
+      .slot-label {
+        font-size: 10px;
+      }
+
+      .game-selector {
+        padding: 6px;
+        font-size: 11px;
       }
 
       .game-detail-panel {
@@ -2478,17 +2711,16 @@
       if (liveGames.length === 0) {
         container.innerHTML = `
           <div class="no-games-message">
-            <div class="icon">🏈</div>
-            <h3>No Live Games</h3>
-            <p>There are no games in progress right now.<br>Check back during game time!</p>
+            <div class="icon">🏀</div>
+            <h3>No Games Available</h3>
+            <p>There are no games to display right now.<br>Check back later!</p>
           </div>
         `;
         return;
       }
 
-      // Clear and rebuild all cards (more reliable than smart update)
       container.innerHTML = '';
-      
+
       liveGames.forEach((game, index) => {
         const comp = game.competitions[0];
         const home = comp.competitors.find(c => c.homeAway === 'home');
@@ -2500,138 +2732,296 @@
         const statusType = comp.status.type.state;
         const statusName = comp.status.type.name;
         const isCompleted = comp.status.type.completed;
-        
+
         // Enhanced live detection
-        const isLive = statusType === 'in' || 
+        const isLive = statusType === 'in' ||
                        (comp.status.period && comp.status.period > 0 && !isCompleted) ||
                        statusName.toLowerCase().includes('progress') ||
                        statusName.toLowerCase().includes('halftime') ||
                        statusName.toLowerCase().includes('quarter');
-        
+
         const isFinal = isCompleted || statusType === 'post';
         const isPregame = statusType === 'pre';
 
-        // Get quarter scores from linescores
+        // Get team standings
+        const awayRecord = away.records?.[0]?.summary || '';
+        const homeRecord = home.records?.[0]?.summary || '';
+
+        // Get line scores (quarter by quarter)
         const awayLineScores = away.linescores || [];
         const homeLineScores = home.linescores || [];
-        
+
         // Get current period and clock
         const quarter = comp.status.period || 1;
-        const clock = comp.status.displayClock || '15:00';
-        
-        // Get possession info (which team has the ball)
-        const possession = comp.situation?.possession || null;
-        const awayHasBall = possession === away.id;
-        const homeHasBall = possession === home.id;
-        
-        // Get down and distance info
-        const downDistanceText = comp.situation?.downDistanceText || '';
-        const yardLine = comp.situation?.possessionText || '';
+        const clock = comp.status.displayClock || '12:00';
 
-        let statusBadge = 'pregame';
-        let statusText = 'Upcoming';
-        
+        // Get possession info
+        const possession = comp.situation?.possession || null;
+        const awayHasPossession = possession === away.id;
+        const homeHasPossession = possession === home.id;
+
+        let statusText = '';
         if (isLive) {
-          statusBadge = 'live';
           statusText = `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}`;
         } else if (isFinal) {
-          statusBadge = 'final';
           statusText = 'Final';
-        } else if (isPregame && statusName && !statusName.includes('STATUS_')) {
-          statusText = statusName;
-        }
-
-        // Format game start time for upcoming games
-        let gameStartTimeBadgeHTML = '';
-        if (isPregame && game.date) {
+        } else {
           const gameDate = new Date(game.date);
           const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
           const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-          gameStartTimeBadgeHTML = `
-            <div class="game-start-time-badge">
-              <span class="game-start-date-badge">${dateStr}</span>
-              <span>•</span>
-              <span>${timeStr}</span>
-            </div>
-          `;
+          statusText = `${dateStr} • ${timeStr}`;
         }
 
-        // Create card HTML
-        const cardHtml = `
+        // Determine number of pages
+        // Upcoming: 1 page
+        // Live: 2 pages (live score + quarter history)
+        // Final: 1 page (final score with quarter history combined)
+        const numPages = isLive ? 2 : 1;
+
+        // Build the card HTML
+        let cardHtml = `
           <div class="game-card" data-game-id="${game.id}">
-            ${gameStartTimeBadgeHTML}
-            <div class="quarter-header">
-              <div class="team-column"></div>
-              <div class="scores-header">
-                <span class="quarter-label">1</span>
-                <span class="quarter-label">2</span>
-                <span class="quarter-label">3</span>
-                <span class="quarter-label">4</span>
-                <span class="quarter-label">T</span>
+            <div class="card-slider-container">
+              <div class="card-pages" data-current-page="0">
+        `;
+
+        // PAGE 1
+        if (isPregame) {
+          // Upcoming Game - Page 1 Only
+          cardHtml += `
+            <div class="card-page">
+              <div class="page-1-upcoming">
+                <div style="text-align: center; color: #9ca3af; font-size: 11px; font-weight: 600; margin-bottom: 4px;">
+                  ${statusText}
+                </div>
+                <div class="team-display">
+                  <div class="team-block">
+                    <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo-large">
+                    <div class="team-name-large">${away.team.shortDisplayName || away.team.displayName}</div>
+                    <div class="team-standing">${awayRecord}</div>
+                  </div>
+                  <div class="vs-divider">VS</div>
+                  <div class="team-block">
+                    <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo-large">
+                    <div class="team-name-large">${home.team.shortDisplayName || home.team.displayName}</div>
+                    <div class="team-standing">${homeRecord}</div>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div class="team-row ${awayScore > homeScore && (isLive || isFinal) ? 'winning' : ''}">
-              ${awayHasBall ? '<div class="possession-arrow">▶</div>' : '<div class="possession-arrow" style="opacity: 0;">▶</div>'}
-              <div class="team-info">
-                <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo" />
-                <span class="team-name">${away.team.displayName}</span>
-              </div>
-              <div class="quarter-scores">
-                <span class="quarter-score">${awayLineScores[0]?.value || 0}</span>
-                <span class="quarter-score">${awayLineScores[1]?.value || 0}</span>
-                <span class="quarter-score">${awayLineScores[2]?.value || 0}</span>
-                <span class="quarter-score">${awayLineScores[3]?.value || 0}</span>
-                <span class="quarter-score total-score">${awayScore}</span>
-              </div>
-            </div>
-            
-            <div class="team-row ${homeScore > awayScore && (isLive || isFinal) ? 'winning' : ''}">
-              ${homeHasBall ? '<div class="possession-arrow">▶</div>' : '<div class="possession-arrow" style="opacity: 0;">▶</div>'}
-              <div class="team-info">
-                <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo" />
-                <span class="team-name">${home.team.displayName}</span>
-              </div>
-              <div class="quarter-scores">
-                <span class="quarter-score">${homeLineScores[0]?.value || 0}</span>
-                <span class="quarter-score">${homeLineScores[1]?.value || 0}</span>
-                <span class="quarter-score">${homeLineScores[2]?.value || 0}</span>
-                <span class="quarter-score">${homeLineScores[3]?.value || 0}</span>
-                <span class="quarter-score total-score">${homeScore}</span>
-              </div>
-            </div>
-            
-            <div class="game-footer-info">
-              ${isLive ? `
-                <div class="live-badge">
-                  <span class="live-dot"></span>
-                  <span>LIVE</span>
+          `;
+        } else if (isLive || isFinal) {
+          // Live or Final Game - Page 1
+          cardHtml += `
+            <div class="card-page">
+              <div class="page-1-live">
+                <div style="text-align: center; margin-bottom: 8px;">
+                  <div style="display: inline-block; background: ${isLive ? '#ef4444' : '#6b7280'}; color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase;">
+                    ${isLive ? '<span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE' : 'FINAL'}
+                  </div>
+                  <div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">
+                    ${statusText}
+                  </div>
                 </div>
-              ` : isFinal ? `
-                <div class="live-badge" style="background: #6b7280;">
-                  <span>🏁</span>
-                  <span>FINAL</span>
+
+                <div class="live-score-header">
+                  <div class="team-stack">
+                    <div style="position: relative;">
+                      <img src="${away.team.logo}" alt="${away.team.displayName}" class="live-team-logo">
+                      ${isLive && awayHasPossession ? '<span class="possession-icon">🏀</span>' : ''}
+                    </div>
+                    <div class="live-team-name ${awayScore > homeScore ? 'winning' : ''}">${away.team.abbreviation}</div>
+                    <div class="live-team-standing">${awayRecord}</div>
+                  </div>
+                  <div class="live-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
+                  <div class="vs-divider-live">VS</div>
+                  <div class="live-team-score ${homeScore > awayScore ? 'winning' : 'losing'}">${homeScore}</div>
+                  <div class="team-stack">
+                    <div style="position: relative;">
+                      <img src="${home.team.logo}" alt="${home.team.displayName}" class="live-team-logo">
+                      ${isLive && homeHasPossession ? '<span class="possession-icon">🏀</span>' : ''}
+                    </div>
+                    <div class="live-team-name ${homeScore > awayScore ? 'winning' : ''}">${home.team.abbreviation}</div>
+                    <div class="live-team-standing">${homeRecord}</div>
+                  </div>
                 </div>
-              ` : `
-                <div class="live-badge" style="background: #f59e0b;">
-                  <span>⏰</span>
-                  <span>UPCOMING</span>
-                </div>
-              `}
-              <div class="game-situation">
-                <span class="quarter-clock">${isLive ? `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}` : isFinal ? 'Final' : statusText}</span>
-                ${isLive && downDistanceText ? `
-                  <span class="down-distance">${downDistanceText}</span>
+
+                ${isFinal ? `
+                  <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div class="scoring-history-title">Scoring by Quarter</div>
+                    <div class="quarters-grid">
+                      <div class="quarter-header-cell"></div>
+                      <div class="quarter-header-cell">1</div>
+                      <div class="quarter-header-cell">2</div>
+                      <div class="quarter-header-cell">3</div>
+                      <div class="quarter-header-cell">4</div>
+                      <div class="quarter-header-cell">T</div>
+
+                      <div class="team-label-cell">${away.team.abbreviation}</div>
+                      <div class="score-cell ${awayLineScores[0] ? '' : 'empty'}">${awayLineScores[0]?.value || 0}</div>
+                      <div class="score-cell ${awayLineScores[1] ? '' : 'empty'}">${awayLineScores[1]?.value || 0}</div>
+                      <div class="score-cell ${awayLineScores[2] ? '' : 'empty'}">${awayLineScores[2]?.value || 0}</div>
+                      <div class="score-cell ${awayLineScores[3] ? '' : 'empty'}">${awayLineScores[3]?.value || 0}</div>
+                      <div class="score-cell total">${awayScore}</div>
+
+                      <div class="team-label-cell">${home.team.abbreviation}</div>
+                      <div class="score-cell ${homeLineScores[0] ? '' : 'empty'}">${homeLineScores[0]?.value || 0}</div>
+                      <div class="score-cell ${homeLineScores[1] ? '' : 'empty'}">${homeLineScores[1]?.value || 0}</div>
+                      <div class="score-cell ${homeLineScores[2] ? '' : 'empty'}">${homeLineScores[2]?.value || 0}</div>
+                      <div class="score-cell ${homeLineScores[3] ? '' : 'empty'}">${homeLineScores[3]?.value || 0}</div>
+                      <div class="score-cell total">${homeScore}</div>
+                    </div>
+                  </div>
                 ` : ''}
               </div>
             </div>
+          `;
+
+          // PAGE 2 - Scoring History (ONLY FOR LIVE GAMES)
+          if (isLive) {
+            cardHtml += `
+              <div class="card-page">
+                <div class="page-2-content">
+                  <div class="scoring-history-header">
+                    <img src="${away.team.logo}" alt="${away.team.displayName}" class="scoring-team-logo">
+                    <img src="${home.team.logo}" alt="${home.team.displayName}" class="scoring-team-logo">
+                  </div>
+
+                  <div class="scoring-history-title">Scoring by Quarter</div>
+
+                  <div class="quarters-grid">
+                    <div class="quarter-header-cell"></div>
+                    <div class="quarter-header-cell">1</div>
+                    <div class="quarter-header-cell">2</div>
+                    <div class="quarter-header-cell">3</div>
+                    <div class="quarter-header-cell">4</div>
+                    <div class="quarter-header-cell">T</div>
+
+                    <div class="team-label-cell">${away.team.abbreviation}</div>
+                    <div class="score-cell ${awayLineScores[0] ? '' : 'empty'}">${awayLineScores[0]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[1] ? '' : 'empty'}">${awayLineScores[1]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[2] ? '' : 'empty'}">${awayLineScores[2]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[3] ? '' : 'empty'}">${awayLineScores[3]?.value || 0}</div>
+                    <div class="score-cell total">${awayScore}</div>
+
+                    <div class="team-label-cell">${home.team.abbreviation}</div>
+                    <div class="score-cell ${homeLineScores[0] ? '' : 'empty'}">${homeLineScores[0]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[1] ? '' : 'empty'}">${homeLineScores[1]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[2] ? '' : 'empty'}">${homeLineScores[2]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[3] ? '' : 'empty'}">${homeLineScores[3]?.value || 0}</div>
+                    <div class="score-cell total">${homeScore}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        // Close pages container
+        cardHtml += `
+              </div>
+
+              ${numPages > 1 ? `
+                <div class="page-indicators">
+                  <div class="page-dot active" data-page="0"></div>
+                  <div class="page-dot" data-page="1"></div>
+                </div>
+              ` : ''}
+            </div>
           </div>
         `;
-        
-        // Add card to container
+
         container.insertAdjacentHTML('beforeend', cardHtml);
       });
-      
+
+      // Add swipe and click handlers
+      initializeCardSliders();
+    }
+
+    function initializeCardSliders() {
+      const cards = document.querySelectorAll('.game-card');
+
+      cards.forEach(card => {
+        const pagesContainer = card.querySelector('.card-pages');
+        const dots = card.querySelectorAll('.page-dot');
+
+        if (!pagesContainer || dots.length === 0) return; // Skip cards with only 1 page
+
+        let currentPage = 0;
+        const maxPage = dots.length - 1;
+
+        const updatePage = (newPage) => {
+          currentPage = Math.max(0, Math.min(newPage, maxPage));
+          pagesContainer.style.transform = `translateX(-${currentPage * 100}%)`;
+          pagesContainer.dataset.currentPage = currentPage;
+
+          dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentPage);
+          });
+        };
+
+        // Touch/swipe handling
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        pagesContainer.addEventListener('mousedown', (e) => {
+          startX = e.clientX;
+          isDragging = true;
+          pagesContainer.style.transition = 'none';
+        });
+
+        pagesContainer.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+          isDragging = true;
+          pagesContainer.style.transition = 'none';
+        });
+
+        pagesContainer.addEventListener('mousemove', (e) => {
+          if (!isDragging) return;
+          currentX = e.clientX;
+          const diff = startX - currentX;
+          const percentMoved = (diff / pagesContainer.offsetWidth) * 100;
+          pagesContainer.style.transform = `translateX(calc(-${currentPage * 100}% + ${-percentMoved}%))`;
+        });
+
+        pagesContainer.addEventListener('touchmove', (e) => {
+          if (!isDragging) return;
+          currentX = e.touches[0].clientX;
+          const diff = startX - currentX;
+          const percentMoved = (diff / pagesContainer.offsetWidth) * 100;
+          pagesContainer.style.transform = `translateX(calc(-${currentPage * 100}% + ${-percentMoved}%))`;
+        });
+
+        const endDrag = () => {
+          if (!isDragging) return;
+          isDragging = false;
+          pagesContainer.style.transition = 'transform 0.3s ease';
+
+          const diff = startX - currentX;
+          const threshold = pagesContainer.offsetWidth * 0.2;
+
+          if (diff > threshold) {
+            updatePage(currentPage + 1);
+          } else if (diff < -threshold) {
+            updatePage(currentPage - 1);
+          } else {
+            updatePage(currentPage);
+          }
+        };
+
+        pagesContainer.addEventListener('mouseup', endDrag);
+        pagesContainer.addEventListener('mouseleave', endDrag);
+        pagesContainer.addEventListener('touchend', endDrag);
+
+        // Dot click handlers
+        dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => {
+            pagesContainer.style.transition = 'transform 0.3s ease';
+            updatePage(index);
+          });
+        });
+      });
     }
 
     function refreshLiveGames() {
@@ -3367,7 +3757,43 @@
     function openGameSelectionModal() {
       const modal = document.getElementById('game-selection-modal');
       modal.classList.add('active');
+
+      // Auto-select 4-grid layout
+      const fourGridRadio = document.querySelector('input[name="layout"][value="4"]');
+      if (fourGridRadio) {
+        fourGridRadio.checked = true;
+      }
+
+      // Reset game selections and render
+      gridGames = {};
       renderGridPreview();
+
+      // Auto-select first 4 games
+      autoSelectFirstGames();
+    }
+
+    // Auto-select the first N games based on current layout
+    function autoSelectFirstGames() {
+      const liveGames = window.liveGamesData || [];
+      const layout = parseInt(document.querySelector('input[name="layout"]:checked').value);
+      const selectors = document.querySelectorAll('.game-selector');
+
+      // Reset gridGames
+      gridGames = {};
+
+      // Select first N games (up to available games)
+      const gamesToSelect = Math.min(layout, liveGames.length);
+
+      selectors.forEach((selector, index) => {
+        if (index < gamesToSelect && liveGames[index]) {
+          const gameId = liveGames[index].id;
+          gridGames[index] = gameId;
+        }
+      });
+
+      // Update selectors to reflect the auto-selection
+      updateAllGameSelectors();
+      checkAllSlotsSelected();
     }
 
     // Render grid preview with game selectors
@@ -3503,6 +3929,7 @@
       radio.addEventListener('change', (e) => {
         gridGames = {}; // Reset selections when layout changes
         renderGridPreview();
+        autoSelectFirstGames(); // Auto-select first N games for new layout
       });
     });
 
@@ -3513,7 +3940,7 @@
       const modal = document.getElementById('game-selection-modal');
       const container = document.getElementById('fullscreen-container');
       const controls = document.getElementById('fullscreen-controls');
-      
+
       modal.classList.remove('active');
       container.classList.add('active');
       
