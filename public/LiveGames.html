@@ -399,8 +399,9 @@
       opacity: 0.5;
     }
 
-    /* Connect to TV Button */
-    #connect-to-tv-btn {
+    /* Mobile-Only Cast Button */
+    #mobile-cast-only {
+      display: none;
       width: 100%;
       padding: 16px 32px;
       background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
@@ -415,24 +416,20 @@
       margin-top: 10px;
     }
 
-    #connect-to-tv-btn:hover:not(:disabled) {
+    #mobile-cast-only:hover:not(:disabled) {
       background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
     }
 
-    #connect-to-tv-btn:disabled {
+    #mobile-cast-only:disabled {
       background: #475569;
       cursor: not-allowed;
       opacity: 0.5;
     }
 
-    #connect-to-tv-btn.connected {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-    }
-
-    .tv-connection-info {
+    .mobile-cast-info {
+      display: none;
       background: rgba(139, 92, 246, 0.1);
       border: 2px solid rgba(139, 92, 246, 0.3);
       border-radius: 8px;
@@ -442,172 +439,6 @@
       color: #c4b5fd;
       font-size: 14px;
       line-height: 1.6;
-    }
-
-    /* TV Connection Modal */
-    .tv-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 20000;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(5px);
-    }
-
-    .tv-modal.show {
-      display: flex;
-    }
-
-    .tv-modal-content {
-      background: #1a1f2e;
-      border-radius: 16px;
-      padding: 30px;
-      max-width: 450px;
-      width: 90%;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-      border: 2px solid #334155;
-      text-align: center;
-    }
-
-    .tv-modal-content h2 {
-      color: #fff;
-      font-size: 1.5rem;
-      margin-bottom: 10px;
-    }
-
-    .tv-modal-content p {
-      color: #94a3b8;
-      margin-bottom: 25px;
-    }
-
-    .tv-code-input-container {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 25px;
-    }
-
-    .tv-code-input {
-      width: 60px;
-      height: 70px;
-      font-size: 2rem;
-      font-weight: 700;
-      text-align: center;
-      text-transform: uppercase;
-      background: #0a0e1a;
-      border: 3px solid #334155;
-      border-radius: 10px;
-      color: #fff;
-      transition: all 0.2s;
-    }
-
-    .tv-code-input:focus {
-      outline: none;
-      border-color: #8b5cf6;
-      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
-    }
-
-    .tv-code-input.error {
-      border-color: #ef4444;
-      animation: shake 0.5s;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-
-    .tv-modal-buttons {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-    }
-
-    .tv-modal-btn {
-      padding: 12px 30px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-    }
-
-    .tv-modal-btn.primary {
-      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-      color: white;
-    }
-
-    .tv-modal-btn.primary:hover {
-      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-      transform: translateY(-2px);
-    }
-
-    .tv-modal-btn.primary:disabled {
-      background: #475569;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .tv-modal-btn.secondary {
-      background: #334155;
-      color: #e5e7eb;
-    }
-
-    .tv-modal-btn.secondary:hover {
-      background: #475569;
-    }
-
-    .tv-connection-status {
-      margin-top: 20px;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-    }
-
-    .tv-connection-status.connecting {
-      background: rgba(251, 191, 36, 0.2);
-      color: #fbbf24;
-      border: 1px solid #fbbf24;
-    }
-
-    .tv-connection-status.connected {
-      background: rgba(34, 197, 94, 0.2);
-      color: #22c55e;
-      border: 1px solid #22c55e;
-    }
-
-    .tv-connection-status.error {
-      background: rgba(239, 68, 68, 0.2);
-      color: #ef4444;
-      border: 1px solid #ef4444;
-    }
-
-    .tv-open-link {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #334155;
-    }
-
-    .tv-open-link p {
-      font-size: 0.85rem;
-      margin-bottom: 10px;
-    }
-
-    .tv-open-link a {
-      color: #8b5cf6;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .tv-open-link a:hover {
-      text-decoration: underline;
     }
 
     @media screen and (max-width: 768px) {
@@ -2569,43 +2400,16 @@
 
     <!-- Launch Button (Desktop Only) -->
     <button id="launch-fullscreen" class="fullscreen-btn" disabled>🚀 Launch Sports Bar Mode (Select at least 1 game)</button>
-
-    <!-- Connect to TV Button (Works on all devices) -->
-    <button id="connect-to-tv-btn">
-      📺 Connect to TV
+    
+    <!-- Mobile Cast Button (Mobile Only) -->
+    <button id="mobile-cast-only" class="fullscreen-btn" disabled>
+      📺 Cast to TV
     </button>
-
-    <!-- TV Connection Info -->
-    <div class="tv-connection-info">
-      📺 <strong>Cast to Any TV:</strong><br>
-      Open <a href="/tv.html" target="_blank" style="color: #c4b5fd;">tv.html</a> on your TV's browser, then enter the code here to control it from this device.
-    </div>
-  </div>
-
-  <!-- TV Connection Modal -->
-  <div id="tv-modal" class="tv-modal">
-    <div class="tv-modal-content">
-      <h2>📺 Connect to TV</h2>
-      <p>Enter the 4-character code shown on your TV</p>
-
-      <div class="tv-code-input-container">
-        <input type="text" class="tv-code-input" maxlength="1" data-index="0" autocomplete="off">
-        <input type="text" class="tv-code-input" maxlength="1" data-index="1" autocomplete="off">
-        <input type="text" class="tv-code-input" maxlength="1" data-index="2" autocomplete="off">
-        <input type="text" class="tv-code-input" maxlength="1" data-index="3" autocomplete="off">
-      </div>
-
-      <div class="tv-modal-buttons">
-        <button id="tv-connect-btn" class="tv-modal-btn primary" disabled>Connect</button>
-        <button id="tv-cancel-btn" class="tv-modal-btn secondary">Cancel</button>
-      </div>
-
-      <div id="tv-connection-status" class="tv-connection-status" style="display: none;"></div>
-
-      <div class="tv-open-link">
-        <p>Don't have a code? Open this on your TV:</p>
-        <a href="/tv.html" target="_blank" id="tv-link">📺 Open TV Display</a>
-      </div>
+    
+    <!-- Mobile Information Message -->
+    <div class="mobile-cast-info">
+      📱 <strong>Mobile Viewing:</strong><br>
+      Select your desired grid layout and games above, then use the "Cast to TV" button to display on an external screen.
     </div>
   </div>
 
@@ -3996,307 +3800,8 @@
         loadAllGames();
         renderGridPreview();
         initializePresentationAPI();
-        initializeTVConnection();
       }
     });
-
-    // ============================================
-    // TV CONNECTION - WEBSOCKET REMOTE CONTROL
-    // ============================================
-
-    let tvWebSocket = null;
-    let tvRoomCode = null;
-    let tvConnected = false;
-
-    function initializeTVConnection() {
-      const connectBtn = document.getElementById('connect-to-tv-btn');
-      const tvModal = document.getElementById('tv-modal');
-      const tvConnectBtn = document.getElementById('tv-connect-btn');
-      const tvCancelBtn = document.getElementById('tv-cancel-btn');
-      const codeInputs = document.querySelectorAll('.tv-code-input');
-      const statusEl = document.getElementById('tv-connection-status');
-
-      // Open modal when clicking connect button
-      connectBtn.addEventListener('click', () => {
-        if (tvConnected) {
-          // Disconnect
-          disconnectFromTV();
-        } else {
-          // Show modal
-          tvModal.classList.add('show');
-          codeInputs[0].focus();
-        }
-      });
-
-      // Cancel button
-      tvCancelBtn.addEventListener('click', () => {
-        closeTVModal();
-      });
-
-      // Close modal on backdrop click
-      tvModal.addEventListener('click', (e) => {
-        if (e.target === tvModal) {
-          closeTVModal();
-        }
-      });
-
-      // Handle code input
-      codeInputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
-          const value = e.target.value.toUpperCase();
-          e.target.value = value;
-
-          // Move to next input
-          if (value && index < codeInputs.length - 1) {
-            codeInputs[index + 1].focus();
-          }
-
-          // Check if all inputs are filled
-          updateConnectButtonState();
-        });
-
-        input.addEventListener('keydown', (e) => {
-          // Handle backspace
-          if (e.key === 'Backspace' && !e.target.value && index > 0) {
-            codeInputs[index - 1].focus();
-          }
-
-          // Handle Enter
-          if (e.key === 'Enter') {
-            const code = getCodeFromInputs();
-            if (code.length === 4) {
-              connectToTV(code);
-            }
-          }
-        });
-
-        // Handle paste
-        input.addEventListener('paste', (e) => {
-          e.preventDefault();
-          const pastedText = (e.clipboardData || window.clipboardData).getData('text').toUpperCase().slice(0, 4);
-          pastedText.split('').forEach((char, i) => {
-            if (codeInputs[i]) {
-              codeInputs[i].value = char;
-            }
-          });
-          updateConnectButtonState();
-          if (pastedText.length === 4) {
-            codeInputs[3].focus();
-          }
-        });
-      });
-
-      // Connect button
-      tvConnectBtn.addEventListener('click', () => {
-        const code = getCodeFromInputs();
-        if (code.length === 4) {
-          connectToTV(code);
-        }
-      });
-
-      function getCodeFromInputs() {
-        return Array.from(codeInputs).map(i => i.value).join('');
-      }
-
-      function updateConnectButtonState() {
-        const code = getCodeFromInputs();
-        tvConnectBtn.disabled = code.length !== 4;
-      }
-
-      function closeTVModal() {
-        tvModal.classList.remove('show');
-        codeInputs.forEach(i => i.value = '');
-        statusEl.style.display = 'none';
-        codeInputs.forEach(i => i.classList.remove('error'));
-      }
-
-      function showStatus(message, type) {
-        statusEl.textContent = message;
-        statusEl.className = `tv-connection-status ${type}`;
-        statusEl.style.display = 'block';
-      }
-    }
-
-    function connectToTV(code) {
-      const statusEl = document.getElementById('tv-connection-status');
-      const codeInputs = document.querySelectorAll('.tv-code-input');
-      const tvConnectBtn = document.getElementById('tv-connect-btn');
-
-      // Show connecting status
-      statusEl.textContent = 'Connecting...';
-      statusEl.className = 'tv-connection-status connecting';
-      statusEl.style.display = 'block';
-      tvConnectBtn.disabled = true;
-
-      // Connect to WebSocket
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}`;
-
-      tvWebSocket = new WebSocket(wsUrl);
-
-      tvWebSocket.onopen = () => {
-        console.log('WebSocket connected, joining room:', code);
-        tvWebSocket.send(JSON.stringify({
-          type: 'remote-join-room',
-          roomCode: code
-        }));
-      };
-
-      tvWebSocket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          handleTVMessage(data);
-        } catch (error) {
-          console.error('Error parsing TV message:', error);
-        }
-      };
-
-      tvWebSocket.onclose = () => {
-        console.log('TV WebSocket disconnected');
-        if (tvConnected) {
-          tvConnected = false;
-          updateConnectButton();
-          alert('Disconnected from TV. Please reconnect.');
-        }
-      };
-
-      tvWebSocket.onerror = (error) => {
-        console.error('TV WebSocket error:', error);
-        statusEl.textContent = 'Connection error. Please try again.';
-        statusEl.className = 'tv-connection-status error';
-        tvConnectBtn.disabled = false;
-      };
-    }
-
-    function handleTVMessage(data) {
-      const statusEl = document.getElementById('tv-connection-status');
-      const tvModal = document.getElementById('tv-modal');
-      const codeInputs = document.querySelectorAll('.tv-code-input');
-      const tvConnectBtn = document.getElementById('tv-connect-btn');
-
-      switch (data.type) {
-        case 'joined-room':
-          console.log('Successfully joined TV room:', data.roomCode);
-          tvRoomCode = data.roomCode;
-          tvConnected = true;
-
-          // Close modal
-          tvModal.classList.remove('show');
-          codeInputs.forEach(i => i.value = '');
-          statusEl.style.display = 'none';
-
-          // Update button
-          updateConnectButton();
-
-          // Send initial state to TV
-          sendStateToTV();
-          break;
-
-        case 'error':
-          console.error('TV error:', data.message);
-          statusEl.textContent = data.message;
-          statusEl.className = 'tv-connection-status error';
-          codeInputs.forEach(i => i.classList.add('error'));
-          tvConnectBtn.disabled = false;
-
-          setTimeout(() => {
-            codeInputs.forEach(i => i.classList.remove('error'));
-          }, 500);
-          break;
-
-        case 'tv-disconnected':
-          console.log('TV disconnected');
-          tvConnected = false;
-          tvRoomCode = null;
-          updateConnectButton();
-          alert('TV display was closed. Please reconnect when ready.');
-          break;
-
-        case 'state-sync':
-          // Received state sync from TV (in case of multi-remote)
-          console.log('State sync received from TV');
-          break;
-      }
-    }
-
-    function updateConnectButton() {
-      const connectBtn = document.getElementById('connect-to-tv-btn');
-
-      if (tvConnected) {
-        connectBtn.textContent = `📺 Connected to TV (${tvRoomCode}) - Tap to Disconnect`;
-        connectBtn.classList.add('connected');
-      } else {
-        connectBtn.textContent = '📺 Connect to TV';
-        connectBtn.classList.remove('connected');
-      }
-    }
-
-    function disconnectFromTV() {
-      if (tvWebSocket) {
-        tvWebSocket.close();
-        tvWebSocket = null;
-      }
-      tvConnected = false;
-      tvRoomCode = null;
-      updateConnectButton();
-    }
-
-    function sendStateToTV() {
-      if (!tvWebSocket || tvWebSocket.readyState !== WebSocket.OPEN || !tvConnected) {
-        return;
-      }
-
-      // Build games data object
-      const gamesData = {};
-      for (const [slotIndex, gameId] of Object.entries(gridGames)) {
-        if (gameId) {
-          const game = allGames.find(g => g.id === gameId);
-          if (game) {
-            gamesData[gameId] = game;
-          }
-        }
-      }
-
-      const state = {
-        layout: currentLayout,
-        games: gridGames,
-        gamesData: gamesData
-      };
-
-      console.log('Sending state to TV:', state);
-
-      tvWebSocket.send(JSON.stringify({
-        type: 'update-state',
-        state: state
-      }));
-    }
-
-    // Override grid game changes to sync with TV
-    const originalUpdateAllGameSelectors = window.updateAllGameSelectors || updateAllGameSelectors;
-
-    // Hook into game selection changes
-    function syncWithTV() {
-      if (tvConnected) {
-        sendStateToTV();
-      }
-    }
-
-    // Watch for grid changes - add observer to grid games
-    const originalGridGames = gridGames;
-    Object.defineProperty(window, 'gridGamesProxy', {
-      get() { return gridGames; },
-      set(value) {
-        gridGames = value;
-        syncWithTV();
-      }
-    });
-
-    // Periodic sync to catch all changes
-    setInterval(() => {
-      if (tvConnected) {
-        sendStateToTV();
-      }
-    }, 2000);
   </script>
 </body>
 </html>
