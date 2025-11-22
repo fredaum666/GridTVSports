@@ -573,56 +573,44 @@
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: 1fr;
       gap: clamp(10px, 1.5vw, 20px);
+      height: calc(100vh - 80px);
     }
 
     .fullscreen-grid.grid-2 .fullscreen-game-card {
+      width: 100%;
       height: 100%;
-      max-height: calc(100vh - 120px);
+      min-height: 0;
+      max-height: 100%;
     }
 
     .fullscreen-grid.grid-4 {
       grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: auto;
+      grid-template-rows: repeat(2, 1fr);
       gap: clamp(8px, 1.2vh, 15px);
       height: calc(100vh - 80px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      align-content: start;
+      overflow: hidden;
     }
 
     .fullscreen-grid.grid-4 .fullscreen-game-card {
       width: 100%;
-      height: auto;
-      min-height: 400px;
-      max-height: none;
-    }
-
-    .fullscreen-grid.grid-6 {
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: auto;
-      gap: clamp(6px, 1vh, 12px);
-      height: calc(100vh - 80px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      align-content: start;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-game-card {
-      width: 100%;
-      height: auto;
-      min-height: 350px;
-      max-height: none;
+      height: 100%;
+      min-height: 0;
+      max-height: 100%;
     }
 
     .fullscreen-grid.grid-6 {
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(2, 1fr);
       gap: clamp(6px, 1vh, 12px);
+      height: calc(100vh - 80px);
+      overflow: hidden;
     }
 
     .fullscreen-grid.grid-6 .fullscreen-game-card {
+      width: 100%;
       height: 100%;
-      max-height: calc((100vh - 150px) / 2);
+      min-height: 0;
+      max-height: 100%;
     }
 
     .fullscreen-game-card {
@@ -637,9 +625,11 @@
       border: 3px solid #334155;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      box-sizing: border-box;
       overflow: hidden;
-      min-height: fit-content;
-      max-width: 100%;
     }
 
     /* Sport Logo in Top Left */
@@ -791,13 +781,13 @@
     }
 
     .fullscreen-possession {
-      display: inline-block;
-      width: 30px;
-      height: 30px;
-      background: #fbbf24;
-      border-radius: 50%;
-      margin-left: 10px;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      font-size: clamp(1rem, 2.5vmin, 1.8rem);
+      line-height: 1;
       animation: possessionBlink 1s infinite;
+      filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.9));
     }
 
     @keyframes possessionBlink {
@@ -810,6 +800,203 @@
       color: #94a3b8;
       margin-top: 15px;
       font-weight: 600;
+    }
+
+    /* Horizontal Layout (NBA-style) */
+    .fullscreen-card-content {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2.5vh, 40px);
+      padding: clamp(10px, 2vmin, 30px);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .fullscreen-live-score-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(15px, 3vw, 50px);
+      width: 100%;
+      max-width: 95%;
+      margin: 0 auto;
+      flex-shrink: 1;
+      min-height: 0;
+    }
+
+    .fullscreen-team-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(5px, 1vh, 12px);
+      position: relative;
+      flex-shrink: 1;
+      min-height: 0;
+    }
+
+    .fullscreen-team-stack .fullscreen-team-logo {
+      width: clamp(50px, 10vmin, 100px);
+      height: clamp(50px, 10vmin, 100px);
+      object-fit: contain;
+      flex-shrink: 1;
+    }
+
+    .fullscreen-team-score {
+      font-size: clamp(3rem, 10vmin, 7rem);
+      font-weight: 900;
+      color: #fff;
+      min-width: clamp(70px, 15vw, 150px);
+      text-align: center;
+      flex-shrink: 0;
+      line-height: 1;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .fullscreen-team-score.winning {
+      color: #22c55e;
+    }
+
+    .fullscreen-team-score.losing {
+      color: #9ca3af;
+    }
+
+    .fullscreen-live-team-name {
+      font-size: clamp(1.2rem, 3vmin, 2.5rem);
+      font-weight: 900;
+      color: #e5e7eb;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .fullscreen-live-team-name.winning {
+      color: #22c55e;
+    }
+
+    .fullscreen-team-record {
+      font-size: clamp(0.8rem, 1.8vmin, 1.2rem);
+      color: #9ca3b8;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .fullscreen-vs-divider-live {
+      font-size: clamp(1.2rem, 2.5vmin, 2rem);
+      font-weight: 700;
+      color: #64748b;
+      flex-shrink: 0;
+    }
+
+    .fullscreen-status-container {
+      margin-bottom: clamp(15px, 3vh, 30px);
+      width: 100%;
+      text-align: center;
+    }
+
+    .fullscreen-status-text {
+      font-size: clamp(1.2rem, 3vmin, 2.5rem);
+      font-weight: 700;
+      color: #22c55e;
+      text-transform: uppercase;
+    }
+
+    .fullscreen-upcoming-status-text {
+      font-size: clamp(1.2rem, 3vmin, 2rem);
+      font-weight: 700;
+      color: #818cf8;
+      margin-bottom: clamp(15px, 3vh, 25px);
+      text-align: center;
+      width: 100%;
+    }
+
+    .fullscreen-situation-info {
+      font-size: clamp(1.2rem, 3vmin, 2rem);
+      color: #fbbf24;
+      font-weight: 700;
+      text-align: center;
+      margin-top: clamp(10px, 2vh, 20px);
+      width: 100%;
+    }
+
+    /* Grid-specific sizing for horizontal layout */
+    .fullscreen-grid.grid-1 .fullscreen-team-stack .fullscreen-team-logo {
+      width: clamp(80px, 12vmin, 120px) !important;
+      height: clamp(80px, 12vmin, 120px) !important;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-live-team-name {
+      font-size: clamp(1.8rem, 4vmin, 3rem) !important;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-team-score {
+      font-size: clamp(5rem, 12vmin, 9rem) !important;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-team-record {
+      font-size: clamp(1rem, 2vmin, 1.5rem) !important;
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-team-stack .fullscreen-team-logo {
+      width: clamp(60px, 10vmin, 100px) !important;
+      height: clamp(60px, 10vmin, 100px) !important;
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-live-team-name {
+      font-size: clamp(1.4rem, 3vmin, 2.5rem) !important;
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-team-score {
+      font-size: clamp(4rem, 10vmin, 7rem) !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-team-stack .fullscreen-team-logo {
+      width: clamp(45px, 8vmin, 70px) !important;
+      height: clamp(45px, 8vmin, 70px) !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-live-team-name {
+      font-size: clamp(1rem, 2.5vmin, 1.8rem) !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-team-score {
+      font-size: clamp(2.5rem, 7vmin, 5rem) !important;
+      min-width: clamp(50px, 10vw, 100px) !important;
+    }
+
+    .fullscreen-grid.grid-4 .fullscreen-live-score-header {
+      gap: clamp(10px, 2vw, 30px) !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-team-stack .fullscreen-team-logo {
+      width: clamp(35px, 6vmin, 55px) !important;
+      height: clamp(35px, 6vmin, 55px) !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-live-team-name {
+      font-size: clamp(0.9rem, 2vmin, 1.4rem) !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-team-score {
+      font-size: clamp(2rem, 5vmin, 3.5rem) !important;
+      min-width: clamp(40px, 8vw, 70px) !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-team-record {
+      font-size: clamp(0.6rem, 1.2vmin, 0.9rem) !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-live-score-header {
+      gap: clamp(8px, 1.5vw, 20px) !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-status-text {
+      font-size: clamp(0.9rem, 2vmin, 1.4rem) !important;
     }
 
     .fullscreen-field-position {
@@ -1146,145 +1333,6 @@
 
       .fs-game-selector {
         font-size: 0.9rem !important;
-      }
-    }
-
-    
-                            /* HEIGHT-BASED RESPONSIVE - HORIZONTAL LAYOUT FOR SHORT SCREENS */
-    @media (max-height: 900px) {
-      .fullscreen-game-card {
-        display: grid !important;
-        grid-template-columns: 1fr auto 1fr !important;
-        grid-template-rows: auto 1fr auto !important;
-        padding: clamp(12px, 2vh, 24px) !important;
-        gap: clamp(8px, 1.2vh, 14px) clamp(15px, 2.5vw, 30px) !important;
-        align-items: center !important;
-      }
-
-      .fullscreen-quarter,
-      .fullscreen-period {
-        grid-column: 1 / -1 !important;
-        grid-row: 1 !important;
-        font-size: clamp(15px, 2.5vh, 26px) !important;
-        font-weight: 700 !important;
-        padding-bottom: clamp(8px, 1.2vh, 12px) !important;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.15) !important;
-        text-align: center !important;
-      }
-
-      .fullscreen-team:nth-of-type(1) {
-        grid-column: 1 !important;
-        grid-row: 2 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: clamp(5px, 1vh, 12px) !important;
-      }
-
-      .fullscreen-vs {
-        grid-column: 2 !important;
-        grid-row: 2 !important;
-        font-size: clamp(14px, 2vh, 22px) !important;
-        font-weight: 600 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        opacity: 0.5 !important;
-        padding: 0 clamp(8px, 1.5vw, 20px) !important;
-      }
-
-      .fullscreen-team:nth-of-type(2) {
-        grid-column: 3 !important;
-        grid-row: 2 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: clamp(5px, 1vh, 12px) !important;
-      }
-
-      .fullscreen-team-header {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex-wrap: wrap !important;
-        gap: clamp(6px, 1vh, 10px) !important;
-        margin-bottom: clamp(4px, 0.6vh, 8px) !important;
-        width: 100% !important;
-      }
-
-      .fullscreen-team-record {
-        font-size: clamp(11px, 1.6vh, 16px) !important;
-        font-weight: 500 !important;
-        opacity: 0.7 !important;
-        width: 100% !important;
-        text-align: center !important;
-        order: -1 !important;
-      }
-
-      .fullscreen-team-logo {
-        width: clamp(40px, 7vh, 70px) !important;
-        height: clamp(40px, 7vh, 70px) !important;
-        flex-shrink: 0 !important;
-      }
-
-      .fullscreen-team-name {
-        font-size: clamp(16px, 3vh, 30px) !important;
-        font-weight: 700 !important;
-        text-align: center !important;
-        line-height: 1.2 !important;
-        display: inline-block !important;
-        max-width: 100% !important;
-        visibility: visible !important;
-      }
-
-      .fullscreen-possession {
-        font-size: clamp(14px, 2.5vh, 24px) !important;
-        margin-left: 6px !important;
-        display: inline !important;
-        visibility: visible !important;
-      }
-
-      .fullscreen-timeouts {
-        display: flex !important;
-        gap: clamp(5px, 0.8vh, 10px) !important;
-        justify-content: center !important;
-        width: 100% !important;
-        margin: clamp(4px, 0.6vh, 8px) 0 !important;
-      }
-
-      .timeout-bar {
-        width: clamp(20px, 3.5vh, 32px) !important;
-        height: clamp(6px, 1vh, 10px) !important;
-        border-radius: 2px !important;
-      }
-
-      .fullscreen-score {
-        font-size: clamp(48px, 9vh, 90px) !important;
-        font-weight: 800 !important;
-        line-height: 1 !important;
-        width: 100% !important;
-        text-align: center !important;
-        margin-top: clamp(6px, 1vh, 12px) !important;
-      }
-
-      .sport-logo-indicator {
-        width: clamp(50px, 8vh, 80px) !important;
-        height: clamp(50px, 8vh, 80px) !important;
-        top: clamp(10px, 1.5vh, 18px) !important;
-        left: clamp(10px, 1.5vh, 18px) !important;
-      }
-
-      .fullscreen-down-distance {
-        grid-column: 1 / -1 !important;
-        grid-row: 3 !important;
-        padding-top: clamp(10px, 1.5vh, 14px) !important;
-        border-top: 2px solid rgba(255, 255, 255, 0.15) !important;
-        font-size: clamp(12px, 1.8vh, 18px) !important;
-        font-weight: 600 !important;
-        text-align: center !important;
       }
     }
 
@@ -4803,16 +4851,20 @@
       const downDistance = comp?.situation?.downDistanceText || '';
       const fieldPosition = comp?.situation?.possessionText || '';
 
+      // Get team records
+      const awayRecord = awayTeam?.records?.[0]?.summary || awayTeam?.record?.displayValue || '';
+      const homeRecord = homeTeam?.records?.[0]?.summary || homeTeam?.record?.displayValue || '';
+
       div.className = cardClass;
       div.dataset.slotIndex = slotIndex;
       div.dataset.isLive = isLive ? 'true' : 'false';
       div.dataset.isFinal = isFinal ? 'true' : 'false';
       div.dataset.gameId = game.id;
-      
+
       div.innerHTML = `
         <img src="/assets/NHL-logo.png" alt="NHL" class="sport-logo-indicator">
         <div class="fullscreen-refresh-indicator"></div>
-        
+
         <!-- Game Selector Dropdown (hidden initially) -->
         <div class="fs-game-selector-container">
           <select class="fs-game-selector" data-slot="${slotIndex}">
@@ -4820,33 +4872,56 @@
           </select>
         </div>
 
-        <div class="fullscreen-period">${statusDisplay}</div>
-        
-        <div class="fullscreen-team ${!isUpcoming && awayScore > homeScore ? 'winning' : !isUpcoming && awayScore < homeScore ? 'losing' : ''}">
-          <div class="fullscreen-team-header">
-            ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
-            <div class="fullscreen-team-name">
-              ${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}
-              ${isLive && possession === awayTeam?.id ? '<span class="fullscreen-possession"></span>' : ''}
+        <div class="fullscreen-card-content">
+          ${isUpcoming ? `
+            <!-- Upcoming Game -->
+            <div class="fullscreen-upcoming-status-text">${statusDisplay}</div>
+            <div class="fullscreen-live-score-header">
+              <div class="fullscreen-team-stack">
+                ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+                <div class="fullscreen-live-team-name">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
+                ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
+              </div>
+              <div class="fullscreen-team-score">-</div>
+              <div class="fullscreen-vs-divider-live">VS</div>
+              <div class="fullscreen-team-score">-</div>
+              <div class="fullscreen-team-stack">
+                ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+                <div class="fullscreen-live-team-name">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
+                ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
+              </div>
             </div>
-          </div>
-          <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
-        </div>
-
-        <div class="fullscreen-vs">VS</div>
-
-        <div class="fullscreen-team ${!isUpcoming && homeScore > awayScore ? 'winning' : !isUpcoming && homeScore < awayScore ? 'losing' : ''}">
-          <div class="fullscreen-team-header">
-            ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
-            <div class="fullscreen-team-name">
-              ${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}
-              ${isLive && possession === homeTeam?.id ? '<span class="fullscreen-possession"></span>' : ''}
+          ` : `
+            <!-- Live or Final Game -->
+            <div class="fullscreen-status-container">
+              <div class="fullscreen-status-text">${quarterText}</div>
             </div>
-          </div>
-          <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
-        </div>
 
-        ${isLive && downDistance ? `<div class="fullscreen-Shots-distance">${downDistance}</div>` : ''}
+            <div class="fullscreen-live-score-header">
+              <div class="fullscreen-team-stack">
+                <div style="position: relative;">
+                  ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+                  ${isLive && possession === awayTeam?.id ? '<span class="fullscreen-possession">🏒</span>' : ''}
+                </div>
+                <div class="fullscreen-live-team-name ${awayScore > homeScore ? 'winning' : ''}">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
+                ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
+              </div>
+              <div class="fullscreen-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
+              <div class="fullscreen-vs-divider-live">VS</div>
+              <div class="fullscreen-team-score ${homeScore > awayScore ? 'winning' : 'losing'}">${homeScore}</div>
+              <div class="fullscreen-team-stack">
+                <div style="position: relative;">
+                  ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+                  ${isLive && possession === homeTeam?.id ? '<span class="fullscreen-possession">🏒</span>' : ''}
+                </div>
+                <div class="fullscreen-live-team-name ${homeScore > awayScore ? 'winning' : ''}">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
+                ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
+              </div>
+            </div>
+
+            ${isLive && downDistance ? `<div class="fullscreen-situation-info">${downDistance}</div>` : ''}
+          `}
+        </div>
       `;
 
       // Populate game selector
@@ -5147,11 +5222,11 @@
           card.dataset.prevAwayScore = awayScore;
           card.dataset.prevHomeScore = homeScore;
 
-          // Update scores with animation
-          const scores = card.querySelectorAll('.fullscreen-score');
+          // Update scores with animation (uses .fullscreen-team-score for horizontal layout)
+          const scores = card.querySelectorAll('.fullscreen-team-score');
           const awayScoreEl = scores[0];
           const homeScoreEl = scores[1];
-          
+
           if (awayScoreEl && awayScoreEl.textContent !== awayScore.toString()) {
             awayScoreEl.textContent = awayScore;
             awayScoreEl.style.animation = 'none';
@@ -5161,7 +5236,7 @@
               awayScoreEl.style.webkitAnimation = 'scoreUpdate 0.5s ease-out';
             }, 10);
           }
-          
+
           if (homeScoreEl && homeScoreEl.textContent !== homeScore.toString()) {
             homeScoreEl.textContent = homeScore;
             homeScoreEl.style.animation = 'none';
@@ -5172,10 +5247,10 @@
             }, 10);
           }
 
-          // Update status
-          const quarterEl = card.querySelector('.fullscreen-period');
-          if (quarterEl) {
-            quarterEl.textContent = comp?.status?.type?.shortDetail || 'Live';
+          // Update status (uses .fullscreen-status-text for horizontal layout)
+          const statusEl = card.querySelector('.fullscreen-status-text');
+          if (statusEl) {
+            statusEl.textContent = comp?.status?.type?.shortDetail || 'Live';
           }
 
           // Update card class for winner

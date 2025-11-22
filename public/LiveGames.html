@@ -1117,60 +1117,84 @@
 
     .fullscreen-team-nhl {
       width: 100%;
-      margin-bottom: clamp(10px, 1.5vh, 20px);
+      margin-bottom: clamp(10px, 2vh, 15px);
     }
 
     .fullscreen-team-nhl.winning .fullscreen-team-name-nhl {
-      color: #10b981;
+      color: #22c55e;
     }
 
     .fullscreen-team-nhl.losing .fullscreen-team-name-nhl {
-      color: #9ca3af;
+      color: #ef4444;
     }
 
     .fullscreen-team-header-nhl {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: clamp(10px, 2vmin, 20px);
+      gap: clamp(10px, 2vmin, 15px);
       margin-bottom: clamp(5px, 1vh, 10px);
     }
 
     .fullscreen-team-nhl .fullscreen-team-logo {
-      width: clamp(50px, 10vmin, 100px);
-      height: clamp(50px, 10vmin, 100px);
+      width: clamp(50px, 10vmin, 80px);
+      height: clamp(50px, 10vmin, 80px);
       object-fit: contain;
+      flex-shrink: 0;
     }
 
     .fullscreen-team-name-nhl {
-      font-size: clamp(1.5rem, 4vmin, 3rem);
-      font-weight: 700;
-      color: #e5e7eb;
+      font-size: clamp(2rem, 5vmin, 3.5rem);
+      font-weight: 900;
+      line-height: 1.1;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
     .fullscreen-score-nhl {
-      font-size: clamp(3rem, 8vmin, 6rem);
-      font-weight: 700;
-      color: #e5e7eb;
+      font-size: clamp(3.5rem, 9vmin, 6rem);
+      font-weight: 900;
+      color: #fff;
       text-align: center;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     }
 
     .fullscreen-team-nhl.winning .fullscreen-score-nhl {
-      color: #10b981;
+      color: #22c55e;
     }
 
     .fullscreen-team-nhl.losing .fullscreen-score-nhl {
-      color: #9ca3af;
+      color: #ef4444;
     }
 
     .fullscreen-vs-nhl {
-      font-size: clamp(1rem, 2vmin, 1.5rem);
+      font-size: clamp(1.2rem, 2.5vmin, 2rem);
+      font-weight: 700;
+      color: #64748b;
+      margin: clamp(5px, 1.5vh, 10px) 0;
+    }
+
+    .fullscreen-shots-nhl {
+      font-size: clamp(1.2rem, 3vmin, 2.8rem);
       font-weight: 600;
-      color: #6b7280;
-      margin: clamp(5px, 1vh, 10px) 0;
+      color: #94a3b8;
+      margin-top: clamp(10px, 2vh, 20px);
+      text-transform: uppercase;
+    }
+
+    /* NHL-specific possession indicator (yellow blinking circle) */
+    .fullscreen-team-nhl .fullscreen-possession {
+      display: inline-block;
+      width: clamp(20px, 4vmin, 30px);
+      height: clamp(20px, 4vmin, 30px);
+      background: #fbbf24;
+      border-radius: 50%;
+      margin-left: 10px;
+      animation: possessionBlink 1s infinite;
+      position: relative;
+      top: auto;
+      right: auto;
     }
 
     .fullscreen-refresh-indicator {
@@ -2097,63 +2121,144 @@
       .fullscreen-grid.grid-2 {
         grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: 1fr !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-game-card,
+      .fullscreen-grid.grid-2 .fullscreen-game-slot {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
       }
 
       /* 4 games: 2x2 grid */
       .fullscreen-grid.grid-4 {
         grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: repeat(2, 1fr) !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-game-card,
+      .fullscreen-grid.grid-4 .fullscreen-game-slot {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
       }
 
       /* 6 games: 2x3 grid (2 columns, 3 rows) */
       .fullscreen-grid.grid-6 {
         grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: repeat(3, 1fr) !important;
+        height: 100vh !important;
+        gap: clamp(4px, 0.8vh, 10px) !important;
+        padding: clamp(8px, 1.2vh, 15px) !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-game-card,
+      .fullscreen-grid.grid-6 .fullscreen-game-slot {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+        padding: clamp(8px, 1.5vh, 15px) !important;
       }
 
       /* 8 games: 2x4 grid (2 columns, 4 rows) */
       .fullscreen-grid.grid-8 {
         grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: repeat(4, 1fr) !important;
+        height: 100vh !important;
+        gap: clamp(3px, 0.6vh, 8px) !important;
+        padding: clamp(6px, 1vh, 12px) !important;
+        overflow: hidden !important;
       }
 
-      /* Adjust fonts for tablet */
-      .fullscreen-score {
-        font-size: 5rem !important;
+      .fullscreen-grid.grid-8 .fullscreen-game-card,
+      .fullscreen-grid.grid-8 .fullscreen-game-slot {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+        padding: clamp(6px, 1vh, 12px) !important;
       }
 
-      .fullscreen-team-name {
-        font-size: 1.8rem !important;
+      /* Adjust fonts for tablet - smaller for more rows */
+      .fullscreen-grid.grid-6 .fullscreen-score,
+      .fullscreen-grid.grid-8 .fullscreen-score {
+        font-size: clamp(2rem, 4vh, 3.5rem) !important;
       }
 
-      .fullscreen-team-record {
-        font-size: 1.2rem !important;
-        min-width: 55px !important;
-        padding-right: 9px !important;
+      .fullscreen-grid.grid-6 .fullscreen-team-name,
+      .fullscreen-grid.grid-8 .fullscreen-team-name {
+        font-size: clamp(1rem, 2vh, 1.5rem) !important;
       }
 
-      .fullscreen-quarter {
-        font-size: 1.6rem !important;
+      .fullscreen-grid.grid-6 .fullscreen-team-logo,
+      .fullscreen-grid.grid-8 .fullscreen-team-logo {
+        width: clamp(30px, 5vh, 45px) !important;
+        height: clamp(30px, 5vh, 45px) !important;
       }
 
-      .fullscreen-down-distance {
-        font-size: 1.6rem !important;
+      .fullscreen-grid.grid-6 .fullscreen-quarter,
+      .fullscreen-grid.grid-8 .fullscreen-quarter {
+        font-size: clamp(0.9rem, 1.8vh, 1.3rem) !important;
       }
 
-      /* Card padding for tablet */
-      .fullscreen-game-card {
-        padding: 25px 25px 35px 25px !important;
-        overflow: visible !important;
+      .fullscreen-grid.grid-6 .fullscreen-team-record,
+      .fullscreen-grid.grid-8 .fullscreen-team-record {
+        font-size: clamp(0.7rem, 1.2vh, 1rem) !important;
+        min-width: 40px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-down-distance,
+      .fullscreen-grid.grid-8 .fullscreen-down-distance {
+        font-size: clamp(0.9rem, 1.8vh, 1.3rem) !important;
+      }
+
+      .fullscreen-grid.grid-6 .sport-logo-indicator,
+      .fullscreen-grid.grid-8 .sport-logo-indicator {
+        width: clamp(35px, 6vh, 55px) !important;
+        height: clamp(35px, 6vh, 55px) !important;
+        top: 5px !important;
+        left: 5px !important;
+      }
+
+      /* 2 and 4 grid keep larger fonts */
+      .fullscreen-grid.grid-2 .fullscreen-score,
+      .fullscreen-grid.grid-4 .fullscreen-score {
+        font-size: clamp(3rem, 6vh, 5rem) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-name,
+      .fullscreen-grid.grid-4 .fullscreen-team-name {
+        font-size: clamp(1.4rem, 2.5vh, 2rem) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-quarter,
+      .fullscreen-grid.grid-4 .fullscreen-quarter {
+        font-size: clamp(1.2rem, 2.2vh, 1.6rem) !important;
       }
 
       /* Controls for tablet */
       .fullscreen-controls {
-        padding: 12px 15px !important;
+        padding: 10px 12px !important;
+        height: 60px !important;
+        min-height: 60px !important;
+        max-height: 60px !important;
       }
 
       .fullscreen-controls button {
-        padding: 10px 18px !important;
-        font-size: 0.95rem !important;
+        padding: 8px 14px !important;
+        font-size: 0.85rem !important;
       }
     }
 
@@ -2848,53 +2953,15 @@
         'nba': '/assets/NBA-logo.png',
         'mlb': '/assets/MLB-logo.png',
         'nhl': '/assets/NHL-logo.png',
-        'ncaa': '/assets/NCAA-logo.png'
+        'ncaa': '/assets/NCAA logo.png'
       };
       const sportLogo = sportLogos[game.sport] || '/assets/logo.png';
       
       // Get possession icon based on sport
       const possessionIcon = game.sport === 'nba' ? '🏀' : game.sport === 'nhl' ? '🏒' : '🏈';
 
-      // NHL uses a different layout (horizontal team headers)
-      if (game.sport === 'nhl') {
-        div.innerHTML = `
-          <img src="${sportLogo}" alt="${game.sport.toUpperCase()}" class="sport-logo-indicator">
-          <div class="fullscreen-refresh-indicator"></div>
-
-          <div class="fs-game-selector-container">
-            <select class="fs-game-selector" data-slot="${slotIndex}">
-            </select>
-          </div>
-
-          <div class="fullscreen-period">${statusDisplay}</div>
-
-          <div class="fullscreen-team-nhl ${!isUpcoming && awayScore > homeScore ? 'winning' : !isUpcoming && awayScore < homeScore ? 'losing' : ''}">
-            <div class="fullscreen-team-header-nhl">
-              ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
-              <div class="fullscreen-team-name-nhl">
-                ${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}
-                ${isLive && awayHasBall ? `<span class="fullscreen-possession">${possessionIcon}</span>` : ''}
-              </div>
-            </div>
-            <div class="fullscreen-score-nhl">${isUpcoming ? '-' : awayScore}</div>
-          </div>
-
-          <div class="fullscreen-vs-nhl">VS</div>
-
-          <div class="fullscreen-team-nhl ${!isUpcoming && homeScore > awayScore ? 'winning' : !isUpcoming && homeScore < awayScore ? 'losing' : ''}">
-            <div class="fullscreen-team-header-nhl">
-              ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
-              <div class="fullscreen-team-name-nhl">
-                ${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}
-                ${isLive && homeHasBall ? `<span class="fullscreen-possession">${possessionIcon}</span>` : ''}
-              </div>
-            </div>
-            <div class="fullscreen-score-nhl">${isUpcoming ? '-' : homeScore}</div>
-          </div>
-        `;
-      } else {
-        // NFL, NCAA, NBA, MLB use similar vertical stack layout
-        div.innerHTML = `
+      // All sports use the same horizontal layout (matching NBA page style)
+      div.innerHTML = `
           <img src="${sportLogo}" alt="${game.sport.toUpperCase()}" class="sport-logo-indicator">
           <div class="fullscreen-refresh-indicator"></div>
 
@@ -2993,7 +3060,6 @@
             `}
           </div>
         `;
-      }
 
       const selector = div.querySelector('.fs-game-selector');
       populateFullscreenGameSelector(selector, slotIndex);
@@ -3297,17 +3363,10 @@
         const gameId = card.dataset.gameId;
         const sport = card.dataset.sport;
         if (gameId) {
-          // Handle different score selectors for NHL vs other sports
-          let awayScoreEl, homeScoreEl;
-          if (sport === 'nhl') {
-            const nhlScores = card.querySelectorAll('.fullscreen-score-nhl');
-            awayScoreEl = nhlScores[0];
-            homeScoreEl = nhlScores[1];
-          } else {
-            const scores = card.querySelectorAll('.fullscreen-team-score');
-            awayScoreEl = scores[0];
-            homeScoreEl = scores[1];
-          }
+          // All sports use the same horizontal layout with .fullscreen-team-score
+          const scores = card.querySelectorAll('.fullscreen-team-score');
+          const awayScoreEl = scores[0];
+          const homeScoreEl = scores[1];
           previousScores[gameId] = {
             away: parseInt(awayScoreEl?.textContent || 0),
             home: parseInt(homeScoreEl?.textContent || 0)
