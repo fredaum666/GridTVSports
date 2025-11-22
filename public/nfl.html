@@ -5762,7 +5762,7 @@
     }
 
     // Show play animation overlay
-    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '') {
+    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '') {
       // Remove any existing animation
       const existingAnimation = card.querySelector('.play-animation');
       if (existingAnimation) {
@@ -5772,7 +5772,7 @@
       // Create animation overlay
       const animationDiv = document.createElement('div');
       animationDiv.className = `play-animation ${playType}`;
-      
+
       // Choose icon based on play type
       let icon;
       switch(playType) {
@@ -5791,21 +5791,32 @@
         default:
           icon = '⚡';
       }
-      
+
+      // Build recovery HTML with logo for fumbles
+      let recoveryHTML = '';
+      if (playType === 'fumble' && recoveryLogo) {
+        recoveryHTML = `
+          <div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">Recovered by</div>
+          <img src="${recoveryLogo}" alt="Team" style="width: clamp(40px, 8vmin, 80px); height: clamp(40px, 8vmin, 80px); object-fit: contain; margin-top: clamp(5px, 1vh, 10px);">
+        `;
+      } else if (recoveryInfo) {
+        recoveryHTML = `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>`;
+      }
+
       animationDiv.innerHTML = `
         <div class="play-animation-icon">${icon}</div>
         <div class="play-animation-text">${playText}</div>
         ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
-        ${recoveryInfo ? `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>` : ''}
+        ${recoveryHTML}
       `;
-      
+
       card.style.position = 'relative';
       card.appendChild(animationDiv);
-      
-      // Remove after animation completes (3 seconds)
+
+      // Remove after animation completes (5 seconds)
       setTimeout(() => {
         animationDiv.remove();
-      }, 3000);
+      }, 5000);
     }
 
     // Update full screen scores
@@ -5944,25 +5955,33 @@
             }
           } else if (lastPlay.toLowerCase().includes('fumble')) {
             if (!card.dataset.lastFumble || card.dataset.lastFumble !== lastPlay) {
-              // Extract recovery information from play text
+              // Extract recovery information and team logo from play text
               let recoveryInfo = '';
+              let recoveryLogo = '';
               const lowerPlay = lastPlay.toLowerCase();
-              
-              // Try to find who recovered
+
+              // Try to find who recovered and get their logo
               if (lowerPlay.includes('recovered by')) {
                 const recoveredIndex = lowerPlay.indexOf('recovered by');
                 const afterRecovered = lastPlay.substring(recoveredIndex + 13); // Skip 'recovered by '
-                const teamMatch = afterRecovered.match(/^([A-Z]{2,3}|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/); // Match team abbreviation or name
-                if (teamMatch) {
-                  recoveryInfo = `Recovered by ${teamMatch[1]}`;
+
+                // Check if away team recovered
+                if (afterRecovered.toLowerCase().includes(awayTeam?.team?.abbreviation?.toLowerCase()) ||
+                    afterRecovered.toLowerCase().includes(awayTeam?.team?.shortDisplayName?.toLowerCase())) {
+                  recoveryLogo = awayTeam?.team?.logo || '';
+                }
+                // Check if home team recovered
+                else if (afterRecovered.toLowerCase().includes(homeTeam?.team?.abbreviation?.toLowerCase()) ||
+                         afterRecovered.toLowerCase().includes(homeTeam?.team?.shortDisplayName?.toLowerCase())) {
+                  recoveryLogo = homeTeam?.team?.logo || '';
                 }
               } else if (lowerPlay.includes(awayTeam?.team?.abbreviation?.toLowerCase())) {
-                recoveryInfo = `Recovered by ${awayTeam.team.abbreviation}`;
+                recoveryLogo = awayTeam?.team?.logo || '';
               } else if (lowerPlay.includes(homeTeam?.team?.abbreviation?.toLowerCase())) {
-                recoveryInfo = `Recovered by ${homeTeam.team.abbreviation}`;
+                recoveryLogo = homeTeam?.team?.logo || '';
               }
-              
-              showPlayAnimation(card, 'fumble', 'FUMBLE!', '', recoveryInfo);
+
+              showPlayAnimation(card, 'fumble', 'FUMBLE!', '', recoveryInfo, recoveryLogo);
               card.dataset.lastFumble = lastPlay;
             }
           }
