@@ -41,6 +41,11 @@
       --regular-card-gap: 12px;                  /* Gap between elements */
       --regular-page-padding: 16px;              /* Internal padding */
 
+      /* Regular Card - Down/Distance & Ball Position */
+      --regular-down-distance-size: 20px;        /* Down & distance text (e.g., "2nd & 7") */
+      --regular-ball-position-size: 15px;        /* Ball position text (e.g., "at NYG 45") */
+      --regular-possession-arrow-size: 16px;     /* Possession arrow indicator */
+
 
       /* ========== FULLSCREEN CARD SIZES ========== */
 
@@ -2123,7 +2128,7 @@
 
     .possession-arrow {
       color: #10b981;
-      font-size: 16px;
+      font-size: var(--regular-possession-arrow-size);
       margin-right: 8px;
       width: 20px;
       display: flex;
@@ -2239,7 +2244,7 @@
     .down-distance {
       color: var(--card-down-distance, #fbbf24);
       font-weight: 600;
-      font-size: 20px;
+      font-size: var(--regular-down-distance-size);
       padding: 2px 8px;
       background: var(--card-down-distance-bg, rgba(251, 191, 36, 0.1));
       border-radius: 4px;
@@ -2777,13 +2782,13 @@
     }
 
     .down-distance {
-      font-size: 20px;
+      font-size: var(--regular-down-distance-size);
       font-weight: 700;
       color: #f59e0b;
     }
 
     .ball-position {
-      font-size: 15px;
+      font-size: var(--regular-ball-position-size);
       color: #9ca3af;
       font-weight: 600;
     }

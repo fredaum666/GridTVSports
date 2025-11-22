@@ -6,6 +6,54 @@
   <title>🏀 NBA Live Games - GridTV Sports</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
   <style>
+    /* ============================================
+       EASY EDIT SECTION - ALL CARD SIZING VARIABLES
+       ============================================
+       Edit these values to change card sizes globally
+    */
+    :root {
+      /* ========== FULLSCREEN CARD SIZES ========== */
+
+      /* Fullscreen - Team Logos (min, preferred, max) */
+      --fs-logo-min: 48px;
+      --fs-logo-preferred: 10vmin;
+      --fs-logo-max: 120px;
+
+      /* Fullscreen - Team Names (min, preferred, max) */
+      --fs-team-name-min: 1rem;
+      --fs-team-name-preferred: 3vmin;
+      --fs-team-name-max: 2.5rem;
+
+      /* Fullscreen - Scores (min, preferred, max) */
+      --fs-score-min: 2.5rem;
+      --fs-score-preferred: 10vmin;
+      --fs-score-max: 7rem;
+
+      /* Fullscreen - Records (min, preferred, max) */
+      --fs-record-min: 0.7rem;
+      --fs-record-preferred: 1.8vmin;
+      --fs-record-max: 1.3rem;
+
+      /* Fullscreen - VS Divider (min, preferred, max) */
+      --fs-vs-min: 1rem;
+      --fs-vs-preferred: 3vmin;
+      --fs-vs-max: 2rem;
+
+      /* Fullscreen - Status Text (min, preferred, max) */
+      --fs-status-min: 0.7rem;
+      --fs-status-preferred: 1.8vmin;
+      --fs-status-max: 1.2rem;
+
+      /* Fullscreen - Spacing (min, preferred, max) */
+      --fs-gap-horizontal-min: 12px;
+      --fs-gap-horizontal-preferred: 2.5vw;
+      --fs-gap-horizontal-max: 40px;
+
+      --fs-gap-vertical-min: 4px;
+      --fs-gap-vertical-preferred: 1vh;
+      --fs-gap-vertical-max: 12px;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -442,30 +490,9 @@
       display: grid;
       gap: clamp(10px, 1.5vh, 20px);
       padding: clamp(10px, 1.5vh, 20px);
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
       height: calc(100vh - 80px);
       box-sizing: border-box;
-    }
-
-    /* Custom scrollbar for fullscreen grid */
-    .fullscreen-grid::-webkit-scrollbar {
-      width: 12px;
-    }
-
-    .fullscreen-grid::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.5);
-      border-radius: 6px;
-    }
-
-    .fullscreen-grid::-webkit-scrollbar-thumb {
-      background: rgba(100, 116, 139, 0.6);
-      border-radius: 6px;
-      border: 2px solid rgba(15, 23, 42, 0.5);
-    }
-
-    .fullscreen-grid::-webkit-scrollbar-thumb:hover {
-      background: rgba(148, 163, 184, 0.8);
     }
 
     .fullscreen-grid.grid-1 {
@@ -473,6 +500,7 @@
       grid-template-rows: 1fr;
       place-items: center;
       padding: clamp(20px, 3vh, 40px);
+      overflow: hidden;
     }
 
     .fullscreen-grid.grid-1 .fullscreen-game-card {
@@ -486,6 +514,7 @@
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: 1fr;
       gap: clamp(10px, 1.5vw, 20px);
+      overflow: hidden;
     }
 
     .fullscreen-grid.grid-2 .fullscreen-game-card {
@@ -495,47 +524,34 @@
 
     .fullscreen-grid.grid-4 {
       grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: auto;
+      grid-template-rows: repeat(2, 1fr);
       gap: clamp(8px, 1.2vh, 15px);
       height: calc(100vh - 80px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      align-content: start;
+      overflow: hidden;
     }
 
     .fullscreen-grid.grid-4 .fullscreen-game-card {
       width: 100%;
-      height: auto;
-      min-height: 400px;
-      max-height: none;
-    }
-
-    .fullscreen-grid.grid-6 {
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: auto;
-      gap: clamp(6px, 1vh, 12px);
-      height: calc(100vh - 80px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      align-content: start;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-game-card {
-      width: 100%;
-      height: auto;
-      min-height: 350px;
-      max-height: none;
+      height: 100%;
+      min-height: 0;
+      max-height: 100%;
+      flex-shrink: 1;
     }
 
     .fullscreen-grid.grid-6 {
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(2, 1fr);
       gap: clamp(6px, 1vh, 12px);
+      height: calc(100vh - 80px);
+      overflow: hidden;
     }
 
     .fullscreen-grid.grid-6 .fullscreen-game-card {
+      width: 100%;
       height: 100%;
-      max-height: calc((100vh - 150px) / 2);
+      min-height: 0;
+      max-height: 100%;
+      flex-shrink: 1;
     }
 
     .fullscreen-game-card {
@@ -551,7 +567,7 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       position: relative;
       overflow: hidden;
-      min-height: fit-content;
+      min-height: 0;
       max-width: 100%;
     }
 
@@ -637,82 +653,151 @@
       opacity: 0.6;
     }
 
-    .fullscreen-quarter {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #17a2b8;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-    }
-
-    .fullscreen-team {
+    /* Fullscreen Card Content - Horizontal Layout */
+    .fullscreen-card-content {
       width: 100%;
-      margin-bottom: 15px;
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2.5vh, 40px);
+      padding: clamp(10px, 2vmin, 30px);
+      box-sizing: border-box;
+      overflow: hidden;
     }
 
-    .fullscreen-team-header {
+    .fullscreen-live-score-header {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 15px;
-      margin-bottom: 10px;
+      gap: clamp(var(--fs-gap-horizontal-min), var(--fs-gap-horizontal-preferred), var(--fs-gap-horizontal-max));
+      width: 100%;
+      max-width: 95%;
+      margin: 0 auto;
+      flex-shrink: 1;
+      min-height: 0;
+    }
+
+    .fullscreen-team-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(var(--fs-gap-vertical-min), var(--fs-gap-vertical-preferred), var(--fs-gap-vertical-max));
+      position: relative;
+      flex-shrink: 1;
+      min-height: 0;
     }
 
     .fullscreen-team-logo {
-      width: 80px;
-      height: 80px;
+      width: clamp(var(--fs-logo-min), var(--fs-logo-preferred), var(--fs-logo-max));
+      height: clamp(var(--fs-logo-min), var(--fs-logo-preferred), var(--fs-logo-max));
       object-fit: contain;
-      flex-shrink: 0;
+      flex-shrink: 1;
     }
 
-    .fullscreen-team-name {
-      font-size: 3.5rem;
-      font-weight: 900;
+    .fullscreen-live-team-name {
+      font-size: clamp(var(--fs-team-name-min), var(--fs-team-name-preferred), var(--fs-team-name-max));
+      font-weight: 700;
+      color: #e5e7eb;
       line-height: 1.1;
+      text-align: center;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      gap: clamp(6px, 1.2vw, 12px);
+    }
+
+    .fullscreen-live-team-name.winning {
+      color: #10b981;
+    }
+
+    .fullscreen-team-record {
+      font-size: clamp(var(--fs-record-min), var(--fs-record-preferred), var(--fs-record-max));
+      color: #9ca3af;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .fullscreen-team-score {
+      font-size: clamp(var(--fs-score-min), var(--fs-score-preferred), var(--fs-score-max));
+      font-weight: 700;
+      color: #e5e7eb;
+      min-width: clamp(60px, 12vmin, 120px);
+      text-align: center;
+      line-height: 1;
+    }
+
+    .fullscreen-team-score.winning {
+      color: #10b981;
+    }
+
+    .fullscreen-team-score.losing {
+      color: #9ca3af;
+    }
+
+    .fullscreen-vs-divider-live {
+      font-size: clamp(var(--fs-vs-min), var(--fs-vs-preferred), var(--fs-vs-max));
+      color: #64748b;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* Fullscreen status */
+    .fullscreen-status-container {
+      text-align: center;
+      margin-bottom: clamp(8px, 2vh, 20px);
+      width: 100%;
+      max-width: 95%;
+    }
+
+    .fullscreen-status-text {
+      color: #9ca3af;
+      font-size: clamp(var(--fs-status-min), var(--fs-status-preferred), var(--fs-status-max));
+      margin-top: clamp(3px, 0.8vh, 8px);
+      font-weight: 600;
+    }
+
+    .fullscreen-upcoming-status-text {
+      color: #9ca3af;
+      font-size: clamp(var(--fs-status-min), var(--fs-status-preferred), var(--fs-status-max));
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: clamp(8px, 2vh, 16px);
+    }
+
+    /* Legacy classes for backward compatibility */
+    .fullscreen-quarter {
+      font-size: clamp(1rem, 3vmin, 2rem);
+      font-weight: 700;
+      color: #17a2b8;
+      margin-bottom: clamp(10px, 2vh, 20px);
+      text-transform: uppercase;
     }
 
     .fullscreen-score {
-      font-size: 6rem;
+      font-size: clamp(var(--fs-score-min), var(--fs-score-preferred), var(--fs-score-max));
       font-weight: 900;
       color: #fff;
       text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-      animation: scoreUpdate 0.5s ease-out;
-      min-width: fit-content;
-      flex-shrink: 0;
-    }
-
-    @keyframes scoreUpdate {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); color: #22c55e; }
-      100% { transform: scale(1); }
-    }
-
-    .fullscreen-team.winning .fullscreen-team-name {
-      color: #22c55e;
-    }
-
-    .fullscreen-team.losing .fullscreen-team-name {
-      color: #ef4444;
     }
 
     .fullscreen-vs {
-      font-size: 2rem;
+      font-size: clamp(var(--fs-vs-min), var(--fs-vs-preferred), var(--fs-vs-max));
       color: #64748b;
-      margin: 10px 0;
+      margin: clamp(5px, 1vh, 10px) 0;
       font-weight: 700;
     }
 
     .fullscreen-possession {
-      display: inline-block;
-      width: 30px;
-      height: 30px;
-      background: #fbbf24;
-      border-radius: 50%;
-      margin-left: 10px;
-      animation: possessionBlink 1s infinite;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      font-size: clamp(18px, 4vmin, 32px);
+      line-height: 1;
+      animation: blink 1.5s infinite;
+      filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.9));
     }
 
     @keyframes possessionBlink {
@@ -721,16 +806,16 @@
     }
 
     .fullscreen-down-distance {
-      font-size: 2.8rem;
+      font-size: clamp(1rem, 3vmin, 2.5rem);
       color: #94a3b8;
-      margin-top: 15px;
+      margin-top: clamp(8px, 1.5vh, 15px);
       font-weight: 600;
     }
 
     .fullscreen-field-position {
-      font-size: 2rem;
+      font-size: clamp(0.9rem, 2.5vmin, 2rem);
       color: #64748b;
-      margin-top: 10px;
+      margin-top: clamp(5px, 1vh, 10px);
     }
 
     .fullscreen-refresh-indicator {
@@ -882,48 +967,45 @@
       100% { background-position: 200% center; }
     }
 
-    /* Grid-specific responsive sizing */
+    /* Grid-specific responsive sizing - Updated for horizontal layout */
     /* 6-Grid Layout - Smaller text to fit 3 columns */
     .fullscreen-grid.grid-6 .fullscreen-team-logo {
       width: 45px !important;
       height: 45px !important;
     }
 
-    .fullscreen-grid.grid-6 .fullscreen-team-header {
-      gap: 6px !important;
-      margin-bottom: 6px !important;
+    .fullscreen-grid.grid-6 .fullscreen-team-stack {
+      gap: 4px !important;
     }
 
-    .fullscreen-grid.grid-6 .fullscreen-team-name {
-      font-size: 1.6rem !important;
+    .fullscreen-grid.grid-6 .fullscreen-live-team-name {
+      font-size: 0.9rem !important;
     }
 
-    .fullscreen-grid.grid-6 .fullscreen-score {
-      font-size: 3rem !important;
+    .fullscreen-grid.grid-6 .fullscreen-team-score {
+      font-size: 2.5rem !important;
+      min-width: 50px !important;
     }
 
-    .fullscreen-grid.grid-6 .fullscreen-quarter {
-      font-size: 1.2rem !important;
+    .fullscreen-grid.grid-6 .fullscreen-status-text,
+    .fullscreen-grid.grid-6 .fullscreen-upcoming-status-text {
+      font-size: 0.8rem !important;
     }
 
-    .fullscreen-grid.grid-6 .fullscreen-vs {
-      font-size: 1rem !important;
-      margin: 3px 0 !important;
+    .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
+      font-size: 0.9rem !important;
     }
 
-    .fullscreen-grid.grid-6 .fullscreen-down-distance {
-      font-size: 1.4rem !important;
-      margin-top: 5px !important;
+    .fullscreen-grid.grid-6 .fullscreen-team-record {
+      font-size: 0.65rem !important;
     }
 
-    .fullscreen-grid.grid-6 .fullscreen-field-position {
-      font-size: 1rem !important;
+    .fullscreen-grid.grid-6 .fullscreen-live-score-header {
+      gap: 12px !important;
     }
 
     .fullscreen-grid.grid-6 .fullscreen-possession {
-      width: 16px !important;
-      height: 16px !important;
-      margin-left: 4px !important;
+      font-size: 16px !important;
     }
 
     .fullscreen-grid.grid-6 .sport-logo-indicator {
@@ -934,50 +1016,52 @@
     }
 
     .fullscreen-grid.grid-6 .fullscreen-game-card {
-      padding: 15px !important;
+      padding: 12px !important;
+    }
+
+    .fullscreen-grid.grid-6 .fullscreen-card-content {
+      gap: 8px !important;
+      padding: 8px !important;
     }
 
     /* 4-Grid Layout - Medium text */
     .fullscreen-grid.grid-4 .fullscreen-team-logo {
-      width: 55px !important;
-      height: 55px !important;
+      width: 65px !important;
+      height: 65px !important;
     }
 
-    .fullscreen-grid.grid-4 .fullscreen-team-header {
-      gap: 8px !important;
-      margin-bottom: 8px !important;
+    .fullscreen-grid.grid-4 .fullscreen-team-stack {
+      gap: 5px !important;
     }
 
-    .fullscreen-grid.grid-4 .fullscreen-team-name {
-      font-size: 1.8rem !important;
+    .fullscreen-grid.grid-4 .fullscreen-live-team-name {
+      font-size: 1.1rem !important;
     }
 
-    .fullscreen-grid.grid-4 .fullscreen-score {
+    .fullscreen-grid.grid-4 .fullscreen-team-score {
       font-size: 3.5rem !important;
+      min-width: 70px !important;
     }
 
-    .fullscreen-grid.grid-4 .fullscreen-quarter {
-      font-size: 1.3rem !important;
+    .fullscreen-grid.grid-4 .fullscreen-status-text,
+    .fullscreen-grid.grid-4 .fullscreen-upcoming-status-text {
+      font-size: 0.9rem !important;
     }
 
-    .fullscreen-grid.grid-4 .fullscreen-vs {
-      font-size: 1.1rem !important;
-      margin: 3px 0 !important;
+    .fullscreen-grid.grid-4 .fullscreen-vs-divider-live {
+      font-size: 1rem !important;
     }
 
-    .fullscreen-grid.grid-4 .fullscreen-down-distance {
-      font-size: 1.6rem !important;
-      margin-top: 6px !important;
+    .fullscreen-grid.grid-4 .fullscreen-team-record {
+      font-size: 0.75rem !important;
     }
 
-    .fullscreen-grid.grid-4 .fullscreen-field-position {
-      font-size: 1.1rem !important;
+    .fullscreen-grid.grid-4 .fullscreen-live-score-header {
+      gap: 18px !important;
     }
 
     .fullscreen-grid.grid-4 .fullscreen-possession {
-      width: 18px !important;
-      height: 18px !important;
-      margin-left: 5px !important;
+      font-size: 20px !important;
     }
 
     .fullscreen-grid.grid-4 .sport-logo-indicator {
@@ -988,16 +1072,68 @@
     }
 
     .fullscreen-grid.grid-4 .fullscreen-game-card {
-      padding: 18px !important;
+      padding: 15px !important;
     }
 
-    /* 2-Grid Layout - Keep large text (default) */
-    .fullscreen-grid.grid-2 .fullscreen-team-name {
-      font-size: 3.5rem !important;
+    .fullscreen-grid.grid-4 .fullscreen-card-content {
+      gap: 12px !important;
+      padding: 10px !important;
     }
 
-    .fullscreen-grid.grid-2 .fullscreen-score {
+    /* 1-Grid Layout - Largest text for single card view */
+    .fullscreen-grid.grid-1 .fullscreen-live-team-name {
+      font-size: 2.2rem !important;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-team-score {
       font-size: 6rem !important;
+      min-width: 120px !important;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-team-logo {
+      width: 110px !important;
+      height: 110px !important;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-live-score-header {
+      gap: 40px !important;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-team-record {
+      font-size: 1rem !important;
+    }
+
+    .fullscreen-grid.grid-1 .fullscreen-status-text,
+    .fullscreen-grid.grid-1 .fullscreen-upcoming-status-text {
+      font-size: 1.3rem !important;
+    }
+
+    /* 2-Grid Layout - Keep large text */
+    .fullscreen-grid.grid-2 .fullscreen-live-team-name {
+      font-size: 1.8rem !important;
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-team-score {
+      font-size: 5rem !important;
+      min-width: 100px !important;
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-team-logo {
+      width: 90px !important;
+      height: 90px !important;
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-live-score-header {
+      gap: 30px !important;
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-team-record {
+      font-size: 0.9rem !important;
+    }
+
+    .fullscreen-grid.grid-2 .fullscreen-status-text,
+    .fullscreen-grid.grid-2 .fullscreen-upcoming-status-text {
+      font-size: 1.1rem !important;
     }
 
     /* Responsive - Tablets and smaller */
@@ -1007,20 +1143,20 @@
         grid-template-rows: repeat(3, 1fr);
       }
 
-      .fullscreen-grid.grid-6 .fullscreen-team-name {
-        font-size: 2.5rem !important;
+      .fullscreen-grid.grid-6 .fullscreen-live-team-name {
+        font-size: 1.1rem !important;
       }
 
-      .fullscreen-grid.grid-6 .fullscreen-score {
-        font-size: 4.5rem !important;
+      .fullscreen-grid.grid-6 .fullscreen-team-score {
+        font-size: 3rem !important;
       }
 
-      .fullscreen-grid.grid-4 .fullscreen-team-name {
-        font-size: 2.5rem !important;
+      .fullscreen-grid.grid-4 .fullscreen-live-team-name {
+        font-size: 1.3rem !important;
       }
 
-      .fullscreen-grid.grid-4 .fullscreen-score {
-        font-size: 4rem !important;
+      .fullscreen-grid.grid-4 .fullscreen-team-score {
+        font-size: 3.5rem !important;
       }
     }
 
@@ -1036,20 +1172,22 @@
         grid-template-rows: repeat(2, 1fr);
       }
 
-      .fullscreen-team-name {
-        font-size: 2rem !important;
-      }
-
-      .fullscreen-score {
-        font-size: 3rem !important;
-      }
-
-      .fullscreen-quarter {
+      .fullscreen-live-team-name {
         font-size: 1.2rem !important;
       }
 
-      .fullscreen-down-distance {
-        font-size: 1.5rem !important;
+      .fullscreen-team-score {
+        font-size: 2.5rem !important;
+      }
+
+      .fullscreen-status-text,
+      .fullscreen-upcoming-status-text {
+        font-size: 0.85rem !important;
+      }
+
+      .fullscreen-team-logo {
+        width: 50px !important;
+        height: 50px !important;
       }
 
       .fs-game-selector {
@@ -1057,141 +1195,47 @@
       }
     }
 
-    
-                            /* HEIGHT-BASED RESPONSIVE - HORIZONTAL LAYOUT FOR SHORT SCREENS */
-    @media (max-height: 900px) {
-      .fullscreen-game-card {
-        display: grid !important;
-        grid-template-columns: 1fr auto 1fr !important;
-        grid-template-rows: auto 1fr auto !important;
-        padding: clamp(12px, 2vh, 24px) !important;
-        gap: clamp(8px, 1.2vh, 14px) clamp(15px, 2.5vw, 30px) !important;
-        align-items: center !important;
-      }
-
-      .fullscreen-quarter {
-        grid-column: 1 / -1 !important;
-        grid-row: 1 !important;
-        font-size: clamp(15px, 2.5vh, 26px) !important;
-        font-weight: 700 !important;
-        padding-bottom: clamp(8px, 1.2vh, 12px) !important;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.15) !important;
-        text-align: center !important;
-      }
-
-      .fullscreen-team:nth-of-type(1) {
-        grid-column: 1 !important;
-        grid-row: 2 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: clamp(5px, 1vh, 12px) !important;
-      }
-
-      .fullscreen-vs {
-        grid-column: 2 !important;
-        grid-row: 2 !important;
-        font-size: clamp(14px, 2vh, 22px) !important;
-        font-weight: 600 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        opacity: 0.5 !important;
-        padding: 0 clamp(8px, 1.5vw, 20px) !important;
-      }
-
-      .fullscreen-team:nth-of-type(2) {
-        grid-column: 3 !important;
-        grid-row: 2 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: clamp(5px, 1vh, 12px) !important;
-      }
-
-      .fullscreen-team-header {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex-wrap: wrap !important;
-        gap: clamp(6px, 1vh, 10px) !important;
-        margin-bottom: clamp(4px, 0.6vh, 8px) !important;
-        width: 100% !important;
-      }
-
-      .fullscreen-team-record {
-        font-size: clamp(11px, 1.6vh, 16px) !important;
-        font-weight: 500 !important;
-        opacity: 0.7 !important;
-        width: 100% !important;
-        text-align: center !important;
-        order: -1 !important;
+    /* HEIGHT-BASED RESPONSIVE - Compact sizing for short screens */
+    @media (max-height: 700px) {
+      .fullscreen-card-content {
+        gap: 6px !important;
+        padding: 6px !important;
       }
 
       .fullscreen-team-logo {
-        width: clamp(40px, 7vh, 70px) !important;
-        height: clamp(40px, 7vh, 70px) !important;
-        flex-shrink: 0 !important;
+        width: 40px !important;
+        height: 40px !important;
       }
 
-      .fullscreen-team-name {
-        font-size: clamp(16px, 3vh, 30px) !important;
-        font-weight: 700 !important;
-        text-align: center !important;
-        line-height: 1.2 !important;
-        display: inline-block !important;
-        max-width: 100% !important;
-        visibility: visible !important;
+      .fullscreen-live-team-name {
+        font-size: 0.85rem !important;
       }
 
-      .fullscreen-possession {
-        font-size: clamp(14px, 2.5vh, 24px) !important;
-        margin-left: 6px !important;
-        display: inline !important;
-        visibility: visible !important;
+      .fullscreen-team-score {
+        font-size: 2rem !important;
+        min-width: 45px !important;
       }
 
-      .fullscreen-timeouts {
-        display: flex !important;
-        gap: clamp(5px, 0.8vh, 10px) !important;
-        justify-content: center !important;
-        width: 100% !important;
-        margin: clamp(4px, 0.6vh, 8px) 0 !important;
+      .fullscreen-team-record {
+        font-size: 0.6rem !important;
       }
 
-      .timeout-bar {
-        width: clamp(20px, 3.5vh, 32px) !important;
-        height: clamp(6px, 1vh, 10px) !important;
-        border-radius: 2px !important;
+      .fullscreen-status-text,
+      .fullscreen-upcoming-status-text {
+        font-size: 0.75rem !important;
       }
 
-      .fullscreen-score {
-        font-size: clamp(48px, 9vh, 90px) !important;
-        font-weight: 800 !important;
-        line-height: 1 !important;
-        width: 100% !important;
-        text-align: center !important;
-        margin-top: clamp(6px, 1vh, 12px) !important;
+      .fullscreen-live-score-header {
+        gap: 10px !important;
+      }
+
+      .fullscreen-team-stack {
+        gap: 3px !important;
       }
 
       .sport-logo-indicator {
-        width: clamp(50px, 8vh, 80px) !important;
-        height: clamp(50px, 8vh, 80px) !important;
-        top: clamp(10px, 1.5vh, 18px) !important;
-        left: clamp(10px, 1.5vh, 18px) !important;
-      }
-
-      .fullscreen-down-distance {
-        grid-column: 1 / -1 !important;
-        grid-row: 3 !important;
-        padding-top: clamp(10px, 1.5vh, 14px) !important;
-        border-top: 2px solid rgba(255, 255, 255, 0.15) !important;
-        font-size: clamp(12px, 1.8vh, 18px) !important;
-        font-weight: 600 !important;
-        text-align: center !important;
+        width: 50px !important;
+        height: 50px !important;
       }
     }
 
@@ -3242,11 +3286,11 @@
     // Initialize
     fetchLiveGames();
 
-    // Auto-refresh every 15 seconds for live updates
+    // Auto-refresh every 5 seconds for live updates
     refreshInterval = setInterval(() => {
       console.log('🔄 Auto-refreshing games...');
       fetchLiveGames();
-    }, 15000);
+    }, 5000);
 
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
@@ -3481,10 +3525,10 @@
       
       renderFullScreenGames();
       
-      // Start auto-refresh
+      // Start auto-refresh every 5 seconds
       fullscreenRefreshInterval = setInterval(() => {
         updateFullScreenScores();
-      }, 15000);
+      }, 5000);
 
       // Request browser fullscreen (with safety check)
       try {
@@ -3751,35 +3795,33 @@
           width: ${sizes.logoSize}px !important;
           height: ${sizes.logoSize}px !important;
         }
-        
-        .fullscreen-grid.grid-${layout} .fullscreen-team-name {
+
+        .fullscreen-grid.grid-${layout} .fullscreen-live-team-name {
           font-size: ${sizes.teamNameFontSize}px !important;
           line-height: 1.1 !important;
         }
-        
-        .fullscreen-grid.grid-${layout} .fullscreen-score {
+
+        .fullscreen-grid.grid-${layout} .fullscreen-team-score {
           font-size: ${sizes.scoreFontSize}px !important;
           min-width: ${sizes.scoreMinWidth}px !important;
           line-height: 1 !important;
         }
-        
+
         .fullscreen-grid.grid-${layout} .fullscreen-team-record {
           font-size: ${sizes.recordFontSize}px !important;
           line-height: 1.2 !important;
         }
-        
-        .fullscreen-grid.grid-${layout} .fullscreen-vs {
+
+        .fullscreen-grid.grid-${layout} .fullscreen-vs-divider-live {
           font-size: ${sizes.vsFontSize}px !important;
-          margin: ${sizes.vsMargin}px 0 !important;
           line-height: 1 !important;
         }
-        
-        .fullscreen-grid.grid-${layout} .fullscreen-team {
-          margin-bottom: ${sizes.teamMargin}px !important;
+
+        .fullscreen-grid.grid-${layout} .fullscreen-team-stack {
           gap: ${sizes.teamGap}px !important;
         }
-        
-        .fullscreen-grid.grid-${layout} .fullscreen-team-info {
+
+        .fullscreen-grid.grid-${layout} .fullscreen-live-score-header {
           gap: ${sizes.teamInfoGap}px !important;
         }
         
@@ -3916,10 +3958,14 @@
       div.dataset.isFinal = isFinal ? 'true' : 'false';
       div.dataset.gameId = game.id;
       
+      // Get team records
+      const awayRecord = awayTeam?.records?.[0]?.summary || awayTeam?.record?.displayValue || '';
+      const homeRecord = homeTeam?.records?.[0]?.summary || homeTeam?.record?.displayValue || '';
+
       div.innerHTML = `
         <img src="/assets/NBA-logo.png" alt="NBA" class="sport-logo-indicator">
         <div class="fullscreen-refresh-indicator"></div>
-        
+
         <!-- Game Selector Dropdown (hidden initially) -->
         <div class="fs-game-selector-container">
           <select class="fs-game-selector" data-slot="${slotIndex}">
@@ -3927,33 +3973,54 @@
           </select>
         </div>
 
-        <div class="fullscreen-quarter">${statusDisplay}</div>
-        
-        <div class="fullscreen-team ${!isUpcoming && awayScore > homeScore ? 'winning' : !isUpcoming && awayScore < homeScore ? 'losing' : ''}">
-          <div class="fullscreen-team-header">
-            ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
-            <div class="fullscreen-team-name">
-              ${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}
-              ${isLive && possession === awayTeam?.id ? '<span class="fullscreen-possession"></span>' : ''}
+        <div class="fullscreen-card-content">
+          ${isUpcoming ? `
+            <!-- Upcoming Game -->
+            <div class="fullscreen-upcoming-status-text">${statusDisplay}</div>
+            <div class="fullscreen-live-score-header">
+              <div class="fullscreen-team-stack">
+                ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+                <div class="fullscreen-live-team-name">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
+                ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
+              </div>
+              <div class="fullscreen-team-score">-</div>
+              <div class="fullscreen-vs-divider-live">VS</div>
+              <div class="fullscreen-team-score">-</div>
+              <div class="fullscreen-team-stack">
+                ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+                <div class="fullscreen-live-team-name">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
+                ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
+              </div>
             </div>
-          </div>
-          <div class="fullscreen-score">${isUpcoming ? '-' : awayScore}</div>
-        </div>
-
-        <div class="fullscreen-vs">VS</div>
-
-        <div class="fullscreen-team ${!isUpcoming && homeScore > awayScore ? 'winning' : !isUpcoming && homeScore < awayScore ? 'losing' : ''}">
-          <div class="fullscreen-team-header">
-            ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
-            <div class="fullscreen-team-name">
-              ${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}
-              ${isLive && possession === homeTeam?.id ? '<span class="fullscreen-possession"></span>' : ''}
+          ` : `
+            <!-- Live or Final Game -->
+            <div class="fullscreen-status-container">
+              <div class="fullscreen-status-text">${quarterText}</div>
             </div>
-          </div>
-          <div class="fullscreen-score">${isUpcoming ? '-' : homeScore}</div>
-        </div>
 
-        ${isLive && downDistance ? `<div class="fullscreen-down-distance">${downDistance}</div>` : ''}
+            <div class="fullscreen-live-score-header">
+              <div class="fullscreen-team-stack">
+                <div style="position: relative;">
+                  ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+                  ${isLive && possession === awayTeam?.id ? '<span class="fullscreen-possession">🏀</span>' : ''}
+                </div>
+                <div class="fullscreen-live-team-name ${awayScore > homeScore ? 'winning' : ''}">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
+                ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
+              </div>
+              <div class="fullscreen-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
+              <div class="fullscreen-vs-divider-live">VS</div>
+              <div class="fullscreen-team-score ${homeScore > awayScore ? 'winning' : 'losing'}">${homeScore}</div>
+              <div class="fullscreen-team-stack">
+                <div style="position: relative;">
+                  ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
+                  ${isLive && possession === homeTeam?.id ? '<span class="fullscreen-possession">🏀</span>' : ''}
+                </div>
+                <div class="fullscreen-live-team-name ${homeScore > awayScore ? 'winning' : ''}">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
+                ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
+              </div>
+            </div>
+          `}
+        </div>
       `;
 
       // Populate game selector
@@ -4177,13 +4244,13 @@
 
           // For upcoming games, update countdown
           if (statusState === 'pre') {
-            const quarterEl = card.querySelector('.fullscreen-quarter');
+            const quarterEl = card.querySelector('.fullscreen-upcoming-status-text') || card.querySelector('.fullscreen-quarter');
             if (quarterEl) {
               const gameDate = new Date(game.date);
               const now = new Date();
               const minutesUntil = Math.round((gameDate - now) / (1000 * 60));
               const hoursUntil = Math.round((gameDate - now) / (1000 * 60 * 60));
-              
+
               if (minutesUntil < 60) {
                 quarterEl.textContent = `⏰ STARTS IN ${minutesUntil} MIN`;
               } else if (hoursUntil < 24) {
@@ -4258,7 +4325,7 @@
           card.dataset.prevHomeScore = homeScore;
 
           // Update scores with animation
-          const scores = card.querySelectorAll('.fullscreen-score');
+          const scores = card.querySelectorAll('.fullscreen-team-score') || card.querySelectorAll('.fullscreen-score');
           const awayScoreEl = scores[0];
           const homeScoreEl = scores[1];
           
@@ -4283,7 +4350,7 @@
           }
 
           // Update status
-          const quarterEl = card.querySelector('.fullscreen-quarter');
+          const quarterEl = card.querySelector('.fullscreen-status-text') || card.querySelector('.fullscreen-quarter');
           if (quarterEl) {
             quarterEl.textContent = comp?.status?.type?.shortDetail || 'Live';
           }
@@ -4322,18 +4389,26 @@
             }
           }
 
-          // Update possession
+          // Update possession - now shown on team stack, not team name
           const possession = comp?.situation?.possession;
-          const teamNames = card.querySelectorAll('.fullscreen-team-name');
-          teamNames.forEach(name => {
-            const existingPossession = name.querySelector('.fullscreen-possession');
+          const teamStacks = card.querySelectorAll('.fullscreen-team-stack');
+          teamStacks.forEach(stack => {
+            const existingPossession = stack.querySelector('.fullscreen-possession');
             if (existingPossession) existingPossession.remove();
           });
-          
-          if (possession === awayTeam?.id && teamNames[0]) {
-            teamNames[0].insertAdjacentHTML('beforeend', '<span class="fullscreen-possession"></span>');
-          } else if (possession === homeTeam?.id && teamNames[1]) {
-            teamNames[1].insertAdjacentHTML('beforeend', '<span class="fullscreen-possession"></span>');
+
+          if (possession === awayTeam?.id && teamStacks[0]) {
+            const logoWrapper = teamStacks[0].querySelector('div[style*="position: relative"]');
+            if (logoWrapper) {
+              const existingPos = logoWrapper.querySelector('.fullscreen-possession');
+              if (!existingPos) logoWrapper.insertAdjacentHTML('beforeend', '<span class="fullscreen-possession">🏀</span>');
+            }
+          } else if (possession === homeTeam?.id && teamStacks[1]) {
+            const logoWrapper = teamStacks[1].querySelector('div[style*="position: relative"]');
+            if (logoWrapper) {
+              const existingPos = logoWrapper.querySelector('.fullscreen-possession');
+              if (!existingPos) logoWrapper.insertAdjacentHTML('beforeend', '<span class="fullscreen-possession">🏀</span>');
+            }
           }
         });
 
