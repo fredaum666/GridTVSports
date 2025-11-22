@@ -5803,21 +5803,32 @@
     // Update full screen scores
     async function updateFullScreenScores() {
       try {
-        // Fetch updated game data from the same endpoint
-        const response = await fetch(`/api/nfl/scoreboard?week=${currentWeek}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch scores: ${response.status}`);
+        // Fetch updated game data from BOTH current week AND next week (same as initial fetch)
+        const [currentWeekResponse, nextWeekResponse] = await Promise.all([
+          fetch(`/api/nfl/scoreboard?week=${currentWeek}`),
+          fetch(`/api/nfl/scoreboard?week=${currentWeek + 1}`)
+        ]);
+
+        if (!currentWeekResponse.ok && !nextWeekResponse.ok) {
+          throw new Error(`Failed to fetch scores from both weeks`);
         }
-        
-        const espnData = await response.json();
-        
+
+        // Combine games from both weeks
+        const currentWeekData = currentWeekResponse.ok ? await currentWeekResponse.json() : { events: [] };
+        const nextWeekData = nextWeekResponse.ok ? await nextWeekResponse.json() : { events: [] };
+
+        const allEvents = [
+          ...(currentWeekData.events || []),
+          ...(nextWeekData.events || [])
+        ];
+
         // Update the global games data
-        if (espnData.events && espnData.events.length > 0) {
-          const allGames = espnData.events.map(event => {
+        if (allEvents.length > 0) {
+          const allGames = allEvents.map(event => {
             const comp = event.competitions[0];
             const home = comp.competitors.find(c => c.homeAway === 'home');
             const away = comp.competitors.find(c => c.homeAway === 'away');
-            
+
             return {
               id: event.id,
               date: event.date,
@@ -5825,7 +5836,7 @@
               competitions: event.competitions
             };
           });
-          
+
           window.liveGamesData = allGames;
         }
 
