@@ -37,6 +37,7 @@ const sportsCache = {
   nfl: { data: new Map(), activeWeeks: new Set() },
   ncaa: { data: new Map(), activeWeeks: new Set() },
   nba: { data: new Map(), activeDates: new Set() },
+  ncaab: { data: new Map(), activeDates: new Set() },
   mlb: { data: new Map(), activeDates: new Set() },
   nhl: { data: new Map(), activeDates: new Set() },
   CACHE_DURATION: 15000, // 15 seconds for live games
@@ -51,6 +52,7 @@ const finalGamesStore = {
   nfl: new Map(),
   ncaa: new Map(),
   nba: new Map(),
+  ncaab: new Map(),
   mlb: new Map(),
   nhl: new Map()
 };
@@ -377,6 +379,120 @@ app.get('/api/nba/scoreboard', async (req, res) => {
 app.get('/api/nba/summary/:gameId', async (req, res) => {
   try {
     const url = `${ESPN_BASE}/basketball/nba/summary?event=${req.params.gameId}`;
+    const data = await fetchESPN(url);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// API ROUTES - COLLEGE BASKETBALL (NCAAB)
+// ============================================
+
+app.get('/api/ncaab/scoreboard', async (req, res) => {
+  try {
+    const requestedDate = req.query.date;
+
+    if (requestedDate) {
+      // If specific date requested, use it
+      const cacheKey = `date-${requestedDate}`;
+      const cached = sportsCache.ncaab.data.get(cacheKey);
+      const now = Date.now();
+
+      if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
+        return res.json(cached.data);
+      }
+
+      const url = `${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?dates=${requestedDate}&limit=200`;
+      const data = await fetchESPN(url);
+      const isComplete = areAllGamesComplete(data);
+
+      const statusCount = data.events?.reduce((acc, e) => {
+        const state = e.status?.type?.state || 'unknown';
+        acc[state] = (acc[state] || 0) + 1;
+        return acc;
+      }, {}) || {};
+
+      console.log(`[NCAAB] Date ${requestedDate} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
+
+      sportsCache.ncaab.data.set(cacheKey, { data, timestamp: now, isComplete });
+
+      if (!isComplete) {
+        sportsCache.ncaab.activeDates.add(requestedDate);
+      } else {
+        sportsCache.ncaab.activeDates.delete(requestedDate);
+      }
+
+      return res.json(data);
+    }
+
+    // No specific date - fetch yesterday, today, AND tomorrow to catch live and upcoming games
+    const today = getTodayDate();
+    const yesterday = getYesterdayDate();
+    const tomorrow = getTomorrowDate();
+
+    const [todayUrl, yesterdayUrl, tomorrowUrl] = [
+      `${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?dates=${today}&limit=200`,
+      `${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?dates=${yesterday}&limit=200`,
+      `${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?dates=${tomorrow}&limit=200`
+    ];
+
+    const [todayData, yesterdayData, tomorrowData] = await Promise.all([
+      fetchESPN(todayUrl),
+      fetchESPN(yesterdayUrl),
+      fetchESPN(tomorrowUrl)
+    ]);
+
+    // Merge games from all three days, prioritizing live games
+    const allGames = [
+      ...(yesterdayData.events || []),
+      ...(todayData.events || []),
+      ...(tomorrowData.events || [])
+    ];
+
+    // Create combined response
+    const combinedData = {
+      ...todayData,
+      events: allGames
+    };
+
+    const statusCount = allGames.reduce((acc, e) => {
+      const state = e.status?.type?.state || 'unknown';
+      acc[state] = (acc[state] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log(`[NCAAB] Combined (${yesterday} + ${today} + ${tomorrow}) - Games: ${allGames.length}, Statuses:`, statusCount);
+
+    // Cache all three dates
+    const now = Date.now();
+    const todayComplete = areAllGamesComplete(todayData);
+    const yesterdayComplete = areAllGamesComplete(yesterdayData);
+    const tomorrowComplete = areAllGamesComplete(tomorrowData);
+
+    sportsCache.ncaab.data.set(`date-${today}`, { data: todayData, timestamp: now, isComplete: todayComplete });
+    sportsCache.ncaab.data.set(`date-${yesterday}`, { data: yesterdayData, timestamp: now, isComplete: yesterdayComplete });
+    sportsCache.ncaab.data.set(`date-${tomorrow}`, { data: tomorrowData, timestamp: now, isComplete: tomorrowComplete });
+
+    if (!todayComplete) sportsCache.ncaab.activeDates.add(today);
+    else sportsCache.ncaab.activeDates.delete(today);
+
+    if (!yesterdayComplete) sportsCache.ncaab.activeDates.add(yesterday);
+    else sportsCache.ncaab.activeDates.delete(yesterday);
+
+    if (!tomorrowComplete) sportsCache.ncaab.activeDates.add(tomorrow);
+    else sportsCache.ncaab.activeDates.delete(tomorrow);
+
+    res.json(combinedData);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/ncaab/summary/:gameId', async (req, res) => {
+  try {
+    const url = `${ESPN_BASE}/basketball/mens-college-basketball/summary?event=${req.params.gameId}`;
     const data = await fetchESPN(url);
     res.json(data);
   } catch (error) {

@@ -60,9 +60,9 @@
 
     .sports-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 30px;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
       max-width: 1400px;
       margin-left: auto;
       margin-right: auto;
@@ -663,65 +663,81 @@
       <p>Live Multi-Sport Grid Monitoring</p>
     </div>
 
+    <!-- Professional Leagues Row -->
     <div class="sports-grid">
       <a href="/nfl.html" class="sport-card nfl">
         <img src="/assets/NFL-logo.png" alt="NFL Logo" class="sport-logo">
         <div class="sport-name">NFL</div>
-        <div class="sport-description">
+        <!-- <div class="sport-description">
           Live NFL games with real-time scores, downs, field position, and Sports Bar Mode
         </div>
         <div class="live-badge">
           <div class="live-dot"></div>
           LIVE UPDATES
-        </div>
-      </a>
-
-      <a href="/ncaa.html" class="sport-card ncaa">
-        <img src="/assets/NCAA logo.png" alt="NCAA Logo" class="sport-logo">
-        <div class="sport-name">NCAA</div>
-        <div class="sport-description">
-          Live College Football games with real-time scores, downs, rankings, and conference matchups
-        </div>
-        <div class="live-badge">
-          <div class="live-dot"></div>
-          LIVE UPDATES
-        </div>
+        </div> -->
       </a>
 
       <a href="/nba.html" class="sport-card nba">
         <img src="/assets/NBA-Logo.png" alt="NBA Logo" class="sport-logo">
         <div class="sport-name">NBA</div>
-        <div class="sport-description">
+        <!-- <div class="sport-description">
           Live NBA games with quarter-by-quarter scoring, fouls, and leading scorers
         </div>
         <div class="live-badge">
           <div class="live-dot"></div>
           LIVE UPDATES
-        </div>
+        </div> -->
       </a>
 
       <a href="/mlb.html" class="sport-card mlb">
         <img src="/assets/MLB-Logo.png" alt="MLB Logo" class="sport-logo">
         <div class="sport-name">MLB</div>
-        <div class="sport-description">
+        <!-- <div class="sport-description">
           Live MLB games with inning-by-inning scoring, pitch count, and base runners
         </div>
         <div class="live-badge">
           <div class="live-dot"></div>
           LIVE UPDATES
-        </div>
+        </div> -->
       </a>
 
       <a href="/nhl.html" class="sport-card nhl">
         <img src="/assets/NHL-Logo.png" alt="NHL Logo" class="sport-logo">
         <div class="sport-name">NHL</div>
-        <div class="sport-description">
+        <!-- <div class="sport-description">
           Live NHL games with period-by-period scoring, shots, and power play tracking
         </div>
         <div class="live-badge">
           <div class="live-dot"></div>
           LIVE UPDATES
+        </div> -->
+      </a>
+    </div>
+
+    <!-- College Leagues Row -->
+    <div class="sports-grid">
+      <a href="/ncaa.html" class="sport-card ncaa">
+        <img src="/assets/NCAA logo.png" alt="NCAA Logo" class="sport-logo">
+        <div class="sport-name">College Football</div>
+        <!-- <div class="sport-description">
+          Live College Football games with real-time scores, downs, rankings, and conference matchups
         </div>
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          LIVE UPDATES
+        </div> -->
+      </a>
+
+      <a href="/ncaab.html" class="sport-card ncaab">
+        <img src="/assets/ncaa-basketball.png" alt="College Basketball Logo" class="sport-logo">
+        <div class="sport-name">College Basketball</div>
+        <!-- <div class="sport-description">
+          Live Men's College Basketball with scores, rankings, and March Madness updates
+        </div>
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          LIVE UPDATES
+        </div> -->
       </a>
     </div>
 
@@ -735,15 +751,6 @@
         </span>
         <span class="btn-arrow">→</span>
       </a>
-    </div>
-
-    <!-- Theme Selector -->
-    <div class="theme-selector">
-      <label for="theme-select">🎨 Theme:</label>
-      <select id="theme-select" class="theme-select">
-        <option value="default">Default Dark</option>
-        <option value="apple">Light Theme</option>
-      </select>
     </div>
 
     <!-- Color Customization Button -->
