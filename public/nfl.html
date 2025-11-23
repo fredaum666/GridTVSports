@@ -3591,7 +3591,14 @@
           fetch(`/api/nfl/scoreboard?week=${currentWeek}`),
           fetch(`/api/nfl/scoreboard?week=${currentWeek + 1}`)
         ]);
-        
+
+        // Check for session expiration (401)
+        if (currentWeekResponse.status === 401 || nextWeekResponse.status === 401) {
+          console.log('Session expired, redirecting to login...');
+          window.location.href = '/login';
+          return;
+        }
+
         if (!currentWeekResponse.ok && !nextWeekResponse.ok) {
           throw new Error(`Failed to fetch games from both weeks`);
         }
@@ -4902,6 +4909,7 @@
     let gridGames = {}; // { 0: gameId, 1: gameId, ... } - Maps slot index to game ID
     let currentLayout = 4;
     let fullscreenRefreshInterval = null;
+    let sessionKeepAliveInterval = null; // Keep session alive during fullscreen
     let dynamicStyles = null; // Store dynamic style element
     let presentationRequest = null;
     let presentationConnection = null;
@@ -5471,6 +5479,19 @@
         updateFullScreenScores();
       }, 5000);
 
+      // Start session keep-alive every 2 minutes to prevent session expiration
+      sessionKeepAliveInterval = setInterval(async () => {
+        try {
+          const response = await fetch('/api/auth/check');
+          if (!response.ok) {
+            console.log('Session expired during fullscreen, redirecting to login...');
+            window.location.href = '/login';
+          }
+        } catch (error) {
+          console.error('Session keep-alive failed:', error);
+        }
+      }, 2 * 60 * 1000); // Every 2 minutes
+
       // Request browser fullscreen (with safety check)
       try {
         if (container.requestFullscreen) {
@@ -6022,6 +6043,13 @@
           fetch(`/api/nfl/scoreboard?week=${currentWeek + 1}`)
         ]);
 
+        // Check for session expiration (401)
+        if (currentWeekResponse.status === 401 || nextWeekResponse.status === 401) {
+          console.log('Session expired, redirecting to login...');
+          window.location.href = '/login';
+          return;
+        }
+
         if (!currentWeekResponse.ok && !nextWeekResponse.ok) {
           throw new Error(`Failed to fetch scores from both weeks`);
         }
@@ -6381,6 +6409,12 @@
       if (fullscreenRefreshInterval) {
         clearInterval(fullscreenRefreshInterval);
         fullscreenRefreshInterval = null;
+      }
+
+      // Clear session keep-alive interval
+      if (sessionKeepAliveInterval) {
+        clearInterval(sessionKeepAliveInterval);
+        sessionKeepAliveInterval = null;
       }
 
       // Exit browser fullscreen

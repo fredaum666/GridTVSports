@@ -2519,6 +2519,7 @@
     let slotFilters = {}; // Track selected sport filter per slot ('all', 'nfl', 'ncaa', 'nba', 'nhl', 'mlb')
     let currentLayout = 4;
     let fullscreenRefreshInterval;
+    let sessionKeepAliveInterval = null; // Keep session alive during fullscreen
     let presentationRequest = null;
     let presentationConnection = null;
 
@@ -2593,6 +2594,14 @@
           fetch('/api/mlb/scoreboard'),
           fetch('/api/nhl/scoreboard')
         ]);
+
+        // Check for session expiration (401) on any response
+        const responses = [nflResponse, nflNextWeekResponse, ncaaResponse, ncaaNextWeekResponse, nbaResponse, mlbResponse, nhlResponse];
+        if (responses.some(r => r.status === 401)) {
+          console.log('Session expired, redirecting to login...');
+          window.location.href = '/login';
+          return;
+        }
 
         const [nflData, nflNextWeekData, ncaaData, ncaaNextWeekData, nbaData, mlbData, nhlData] = await Promise.all([
           nflResponse.json(),
@@ -2875,7 +2884,20 @@
       
       console.log('⏱️ Starting auto-refresh interval (every 5 seconds)');
       fullscreenRefreshInterval = setInterval(updateFullscreenGames, 5000);
-      
+
+      // Start session keep-alive every 2 minutes to prevent session expiration
+      sessionKeepAliveInterval = setInterval(async () => {
+        try {
+          const response = await fetch('/api/auth/check');
+          if (!response.ok) {
+            console.log('Session expired during fullscreen, redirecting to login...');
+            window.location.href = '/login';
+          }
+        } catch (error) {
+          console.error('Session keep-alive failed:', error);
+        }
+      }, 2 * 60 * 1000); // Every 2 minutes
+
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
       }
@@ -2890,7 +2912,13 @@
       if (fullscreenRefreshInterval) {
         clearInterval(fullscreenRefreshInterval);
       }
-      
+
+      // Clear session keep-alive interval
+      if (sessionKeepAliveInterval) {
+        clearInterval(sessionKeepAliveInterval);
+        sessionKeepAliveInterval = null;
+      }
+
       if (document.exitFullscreen) {
         document.exitFullscreen();
       }
