@@ -713,6 +713,37 @@
       border-color: rgba(239, 68, 68, 0.5);
     }
 
+    .subscription-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .subscription-badge.trial {
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+    }
+
+    .subscription-badge.active {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+    }
+
+    .subscription-badge.expired {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    .subscription-badge:hover {
+      transform: scale(1.05);
+    }
+
     @media (max-width: 600px) {
       .user-menu {
         top: 10px;
@@ -726,6 +757,11 @@
       .logout-btn {
         padding: 8px 12px;
         font-size: 12px;
+      }
+
+      .subscription-badge {
+        padding: 4px 8px;
+        font-size: 10px;
       }
     }
   </style>
@@ -749,6 +785,7 @@
 <body>
   <!-- User Menu -->
   <div class="user-menu" id="userMenu" style="display: none;">
+    <a href="/subscription" class="subscription-badge trial" id="subscriptionBadge">Trial</a>
     <div class="user-info">
       <div class="user-avatar" id="userAvatar">U</div>
       <span id="userName">User</span>
@@ -906,6 +943,7 @@
       const userAvatar = document.getElementById('userAvatar');
       const userName = document.getElementById('userName');
       const logoutBtn = document.getElementById('logoutBtn');
+      const subscriptionBadge = document.getElementById('subscriptionBadge');
 
       // Check authentication status
       try {
@@ -917,6 +955,27 @@
             userMenu.style.display = 'flex';
             userName.textContent = data.user.displayName || data.user.email;
             userAvatar.textContent = (data.user.displayName || data.user.email).charAt(0).toUpperCase();
+
+            // Update subscription badge
+            if (data.subscription) {
+              const sub = data.subscription;
+              subscriptionBadge.className = 'subscription-badge';
+
+              if (sub.status === 'active') {
+                subscriptionBadge.classList.add('active');
+                subscriptionBadge.textContent = sub.plan ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Pro';
+              } else if (sub.status === 'trial') {
+                subscriptionBadge.classList.add('trial');
+                subscriptionBadge.textContent = sub.daysRemaining > 0 ? `Trial: ${sub.daysRemaining}d` : 'Trial';
+              } else if (sub.status === 'expired' || sub.status === 'canceled') {
+                subscriptionBadge.classList.add('expired');
+                subscriptionBadge.textContent = 'Subscribe';
+                subscriptionBadge.href = '/pricing';
+              } else {
+                subscriptionBadge.classList.add('trial');
+                subscriptionBadge.textContent = 'Trial';
+              }
+            }
           }
         }
       } catch (error) {

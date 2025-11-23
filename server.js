@@ -11,6 +11,9 @@ const rateLimit = require('express-rate-limit');
 const { pool } = require('./db');
 require('dotenv').config();
 
+// Initialize Stripe
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -124,16 +127,50 @@ function requireAuth(req, res, next) {
 // ============================================
 
 // Check authentication status
-app.get('/api/auth/check', (req, res) => {
+app.get('/api/auth/check', async (req, res) => {
   if (req.session && req.session.userId) {
-    return res.json({
-      authenticated: true,
-      user: {
-        id: req.session.userId,
-        email: req.session.userEmail,
-        displayName: req.session.displayName
+    try {
+      // Get subscription status
+      const result = await pool.query(
+        'SELECT subscription_status, subscription_plan, trial_ends_at FROM users WHERE id = $1',
+        [req.session.userId]
+      );
+
+      const user = result.rows[0] || {};
+      const now = new Date();
+      let daysRemaining = 0;
+
+      if (user.subscription_status === 'trial' && user.trial_ends_at) {
+        const trialEnd = new Date(user.trial_ends_at);
+        if (trialEnd > now) {
+          daysRemaining = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+        }
       }
-    });
+
+      return res.json({
+        authenticated: true,
+        user: {
+          id: req.session.userId,
+          email: req.session.userEmail,
+          displayName: req.session.displayName
+        },
+        subscription: {
+          status: user.subscription_status || 'trial',
+          plan: user.subscription_plan,
+          daysRemaining
+        }
+      });
+    } catch (error) {
+      console.error('Auth check error:', error);
+      return res.json({
+        authenticated: true,
+        user: {
+          id: req.session.userId,
+          email: req.session.userEmail,
+          displayName: req.session.displayName
+        }
+      });
+    }
   }
   res.status(401).json({ authenticated: false });
 });
@@ -225,15 +262,19 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user
+    // Calculate trial end date (10 days from now)
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + 10);
+
+    // Create user with trial period
     const result = await pool.query(
-      `INSERT INTO users (email, password_hash, display_name)
-       VALUES ($1, $2, $3)
-       RETURNING id, email, display_name`,
-      [email.toLowerCase(), passwordHash, displayName || email.split('@')[0]]
+      `INSERT INTO users (email, password_hash, display_name, subscription_status, trial_ends_at)
+       VALUES ($1, $2, $3, 'trial', $4)
+       RETURNING id, email, display_name, subscription_status, trial_ends_at`,
+      [email.toLowerCase(), passwordHash, displayName || email.split('@')[0], trialEndsAt]
     );
 
-    console.log(`✅ New user registered: ${email}`);
+    console.log(`✅ New user registered: ${email} (Trial ends: ${trialEndsAt.toDateString()})`);
 
     res.json({
       success: true,
@@ -266,6 +307,696 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // ============================================
+// SUBSCRIPTION MIDDLEWARE
+// ============================================
+
+async function checkSubscription(req, res, next) {
+  if (!req.session || !req.session.userId) {
+    return next(); // Auth middleware will handle this
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT subscription_status, trial_ends_at, subscription_ends_at FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return next();
+    }
+
+    const user = result.rows[0];
+    const now = new Date();
+
+    // Check if user has active subscription
+    if (user.subscription_status === 'active') {
+      return next();
+    }
+
+    // Check if trial is still valid
+    if (user.subscription_status === 'trial' && user.trial_ends_at) {
+      if (new Date(user.trial_ends_at) > now) {
+        return next(); // Trial still active
+      } else {
+        // Trial expired - update status
+        await pool.query(
+          "UPDATE users SET subscription_status = 'expired' WHERE id = $1",
+          [req.session.userId]
+        );
+      }
+    }
+
+    // Subscription expired or trial ended
+    req.subscriptionExpired = true;
+    next();
+  } catch (error) {
+    console.error('Subscription check error:', error);
+    next();
+  }
+}
+
+// ============================================
+// SUBSCRIPTION API ROUTES
+// ============================================
+
+// Get subscription status
+app.get('/api/subscription/status', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT subscription_status, subscription_plan, trial_ends_at, subscription_ends_at, stripe_customer_id
+       FROM users WHERE id = $1`,
+      [req.session.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+    const now = new Date();
+
+    // Calculate days remaining
+    let daysRemaining = 0;
+    let isActive = false;
+
+    if (user.subscription_status === 'trial' && user.trial_ends_at) {
+      const trialEnd = new Date(user.trial_ends_at);
+      if (trialEnd > now) {
+        daysRemaining = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+        isActive = true;
+      }
+    } else if (user.subscription_status === 'active' && user.subscription_ends_at) {
+      const subEnd = new Date(user.subscription_ends_at);
+      if (subEnd > now) {
+        daysRemaining = Math.ceil((subEnd - now) / (1000 * 60 * 60 * 24));
+        isActive = true;
+      }
+    }
+
+    res.json({
+      status: user.subscription_status,
+      plan: user.subscription_plan,
+      trialEndsAt: user.trial_ends_at,
+      subscriptionEndsAt: user.subscription_ends_at,
+      daysRemaining,
+      isActive,
+      hasStripeCustomer: !!user.stripe_customer_id
+    });
+  } catch (error) {
+    console.error('Error fetching subscription status:', error);
+    res.status(500).json({ error: 'Failed to fetch subscription status' });
+  }
+});
+
+// Get available plans
+app.get('/api/subscription/plans', (req, res) => {
+  res.json({
+    plans: [
+      {
+        id: 'monthly',
+        name: 'Monthly',
+        price: 9.99,
+        priceId: process.env.STRIPE_MONTHLY_PRICE_ID,
+        interval: 'month',
+        features: [
+          'All live sports games',
+          'NFL, NBA, MLB, NHL coverage',
+          'College sports included',
+          'Real-time score updates'
+        ]
+      },
+      {
+        id: 'yearly',
+        name: 'Yearly',
+        price: 99.99,
+        priceId: process.env.STRIPE_YEARLY_PRICE_ID,
+        interval: 'year',
+        savings: '17%',
+        features: [
+          'All live sports games',
+          'NFL, NBA, MLB, NHL coverage',
+          'College sports included',
+          'Real-time score updates',
+          '2 months free!'
+        ]
+      }
+    ]
+  });
+});
+
+// Create checkout session
+app.post('/api/subscription/create-checkout', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const { planId } = req.body;
+
+    if (!planId || !['monthly', 'yearly'].includes(planId)) {
+      return res.status(400).json({ error: 'Invalid plan selected' });
+    }
+
+    const priceId = planId === 'monthly'
+      ? process.env.STRIPE_MONTHLY_PRICE_ID
+      : process.env.STRIPE_YEARLY_PRICE_ID;
+
+    // Get user info
+    const userResult = await pool.query(
+      'SELECT email, stripe_customer_id FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = userResult.rows[0];
+    let customerId = user.stripe_customer_id;
+
+    // Create Stripe customer if doesn't exist
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        metadata: { userId: req.session.userId.toString() }
+      });
+      customerId = customer.id;
+
+      // Save customer ID to database
+      await pool.query(
+        'UPDATE users SET stripe_customer_id = $1 WHERE id = $2',
+        [customerId, req.session.userId]
+      );
+    }
+
+    // Create checkout session
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: `${req.protocol}://${req.get('host')}/subscription?success=true`,
+      cancel_url: `${req.protocol}://${req.get('host')}/pricing?canceled=true`,
+      metadata: {
+        userId: req.session.userId.toString(),
+        planId: planId
+      }
+    });
+
+    res.json({ sessionId: session.id, url: session.url });
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
+// Create customer portal session (for managing subscription)
+app.post('/api/subscription/portal', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const userResult = await pool.query(
+      'SELECT stripe_customer_id FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+
+    if (userResult.rows.length === 0 || !userResult.rows[0].stripe_customer_id) {
+      return res.status(400).json({ error: 'No subscription found' });
+    }
+
+    const portalSession = await stripe.billingPortal.sessions.create({
+      customer: userResult.rows[0].stripe_customer_id,
+      return_url: `${req.protocol}://${req.get('host')}/subscription`,
+    });
+
+    res.json({ url: portalSession.url });
+  } catch (error) {
+    console.error('Error creating portal session:', error);
+    res.status(500).json({ error: 'Failed to create portal session' });
+  }
+});
+
+// Get Stripe publishable key
+app.get('/api/subscription/config', (req, res) => {
+  res.json({
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY
+  });
+});
+
+// ============================================
+// STRIPE WEBHOOK HANDLER
+// ============================================
+
+// Note: Webhook needs raw body, so we handle it before JSON parsing
+app.post('/api/webhook/stripe',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object;
+        const userId = session.metadata?.userId;
+        const planId = session.metadata?.planId;
+
+        if (userId) {
+          try {
+            // Get subscription details
+            const subscription = await stripe.subscriptions.retrieve(session.subscription);
+
+            await pool.query(
+              `UPDATE users SET
+                subscription_status = 'active',
+                subscription_plan = $1,
+                subscription_ends_at = to_timestamp($2)
+               WHERE id = $3`,
+              [planId, subscription.current_period_end, userId]
+            );
+
+            // Save subscription to subscriptions table
+            await pool.query(
+              `INSERT INTO subscriptions
+                (user_id, stripe_subscription_id, stripe_price_id, plan_type, status, current_period_start, current_period_end)
+               VALUES ($1, $2, $3, $4, 'active', to_timestamp($5), to_timestamp($6))
+               ON CONFLICT (stripe_subscription_id) DO UPDATE SET
+                status = 'active',
+                current_period_start = to_timestamp($5),
+                current_period_end = to_timestamp($6),
+                updated_at = NOW()`,
+              [userId, subscription.id, subscription.items.data[0].price.id, planId,
+               subscription.current_period_start, subscription.current_period_end]
+            );
+
+            console.log(`✅ Subscription activated for user ${userId} (${planId})`);
+          } catch (error) {
+            console.error('Error updating subscription:', error);
+          }
+        }
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object;
+
+        try {
+          // Find user by Stripe customer ID
+          const userResult = await pool.query(
+            'SELECT id FROM users WHERE stripe_customer_id = $1',
+            [subscription.customer]
+          );
+
+          if (userResult.rows.length > 0) {
+            const userId = userResult.rows[0].id;
+            const status = subscription.status === 'active' ? 'active' :
+                          subscription.status === 'canceled' ? 'canceled' :
+                          subscription.status;
+
+            await pool.query(
+              `UPDATE users SET
+                subscription_status = $1,
+                subscription_ends_at = to_timestamp($2)
+               WHERE id = $3`,
+              [status, subscription.current_period_end, userId]
+            );
+
+            // Update subscriptions table
+            await pool.query(
+              `UPDATE subscriptions SET
+                status = $1,
+                current_period_end = to_timestamp($2),
+                cancel_at_period_end = $3,
+                updated_at = NOW()
+               WHERE stripe_subscription_id = $4`,
+              [status, subscription.current_period_end, subscription.cancel_at_period_end, subscription.id]
+            );
+
+            console.log(`📝 Subscription updated for user ${userId}: ${status}`);
+          }
+        } catch (error) {
+          console.error('Error handling subscription update:', error);
+        }
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object;
+
+        try {
+          const userResult = await pool.query(
+            'SELECT id FROM users WHERE stripe_customer_id = $1',
+            [subscription.customer]
+          );
+
+          if (userResult.rows.length > 0) {
+            const userId = userResult.rows[0].id;
+
+            await pool.query(
+              `UPDATE users SET
+                subscription_status = 'expired',
+                subscription_plan = NULL
+               WHERE id = $1`,
+              [userId]
+            );
+
+            await pool.query(
+              `UPDATE subscriptions SET
+                status = 'canceled',
+                canceled_at = NOW(),
+                updated_at = NOW()
+               WHERE stripe_subscription_id = $1`,
+              [subscription.id]
+            );
+
+            console.log(`❌ Subscription canceled for user ${userId}`);
+          }
+        } catch (error) {
+          console.error('Error handling subscription deletion:', error);
+        }
+        break;
+      }
+
+      case 'invoice.paid': {
+        const invoice = event.data.object;
+
+        try {
+          const userResult = await pool.query(
+            'SELECT id FROM users WHERE stripe_customer_id = $1',
+            [invoice.customer]
+          );
+
+          if (userResult.rows.length > 0) {
+            await pool.query(
+              `INSERT INTO payment_history
+                (user_id, stripe_payment_id, stripe_invoice_id, amount, currency, status, description)
+               VALUES ($1, $2, $3, $4, $5, 'succeeded', $6)`,
+              [userResult.rows[0].id, invoice.payment_intent, invoice.id,
+               invoice.amount_paid, invoice.currency, invoice.lines?.data[0]?.description]
+            );
+          }
+        } catch (error) {
+          console.error('Error recording payment:', error);
+        }
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object;
+
+        try {
+          const userResult = await pool.query(
+            'SELECT id FROM users WHERE stripe_customer_id = $1',
+            [invoice.customer]
+          );
+
+          if (userResult.rows.length > 0) {
+            await pool.query(
+              `UPDATE users SET subscription_status = 'past_due' WHERE id = $1`,
+              [userResult.rows[0].id]
+            );
+
+            await pool.query(
+              `INSERT INTO payment_history
+                (user_id, stripe_invoice_id, amount, currency, status, description)
+               VALUES ($1, $2, $3, $4, 'failed', $5)`,
+              [userResult.rows[0].id, invoice.id, invoice.amount_due,
+               invoice.currency, 'Payment failed']
+            );
+
+            console.log(`⚠️ Payment failed for user ${userResult.rows[0].id}`);
+          }
+        } catch (error) {
+          console.error('Error handling failed payment:', error);
+        }
+        break;
+      }
+
+      default:
+        console.log(`Unhandled webhook event type: ${event.type}`);
+    }
+
+    res.json({ received: true });
+  }
+);
+
+// ============================================
+// ADMIN MIDDLEWARE
+// ============================================
+
+async function requireAdmin(req, res, next) {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT role FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+
+    if (result.rows.length === 0 || result.rows[0].role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Admin check error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+}
+
+// ============================================
+// ADMIN API ROUTES
+// ============================================
+
+// Get admin dashboard statistics
+app.get('/api/admin/stats', requireAdmin, async (req, res) => {
+  try {
+    // Get user counts
+    const userStats = await pool.query(`
+      SELECT
+        COUNT(*) as total_users,
+        COUNT(CASE WHEN subscription_status = 'trial' THEN 1 END) as trial_users,
+        COUNT(CASE WHEN subscription_status = 'active' THEN 1 END) as active_subscribers,
+        COUNT(CASE WHEN subscription_status = 'expired' THEN 1 END) as expired_users,
+        COUNT(CASE WHEN subscription_status = 'canceled' THEN 1 END) as canceled_users,
+        COUNT(CASE WHEN subscription_plan = 'monthly' THEN 1 END) as monthly_subscribers,
+        COUNT(CASE WHEN subscription_plan = 'yearly' THEN 1 END) as yearly_subscribers,
+        COUNT(CASE WHEN created_at > NOW() - INTERVAL '24 hours' THEN 1 END) as new_today,
+        COUNT(CASE WHEN created_at > NOW() - INTERVAL '7 days' THEN 1 END) as new_this_week,
+        COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as new_this_month
+      FROM users
+    `);
+
+    // Get revenue statistics
+    const revenueStats = await pool.query(`
+      SELECT
+        COALESCE(SUM(CASE WHEN created_at > NOW() - INTERVAL '24 hours' AND status = 'succeeded' THEN amount END), 0) as revenue_today,
+        COALESCE(SUM(CASE WHEN created_at > NOW() - INTERVAL '7 days' AND status = 'succeeded' THEN amount END), 0) as revenue_week,
+        COALESCE(SUM(CASE WHEN created_at > NOW() - INTERVAL '30 days' AND status = 'succeeded' THEN amount END), 0) as revenue_month,
+        COALESCE(SUM(CASE WHEN created_at > NOW() - INTERVAL '365 days' AND status = 'succeeded' THEN amount END), 0) as revenue_year,
+        COALESCE(SUM(CASE WHEN status = 'succeeded' THEN amount END), 0) as revenue_total,
+        COUNT(CASE WHEN status = 'succeeded' THEN 1 END) as successful_payments,
+        COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed_payments
+      FROM payment_history
+    `);
+
+    // Get recent signups
+    const recentSignups = await pool.query(`
+      SELECT id, email, display_name, subscription_status, subscription_plan, created_at, last_login
+      FROM users
+      ORDER BY created_at DESC
+      LIMIT 10
+    `);
+
+    // Get monthly revenue breakdown (last 12 months)
+    const monthlyRevenue = await pool.query(`
+      SELECT
+        TO_CHAR(created_at, 'YYYY-MM') as month,
+        SUM(CASE WHEN status = 'succeeded' THEN amount ELSE 0 END) as revenue,
+        COUNT(CASE WHEN status = 'succeeded' THEN 1 END) as transactions
+      FROM payment_history
+      WHERE created_at > NOW() - INTERVAL '12 months'
+      GROUP BY TO_CHAR(created_at, 'YYYY-MM')
+      ORDER BY month DESC
+    `);
+
+    // Calculate MRR (Monthly Recurring Revenue)
+    const mrr = await pool.query(`
+      SELECT
+        COALESCE(SUM(CASE WHEN subscription_plan = 'monthly' THEN 999 ELSE 0 END), 0) +
+        COALESCE(SUM(CASE WHEN subscription_plan = 'yearly' THEN 833 ELSE 0 END), 0) as mrr
+      FROM users
+      WHERE subscription_status = 'active'
+    `);
+
+    res.json({
+      users: userStats.rows[0],
+      revenue: {
+        ...revenueStats.rows[0],
+        mrr: mrr.rows[0]?.mrr || 0
+      },
+      recentSignups: recentSignups.rows,
+      monthlyRevenue: monthlyRevenue.rows
+    });
+  } catch (error) {
+    console.error('Error fetching admin stats:', error);
+    res.status(500).json({ error: 'Failed to fetch statistics' });
+  }
+});
+
+// Get all users (paginated)
+app.get('/api/admin/users', requireAdmin, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+    const status = req.query.status || '';
+
+    let whereClause = '';
+    const params = [];
+
+    if (search) {
+      params.push(`%${search}%`);
+      whereClause = `WHERE (email ILIKE $${params.length} OR display_name ILIKE $${params.length})`;
+    }
+
+    if (status) {
+      params.push(status);
+      whereClause += whereClause ? ` AND subscription_status = $${params.length}` : `WHERE subscription_status = $${params.length}`;
+    }
+
+    // Get total count
+    const countResult = await pool.query(
+      `SELECT COUNT(*) as total FROM users ${whereClause}`,
+      params
+    );
+
+    // Get users
+    params.push(limit, offset);
+    const usersResult = await pool.query(
+      `SELECT id, email, display_name, role, subscription_status, subscription_plan,
+              trial_ends_at, subscription_ends_at, created_at, last_login, is_active
+       FROM users ${whereClause}
+       ORDER BY created_at DESC
+       LIMIT $${params.length - 1} OFFSET $${params.length}`,
+      params
+    );
+
+    res.json({
+      users: usersResult.rows,
+      pagination: {
+        page,
+        limit,
+        total: parseInt(countResult.rows[0].total),
+        totalPages: Math.ceil(countResult.rows[0].total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Get payment history (paginated)
+app.get('/api/admin/payments', requireAdmin, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM payment_history');
+
+    const paymentsResult = await pool.query(`
+      SELECT ph.*, u.email, u.display_name
+      FROM payment_history ph
+      LEFT JOIN users u ON ph.user_id = u.id
+      ORDER BY ph.created_at DESC
+      LIMIT $1 OFFSET $2
+    `, [limit, offset]);
+
+    res.json({
+      payments: paymentsResult.rows,
+      pagination: {
+        page,
+        limit,
+        total: parseInt(countResult.rows[0].total),
+        totalPages: Math.ceil(countResult.rows[0].total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching payments:', error);
+    res.status(500).json({ error: 'Failed to fetch payments' });
+  }
+});
+
+// Update user status (activate/deactivate)
+app.patch('/api/admin/users/:userId', requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { is_active, role, subscription_status } = req.body;
+
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (typeof is_active === 'boolean') {
+      updates.push(`is_active = $${paramIndex++}`);
+      values.push(is_active);
+    }
+
+    if (role && ['user', 'admin'].includes(role)) {
+      updates.push(`role = $${paramIndex++}`);
+      values.push(role);
+    }
+
+    if (subscription_status) {
+      updates.push(`subscription_status = $${paramIndex++}`);
+      values.push(subscription_status);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No valid updates provided' });
+    }
+
+    values.push(userId);
+    await pool.query(
+      `UPDATE users SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${paramIndex}`,
+      values
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+});
+
+// ============================================
 // STATIC FILE SERVING (with auth protection)
 // ============================================
 
@@ -276,7 +1007,7 @@ app.use('/scripts', express.static(path.join(__dirname, 'public', 'scripts')));
 app.use('/styles', express.static(path.join(__dirname, 'public', 'styles')));
 
 // List of valid page routes (without .html)
-const pageRoutes = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab', 'LiveGames', 'customize-colors'];
+const pageRoutes = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab', 'LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin'];
 
 // Protected static files (require auth)
 app.use((req, res, next) => {

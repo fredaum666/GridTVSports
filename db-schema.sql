@@ -108,3 +108,70 @@ COMMENT ON TABLE users IS 'Stores user authentication data';
 COMMENT ON TABLE session IS 'Stores session data for authenticated users';
 COMMENT ON COLUMN users.role IS 'User role: admin, user';
 COMMENT ON COLUMN users.password_hash IS 'bcrypt hashed password';
+
+-- ============================================
+-- SUBSCRIPTION TABLES
+-- ============================================
+
+-- Add subscription fields to users table
+ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50) DEFAULT 'trial';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_plan VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMP;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_ends_at TIMESTAMP;
+
+-- Create subscriptions table for tracking subscription history
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  stripe_subscription_id VARCHAR(255) UNIQUE,
+  stripe_price_id VARCHAR(255),
+  plan_type VARCHAR(50) NOT NULL, -- 'monthly' or 'yearly'
+  status VARCHAR(50) NOT NULL, -- 'active', 'canceled', 'past_due', 'trialing', 'expired'
+  current_period_start TIMESTAMP,
+  current_period_end TIMESTAMP,
+  cancel_at_period_end BOOLEAN DEFAULT FALSE,
+  canceled_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for subscriptions
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe ON subscriptions(stripe_subscription_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
+
+-- Create payment_history table
+CREATE TABLE IF NOT EXISTS payment_history (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  stripe_payment_id VARCHAR(255),
+  stripe_invoice_id VARCHAR(255),
+  amount INT NOT NULL, -- Amount in cents
+  currency VARCHAR(10) DEFAULT 'usd',
+  status VARCHAR(50) NOT NULL, -- 'succeeded', 'failed', 'pending', 'refunded'
+  description VARCHAR(500),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create index for payment_history
+CREATE INDEX IF NOT EXISTS idx_payments_user ON payment_history(user_id);
+
+-- Create subscription_plans table for storing plan details
+CREATE TABLE IF NOT EXISTS subscription_plans (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  stripe_price_id VARCHAR(255) UNIQUE NOT NULL,
+  plan_type VARCHAR(50) NOT NULL, -- 'monthly' or 'yearly'
+  price INT NOT NULL, -- Price in cents
+  currency VARCHAR(10) DEFAULT 'usd',
+  features JSONB,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+COMMENT ON TABLE subscriptions IS 'Stores user subscription data';
+COMMENT ON TABLE payment_history IS 'Stores payment transaction history';
+COMMENT ON TABLE subscription_plans IS 'Stores available subscription plans';
+COMMENT ON COLUMN users.subscription_status IS 'Subscription status: trial, active, canceled, expired';
+COMMENT ON COLUMN users.trial_ends_at IS 'Trial period end date (10 days from registration)';
