@@ -77,3 +77,34 @@ COMMENT ON TABLE game_stats IS 'Stores detailed game statistics';
 COMMENT ON COLUMN games.raw_data IS 'Full ESPN API response in JSON format for historical reference';
 COMMENT ON COLUMN games.status IS 'Game status: scheduled, live, completed';
 COMMENT ON COLUMN games.week_number IS 'NFL week number (NULL for other sports)';
+
+-- Create users table for authentication
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  display_name VARCHAR(100),
+  role VARCHAR(20) DEFAULT 'user',
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  last_login TIMESTAMP
+);
+
+-- Create index for users
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- Create session table for express-session with connect-pg-simple
+CREATE TABLE IF NOT EXISTS session (
+  sid VARCHAR NOT NULL COLLATE "default",
+  sess JSON NOT NULL,
+  expire TIMESTAMP(6) NOT NULL,
+  PRIMARY KEY (sid)
+);
+
+CREATE INDEX IF NOT EXISTS idx_session_expire ON session(expire);
+
+COMMENT ON TABLE users IS 'Stores user authentication data';
+COMMENT ON TABLE session IS 'Stores session data for authenticated users';
+COMMENT ON COLUMN users.role IS 'User role: admin, user';
+COMMENT ON COLUMN users.password_hash IS 'bcrypt hashed password';

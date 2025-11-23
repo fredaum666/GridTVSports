@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - GridTV Sports</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: rgba(26, 26, 46, 0.95);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo-section {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 15px;
+    }
+
+    .app-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 5px;
+    }
+
+    .app-subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .form-group input {
+      padding: 14px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: #6366f1;
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .login-btn {
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .success-message {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .divider span {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .register-section {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .register-section p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+
+    .register-link {
+      color: #6366f1;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .register-link:hover {
+      color: #8b5cf6;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Register form (hidden by default) */
+    .register-form {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .register-form.show {
+      display: flex;
+    }
+
+    .login-form.hide {
+      display: none;
+    }
+
+    .back-to-login {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 20px;
+      transition: color 0.3s ease;
+    }
+
+    .back-to-login:hover {
+      color: #ffffff;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 20px;
+      }
+
+      .logo {
+        width: 80px;
+        height: 80px;
+      }
+
+      .app-title {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo-section">
+      <img src="/assets/logo.png" alt="GridTV Sports Logo" class="logo">
+      <h1 class="app-title">GridTV Sports</h1>
+      <p class="app-subtitle">Live Sports Streaming Platform</p>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <!-- Login Form -->
+    <form class="login-form" id="loginForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="login-btn" id="loginBtn">
+        Sign In
+      </button>
+    </form>
+
+    <div class="register-section" id="registerSection">
+      <p>Don't have an account? <a href="#" class="register-link" id="showRegister">Create one</a></p>
+    </div>
+
+    <!-- Register Form -->
+    <form class="register-form" id="registerForm">
+      <a href="#" class="back-to-login" id="backToLogin">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to login
+      </a>
+      <div class="form-group">
+        <label for="regName">Display Name</label>
+        <input type="text" id="regName" name="displayName" placeholder="Enter your name" required>
+      </div>
+      <div class="form-group">
+        <label for="regEmail">Email Address</label>
+        <input type="email" id="regEmail" name="email" placeholder="Enter your email" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" name="password" placeholder="Create a password (min 8 characters)" required minlength="8" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label for="regConfirmPassword">Confirm Password</label>
+        <input type="password" id="regConfirmPassword" name="confirmPassword" placeholder="Confirm your password" required minlength="8" autocomplete="new-password">
+      </div>
+      <button type="submit" class="login-btn" id="registerBtn">
+        Create Account
+      </button>
+    </form>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const registerSection = document.getElementById('registerSection');
+    const showRegisterLink = document.getElementById('showRegister');
+    const backToLoginLink = document.getElementById('backToLogin');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+
+    // Show register form
+    showRegisterLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginForm.classList.add('hide');
+      registerSection.style.display = 'none';
+      registerForm.classList.add('show');
+      hideMessages();
+    });
+
+    // Back to login
+    backToLoginLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      registerForm.classList.remove('show');
+      loginForm.classList.remove('hide');
+      registerSection.style.display = 'block';
+      hideMessages();
+    });
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add('show');
+      successMessage.classList.remove('show');
+    }
+
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.classList.add('show');
+      errorMessage.classList.remove('show');
+    }
+
+    function hideMessages() {
+      errorMessage.classList.remove('show');
+      successMessage.classList.remove('show');
+    }
+
+    function setLoading(button, loading) {
+      if (loading) {
+        button.disabled = true;
+        button.innerHTML = '<span class="loading-spinner"></span>Please wait...';
+      } else {
+        button.disabled = false;
+        button.textContent = button.id === 'loginBtn' ? 'Sign In' : 'Create Account';
+      }
+    }
+
+    // Login form submission
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMessages();
+      setLoading(loginBtn, true);
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showSuccess('Login successful! Redirecting...');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1000);
+        } else {
+          showError(data.error || 'Invalid email or password');
+        }
+      } catch (error) {
+        showError('Connection error. Please try again.');
+      } finally {
+        setLoading(loginBtn, false);
+      }
+    });
+
+    // Register form submission
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMessages();
+
+      const displayName = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+      if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        return;
+      }
+
+      if (password.length < 8) {
+        showError('Password must be at least 8 characters');
+        return;
+      }
+
+      setLoading(registerBtn, true);
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ displayName, email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showSuccess('Account created successfully! Please login.');
+          setTimeout(() => {
+            backToLoginLink.click();
+            document.getElementById('email').value = email;
+          }, 1500);
+        } else {
+          showError(data.error || 'Registration failed');
+        }
+      } catch (error) {
+        showError('Connection error. Please try again.');
+      } finally {
+        setLoading(registerBtn, false);
+      }
+    });
+
+    // Check if already logged in
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/check');
+        if (response.ok) {
+          window.location.href = '/';
+        }
+      } catch (error) {
+        // Not logged in, stay on login page
+      }
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>
