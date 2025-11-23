@@ -3,7 +3,13 @@ const axios = require('axios');
 const cron = require('node-cron');
 const cors = require('cors');
 const path = require('path');
+const helmet = require('helmet');
+const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const bcrypt = require('bcrypt');
+const rateLimit = require('express-rate-limit');
 const { pool } = require('./db');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -17,9 +23,77 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-app.use(cors());
+// ============================================
+// SECURITY MIDDLEWARE
+// ============================================
+
+// Helmet security headers (configured for development/production)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https://a.espncdn.com", "https://*.espncdn.com"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
+// Rate limiting - general API
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Limit each IP to 1000 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate limiting - auth endpoints (stricter)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 login attempts per windowMs
+  message: { error: 'Too many login attempts, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? process.env.ALLOWED_ORIGIN : true,
+  credentials: true
+}));
 app.use(express.json({ charset: 'utf-8' }));
 app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
+
+// ============================================
+// SESSION CONFIGURATION
+// ============================================
+
+const sessionSecret = process.env.SESSION_SECRET || 'gridtv-sports-secret-change-in-production';
+
+app.use(session({
+  store: new pgSession({
+    pool: pool,
+    tableName: 'session',
+    createTableIfMissing: true
+  }),
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'lax'
+  },
+  name: 'gridtv.sid'
+}));
 
 // Set UTF-8 for all responses
 app.use((_req, res, next) => {
@@ -27,6 +101,243 @@ app.use((_req, res, next) => {
   next();
 });
 
+// ============================================
+// AUTHENTICATION MIDDLEWARE
+// ============================================
+
+function requireAuth(req, res, next) {
+  if (req.session && req.session.userId) {
+    return next();
+  }
+
+  // Check if it's an API request
+  if (req.path.startsWith('/api/')) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  // Redirect to login for page requests
+  return res.redirect('/login.html');
+}
+
+// ============================================
+// AUTH ROUTES
+// ============================================
+
+// Check authentication status
+app.get('/api/auth/check', (req, res) => {
+  if (req.session && req.session.userId) {
+    return res.json({
+      authenticated: true,
+      user: {
+        id: req.session.userId,
+        email: req.session.userEmail,
+        displayName: req.session.displayName
+      }
+    });
+  }
+  res.status(401).json({ authenticated: false });
+});
+
+// Login
+app.post('/api/auth/login', authLimiter, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Find user
+    const result = await pool.query(
+      'SELECT id, email, password_hash, display_name, is_active FROM users WHERE email = $1',
+      [email.toLowerCase()]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const user = result.rows[0];
+
+    // Check if user is active
+    if (!user.is_active) {
+      return res.status(401).json({ error: 'Account is deactivated' });
+    }
+
+    // Verify password
+    const isValid = await bcrypt.compare(password, user.password_hash);
+
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Update last login
+    await pool.query(
+      'UPDATE users SET last_login = NOW() WHERE id = $1',
+      [user.id]
+    );
+
+    // Set session
+    req.session.userId = user.id;
+    req.session.userEmail = user.email;
+    req.session.displayName = user.display_name;
+
+    console.log(`✅ User logged in: ${user.email}`);
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        displayName: user.display_name
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed. Please try again.' });
+  }
+});
+
+// Register
+app.post('/api/auth/register', authLimiter, async (req, res) => {
+  try {
+    const { email, password, displayName } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
+
+    // Check if email already exists
+    const existing = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email.toLowerCase()]
+    );
+
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
+    // Hash password
+    const saltRounds = 12;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    // Create user
+    const result = await pool.query(
+      `INSERT INTO users (email, password_hash, display_name)
+       VALUES ($1, $2, $3)
+       RETURNING id, email, display_name`,
+      [email.toLowerCase(), passwordHash, displayName || email.split('@')[0]]
+    );
+
+    console.log(`✅ New user registered: ${email}`);
+
+    res.json({
+      success: true,
+      user: {
+        id: result.rows[0].id,
+        email: result.rows[0].email,
+        displayName: result.rows[0].display_name
+      }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Registration failed. Please try again.' });
+  }
+});
+
+// Logout
+app.post('/api/auth/logout', (req, res) => {
+  const userEmail = req.session?.userEmail;
+
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+
+    res.clearCookie('gridtv.sid');
+    console.log(`👋 User logged out: ${userEmail || 'unknown'}`);
+    res.json({ success: true });
+  });
+});
+
+// ============================================
+// STATIC FILE SERVING (with auth protection)
+// ============================================
+
+// Public routes (no auth required)
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
+app.use('/scripts', express.static(path.join(__dirname, 'public', 'scripts')));
+app.use('/styles', express.static(path.join(__dirname, 'public', 'styles')));
+
+// List of valid page routes (without .html)
+const pageRoutes = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab', 'LiveGames', 'customize-colors'];
+
+// Protected static files (require auth)
+app.use((req, res, next) => {
+  // Skip auth check for login page, assets, auth API, and OPTIONS requests
+  if (req.path === '/login' ||
+      req.path === '/login.html' ||
+      req.path.startsWith('/assets/') ||
+      req.path.startsWith('/css/') ||
+      req.path.startsWith('/scripts/') ||
+      req.path.startsWith('/styles/') ||
+      req.path.startsWith('/api/auth/') ||
+      req.method === 'OPTIONS') {
+    return next();
+  }
+
+  // Check if authenticated
+  if (!req.session || !req.session.userId) {
+    // Check if it's a page request (clean URL or .html)
+    const cleanPath = req.path.replace(/^\//, '').replace(/\.html$/, '');
+    const isPageRequest = req.path === '/' ||
+                          req.path.endsWith('.html') ||
+                          pageRoutes.includes(cleanPath);
+
+    if (isPageRequest) {
+      return res.redirect('/login');
+    }
+    // For API requests, return 401
+    if (req.path.startsWith('/api/')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+  }
+
+  next();
+});
+
+// Apply rate limiting to API routes
+app.use('/api/', apiLimiter);
+
+// ============================================
+// CLEAN URL ROUTES (no .html extension)
+// ============================================
+
+// Login page (public)
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Redirect .html to clean URLs
+app.get('/*.html', (req, res) => {
+  const cleanPath = req.path.replace('.html', '');
+  res.redirect(301, cleanPath);
+});
+
+// Clean URL routes for league pages (protected by middleware above)
+pageRoutes.forEach(route => {
+  app.get(`/${route}`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', `${route}.html`));
+  });
+});
+
+// Serve static files (protected by middleware above)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ============================================

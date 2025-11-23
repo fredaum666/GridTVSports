@@ -199,6 +199,31 @@
       animation: blink 1.5s infinite;
     }
 
+    /* Coming Soon Badge */
+    .sport-card.coming-soon {
+      opacity: 0.7;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .sport-card.coming-soon:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .coming-soon-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: white;
+    }
+
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.8; }
@@ -638,6 +663,71 @@
         padding: 10px 16px;
       }
     }
+
+    /* User Menu */
+    .user-menu {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 100;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .logout-btn {
+      padding: 10px 20px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      color: #f87171;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    @media (max-width: 600px) {
+      .user-menu {
+        top: 10px;
+        right: 10px;
+      }
+
+      .user-info span {
+        display: none;
+      }
+
+      .logout-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+    }
   </style>
   <link rel="stylesheet" href="/styles/themes.css">
   <script>
@@ -657,6 +747,15 @@
   <script src="/scripts/theme-manager.js"></script>
 </head>
 <body>
+  <!-- User Menu -->
+  <div class="user-menu" id="userMenu" style="display: none;">
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar">U</div>
+      <span id="userName">User</span>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </div>
+
   <div class="container">
     <div class="header">
       <h1>GridTV Sports</h1>
@@ -665,7 +764,7 @@
 
     <!-- Professional Leagues Row -->
     <div class="sports-grid">
-      <a href="/nfl.html" class="sport-card nfl">
+      <a href="/nfl" class="sport-card nfl">
         <img src="/assets/NFL-logo.png" alt="NFL Logo" class="sport-logo">
         <div class="sport-name">NFL</div>
         <!-- <div class="sport-description">
@@ -677,7 +776,7 @@
         </div> -->
       </a>
 
-      <a href="/nba.html" class="sport-card nba">
+      <a href="/nba" class="sport-card nba">
         <img src="/assets/NBA-Logo.png" alt="NBA Logo" class="sport-logo">
         <div class="sport-name">NBA</div>
         <!-- <div class="sport-description">
@@ -689,7 +788,7 @@
         </div> -->
       </a>
 
-      <a href="/mlb.html" class="sport-card mlb">
+      <a href="/mlb" class="sport-card mlb">
         <img src="/assets/MLB-Logo.png" alt="MLB Logo" class="sport-logo">
         <div class="sport-name">MLB</div>
         <!-- <div class="sport-description">
@@ -701,7 +800,7 @@
         </div> -->
       </a>
 
-      <a href="/nhl.html" class="sport-card nhl">
+      <a href="/nhl" class="sport-card nhl">
         <img src="/assets/NHL-Logo.png" alt="NHL Logo" class="sport-logo">
         <div class="sport-name">NHL</div>
         <!-- <div class="sport-description">
@@ -716,7 +815,7 @@
 
     <!-- College Leagues Row -->
     <div class="sports-grid">
-      <a href="/ncaa.html" class="sport-card ncaa">
+      <a href="/ncaa" class="sport-card ncaa">
         <img src="/assets/NCAA logo.png" alt="NCAA Logo" class="sport-logo">
         <div class="sport-name">College Football</div>
         <!-- <div class="sport-description">
@@ -728,22 +827,27 @@
         </div> -->
       </a>
 
-      <a href="/ncaab.html" class="sport-card ncaab">
+      <a href="/ncaab" class="sport-card ncaab">
         <img src="/assets/ncaa-basketball.png" alt="College Basketball Logo" class="sport-logo">
         <div class="sport-name">College Basketball</div>
-        <!-- <div class="sport-description">
-          Live Men's College Basketball with scores, rankings, and March Madness updates
-        </div>
-        <div class="live-badge">
-          <div class="live-dot"></div>
-          LIVE UPDATES
-        </div> -->
       </a>
+
+      <div class="sport-card coming-soon">
+        <img src="/assets/ncaa Baseball.png" alt="College Baseball Logo" class="sport-logo">
+        <div class="sport-name">College Baseball</div>
+        <div class="coming-soon-badge">COMING SOON</div>
+      </div>
+
+      <div class="sport-card coming-soon">
+        <img src="/assets/ncaa hockey.png" alt="College Hockey Logo" class="sport-logo">
+        <div class="sport-name">College Hockey</div>
+        <div class="coming-soon-badge">COMING SOON</div>
+      </div>
     </div>
 
     <!-- Mixed Sports Bar Mode Button -->
     <div style="text-align: center; margin-bottom: 20px;">
-      <a href="/LiveGames.html" class="mixed-sports-btn">
+      <a href="/LiveGames" class="mixed-sports-btn">
         <span class="btn-icon">📺</span>
         <span class="btn-text">
           <strong>Mixed Sports Bar Mode</strong>
@@ -755,7 +859,7 @@
 
     <!-- Color Customization Button -->
     <div style="text-align: center; margin-top: 20px; display: none;">
-      <a href="/customize-colors.html" class="customize-colors-btn">
+      <a href="/customize-colors" class="customize-colors-btn">
         🎨 Customize Colors
       </a>
     </div>
@@ -794,5 +898,43 @@
       </div>
     </div>
   </div>
+
+  <!-- Authentication Script -->
+  <script>
+    (async function() {
+      const userMenu = document.getElementById('userMenu');
+      const userAvatar = document.getElementById('userAvatar');
+      const userName = document.getElementById('userName');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      // Check authentication status
+      try {
+        const response = await fetch('/api/auth/check');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated && data.user) {
+            // Show user menu
+            userMenu.style.display = 'flex';
+            userName.textContent = data.user.displayName || data.user.email;
+            userAvatar.textContent = (data.user.displayName || data.user.email).charAt(0).toUpperCase();
+          }
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+
+      // Logout handler
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          const response = await fetch('/api/auth/logout', { method: 'POST' });
+          if (response.ok) {
+            window.location.href = '/login';
+          }
+        } catch (error) {
+          console.error('Logout failed:', error);
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
