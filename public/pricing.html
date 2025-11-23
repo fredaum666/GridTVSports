@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing - GridTV Sports</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      color: #ffffff;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      background: rgba(26, 26, 46, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+
+    .app-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .back-btn {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .page-title h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-title p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .trial-banner {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .trial-banner h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #a5b4fc;
+    }
+
+    .trial-banner p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .plan-card {
+      background: rgba(26, 26, 46, 0.95);
+      border-radius: 20px;
+      padding: 40px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-card:hover {
+      border-color: rgba(99, 102, 241, 0.5);
+      transform: translateY(-5px);
+    }
+
+    .plan-card.popular {
+      border-color: #6366f1;
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: 20px;
+      right: -30px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      padding: 8px 40px;
+      font-size: 12px;
+      font-weight: 600;
+      transform: rotate(45deg);
+      text-transform: uppercase;
+    }
+
+    .plan-name {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .price-amount {
+      font-size: 48px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .price-period {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .plan-savings {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin: 30px 0;
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      color: rgba(255, 255, 255, 0.8);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .plan-features li:last-child {
+      border-bottom: none;
+    }
+
+    .check-icon {
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .check-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: white;
+    }
+
+    .subscribe-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .subscribe-btn.primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: #ffffff;
+    }
+
+    .subscribe-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .subscribe-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+    }
+
+    .subscribe-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .guarantee {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .guarantee h4 {
+      color: #4ade80;
+      margin-bottom: 10px;
+    }
+
+    .guarantee p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 15px 20px;
+      }
+
+      .container {
+        padding: 30px 15px;
+      }
+
+      .page-title h1 {
+        font-size: 32px;
+      }
+
+      .plans-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .plan-card {
+        padding: 30px;
+      }
+
+      .price-amount {
+        font-size: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo-section">
+      <img src="/assets/logo.png" alt="GridTV Sports Logo" class="logo">
+      <h1 class="app-title">GridTV Sports</h1>
+    </div>
+    <a href="/" class="back-btn">Back to App</a>
+  </header>
+
+  <div class="container">
+    <div class="page-title">
+      <h1>Choose Your Plan</h1>
+      <p>Get unlimited access to live sports coverage</p>
+    </div>
+
+    <div class="trial-banner" id="trialBanner">
+      <h3>Start Your 10-Day Free Trial</h3>
+      <p>Experience all features free for 10 days. No credit card required to start.</p>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+
+    <div class="plans-grid" id="plansGrid">
+      <!-- Plans will be loaded here -->
+    </div>
+
+    <div class="guarantee">
+      <h4>30-Day Money-Back Guarantee</h4>
+      <p>Not satisfied? Get a full refund within 30 days of your first payment. No questions asked.</p>
+    </div>
+  </div>
+
+  <script>
+    let stripe;
+    const errorMessage = document.getElementById('errorMessage');
+    const plansGrid = document.getElementById('plansGrid');
+    const trialBanner = document.getElementById('trialBanner');
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add('show');
+    }
+
+    function hideError() {
+      errorMessage.classList.remove('show');
+    }
+
+    // Check if canceled from checkout
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('canceled') === 'true') {
+      showError('Checkout was canceled. You can try again when you\'re ready.');
+    }
+
+    // Initialize Stripe
+    async function initStripe() {
+      try {
+        const response = await fetch('/api/subscription/config');
+        const { publishableKey } = await response.json();
+        stripe = Stripe(publishableKey);
+      } catch (error) {
+        console.error('Failed to initialize Stripe:', error);
+      }
+    }
+
+    // Load subscription status
+    async function loadSubscriptionStatus() {
+      try {
+        const response = await fetch('/api/subscription/status');
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.status === 'active') {
+            trialBanner.innerHTML = `
+              <h3>You're Subscribed!</h3>
+              <p>You have an active ${data.plan} subscription. <a href="/subscription" style="color: #a5b4fc;">Manage your subscription</a></p>
+            `;
+          } else if (data.status === 'trial' && data.isActive) {
+            trialBanner.innerHTML = `
+              <h3>Trial Active - ${data.daysRemaining} Days Remaining</h3>
+              <p>Subscribe now to continue enjoying GridTV Sports after your trial ends.</p>
+            `;
+          } else if (data.status === 'expired') {
+            trialBanner.innerHTML = `
+              <h3>Your Trial Has Ended</h3>
+              <p>Subscribe now to regain access to all live sports coverage.</p>
+            `;
+            trialBanner.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+            trialBanner.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1))';
+          }
+        }
+      } catch (error) {
+        console.error('Error loading subscription status:', error);
+      }
+    }
+
+    // Load available plans
+    async function loadPlans() {
+      try {
+        const response = await fetch('/api/subscription/plans');
+        const { plans } = await response.json();
+
+        plansGrid.innerHTML = plans.map((plan, index) => `
+          <div class="plan-card ${plan.id === 'yearly' ? 'popular' : ''}">
+            ${plan.id === 'yearly' ? '<div class="popular-badge">Best Value</div>' : ''}
+            <h2 class="plan-name">${plan.name}</h2>
+            <div class="plan-price">
+              <span class="price-amount">$${plan.price}</span>
+              <span class="price-period">/${plan.interval}</span>
+            </div>
+            ${plan.savings ? `<span class="plan-savings">Save ${plan.savings}</span>` : '<div style="height: 30px;"></div>'}
+            <ul class="plan-features">
+              ${plan.features.map(feature => `
+                <li>
+                  <span class="check-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <path d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </span>
+                  ${feature}
+                </li>
+              `).join('')}
+            </ul>
+            <button class="subscribe-btn ${plan.id === 'yearly' ? 'primary' : 'secondary'}"
+                    onclick="subscribe('${plan.id}')"
+                    id="btn-${plan.id}">
+              Subscribe ${plan.name}
+            </button>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading plans:', error);
+        plansGrid.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.6);">Failed to load plans. Please refresh the page.</p>';
+      }
+    }
+
+    // Subscribe to a plan
+    async function subscribe(planId) {
+      hideError();
+      const btn = document.getElementById(`btn-${planId}`);
+      const originalText = btn.textContent;
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span>Processing...';
+
+      try {
+        const response = await fetch('/api/subscription/create-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ planId }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create checkout session');
+        }
+
+        // Redirect to Stripe Checkout
+        if (data.url) {
+          window.location.href = data.url;
+        } else if (data.sessionId && stripe) {
+          const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+          if (error) {
+            throw new Error(error.message);
+          }
+        }
+      } catch (error) {
+        showError(error.message);
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    // Check authentication
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/check');
+        if (!response.ok) {
+          window.location.href = '/login';
+        }
+      } catch (error) {
+        window.location.href = '/login';
+      }
+    }
+
+    // Initialize
+    checkAuth();
+    initStripe();
+    loadPlans();
+    loadSubscriptionStatus();
+  </script>
+</body>
+</html>
