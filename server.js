@@ -92,15 +92,17 @@ app.use(session({
   store: new pgSession({
     pool: pool,
     tableName: 'session',
-    createTableIfMissing: true
+    createTableIfMissing: true,
+    pruneSessionInterval: 60 * 15 // Prune expired sessions every 15 minutes
   }),
   secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
+  rolling: true, // Reset session expiration on every request
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days (extended from 24 hours)
     sameSite: 'lax'
   },
   name: 'gridtv.sid'
