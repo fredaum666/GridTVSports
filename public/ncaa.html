@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NCAA College Football Live Games - GridTV Sports</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏈</text></svg>">
+  <link rel="preload" href="/assets/YFrame.png" as="image">
+  <link rel="preload" href="/assets/1stDown1.png" as="image">
+  <link rel="preload" href="/assets/1stDown2.png" as="image">
   <style>
     /* ============================================
        EASY EDIT SECTION - ALL CARD SIZING VARIABLES
@@ -983,6 +986,27 @@
       text-align: center;
     }
 
+    /* Timeout Indicators */
+    .fullscreen-timeouts {
+      display: flex;
+      justify-content: center;
+      gap: clamp(4px, 0.8vw, 8px);
+      margin-top: clamp(4px, 0.8vh, 8px);
+    }
+
+    .timeout-bar {
+      width: clamp(16px, 3vw, 28px);
+      height: clamp(5px, 1vh, 8px);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.9);
+      transition: background 0.3s ease;
+    }
+
+    .timeout-bar.used {
+      background: transparent;
+    }
+
     .fullscreen-team-score {
       font-size: clamp(var(--fs-score-min), var(--fs-score-preferred), var(--fs-score-max));
       font-weight: 700;
@@ -1389,6 +1413,49 @@
       100% {
         bottom: 80%;
         opacity: 0;
+      }
+    }
+
+    /* 1st Down Animation - Green with arrows coming together */
+    .play-animation.first-down .play-animation-text {
+      color: #22c55e;
+      text-shadow: 0 0 20px #22c55e;
+    }
+
+    .first-down-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0;
+      margin-bottom: clamp(5px, 1.5vh, 15px);
+      width: 100%;
+      max-width: clamp(80px, 25vmin, 200px);
+      overflow: hidden;
+    }
+
+    .first-down-arrow {
+      width: clamp(30px, 8vmin, 80px);
+      height: auto;
+      filter: drop-shadow(0 0 10px #22c55e) drop-shadow(0 0 20px #22c55e);
+      flex-shrink: 0;
+    }
+
+    .first-down-arrow.left {
+      animation: arrowSlideLeft 0.8s ease-out forwards;
+    }
+
+    @keyframes arrowSlideLeft {
+      0% {
+        transform: translateX(-150%);
+        opacity: 0;
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
       }
     }
 
@@ -4847,7 +4914,6 @@
         <button id="cast-btn" class="cast-btn">
           <span class="cast-icon">📺</span> Cast to TV
         </button>
-        <button id="debug-scaling" style="background: #6366f1;">Debug Scaling</button>
       </div>
       <button id="exit-fullscreen">Exit Sports Bar Mode</button>
     </div>
@@ -5712,6 +5778,13 @@
                 </div>
                 <div class="fullscreen-live-team-name ${awayScore > homeScore ? 'winning' : ''}">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
                 ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
+                ${isLive ? `
+                  <div class="fullscreen-timeouts">
+                    <div class="timeout-bar ${awayTimeouts < 3 ? 'used' : ''}"></div>
+                    <div class="timeout-bar ${awayTimeouts < 2 ? 'used' : ''}"></div>
+                    <div class="timeout-bar ${awayTimeouts < 1 ? 'used' : ''}"></div>
+                  </div>
+                ` : ''}
               </div>
               <div class="fullscreen-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
               <div class="fullscreen-vs-divider-live">VS</div>
@@ -5723,6 +5796,13 @@
                 </div>
                 <div class="fullscreen-live-team-name ${homeScore > awayScore ? 'winning' : ''}">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
                 ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
+                ${isLive ? `
+                  <div class="fullscreen-timeouts">
+                    <div class="timeout-bar ${homeTimeouts < 3 ? 'used' : ''}"></div>
+                    <div class="timeout-bar ${homeTimeouts < 2 ? 'used' : ''}"></div>
+                    <div class="timeout-bar ${homeTimeouts < 1 ? 'used' : ''}"></div>
+                  </div>
+                ` : ''}
               </div>
             </div>
 
@@ -5926,8 +6006,18 @@
       if (playType === 'field-goal') {
         animationDiv.innerHTML = `
           <div class="field-goal-container">
-            <img src="/assets/YFrame.png" alt="Goal Post" class="yframe-image">
+            <img src="/assets/YFrame.png" alt="Goal Post" class="yframe-image" onerror="this.style.display='none';">
             <div class="spinning-football">🏈</div>
+          </div>
+          <div class="play-animation-text">${playText}</div>
+          ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+        `;
+      } else if (playType === 'first-down') {
+        // Special HTML for 1st down with arrows coming together
+        animationDiv.innerHTML = `
+          <div class="first-down-container">
+            <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow left" onerror="this.style.display='none';">
+            <img src="/assets/1stDown2.png" alt="Arrow" class="first-down-arrow right" onerror="this.style.display='none';">
           </div>
           <div class="play-animation-text">${playText}</div>
           ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
@@ -6563,63 +6653,6 @@
       }
     });
 
-    // Debug scaling button
-    document.getElementById('debug-scaling')?.addEventListener('click', () => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const grid = document.getElementById('fullscreen-grid');
-      const cards = grid.querySelectorAll('.fullscreen-game-card');
-      const firstCard = cards[0];
-      
-      console.clear();
-      console.log('🔍 FULLSCREEN SCALING DEBUG');
-      console.log('=' .repeat(50));
-      console.log('📐 Viewport:', `${vw}x${vh}`);
-      console.log('🎮 Current Layout:', `grid-${currentLayout}`);
-      console.log('📦 Total Cards:', cards.length);
-      
-      if (firstCard) {
-        const cardRect = firstCard.getBoundingClientRect();
-        const teamName = firstCard.querySelector('.fullscreen-team-name');
-        const score = firstCard.querySelector('.fullscreen-score');
-        const logo = firstCard.querySelector('.fullscreen-team-logo');
-        const field = firstCard.querySelector('.field-container');
-        
-        console.log('\n📊 First Card Measurements:');
-        console.log('  Card Size:', `${cardRect.width.toFixed(0)}x${cardRect.height.toFixed(0)}px`);
-        
-        if (teamName) {
-          const style = window.getComputedStyle(teamName);
-          console.log('  Team Name Font:', style.fontSize);
-        }
-        
-        if (score) {
-          const style = window.getComputedStyle(score);
-          console.log('  Score Font:', style.fontSize);
-        }
-        
-        if (logo) {
-          const style = window.getComputedStyle(logo);
-          console.log('  Logo Size:', style.width, 'x', style.height);
-        }
-        
-        if (field) {
-          const style = window.getComputedStyle(field);
-          console.log('  Field Height:', style.height);
-        }
-      }
-      
-      console.log('\n🎨 Dynamic Styles Status:');
-      console.log('  Style element exists:', !!dynamicStyles);
-      console.log('  Style element in DOM:', document.getElementById('dynamic-fullscreen-styles') !== null);
-      
-      if (dynamicStyles) {
-        console.log('  CSS Rules count:', dynamicStyles.textContent.split('\n').length);
-      }
-      
-      console.log('\n💡 Run applyDynamicScaling() in console to recalculate');
-      console.log('=' .repeat(50));
-    });
   </script>
 
 </body>
