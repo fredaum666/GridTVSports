@@ -11,8 +11,16 @@ const rateLimit = require('express-rate-limit');
 const { pool } = require('./db');
 require('dotenv').config();
 
-// Initialize Stripe
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// Initialize Stripe (optional - only if keys are configured)
+let stripe = null;
+const stripeConfigured = process.env.STRIPE_SECRET_KEY &&
+                         !process.env.STRIPE_SECRET_KEY.includes('your_stripe');
+if (stripeConfigured) {
+  stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+  console.log('✅ Stripe initialized');
+} else {
+  console.log('⚠️ Stripe not configured - subscription features disabled');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -35,15 +43,15 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https://a.espncdn.com", "https://*.espncdn.com"],
-      connectSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https://a.espncdn.com", "https://*.espncdn.com", "https://*.stripe.com"],
+      connectSrc: ["'self'", "https://api.stripe.com"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"],
     },
   },
   crossOriginEmbedderPolicy: false,
@@ -450,6 +458,10 @@ app.get('/api/subscription/plans', (req, res) => {
 
 // Create checkout session
 app.post('/api/subscription/create-checkout', async (req, res) => {
+  if (!stripe) {
+    return res.status(503).json({ error: 'Payment system not configured. Please try again later.' });
+  }
+
   if (!req.session || !req.session.userId) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
@@ -521,6 +533,10 @@ app.post('/api/subscription/create-checkout', async (req, res) => {
 
 // Create customer portal session (for managing subscription)
 app.post('/api/subscription/portal', async (req, res) => {
+  if (!stripe) {
+    return res.status(503).json({ error: 'Payment system not configured. Please try again later.' });
+  }
+
   if (!req.session || !req.session.userId) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
@@ -562,6 +578,10 @@ app.get('/api/subscription/config', (req, res) => {
 app.post('/api/webhook/stripe',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
+    if (!stripe) {
+      return res.status(503).json({ error: 'Stripe not configured' });
+    }
+
     const sig = req.headers['stripe-signature'];
     let event;
 
