@@ -1418,9 +1418,27 @@
       animation: arrowSlideLeft 0.8s ease-out forwards;
     }
 
+    .first-down-arrow.right {
+      animation: arrowSlideRight 0.8s ease-out forwards;
+    }
+
     @keyframes arrowSlideLeft {
       0% {
         transform: translateX(-150%);
+        opacity: 0;
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes arrowSlideRight {
+      0% {
+        transform: translateX(150%);
         opacity: 0;
       }
       30% {
@@ -5687,6 +5705,7 @@
       div.dataset.isLive = isLive ? 'true' : 'false';
       div.dataset.isFinal = isFinal ? 'true' : 'false';
       div.dataset.gameId = game.id;
+      div.dataset.prevDown = comp?.situation?.down || 0; // Initialize for first down detection
       
       div.innerHTML = `
         <img src="/assets/NFL-logo.png" alt="NFL" class="sport-logo-indicator">
@@ -6160,6 +6179,31 @@
               card.dataset.lastFumble = lastPlay;
             }
           }
+
+          // Check for 1st down - when down changes to 1 from 2, 3, or 4
+          const currentDown = comp?.situation?.down;
+          const prevDown = parseInt(card.dataset.prevDown) || 0;
+
+          // Only trigger if:
+          // - Current down is 1
+          // - Previous down was 2, 3, or 4 (not 0 or 1)
+          // - No score change (to avoid showing after touchdowns)
+          // - Not showing other animations (interception/fumble)
+          if (currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
+              awayScoreChange === 0 && homeScoreChange === 0 &&
+              !lastPlay.toLowerCase().includes('interception') &&
+              !lastPlay.toLowerCase().includes('intercepted') &&
+              !lastPlay.toLowerCase().includes('fumble')) {
+            // Check if we already showed this 1st down
+            const downDistanceText = comp?.situation?.downDistanceText || '';
+            if (card.dataset.lastFirstDown !== downDistanceText) {
+              showPlayAnimation(card, 'first-down', '1ST DOWN!');
+              card.dataset.lastFirstDown = downDistanceText;
+            }
+          }
+
+          // Store current down for next update
+          card.dataset.prevDown = currentDown || 0;
 
           // Store current scores for next update
           card.dataset.prevAwayScore = awayScore;
