@@ -2711,148 +2711,480 @@
         container.innerHTML = `
           <div class="no-games-message">
             <div class="icon">🏈</div>
-            <h3>No Live Games</h3>
-            <p>There are no games in progress right now.<br>Check back during game time!</p>
+            <h3>No Games Available</h3>
+            <p>There are no games to display right now.<br>Check back later!</p>
           </div>
         `;
         return;
       }
 
-      // Clear and rebuild all cards (more reliable than smart update)
-      container.innerHTML = '';
-      
+      // Build a map of existing cards by game ID
+      const existingCards = new Map();
+      container.querySelectorAll('.game-card[data-game-id]').forEach(card => {
+        const gameId = card.getAttribute('data-game-id');
+        if (gameId) existingCards.set(gameId, card);
+      });
+
+      // Separate games by status for proper ordering
+      const liveGamesList = [];
+      const upcomingGamesList = [];
+      const finalGamesList = [];
+      const liveUpdates = [];
+
       liveGames.forEach((game, index) => {
+        const gameId = game.id;
         const comp = game.competitions[0];
-        const home = comp.competitors.find(c => c.homeAway === 'home');
-        const away = comp.competitors.find(c => c.homeAway === 'away');
-
-        const homeScore = parseInt(home.score) || 0;
-        const awayScore = parseInt(away.score) || 0;
-
         const statusType = comp.status.type.state;
-        const statusName = comp.status.type.name;
         const isCompleted = comp.status.type.completed;
-        
-        // Simple live detection - trust the status state from ESPN API
-        const isLive = statusType === 'in';
-        
         const isFinal = isCompleted || statusType === 'post';
+        const isLive = statusType === 'in';
         const isPregame = statusType === 'pre';
-        const isUpcoming = isPregame; // Add this for upcoming game detection
 
-        // Get inning scores from linescores
-        const awayLineScores = away.linescores || [];
-        const homeLineScores = home.linescores || [];
-        
-        // Get current inning and inning state
-        const inning = comp.status.period || 1;
-        const inningState = comp.status.type.shortDetail || '';
-        
-        // Get baseball situation data
-        const situation = comp.situation || {};
-        const balls = situation.balls || 0;
-        const strikes = situation.strikes || 0;
-        const outs = situation.outs || 0;
-        const onFirst = situation.onFirst || false;
-        const onSecond = situation.onSecond || false;
-        const onThird = situation.onThird || false;
-        
-        // Determine inning display (Top/Mid/Bottom/End)
-        let inningDisplay = '';
+        const existingCard = existingCards.get(gameId);
+
+        // If card exists and is final, keep it in place (never update final games)
+        if (existingCard && isFinal) {
+          finalGamesList.push({ game, existingCard });
+          existingCards.delete(gameId);
+          return;
+        }
+
+        // If card exists and is live, queue it for update after repositioning
+        if (existingCard && isLive) {
+          liveGamesList.push({ game, existingCard });
+          liveUpdates.push({ card: existingCard, game });
+          existingCards.delete(gameId);
+          return;
+        }
+
+        // If card exists but status changed, recreate it
+        if (existingCard) {
+          existingCard.remove();
+        }
+
+        // Create new card for new games or status changes
+        const newCard = createGameCardElement(game, index);
         if (isLive) {
-          // Use the shortDetail from ESPN which contains "Top 6th", "Mid 6th", "Bot 6th", etc.
-          inningDisplay = inningState;
+          liveGamesList.push({ game, newCard });
         } else if (isPregame) {
-          inningDisplay = statusName;
+          upcomingGamesList.push({ game, newCard });
         } else if (isFinal) {
-          inningDisplay = 'Final';
+          finalGamesList.push({ game, newCard });
         }
-        
-        // Get game description (e.g., "ALCS Game 7")
-        const gameNote = comp.notes?.[0]?.headline || comp.series?.summary || '';
+      });
 
-        // Format game start time for upcoming games
-        let gameStartTimeBadgeHTML = '';
-        if (isPregame && game.date) {
-          const gameDate = new Date(game.date);
-          const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-          gameStartTimeBadgeHTML = `
-            <div class="game-start-time-badge">
-              <span class="game-start-date-badge">${dateStr}</span>
-              <span>•</span>
-              <span>${timeStr}</span>
-            </div>
-          `;
+      // Rebuild container in order: Live -> Upcoming -> Final
+      const fragment = document.createDocumentFragment();
+
+      liveGamesList.forEach(({ newCard, existingCard }) => {
+        const card = newCard || existingCard;
+        fragment.appendChild(card);
+      });
+
+      upcomingGamesList.forEach(({ newCard }) => {
+        fragment.appendChild(newCard);
+      });
+
+      finalGamesList.forEach(({ newCard, existingCard }) => {
+        const card = newCard || existingCard;
+        fragment.appendChild(card);
+      });
+
+      container.innerHTML = '';
+      container.appendChild(fragment);
+
+      // Remove cards for games no longer in the list
+      existingCards.forEach(card => card.remove());
+
+      // Re-initialize sliders only for newly created cards
+      initializeCardSliders();
+
+      // Queue live game updates to happen after cards are repositioned
+      liveUpdates.forEach(({ card, game }) => {
+        updateLiveGameCard(card, game);
+      });
+    }
+
+    function updateLiveGameCard(card, game) {
+      const comp = game.competitions[0];
+      const home = comp.competitors.find(c => c.homeAway === 'home');
+      const away = comp.competitors.find(c => c.homeAway === 'away');
+
+      const homeScore = parseInt(home.score) || 0;
+      const awayScore = parseInt(away.score) || 0;
+
+      // Update scores
+      const scoreElements = card.querySelectorAll('.team-score');
+      if (scoreElements[0]) {
+        scoreElements[0].textContent = awayScore;
+        scoreElements[0].className = `team-score ${awayScore > homeScore ? 'winning' : ''}`;
+      }
+      if (scoreElements[1]) {
+        scoreElements[1].textContent = homeScore;
+        scoreElements[1].className = `team-score ${homeScore > awayScore ? 'winning' : ''}`;
+      }
+
+      // Update team name winning states
+      const teamNames = card.querySelectorAll('.team-full-name');
+      if (teamNames[0]) teamNames[0].className = `team-full-name ${awayScore > homeScore ? 'winning' : ''}`;
+      if (teamNames[1]) teamNames[1].className = `team-full-name ${homeScore > awayScore ? 'winning' : ''}`;
+
+      // Update inning/outs status text
+      const inningState = comp.status.type.shortDetail || '';
+      const inningDisplay = card.querySelector('.inning-display');
+      if (inningDisplay) inningDisplay.textContent = inningState;
+
+      // Update baseball diamond bases if present
+      const situation = comp.situation || {};
+      const balls = situation.balls || 0;
+      const strikes = situation.strikes || 0;
+      const outs = situation.outs || 0;
+      const onFirst = situation.onFirst || false;
+      const onSecond = situation.onSecond || false;
+      const onThird = situation.onThird || false;
+
+      const diamondSvg = card.querySelector('.fullscreen-diamond-container svg');
+      if (diamondSvg) {
+        const rects = diamondSvg.querySelectorAll('rect');
+        if (rects[0]) {
+          // Second base
+          rects[0].setAttribute('fill', onSecond ? '#fbbf24' : 'rgba(255,255,255,0.2)');
         }
+        if (rects[1]) {
+          // First base
+          rects[1].setAttribute('fill', onFirst ? '#fbbf24' : 'rgba(255,255,255,0.2)');
+        }
+        if (rects[2]) {
+          // Third base
+          rects[2].setAttribute('fill', onThird ? '#fbbf24' : 'rgba(255,255,255,0.2)');
+        }
+      }
 
-        // Create card HTML
-        const cardHtml = `
-          <div class="game-card" data-game-id="${game.id}">
-            ${gameStartTimeBadgeHTML}
-            
-            <!-- Game Title/Series Info -->
-            ${gameNote ? `
-              <div class="game-title">
-                ${gameNote}
-              </div>
-            ` : ''}
-            
-            <!-- Score Display -->
-            <div class="score-container">
-              <div class="team-display away-team">
-                <div class="team-info-block">
-                  <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo-large" />
-                  <div class="team-full-name">${away.team.displayName}</div>
+      // Update count display
+      const countDisplay = card.querySelector('.count-display');
+      if (countDisplay) {
+        const countSpans = countDisplay.querySelectorAll('span');
+        if (countSpans[0]) countSpans[0].textContent = `B:${balls}`;
+        if (countSpans[1]) countSpans[1].textContent = `S:${strikes}`;
+        if (countSpans[2]) countSpans[2].textContent = `O:${outs}`;
+      }
+
+      // Update inning line scores on page 2 if present
+      const awayLineScores = away.linescores || [];
+      const homeLineScores = home.linescores || [];
+
+      const page2 = card.querySelector('.page-2-content');
+      if (page2) {
+        const scoreCells = page2.querySelectorAll('.score-cell');
+        // Away innings (indices 1-9) + total (10)
+        if (scoreCells[1]) scoreCells[1].textContent = awayLineScores[0]?.value || 0;
+        if (scoreCells[2]) scoreCells[2].textContent = awayLineScores[1]?.value || 0;
+        if (scoreCells[3]) scoreCells[3].textContent = awayLineScores[2]?.value || 0;
+        if (scoreCells[4]) scoreCells[4].textContent = awayLineScores[3]?.value || 0;
+        if (scoreCells[5]) scoreCells[5].textContent = awayLineScores[4]?.value || 0;
+        if (scoreCells[6]) scoreCells[6].textContent = awayLineScores[5]?.value || 0;
+        if (scoreCells[7]) scoreCells[7].textContent = awayLineScores[6]?.value || 0;
+        if (scoreCells[8]) scoreCells[8].textContent = awayLineScores[7]?.value || 0;
+        if (scoreCells[9]) scoreCells[9].textContent = awayLineScores[8]?.value || 0;
+        if (scoreCells[10]) scoreCells[10].textContent = awayScore;
+        // Home innings (indices 12-20) + total (21)
+        if (scoreCells[12]) scoreCells[12].textContent = homeLineScores[0]?.value || 0;
+        if (scoreCells[13]) scoreCells[13].textContent = homeLineScores[1]?.value || 0;
+        if (scoreCells[14]) scoreCells[14].textContent = homeLineScores[2]?.value || 0;
+        if (scoreCells[15]) scoreCells[15].textContent = homeLineScores[3]?.value || 0;
+        if (scoreCells[16]) scoreCells[16].textContent = homeLineScores[4]?.value || 0;
+        if (scoreCells[17]) scoreCells[17].textContent = homeLineScores[5]?.value || 0;
+        if (scoreCells[18]) scoreCells[18].textContent = homeLineScores[6]?.value || 0;
+        if (scoreCells[19]) scoreCells[19].textContent = homeLineScores[7]?.value || 0;
+        if (scoreCells[20]) scoreCells[20].textContent = homeLineScores[8]?.value || 0;
+        if (scoreCells[21]) scoreCells[21].textContent = homeScore;
+      }
+    }
+
+    function createGameCardElement(game, index) {
+      const comp = game.competitions[0];
+      const home = comp.competitors.find(c => c.homeAway === 'home');
+      const away = comp.competitors.find(c => c.homeAway === 'away');
+
+      const homeScore = parseInt(home.score) || 0;
+      const awayScore = parseInt(away.score) || 0;
+
+      const statusType = comp.status.type.state;
+      const statusName = comp.status.type.name;
+      const isCompleted = comp.status.type.completed;
+
+      // Simple live detection - trust the status state from ESPN API
+      const isLive = statusType === 'in';
+
+      const isFinal = isCompleted || statusType === 'post';
+      const isPregame = statusType === 'pre';
+      const isUpcoming = isPregame; // Add this for upcoming game detection
+
+      // Get inning scores from linescores
+      const awayLineScores = away.linescores || [];
+      const homeLineScores = home.linescores || [];
+
+      // Get current inning and inning state
+      const inning = comp.status.period || 1;
+      const inningState = comp.status.type.shortDetail || '';
+
+      // Get baseball situation data
+      const situation = comp.situation || {};
+      const balls = situation.balls || 0;
+      const strikes = situation.strikes || 0;
+      const outs = situation.outs || 0;
+      const onFirst = situation.onFirst || false;
+      const onSecond = situation.onSecond || false;
+      const onThird = situation.onThird || false;
+
+      // Determine inning display (Top/Mid/Bottom/End)
+      let inningDisplay = '';
+      if (isLive) {
+        // Use the shortDetail from ESPN which contains "Top 6th", "Mid 6th", "Bot 6th", etc.
+        inningDisplay = inningState;
+      } else if (isPregame) {
+        inningDisplay = statusName;
+      } else if (isFinal) {
+        inningDisplay = 'Final';
+      }
+
+      // Get game description (e.g., "ALCS Game 7")
+      const gameNote = comp.notes?.[0]?.headline || comp.series?.summary || '';
+
+      // Format game start time for upcoming games
+      let gameStartTimeBadgeHTML = '';
+      if (isPregame && game.date) {
+        const gameDate = new Date(game.date);
+        const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        gameStartTimeBadgeHTML = `
+          <div class="game-start-time-badge">
+            <span class="game-start-date-badge">${dateStr}</span>
+            <span>•</span>
+            <span>${timeStr}</span>
+          </div>
+        `;
+      }
+
+      // Determine number of pages
+      // Upcoming: 1 page
+      // Live: 2 pages (live score + inning history)
+      // Final: 1 page (final score with inning history combined)
+      const numPages = isLive ? 2 : 1;
+
+      // Create card HTML
+      let cardHtml = `
+        <div class="game-card" data-game-id="${game.id}">
+          <div class="card-slider-container">
+            <div class="card-pages" data-current-page="0">
+      `;
+
+      // PAGE 1
+      if (isPregame) {
+        // Upcoming Game - Page 1 Only
+        cardHtml += `
+          <div class="card-page">
+            <div class="page-1-upcoming">
+              ${gameStartTimeBadgeHTML}
+              ${gameNote ? `<div class="game-title">${gameNote}</div>` : ''}
+              <div class="score-container">
+                <div class="team-display away-team">
+                  <div class="team-info-block">
+                    <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo-large" />
+                    <div class="team-full-name">${away.team.displayName}</div>
+                  </div>
+                  <div class="team-score">-</div>
                 </div>
-                <div class="team-score ${awayScore > homeScore && (isLive || isFinal) ? 'winning' : ''}">${isUpcoming ? '-' : awayScore}</div>
-              </div>
-              
-              <div class="score-divider">-</div>
-              
-              <div class="team-display home-team">
-                <div class="team-score ${homeScore > awayScore && (isLive || isFinal) ? 'winning' : ''}">${isUpcoming ? '-' : homeScore}</div>
-                <div class="team-info-block">
-                  <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo-large" />
-                  <div class="team-full-name">${home.team.displayName}</div>
+
+                <div class="score-divider">-</div>
+
+                <div class="team-display home-team">
+                  <div class="team-score">-</div>
+                  <div class="team-info-block">
+                    <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo-large" />
+                    <div class="team-full-name">${home.team.displayName}</div>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <!-- Game Status -->
-            <div class="game-status-row">
-              <div class="inning-display ${isLive ? 'live' : ''}">${inningDisplay}</div>
-              ${isLive ? `
-               <div class="fullscreen-diamond-container">
-              <svg width="40" height="40" viewBox="0 -8 42 50" style="transform: rotate(45deg);">
-                <!-- Second base (top) -->
-                <rect x="13" y="-4" width="12" height="12" fill="${onSecond ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-                <!-- First base (right) -->
-                <rect x="28" y="20" width="12" height="12" fill="${onFirst ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-                <!-- Third base (left) -->
-                <rect x="0" y="20" width="12" height="12" fill="${onThird ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-              </svg>
-            </div>
-                <div class="count-display">
-                  <span>B:${balls}</span>
-                  <span>S:${strikes}</span>
-                  <span>O:${outs}</span>
+          </div>
+        `;
+      } else if (isLive || isFinal) {
+        // Live or Final Game - Page 1
+        cardHtml += `
+          <div class="card-page">
+            <div class="page-1-live">
+              <div style="text-align: center; margin-bottom: 8px;">
+                <div style="display: inline-block; background: ${isLive ? '#ef4444' : '#6b7280'}; color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase;">
+                  ${isLive ? '<span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE' : 'FINAL'}
+                </div>
+                <div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">
+                  ${inningDisplay}
+                </div>
+              </div>
+
+              ${gameNote ? `<div class="game-title">${gameNote}</div>` : ''}
+
+              <div class="score-container">
+                <div class="team-display away-team">
+                  <div class="team-info-block">
+                    <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo-large" />
+                    <div class="team-full-name ${awayScore > homeScore ? 'winning' : ''}">${away.team.displayName}</div>
+                  </div>
+                  <div class="team-score ${awayScore > homeScore ? 'winning' : ''}">${awayScore}</div>
+                </div>
+
+                <div class="score-divider">-</div>
+
+                <div class="team-display home-team">
+                  <div class="team-score ${homeScore > awayScore ? 'winning' : ''}">${homeScore}</div>
+                  <div class="team-info-block">
+                    <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo-large" />
+                    <div class="team-full-name ${homeScore > awayScore ? 'winning' : ''}">${home.team.displayName}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="game-status-row">
+                <div class="inning-display ${isLive ? 'live' : ''}">${inningDisplay}</div>
+                ${isLive ? `
+                 <div class="fullscreen-diamond-container">
+                <svg width="40" height="40" viewBox="0 -8 42 50" style="transform: rotate(45deg);">
+                  <!-- Second base (top) -->
+                  <rect x="13" y="-4" width="12" height="12" fill="${onSecond ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                  <!-- First base (right) -->
+                  <rect x="28" y="20" width="12" height="12" fill="${onFirst ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                  <!-- Third base (left) -->
+                  <rect x="0" y="20" width="12" height="12" fill="${onThird ? '#fbbf24' : 'rgba(255,255,255,0.2)'}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                </svg>
+              </div>
+                  <div class="count-display">
+                    <span>B:${balls}</span>
+                    <span>S:${strikes}</span>
+                    <span>O:${outs}</span>
+                  </div>
+                ` : ''}
+              </div>
+
+              ${isFinal ? `
+                <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                  <div class="scoring-history-title">Scoring by Inning</div>
+                  <div class="innings-grid">
+                    <div class="inning-header-cell"></div>
+                    <div class="inning-header-cell">1</div>
+                    <div class="inning-header-cell">2</div>
+                    <div class="inning-header-cell">3</div>
+                    <div class="inning-header-cell">4</div>
+                    <div class="inning-header-cell">5</div>
+                    <div class="inning-header-cell">6</div>
+                    <div class="inning-header-cell">7</div>
+                    <div class="inning-header-cell">8</div>
+                    <div class="inning-header-cell">9</div>
+                    <div class="inning-header-cell">T</div>
+
+                    <div class="team-label-cell">${away.team.abbreviation || away.team.shortDisplayName}</div>
+                    <div class="score-cell ${awayLineScores[0] ? '' : 'empty'}">${awayLineScores[0]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[1] ? '' : 'empty'}">${awayLineScores[1]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[2] ? '' : 'empty'}">${awayLineScores[2]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[3] ? '' : 'empty'}">${awayLineScores[3]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[4] ? '' : 'empty'}">${awayLineScores[4]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[5] ? '' : 'empty'}">${awayLineScores[5]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[6] ? '' : 'empty'}">${awayLineScores[6]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[7] ? '' : 'empty'}">${awayLineScores[7]?.value || 0}</div>
+                    <div class="score-cell ${awayLineScores[8] ? '' : 'empty'}">${awayLineScores[8]?.value || 0}</div>
+                    <div class="score-cell total">${awayScore}</div>
+
+                    <div class="team-label-cell">${home.team.abbreviation || home.team.shortDisplayName}</div>
+                    <div class="score-cell ${homeLineScores[0] ? '' : 'empty'}">${homeLineScores[0]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[1] ? '' : 'empty'}">${homeLineScores[1]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[2] ? '' : 'empty'}">${homeLineScores[2]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[3] ? '' : 'empty'}">${homeLineScores[3]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[4] ? '' : 'empty'}">${homeLineScores[4]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[5] ? '' : 'empty'}">${homeLineScores[5]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[6] ? '' : 'empty'}">${homeLineScores[6]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[7] ? '' : 'empty'}">${homeLineScores[7]?.value || 0}</div>
+                    <div class="score-cell ${homeLineScores[8] ? '' : 'empty'}">${homeLineScores[8]?.value || 0}</div>
+                    <div class="score-cell total">${homeScore}</div>
+                  </div>
                 </div>
               ` : ''}
             </div>
           </div>
         `;
-        
-        // Add card to container
-        container.insertAdjacentHTML('beforeend', cardHtml);
-      });
-      
-      // // Add click event listeners to all cards
-      // container.querySelectorAll('.game-card').forEach((card, idx) => {
-      //   card.addEventListener('click', () => {
-      //     showGameDetail(liveGames[idx]);
-      //   });
-      // });
+
+        // PAGE 2 - Scoring History (ONLY FOR LIVE GAMES)
+        if (isLive) {
+          cardHtml += `
+            <div class="card-page">
+              <div class="page-2-content">
+                <div class="scoring-history-header">
+                  <img src="${away.team.logo}" alt="${away.team.displayName}" class="scoring-team-logo">
+                  <img src="${home.team.logo}" alt="${home.team.displayName}" class="scoring-team-logo">
+                </div>
+
+                <div class="scoring-history-title">Scoring by Inning</div>
+
+                <div class="innings-grid">
+                  <div class="inning-header-cell"></div>
+                  <div class="inning-header-cell">1</div>
+                  <div class="inning-header-cell">2</div>
+                  <div class="inning-header-cell">3</div>
+                  <div class="inning-header-cell">4</div>
+                  <div class="inning-header-cell">5</div>
+                  <div class="inning-header-cell">6</div>
+                  <div class="inning-header-cell">7</div>
+                  <div class="inning-header-cell">8</div>
+                  <div class="inning-header-cell">9</div>
+                  <div class="inning-header-cell">T</div>
+
+                  <div class="team-label-cell">${away.team.abbreviation || away.team.shortDisplayName}</div>
+                  <div class="score-cell ${awayLineScores[0] ? '' : 'empty'}">${awayLineScores[0]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[1] ? '' : 'empty'}">${awayLineScores[1]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[2] ? '' : 'empty'}">${awayLineScores[2]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[3] ? '' : 'empty'}">${awayLineScores[3]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[4] ? '' : 'empty'}">${awayLineScores[4]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[5] ? '' : 'empty'}">${awayLineScores[5]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[6] ? '' : 'empty'}">${awayLineScores[6]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[7] ? '' : 'empty'}">${awayLineScores[7]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[8] ? '' : 'empty'}">${awayLineScores[8]?.value || 0}</div>
+                  <div class="score-cell total">${awayScore}</div>
+
+                  <div class="team-label-cell">${home.team.abbreviation || home.team.shortDisplayName}</div>
+                  <div class="score-cell ${homeLineScores[0] ? '' : 'empty'}">${homeLineScores[0]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[1] ? '' : 'empty'}">${homeLineScores[1]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[2] ? '' : 'empty'}">${homeLineScores[2]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[3] ? '' : 'empty'}">${homeLineScores[3]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[4] ? '' : 'empty'}">${homeLineScores[4]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[5] ? '' : 'empty'}">${homeLineScores[5]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[6] ? '' : 'empty'}">${homeLineScores[6]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[7] ? '' : 'empty'}">${homeLineScores[7]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[8] ? '' : 'empty'}">${homeLineScores[8]?.value || 0}</div>
+                  <div class="score-cell total">${homeScore}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      // Close pages container
+      cardHtml += `
+            </div>
+
+            ${numPages > 1 ? `
+              <div class="page-indicators">
+                <div class="page-dot active" data-page="0"></div>
+                <div class="page-dot" data-page="1"></div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      // Create a temporary container to parse the HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = cardHtml;
+      return tempDiv.firstElementChild;
     }
 
     async function loadWinProbability(gameId, awayTeam, homeTeam) {

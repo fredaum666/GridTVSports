@@ -2775,12 +2775,163 @@
         return;
       }
 
-      container.innerHTML = '';
+      // Build a map of existing cards by game ID
+      const existingCards = new Map();
+      container.querySelectorAll('.game-card[data-game-id]').forEach(card => {
+        const gameId = card.getAttribute('data-game-id');
+        if (gameId) existingCards.set(gameId, card);
+      });
+
+      // Separate games by status
+      const liveCardElements = [];
+      const upcomingCardElements = [];
+      const finalCardElements = [];
+
+      // Track which game IDs should remain and queue live updates
+      const liveGameUpdates = [];
 
       liveGames.forEach((game, index) => {
+        const gameId = game.id;
+
         const comp = game.competitions[0];
-        const home = comp.competitors.find(c => c.homeAway === 'home');
-        const away = comp.competitors.find(c => c.homeAway === 'away');
+        const statusType = comp.status.type.state;
+        const isCompleted = comp.status.type.completed;
+        const isFinal = isCompleted || statusType === 'post';
+        const isLive = statusType === 'in' ||
+                       (comp.status.period && comp.status.period > 0 && !isCompleted);
+
+        const existingCard = existingCards.get(gameId);
+
+        // If card exists and is final, skip it entirely (never update final games)
+        if (existingCard && isFinal) {
+          existingCards.delete(gameId); // Mark as still valid
+          finalCardElements.push(existingCard);
+          return;
+        }
+
+        // If card exists and is live, queue the update and keep the card
+        if (existingCard && isLive) {
+          liveGameUpdates.push({ card: existingCard, game });
+          existingCards.delete(gameId); // Mark as still valid
+          liveCardElements.push(existingCard);
+          return;
+        }
+
+        // If card exists but status changed (pre->live, live->final), recreate it
+        if (existingCard) {
+          existingCard.remove();
+        }
+
+        // Create new card for new games or status changes
+        const newCard = createGameCardElement(game, index);
+        if (isFinal) {
+          finalCardElements.push(newCard);
+        } else if (isLive) {
+          liveCardElements.push(newCard);
+        } else {
+          upcomingCardElements.push(newCard);
+        }
+      });
+
+      // Remove cards for games no longer in the list
+      existingCards.forEach(card => card.remove());
+
+      // Rebuild container in order: Live -> Upcoming -> Final
+      container.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+
+      liveCardElements.forEach(card => fragment.appendChild(card));
+      upcomingCardElements.forEach(card => fragment.appendChild(card));
+      finalCardElements.forEach(card => fragment.appendChild(card));
+
+      container.appendChild(fragment);
+
+      // Re-initialize sliders only for newly created cards
+      initializeCardSliders();
+
+      // Queue live game updates to happen after cards are repositioned
+      liveGameUpdates.forEach(({ card, game }) => {
+        setTimeout(() => {
+          updateLiveGameCard(card, game);
+        }, 0);
+      });
+    }
+
+    function updateLiveGameCard(card, game) {
+      const comp = game.competitions[0];
+      const home = comp.competitors.find(c => c.homeAway === 'home');
+      const away = comp.competitors.find(c => c.homeAway === 'away');
+
+      const homeScore = parseInt(home.score) || 0;
+      const awayScore = parseInt(away.score) || 0;
+
+      // Update scores
+      const awayScoreEls = card.querySelectorAll('.live-team-score');
+      if (awayScoreEls[0]) awayScoreEls[0].textContent = awayScore;
+      if (awayScoreEls[1]) awayScoreEls[1].textContent = homeScore;
+
+      // Update winning/losing classes
+      if (awayScoreEls[0]) {
+        awayScoreEls[0].className = `live-team-score ${awayScore > homeScore ? 'winning' : 'losing'}`;
+      }
+      if (awayScoreEls[1]) {
+        awayScoreEls[1].className = `live-team-score ${homeScore > awayScore ? 'winning' : 'losing'}`;
+      }
+
+      // Update team name winning states
+      const teamNames = card.querySelectorAll('.live-team-name');
+      if (teamNames[0]) teamNames[0].className = `live-team-name ${awayScore > homeScore ? 'winning' : ''}`;
+      if (teamNames[1]) teamNames[1].className = `live-team-name ${homeScore > awayScore ? 'winning' : ''}`;
+
+      // Update quarter/clock
+      const quarter = comp.status.period || 1;
+      const clock = comp.status.displayClock || '12:00';
+      const statusText = `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}`;
+      const statusTextEl = card.querySelector('.page-1-live > div:nth-child(1) > div:nth-child(2)');
+      if (statusTextEl) statusTextEl.textContent = statusText;
+
+      // Update possession indicators
+      const possession = comp.situation?.possession || null;
+      const awayHasPossession = possession === away.id;
+      const homeHasPossession = possession === home.id;
+
+      const possessionIcons = card.querySelectorAll('.possession-icon');
+      possessionIcons.forEach(icon => icon.remove());
+
+      const teamLogos = card.querySelectorAll('.page-1-live .live-team-logo');
+      if (teamLogos[0] && awayHasPossession) {
+        teamLogos[0].parentElement.insertAdjacentHTML('beforeend', '<span class="possession-icon">🏀</span>');
+      }
+      if (teamLogos[1] && homeHasPossession) {
+        teamLogos[1].parentElement.insertAdjacentHTML('beforeend', '<span class="possession-icon">🏀</span>');
+      }
+
+      // Update quarter scores (Page 2)
+      const awayLineScores = away.linescores || [];
+      const homeLineScores = home.linescores || [];
+
+      const page2 = card.querySelector('.page-2-content');
+      if (page2) {
+        const scoreCells = page2.querySelectorAll('.score-cell');
+        // Away quarters (indices 1-4) + total (5)
+        if (scoreCells[1]) scoreCells[1].textContent = awayLineScores[0]?.value || 0;
+        if (scoreCells[2]) scoreCells[2].textContent = awayLineScores[1]?.value || 0;
+        if (scoreCells[3]) scoreCells[3].textContent = awayLineScores[2]?.value || 0;
+        if (scoreCells[4]) scoreCells[4].textContent = awayLineScores[3]?.value || 0;
+        if (scoreCells[5]) scoreCells[5].textContent = awayScore;
+        // Home quarters (indices 7-10) + total (11)
+        if (scoreCells[7]) scoreCells[7].textContent = homeLineScores[0]?.value || 0;
+        if (scoreCells[8]) scoreCells[8].textContent = homeLineScores[1]?.value || 0;
+        if (scoreCells[9]) scoreCells[9].textContent = homeLineScores[2]?.value || 0;
+        if (scoreCells[10]) scoreCells[10].textContent = homeLineScores[3]?.value || 0;
+        if (scoreCells[11]) scoreCells[11].textContent = homeScore;
+      }
+    }
+
+    function createGameCardElement(game, index) {
+      const comp = game.competitions[0];
+      const home = comp.competitors.find(c => c.homeAway === 'home');
+      const away = comp.competitors.find(c => c.homeAway === 'away');
 
         const homeScore = parseInt(home.score) || 0;
         const awayScore = parseInt(away.score) || 0;
@@ -2987,11 +3138,9 @@
           </div>
         `;
 
-        container.insertAdjacentHTML('beforeend', cardHtml);
-      });
-
-      // Add swipe and click handlers
-      initializeCardSliders();
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = cardHtml;
+        return tempDiv.firstElementChild;
     }
 
     function initializeCardSliders() {
