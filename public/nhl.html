@@ -2901,168 +2901,296 @@
         return;
       }
 
-      container.innerHTML = '';
+      // Build a map of existing cards by game ID
+      const existingCards = new Map();
+      container.querySelectorAll('.game-card[data-game-id]').forEach(card => {
+        const gameId = card.getAttribute('data-game-id');
+        if (gameId) existingCards.set(gameId, card);
+      });
+
+      // Separate games by status
+      const liveGamesData = [];
+      const upcomingGamesData = [];
+      const finalGamesData = [];
+      const cardsToUpdate = [];
 
       liveGames.forEach((game, index) => {
+        const gameId = game.id;
         const comp = game.competitions[0];
-        const home = comp.competitors.find(c => c.homeAway === 'home');
-        const away = comp.competitors.find(c => c.homeAway === 'away');
-
-        const homeScore = parseInt(home.score) || 0;
-        const awayScore = parseInt(away.score) || 0;
-
         const statusType = comp.status.type.state;
-        const statusName = comp.status.type.name;
         const isCompleted = comp.status.type.completed;
-
-        // Simple live detection
-        const isLive = statusType === 'in';
         const isFinal = isCompleted || statusType === 'post';
+        const isLive = statusType === 'in' ||
+                       (comp.status.period && comp.status.period > 0 && !isCompleted);
         const isPregame = statusType === 'pre';
 
-        // Get team standings
-        const awayRecord = away.records?.[0]?.summary || '';
-        const homeRecord = home.records?.[0]?.summary || '';
+        const existingCard = existingCards.get(gameId);
 
-        // Get line scores (period by period) - NHL has 3 periods
-        const awayLineScores = away.linescores || [];
-        const homeLineScores = home.linescores || [];
-
-        // Get current period and clock
-        const period = comp.status.period || 1;
-        const clock = comp.status.displayClock || '20:00';
-
-        // Get possession info (puck possession)
-        const possession = comp.situation?.possession || null;
-        const awayHasPossession = possession === away.id;
-        const homeHasPossession = possession === home.id;
-
-        let statusText = '';
-        if (isLive) {
-          statusText = `${period === 1 ? '1st' : period === 2 ? '2nd' : period === 3 ? '3rd' : 'OT'} - ${clock}`;
-        } else if (isFinal) {
-          statusText = 'Final';
-        } else {
-          const gameDate = new Date(game.date);
-          const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-          statusText = `${dateStr} • ${timeStr}`;
+        // If card exists and is final, skip it entirely (never update final games)
+        if (existingCard && isFinal) {
+          existingCards.delete(gameId); // Mark as still valid
+          finalGamesData.push(game);
+          return;
         }
 
-        // Determine number of pages
-        // Upcoming: 1 page
-        // Live: 2 pages (live score + period history)
-        // Final: 1 page (final score with period history combined)
-        const numPages = isLive ? 2 : 1;
+        // If card exists and is live, queue for update after repositioning
+        if (existingCard && isLive) {
+          existingCards.delete(gameId); // Mark as still valid
+          cardsToUpdate.push({ card: existingCard, game });
+          liveGamesData.push(game);
+          return;
+        }
 
-        // Build the card HTML
-        let cardHtml = `
-          <div class="game-card" data-game-id="${game.id}">
-            <div class="card-slider-container">
-              <div class="card-pages" data-current-page="0">
+        // If card exists but status changed (pre->live, live->final), recreate it
+        if (existingCard) {
+          existingCard.remove();
+        }
+
+        // Create new card for new games or status changes
+        if (isFinal) {
+          finalGamesData.push(game);
+        } else if (isLive) {
+          liveGamesData.push(game);
+        } else if (isPregame) {
+          upcomingGamesData.push(game);
+        }
+      });
+
+      // Remove cards for games no longer in the list
+      existingCards.forEach(card => card.remove());
+
+      // Clear container and rebuild with proper ordering
+      container.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+
+      // Add live games first
+      liveGamesData.forEach((game, index) => {
+        const card = createGameCardElement(game, index);
+        if (card) fragment.appendChild(card);
+      });
+
+      // Add upcoming games
+      upcomingGamesData.forEach((game, index) => {
+        const card = createGameCardElement(game, index);
+        if (card) fragment.appendChild(card);
+      });
+
+      // Add final games last
+      finalGamesData.forEach((game, index) => {
+        const card = createGameCardElement(game, index);
+        if (card) fragment.appendChild(card);
+      });
+
+      container.appendChild(fragment);
+
+      // Re-initialize sliders only for newly created cards
+      initializeCardSliders();
+
+      // Queue live game updates to happen after cards are repositioned
+      cardsToUpdate.forEach(({ card, game }) => {
+        setTimeout(() => {
+          updateLiveGameCard(card, game);
+        }, 0);
+      });
+    }
+
+    function updateLiveGameCard(card, game) {
+      const comp = game.competitions[0];
+      const home = comp.competitors.find(c => c.homeAway === 'home');
+      const away = comp.competitors.find(c => c.homeAway === 'away');
+
+      const homeScore = parseInt(home.score) || 0;
+      const awayScore = parseInt(away.score) || 0;
+
+      // Update scores
+      const awayScoreEls = card.querySelectorAll('.live-team-score');
+      if (awayScoreEls[0]) awayScoreEls[0].textContent = awayScore;
+      if (awayScoreEls[1]) awayScoreEls[1].textContent = homeScore;
+
+      // Update winning/losing classes
+      if (awayScoreEls[0]) {
+        awayScoreEls[0].className = `live-team-score ${awayScore > homeScore ? 'winning' : 'losing'}`;
+      }
+      if (awayScoreEls[1]) {
+        awayScoreEls[1].className = `live-team-score ${homeScore > awayScore ? 'winning' : 'losing'}`;
+      }
+
+      // Update team name winning states
+      const teamNames = card.querySelectorAll('.live-team-name');
+      if (teamNames[0]) teamNames[0].className = `live-team-name ${awayScore > homeScore ? 'winning' : ''}`;
+      if (teamNames[1]) teamNames[1].className = `live-team-name ${homeScore > awayScore ? 'winning' : ''}`;
+
+      // Update period/clock (NHL uses periods instead of quarters)
+      const period = comp.status.period || 1;
+      const clock = comp.status.displayClock || '20:00';
+      const statusText = `${period === 1 ? '1st' : period === 2 ? '2nd' : period === 3 ? '3rd' : 'OT'} - ${clock}`;
+      const statusTextEl = card.querySelector('.page-1-live > div:nth-child(2) > div:nth-child(2)');
+      if (statusTextEl) statusTextEl.textContent = statusText;
+
+      // Update puck possession indicators
+      const possession = comp.situation?.possession || null;
+      const awayHasPossession = possession === away.id;
+      const homeHasPossession = possession === home.id;
+
+      const possessionIcons = card.querySelectorAll('.possession-icon');
+      possessionIcons.forEach(icon => icon.remove());
+
+      const teamLogos = card.querySelectorAll('.page-1-live .live-team-logo');
+      if (teamLogos[0] && awayHasPossession) {
+        teamLogos[0].parentElement.insertAdjacentHTML('beforeend', '<span class="possession-icon">🏒</span>');
+      }
+      if (teamLogos[1] && homeHasPossession) {
+        teamLogos[1].parentElement.insertAdjacentHTML('beforeend', '<span class="possession-icon">🏒</span>');
+      }
+
+      // Update period line scores (Page 2)
+      const awayLineScores = away.linescores || [];
+      const homeLineScores = home.linescores || [];
+
+      const page2 = card.querySelector('.page-2-content');
+      if (page2) {
+        const scoreCells = page2.querySelectorAll('.score-cell');
+        // Away periods (indices 1-3) + total (4)
+        if (scoreCells[1]) scoreCells[1].textContent = awayLineScores[0]?.value || 0;
+        if (scoreCells[2]) scoreCells[2].textContent = awayLineScores[1]?.value || 0;
+        if (scoreCells[3]) scoreCells[3].textContent = awayLineScores[2]?.value || 0;
+        if (scoreCells[4]) scoreCells[4].textContent = parseInt(home.score) || 0;
+        // Home periods (indices 6-8) + total (9)
+        if (scoreCells[6]) scoreCells[6].textContent = homeLineScores[0]?.value || 0;
+        if (scoreCells[7]) scoreCells[7].textContent = homeLineScores[1]?.value || 0;
+        if (scoreCells[8]) scoreCells[8].textContent = homeLineScores[2]?.value || 0;
+        if (scoreCells[9]) scoreCells[9].textContent = homeScore;
+      }
+    }
+
+    function createGameCardElement(game, index) {
+      const comp = game.competitions[0];
+      const home = comp.competitors.find(c => c.homeAway === 'home');
+      const away = comp.competitors.find(c => c.homeAway === 'away');
+
+      const homeScore = parseInt(home.score) || 0;
+      const awayScore = parseInt(away.score) || 0;
+
+      const statusType = comp.status.type.state;
+      const statusName = comp.status.type.name;
+      const isCompleted = comp.status.type.completed;
+
+      // Enhanced live detection
+      const isLive = statusType === 'in' ||
+                     (comp.status.period && comp.status.period > 0 && !isCompleted) ||
+                     statusName.toLowerCase().includes('progress') ||
+                     statusName.toLowerCase().includes('halftime') ||
+                     statusName.toLowerCase().includes('period');
+
+      const isFinal = isCompleted || statusType === 'post';
+      const isPregame = statusType === 'pre';
+
+      // Get team standings
+      const awayRecord = away.records?.[0]?.summary || '';
+      const homeRecord = home.records?.[0]?.summary || '';
+
+      // Get line scores (period by period) - NHL has 3 periods
+      const awayLineScores = away.linescores || [];
+      const homeLineScores = home.linescores || [];
+
+      // Get current period and clock
+      const period = comp.status.period || 1;
+      const clock = comp.status.displayClock || '20:00';
+
+      // Get possession info (puck possession)
+      const possession = comp.situation?.possession || null;
+      const awayHasPossession = possession === away.id;
+      const homeHasPossession = possession === home.id;
+
+      let statusText = '';
+      if (isLive) {
+        statusText = `${period === 1 ? '1st' : period === 2 ? '2nd' : period === 3 ? '3rd' : 'OT'} - ${clock}`;
+      } else if (isFinal) {
+        statusText = 'Final';
+      } else {
+        const gameDate = new Date(game.date);
+        const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        statusText = `${dateStr} • ${timeStr}`;
+      }
+
+      // Determine number of pages
+      // Upcoming: 1 page
+      // Live: 2 pages (live score + period history)
+      // Final: 1 page (final score with period history combined)
+      const numPages = isLive ? 2 : 1;
+
+      // Build the card HTML
+      let cardHtml = `
+        <div class="game-card" data-game-id="${game.id}">
+          <div class="card-slider-container">
+            <div class="card-pages" data-current-page="0">
+      `;
+
+      // PAGE 1
+      if (isPregame) {
+        // Upcoming Game - Page 1 Only
+        cardHtml += `
+          <div class="card-page">
+            <div class="page-1-upcoming">
+              <div style="text-align: center; color: #9ca3af; font-size: 11px; font-weight: 600; margin-bottom: 4px;">
+                ${statusText}
+              </div>
+              <div class="team-display">
+                <div class="team-block">
+                  <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo-large">
+                  <div class="team-name-large">${away.team.shortDisplayName || away.team.displayName}</div>
+                  <div class="team-standing">${awayRecord}</div>
+                </div>
+                <div class="vs-divider">VS</div>
+                <div class="team-block">
+                  <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo-large">
+                  <div class="team-name-large">${home.team.shortDisplayName || home.team.displayName}</div>
+                  <div class="team-standing">${homeRecord}</div>
+                </div>
+              </div>
+            </div>
+          </div>
         `;
-
-        // PAGE 1
-        if (isPregame) {
-          // Upcoming Game - Page 1 Only
-          cardHtml += `
-            <div class="card-page">
-              <div class="page-1-upcoming">
-                <div style="text-align: center; color: #9ca3af; font-size: 11px; font-weight: 600; margin-bottom: 4px;">
+      } else if (isLive || isFinal) {
+        // Live or Final Game - Page 1
+        cardHtml += `
+          <div class="card-page">
+            <div class="page-1-live">
+              <div style="text-align: center; margin-bottom: 8px;">
+                <div style="display: inline-block; background: ${isLive ? '#ef4444' : '#6b7280'}; color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase;">
+                  ${isLive ? '<span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE' : 'FINAL'}
+                </div>
+                <div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">
                   ${statusText}
                 </div>
-                <div class="team-display">
-                  <div class="team-block">
-                    <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo-large">
-                    <div class="team-name-large">${away.team.shortDisplayName || away.team.displayName}</div>
-                    <div class="team-standing">${awayRecord}</div>
+              </div>
+
+              <div class="live-score-header">
+                <div class="team-stack">
+                  <div style="position: relative;">
+                    <img src="${away.team.logo}" alt="${away.team.displayName}" class="live-team-logo">
+                    ${isLive && awayHasPossession ? '<span class="possession-icon">🏒</span>' : ''}
                   </div>
-                  <div class="vs-divider">VS</div>
-                  <div class="team-block">
-                    <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo-large">
-                    <div class="team-name-large">${home.team.shortDisplayName || home.team.displayName}</div>
-                    <div class="team-standing">${homeRecord}</div>
+                  <div class="live-team-name ${awayScore > homeScore ? 'winning' : ''}">${away.team.abbreviation}</div>
+                  <div class="live-team-standing">${awayRecord}</div>
+                </div>
+                <div class="live-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
+                <div class="vs-divider-live">VS</div>
+                <div class="live-team-score ${homeScore > awayScore ? 'winning' : 'losing'}">${homeScore}</div>
+                <div class="team-stack">
+                  <div style="position: relative;">
+                    <img src="${home.team.logo}" alt="${home.team.displayName}" class="live-team-logo">
+                    ${isLive && homeHasPossession ? '<span class="possession-icon">🏒</span>' : ''}
                   </div>
+                  <div class="live-team-name ${homeScore > awayScore ? 'winning' : ''}">${home.team.abbreviation}</div>
+                  <div class="live-team-standing">${homeRecord}</div>
                 </div>
               </div>
-            </div>
-          `;
-        } else if (isLive || isFinal) {
-          // Live or Final Game - Page 1
-          cardHtml += `
-            <div class="card-page">
-              <div class="page-1-live">
-                <div style="text-align: center; margin-bottom: 8px;">
-                  <div style="display: inline-block; background: ${isLive ? '#ef4444' : '#6b7280'}; color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase;">
-                    ${isLive ? '<span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE' : 'FINAL'}
-                  </div>
-                  <div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">
-                    ${statusText}
-                  </div>
-                </div>
 
-                <div class="live-score-header">
-                  <div class="team-stack">
-                    <div style="position: relative;">
-                      <img src="${away.team.logo}" alt="${away.team.displayName}" class="live-team-logo">
-                      ${isLive && awayHasPossession ? '<span class="possession-icon">🏒</span>' : ''}
-                    </div>
-                    <div class="live-team-name ${awayScore > homeScore ? 'winning' : ''}">${away.team.abbreviation}</div>
-                    <div class="live-team-standing">${awayRecord}</div>
-                  </div>
-                  <div class="live-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
-                  <div class="vs-divider-live">VS</div>
-                  <div class="live-team-score ${homeScore > awayScore ? 'winning' : 'losing'}">${homeScore}</div>
-                  <div class="team-stack">
-                    <div style="position: relative;">
-                      <img src="${home.team.logo}" alt="${home.team.displayName}" class="live-team-logo">
-                      ${isLive && homeHasPossession ? '<span class="possession-icon">🏒</span>' : ''}
-                    </div>
-                    <div class="live-team-name ${homeScore > awayScore ? 'winning' : ''}">${home.team.abbreviation}</div>
-                    <div class="live-team-standing">${homeRecord}</div>
-                  </div>
-                </div>
-
-                ${isFinal ? `
-                  <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <div class="scoring-history-title">Scoring by Period</div>
-                    <div class="periods-grid">
-                      <div class="period-header-cell"></div>
-                      <div class="period-header-cell">1</div>
-                      <div class="period-header-cell">2</div>
-                      <div class="period-header-cell">3</div>
-                      <div class="period-header-cell">T</div>
-
-                      <div class="team-label-cell">${away.team.abbreviation}</div>
-                      <div class="score-cell ${awayLineScores[0] ? '' : 'empty'}">${awayLineScores[0]?.value || 0}</div>
-                      <div class="score-cell ${awayLineScores[1] ? '' : 'empty'}">${awayLineScores[1]?.value || 0}</div>
-                      <div class="score-cell ${awayLineScores[2] ? '' : 'empty'}">${awayLineScores[2]?.value || 0}</div>
-                      <div class="score-cell total">${awayScore}</div>
-
-                      <div class="team-label-cell">${home.team.abbreviation}</div>
-                      <div class="score-cell ${homeLineScores[0] ? '' : 'empty'}">${homeLineScores[0]?.value || 0}</div>
-                      <div class="score-cell ${homeLineScores[1] ? '' : 'empty'}">${homeLineScores[1]?.value || 0}</div>
-                      <div class="score-cell ${homeLineScores[2] ? '' : 'empty'}">${homeLineScores[2]?.value || 0}</div>
-                      <div class="score-cell total">${homeScore}</div>
-                    </div>
-                  </div>
-                ` : ''}
-              </div>
-            </div>
-          `;
-
-          // PAGE 2 - Scoring History (ONLY FOR LIVE GAMES)
-          if (isLive) {
-            cardHtml += `
-              <div class="card-page">
-                <div class="page-2-content">
-                  <div class="scoring-history-header">
-                    <img src="${away.team.logo}" alt="${away.team.displayName}" class="scoring-team-logo">
-                    <img src="${home.team.logo}" alt="${home.team.displayName}" class="scoring-team-logo">
-                  </div>
-
+              ${isFinal ? `
+                <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
                   <div class="scoring-history-title">Scoring by Period</div>
-
                   <div class="periods-grid">
                     <div class="period-header-cell"></div>
                     <div class="period-header-cell">1</div>
@@ -3083,30 +3211,66 @@
                     <div class="score-cell total">${homeScore}</div>
                   </div>
                 </div>
-              </div>
-            `;
-          }
-        }
-
-        // Close pages container
-        cardHtml += `
-              </div>
-
-              ${numPages > 1 ? `
-                <div class="page-indicators">
-                  <div class="page-dot active" data-page="0"></div>
-                  <div class="page-dot" data-page="1"></div>
-                </div>
               ` : ''}
             </div>
           </div>
         `;
 
-        container.insertAdjacentHTML('beforeend', cardHtml);
-      });
+        // PAGE 2 - Scoring History (ONLY FOR LIVE GAMES)
+        if (isLive) {
+          cardHtml += `
+            <div class="card-page">
+              <div class="page-2-content">
+                <div class="scoring-history-header">
+                  <img src="${away.team.logo}" alt="${away.team.displayName}" class="scoring-team-logo">
+                  <img src="${home.team.logo}" alt="${home.team.displayName}" class="scoring-team-logo">
+                </div>
 
-      // Add swipe and click handlers
-      initializeCardSliders();
+                <div class="scoring-history-title">Scoring by Period</div>
+
+                <div class="periods-grid">
+                  <div class="period-header-cell"></div>
+                  <div class="period-header-cell">1</div>
+                  <div class="period-header-cell">2</div>
+                  <div class="period-header-cell">3</div>
+                  <div class="period-header-cell">T</div>
+
+                  <div class="team-label-cell">${away.team.abbreviation}</div>
+                  <div class="score-cell ${awayLineScores[0] ? '' : 'empty'}">${awayLineScores[0]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[1] ? '' : 'empty'}">${awayLineScores[1]?.value || 0}</div>
+                  <div class="score-cell ${awayLineScores[2] ? '' : 'empty'}">${awayLineScores[2]?.value || 0}</div>
+                  <div class="score-cell total">${awayScore}</div>
+
+                  <div class="team-label-cell">${home.team.abbreviation}</div>
+                  <div class="score-cell ${homeLineScores[0] ? '' : 'empty'}">${homeLineScores[0]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[1] ? '' : 'empty'}">${homeLineScores[1]?.value || 0}</div>
+                  <div class="score-cell ${homeLineScores[2] ? '' : 'empty'}">${homeLineScores[2]?.value || 0}</div>
+                  <div class="score-cell total">${homeScore}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      // Close pages container
+      cardHtml += `
+            </div>
+
+            ${numPages > 1 ? `
+              <div class="page-indicators">
+                <div class="page-dot active" data-page="0"></div>
+                <div class="page-dot" data-page="1"></div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      // Create element from HTML string
+      const temp = document.createElement('div');
+      temp.innerHTML = cardHtml;
+      return temp.firstElementChild;
     }
 
     function initializeCardSliders() {

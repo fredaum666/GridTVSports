@@ -57,10 +57,10 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// Rate limiting - general API
+// Rate limiting - general API (very high limit for authenticated users)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limit each IP to 1000 requests per windowMs
+  max: 10000, // Limit each IP to 10000 requests per windowMs (allows ~11 hours of 15-second refreshes)
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -102,7 +102,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days (extended from 24 hours)
+    // maxAge removed - session lasts until browser closes (no timeout)
     sameSite: 'lax'
   },
   name: 'gridtv.sid'
@@ -1127,16 +1127,100 @@ const finalGamesStore = {
 
 const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports';
 
-async function fetchESPN(url) {
-  try {
-    const response = await axios.get(url, {
-      timeout: 10000,
-      headers: { 'User-Agent': 'GridTVSports/2.0' }
-    });
-    return response.data;
-  } catch (error) {
-    console.error(`ESPN API Error: ${error.message}`);
-    throw error;
+// ESPN API Metrics Tracking
+const espnMetrics = {
+  totalCalls: 0,
+  successCalls: 0,
+  failedCalls: 0,
+  rateLimitHits: 0,
+  errorsByStatus: {},
+  lastError: null,
+  lastErrorTime: null,
+  startTime: Date.now()
+};
+
+// Enhanced ESPN fetch with retry logic and detailed error handling
+async function fetchESPN(url, retries = 3) {
+  espnMetrics.totalCalls++;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await axios.get(url, {
+        timeout: 10000,
+        headers: { 'User-Agent': 'GridTVSports/2.0' }
+      });
+
+      // Capture rate limit headers (if ESPN provides them)
+      const rateLimitHeaders = {
+        limit: response.headers['x-ratelimit-limit'],
+        remaining: response.headers['x-ratelimit-remaining'],
+        reset: response.headers['x-ratelimit-reset'],
+        retryAfter: response.headers['retry-after']
+      };
+
+      if (rateLimitHeaders.remaining) {
+        console.log(`📊 ESPN Rate Limit: ${rateLimitHeaders.remaining}/${rateLimitHeaders.limit} remaining`);
+      }
+
+      espnMetrics.successCalls++;
+      return response.data;
+
+    } catch (error) {
+      const isLastAttempt = attempt === retries;
+
+      // Enhanced error logging
+      if (error.response) {
+        const status = error.response.status;
+        espnMetrics.errorsByStatus[status] = (espnMetrics.errorsByStatus[status] || 0) + 1;
+
+        console.error(`❌ ESPN API Error ${status} (Attempt ${attempt}/${retries}): ${url}`);
+
+        if (status === 429) {
+          espnMetrics.rateLimitHits++;
+          const retryAfter = error.response.headers['retry-after'] || Math.pow(2, attempt);
+          const waitTime = parseInt(retryAfter) * 1000;
+
+          console.error(`⏳ Rate limited! Waiting ${waitTime}ms before retry...`);
+          console.error(`Rate limit headers:`, error.response.headers);
+
+          if (!isLastAttempt) {
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue; // Retry
+          }
+        } else if (status === 404) {
+          console.error(`🔍 404 Not Found - Check if endpoint/parameters are valid`);
+          console.error(`URL: ${url}`);
+        }
+
+        // Log response data for debugging
+        if (error.response.data) {
+          console.error(`Response data:`, error.response.data);
+        }
+      } else if (error.request) {
+        console.error(`❌ ESPN API No Response (Attempt ${attempt}/${retries}): ${url}`);
+        console.error(`Network error:`, error.message);
+      } else {
+        console.error(`❌ ESPN API Request Error (Attempt ${attempt}/${retries}):`, error.message);
+      }
+
+      // Store last error for monitoring
+      espnMetrics.lastError = {
+        url,
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      };
+      espnMetrics.lastErrorTime = new Date();
+
+      if (isLastAttempt) {
+        espnMetrics.failedCalls++;
+        throw error;
+      }
+
+      // Wait before retry (exponential backoff)
+      const waitTime = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Max 5s
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
   }
 }
 
@@ -1150,9 +1234,9 @@ function getCurrentNFLWeek() {
   const now = new Date();
   const diffDays = Math.floor((now - seasonStart) / (1000 * 60 * 60 * 24));
   const week = Math.floor(diffDays / 7) + 1;
-  
+
   console.log(`📅 NFL Week Calculation: Days since season start = ${diffDays}, Calculated week = ${week}`);
-  
+
   // Return week 1-18
   return Math.max(1, Math.min(week, 18));
 }
@@ -1975,6 +2059,110 @@ app.delete('/api/final-games/clear/:sport', (req, res) => {
   }
 });
 
+// ============================================
+// HEALTH & MONITORING ENDPOINTS
+// ============================================
+
+// ESPN API Health Monitor
+app.get('/api/health/espn', (req, res) => {
+  const uptime = Date.now() - espnMetrics.startTime;
+  const uptimeHours = (uptime / (1000 * 60 * 60)).toFixed(2);
+
+  const successRate = espnMetrics.totalCalls > 0
+    ? ((espnMetrics.successCalls / espnMetrics.totalCalls) * 100).toFixed(2)
+    : 100;
+
+  const health = {
+    status: successRate > 95 ? 'healthy' : successRate > 80 ? 'degraded' : 'unhealthy',
+    uptime: `${uptimeHours} hours`,
+    uptimeMs: uptime,
+    metrics: {
+      totalCalls: espnMetrics.totalCalls,
+      successCalls: espnMetrics.successCalls,
+      failedCalls: espnMetrics.failedCalls,
+      successRate: `${successRate}%`,
+      rateLimitHits: espnMetrics.rateLimitHits,
+      errorsByStatus: espnMetrics.errorsByStatus
+    },
+    cache: {
+      nfl: {
+        activeWeeks: Array.from(sportsCache.nfl.activeWeeks),
+        cachedWeeks: sportsCache.nfl.data.size
+      },
+      ncaa: {
+        activeWeeks: Array.from(sportsCache.ncaa.activeWeeks),
+        cachedWeeks: sportsCache.ncaa.data.size
+      },
+      nba: {
+        activeDates: Array.from(sportsCache.nba.activeDates),
+        cachedDates: sportsCache.nba.data.size
+      },
+      ncaab: {
+        activeDates: Array.from(sportsCache.ncaab.activeDates),
+        cachedDates: sportsCache.ncaab.data.size
+      },
+      mlb: {
+        activeDates: Array.from(sportsCache.mlb.activeDates),
+        cachedDates: sportsCache.mlb.data.size
+      },
+      nhl: {
+        activeDates: Array.from(sportsCache.nhl.activeDates),
+        cachedDates: sportsCache.nhl.data.size
+      }
+    },
+    lastError: espnMetrics.lastError ? {
+      ...espnMetrics.lastError,
+      occurredAt: espnMetrics.lastErrorTime
+    } : null
+  };
+
+  res.json(health);
+});
+
+// Overall System Health
+app.get('/api/health', async (req, res) => {
+  try {
+    // Check database connection
+    const dbResult = await pool.query('SELECT NOW()');
+    const dbHealthy = dbResult.rows.length > 0;
+
+    // Check ESPN API health
+    const espnSuccessRate = espnMetrics.totalCalls > 0
+      ? ((espnMetrics.successCalls / espnMetrics.totalCalls) * 100)
+      : 100;
+
+    const overallStatus =
+      dbHealthy && espnSuccessRate > 95 ? 'healthy' :
+      dbHealthy && espnSuccessRate > 80 ? 'degraded' : 'unhealthy';
+
+    res.json({
+      status: overallStatus,
+      timestamp: new Date(),
+      components: {
+        database: dbHealthy ? 'healthy' : 'unhealthy',
+        espnAPI: espnSuccessRate > 95 ? 'healthy' : espnSuccessRate > 80 ? 'degraded' : 'unhealthy',
+        cache: 'healthy'
+      },
+      metrics: {
+        espnAPISuccessRate: `${espnSuccessRate.toFixed(2)}%`,
+        espnAPICalls: espnMetrics.totalCalls,
+        activeSports: [
+          sportsCache.nfl.activeWeeks.size > 0 ? 'NFL' : null,
+          sportsCache.ncaa.activeWeeks.size > 0 ? 'NCAA' : null,
+          sportsCache.nba.activeDates.size > 0 ? 'NBA' : null,
+          sportsCache.ncaab.activeDates.size > 0 ? 'NCAAB' : null,
+          sportsCache.mlb.activeDates.size > 0 ? 'MLB' : null,
+          sportsCache.nhl.activeDates.size > 0 ? 'NHL' : null
+        ].filter(Boolean)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'unhealthy',
+      error: error.message
+    });
+  }
+});
 
 
 // ============================================
