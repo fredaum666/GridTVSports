@@ -1522,6 +1522,231 @@
       text-shadow: 0 0 20px #f97316;
     }
 
+    /* Missed Field Goal / Missed Extra Point Animation - Red with YFrame and ball missing */
+    .play-animation.missed-kick .play-animation-text {
+      color: #ef4444;
+      text-shadow: 0 0 20px #ef4444;
+    }
+
+    .missed-kick-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: clamp(10px, 2vmin, 20px);
+      width: 100%;
+      max-width: clamp(120px, 30vmin, 300px);
+      height: clamp(100px, 25vmin, 250px);
+    }
+
+    .yframe-image-missed {
+      width: clamp(60px, 15vmin, 150px);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 10px #ef4444);
+    }
+
+    .missed-football {
+      position: absolute;
+      font-size: clamp(2rem, 5vmin, 4rem);
+      bottom: 20%;
+      left: 50%;
+      animation: missedBallFly 1.2s ease-out forwards;
+      filter: drop-shadow(0 0 10px #ef4444);
+    }
+
+    @keyframes missedBallFly {
+      0% {
+        transform: translateX(-50%) translateY(0) rotate(0deg) scale(0.8);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(30%) translateY(-80%) rotate(360deg) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(100%) translateY(-120%) rotate(720deg) scale(0.6);
+        opacity: 0;
+      }
+    }
+
+    /* Punt Animation - Yellow/Orange with ball arcing across screen */
+    .play-animation.punt .play-animation-text {
+      color: #f59e0b;
+      text-shadow: 0 0 20px #f59e0b;
+    }
+
+    .punt-container {
+      position: relative;
+      width: 100%;
+      height: clamp(100px, 25vmin, 250px);
+      margin-bottom: clamp(10px, 2vmin, 20px);
+      overflow: visible;
+    }
+
+    .punt-ball {
+      position: absolute;
+      font-size: clamp(2rem, 5vmin, 4rem);
+      left: 0;
+      bottom: 20%;
+      animation: puntBallFly 1.5s ease-in-out forwards;
+      filter: drop-shadow(0 0 15px #f59e0b) drop-shadow(0 0 30px #f59e0b);
+    }
+
+    @keyframes puntBallFly {
+      0% {
+        transform: translateX(0) translateY(0) rotate(0deg);
+        left: 10%;
+        bottom: 20%;
+        opacity: 0;
+      }
+      5% {
+        opacity: 1;
+      }
+      25% {
+        transform: translateX(20%) translateY(-120%) rotate(180deg);
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(40%) translateY(-180%) rotate(360deg);
+        opacity: 1;
+      }
+      75% {
+        transform: translateX(70%) translateY(-120%) rotate(540deg);
+        opacity: 1;
+      }
+      95% {
+        transform: translateX(85%) translateY(0) rotate(720deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(90%) translateY(10%) rotate(720deg);
+        left: auto;
+        right: 10%;
+        opacity: 0.8;
+      }
+    }
+
+    /* Penalty Flag Animation - Yellow with referee throwing */
+    .play-animation.penalty {
+      background: rgba(234, 179, 8, 0.15) !important;
+    }
+
+    .play-animation.penalty .play-animation-text {
+      color: #fbbf24;
+      font-size: clamp(2rem, 6vh, 6rem) !important;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+      animation: playTextSlide 0.8s ease-out, flagPulse 1.5s ease-in-out infinite 0.8s;
+      letter-spacing: clamp(3px, 1vh, 10px);
+    }
+
+    .penalty-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin-bottom: clamp(10px, 2vmin, 20px);
+    }
+
+    .referee-throwing {
+      width: clamp(100px, 25vmin, 250px);
+      height: auto;
+      object-fit: contain;
+      margin-bottom: clamp(10px, 2vmin, 20px);
+      animation: refereeThrow 0.8s ease-out;
+      filter: drop-shadow(0 0 20px #fbbf24);
+    }
+
+    @keyframes refereeThrow {
+      0% {
+        transform: scale(0.5) translateY(50px);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.1) translateY(-10px);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes flagPulse {
+      0%, 100% {
+        text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+        transform: scale(1);
+      }
+      50% {
+        text-shadow: 0 0 40px #fbbf24, 0 0 80px #fbbf24, 0 0 100px #fbbf24;
+        transform: scale(1.05);
+      }
+    }
+
+    .penalty-info-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(8px, 1.5vmin, 15px);
+      background: rgba(251, 191, 36, 0.2);
+      border: 2px solid #fbbf24;
+      border-radius: clamp(8px, 1.5vmin, 15px);
+      padding: clamp(12px, 2vmin, 20px);
+      margin-top: clamp(10px, 2vmin, 20px);
+      max-width: 90%;
+    }
+
+    .penalty-team-logo {
+      width: clamp(50px, 12vmin, 100px);
+      height: clamp(50px, 12vmin, 100px);
+      object-fit: contain;
+      animation: penaltyLogoEntry 0.6s ease-out 0.5s backwards;
+      filter: drop-shadow(0 0 10px #fbbf24);
+    }
+
+    @keyframes penaltyLogoEntry {
+      0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    .penalty-type {
+      font-size: clamp(1.2rem, 3vmin, 2.5rem);
+      font-weight: 800;
+      color: #fbbf24;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: clamp(1px, 0.2vmin, 2px);
+      animation: playTextSlide 0.8s ease-out 0.6s backwards;
+    }
+
+    .penalty-on {
+      font-size: clamp(1rem, 2.5vmin, 2rem);
+      font-weight: 700;
+      color: #fde68a;
+      text-align: center;
+      animation: playTextSlide 0.8s ease-out 0.7s backwards;
+    }
+
+    .penalty-player {
+      font-size: clamp(1.1rem, 2.7vmin, 2.2rem);
+      font-weight: 800;
+      color: #ffffff;
+      text-align: center;
+      animation: playTextSlide 0.8s ease-out 0.8s backwards;
+    }
+
     @keyframes fadeOut {
       0% { opacity: 1; }
       70% { opacity: 1; }
@@ -6247,6 +6472,46 @@
           <div class="play-animation-text">${playText}</div>
           ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
         `;
+      } else if (playType === 'missed-kick') {
+        // Special HTML for missed field goal/XP with YFrame and ball missing
+        animationDiv.innerHTML = `
+          <div class="missed-kick-container">
+            <img src="/assets/YFrame.png" alt="Goal Post" class="yframe-image-missed" onerror="this.style.display='none';">
+            <div class="missed-football">🏈</div>
+          </div>
+          <div class="play-animation-text">${playText}</div>
+          ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+        `;
+      } else if (playType === 'punt') {
+        // Special HTML for punt with ball flying across screen
+        animationDiv.innerHTML = `
+          <div class="punt-container">
+            <div class="punt-ball">🏈</div>
+          </div>
+          <div class="play-animation-text">${playText}</div>
+          ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+        `;
+      } else if (playType === 'penalty') {
+        // Special HTML for penalty with referee throwing and penalty details
+        // recoveryInfo contains: penaltyName|offenseDefense|playerName|teamLogo
+        const penaltyParts = recoveryInfo ? recoveryInfo.split('|') : ['', '', '', ''];
+        const penaltyName = penaltyParts[0] || 'PENALTY';
+        const offenseDefense = penaltyParts[1] || '';
+        const playerName = penaltyParts[2] || '';
+        const teamLogoUrl = penaltyParts[3] || '';
+
+        animationDiv.innerHTML = `
+          <div class="penalty-container">
+            <img src="/assets/NFLrefereethrowingBlur.png" alt="Referee" class="referee-throwing" onerror="this.style.display='none';">
+          </div>
+          <div class="play-animation-text">FLAG!</div>
+          <div class="penalty-info-box">
+            ${teamLogoUrl ? `<img src="${teamLogoUrl}" alt="Team" class="penalty-team-logo">` : ''}
+            <div class="penalty-type">${penaltyName}</div>
+            ${offenseDefense ? `<div class="penalty-on">${offenseDefense}</div>` : ''}
+            ${playerName ? `<div class="penalty-player">${playerName}</div>` : ''}
+          </div>
+        `;
       } else {
         animationDiv.innerHTML = `
           <div class="play-animation-icon">${icon}</div>
@@ -6439,6 +6704,129 @@
             }
           }
 
+          // Check for missed field goals and extra points from play description
+          const lowerLastPlay = lastPlay.toLowerCase();
+
+          // Missed Field Goal detection
+          if ((lowerLastPlay.includes('field goal') &&
+               (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
+                lowerLastPlay.includes('wide') || lowerLastPlay.includes('short'))) ||
+              (lowerLastPlay.includes('fg') &&
+               (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good')))) {
+            if (!card.dataset.lastMissedFG || card.dataset.lastMissedFG !== lastPlay) {
+              console.log('🚫 MISSED FIELD GOAL detected:', lastPlay);
+              showPlayAnimation(card, 'missed-kick', 'MISSED FIELD GOAL!');
+              card.dataset.lastMissedFG = lastPlay;
+            }
+          }
+          // Missed Extra Point detection
+          else if ((lowerLastPlay.includes('extra point') || lowerLastPlay.includes('pat')) &&
+                   (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
+                    lowerLastPlay.includes('failed'))) {
+            if (!card.dataset.lastMissedXP || card.dataset.lastMissedXP !== lastPlay) {
+              console.log('🚫 MISSED EXTRA POINT detected:', lastPlay);
+              showPlayAnimation(card, 'missed-kick', 'MISSED EXTRA POINT!');
+              card.dataset.lastMissedXP = lastPlay;
+            }
+          }
+          // Punt detection
+          else if (lowerLastPlay.includes('punt') && !lowerLastPlay.includes('fake')) {
+            if (!card.dataset.lastPunt || card.dataset.lastPunt !== lastPlay) {
+              console.log('🦶 PUNT detected:', lastPlay);
+              showPlayAnimation(card, 'punt', 'PUNT!');
+              card.dataset.lastPunt = lastPlay;
+            }
+          }
+
+          // Penalty detection
+          if ((lowerLastPlay.includes('penalty') || lowerLastPlay.includes('flag')) &&
+              !lowerLastPlay.includes('no flags') && !lowerLastPlay.includes('declined')) {
+            if (!card.dataset.lastPenalty || card.dataset.lastPenalty !== lastPlay) {
+              console.log('🚩 PENALTY detected:', lastPlay);
+
+              // Parse penalty information
+              let penaltyName = 'PENALTY';
+              let offenseDefense = '';
+              let playerName = '';
+              let teamLogo = '';
+
+              // Common penalty patterns
+              const penaltyPatterns = [
+                'holding', 'false start', 'offsides', 'pass interference',
+                'roughing the passer', 'roughing the kicker', 'facemask',
+                'unnecessary roughness', 'unsportsmanlike conduct', 'delay of game',
+                'illegal formation', 'illegal motion', 'illegal shift', 'encroachment',
+                'neutral zone infraction', 'intentional grounding', 'illegal contact',
+                'defensive holding', 'offensive holding', 'personal foul',
+                'illegal use of hands', 'illegal block', 'clipping', 'chop block',
+                'horse collar', 'taunting', 'illegal substitution', 'too many men',
+                'illegal touching', 'ineligible receiver', 'illegal forward pass'
+              ];
+
+              // Find penalty name
+              for (const penalty of penaltyPatterns) {
+                if (lowerLastPlay.includes(penalty)) {
+                  penaltyName = penalty.split(' ').map(w =>
+                    w.charAt(0).toUpperCase() + w.slice(1)
+                  ).join(' ');
+                  break;
+                }
+              }
+
+              // Determine offense or defense
+              if (lowerLastPlay.includes('offense') || lowerLastPlay.includes('offensive')) {
+                offenseDefense = 'OFFENSE';
+              } else if (lowerLastPlay.includes('defense') || lowerLastPlay.includes('defensive')) {
+                offenseDefense = 'DEFENSE';
+              } else {
+                // Try to infer from penalty type
+                const offensivePenalties = ['false start', 'illegal motion', 'illegal shift',
+                                            'offensive holding', 'illegal formation', 'delay of game',
+                                            'intentional grounding', 'ineligible receiver'];
+                const defensivePenalties = ['offsides', 'encroachment', 'neutral zone infraction',
+                                            'defensive holding', 'pass interference', 'roughing'];
+
+                if (offensivePenalties.some(p => lowerLastPlay.includes(p))) {
+                  offenseDefense = 'OFFENSE';
+                } else if (defensivePenalties.some(p => lowerLastPlay.includes(p))) {
+                  offenseDefense = 'DEFENSE';
+                }
+              }
+
+              // Extract player name (usually after "on" or "by")
+              const onMatch = lastPlay.match(/(?:on|by)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/);
+              if (onMatch && onMatch[1]) {
+                playerName = onMatch[1];
+              }
+
+              // Determine which team committed the penalty
+              const awayAbbr = awayTeam?.team?.abbreviation?.toLowerCase() || '';
+              const homeAbbr = homeTeam?.team?.abbreviation?.toLowerCase() || '';
+              const awayName = awayTeam?.team?.shortDisplayName?.toLowerCase() || '';
+              const homeName = homeTeam?.team?.shortDisplayName?.toLowerCase() || '';
+
+              if (lowerLastPlay.includes(awayAbbr) || lowerLastPlay.includes(awayName)) {
+                teamLogo = awayTeam?.team?.logo || '';
+              } else if (lowerLastPlay.includes(homeAbbr) || lowerLastPlay.includes(homeName)) {
+                teamLogo = homeTeam?.team?.logo || '';
+              } else {
+                // If can't determine from play text, use possession
+                const possession = comp?.situation?.possession;
+                if (possession === awayTeam?.id) {
+                  teamLogo = awayTeam?.team?.logo || '';
+                } else if (possession === homeTeam?.id) {
+                  teamLogo = homeTeam?.team?.logo || '';
+                }
+              }
+
+              // Format penalty info as pipe-delimited string
+              const penaltyInfo = `${penaltyName}|${offenseDefense}|${playerName}|${teamLogo}`;
+
+              showPlayAnimation(card, 'penalty', 'FLAG!', '', penaltyInfo);
+              card.dataset.lastPenalty = lastPlay;
+            }
+          }
+
           // Check for 1st down - when down changes to 1 from 2, 3, or 4
           const currentDown = comp?.situation?.down;
           const prevDown = parseInt(card.dataset.prevDown) || 0;
@@ -6447,12 +6835,17 @@
           // - Current down is 1
           // - Previous down was 2, 3, or 4 (not 0 or 1)
           // - No score change (to avoid showing after touchdowns)
-          // - Not showing other animations (interception/fumble)
+          // - Not showing other animations (interception/fumble/missed kicks/punt/penalty)
           if (currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
               awayScoreChange === 0 && homeScoreChange === 0 &&
-              !lastPlay.toLowerCase().includes('interception') &&
-              !lastPlay.toLowerCase().includes('intercepted') &&
-              !lastPlay.toLowerCase().includes('fumble')) {
+              !lowerLastPlay.includes('interception') &&
+              !lowerLastPlay.includes('intercepted') &&
+              !lowerLastPlay.includes('fumble') &&
+              !lowerLastPlay.includes('punt') &&
+              !lowerLastPlay.includes('penalty') &&
+              !lowerLastPlay.includes('flag') &&
+              !(lowerLastPlay.includes('field goal') && (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good'))) &&
+              !(lowerLastPlay.includes('extra point') && (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good')))) {
             // Check if we already showed this 1st down
             const downDistanceText = comp?.situation?.downDistanceText || '';
             if (card.dataset.lastFirstDown !== downDistanceText) {
