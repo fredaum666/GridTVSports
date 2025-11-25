@@ -1287,7 +1287,7 @@
       background: rgba(0, 0, 0, 0.85);
       z-index: 100;
       pointer-events: none;
-      animation: fadeOut 3s forwards;
+      animation: fadeOut 4s forwards;
     }
 
     .play-animation-icon {
@@ -1749,7 +1749,7 @@
 
     @keyframes fadeOut {
       0% { opacity: 1; }
-      70% { opacity: 1; }
+      75% { opacity: 1; }
       100% { opacity: 0; }
     }
 
@@ -6524,10 +6524,10 @@
       card.style.position = 'relative';
       card.appendChild(animationDiv);
 
-      // Remove after animation completes (5 seconds)
+      // Remove after animation completes (4 seconds)
       setTimeout(() => {
         animationDiv.remove();
-      }, 5000);
+      }, 4000);
     }
 
     // Update full screen scores
