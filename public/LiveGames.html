@@ -255,6 +255,26 @@
       font-weight: 700;
     }
 
+    /* Locked grid option styles */
+    .layout-options label.locked {
+      opacity: 0.5;
+      position: relative;
+      cursor: not-allowed;
+    }
+
+    .layout-options label.locked::after {
+      content: '🔒';
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+    }
+
+    .layout-options label.locked input {
+      cursor: not-allowed;
+    }
+
     /* Grid Preview - Matches NFL modal */
     .grid-preview {
       margin-bottom: 16px;
@@ -2456,22 +2476,22 @@
 
     <!-- Layout Options -->
     <div class="layout-options">
-      <label>
+      <label data-grid="1">
         <input type="radio" name="layout" value="1"> 1 Game
       </label>
-      <label>
+      <label data-grid="2">
         <input type="radio" name="layout" value="2"> 2 Games
       </label>
-      <label>
+      <label data-grid="3">
         <input type="radio" name="layout" value="3"> 3 Games
       </label>
-      <label>
+      <label data-grid="4">
         <input type="radio" name="layout" value="4" checked> 4 Games
       </label>
-      <label>
+      <label data-grid="6">
         <input type="radio" name="layout" value="6"> 6 Games
       </label>
-      <label>
+      <label data-grid="8">
         <input type="radio" name="layout" value="8"> 8 Games
       </label>
     </div>
@@ -3880,7 +3900,54 @@
     }
 
     // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check access permissions and apply grid locks
+      try {
+        const accessResponse = await fetch('/api/subscription/access');
+        if (accessResponse.ok) {
+          const accessData = await accessResponse.json();
+          console.log('Grid access permissions:', accessData);
+
+          // Get all grid option labels
+          const gridLabels = document.querySelectorAll('.layout-options label[data-grid]');
+
+          gridLabels.forEach(label => {
+            const gridValue = parseInt(label.getAttribute('data-grid'));
+            const input = label.querySelector('input');
+
+            // Check if this grid option is allowed
+            if (!accessData.allowedGrids || !accessData.allowedGrids.includes(gridValue)) {
+              // Lock this grid option
+              label.classList.add('locked');
+              input.disabled = true;
+
+              // Prevent selection and redirect to pricing
+              label.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = '/pricing';
+              });
+            }
+          });
+
+          // If current selection is locked, switch to first available grid
+          if (accessData.allowedGrids && accessData.allowedGrids.length > 0) {
+            const checkedInput = document.querySelector('input[name="layout"]:checked');
+            if (checkedInput && checkedInput.disabled) {
+              // Select first allowed grid
+              const firstAllowed = accessData.allowedGrids[0];
+              const firstAllowedInput = document.querySelector(`input[name="layout"][value="${firstAllowed}"]`);
+              if (firstAllowedInput) {
+                firstAllowedInput.checked = true;
+                firstAllowedInput.dispatchEvent(new Event('change'));
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load grid access permissions:', error);
+      }
+
       // Check if we're in presentation mode (TV display)
       const isPresentationMode = checkPresentationMode();
       

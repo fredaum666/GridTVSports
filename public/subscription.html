@@ -334,6 +334,21 @@
 
     async function loadSubscription() {
       try {
+        // First, sync with Stripe to get the latest cancellation status
+        try {
+          await fetch('/api/subscription/sync', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          console.log('✅ Synced with Stripe');
+        } catch (syncError) {
+          console.warn('⚠️  Sync failed, will use cached data:', syncError);
+          // Continue anyway - we'll use the cached data from database
+        }
+
+        // Now fetch the subscription status (which should be updated from sync)
         const response = await fetch('/api/subscription/status');
 
         if (!response.ok) {
@@ -366,8 +381,13 @@
       let statusText = 'Trial';
 
       if (data.status === 'active') {
-        statusClass = 'active';
-        statusText = 'Active';
+        if (data.cancelAtPeriodEnd) {
+          statusClass = 'canceled';
+          statusText = 'Canceling';
+        } else {
+          statusClass = 'active';
+          statusText = 'Active';
+        }
       } else if (data.status === 'expired') {
         statusClass = 'expired';
         statusText = 'Expired';
@@ -380,10 +400,16 @@
       }
 
       let endDate = '';
+      let endDateLabel = '';
       if (data.status === 'trial') {
         endDate = formatDate(data.trialEndsAt);
+        endDateLabel = 'Trial Ends';
+      } else if (data.cancelAtPeriodEnd && data.subscriptionEndsAt) {
+        endDate = formatDate(data.subscriptionEndsAt);
+        endDateLabel = 'Cancels On';
       } else if (data.subscriptionEndsAt) {
         endDate = formatDate(data.subscriptionEndsAt);
+        endDateLabel = 'Renews On';
       }
 
       let planName = data.plan ? data.plan.charAt(0).toUpperCase() + data.plan.slice(1) : 'None';
@@ -409,7 +435,7 @@
               <div class="value ${data.plan ? 'highlight' : ''}">${planName}</div>
             </div>
             <div class="detail-item">
-              <label>${data.status === 'trial' ? 'Trial Ends' : 'Renews On'}</label>
+              <label>${endDateLabel || (data.status === 'trial' ? 'Trial Ends' : 'Renews On')}</label>
               <div class="value">${endDate || 'N/A'}</div>
             </div>
             <div class="detail-item">

@@ -745,24 +745,103 @@
     }
 
     @media (max-width: 600px) {
+      body {
+        padding-top: 70px; /* Make room for user menu */
+      }
+
       .user-menu {
         top: 10px;
         right: 10px;
+        gap: 8px; /* Reduce gap between items */
+        flex-wrap: wrap; /* Allow wrapping if needed */
+        max-width: calc(100% - 20px); /* Prevent overflow */
+      }
+
+      .user-info {
+        order: 2; /* Move user info to end */
       }
 
       .user-info span {
         display: none;
       }
 
-      .logout-btn {
-        padding: 8px 12px;
+      .user-avatar {
+        width: 30px;
+        height: 30px;
         font-size: 12px;
+      }
+
+      .logout-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+        order: 3; /* Move logout to end */
       }
 
       .subscription-badge {
         padding: 4px 8px;
         font-size: 10px;
+        order: 1; /* Keep badge first */
       }
+
+      .header h1 {
+        font-size: 32px; /* Smaller title on mobile */
+      }
+
+      .header p {
+        font-size: 14px; /* Smaller subtitle on mobile */
+      }
+    }
+
+    /* Locked card styles */
+    .sport-card.locked {
+      opacity: 0.6;
+      position: relative;
+    }
+
+    .sport-card.locked::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+      border-radius: 20px;
+      pointer-events: none;
+    }
+
+    .lock-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .lock-icon {
+      font-size: 48px;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    }
+
+    .lock-text {
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    .sport-card.locked:hover {
+      transform: translateY(-2px);
+      cursor: pointer;
     }
   </style>
   <link rel="stylesheet" href="/styles/themes.css">
@@ -801,7 +880,7 @@
 
     <!-- Professional Leagues Row -->
     <div class="sports-grid">
-      <a href="/nfl" class="sport-card nfl">
+      <a href="/nfl" class="sport-card nfl" data-league="nfl">
         <img src="/assets/NFL-logo.png" alt="NFL Logo" class="sport-logo">
         <div class="sport-name">NFL</div>
         <!-- <div class="sport-description">
@@ -813,7 +892,7 @@
         </div> -->
       </a>
 
-      <a href="/nba" class="sport-card nba">
+      <a href="/nba" class="sport-card nba" data-league="nba">
         <img src="/assets/NBA-Logo.png" alt="NBA Logo" class="sport-logo">
         <div class="sport-name">NBA</div>
         <!-- <div class="sport-description">
@@ -825,7 +904,7 @@
         </div> -->
       </a>
 
-      <a href="/mlb" class="sport-card mlb">
+      <a href="/mlb" class="sport-card mlb" data-league="mlb">
         <img src="/assets/MLB-Logo.png" alt="MLB Logo" class="sport-logo">
         <div class="sport-name">MLB</div>
         <!-- <div class="sport-description">
@@ -837,7 +916,7 @@
         </div> -->
       </a>
 
-      <a href="/nhl" class="sport-card nhl">
+      <a href="/nhl" class="sport-card nhl" data-league="nhl">
         <img src="/assets/NHL-Logo.png" alt="NHL Logo" class="sport-logo">
         <div class="sport-name">NHL</div>
         <!-- <div class="sport-description">
@@ -852,7 +931,7 @@
 
     <!-- College Leagues Row -->
     <div class="sports-grid">
-      <a href="/ncaa" class="sport-card ncaa">
+      <a href="/ncaa" class="sport-card ncaa" data-league="ncaa">
         <img src="/assets/NCAA logo.png" alt="NCAA Logo" class="sport-logo">
         <div class="sport-name">College Football</div>
         <!-- <div class="sport-description">
@@ -864,7 +943,7 @@
         </div> -->
       </a>
 
-      <a href="/ncaab" class="sport-card ncaab">
+      <a href="/ncaab" class="sport-card ncaab" data-league="ncaab">
         <img src="/assets/ncaa-basketball.png" alt="College Basketball Logo" class="sport-logo">
         <div class="sport-name">College Basketball</div>
       </a>
@@ -993,6 +1072,45 @@
           console.error('Logout failed:', error);
         }
       });
+
+      // Check access permissions and apply locks
+      try {
+        const accessResponse = await fetch('/api/subscription/access');
+        if (accessResponse.ok) {
+          const accessData = await accessResponse.json();
+          console.log('Access permissions:', accessData);
+
+          // Get all sport cards with data-league attribute
+          const sportCards = document.querySelectorAll('.sport-card[data-league]');
+
+          sportCards.forEach(card => {
+            const league = card.getAttribute('data-league');
+
+            // Check if this league is locked
+            if (accessData.lockedLeagues && accessData.lockedLeagues.includes(league)) {
+              // Add locked class
+              card.classList.add('locked');
+
+              // Create lock overlay
+              const lockOverlay = document.createElement('div');
+              lockOverlay.className = 'lock-overlay';
+              lockOverlay.innerHTML = `
+                <div class="lock-icon">🔒</div>
+                <div class="lock-text">Subscribe to Unlock</div>
+              `;
+              card.appendChild(lockOverlay);
+
+              // Prevent default navigation and redirect to pricing
+              card.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = '/pricing';
+              });
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load access permissions:', error);
+      }
     })();
   </script>
 </body>

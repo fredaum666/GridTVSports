@@ -79,6 +79,292 @@ app.use(cors({
   origin: process.env.NODE_ENV === 'production' ? process.env.ALLOWED_ORIGIN : true,
   credentials: true
 }));
+
+// ============================================
+// STRIPE WEBHOOK (MUST BE BEFORE express.json())
+// ============================================
+// Stripe webhook needs raw body for signature verification
+// This MUST be defined before app.use(express.json()) to access raw body
+app.post('/api/webhook/stripe',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    if (!stripe) {
+      return res.status(503).json({ error: 'Stripe not configured' });
+    }
+
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object;
+        console.log('💳 Webhook received: checkout.session.completed');
+        // Note: Subscription creation is handled by customer.subscription.created event
+        break;
+      }
+
+      case 'customer.subscription.created': {
+        const subscription = event.data.object;
+        console.log('🆕 Webhook received: customer.subscription.created');
+        console.log('🔍 Full subscription object:', JSON.stringify(subscription, null, 2));
+
+        try {
+          // Get user from customer ID
+          const userResult = await pool.query(
+            'SELECT id FROM users WHERE stripe_customer_id = $1',
+            [subscription.customer]
+          );
+
+          if (userResult.rows.length === 0) {
+            console.error('❌ User not found for customer:', subscription.customer);
+            return res.status(404).send('User not found');
+          }
+
+          const userId = userResult.rows[0].id;
+
+          // Period dates are in the subscription items, not at the top level
+          const subscriptionItem = subscription.items.data[0];
+          const periodEnd = subscriptionItem.current_period_end;
+          const periodStart = subscriptionItem.current_period_start;
+          const planType = subscriptionItem.price.recurring.interval;
+
+          console.log('📋 Subscription details:', {
+            id: subscription.id,
+            status: subscription.status,
+            current_period_end: periodEnd,
+            current_period_start: periodStart,
+            interval: planType
+          });
+
+          // Validate subscription data
+          if (!periodEnd || !periodStart) {
+            console.error('❌ Invalid subscription data - missing period dates');
+            return res.status(500).send('Invalid subscription data');
+          }
+
+          const periodEndDate = new Date(periodEnd * 1000);
+          const periodStartDate = new Date(periodStart * 1000);
+
+          // Update user subscription status
+          await pool.query(`
+            UPDATE users
+            SET subscription_status = 'active',
+                subscription_plan = $1,
+                subscription_ends_at = $2
+            WHERE id = $3
+          `, [
+            planType,
+            periodEndDate,
+            userId
+          ]);
+
+          // Create subscription record
+          await pool.query(`
+            INSERT INTO subscriptions (
+              user_id,
+              stripe_subscription_id,
+              plan_type,
+              status,
+              current_period_start,
+              current_period_end
+            ) VALUES ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT (stripe_subscription_id)
+            DO UPDATE SET
+              status = EXCLUDED.status,
+              current_period_end = EXCLUDED.current_period_end
+          `, [
+            userId,
+            subscription.id,
+            planType,
+            subscription.status,
+            periodStartDate,
+            periodEndDate
+          ]);
+
+          console.log(`✅ Subscription created for user ${userId} - ${planType} plan`);
+        } catch (error) {
+          console.error('❌ Error handling customer.subscription.created:', error);
+          return res.status(500).send('Internal server error');
+        }
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object;
+        console.log('🔄 Webhook received: customer.subscription.updated');
+        console.log('🔍 Subscription cancel_at_period_end:', subscription.cancel_at_period_end);
+        console.log('🔍 Subscription cancel_at:', subscription.cancel_at);
+        console.log('🔍 Subscription status:', subscription.status);
+
+        try {
+          // Period dates are in the subscription items, not at the top level
+          const subscriptionItem = subscription.items?.data?.[0];
+          const periodEnd = subscriptionItem?.current_period_end;
+
+          // Check if subscription is set to cancel (either method)
+          const isCanceling = subscription.cancel_at_period_end || subscription.cancel_at !== null;
+
+          // Update subscription record
+          await pool.query(`
+            UPDATE subscriptions
+            SET status = $1,
+                current_period_end = $2,
+                cancel_at_period_end = $3
+            WHERE stripe_subscription_id = $4
+          `, [
+            subscription.status,
+            periodEnd ? new Date(periodEnd * 1000) : null,
+            isCanceling,
+            subscription.id
+          ]);
+
+          console.log('✅ Updated subscription with cancel_at_period_end =', isCanceling);
+
+          // Update user subscription status
+          await pool.query(`
+            UPDATE users
+            SET subscription_status = $1,
+                subscription_ends_at = $2
+            WHERE stripe_customer_id = $3
+          `, [
+            subscription.status,
+            periodEnd ? new Date(periodEnd * 1000) : null,
+            subscription.customer
+          ]);
+
+          console.log('✅ Subscription updated:', subscription.id);
+        } catch (error) {
+          console.error('❌ Error handling customer.subscription.updated:', error);
+          return res.status(500).send('Internal server error');
+        }
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object;
+        console.log('❌ Webhook received: customer.subscription.deleted');
+
+        try {
+          // Update subscription record
+          await pool.query(`
+            UPDATE subscriptions
+            SET status = 'canceled'
+            WHERE stripe_subscription_id = $1
+          `, [subscription.id]);
+
+          // Update user subscription status
+          await pool.query(`
+            UPDATE users
+            SET subscription_status = 'canceled'
+            WHERE stripe_customer_id = $1
+          `, [subscription.customer]);
+
+          console.log('✅ Subscription canceled:', subscription.id);
+        } catch (error) {
+          console.error('❌ Error handling customer.subscription.deleted:', error);
+          return res.status(500).send('Internal server error');
+        }
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object;
+        console.log('💰 Webhook received: invoice.payment_succeeded');
+
+        try {
+          // Get user from customer ID
+          const userResult = await pool.query(
+            'SELECT id FROM users WHERE stripe_customer_id = $1',
+            [invoice.customer]
+          );
+
+          if (userResult.rows.length > 0) {
+            const userId = userResult.rows[0].id;
+
+            // Record payment
+            await pool.query(`
+              INSERT INTO payment_history (
+                user_id,
+                stripe_payment_id,
+                amount,
+                status
+              ) VALUES ($1, $2, $3, $4)
+            `, [
+              userId,
+              invoice.payment_intent,
+              invoice.amount_paid,
+              'succeeded'
+            ]);
+
+            console.log('✅ Payment recorded for user', userId);
+          }
+        } catch (error) {
+          console.error('❌ Error handling invoice.payment_succeeded:', error);
+          return res.status(500).send('Internal server error');
+        }
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object;
+        console.log('⚠️ Webhook received: invoice.payment_failed');
+
+        try {
+          // Get user from customer ID
+          const userResult = await pool.query(
+            'SELECT id FROM users WHERE stripe_customer_id = $1',
+            [invoice.customer]
+          );
+
+          if (userResult.rows.length > 0) {
+            const userId = userResult.rows[0].id;
+
+            // Record failed payment
+            await pool.query(`
+              INSERT INTO payment_history (
+                user_id,
+                stripe_payment_id,
+                amount,
+                status
+              ) VALUES ($1, $2, $3, $4)
+            `, [
+              userId,
+              invoice.payment_intent,
+              invoice.amount_due,
+              'failed'
+            ]);
+
+            console.log('⚠️ Failed payment recorded for user', userId);
+          }
+        } catch (error) {
+          console.error('❌ Error handling invoice.payment_failed:', error);
+          return res.status(500).send('Internal server error');
+        }
+        break;
+      }
+
+      default:
+        console.log(`ℹ️ Unhandled event type: ${event.type}`);
+    }
+
+    // Return 200 OK to acknowledge receipt
+    res.json({ received: true });
+  }
+);
+
+// Now apply JSON parsing for all other routes
 app.use(express.json({ charset: 'utf-8' }));
 app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
 
@@ -389,6 +675,20 @@ app.get('/api/subscription/status', async (req, res) => {
     const user = result.rows[0];
     const now = new Date();
 
+    // Check if subscription is set to cancel
+    let cancelAtPeriodEnd = false;
+    if (user.subscription_status === 'active') {
+      const subResult = await pool.query(
+        `SELECT cancel_at_period_end FROM subscriptions
+         WHERE user_id = $1 AND status = 'active'
+         ORDER BY created_at DESC LIMIT 1`,
+        [req.session.userId]
+      );
+      if (subResult.rows.length > 0) {
+        cancelAtPeriodEnd = subResult.rows[0].cancel_at_period_end;
+      }
+    }
+
     // Calculate days remaining
     let daysRemaining = 0;
     let isActive = false;
@@ -407,18 +707,89 @@ app.get('/api/subscription/status', async (req, res) => {
       }
     }
 
-    res.json({
+    const responseData = {
       status: user.subscription_status,
       plan: user.subscription_plan,
       trialEndsAt: user.trial_ends_at,
       subscriptionEndsAt: user.subscription_ends_at,
       daysRemaining,
       isActive,
-      hasStripeCustomer: !!user.stripe_customer_id
-    });
+      hasStripeCustomer: !!user.stripe_customer_id,
+      cancelAtPeriodEnd
+    };
+
+    console.log('📊 Subscription status response:', JSON.stringify(responseData, null, 2));
+
+    res.json(responseData);
   } catch (error) {
     console.error('Error fetching subscription status:', error);
     res.status(500).json({ error: 'Failed to fetch subscription status' });
+  }
+});
+
+// Get user access permissions based on subscription
+app.get('/api/subscription/access', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT subscription_status, subscription_plan, trial_ends_at, subscription_ends_at
+       FROM users WHERE id = $1`,
+      [req.session.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+    const now = new Date();
+
+    let hasAccess = false;
+    let isTrial = false;
+    let allowedLeagues = [];
+    let allowedGrids = [];
+    let lockedLeagues = [];
+
+    // Check if user has active trial
+    if (user.subscription_status === 'trial' && user.trial_ends_at) {
+      const trialEnd = new Date(user.trial_ends_at);
+      if (trialEnd > now) {
+        hasAccess = true;
+        isTrial = true;
+        // Trial users: only NFL and NBA, max 2 grids
+        allowedLeagues = ['nfl', 'nba'];
+        allowedGrids = [1, 2];
+        lockedLeagues = ['mlb', 'nhl', 'ncaa'];
+      }
+    }
+
+    // Check if user has active paid subscription
+    if (user.subscription_status === 'active' && user.subscription_ends_at) {
+      const subEnd = new Date(user.subscription_ends_at);
+      if (subEnd > now) {
+        hasAccess = true;
+        isTrial = false;
+        // Paid users: full access to everything
+        allowedLeagues = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab'];
+        allowedGrids = [1, 2, 3, 4, 6, 8];
+        lockedLeagues = [];
+      }
+    }
+
+    res.json({
+      hasAccess,
+      isTrial,
+      isPaid: hasAccess && !isTrial,
+      allowedLeagues,
+      allowedGrids,
+      lockedLeagues
+    });
+  } catch (error) {
+    console.error('Error fetching access permissions:', error);
+    res.status(500).json({ error: 'Failed to fetch access permissions' });
   }
 });
 
@@ -429,7 +800,7 @@ app.get('/api/subscription/plans', (req, res) => {
       {
         id: 'monthly',
         name: 'Monthly',
-        price: 9.99,
+        price: 7.99,
         priceId: process.env.STRIPE_MONTHLY_PRICE_ID,
         interval: 'month',
         features: [
@@ -442,16 +813,16 @@ app.get('/api/subscription/plans', (req, res) => {
       {
         id: 'yearly',
         name: 'Yearly',
-        price: 99.99,
+        price: 76.70,
         priceId: process.env.STRIPE_YEARLY_PRICE_ID,
         interval: 'year',
-        savings: '17%',
+        savings: '20%',
         features: [
           'All live sports games',
           'NFL, NBA, MLB, NHL coverage',
           'College sports included',
           'Real-time score updates',
-          '2 months free!'
+          'Save 20% annually!'
         ]
       }
     ]
@@ -572,217 +943,75 @@ app.get('/api/subscription/config', (req, res) => {
   });
 });
 
-// ============================================
-// STRIPE WEBHOOK HANDLER
-// ============================================
-
-// Note: Webhook needs raw body, so we handle it before JSON parsing
-app.post('/api/webhook/stripe',
-  express.raw({ type: 'application/json' }),
-  async (req, res) => {
-    if (!stripe) {
-      return res.status(503).json({ error: 'Stripe not configured' });
-    }
-
-    const sig = req.headers['stripe-signature'];
-    let event;
-
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET
-      );
-    } catch (err) {
-      console.error('Webhook signature verification failed:', err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    // Handle the event
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object;
-        const userId = session.metadata?.userId;
-        const planId = session.metadata?.planId;
-
-        if (userId) {
-          try {
-            // Get subscription details
-            const subscription = await stripe.subscriptions.retrieve(session.subscription);
-
-            await pool.query(
-              `UPDATE users SET
-                subscription_status = 'active',
-                subscription_plan = $1,
-                subscription_ends_at = to_timestamp($2)
-               WHERE id = $3`,
-              [planId, subscription.current_period_end, userId]
-            );
-
-            // Save subscription to subscriptions table
-            await pool.query(
-              `INSERT INTO subscriptions
-                (user_id, stripe_subscription_id, stripe_price_id, plan_type, status, current_period_start, current_period_end)
-               VALUES ($1, $2, $3, $4, 'active', to_timestamp($5), to_timestamp($6))
-               ON CONFLICT (stripe_subscription_id) DO UPDATE SET
-                status = 'active',
-                current_period_start = to_timestamp($5),
-                current_period_end = to_timestamp($6),
-                updated_at = NOW()`,
-              [userId, subscription.id, subscription.items.data[0].price.id, planId,
-               subscription.current_period_start, subscription.current_period_end]
-            );
-
-            console.log(`✅ Subscription activated for user ${userId} (${planId})`);
-          } catch (error) {
-            console.error('Error updating subscription:', error);
-          }
-        }
-        break;
-      }
-
-      case 'customer.subscription.updated': {
-        const subscription = event.data.object;
-
-        try {
-          // Find user by Stripe customer ID
-          const userResult = await pool.query(
-            'SELECT id FROM users WHERE stripe_customer_id = $1',
-            [subscription.customer]
-          );
-
-          if (userResult.rows.length > 0) {
-            const userId = userResult.rows[0].id;
-            const status = subscription.status === 'active' ? 'active' :
-                          subscription.status === 'canceled' ? 'canceled' :
-                          subscription.status;
-
-            await pool.query(
-              `UPDATE users SET
-                subscription_status = $1,
-                subscription_ends_at = to_timestamp($2)
-               WHERE id = $3`,
-              [status, subscription.current_period_end, userId]
-            );
-
-            // Update subscriptions table
-            await pool.query(
-              `UPDATE subscriptions SET
-                status = $1,
-                current_period_end = to_timestamp($2),
-                cancel_at_period_end = $3,
-                updated_at = NOW()
-               WHERE stripe_subscription_id = $4`,
-              [status, subscription.current_period_end, subscription.cancel_at_period_end, subscription.id]
-            );
-
-            console.log(`📝 Subscription updated for user ${userId}: ${status}`);
-          }
-        } catch (error) {
-          console.error('Error handling subscription update:', error);
-        }
-        break;
-      }
-
-      case 'customer.subscription.deleted': {
-        const subscription = event.data.object;
-
-        try {
-          const userResult = await pool.query(
-            'SELECT id FROM users WHERE stripe_customer_id = $1',
-            [subscription.customer]
-          );
-
-          if (userResult.rows.length > 0) {
-            const userId = userResult.rows[0].id;
-
-            await pool.query(
-              `UPDATE users SET
-                subscription_status = 'expired',
-                subscription_plan = NULL
-               WHERE id = $1`,
-              [userId]
-            );
-
-            await pool.query(
-              `UPDATE subscriptions SET
-                status = 'canceled',
-                canceled_at = NOW(),
-                updated_at = NOW()
-               WHERE stripe_subscription_id = $1`,
-              [subscription.id]
-            );
-
-            console.log(`❌ Subscription canceled for user ${userId}`);
-          }
-        } catch (error) {
-          console.error('Error handling subscription deletion:', error);
-        }
-        break;
-      }
-
-      case 'invoice.paid': {
-        const invoice = event.data.object;
-
-        try {
-          const userResult = await pool.query(
-            'SELECT id FROM users WHERE stripe_customer_id = $1',
-            [invoice.customer]
-          );
-
-          if (userResult.rows.length > 0) {
-            await pool.query(
-              `INSERT INTO payment_history
-                (user_id, stripe_payment_id, stripe_invoice_id, amount, currency, status, description)
-               VALUES ($1, $2, $3, $4, $5, 'succeeded', $6)`,
-              [userResult.rows[0].id, invoice.payment_intent, invoice.id,
-               invoice.amount_paid, invoice.currency, invoice.lines?.data[0]?.description]
-            );
-          }
-        } catch (error) {
-          console.error('Error recording payment:', error);
-        }
-        break;
-      }
-
-      case 'invoice.payment_failed': {
-        const invoice = event.data.object;
-
-        try {
-          const userResult = await pool.query(
-            'SELECT id FROM users WHERE stripe_customer_id = $1',
-            [invoice.customer]
-          );
-
-          if (userResult.rows.length > 0) {
-            await pool.query(
-              `UPDATE users SET subscription_status = 'past_due' WHERE id = $1`,
-              [userResult.rows[0].id]
-            );
-
-            await pool.query(
-              `INSERT INTO payment_history
-                (user_id, stripe_invoice_id, amount, currency, status, description)
-               VALUES ($1, $2, $3, $4, 'failed', $5)`,
-              [userResult.rows[0].id, invoice.id, invoice.amount_due,
-               invoice.currency, 'Payment failed']
-            );
-
-            console.log(`⚠️ Payment failed for user ${userResult.rows[0].id}`);
-          }
-        } catch (error) {
-          console.error('Error handling failed payment:', error);
-        }
-        break;
-      }
-
-      default:
-        console.log(`Unhandled webhook event type: ${event.type}`);
-    }
-
-    res.json({ received: true });
+// Sync subscription status from Stripe (bypass webhooks)
+app.post('/api/subscription/sync', async (req, res) => {
+  if (!stripe) {
+    return res.status(503).json({ error: 'Payment system not configured' });
   }
-);
+
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    console.log('🔄 Syncing subscription status from Stripe...');
+
+    // Get user's Stripe customer ID
+    const userResult = await pool.query(
+      'SELECT stripe_customer_id FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+
+    if (userResult.rows.length === 0 || !userResult.rows[0].stripe_customer_id) {
+      return res.status(404).json({ error: 'No Stripe customer found' });
+    }
+
+    const customerId = userResult.rows[0].stripe_customer_id;
+    console.log('👤 Customer ID:', customerId);
+
+    // Get active subscriptions from Stripe
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customerId,
+      status: 'active',
+      limit: 1
+    });
+
+    if (subscriptions.data.length === 0) {
+      console.log('❌ No active subscriptions found in Stripe');
+      return res.json({
+        synced: false,
+        message: 'No active subscriptions found'
+      });
+    }
+
+    const sub = subscriptions.data[0];
+    console.log('✅ Found subscription:', sub.id);
+    console.log('🔍 Stripe cancel_at_period_end:', sub.cancel_at_period_end);
+    console.log('🔍 Stripe cancel_at:', sub.cancel_at);
+
+    // Check if subscription is set to cancel (either method)
+    const isCanceling = sub.cancel_at_period_end || sub.cancel_at !== null;
+
+    // Update database with REAL Stripe data
+    await pool.query(
+      `UPDATE subscriptions
+       SET cancel_at_period_end = $1
+       WHERE stripe_subscription_id = $2`,
+      [isCanceling, sub.id]
+    );
+
+    console.log('✅ Database updated with cancel_at_period_end =', isCanceling);
+
+    res.json({
+      synced: true,
+      cancel_at_period_end: isCanceling,
+      subscription_id: sub.id
+    });
+  } catch (error) {
+    console.error('❌ Sync error:', error);
+    res.status(500).json({ error: 'Sync failed: ' + error.message });
+  }
+});
 
 // ============================================
 // ADMIN MIDDLEWARE
@@ -1083,10 +1312,82 @@ app.get('/*.html', (req, res) => {
   res.redirect(301, cleanPath);
 });
 
-// Clean URL routes for league pages (protected by middleware above)
-pageRoutes.forEach(route => {
-  app.get(`/${route}`, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', `${route}.html`));
+// Access control middleware for protected league pages
+async function checkLeagueAccess(req, res, next) {
+  const league = req.params.league;
+
+  if (!req.session || !req.session.userId) {
+    return res.redirect('/login');
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT subscription_status, trial_ends_at, subscription_ends_at
+       FROM users WHERE id = $1`,
+      [req.session.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.redirect('/login');
+    }
+
+    const user = result.rows[0];
+    const now = new Date();
+    let allowedLeagues = [];
+
+    // Check trial access
+    if (user.subscription_status === 'trial' && user.trial_ends_at) {
+      const trialEnd = new Date(user.trial_ends_at);
+      if (trialEnd > now) {
+        allowedLeagues = ['nfl', 'nba'];
+      }
+    }
+
+    // Check paid subscription access
+    if (user.subscription_status === 'active' && user.subscription_ends_at) {
+      const subEnd = new Date(user.subscription_ends_at);
+      if (subEnd > now) {
+        allowedLeagues = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab'];
+      }
+    }
+
+    // Check if user has access to this league
+    if (allowedLeagues.includes(league)) {
+      next();
+    } else {
+      res.redirect('/pricing');
+    }
+  } catch (error) {
+    console.error('Error checking league access:', error);
+    res.redirect('/pricing');
+  }
+}
+
+// Clean URL routes for league pages
+// Protected leagues (trial users: locked, paid users: unlocked)
+const protectedLeagues = ['mlb', 'nhl', 'ncaa', 'ncaab'];
+protectedLeagues.forEach(league => {
+  app.get(`/${league}`, (req, res, next) => {
+    req.params.league = league;
+    checkLeagueAccess(req, res, next);
+  }, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', `${league}.html`));
+  });
+});
+
+// Open leagues (accessible to both trial and paid users)
+const openLeagues = ['nfl', 'nba'];
+openLeagues.forEach(league => {
+  app.get(`/${league}`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', `${league}.html`));
+  });
+});
+
+// Other pages (no access control)
+const otherPages = ['LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin'];
+otherPages.forEach(page => {
+  app.get(`/${page}`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', `${page}.html`));
   });
 });
 
