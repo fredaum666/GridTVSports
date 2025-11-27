@@ -378,6 +378,9 @@ app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
 // SESSION CONFIGURATION
 // ============================================
 
+// Trust first proxy (required for secure cookies behind Azure/load balancer)
+app.set('trust proxy', 1);
+
 const sessionSecret = process.env.SESSION_SECRET || 'gridtv-sports-secret-change-in-production';
 
 app.use(session({
