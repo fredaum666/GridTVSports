@@ -4090,21 +4090,31 @@
             
             // Game is live if status state is 'in' OR if not completed/final and has started playing (period > 0)
             const isLive = statusState === 'in' || (comp.status.period > 0 && !isCompleted && !isFinal);
-            
-            // Game is upcoming if it's scheduled (pre)
+
+            // Game is upcoming if it's scheduled (pre) or any other non-live/non-final state
             const isUpcoming = statusState === 'pre';
             const gameTime = new Date(game.date);
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
-            const isWithin36Hours = hoursUntilGame >= 0 && hoursUntilGame <= 36;
-            
-            // Categorize the game
+            const isWithin36Hours = hoursUntilGame <= 36; // Allow negative values (game time passed but not live yet)
+
+            // Game is "about to start" - scheduled time passed but not live yet (transitioning state)
+            const isAboutToStart = !isLive && !isFinal && !isUpcoming && hoursUntilGame <= 0 && hoursUntilGame >= -2;
+
+            // Categorize the game - ensure no games fall through the cracks
             if (isLive) {
               liveGamesList.push(game);
+            } else if (isAboutToStart) {
+              // Games that should have started but API hasn't marked as live yet
+              // Show them at the top of upcoming (they'll transition to live soon)
+              upcomingGamesList.unshift(game);
             } else if (isUpcoming && isWithin36Hours) {
               upcomingGamesList.push(game);
             } else if (isFinal || isCompleted) {
               finalGamesList.push(game);
+            } else if (!isFinal && !isCompleted && isWithin36Hours) {
+              // Catch-all for games in unknown status but within time window
+              upcomingGamesList.push(game);
             }
           });
 
@@ -4185,12 +4195,24 @@
                        (comp.status.period && comp.status.period > 0 && !isCompleted);
         const isPregame = statusType === 'pre';
 
+        // Check for games about to start (time passed but not live yet)
+        const gameTime = new Date(game.date);
+        const now = new Date();
+        const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
+        const isAboutToStart = !isLive && !isFinal && !isPregame && hoursUntilGame <= 0 && hoursUntilGame >= -2;
+
         if (isLive) {
           liveGamesList.push({ game, index });
+        } else if (isAboutToStart) {
+          // Games about to start go to front of upcoming
+          upcomingGamesList.unshift({ game, index });
         } else if (isPregame) {
           upcomingGamesList.push({ game, index });
         } else if (isFinal) {
           finalGamesList.push({ game, index });
+        } else if (!isFinal && !isCompleted) {
+          // Catch-all for unknown status - treat as upcoming
+          upcomingGamesList.push({ game, index });
         }
       });
 

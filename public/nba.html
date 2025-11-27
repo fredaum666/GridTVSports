@@ -2742,15 +2742,24 @@
             const gameTime = new Date(game.date);
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
-            const isWithin36Hours = hoursUntilGame >= 0 && hoursUntilGame <= 36;
-            
-            // Categorize the game
+            const isWithin36Hours = hoursUntilGame <= 36; // Allow negative values (game time passed but not live yet)
+
+            // Game is "about to start" - scheduled time passed but not live yet (transitioning state)
+            const isAboutToStart = !isLive && !isFinal && !isUpcoming && hoursUntilGame <= 0 && hoursUntilGame >= -2;
+
+            // Categorize the game - ensure no games fall through the cracks
             if (isLive) {
               liveGamesList.push(game);
+            } else if (isAboutToStart) {
+              // Games that should have started but API hasn't marked as live yet
+              upcomingGamesList.unshift(game);
             } else if (isUpcoming && isWithin36Hours) {
               upcomingGamesList.push(game);
             } else if (isFinal || isCompleted) {
               finalGamesList.push(game);
+            } else if (!isFinal && !isCompleted && isWithin36Hours) {
+              // Catch-all for games in unknown status but within time window
+              upcomingGamesList.push(game);
             }
           });
 

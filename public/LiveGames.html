@@ -1152,13 +1152,14 @@
       right: clamp(4px, 1vmin, 8px);
     }
 
+    /* Scrimmage Line (dark blue) - where the ball is */
     .ball-indicator {
       position: absolute;
       top: clamp(-6px, -1.5vmin, -10px);
       bottom: clamp(-6px, -1.5vmin, -10px);
-      width: clamp(2px, 0.5vmin, 4px);
-      background: linear-gradient(to bottom, #fbbf24, #f59e0b);
-      box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(251, 191, 36, 0.8), 0 0 clamp(2px, 0.8vmin, 6px) rgba(251, 191, 36, 0.6);
+      width: clamp(3px, 0.6vmin, 5px);
+      background: linear-gradient(to bottom, #1e40af, #1e3a8a);
+      box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(30, 64, 175, 0.8), 0 0 clamp(2px, 0.8vmin, 6px) rgba(30, 64, 175, 0.6);
       transition: left 0.6s ease-out;
       z-index: 10;
       border-radius: clamp(1px, 0.3vmin, 3px);
@@ -1172,6 +1173,19 @@
       transform: translate(-50%, -50%);
       font-size: clamp(12px, 2.5vmin, 20px);
       filter: drop-shadow(0 clamp(1px, 0.5vmin, 3px) clamp(2px, 1vmin, 5px) rgba(0, 0, 0, 0.8));
+    }
+
+    /* First Down Line (yellow) - where they need to reach */
+    .first-down-line {
+      position: absolute;
+      top: clamp(-6px, -1.5vmin, -10px);
+      bottom: clamp(-6px, -1.5vmin, -10px);
+      width: clamp(3px, 0.6vmin, 5px);
+      background: linear-gradient(to bottom, #fbbf24, #f59e0b);
+      box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(251, 191, 36, 0.8), 0 0 clamp(2px, 0.8vmin, 6px) rgba(251, 191, 36, 0.6);
+      transition: left 0.6s ease-out;
+      z-index: 9;
+      border-radius: clamp(1px, 0.3vmin, 3px);
     }
 
     /* Timeout Indicators */
@@ -1442,6 +1456,81 @@
       color: #f97316;
       text-shadow: 0 0 20px #f97316;
       animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+    }
+
+    /* Sack Animation - Purple/Red */
+    .play-animation.nfl-sack .play-animation-text,
+    .play-animation.ncaa-sack .play-animation-text {
+      color: #a855f7;
+      text-shadow: 0 0 20px #a855f7, 0 0 40px #ef4444;
+    }
+
+    .sack-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: clamp(10px, 2vmin, 20px);
+    }
+
+    .sack-icon {
+      font-size: clamp(4rem, 18vmin, 10rem);
+      animation: sackImpact 0.6s ease-out, sackShake 0.5s ease-in-out 0.6s;
+      filter: drop-shadow(0 0 20px #a855f7) drop-shadow(0 0 40px #ef4444);
+    }
+
+    .sack-stars {
+      position: absolute;
+      font-size: clamp(1.5rem, 4vmin, 3rem);
+      animation: sackStars 1s ease-out forwards;
+      opacity: 0;
+    }
+
+    .sack-stars.star-1 { top: 10%; left: 20%; animation-delay: 0.3s; }
+    .sack-stars.star-2 { top: 5%; right: 25%; animation-delay: 0.4s; }
+    .sack-stars.star-3 { top: 20%; left: 10%; animation-delay: 0.5s; }
+    .sack-stars.star-4 { top: 15%; right: 15%; animation-delay: 0.6s; }
+
+    @keyframes sackImpact {
+      0% {
+        transform: scale(0) translateY(-100px);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.4) translateY(10px);
+        opacity: 1;
+      }
+      80% {
+        transform: scale(0.9) translateY(-5px);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes sackShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px) rotate(-3deg); }
+      40% { transform: translateX(10px) rotate(3deg); }
+      60% { transform: translateX(-5px) rotate(-1deg); }
+      80% { transform: translateX(5px) rotate(1deg); }
+    }
+
+    @keyframes sackStars {
+      0% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2) rotate(180deg);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(360deg) translateY(-20px);
+      }
     }
 
     /* ==================================================
@@ -3035,8 +3124,8 @@
       const homeScore = parseInt(homeTeam?.score || 0);
       
       const statusState = comp?.status?.type?.state;
-      const isLive = statusState === 'in';
       const isFinal = statusState === 'post';
+      const isLive = (statusState === 'in' || comp?.status?.period > 0) && !isFinal;
       const isUpcoming = statusState === 'pre' && !isFinal;
       
       // Get team records
@@ -3047,11 +3136,16 @@
       const possession = comp?.situation?.possession;
       const downDistanceText = comp?.situation?.downDistanceText || '';
       const fieldPosition = comp?.situation?.possessionText || '';
+      const yardsToGo = comp?.situation?.distance || 0;
       const awayHasBall = possession === awayTeam?.id;
       const homeHasBall = possession === homeTeam?.id;
 
       // Calculate ball position for field visualizer
       const ballPositionYard = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
+
+      // Calculate first down line position (ball position + yards to go)
+      // First down line should be yardsToGo ahead of the ball (toward the opponent's endzone)
+      const firstDownPosition = Math.min(100, ballPositionYard + yardsToGo);
 
       // Get timeout information - ESPN API provides this in the situation object for NFL/NCAA
       // NBA: ESPN API doesn't provide real-time timeout counts, so we default to 7 (NBA teams get 7 timeouts per game)
@@ -3214,6 +3308,7 @@
                       <div class="yard-marker endzone"><span class="yard-label">0</span></div>
                     </div>
                     <div class="ball-indicator" style="left: ${ballPositionYard}%"></div>
+                    ${yardsToGo > 0 ? `<div class="first-down-line" style="left: ${firstDownPosition}%"></div>` : ''}
                   </div>
                 </div>
               ` : ''}
@@ -3295,9 +3390,60 @@
     // SPORT ANIMATIONS
     // ============================================
 
+    // Extract touchdown scorer name from play text
+    function extractTouchdownScorer(playText) {
+      if (!playText) return '';
+
+      console.log('Extracting scorer from play text:', playText);
+
+      // Common patterns for touchdown plays:
+      // "J.Smith pass complete to M.Jones for 15 yards, TOUCHDOWN"
+      // "D.Henry rush for 5 yards, TOUCHDOWN"
+      // "P.Mahomes 15 yard pass to T.Kelce, TOUCHDOWN"
+      // "(5:23) J.Tucker 15 yard rush TOUCHDOWN"
+
+      // Pattern 1: "pass to [Player Name]" or "pass complete to [Player Name]" - receiver scores
+      let match = playText.match(/pass(?:\s+complete)?\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+      if (match) {
+        console.log('Matched pattern 1 (pass to):', match[1]);
+        return match[1].trim();
+      }
+
+      // Pattern 2: "yard pass to [Player Name]" - receiver scores
+      match = playText.match(/yard\s+pass\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+      if (match) {
+        console.log('Matched pattern 2 (yard pass to):', match[1]);
+        return match[1].trim();
+      }
+
+      // Pattern 3: "[Player Name] rush" or "[Player Name] run" - rusher scores
+      match = playText.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+\d+\s+yard\s+(?:rush|run)/i);
+      if (match) {
+        console.log('Matched pattern 3 (rush/run with yards):', match[1]);
+        return match[1].trim();
+      }
+
+      // Pattern 4: "caught by [Player Name]"
+      match = playText.match(/caught\s+by\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+      if (match) {
+        console.log('Matched pattern 4 (caught by):', match[1]);
+        return match[1].trim();
+      }
+
+      // Pattern 5: Look for name at beginning after timestamp like "(5:23) J.Name"
+      match = playText.match(/^\([^)]+\)\s+([A-Z][a-z]*\.[A-Z][A-Za-z'-]+)/);
+      if (match) {
+        console.log('Matched pattern 5 (after timestamp):', match[1]);
+        return match[1].trim();
+      }
+
+      console.log('No scorer pattern matched');
+      return '';
+    }
+
     // Show play animation on game card
-    function showPlayAnimation(card, sport, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '') {
-      console.log(`🎭 showPlayAnimation called:`, { sport, playType, playText, teamName, cardExists: !!card });
+    function showPlayAnimation(card, sport, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', scorerName = '') {
+      console.log(`🎭 showPlayAnimation called:`, { sport, playType, playText, teamName, scorerName, cardExists: !!card });
 
       // Remove any existing animation
       const existingAnimation = card.querySelector('.play-animation');
@@ -3328,8 +3474,11 @@
         case 'nfl-fumble':
           icon = '💨';
           break;
+        case 'nfl-sack':
+          icon = '💥';
+          break;
 
-        // NCAA (same as NFL + first-down)
+        // NCAA (same as NFL + first-down + sack)
         case 'ncaa-touchdown':
           icon = '🏈';
           break;
@@ -3344,6 +3493,9 @@
           break;
         case 'ncaa-first-down':
           icon = '🏃';
+          break;
+        case 'ncaa-sack':
+          icon = '💥';
           break;
 
         // NBA
@@ -3382,12 +3534,34 @@
         recoveryHTML = `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>`;
       }
 
-      animationDiv.innerHTML = `
-        <div class="play-animation-icon">${icon}</div>
-        <div class="play-animation-text">${playText}</div>
-        ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
-        ${recoveryHTML}
-      `;
+      // Special HTML for sack with impact effect and stars
+      if (playType === 'sack') {
+        animationDiv.innerHTML = `
+          <div class="sack-container">
+            <div class="sack-icon">💥</div>
+            <span class="sack-stars star-1">⭐</span>
+            <span class="sack-stars star-2">⭐</span>
+            <span class="sack-stars star-3">💫</span>
+            <span class="sack-stars star-4">💫</span>
+          </div>
+          <div class="play-animation-text">${playText}</div>
+          ${scorerName ? `<div class="play-animation-subtext">${scorerName}</div>` : ''}
+        `;
+      } else if (playType === 'touchdown') {
+        // Touchdown with scorer name
+        animationDiv.innerHTML = `
+          <div class="play-animation-icon">${icon}</div>
+          <div class="play-animation-text">${playText}</div>
+          ${scorerName ? `<div class="play-animation-subtext">${scorerName}</div>` : (teamName ? `<div class="play-animation-subtext">${teamName}</div>` : '')}
+        `;
+      } else {
+        animationDiv.innerHTML = `
+          <div class="play-animation-icon">${icon}</div>
+          <div class="play-animation-text">${playText}</div>
+          ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+          ${recoveryHTML}
+        `;
+      }
 
       card.style.position = 'relative';
       card.appendChild(animationDiv);
@@ -3418,31 +3592,36 @@
       const awayTeamName = awayTeam?.team?.shortDisplayName || 'Away';
       const homeTeamName = homeTeam?.team?.shortDisplayName || 'Home';
 
+      // Get last play text for touchdown scorer extraction
+      const lastPlayText = comp?.situation?.lastPlay?.text || '';
+
       console.log(`🔍 Score check for ${sport} (${awayTeamName} @ ${homeTeamName}):`, {
         status: statusDetail,
         state: statusState,
         isLive: statusState === 'in',
         awayScore, prevAwayScore, awayScoreChange,
-        homeScore, prevHomeScore, homeScoreChange
+        homeScore, prevHomeScore, homeScoreChange,
+        lastPlayText
       });
 
       // Detect which team scored and how much
       if (awayScoreChange > 0) {
         const teamName = awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'Away';
         console.log(`🎯 Away team scored! ${teamName} +${awayScoreChange}`);
-        detectPlayType(card, sport, awayScoreChange, teamName);
+        detectPlayType(card, sport, awayScoreChange, teamName, lastPlayText);
       } else if (homeScoreChange > 0) {
         const teamName = homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'Home';
         console.log(`🎯 Home team scored! ${teamName} +${homeScoreChange}`);
-        detectPlayType(card, sport, homeScoreChange, teamName);
+        detectPlayType(card, sport, homeScoreChange, teamName, lastPlayText);
       }
     }
 
     // Determine play type based on sport and point change
-    function detectPlayType(card, sport, pointChange, teamName) {
+    function detectPlayType(card, sport, pointChange, teamName, lastPlayText = '') {
       let playType, playText;
+      let scorerName = '';
 
-      console.log(`🎬 detectPlayType called:`, { sport, pointChange, teamName });
+      console.log(`🎬 detectPlayType called:`, { sport, pointChange, teamName, lastPlayText });
 
       switch(sport) {
         case 'nfl':
@@ -3450,9 +3629,11 @@
           if (pointChange === 6) {
             playType = 'touchdown';
             playText = 'TOUCHDOWN!';
+            scorerName = extractTouchdownScorer(lastPlayText);
           } else if (pointChange === 7 || pointChange === 8) {
             playType = 'touchdown';
             playText = pointChange === 7 ? 'TOUCHDOWN! +PAT' : 'TOUCHDOWN! +2PT';
+            scorerName = extractTouchdownScorer(lastPlayText);
           } else if (pointChange === 3) {
             playType = 'field-goal';
             playText = 'FIELD GOAL!';
@@ -3504,7 +3685,7 @@
           playText = `+${pointChange}!`;
       }
 
-      showPlayAnimation(card, sport, playType, playText, teamName);
+      showPlayAnimation(card, sport, playType, playText, teamName, '', '', scorerName);
     }
 
     // ============================================
@@ -3536,6 +3717,7 @@
           previousPlays[gameId] = {
             lastInterception: card.dataset.lastInterception || '',
             lastFumble: card.dataset.lastFumble || '',
+            lastSack: card.dataset.lastSack || '',
             prevDown: card.dataset.prevDown || '0'
           };
         }
@@ -3561,6 +3743,7 @@
           if (previousPlays[gameId]) {
             card.dataset.lastInterception = previousPlays[gameId].lastInterception;
             card.dataset.lastFumble = previousPlays[gameId].lastFumble;
+            card.dataset.lastSack = previousPlays[gameId].lastSack;
             card.dataset.prevDown = previousPlays[gameId].prevDown || '0';
           }
 
@@ -3598,6 +3781,12 @@
                 }
                 showPlayAnimation(card, game.sport, 'fumble', 'FUMBLE!', '', '', recoveryLogo);
                 card.dataset.lastFumble = lastPlay;
+              }
+            } else if (lastPlay.toLowerCase().includes('sack') || lastPlay.toLowerCase().includes('sacked')) {
+              // Sack detection
+              if (!card.dataset.lastSack || card.dataset.lastSack !== lastPlay) {
+                showPlayAnimation(card, game.sport, 'sack', 'SACK!');
+                card.dataset.lastSack = lastPlay;
               }
             }
 
@@ -3710,12 +3899,11 @@
           resetCastButton();
         });
 
-        // Wait for connection to stabilize, then send initial state
-        // Increased delay to give TV more time to load the page
+        // Wait a moment for connection to stabilize, then send initial state
         setTimeout(() => {
-          console.log('📤 Sending initial state to TV after delay...');
+          console.log('📤 Sending initial state to TV...');
           sendStateToPresentationDisplay();
-        }, 2000); // 2 second delay
+        }, 500); // 500ms delay (restored from old working version)
 
       } catch (error) {
         console.error('Error starting presentation:', error);
@@ -3759,7 +3947,7 @@
         // Not casting, skip
         return;
       }
-      
+
       if (presentationConnection.state !== 'connected') {
         console.log('⚠️ Presentation connection not ready:', presentationConnection.state);
         return;
@@ -3781,7 +3969,7 @@
         currentLayout: currentLayout,
         timestamp: Date.now()
       };
-      
+
       try {
         presentationConnection.send(JSON.stringify(state));
         console.log('📤 Sent state to TV:', {
@@ -3794,8 +3982,77 @@
       }
     }
 
-    // Setup presentation receiver for TV mode
-    // This is called from DOMContentLoaded when in presentation mode
+    // INLINE RECEIVER SETUP - Executes immediately at script load (like old working version)
+    // This is critical for TV mode to work - must be set up before DOMContentLoaded
+    if (navigator.presentation && navigator.presentation.receiver) {
+      console.log('TV: Setting up inline presentation receiver...');
+      navigator.presentation.receiver.connectionList.then(list => {
+        console.log('TV: Inline receiver ready, connections:', list.connections ? list.connections.length : 0);
+        list.connections.forEach(connection => {
+          connection.addEventListener('message', event => {
+            try {
+              const data = JSON.parse(event.data);
+              if (data.type === 'update') {
+                // Update the TV display with new state
+                gridGames = data.gridGames || {};
+                currentLayout = data.currentLayout || 4;
+
+                // Merge game objects
+                if (data.selectedGames) {
+                  Object.values(data.selectedGames).forEach(game => {
+                    const existingIndex = allGames.findIndex(g => g.id === game.id);
+                    if (existingIndex === -1) {
+                      allGames.push(game);
+                    } else {
+                      allGames[existingIndex] = game;
+                    }
+                  });
+                }
+
+                renderFullscreenGames();
+                console.log('📥 TV: Received update from controller (inline)');
+              }
+            } catch (err) {
+              console.error('TV: Error parsing inline message:', err);
+            }
+          });
+        });
+
+        list.addEventListener('connectionavailable', event => {
+          console.log('TV: New controller connected (inline)');
+          const connection = event.connection;
+          connection.addEventListener('message', event => {
+            try {
+              const data = JSON.parse(event.data);
+              if (data.type === 'update') {
+                gridGames = data.gridGames || {};
+                currentLayout = data.currentLayout || 4;
+
+                if (data.selectedGames) {
+                  Object.values(data.selectedGames).forEach(game => {
+                    const existingIndex = allGames.findIndex(g => g.id === game.id);
+                    if (existingIndex === -1) {
+                      allGames.push(game);
+                    } else {
+                      allGames[existingIndex] = game;
+                    }
+                  });
+                }
+
+                renderFullscreenGames();
+              }
+            } catch (err) {
+              console.error('TV: Error parsing inline message:', err);
+            }
+          });
+        });
+      }).catch(err => {
+        console.log('TV: Inline receiver setup skipped:', err.message);
+      });
+    }
+
+    // Setup presentation receiver for TV mode (backup - called from DOMContentLoaded)
+    // This is a backup in case the inline setup above didn't catch the connection
     function setupPresentationReceiver() {
       try {
         if (typeof navigator === 'undefined' || !navigator.presentation || !navigator.presentation.receiver) {

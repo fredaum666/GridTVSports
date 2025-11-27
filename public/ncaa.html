@@ -1234,13 +1234,14 @@
       right: clamp(4px, 1vmin, 8px);
     }
 
+    /* Scrimmage Line (dark blue) - where the ball is */
     .ball-indicator {
       position: absolute;
       top: clamp(-6px, -1.5vmin, -10px);
       bottom: clamp(-6px, -1.5vmin, -10px);
-      width: clamp(2px, 0.5vmin, 4px);
-      background: linear-gradient(to bottom, #fbbf24, #f59e0b);
-      box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(251, 191, 36, 0.8), 0 0 clamp(2px, 0.8vmin, 6px) rgba(251, 191, 36, 0.6);
+      width: clamp(3px, 0.6vmin, 5px);
+      background: linear-gradient(to bottom, #1e40af, #1e3a8a);
+      box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(30, 64, 175, 0.8), 0 0 clamp(2px, 0.8vmin, 6px) rgba(30, 64, 175, 0.6);
       transition: left 0.6s ease-out;
       z-index: 10;
       border-radius: clamp(1px, 0.3vmin, 3px);
@@ -1254,6 +1255,19 @@
       transform: translate(-50%, -50%);
       font-size: clamp(12px, 2.5vmin, 20px);
       filter: drop-shadow(0 clamp(1px, 0.5vmin, 3px) clamp(2px, 1vmin, 5px) rgba(0, 0, 0, 0.8));
+    }
+
+    /* First Down Line (yellow) - where they need to reach */
+    .first-down-line {
+      position: absolute;
+      top: clamp(-6px, -1.5vmin, -10px);
+      bottom: clamp(-6px, -1.5vmin, -10px);
+      width: clamp(3px, 0.6vmin, 5px);
+      background: linear-gradient(to bottom, #fbbf24, #f59e0b);
+      box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(251, 191, 36, 0.8), 0 0 clamp(2px, 0.8vmin, 6px) rgba(251, 191, 36, 0.6);
+      transition: left 0.6s ease-out;
+      z-index: 9;
+      border-radius: clamp(1px, 0.3vmin, 3px);
     }
 
     /* Timeout Indicators */
@@ -1479,6 +1493,80 @@
     .play-animation.fumble .play-animation-text {
       color: #f97316;
       text-shadow: 0 0 20px #f97316;
+    }
+
+    /* Sack Animation - Purple/Red */
+    .play-animation.sack .play-animation-text {
+      color: #a855f7;
+      text-shadow: 0 0 20px #a855f7, 0 0 40px #ef4444;
+    }
+
+    .sack-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: clamp(10px, 2vmin, 20px);
+    }
+
+    .sack-icon {
+      font-size: clamp(4rem, 18vmin, 10rem);
+      animation: sackImpact 0.6s ease-out, sackShake 0.5s ease-in-out 0.6s;
+      filter: drop-shadow(0 0 20px #a855f7) drop-shadow(0 0 40px #ef4444);
+    }
+
+    .sack-stars {
+      position: absolute;
+      font-size: clamp(1.5rem, 4vmin, 3rem);
+      animation: sackStars 1s ease-out forwards;
+      opacity: 0;
+    }
+
+    .sack-stars.star-1 { top: 10%; left: 20%; animation-delay: 0.3s; }
+    .sack-stars.star-2 { top: 5%; right: 25%; animation-delay: 0.4s; }
+    .sack-stars.star-3 { top: 20%; left: 10%; animation-delay: 0.5s; }
+    .sack-stars.star-4 { top: 15%; right: 15%; animation-delay: 0.6s; }
+
+    @keyframes sackImpact {
+      0% {
+        transform: scale(0) translateY(-100px);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.4) translateY(10px);
+        opacity: 1;
+      }
+      80% {
+        transform: scale(0.9) translateY(-5px);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes sackShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px) rotate(-3deg); }
+      40% { transform: translateX(10px) rotate(3deg); }
+      60% { transform: translateX(-5px) rotate(-1deg); }
+      80% { transform: translateX(5px) rotate(1deg); }
+    }
+
+    @keyframes sackStars {
+      0% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2) rotate(180deg);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(360deg) translateY(-20px);
+      }
     }
 
     /* First Down Animation - Yellow/Gold */
@@ -3703,15 +3791,24 @@
             const gameTime = new Date(game.date);
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
-            const isWithin36Hours = hoursUntilGame >= 0 && hoursUntilGame <= 36;
-            
-            // Categorize the game
+            const isWithin36Hours = hoursUntilGame <= 36; // Allow negative values (game time passed but not live yet)
+
+            // Game is "about to start" - scheduled time passed but not live yet (transitioning state)
+            const isAboutToStart = !isLive && !isFinal && !isUpcoming && hoursUntilGame <= 0 && hoursUntilGame >= -2;
+
+            // Categorize the game - ensure no games fall through the cracks
             if (isLive) {
               liveGamesList.push(game);
+            } else if (isAboutToStart) {
+              // Games that should have started but API hasn't marked as live yet
+              upcomingGamesList.unshift(game);
             } else if (isUpcoming && isWithin36Hours) {
               upcomingGamesList.push(game);
             } else if (isFinal || isCompleted) {
               finalGamesList.push(game);
+            } else if (!isFinal && !isCompleted && isWithin36Hours) {
+              // Catch-all for games in unknown status but within time window
+              upcomingGamesList.push(game);
             }
           });
 
@@ -3792,12 +3889,24 @@
                        (comp.status.period && comp.status.period > 0 && !isCompleted);
         const isPregame = statusType === 'pre';
 
+        // Check for games about to start (time passed but not live yet)
+        const gameTime = new Date(game.date);
+        const now = new Date();
+        const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
+        const isAboutToStart = !isLive && !isFinal && !isPregame && hoursUntilGame <= 0 && hoursUntilGame >= -2;
+
         if (isLive) {
           liveGamesList.push({ game, index });
+        } else if (isAboutToStart) {
+          // Games about to start go to front of upcoming
+          upcomingGamesList.unshift({ game, index });
         } else if (isPregame) {
           upcomingGamesList.push({ game, index });
         } else if (isFinal) {
           finalGamesList.push({ game, index });
+        } else if (!isFinal && !isCompleted) {
+          // Catch-all for unknown status - treat as upcoming
+          upcomingGamesList.push({ game, index });
         }
       });
 
@@ -5732,69 +5841,101 @@
     }
 
     // Calculate ball position percentage on field (0-100%)
-    // Field position format: "DAL 32" means Dallas has ball at their own 32 yard line
-    // 0% = offensive team's own endzone, 100% = opponent's endzone (target)
+    // Field layout for fullscreen cards:
+    //   - LEFT side (0%) = Away team's endzone (Away team logo is on left of card)
+    //   - RIGHT side (100%) = Home team's endzone (Home team logo is on right of card)
+    //
+    // When Away team has possession: they attack RIGHT (toward 100%)
+    // When Home team has possession: they attack LEFT (toward 0%)
+    //
+    // Field position format: "DAL 32" means ball is on Dallas' 32 yard line
     function calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam) {
       if (!fieldPosition) return 50; // Default to midfield
-      
+
       // Parse field position (e.g., "DAL 32", "LV 45", "50")
       const parts = fieldPosition.trim().split(' ');
-      
+
       let yardLine;
-      let teamWithBall;
-      
+      let fieldSideAbbr; // Which team's side of field the ball is on
+
       if (parts.length === 1) {
         // At the 50 yard line
         yardLine = 50;
-        teamWithBall = null;
+        fieldSideAbbr = null;
       } else {
-        teamWithBall = parts[0];
+        fieldSideAbbr = parts[0];
         yardLine = parseInt(parts[1]);
       }
-      
-      // Determine which team has possession
+
       const awayAbbr = awayTeam?.team?.abbreviation;
       const homeAbbr = homeTeam?.team?.abbreviation;
-      const possessionIsAway = possession === awayTeam?.id;
-      
-      // Calculate distance to target endzone (opponent's endzone)
-      let distanceToTarget;
-      
-      if (yardLine === 50) {
-        distanceToTarget = 50; // Midfield
-      } else if (teamWithBall === awayAbbr) {
-        // Away team has the ball
-        distanceToTarget = 100 - yardLine; // Distance to home team's endzone
-      } else if (teamWithBall === homeAbbr) {
-        // Home team has the ball  
-        distanceToTarget = yardLine; // Distance to away team's endzone (from home's perspective)
+
+      // Calculate absolute field position (0-100 from away endzone to home endzone)
+      // 0 = in away's endzone, 50 = midfield, 100 = in home's endzone
+      let absolutePosition;
+
+      if (yardLine === 50 || !fieldSideAbbr) {
+        absolutePosition = 50; // Midfield
+      } else if (fieldSideAbbr === awayAbbr) {
+        // Ball is on away team's side of field
+        // Away's 1 yard line = 1%, Away's 50 = 50%
+        absolutePosition = yardLine;
+      } else if (fieldSideAbbr === homeAbbr) {
+        // Ball is on home team's side of field
+        // Home's 50 = 50%, Home's 1 yard line = 99%
+        absolutePosition = 100 - yardLine;
       } else {
-        distanceToTarget = 50; // Default to midfield if we can't determine
+        absolutePosition = 50; // Default to midfield if we can't determine
       }
-      
-      // Convert to percentage (0% = own endzone, 100% = opponent's endzone)
-      // For display purposes, we show from left (away team's endzone) to right (home team's endzone)
-      let percentage;
-      if (possessionIsAway) {
-        // Away team going right (towards home endzone)
-        percentage = 100 - distanceToTarget;
-      } else {
-        // Home team going left (towards away endzone)  
-        percentage = distanceToTarget;
-      }
-      
+
+      console.log('Field position calc:', { fieldPosition, fieldSideAbbr, yardLine, awayAbbr, homeAbbr, absolutePosition });
+
       // Clamp between 0 and 100
-      return Math.max(0, Math.min(100, percentage));
+      return Math.max(0, Math.min(100, absolutePosition));
     }
 
-    // Update ball position on field visualizer
-    function updateBallPosition(card, fieldPosition, possession, awayTeam, homeTeam) {
+    // Update ball position and first down line on field visualizer
+    // Field layout:
+    //   - LEFT (0%) = Away endzone, RIGHT (100%) = Home endzone
+    //   - Away team attacks RIGHT (toward home), Home team attacks LEFT (toward away)
+    function updateBallPosition(card, fieldPosition, yardsToGo, possession, awayTeam, homeTeam) {
       const ballIndicator = card.querySelector('.ball-indicator');
+      const firstDownLine = card.querySelector('.first-down-line');
       if (!ballIndicator || !fieldPosition) return;
-      
+
+      // Calculate scrimmage line (ball) position
       const ballPosition = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
       ballIndicator.style.left = `${ballPosition}%`;
       ballIndicator.dataset.fieldPosition = fieldPosition;
+
+      // Calculate first down line position
+      if (firstDownLine && yardsToGo > 0) {
+        const possessionIsAway = possession === awayTeam?.id;
+
+        // First down line is ahead of scrimmage in the direction of attack
+        let firstDownPosition;
+        if (possessionIsAway) {
+          // Away team attacks RIGHT (toward home endzone at 100%)
+          // First down line is to the RIGHT of scrimmage (higher %)
+          firstDownPosition = ballPosition + yardsToGo;
+        } else {
+          // Home team attacks LEFT (toward away endzone at 0%)
+          // First down line is to the LEFT of scrimmage (lower %)
+          firstDownPosition = ballPosition - yardsToGo;
+        }
+
+        // Clamp to field bounds (0-100%)
+        firstDownPosition = Math.max(0, Math.min(100, firstDownPosition));
+
+        console.log('First down calc:', { ballPosition, yardsToGo, possessionIsAway, firstDownPosition });
+
+        firstDownLine.style.left = `${firstDownPosition}%`;
+        firstDownLine.dataset.yardsToGo = yardsToGo;
+        firstDownLine.style.display = 'block';
+      } else if (firstDownLine) {
+        // Hide first down line if no yards to go (goal to go, etc.)
+        firstDownLine.style.display = 'none';
+      }
     }
 
     // Create empty slot card with logo
@@ -5846,9 +5987,10 @@
       
       // Determine if game is live or upcoming
       const statusState = comp?.status?.type?.state;
-      const isLive = statusState === 'in' || comp?.status?.period > 0;
-      const isUpcoming = statusState === 'pre';
       const isFinal = statusState === 'post';
+      const isUpcoming = statusState === 'pre';
+      // isLive: game is in progress (not final, not upcoming)
+      const isLive = (statusState === 'in' || comp?.status?.period > 0) && !isFinal;
       
       console.log('🎮 Creating game card:', {
         gameName: game.name,
@@ -5915,6 +6057,7 @@
       const possession = comp?.situation?.possession;
       const downDistance = comp?.situation?.downDistanceText || '';
       const fieldPosition = comp?.situation?.possessionText || '';
+      const yardsToGo = comp?.situation?.distance || 0;
 
       // Get timeout information - ESPN API provides this in the situation object
       const awayTimeouts = comp?.situation?.awayTimeouts ?? 3;
@@ -6005,8 +6148,6 @@
             ${isLive && downDistance && fieldPosition ? `
               <div class="field-visualizer">
                 <div class="field-container">
-                  <div class="endzone-label left">${awayTeam?.team?.abbreviation || 'AWAY'}</div>
-                  <div class="endzone-label right">${homeTeam?.team?.abbreviation || 'HOME'}</div>
                   <div class="yard-markers">
                     <div class="yard-marker endzone"><span class="yard-label">0</span></div>
                     <div class="yard-marker"><span class="yard-label">10</span></div>
@@ -6021,6 +6162,7 @@
                     <div class="yard-marker endzone"><span class="yard-label">0</span></div>
                   </div>
                   <div class="ball-indicator" data-field-position="${fieldPosition}"></div>
+                  <div class="first-down-line" data-yards-to-go="${yardsToGo}"></div>
                 </div>
               </div>
             ` : ''}
@@ -6034,7 +6176,7 @@
 
       // Update ball position on field visualizer if present
       if (isLive && fieldPosition) {
-        updateBallPosition(div, fieldPosition, possession, awayTeam, homeTeam);
+        updateBallPosition(div, fieldPosition, yardsToGo, possession, awayTeam, homeTeam);
       }
 
       // Show selector on card hover
@@ -6123,16 +6265,70 @@
       });
     }
 
+    // Extract touchdown scorer name from play text
+    function extractTouchdownScorer(playText) {
+      if (!playText) return '';
+
+      console.log('Extracting scorer from play text:', playText);
+
+      // Common patterns for touchdown plays:
+      // "J.Smith pass complete to M.Jones for 15 yards, TOUCHDOWN"
+      // "D.Henry rush for 5 yards, TOUCHDOWN"
+      // "P.Mahomes 15 yard pass to T.Kelce, TOUCHDOWN"
+      // "(5:23) J.Tucker 15 yard rush TOUCHDOWN"
+
+      // Pattern 1: "pass to [Player Name]" or "pass complete to [Player Name]" - receiver scores
+      let match = playText.match(/pass(?:\s+complete)?\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+      if (match) {
+        console.log('Matched pattern 1 (pass to):', match[1]);
+        return match[1].trim();
+      }
+
+      // Pattern 2: "yard pass to [Player Name]" - receiver scores
+      match = playText.match(/yard\s+pass\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+      if (match) {
+        console.log('Matched pattern 2 (yard pass to):', match[1]);
+        return match[1].trim();
+      }
+
+      // Pattern 3: "[Player Name] rush" or "[Player Name] run" - rusher scores
+      match = playText.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+\d+\s+yard\s+(?:rush|run)/i);
+      if (match) {
+        console.log('Matched pattern 3 (rush/run with yards):', match[1]);
+        return match[1].trim();
+      }
+
+      // Pattern 4: "caught by [Player Name]"
+      match = playText.match(/caught\s+by\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+      if (match) {
+        console.log('Matched pattern 4 (caught by):', match[1]);
+        return match[1].trim();
+      }
+
+      // Pattern 5: Look for name at beginning after timestamp like "(5:23) J.Name"
+      match = playText.match(/^\([^)]+\)\s+([A-Z][a-z]*\.[A-Z][A-Za-z'-]+)/);
+      if (match) {
+        console.log('Matched pattern 5 (after timestamp):', match[1]);
+        return match[1].trim();
+      }
+
+      console.log('No scorer pattern matched');
+      return '';
+    }
+
     // Detect play type based on score change and show animation
-    function detectAndAnimatePlay(card, scoreChange, teamName) {
+    function detectAndAnimatePlay(card, scoreChange, teamName, lastPlayText = '') {
       let playType, playText;
-      
+      let scorerName = '';
+
       if (scoreChange === 6) {
         playType = 'touchdown';
         playText = 'TOUCHDOWN!';
+        scorerName = extractTouchdownScorer(lastPlayText);
       } else if (scoreChange === 7 || scoreChange === 8) {
         playType = 'touchdown';
         playText = 'TOUCHDOWN!';
+        scorerName = extractTouchdownScorer(lastPlayText);
       } else if (scoreChange === 3) {
         playType = 'field-goal';
         playText = 'FIELD GOAL!';
@@ -6145,12 +6341,12 @@
       } else {
         return; // Unknown score change
       }
-      
-      showPlayAnimation(card, playType, playText, teamName);
+
+      showPlayAnimation(card, playType, playText, teamName, '', '', scorerName);
     }
 
     // Show play animation overlay
-    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '') {
+    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', scorerName = '') {
       // Remove any existing animation
       const existingAnimation = card.querySelector('.play-animation');
       if (existingAnimation) {
@@ -6178,6 +6374,9 @@
           break;
         case 'first-down':
           icon = '🏃';
+          break;
+        case 'sack':
+          icon = '💥';
           break;
         default:
           icon = '⚡';
@@ -6213,6 +6412,26 @@
           </div>
           <div class="play-animation-text">${playText}</div>
           ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+        `;
+      } else if (playType === 'sack') {
+        // Special HTML for sack with impact effect and stars
+        animationDiv.innerHTML = `
+          <div class="sack-container">
+            <div class="sack-icon">💥</div>
+            <span class="sack-stars star-1">⭐</span>
+            <span class="sack-stars star-2">⭐</span>
+            <span class="sack-stars star-3">💫</span>
+            <span class="sack-stars star-4">💫</span>
+          </div>
+          <div class="play-animation-text">${playText}</div>
+          ${scorerName ? `<div class="play-animation-subtext">${scorerName}</div>` : ''}
+        `;
+      } else if (playType === 'touchdown') {
+        // Touchdown with scorer name
+        animationDiv.innerHTML = `
+          <div class="play-animation-icon">${icon}</div>
+          <div class="play-animation-text">${playText}</div>
+          ${scorerName ? `<div class="play-animation-subtext">${scorerName}</div>` : (teamName ? `<div class="play-animation-subtext">${teamName}</div>` : '')}
         `;
       } else {
         animationDiv.innerHTML = `
@@ -6353,14 +6572,17 @@
           const awayScoreChange = awayScore - prevAwayScore;
           const homeScoreChange = homeScore - prevHomeScore;
 
+          // Get last play text for scorer extraction
+          const lastPlayText = comp?.situation?.lastPlay?.text || '';
+
           if (awayScoreChange > 0) {
-            detectAndAnimatePlay(card, awayScoreChange, awayTeam?.team?.displayName || 'Away');
+            detectAndAnimatePlay(card, awayScoreChange, awayTeam?.team?.displayName || 'Away', lastPlayText);
           } else if (homeScoreChange > 0) {
-            detectAndAnimatePlay(card, homeScoreChange, homeTeam?.team?.displayName || 'Home');
+            detectAndAnimatePlay(card, homeScoreChange, homeTeam?.team?.displayName || 'Home', lastPlayText);
           }
 
           // Check for turnovers (interceptions/fumbles) from play description
-          const lastPlay = comp?.situation?.lastPlay?.text || '';
+          const lastPlay = lastPlayText;
           if (lastPlay.toLowerCase().includes('interception') || lastPlay.toLowerCase().includes('intercepted')) {
             if (!card.dataset.lastInterception || card.dataset.lastInterception !== lastPlay) {
               showPlayAnimation(card, 'interception', 'INTERCEPTION!');
@@ -6396,6 +6618,29 @@
 
               showPlayAnimation(card, 'fumble', 'FUMBLE!', '', recoveryInfo, recoveryLogo);
               card.dataset.lastFumble = lastPlay;
+            }
+          }
+
+          // Sack detection
+          if (lowerPlay.includes('sack') || lowerPlay.includes('sacked')) {
+            if (!card.dataset.lastSack || card.dataset.lastSack !== lastPlay) {
+              console.log('💥 SACK detected:', lastPlay);
+
+              // Extract the defender who made the sack
+              let sackerName = '';
+              // Pattern: "sacked by [Player Name]" or "[Player Name] sacks"
+              let sackMatch = lastPlay.match(/sacked\s+by\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+              if (sackMatch) {
+                sackerName = sackMatch[1].trim();
+              } else {
+                sackMatch = lastPlay.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+sack/i);
+                if (sackMatch) {
+                  sackerName = sackMatch[1].trim();
+                }
+              }
+
+              showPlayAnimation(card, 'sack', 'SACK!', '', '', '', sackerName);
+              card.dataset.lastSack = lastPlay;
             }
           }
 
@@ -6531,6 +6776,7 @@
 
           // Update field position visualizer
           const fieldPosition = comp?.situation?.possessionText || '';
+          const yardsToGo = comp?.situation?.distance || 0;
           let fieldVisualizer = card.querySelector('.field-visualizer');
 
           if (downDistance && fieldPosition) {
@@ -6541,8 +6787,6 @@
                 situationInfo.insertAdjacentHTML('afterend', `
                   <div class="field-visualizer">
                     <div class="field-container">
-                      <div class="endzone-label left">${awayTeam?.team?.abbreviation || 'AWAY'}</div>
-                      <div class="endzone-label right">${homeTeam?.team?.abbreviation || 'HOME'}</div>
                       <div class="yard-markers">
                         <div class="yard-marker endzone"><span class="yard-label">0</span></div>
                         <div class="yard-marker"><span class="yard-label">10</span></div>
@@ -6557,6 +6801,7 @@
                         <div class="yard-marker endzone"><span class="yard-label">0</span></div>
                       </div>
                       <div class="ball-indicator" data-field-position="${fieldPosition}"></div>
+                      <div class="first-down-line" data-yards-to-go="${yardsToGo}"></div>
                     </div>
                   </div>
                 `);
@@ -6564,9 +6809,9 @@
               }
             }
 
-            // Update ball position
+            // Update ball position and first down line
             if (fieldVisualizer) {
-              updateBallPosition(card, fieldPosition, possession, awayTeam, homeTeam);
+              updateBallPosition(card, fieldPosition, yardsToGo, possession, awayTeam, homeTeam);
 
               fieldVisualizer.style.display = 'flex';
             }
