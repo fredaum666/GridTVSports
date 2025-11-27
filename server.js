@@ -13,13 +13,19 @@ require('dotenv').config();
 
 // Initialize Stripe (optional - only if keys are configured)
 let stripe = null;
+console.log('🔍 STRIPE_SECRET_KEY value:', process.env.STRIPE_SECRET_KEY ?
+  (process.env.STRIPE_SECRET_KEY.substring(0, 20) + '...') : 'undefined');
+console.log('🔍 STRIPE_SECRET_KEY type:', typeof process.env.STRIPE_SECRET_KEY);
+
 const stripeConfigured = process.env.STRIPE_SECRET_KEY &&
-                         !process.env.STRIPE_SECRET_KEY.includes('your_stripe');
+                         !process.env.STRIPE_SECRET_KEY.includes('your_stripe') &&
+                         !process.env.STRIPE_SECRET_KEY.includes('@Microsoft.KeyVault');
 if (stripeConfigured) {
   stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-  console.log('✅ Stripe initialized');
+  console.log('✅ Stripe initialized successfully');
 } else {
   console.log('⚠️ Stripe not configured - subscription features disabled');
+  console.log('   Reason: Key contains placeholder or KeyVault reference');
 }
 
 const app = express();
