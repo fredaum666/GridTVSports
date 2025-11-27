@@ -6204,62 +6204,63 @@
     }
 
     // Calculate ball position percentage on field (0-100%)
-    // Field position format: "DAL 32" means Dallas has ball at their own 32 yard line
-    // 0% = offensive team's own endzone, 100% = opponent's endzone (target)
+    // Field layout matches card layout:
+    //   - LEFT side (0%) = Away team's endzone (Away team logo is on left of card)
+    //   - RIGHT side (100%) = Home team's endzone (Home team logo is on right of card)
+    //
+    // When Away team has possession: they attack RIGHT (toward 100%)
+    // When Home team has possession: they attack LEFT (toward 0%)
+    //
+    // Field position format: "DAL 32" means ball is on Dallas' 32 yard line
     function calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam) {
       if (!fieldPosition) return 50; // Default to midfield
-      
+
       // Parse field position (e.g., "DAL 32", "LV 45", "50")
       const parts = fieldPosition.trim().split(' ');
-      
+
       let yardLine;
-      let teamWithBall;
-      
+      let fieldSideAbbr; // Which team's side of field the ball is on
+
       if (parts.length === 1) {
         // At the 50 yard line
         yardLine = 50;
-        teamWithBall = null;
+        fieldSideAbbr = null;
       } else {
-        teamWithBall = parts[0];
+        fieldSideAbbr = parts[0];
         yardLine = parseInt(parts[1]);
       }
-      
-      // Determine which team has possession
+
       const awayAbbr = awayTeam?.team?.abbreviation;
       const homeAbbr = homeTeam?.team?.abbreviation;
-      const possessionIsAway = possession === awayTeam?.id;
-      
-      // Calculate distance to target endzone (opponent's endzone)
-      let distanceToTarget;
-      
-      if (yardLine === 50) {
-        distanceToTarget = 50; // Midfield
-      } else if (teamWithBall === awayAbbr) {
-        // Away team has the ball
-        distanceToTarget = 100 - yardLine; // Distance to home team's endzone
-      } else if (teamWithBall === homeAbbr) {
-        // Home team has the ball  
-        distanceToTarget = yardLine; // Distance to away team's endzone (from home's perspective)
+
+      // Calculate absolute field position (0-100 from away endzone to home endzone)
+      // 0 = in away's endzone, 50 = midfield, 100 = in home's endzone
+      let absolutePosition;
+
+      if (yardLine === 50 || !fieldSideAbbr) {
+        absolutePosition = 50; // Midfield
+      } else if (fieldSideAbbr === awayAbbr) {
+        // Ball is on away team's side of field
+        // Away's 1 yard line = 1%, Away's 50 = 50%
+        absolutePosition = yardLine;
+      } else if (fieldSideAbbr === homeAbbr) {
+        // Ball is on home team's side of field
+        // Home's 50 = 50%, Home's 1 yard line = 99%
+        absolutePosition = 100 - yardLine;
       } else {
-        distanceToTarget = 50; // Default to midfield if we can't determine
+        absolutePosition = 50; // Default to midfield if we can't determine
       }
-      
-      // Convert to percentage (0% = own endzone, 100% = opponent's endzone)
-      // For display purposes, we show from left (away team's endzone) to right (home team's endzone)
-      let percentage;
-      if (possessionIsAway) {
-        // Away team going right (towards home endzone)
-        percentage = 100 - distanceToTarget;
-      } else {
-        // Home team going left (towards away endzone)  
-        percentage = distanceToTarget;
-      }
-      
+
+      console.log('Field position calc:', { fieldPosition, fieldSideAbbr, yardLine, awayAbbr, homeAbbr, absolutePosition });
+
       // Clamp between 0 and 100
-      return Math.max(0, Math.min(100, percentage));
+      return Math.max(0, Math.min(100, absolutePosition));
     }
 
     // Update ball position and first down line on field visualizer
+    // Field layout:
+    //   - LEFT (0%) = Away endzone, RIGHT (100%) = Home endzone
+    //   - Away team attacks RIGHT (toward home), Home team attacks LEFT (toward away)
     function updateBallPosition(card, fieldPosition, yardsToGo, possession, awayTeam, homeTeam) {
       const ballIndicator = card.querySelector('.ball-indicator');
       const firstDownLine = card.querySelector('.first-down-line');
@@ -6270,26 +6271,26 @@
       ballIndicator.style.left = `${ballPosition}%`;
       ballIndicator.dataset.fieldPosition = fieldPosition;
 
-      // Calculate first down line position (scrimmage + yards to go in direction of play)
+      // Calculate first down line position
       if (firstDownLine && yardsToGo > 0) {
-        // Determine which direction the team is going
         const possessionIsAway = possession === awayTeam?.id;
 
-        // Calculate first down position based on direction of play
-        // The field goes: 0% = left (away endzone) to 100% = right (home endzone)
-        // Away team attacks right (toward 100%), Home team attacks left (toward 0%)
-        // But calculateBallPosition returns position from offensive perspective, so we need to invert
+        // First down line is ahead of scrimmage in the direction of attack
         let firstDownPosition;
         if (possessionIsAway) {
-          // Away team going right - first down marker is ahead (lower % due to how calculateBallPosition works)
-          firstDownPosition = ballPosition - yardsToGo;
-        } else {
-          // Home team going left - first down marker is ahead (higher % due to how calculateBallPosition works)
+          // Away team attacks RIGHT (toward home endzone at 100%)
+          // First down line is to the RIGHT of scrimmage (higher %)
           firstDownPosition = ballPosition + yardsToGo;
+        } else {
+          // Home team attacks LEFT (toward away endzone at 0%)
+          // First down line is to the LEFT of scrimmage (lower %)
+          firstDownPosition = ballPosition - yardsToGo;
         }
 
         // Clamp to field bounds (0-100%)
         firstDownPosition = Math.max(0, Math.min(100, firstDownPosition));
+
+        console.log('First down calc:', { ballPosition, yardsToGo, possessionIsAway, firstDownPosition });
 
         firstDownLine.style.left = `${firstDownPosition}%`;
         firstDownLine.dataset.yardsToGo = yardsToGo;
