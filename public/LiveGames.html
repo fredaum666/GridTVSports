@@ -2534,14 +2534,39 @@
   </div>
 
   <script>
-    let allGames = [];
-    let gridGames = {};
-    let slotFilters = {}; // Track selected sport filter per slot ('all', 'nfl', 'ncaa', 'nba', 'nhl', 'mlb')
-    let currentLayout = 4;
-    let fullscreenRefreshInterval;
-    let sessionKeepAliveInterval = null; // Keep session alive during fullscreen
-    let presentationRequest = null;
-    let presentationConnection = null;
+    // VERY EARLY: Check if running in presentation mode on TV
+    // This runs BEFORE any other code to ensure TV doesn't crash
+    var IS_TV_MODE = false;
+    try {
+      IS_TV_MODE = window.location.search.indexOf('presentation=true') !== -1;
+      if (IS_TV_MODE) {
+        console.log('TV MODE DETECTED - Early initialization');
+      }
+    } catch (e) {
+      // Ignore - not in TV mode
+    }
+
+    // Global error handler to catch uncaught errors (helps prevent TV crashes)
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error('Global error caught:', message, 'at', source, 'line', lineno);
+      // Don't let errors propagate and crash the page
+      return true;
+    };
+
+    // Handle unhandled promise rejections
+    window.addEventListener('unhandledrejection', function(event) {
+      console.error('Unhandled promise rejection:', event.reason);
+      event.preventDefault();
+    });
+
+    var allGames = [];
+    var gridGames = {};
+    var slotFilters = {}; // Track selected sport filter per slot ('all', 'nfl', 'ncaa', 'nba', 'nhl', 'mlb')
+    var currentLayout = 4;
+    var fullscreenRefreshInterval;
+    var sessionKeepAliveInterval = null; // Keep session alive during fullscreen
+    var presentationRequest = null;
+    var presentationConnection = null;
 
     // Calculate ball position percentage for field visualizer
     // Field position format: "DAL 32" means Dallas has ball at their own 32 yard line
@@ -2616,8 +2641,10 @@
         ]);
 
         // Check for session expiration (401) on any response
+        // Skip redirect if in presentation mode (TV display) - TV doesn't have session
         const responses = [nflResponse, nflNextWeekResponse, ncaaResponse, ncaaNextWeekResponse, nbaResponse, mlbResponse, nhlResponse];
-        if (responses.some(r => r.status === 401)) {
+        const isPresentationMode = new URLSearchParams(window.location.search).get('presentation') === 'true';
+        if (responses.some(r => r.status === 401) && !isPresentationMode) {
           console.log('Session expired, redirecting to login...');
           window.location.href = '/login';
           return;
@@ -3683,10 +3710,12 @@
           resetCastButton();
         });
 
-        // Wait a moment for connection to stabilize, then send initial state
+        // Wait for connection to stabilize, then send initial state
+        // Increased delay to give TV more time to load the page
         setTimeout(() => {
+          console.log('📤 Sending initial state to TV after delay...');
           sendStateToPresentationDisplay();
-        }, 500);
+        }, 2000); // 2 second delay
 
       } catch (error) {
         console.error('Error starting presentation:', error);
@@ -3765,34 +3794,90 @@
       }
     }
 
-    // Listen for messages from controller (if this page is the presentation display)
-    if (navigator.presentation && navigator.presentation.receiver) {
-      navigator.presentation.receiver.connectionList.then(list => {
-        list.connections.forEach(connection => {
-          connection.addEventListener('message', event => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'update') {
-              // Update the TV display with new state
-              gridGames = data.gridGames;
-              currentLayout = data.currentLayout;
-              renderFullscreenGames();
-              console.log('📥 Received update from controller:', data);
-            }
-          });
-        });
+    // Setup presentation receiver for TV mode
+    // This is called from DOMContentLoaded when in presentation mode
+    function setupPresentationReceiver() {
+      try {
+        if (typeof navigator === 'undefined' || !navigator.presentation || !navigator.presentation.receiver) {
+          console.log('TV: No presentation receiver API available');
+          return;
+        }
 
-        list.addEventListener('connectionavailable', event => {
-          const connection = event.connection;
-          connection.addEventListener('message', event => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'update') {
-              gridGames = data.gridGames;
-              currentLayout = data.currentLayout;
-              renderFullscreenGames();
-            }
-          });
+        navigator.presentation.receiver.connectionList.then(function(list) {
+          console.log('TV: Presentation receiver ready');
+
+          if (list && list.connections) {
+            list.connections.forEach(function(connection) {
+              console.log('TV: Found existing connection');
+              if (connection) {
+                connection.addEventListener('message', function(event) {
+                  try {
+                    var data = JSON.parse(event.data);
+                    if (data && data.type === 'update') {
+                      console.log('TV: Received update from controller');
+                      gridGames = data.gridGames || {};
+                      currentLayout = data.currentLayout || 4;
+
+                      if (data.selectedGames) {
+                        Object.values(data.selectedGames).forEach(function(game) {
+                          var existingIndex = allGames.findIndex(function(g) { return g.id === game.id; });
+                          if (existingIndex === -1) {
+                            allGames.push(game);
+                          } else {
+                            allGames[existingIndex] = game;
+                          }
+                        });
+                      }
+
+                      renderFullscreenGames();
+                      console.log('TV: Update applied');
+                    }
+                  } catch (err) {
+                    console.error('TV: Error parsing message:', err);
+                  }
+                });
+              }
+            });
+          }
+
+          if (list) {
+            list.addEventListener('connectionavailable', function(event) {
+              console.log('TV: New controller connected');
+              var connection = event.connection;
+              if (connection) {
+                connection.addEventListener('message', function(msgEvent) {
+                  try {
+                    var data = JSON.parse(msgEvent.data);
+                    if (data && data.type === 'update') {
+                      gridGames = data.gridGames || {};
+                      currentLayout = data.currentLayout || 4;
+
+                      if (data.selectedGames) {
+                        Object.values(data.selectedGames).forEach(function(game) {
+                          var existingIndex = allGames.findIndex(function(g) { return g.id === game.id; });
+                          if (existingIndex === -1) {
+                            allGames.push(game);
+                          } else {
+                            allGames[existingIndex] = game;
+                          }
+                        });
+                      }
+
+                      renderFullscreenGames();
+                    }
+                  } catch (err) {
+                    console.error('TV: Error parsing message:', err);
+                  }
+                });
+              }
+            });
+          }
+        }).catch(function(err) {
+          console.error('TV: Error getting connection list:', err);
         });
-      });
+      } catch (err) {
+        console.error('TV: Error setting up presentation receiver:', err);
+      }
     }
 
     // Cast button click handler
@@ -3820,65 +3905,72 @@
 
     // Check if this page is loaded in presentation mode (on TV)
     function checkPresentationMode() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isPresentationMode = urlParams.get('presentation') === 'true';
-      
-      if (isPresentationMode) {
-        console.log('🖥️ Running in PRESENTATION MODE (TV Display)');
-        
-        // Add presentation mode class to body
-        document.body.classList.add('presentation-mode');
-        
-        // Hide header and container, show fullscreen immediately
-        document.querySelector('.header').style.display = 'none';
-        document.querySelector('.container').style.display = 'none';
-        
-        const fullscreenContainer = document.getElementById('fullscreen-container');
-        fullscreenContainer.classList.add('active');
-        fullscreenContainer.style.display = 'block';
-        fullscreenContainer.style.opacity = '1';
-        fullscreenContainer.style.pointerEvents = 'auto';
-        
-        // Listen for state updates from controller
-        if (navigator.presentation && navigator.presentation.receiver) {
-          navigator.presentation.receiver.connectionList.then(list => {
-            list.connections.forEach(connection => {
-              console.log('📥 Connected to controller');
-              connection.addEventListener('message', handlePresentationMessage);
-            });
-
-            list.addEventListener('connectionavailable', event => {
-              console.log('📥 New controller connection');
-              event.connection.addEventListener('message', handlePresentationMessage);
-            });
-          });
+      try {
+        // Safely check URL params
+        var urlParams;
+        try {
+          urlParams = new URLSearchParams(window.location.search);
+        } catch (e) {
+          console.error('TV: Error parsing URL params:', e);
+          return false;
         }
-        
-        return true;
+
+        var isPresentationMode = urlParams.get('presentation') === 'true';
+
+        if (isPresentationMode) {
+          console.log('Running in PRESENTATION MODE (TV Display)');
+
+          // Add presentation mode class to body
+          if (document.body) {
+            document.body.classList.add('presentation-mode');
+          }
+
+          // Hide header and container, show fullscreen immediately
+          var header = document.querySelector('.header');
+          var container = document.querySelector('.container');
+          if (header) header.style.display = 'none';
+          if (container) container.style.display = 'none';
+
+          var fullscreenContainer = document.getElementById('fullscreen-container');
+          if (fullscreenContainer) {
+            fullscreenContainer.classList.add('active');
+            fullscreenContainer.style.display = 'block';
+            fullscreenContainer.style.opacity = '1';
+            fullscreenContainer.style.pointerEvents = 'auto';
+          }
+
+          // NOTE: Presentation receiver setup is now done in DOMContentLoaded handler
+          // after this function returns, to ensure proper sequencing
+
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        console.error('Error in checkPresentationMode:', error);
+        return false;
       }
-      
-      return false;
     }
 
     // Handle messages from controller device
     function handlePresentationMessage(event) {
       try {
-        const data = JSON.parse(event.data);
-        console.log('📥 Received from controller:', {
+        var data = JSON.parse(event.data);
+        console.log('TV: Received from controller:', {
           type: data.type,
           layout: data.currentLayout,
           gameCount: Object.keys(data.gridGames || {}).length
         });
-        
-        if (data.type === 'update') {
+
+        if (data && data.type === 'update') {
           // Update the TV display with new state
-          gridGames = data.gridGames;
-          currentLayout = data.currentLayout;
-          
+          gridGames = data.gridGames || {};
+          currentLayout = data.currentLayout || 4;
+
           // If we received full game objects, merge them into allGames
           if (data.selectedGames) {
-            Object.values(data.selectedGames).forEach(game => {
-              const existingIndex = allGames.findIndex(g => g.id === game.id);
+            Object.values(data.selectedGames).forEach(function(game) {
+              var existingIndex = allGames.findIndex(function(g) { return g.id === game.id; });
               if (existingIndex === -1) {
                 allGames.push(game);
               } else {
@@ -3886,11 +3978,13 @@
               }
             });
           }
-          
+
           // Update grid layout class
-          const fullscreenGrid = document.getElementById('fullscreen-grid');
-          fullscreenGrid.className = `fullscreen-grid grid-${currentLayout}`;
-          
+          var fullscreenGrid = document.getElementById('fullscreen-grid');
+          if (fullscreenGrid) {
+            fullscreenGrid.className = 'fullscreen-grid grid-' + currentLayout;
+          }
+
           // Render the games
           renderFullscreenGames();
         }
@@ -3901,7 +3995,65 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
-      // Check access permissions and apply grid locks
+      // FIRST: Check if we're in presentation mode (TV display)
+      // This MUST be checked before any server requests to avoid 401 redirects
+      let isPresentationMode = false;
+
+      try {
+        isPresentationMode = checkPresentationMode();
+      } catch (e) {
+        console.error('Error checking presentation mode:', e);
+        // Default to regular mode if check fails
+        isPresentationMode = false;
+      }
+
+      if (isPresentationMode) {
+        // In presentation mode (TV), load games and setup auto-refresh
+        console.log('TV Display ready - loading games and waiting for controller...');
+
+        // Setup presentation receiver to receive messages from controller
+        try {
+          setupPresentationReceiver();
+          console.log('TV: Presentation receiver setup complete');
+        } catch (receiverError) {
+          console.error('TV: Error setting up receiver:', receiverError);
+        }
+
+        try {
+          // Load games (scoreboard APIs don't require auth, so this works on TV)
+          await loadAllGames();
+          console.log('TV: Games loaded successfully');
+        } catch (loadError) {
+          console.error('TV: Error loading games:', loadError);
+        }
+
+        // TV needs its own refresh interval to update live scores
+        setInterval(async () => {
+          console.log('TV auto-refreshing game data...');
+          try {
+            await loadAllGames();
+
+            // Show refresh indicators
+            document.querySelectorAll('.fullscreen-game-slot, .fullscreen-game-card').forEach((slot) => {
+              const indicator = slot.querySelector('.fullscreen-refresh-indicator');
+              if (indicator) {
+                indicator.classList.add('active');
+                setTimeout(() => indicator.classList.remove('active'), 1000);
+              }
+            });
+
+            // Re-render with updated data
+            renderFullscreenGames();
+            console.log('TV display refreshed');
+          } catch (refreshError) {
+            console.error('TV: Error refreshing:', refreshError);
+          }
+        }, 15000); // Refresh every 15 seconds
+
+        return; // Exit early, don't run normal initialization (grid lock checks, etc.)
+      }
+
+      // Normal mode (not TV display) - fetch access permissions and apply grid locks
       try {
         const accessResponse = await fetch('/api/subscription/access');
         if (accessResponse.ok) {
@@ -3948,39 +4100,10 @@
         console.error('Failed to load grid access permissions:', error);
       }
 
-      // Check if we're in presentation mode (TV display)
-      const isPresentationMode = checkPresentationMode();
-      
-      if (isPresentationMode) {
-        // In presentation mode (TV), setup auto-refresh
-        loadAllGames();
-        console.log('📺 TV Display ready - waiting for controller...');
-        
-        // TV needs its own refresh interval to update live scores
-        setInterval(async () => {
-          console.log('� TV auto-refreshing game data...');
-          await loadAllGames();
-          
-          // Show refresh indicators
-          document.querySelectorAll('.fullscreen-game-slot, .fullscreen-game-card').forEach((slot) => {
-            const indicator = slot.querySelector('.fullscreen-refresh-indicator');
-            if (indicator) {
-              indicator.classList.add('active');
-              setTimeout(() => indicator.classList.remove('active'), 1000);
-            }
-          });
-          
-          // Re-render with updated data
-          renderFullscreenGames();
-          console.log('✅ TV display refreshed');
-        }, 15000); // Refresh every 15 seconds
-        
-      } else {
-        // Normal mode - show selection interface
-        loadAllGames();
-        renderGridPreview();
-        initializePresentationAPI();
-      }
+      // Normal mode - show selection interface
+      loadAllGames();
+      renderGridPreview();
+      initializePresentationAPI();
     });
   </script>
 </body>

@@ -300,6 +300,40 @@
       font-weight: 700;
     }
 
+    .layout-options label.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      position: relative;
+    }
+
+    .layout-options label.locked input[type="radio"] {
+      pointer-events: none;
+    }
+
+    .layout-options label.locked::after {
+      content: '🔒';
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      font-size: 14px;
+    }
+
+    .layout-options label.locked:hover::before {
+      content: 'Subscribe to Unlock';
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+      z-index: 100;
+    }
+
     /* Grid Preview in Modal */
     .grid-preview {
       margin-bottom: 16px;
@@ -1287,7 +1321,7 @@
       background: rgba(0, 0, 0, 0.85);
       z-index: 100;
       pointer-events: none;
-      animation: fadeOut 4s forwards;
+      animation: fadeOut 8s forwards;
     }
 
     .play-animation-icon {
@@ -1317,6 +1351,10 @@
     }
 
     /* Touchdown Animation - Green/Gold */
+    .play-animation.touchdown {
+      animation: fadeOutTouchdown 12s forwards;
+    }
+
     .play-animation.touchdown .play-animation-icon {
       color: #fbbf24;
       text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
@@ -1331,6 +1369,12 @@
       animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
     }
 
+    @keyframes fadeOutTouchdown {
+      0% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
     /* Touchdown Container with Team Logo */
     .touchdown-container {
       position: relative;
@@ -1342,17 +1386,28 @@
     }
 
     .touchdown-team-logo {
-      width: clamp(80px, 18vmin, 180px);
-      height: clamp(80px, 18vmin, 180px);
+      width: clamp(120px, 28vmin, 280px);
+      height: clamp(120px, 28vmin, 280px);
       object-fit: contain;
-      animation: touchdownLogoEntry 0.6s ease-out, touchdownLogoPulse 1.5s ease-in-out infinite 0.6s;
-      filter: drop-shadow(0 0 20px #fbbf24) drop-shadow(0 0 40px #22c55e);
+      animation: touchdownLogoEntry 0.8s ease-out, touchdownLogoPulse 1.5s ease-in-out infinite 0.8s;
+      filter: drop-shadow(0 0 30px #fbbf24) drop-shadow(0 0 60px #22c55e);
     }
 
     .touchdown-fallback-icon {
-      font-size: clamp(3rem, 15vmin, 8rem);
-      animation: touchdownLogoEntry 0.6s ease-out, touchdownLogoPulse 1.5s ease-in-out infinite 0.6s;
-      filter: drop-shadow(0 0 20px #fbbf24) drop-shadow(0 0 40px #22c55e);
+      font-size: clamp(5rem, 22vmin, 12rem);
+      animation: touchdownLogoEntry 0.8s ease-out, touchdownLogoPulse 1.5s ease-in-out infinite 0.8s;
+      filter: drop-shadow(0 0 30px #fbbf24) drop-shadow(0 0 60px #22c55e);
+    }
+
+    .touchdown-scorer {
+      font-size: clamp(1.2rem, 3vmin, 2.5rem);
+      font-weight: 800;
+      color: #ffffff;
+      text-align: center;
+      margin-top: clamp(10px, 2vmin, 20px);
+      text-shadow: 0 0 10px #fbbf24, 0 0 20px #22c55e;
+      animation: playTextSlide 0.8s ease-out 0.5s backwards;
+      letter-spacing: 1px;
     }
 
     @keyframes touchdownLogoEntry {
@@ -1694,12 +1749,13 @@
       flex-direction: column;
       align-items: center;
       gap: clamp(8px, 1.5vmin, 15px);
-      background: rgba(251, 191, 36, 0.2);
-      border: 2px solid #fbbf24;
+      background: rgba(30, 30, 30, 0.95);
+      border: 3px solid #fbbf24;
       border-radius: clamp(8px, 1.5vmin, 15px);
-      padding: clamp(12px, 2vmin, 20px);
+      padding: clamp(15px, 2.5vmin, 25px);
       margin-top: clamp(10px, 2vmin, 20px);
       max-width: 90%;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.4), inset 0 0 30px rgba(251, 191, 36, 0.1);
     }
 
     .penalty-team-logo {
@@ -5714,22 +5770,73 @@
     // Listen for window resize
     window.addEventListener('resize', handleFullscreenResize);
 
+    // Store allowed grids based on subscription
+    let allowedGrids = [1, 2, 4, 6]; // Default: all allowed
+
+    // Fetch subscription access permissions
+    async function fetchAccessPermissions() {
+      try {
+        const response = await fetch('/api/subscription/access');
+        if (response.ok) {
+          const accessData = await response.json();
+          allowedGrids = accessData.allowedGrids || [1, 2, 4, 6];
+        }
+      } catch (error) {
+        console.error('Failed to fetch access permissions:', error);
+      }
+    }
+
+    // Apply locks to layout options based on subscription
+    function applyLayoutLocks() {
+      const layoutLabels = document.querySelectorAll('.layout-options label');
+      layoutLabels.forEach(label => {
+        const input = label.querySelector('input[type="radio"]');
+        const value = parseInt(input.value);
+
+        if (!allowedGrids.includes(value)) {
+          label.classList.add('locked');
+          input.disabled = true;
+
+          // Add click handler to redirect to pricing
+          label.addEventListener('click', (e) => {
+            if (label.classList.contains('locked')) {
+              e.preventDefault();
+              e.stopPropagation();
+              window.location.href = '/pricing';
+            }
+          });
+        } else {
+          label.classList.remove('locked');
+          input.disabled = false;
+        }
+      });
+    }
+
     // Open game selection modal
-    function openGameSelectionModal() {
+    async function openGameSelectionModal() {
       const modal = document.getElementById('game-selection-modal');
       modal.classList.add('show');
 
-      // Auto-select 4-grid layout
-      const fourGridRadio = document.querySelector('input[name="layout"][value="4"]');
-      if (fourGridRadio) {
-        fourGridRadio.checked = true;
+      // Fetch and apply subscription permissions
+      await fetchAccessPermissions();
+      applyLayoutLocks();
+
+      // Auto-select the first allowed layout (default to highest allowed)
+      const defaultLayout = allowedGrids.includes(4) ? 4 : (allowedGrids.includes(2) ? 2 : 1);
+      const defaultRadio = document.querySelector(`input[name="layout"][value="${defaultLayout}"]`);
+      if (defaultRadio && !defaultRadio.disabled) {
+        defaultRadio.checked = true;
+      } else {
+        // Fallback to first allowed option
+        const firstAllowed = document.querySelector('input[name="layout"]:not(:disabled)');
+        if (firstAllowed) firstAllowed.checked = true;
       }
 
       // Reset game selections and render
       gridGames = {};
       renderGridPreview();
 
-      // Auto-select first 4 games
+      // Auto-select first N games based on selected layout
       autoSelectFirstGames();
     }
 
@@ -6372,15 +6479,18 @@
     }
 
     // Detect play type based on score change and show animation
-    function detectAndAnimatePlay(card, scoreChange, teamName) {
+    function detectAndAnimatePlay(card, scoreChange, teamName, lastPlayText = '') {
       let playType, playText;
-      
+      let scorerName = '';
+
       if (scoreChange === 6) {
         playType = 'touchdown';
         playText = 'TOUCHDOWN!';
+        scorerName = extractTouchdownScorer(lastPlayText);
       } else if (scoreChange === 7 || scoreChange === 8) {
         playType = 'touchdown';
         playText = 'TOUCHDOWN!';
+        scorerName = extractTouchdownScorer(lastPlayText);
       } else if (scoreChange === 3) {
         playType = 'field-goal';
         playText = 'FIELD GOAL!';
@@ -6393,12 +6503,46 @@
       } else {
         return; // Unknown score change
       }
-      
-      showPlayAnimation(card, playType, playText, teamName);
+
+      showPlayAnimation(card, playType, playText, teamName, '', '', scorerName);
+    }
+
+    // Extract touchdown scorer name from play text
+    function extractTouchdownScorer(playText) {
+      if (!playText) return '';
+
+      const lowerPlay = playText.toLowerCase();
+
+      // Common patterns for touchdown plays:
+      // "J.Smith pass complete to M.Jones for 15 yards, TOUCHDOWN"
+      // "D.Henry rush for 5 yards, TOUCHDOWN"
+      // "P.Mahomes 15 yard pass to T.Kelce, TOUCHDOWN"
+
+      // Pattern 1: "pass to [Player Name]" or "pass complete to [Player Name]"
+      let match = playText.match(/pass(?:\s+complete)?\s+to\s+([A-Z]\.?\s*[A-Za-z'-]+)/i);
+      if (match) return match[1].trim();
+
+      // Pattern 2: "[Player Name] rush" or "[Player Name] run"
+      match = playText.match(/([A-Z]\.?\s*[A-Za-z'-]+)\s+(?:rush|run)\s+/i);
+      if (match) return match[1].trim();
+
+      // Pattern 3: "yard pass to [Player Name]"
+      match = playText.match(/yard\s+pass\s+to\s+([A-Z]\.?\s*[A-Za-z'-]+)/i);
+      if (match) return match[1].trim();
+
+      // Pattern 4: "caught by [Player Name]"
+      match = playText.match(/caught\s+by\s+([A-Z]\.?\s*[A-Za-z'-]+)/i);
+      if (match) return match[1].trim();
+
+      // Pattern 5: "[Player Name] [number] yard touchdown"
+      match = playText.match(/([A-Z]\.?\s*[A-Za-z'-]+)\s+\d+\s+yard.*touchdown/i);
+      if (match) return match[1].trim();
+
+      return '';
     }
 
     // Show play animation overlay
-    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '') {
+    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', scorerName = '') {
       // Remove any existing animation
       const existingAnimation = card.querySelector('.play-animation');
       if (existingAnimation) {
@@ -6442,7 +6586,7 @@
         recoveryHTML = `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>`;
       }
 
-      // Special HTML for touchdown with team logo
+      // Special HTML for touchdown with team logo and scorer
       if (playType === 'touchdown' && teamName) {
         const teamLogoPath = `/assets/${teamName}.png`;
         animationDiv.innerHTML = `
@@ -6451,6 +6595,7 @@
             <div class="touchdown-fallback-icon" style="display:none;">🏈</div>
           </div>
           <div class="play-animation-text">${playText}</div>
+          ${scorerName ? `<div class="touchdown-scorer">${scorerName}</div>` : ''}
         `;
       } else if (playType === 'field-goal') {
         // Special HTML for field goal with YFrame and spinning ball
@@ -6524,10 +6669,12 @@
       card.style.position = 'relative';
       card.appendChild(animationDiv);
 
-      // Remove after animation completes (4 seconds)
+      // Remove after animation completes
+      // Touchdown gets longer display time (12 seconds), others get 8 seconds
+      const animationDuration = playType === 'touchdown' ? 12000 : 8000;
       setTimeout(() => {
         animationDiv.remove();
-      }, 4000);
+      }, animationDuration);
     }
 
     // Update full screen scores
@@ -6654,18 +6801,20 @@
           const prevAwayScore = parseInt(card.dataset.prevAwayScore || 0);
           const prevHomeScore = parseInt(card.dataset.prevHomeScore || 0);
 
+          // Get last play text for player info extraction
+          const lastPlay = comp?.situation?.lastPlay?.text || '';
+
           // Detect score changes and determine play type
           const awayScoreChange = awayScore - prevAwayScore;
           const homeScoreChange = homeScore - prevHomeScore;
 
           if (awayScoreChange > 0) {
-            detectAndAnimatePlay(card, awayScoreChange, awayTeam?.team?.displayName || 'Away');
+            detectAndAnimatePlay(card, awayScoreChange, awayTeam?.team?.displayName || 'Away', lastPlay);
           } else if (homeScoreChange > 0) {
-            detectAndAnimatePlay(card, homeScoreChange, homeTeam?.team?.displayName || 'Home');
+            detectAndAnimatePlay(card, homeScoreChange, homeTeam?.team?.displayName || 'Home', lastPlay);
           }
 
           // Check for turnovers (interceptions/fumbles) from play description
-          const lastPlay = comp?.situation?.lastPlay?.text || '';
           if (lastPlay.toLowerCase().includes('interception') || lastPlay.toLowerCase().includes('intercepted')) {
             if (!card.dataset.lastInterception || card.dataset.lastInterception !== lastPlay) {
               showPlayAnimation(card, 'interception', 'INTERCEPTION!');
@@ -7006,6 +7155,30 @@
           } else if (fieldVisualizer) {
             // Hide field visualizer if no down/distance data
             fieldVisualizer.style.display = 'none';
+          }
+
+          // Update timeout bars
+          const awayTimeouts = comp?.situation?.awayTimeouts ?? 3;
+          const homeTimeouts = comp?.situation?.homeTimeouts ?? 3;
+
+          const timeoutContainers = card.querySelectorAll('.fullscreen-timeouts');
+          if (timeoutContainers.length >= 2) {
+            // Away team timeouts (first container)
+            const awayTimeoutBars = timeoutContainers[0].querySelectorAll('.timeout-bar');
+            awayTimeoutBars.forEach((bar, idx) => {
+              // idx 0 = first bar (used when < 3), idx 1 = second bar (used when < 2), idx 2 = third bar (used when < 1)
+              if (idx === 0) bar.classList.toggle('used', awayTimeouts < 3);
+              if (idx === 1) bar.classList.toggle('used', awayTimeouts < 2);
+              if (idx === 2) bar.classList.toggle('used', awayTimeouts < 1);
+            });
+
+            // Home team timeouts (second container)
+            const homeTimeoutBars = timeoutContainers[1].querySelectorAll('.timeout-bar');
+            homeTimeoutBars.forEach((bar, idx) => {
+              if (idx === 0) bar.classList.toggle('used', homeTimeouts < 3);
+              if (idx === 1) bar.classList.toggle('used', homeTimeouts < 2);
+              if (idx === 2) bar.classList.toggle('used', homeTimeouts < 1);
+            });
           }
         });
 

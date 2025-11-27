@@ -260,6 +260,40 @@
       font-weight: 700;
     }
 
+    .layout-options label.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      position: relative;
+    }
+
+    .layout-options label.locked input[type="radio"] {
+      pointer-events: none;
+    }
+
+    .layout-options label.locked::after {
+      content: '🔒';
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      font-size: 14px;
+    }
+
+    .layout-options label.locked:hover::before {
+      content: 'Subscribe to Unlock';
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+      z-index: 100;
+    }
+
     /* Grid Preview in Modal */
     .grid-preview {
       margin-bottom: 24px;
@@ -3962,22 +3996,73 @@
     let presentationRequest = null;
     let presentationConnection = null;
 
+    // Store allowed grids based on subscription
+    let allowedGrids = [1, 2, 4, 6]; // Default: all allowed
+
+    // Fetch subscription access permissions
+    async function fetchAccessPermissions() {
+      try {
+        const response = await fetch('/api/subscription/access');
+        if (response.ok) {
+          const accessData = await response.json();
+          allowedGrids = accessData.allowedGrids || [1, 2, 4, 6];
+        }
+      } catch (error) {
+        console.error('Failed to fetch access permissions:', error);
+      }
+    }
+
+    // Apply locks to layout options based on subscription
+    function applyLayoutLocks() {
+      const layoutLabels = document.querySelectorAll('.layout-options label');
+      layoutLabels.forEach(label => {
+        const input = label.querySelector('input[type="radio"]');
+        const value = parseInt(input.value);
+
+        if (!allowedGrids.includes(value)) {
+          label.classList.add('locked');
+          input.disabled = true;
+
+          // Add click handler to redirect to pricing
+          label.addEventListener('click', (e) => {
+            if (label.classList.contains('locked')) {
+              e.preventDefault();
+              e.stopPropagation();
+              window.location.href = '/pricing';
+            }
+          });
+        } else {
+          label.classList.remove('locked');
+          input.disabled = false;
+        }
+      });
+    }
+
     // Open game selection modal
-    function openGameSelectionModal() {
+    async function openGameSelectionModal() {
       const modal = document.getElementById('game-selection-modal');
       modal.classList.add('active');
 
-      // Auto-select 4-grid layout
-      const fourGridRadio = document.querySelector('input[name="layout"][value="4"]');
-      if (fourGridRadio) {
-        fourGridRadio.checked = true;
+      // Fetch and apply subscription permissions
+      await fetchAccessPermissions();
+      applyLayoutLocks();
+
+      // Auto-select the first allowed layout (default to highest allowed)
+      const defaultLayout = allowedGrids.includes(4) ? 4 : (allowedGrids.includes(2) ? 2 : 1);
+      const defaultRadio = document.querySelector(`input[name="layout"][value="${defaultLayout}"]`);
+      if (defaultRadio && !defaultRadio.disabled) {
+        defaultRadio.checked = true;
+      } else {
+        // Fallback to first allowed option
+        const firstAllowed = document.querySelector('input[name="layout"]:not(:disabled)');
+        if (firstAllowed) firstAllowed.checked = true;
       }
 
       // Reset game selections and render
       gridGames = {};
       renderGridPreview();
 
-      // Auto-select first 4 games
+      // Auto-select first N games based on selected layout
       autoSelectFirstGames();
     }
 
