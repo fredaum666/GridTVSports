@@ -771,7 +771,7 @@ app.get('/api/subscription/access', async (req, res) => {
         // Trial users: only NFL and NBA, max 2 grids
         allowedLeagues = ['nfl', 'nba'];
         allowedGrids = [1, 2];
-        lockedLeagues = ['mlb', 'nhl', 'ncaa'];
+        lockedLeagues = ['mlb', 'nhl', 'ncaa', 'ncaab'];
       }
     }
 

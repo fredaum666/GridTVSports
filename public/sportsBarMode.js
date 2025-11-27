@@ -12,6 +12,8 @@ class SportsBarMode {
         this.gridGames = {};
         this.fullscreenActive = false;
         this.updateInterval = null;
+        this.isTrial = false;
+        this.allowedGrids = [1, 2, 4, 6]; // Default: all grids allowed
     }
 
     /**
@@ -127,6 +129,40 @@ class SportsBarMode {
                 background: var(--accent-blue);
                 color: white;
                 border-color: var(--accent-blue);
+            }
+
+            .layout-option.locked label {
+                opacity: 0.5;
+                cursor: not-allowed;
+                position: relative;
+            }
+
+            .layout-option.locked input[type="radio"] {
+                pointer-events: none;
+            }
+
+            .layout-option.locked label::after {
+                content: '🔒';
+                position: absolute;
+                top: 50%;
+                right: 10px;
+                transform: translateY(-50%);
+                font-size: 16px;
+            }
+
+            .layout-option.locked:hover label::before {
+                content: 'Subscribe to Unlock';
+                position: absolute;
+                bottom: -30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 11px;
+                white-space: nowrap;
+                z-index: 10;
             }
 
             .grid-preview {
@@ -467,6 +503,55 @@ class SportsBarMode {
     }
 
     /**
+     * Set subscription access permissions
+     */
+    setAccessPermissions(accessData) {
+        this.isTrial = accessData.isTrial || false;
+        this.allowedGrids = accessData.allowedGrids || [1, 2, 4, 6];
+    }
+
+    /**
+     * Fetch and apply access permissions
+     */
+    async fetchAccessPermissions() {
+        try {
+            const response = await fetch('/api/subscription/access');
+            if (response.ok) {
+                const accessData = await response.json();
+                this.setAccessPermissions(accessData);
+            }
+        } catch (error) {
+            console.error('Failed to fetch access permissions:', error);
+        }
+    }
+
+    /**
+     * Apply locks to layout options based on subscription
+     */
+    applyLayoutLocks() {
+        const layoutOptions = document.querySelectorAll('.layout-option');
+        layoutOptions.forEach(option => {
+            const input = option.querySelector('input[type="radio"]');
+            const value = parseInt(input.value);
+
+            if (!this.allowedGrids.includes(value)) {
+                option.classList.add('locked');
+                input.disabled = true;
+
+                // Add click handler to redirect to pricing
+                option.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.location.href = '/pricing';
+                });
+            } else {
+                option.classList.remove('locked');
+                input.disabled = false;
+            }
+        });
+    }
+
+    /**
      * Initialize the sports bar mode
      */
     init() {
@@ -479,6 +564,11 @@ class SportsBarMode {
         const modalContainer = document.createElement('div');
         modalContainer.innerHTML = this.getModalHTML();
         document.body.appendChild(modalContainer);
+
+        // Fetch access permissions and apply locks
+        this.fetchAccessPermissions().then(() => {
+            this.applyLayoutLocks();
+        });
 
         // Attach event listeners
         this.attachEventListeners();
@@ -512,9 +602,19 @@ class SportsBarMode {
     /**
      * Open the modal
      */
-    openModal() {
+    async openModal() {
         this.gridGames = {};
         this.gridLayout = 1;
+
+        // Refresh access permissions and apply locks
+        await this.fetchAccessPermissions();
+        this.applyLayoutLocks();
+
+        // Reset to first allowed layout
+        const firstAllowedLayout = this.allowedGrids[0] || 1;
+        this.gridLayout = firstAllowedLayout;
+        document.querySelector(`input[name="layout"][value="${firstAllowedLayout}"]`).checked = true;
+
         document.getElementById('sportsBarModal').classList.add('active');
         this.renderGridPreview();
     }
