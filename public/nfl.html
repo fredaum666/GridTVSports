@@ -1241,13 +1241,14 @@
       right: clamp(4px, 1vmin, 8px);
     }
 
+    /* Scrimmage Line (dark blue) - where the ball is */
     .ball-indicator {
       position: absolute;
       top: clamp(-6px, -1.5vmin, -10px);
       bottom: clamp(-6px, -1.5vmin, -10px);
-      width: clamp(2px, 0.5vmin, 4px);
-      background: linear-gradient(to bottom, #fbbf24, #f59e0b);
-      box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(251, 191, 36, 0.8), 0 0 clamp(2px, 0.8vmin, 6px) rgba(251, 191, 36, 0.6);
+      width: clamp(3px, 0.6vmin, 5px);
+      background: linear-gradient(to bottom, #1e40af, #1e3a8a);
+      box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(30, 64, 175, 0.8), 0 0 clamp(2px, 0.8vmin, 6px) rgba(30, 64, 175, 0.6);
       transition: left 0.6s ease-out;
       z-index: 10;
       border-radius: clamp(1px, 0.3vmin, 3px);
@@ -1261,6 +1262,19 @@
       transform: translate(-50%, -50%);
       font-size: clamp(12px, 2.5vmin, 20px);
       filter: drop-shadow(0 clamp(1px, 0.5vmin, 3px) clamp(2px, 1vmin, 5px) rgba(0, 0, 0, 0.8));
+    }
+
+    /* First Down Line (yellow) - where they need to reach */
+    .first-down-line {
+      position: absolute;
+      top: clamp(-6px, -1.5vmin, -10px);
+      bottom: clamp(-6px, -1.5vmin, -10px);
+      width: clamp(3px, 0.6vmin, 5px);
+      background: linear-gradient(to bottom, #fbbf24, #f59e0b);
+      box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(251, 191, 36, 0.8), 0 0 clamp(2px, 0.8vmin, 6px) rgba(251, 191, 36, 0.6);
+      transition: left 0.6s ease-out;
+      z-index: 9;
+      border-radius: clamp(1px, 0.3vmin, 3px);
     }
 
     /* Timeout Indicators */
@@ -4174,16 +4188,16 @@
       const awayScore = parseInt(away.score) || 0;
 
       // Update scores
-      const awayScoreEls = card.querySelectorAll('.live-team-score');
-      if (awayScoreEls[0]) awayScoreEls[0].textContent = awayScore;
-      if (awayScoreEls[1]) awayScoreEls[1].textContent = homeScore;
+      const scoreEls = card.querySelectorAll('.live-team-score');
+      if (scoreEls[0]) scoreEls[0].textContent = awayScore;
+      if (scoreEls[1]) scoreEls[1].textContent = homeScore;
 
       // Update winning/losing classes
-      if (awayScoreEls[0]) {
-        awayScoreEls[0].className = `live-team-score ${awayScore > homeScore ? 'winning' : 'losing'}`;
+      if (scoreEls[0]) {
+        scoreEls[0].className = `live-team-score ${awayScore > homeScore ? 'winning' : 'losing'}`;
       }
-      if (awayScoreEls[1]) {
-        awayScoreEls[1].className = `live-team-score ${homeScore > awayScore ? 'winning' : 'losing'}`;
+      if (scoreEls[1]) {
+        scoreEls[1].className = `live-team-score ${homeScore > awayScore ? 'winning' : 'losing'}`;
       }
 
       // Update team name winning states
@@ -4191,12 +4205,20 @@
       if (teamNames[0]) teamNames[0].className = `live-team-name ${awayScore > homeScore ? 'winning' : ''}`;
       if (teamNames[1]) teamNames[1].className = `live-team-name ${homeScore > awayScore ? 'winning' : ''}`;
 
-      // Update quarter/clock
+      // Update quarter/clock - find the status text element more reliably
       const quarter = comp.status.period || 1;
       const clock = comp.status.displayClock || '15:00';
-      const statusText = `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}`;
-      const statusTextEl = card.querySelector('.page-1-live > div:nth-child(1) > div:nth-child(2)');
-      if (statusTextEl) statusTextEl.textContent = statusText;
+      const statusText = `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : quarter === 5 ? 'OT' : '4th'} - ${clock}`;
+
+      // Look for the status text element - it's in the header area
+      const page1Live = card.querySelector('.page-1-live');
+      if (page1Live) {
+        const statusDivs = page1Live.querySelectorAll('div[style*="text-align: center"]');
+        if (statusDivs[0]) {
+          const quarterClockEl = statusDivs[0].querySelector('div[style*="color: #9ca3af"]');
+          if (quarterClockEl) quarterClockEl.textContent = statusText;
+        }
+      }
 
       // Update possession indicators
       const possession = comp.situation?.possession || null;
@@ -4214,12 +4236,34 @@
         teamLogos[1].parentElement.insertAdjacentHTML('beforeend', '<span class="possession-icon">🏈</span>');
       }
 
-      // Update down/distance
+      // Update down/distance and ball position
       const downDistanceText = comp.situation?.downDistanceText || '';
-      const situationInfo = card.querySelector('.game-situation-info');
-      if (downDistanceText && situationInfo) {
-        const downDistanceEl = situationInfo.querySelector('.down-distance');
-        if (downDistanceEl) downDistanceEl.textContent = downDistanceText;
+      const ballPosition = comp.situation?.possessionText || '';
+      let situationInfo = card.querySelector('.game-situation-info');
+
+      if (downDistanceText) {
+        if (situationInfo) {
+          // Update existing element
+          const downDistanceEl = situationInfo.querySelector('.down-distance');
+          if (downDistanceEl) downDistanceEl.textContent = downDistanceText;
+
+          // Remove any existing ball position element (now included in downDistanceText)
+          const ballPosEl = situationInfo.querySelector('.ball-position');
+          if (ballPosEl) ballPosEl.remove();
+        } else {
+          // Create situation info if it doesn't exist
+          const liveScoreHeader = card.querySelector('.live-score-header');
+          if (liveScoreHeader) {
+            liveScoreHeader.insertAdjacentHTML('afterend', `
+              <div class="game-situation-info">
+                <span class="down-distance">${downDistanceText}</span>
+              </div>
+            `);
+          }
+        }
+      } else if (situationInfo) {
+        // Remove situation info if no down/distance
+        situationInfo.remove();
       }
 
       // Update quarter scores (Page 2)
@@ -6141,14 +6185,45 @@
       return Math.max(0, Math.min(100, percentage));
     }
 
-    // Update ball position on field visualizer
-    function updateBallPosition(card, fieldPosition, possession, awayTeam, homeTeam) {
+    // Update ball position and first down line on field visualizer
+    function updateBallPosition(card, fieldPosition, yardsToGo, possession, awayTeam, homeTeam) {
       const ballIndicator = card.querySelector('.ball-indicator');
+      const firstDownLine = card.querySelector('.first-down-line');
       if (!ballIndicator || !fieldPosition) return;
-      
+
+      // Calculate scrimmage line (ball) position
       const ballPosition = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
       ballIndicator.style.left = `${ballPosition}%`;
       ballIndicator.dataset.fieldPosition = fieldPosition;
+
+      // Calculate first down line position (scrimmage + yards to go in direction of play)
+      if (firstDownLine && yardsToGo > 0) {
+        // Determine which direction the team is going
+        const possessionIsAway = possession === awayTeam?.id;
+
+        // Calculate first down position based on direction of play
+        // The field goes: 0% = left (away endzone) to 100% = right (home endzone)
+        // Away team attacks right (toward 100%), Home team attacks left (toward 0%)
+        // But calculateBallPosition returns position from offensive perspective, so we need to invert
+        let firstDownPosition;
+        if (possessionIsAway) {
+          // Away team going right - first down marker is ahead (lower % due to how calculateBallPosition works)
+          firstDownPosition = ballPosition - yardsToGo;
+        } else {
+          // Home team going left - first down marker is ahead (higher % due to how calculateBallPosition works)
+          firstDownPosition = ballPosition + yardsToGo;
+        }
+
+        // Clamp to field bounds (0-100%)
+        firstDownPosition = Math.max(0, Math.min(100, firstDownPosition));
+
+        firstDownLine.style.left = `${firstDownPosition}%`;
+        firstDownLine.dataset.yardsToGo = yardsToGo;
+        firstDownLine.style.display = 'block';
+      } else if (firstDownLine) {
+        // Hide first down line if no yards to go (goal to go, etc.)
+        firstDownLine.style.display = 'none';
+      }
     }
 
     // Create empty slot card with logo
@@ -6269,6 +6344,8 @@
       const possession = comp?.situation?.possession;
       const downDistance = comp?.situation?.downDistanceText || '';
       const fieldPosition = comp?.situation?.possessionText || '';
+      const yardsToGo = comp?.situation?.distance || 0; // Yards needed for first down
+      const yardLine = comp?.situation?.yardLine || 0; // Current yard line
 
       // Get timeout information - ESPN API provides this in the situation object
       const awayTimeouts = comp?.situation?.awayTimeouts ?? 3;
@@ -6280,6 +6357,7 @@
       div.dataset.isFinal = isFinal ? 'true' : 'false';
       div.dataset.gameId = game.id;
       div.dataset.prevDown = comp?.situation?.down || 0; // Initialize for first down detection
+      div.dataset.prevDownDistance = comp?.situation?.downDistanceText || ''; // Initialize for big play on 1st down detection
       
       div.innerHTML = `
         <img src="/assets/NFL-logo.png" alt="NFL" class="sport-logo-indicator">
@@ -6360,8 +6438,6 @@
             ${isLive && downDistance && fieldPosition ? `
               <div class="field-visualizer">
                 <div class="field-container">
-                  <div class="endzone-label left">${awayTeam?.team?.abbreviation || 'AWAY'}</div>
-                  <div class="endzone-label right">${homeTeam?.team?.abbreviation || 'HOME'}</div>
                   <div class="yard-markers">
                     <div class="yard-marker endzone"><span class="yard-label">0</span></div>
                     <div class="yard-marker"><span class="yard-label">10</span></div>
@@ -6376,6 +6452,7 @@
                     <div class="yard-marker endzone"><span class="yard-label">0</span></div>
                   </div>
                   <div class="ball-indicator" data-field-position="${fieldPosition}"></div>
+                  <div class="first-down-line" data-yards-to-go="${yardsToGo}"></div>
                 </div>
               </div>
             ` : ''}
@@ -6387,9 +6464,9 @@
       const selector = div.querySelector('.fs-game-selector');
       populateFullScreenGameSelector(selector, slotIndex);
 
-      // Update ball position on field visualizer if present
+      // Update ball position and first down line on field visualizer if present
       if (isLive && fieldPosition) {
-        updateBallPosition(div, fieldPosition, possession, awayTeam, homeTeam);
+        updateBallPosition(div, fieldPosition, yardsToGo, possession, awayTeam, homeTeam);
       }
 
       // Show selector on card hover
@@ -6511,33 +6588,52 @@
     function extractTouchdownScorer(playText) {
       if (!playText) return '';
 
-      const lowerPlay = playText.toLowerCase();
+      console.log('Extracting scorer from play text:', playText);
 
       // Common patterns for touchdown plays:
       // "J.Smith pass complete to M.Jones for 15 yards, TOUCHDOWN"
       // "D.Henry rush for 5 yards, TOUCHDOWN"
       // "P.Mahomes 15 yard pass to T.Kelce, TOUCHDOWN"
+      // "(5:23) J.Tucker 15 yard rush TOUCHDOWN"
 
-      // Pattern 1: "pass to [Player Name]" or "pass complete to [Player Name]"
-      let match = playText.match(/pass(?:\s+complete)?\s+to\s+([A-Z]\.?\s*[A-Za-z'-]+)/i);
-      if (match) return match[1].trim();
+      // Pattern 1: "pass to [Player Name]" or "pass complete to [Player Name]" - receiver scores
+      // Match full name like "T.Kelce" or "Travis Kelce"
+      let match = playText.match(/pass(?:\s+complete)?\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+      if (match) {
+        console.log('Matched pattern 1 (pass to):', match[1]);
+        return match[1].trim();
+      }
 
-      // Pattern 2: "[Player Name] rush" or "[Player Name] run"
-      match = playText.match(/([A-Z]\.?\s*[A-Za-z'-]+)\s+(?:rush|run)\s+/i);
-      if (match) return match[1].trim();
+      // Pattern 2: "yard pass to [Player Name]" - receiver scores
+      match = playText.match(/yard\s+pass\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+      if (match) {
+        console.log('Matched pattern 2 (yard pass to):', match[1]);
+        return match[1].trim();
+      }
 
-      // Pattern 3: "yard pass to [Player Name]"
-      match = playText.match(/yard\s+pass\s+to\s+([A-Z]\.?\s*[A-Za-z'-]+)/i);
-      if (match) return match[1].trim();
+      // Pattern 3: "[Player Name] rush" or "[Player Name] run" - rusher scores
+      // Be more specific: look for name followed by number then "yard rush/run"
+      match = playText.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+\d+\s+yard\s+(?:rush|run)/i);
+      if (match) {
+        console.log('Matched pattern 3 (rush/run with yards):', match[1]);
+        return match[1].trim();
+      }
 
       // Pattern 4: "caught by [Player Name]"
-      match = playText.match(/caught\s+by\s+([A-Z]\.?\s*[A-Za-z'-]+)/i);
-      if (match) return match[1].trim();
+      match = playText.match(/caught\s+by\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+      if (match) {
+        console.log('Matched pattern 4 (caught by):', match[1]);
+        return match[1].trim();
+      }
 
-      // Pattern 5: "[Player Name] [number] yard touchdown"
-      match = playText.match(/([A-Z]\.?\s*[A-Za-z'-]+)\s+\d+\s+yard.*touchdown/i);
-      if (match) return match[1].trim();
+      // Pattern 5: Look for name at beginning after timestamp like "(5:23) J.Name"
+      match = playText.match(/^\([^)]+\)\s+([A-Z][a-z]*\.[A-Z][A-Za-z'-]+)/);
+      if (match) {
+        console.log('Matched pattern 5 (after timestamp):', match[1]);
+        return match[1].trim();
+      }
 
+      console.log('No scorer pattern matched');
       return '';
     }
 
@@ -6588,7 +6684,7 @@
 
       // Special HTML for touchdown with team logo and scorer
       if (playType === 'touchdown' && teamName) {
-        const teamLogoPath = `/assets/${teamName}.png`;
+        const teamLogoPath = `/assets/${encodeURIComponent(teamName)}.png`;
         animationDiv.innerHTML = `
           <div class="touchdown-container">
             <img src="${teamLogoPath}" alt="${teamName}" class="touchdown-team-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
@@ -6976,16 +7072,24 @@
             }
           }
 
-          // Check for 1st down - when down changes to 1 from 2, 3, or 4
+          // Check for 1st down - detect when a new first down is achieved
           const currentDown = comp?.situation?.down;
           const prevDown = parseInt(card.dataset.prevDown) || 0;
+          const downDistanceText = comp?.situation?.downDistanceText || '';
+          const prevDownDistance = card.dataset.prevDownDistance || '';
 
-          // Only trigger if:
+          // Trigger 1st down animation if:
           // - Current down is 1
-          // - Previous down was 2, 3, or 4 (not 0 or 1)
+          // - Either: previous down was 2, 3, or 4 (normal progression)
+          //   OR: previous down was 1 but the down/distance text changed (big play on 1st down)
           // - No score change (to avoid showing after touchdowns)
           // - Not showing other animations (interception/fumble/missed kicks/punt/penalty)
-          if (currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
+          const isNewFirstDown = currentDown === 1 && (
+            (prevDown >= 2 && prevDown <= 4) ||  // Normal: got 1st down from 2nd/3rd/4th
+            (prevDown === 1 && downDistanceText !== prevDownDistance && prevDownDistance !== '')  // Big play on 1st down
+          );
+
+          if (isNewFirstDown &&
               awayScoreChange === 0 && homeScoreChange === 0 &&
               !lowerLastPlay.includes('interception') &&
               !lowerLastPlay.includes('intercepted') &&
@@ -6996,15 +7100,15 @@
               !(lowerLastPlay.includes('field goal') && (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good'))) &&
               !(lowerLastPlay.includes('extra point') && (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good')))) {
             // Check if we already showed this 1st down
-            const downDistanceText = comp?.situation?.downDistanceText || '';
             if (card.dataset.lastFirstDown !== downDistanceText) {
               showPlayAnimation(card, 'first-down', '1ST DOWN!');
               card.dataset.lastFirstDown = downDistanceText;
             }
           }
 
-          // Store current down for next update
+          // Store current down and down/distance for next update
           card.dataset.prevDown = currentDown || 0;
+          card.dataset.prevDownDistance = downDistanceText;
 
           // Store current scores for next update
           card.dataset.prevAwayScore = awayScore;
@@ -7113,6 +7217,7 @@
 
           // Update field position visualizer
           const fieldPosition = comp?.situation?.possessionText || '';
+          const yardsToGo = comp?.situation?.distance || 0;
           let fieldVisualizer = card.querySelector('.field-visualizer');
 
           if (downDistance && fieldPosition) {
@@ -7123,8 +7228,6 @@
                 situationInfo.insertAdjacentHTML('afterend', `
                   <div class="field-visualizer">
                     <div class="field-container">
-                      <div class="endzone-label left">${awayTeam?.team?.abbreviation || 'AWAY'}</div>
-                      <div class="endzone-label right">${homeTeam?.team?.abbreviation || 'HOME'}</div>
                       <div class="yard-markers">
                         <div class="yard-marker endzone"><span class="yard-label">0</span></div>
                         <div class="yard-marker"><span class="yard-label">10</span></div>
@@ -7139,6 +7242,7 @@
                         <div class="yard-marker endzone"><span class="yard-label">0</span></div>
                       </div>
                       <div class="ball-indicator" data-field-position="${fieldPosition}"></div>
+                      <div class="first-down-line" data-yards-to-go="${yardsToGo}"></div>
                     </div>
                   </div>
                 `);
@@ -7146,9 +7250,9 @@
               }
             }
 
-            // Update ball position
+            // Update ball position and first down line
             if (fieldVisualizer) {
-              updateBallPosition(card, fieldPosition, possession, awayTeam, homeTeam);
+              updateBallPosition(card, fieldPosition, yardsToGo, possession, awayTeam, homeTeam);
 
               fieldVisualizer.style.display = 'flex';
             }
@@ -7437,12 +7541,14 @@
       initializePresentationAPI();
     };
 
-    // Sync state when games are rendered
-    const originalRenderFullscreenGames = renderFullscreenGames;
-    renderFullscreenGames = function() {
-      originalRenderFullscreenGames();
-      sendStateToPresentationDisplay();
-    };
+    // Sync state when games are rendered (hook into SportsBarMode method)
+    if (typeof sportsBarMode !== 'undefined' && sportsBarMode) {
+      const originalRenderFullscreenGames = sportsBarMode.renderFullscreenGames.bind(sportsBarMode);
+      sportsBarMode.renderFullscreenGames = function() {
+        originalRenderFullscreenGames();
+        sendStateToPresentationDisplay();
+      };
+    }
   </script>
 
 </body>
