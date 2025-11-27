@@ -6350,9 +6350,10 @@
       
       // Determine if game is live or upcoming
       const statusState = comp?.status?.type?.state;
-      const isLive = statusState === 'in' || comp?.status?.period > 0;
-      const isUpcoming = statusState === 'pre';
       const isFinal = statusState === 'post';
+      const isUpcoming = statusState === 'pre';
+      // isLive: game is in progress (not final, not upcoming)
+      const isLive = (statusState === 'in' || comp?.status?.period > 0) && !isFinal;
       
       console.log('🎮 Creating game card:', {
         gameName: game.name,
