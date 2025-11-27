@@ -1591,6 +1591,80 @@
       text-shadow: 0 0 20px #f97316;
     }
 
+    /* Sack Animation - Purple/Red */
+    .play-animation.sack .play-animation-text {
+      color: #a855f7;
+      text-shadow: 0 0 20px #a855f7, 0 0 40px #ef4444;
+    }
+
+    .sack-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: clamp(10px, 2vmin, 20px);
+    }
+
+    .sack-icon {
+      font-size: clamp(4rem, 18vmin, 10rem);
+      animation: sackImpact 0.6s ease-out, sackShake 0.5s ease-in-out 0.6s;
+      filter: drop-shadow(0 0 20px #a855f7) drop-shadow(0 0 40px #ef4444);
+    }
+
+    .sack-stars {
+      position: absolute;
+      font-size: clamp(1.5rem, 4vmin, 3rem);
+      animation: sackStars 1s ease-out forwards;
+      opacity: 0;
+    }
+
+    .sack-stars.star-1 { top: 10%; left: 20%; animation-delay: 0.3s; }
+    .sack-stars.star-2 { top: 5%; right: 25%; animation-delay: 0.4s; }
+    .sack-stars.star-3 { top: 20%; left: 10%; animation-delay: 0.5s; }
+    .sack-stars.star-4 { top: 15%; right: 15%; animation-delay: 0.6s; }
+
+    @keyframes sackImpact {
+      0% {
+        transform: scale(0) translateY(-100px);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.4) translateY(10px);
+        opacity: 1;
+      }
+      80% {
+        transform: scale(0.9) translateY(-5px);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes sackShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px) rotate(-3deg); }
+      40% { transform: translateX(10px) rotate(3deg); }
+      60% { transform: translateX(-5px) rotate(-1deg); }
+      80% { transform: translateX(5px) rotate(1deg); }
+    }
+
+    @keyframes sackStars {
+      0% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2) rotate(180deg);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(360deg) translateY(-20px);
+      }
+    }
+
     /* Missed Field Goal / Missed Extra Point Animation - Red with YFrame and ball missing */
     .play-animation.missed-kick .play-animation-text {
       color: #ef4444;
@@ -6732,6 +6806,19 @@
           <div class="play-animation-text">${playText}</div>
           ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
         `;
+      } else if (playType === 'sack') {
+        // Special HTML for sack with impact effect and stars
+        animationDiv.innerHTML = `
+          <div class="sack-container">
+            <div class="sack-icon">💥</div>
+            <span class="sack-stars star-1">⭐</span>
+            <span class="sack-stars star-2">⭐</span>
+            <span class="sack-stars star-3">💫</span>
+            <span class="sack-stars star-4">💫</span>
+          </div>
+          <div class="play-animation-text">${playText}</div>
+          ${scorerName ? `<div class="play-animation-subtext">${scorerName}</div>` : ''}
+        `;
       } else if (playType === 'penalty') {
         // Special HTML for penalty with referee throwing and penalty details
         // recoveryInfo contains: penaltyName|offenseDefense|playerName|teamLogo
@@ -6980,6 +7067,29 @@
               console.log('🦶 PUNT detected:', lastPlay);
               showPlayAnimation(card, 'punt', 'PUNT!');
               card.dataset.lastPunt = lastPlay;
+            }
+          }
+
+          // Sack detection
+          if (lowerLastPlay.includes('sack') || lowerLastPlay.includes('sacked')) {
+            if (!card.dataset.lastSack || card.dataset.lastSack !== lastPlay) {
+              console.log('💥 SACK detected:', lastPlay);
+
+              // Extract the defender who made the sack
+              let sackerName = '';
+              // Pattern: "sacked by [Player Name]" or "[Player Name] sacks"
+              let sackMatch = lastPlay.match(/sacked\s+by\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
+              if (sackMatch) {
+                sackerName = sackMatch[1].trim();
+              } else {
+                sackMatch = lastPlay.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+sack/i);
+                if (sackMatch) {
+                  sackerName = sackMatch[1].trim();
+                }
+              }
+
+              showPlayAnimation(card, 'sack', 'SACK!', '', '', '', sackerName);
+              card.dataset.lastSack = lastPlay;
             }
           }
 
