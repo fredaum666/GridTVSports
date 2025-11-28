@@ -2200,75 +2200,141 @@
         height: calc(100vh - 80px) !important;
       }
 
-      /* Grid-1: Single card takes most of screen - large sizing */
+      /* ========== 1 GAME - FULL SCREEN SIZES ========== */
       .fullscreen-grid.grid-1 {
         place-items: stretch !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        padding: 12px !important;
+        gap: 0 !important;
+        overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-1 .fullscreen-game-card {
         max-width: 100% !important;
-        height: auto !important;
-        padding: clamp(20px, 3vh, 30px) !important;
+        height: calc(100vh - 24px) !important;
+        height: calc(100dvh - 24px) !important;
+        padding: clamp(25px, 5vw, 40px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
       }
 
       .fullscreen-grid.grid-1 .fullscreen-team-logo {
-        width: clamp(60px, 10vh, 90px) !important;
-        height: clamp(60px, 10vh, 90px) !important;
+        width: clamp(100px, 20vw, 150px) !important;
+        height: clamp(100px, 20vw, 150px) !important;
       }
 
       .fullscreen-grid.grid-1 .fullscreen-team-name {
-        font-size: clamp(2rem, 5vh, 3.5rem) !important;
+        font-size: clamp(3rem, 10vw, 5rem) !important;
+        letter-spacing: 2px !important;
       }
 
       .fullscreen-grid.grid-1 .fullscreen-score {
-        font-size: clamp(3rem, 8vh, 6rem) !important;
+        font-size: clamp(5rem, 15vw, 8rem) !important;
       }
 
       .fullscreen-grid.grid-1 .fullscreen-quarter {
-        font-size: clamp(1.2rem, 2.5vh, 2rem) !important;
-        margin-bottom: clamp(12px, 2vh, 20px) !important;
+        font-size: clamp(1.8rem, 5vw, 2.8rem) !important;
+        margin-bottom: clamp(15px, 3vh, 25px) !important;
       }
 
       .fullscreen-grid.grid-1 .fullscreen-team {
-        margin-bottom: clamp(10px, 2vh, 15px) !important;
+        margin-bottom: clamp(15px, 3vh, 25px) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-record {
+        font-size: clamp(1.3rem, 4vw, 2rem) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-vs {
+        font-size: clamp(1.8rem, 5vw, 2.8rem) !important;
+        margin: 25px 0 !important;
       }
 
       .fullscreen-grid.grid-1 .sport-logo-indicator {
-        width: clamp(70px, 12vh, 100px) !important;
-        height: clamp(70px, 12vh, 100px) !important;
+        width: clamp(60px, 14vw, 90px) !important;
+        height: clamp(60px, 14vw, 90px) !important;
+        top: 15px !important;
+        left: 15px !important;
       }
 
-      /* Grid-2: Two cards stacked - medium sizing */
+      .fullscreen-grid.grid-1 .fullscreen-teams {
+        gap: clamp(30px, 6vh, 50px) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-down-distance {
+        font-size: clamp(1.4rem, 4vw, 2rem) !important;
+        padding: 10px 20px !important;
+      }
+
+      /* ========== 2 GAMES - HALF SCREEN SIZES ========== */
+      .fullscreen-grid.grid-2 {
+        height: 100vh !important;
+        height: 100dvh !important;
+        padding: 10px !important;
+        gap: 10px !important;
+        overflow: hidden !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
       .fullscreen-grid.grid-2 .fullscreen-game-card {
-        height: auto !important;
-        padding: clamp(15px, 2.5vh, 25px) !important;
+        height: calc((100vh - 30px) / 2) !important;
+        height: calc((100dvh - 30px) / 2) !important;
+        padding: clamp(15px, 4vw, 25px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
       }
 
       .fullscreen-grid.grid-2 .fullscreen-team-logo {
-        width: clamp(50px, 8vh, 70px) !important;
-        height: clamp(50px, 8vh, 70px) !important;
+        width: clamp(70px, 15vw, 100px) !important;
+        height: clamp(70px, 15vw, 100px) !important;
       }
 
       .fullscreen-grid.grid-2 .fullscreen-team-name {
-        font-size: clamp(1.5rem, 4vh, 2.5rem) !important;
+        font-size: clamp(2rem, 7vw, 3.5rem) !important;
+        letter-spacing: 1px !important;
       }
 
       .fullscreen-grid.grid-2 .fullscreen-score {
-        font-size: clamp(2.5rem, 6vh, 4.5rem) !important;
+        font-size: clamp(3.5rem, 10vw, 5.5rem) !important;
       }
 
       .fullscreen-grid.grid-2 .fullscreen-quarter {
-        font-size: clamp(1rem, 2vh, 1.5rem) !important;
-        margin-bottom: clamp(8px, 1.5vh, 15px) !important;
+        font-size: clamp(1.3rem, 4vw, 2rem) !important;
+        margin-bottom: clamp(10px, 2vh, 18px) !important;
       }
 
       .fullscreen-grid.grid-2 .fullscreen-team {
-        margin-bottom: clamp(8px, 1.5vh, 12px) !important;
+        margin-bottom: clamp(10px, 2vh, 15px) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-record {
+        font-size: clamp(1rem, 3vw, 1.5rem) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-vs {
+        font-size: clamp(1.3rem, 4vw, 2rem) !important;
+        margin: 15px 0 !important;
       }
 
       .fullscreen-grid.grid-2 .sport-logo-indicator {
-        width: clamp(60px, 10vh, 80px) !important;
-        height: clamp(60px, 10vh, 80px) !important;
+        width: clamp(45px, 10vw, 65px) !important;
+        height: clamp(45px, 10vw, 65px) !important;
+        top: 10px !important;
+        left: 10px !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-teams {
+        gap: clamp(15px, 3vh, 30px) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-down-distance {
+        font-size: clamp(1.1rem, 3vw, 1.5rem) !important;
+        padding: 8px 16px !important;
       }
 
       /* Grid-4: Four cards stacked - compact sizing */
@@ -4089,7 +4155,12 @@
             }
             
             // Game is live if status state is 'in' OR if not completed/final and has started playing (period > 0)
-            const isLive = statusState === 'in' || (comp.status.period > 0 && !isCompleted && !isFinal);
+            // Enhanced to catch halftime, quarters, etc.
+            const isLive = statusState === 'in' ||
+                           (comp.status.period > 0 && !isCompleted && !isFinal) ||
+                           statusName.toLowerCase().includes('progress') ||
+                           statusName.toLowerCase().includes('halftime') ||
+                           statusName.toLowerCase().includes('quarter');
 
             // Game is upcoming if it's scheduled (pre) or any other non-live/non-final state
             const isUpcoming = statusState === 'pre';
@@ -4189,10 +4260,15 @@
       liveGames.forEach((game, index) => {
         const comp = game.competitions[0];
         const statusType = comp.status.type.state;
+        const statusName = comp.status.type.name || '';
         const isCompleted = comp.status.type.completed;
         const isFinal = isCompleted || statusType === 'post';
+        // Enhanced live detection to catch halftime, quarters, etc.
         const isLive = statusType === 'in' ||
-                       (comp.status.period && comp.status.period > 0 && !isCompleted);
+                       (comp.status.period && comp.status.period > 0 && !isCompleted) ||
+                       statusName.toLowerCase().includes('progress') ||
+                       statusName.toLowerCase().includes('halftime') ||
+                       statusName.toLowerCase().includes('quarter');
         const isPregame = statusType === 'pre';
 
         // Check for games about to start (time passed but not live yet)
@@ -4226,10 +4302,15 @@
         const gameId = game.id;
         const comp = game.competitions[0];
         const statusType = comp.status.type.state;
+        const statusName = comp.status.type.name || '';
         const isCompleted = comp.status.type.completed;
         const isFinal = isCompleted || statusType === 'post';
+        // Enhanced live detection to catch halftime, quarters, etc.
         const isLive = statusType === 'in' ||
-                       (comp.status.period && comp.status.period > 0 && !isCompleted);
+                       (comp.status.period && comp.status.period > 0 && !isCompleted) ||
+                       statusName.toLowerCase().includes('progress') ||
+                       statusName.toLowerCase().includes('halftime') ||
+                       statusName.toLowerCase().includes('quarter');
 
         const existingCard = existingCards.get(gameId);
 

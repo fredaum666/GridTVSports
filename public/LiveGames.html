@@ -2183,13 +2183,178 @@
         padding: 15px !important;
       }
 
+      /* 1 Game - Full viewport height */
+      .fullscreen-grid.grid-1 {
+        grid-template-rows: 1fr !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        padding: 12px !important;
+        gap: 0 !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-game-card {
+        height: calc(100vh - 24px) !important;
+        height: calc(100dvh - 24px) !important;
+        min-height: unset !important;
+      }
+
+      /* 2 Games - Each takes half viewport */
+      .fullscreen-grid.grid-2 {
+        grid-template-rows: repeat(2, 1fr) !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        padding: 10px !important;
+        gap: 10px !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-game-card {
+        height: calc((100vh - 30px) / 2) !important;
+        height: calc((100dvh - 30px) / 2) !important;
+        min-height: unset !important;
+      }
+
       /* Adjust card sizing for phones */
       .fullscreen-game-card {
         padding: 20px 20px 30px 20px !important;
         min-height: 300px !important;
         overflow: visible !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
       }
 
+      /* ========== 1 GAME - FULL SCREEN SIZES ========== */
+      .fullscreen-grid.grid-1 .fullscreen-game-card {
+        padding: clamp(25px, 5vw, 40px) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-quarter {
+        font-size: clamp(1.8rem, 5vw, 2.8rem) !important;
+        margin-bottom: 20px !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-name {
+        font-size: clamp(3rem, 10vw, 5rem) !important;
+        letter-spacing: 2px !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-record {
+        font-size: clamp(1.3rem, 4vw, 2rem) !important;
+        min-width: 80px !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-score {
+        font-size: clamp(5rem, 15vw, 8rem) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-vs {
+        font-size: clamp(1.8rem, 5vw, 2.8rem) !important;
+        margin: 25px 0 !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-logo {
+        width: clamp(100px, 20vw, 150px) !important;
+        height: clamp(100px, 20vw, 150px) !important;
+      }
+
+      .fullscreen-grid.grid-1 .sport-logo-indicator {
+        width: clamp(60px, 14vw, 90px) !important;
+        height: clamp(60px, 14vw, 90px) !important;
+        top: 15px !important;
+        left: 15px !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-down-distance {
+        font-size: clamp(1.4rem, 4vw, 2rem) !important;
+        padding: 10px 20px !important;
+        margin-top: 15px !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-possession {
+        width: 35px !important;
+        height: 35px !important;
+        margin-left: 12px !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-teams {
+        gap: clamp(30px, 6vh, 50px) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team {
+        gap: clamp(15px, 3vw, 25px) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-header {
+        gap: clamp(15px, 4vw, 25px) !important;
+      }
+
+      /* ========== 2 GAMES - HALF SCREEN SIZES ========== */
+      .fullscreen-grid.grid-2 .fullscreen-game-card {
+        padding: clamp(15px, 4vw, 25px) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-quarter {
+        font-size: clamp(1.3rem, 4vw, 2rem) !important;
+        margin-bottom: 12px !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-name {
+        font-size: clamp(2rem, 7vw, 3.5rem) !important;
+        letter-spacing: 1px !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-record {
+        font-size: clamp(1rem, 3vw, 1.5rem) !important;
+        min-width: 60px !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-score {
+        font-size: clamp(3.5rem, 10vw, 5.5rem) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-vs {
+        font-size: clamp(1.3rem, 4vw, 2rem) !important;
+        margin: 15px 0 !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-logo {
+        width: clamp(70px, 15vw, 100px) !important;
+        height: clamp(70px, 15vw, 100px) !important;
+      }
+
+      .fullscreen-grid.grid-2 .sport-logo-indicator {
+        width: clamp(45px, 10vw, 65px) !important;
+        height: clamp(45px, 10vw, 65px) !important;
+        top: 10px !important;
+        left: 10px !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-down-distance {
+        font-size: clamp(1.1rem, 3vw, 1.5rem) !important;
+        padding: 8px 16px !important;
+        margin-top: 10px !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-possession {
+        width: 28px !important;
+        height: 28px !important;
+        margin-left: 10px !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-teams {
+        gap: clamp(15px, 3vh, 30px) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team {
+        gap: clamp(10px, 2vw, 18px) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-header {
+        gap: clamp(10px, 3vw, 18px) !important;
+      }
+
+      /* ========== DEFAULT (4+ GAMES) ========== */
       /* Scale down fonts for mobile */
       .fullscreen-quarter {
         font-size: 1.4rem !important;
