@@ -1414,7 +1414,7 @@ const sportsCache = {
   ncaab: { data: new Map(), activeDates: new Set() },
   mlb: { data: new Map(), activeDates: new Set() },
   nhl: { data: new Map(), activeDates: new Set() },
-  CACHE_DURATION: 15000, // 15 seconds for live games
+  CACHE_DURATION: 30000, // 30 seconds for live games (increased to avoid ESPN rate limits)
   COMPLETED_CACHE_DURATION: 3600000 // 1 hour for completed
 };
 

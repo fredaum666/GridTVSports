@@ -5215,11 +5215,11 @@
     // Initialize
     fetchLiveGames();
 
-    // Auto-refresh every 5 seconds for live updates
+    // Auto-refresh every 10 seconds for live updates (reduced to avoid ESPN rate limits)
     refreshInterval = setInterval(() => {
       console.log('🔄 Auto-refreshing games...');
       fetchLiveGames();
-    }, 5000);
+    }, 10000);
 
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
@@ -5863,10 +5863,10 @@
         applyDynamicScaling();
       }, 100);
       
-      // Start auto-refresh
+      // Start auto-refresh (10 seconds to avoid ESPN rate limits)
       fullscreenRefreshInterval = setInterval(() => {
         updateFullScreenScores();
-      }, 5000);
+      }, 10000);
 
       // Start session keep-alive every 2 minutes to prevent session expiration
       sessionKeepAliveInterval = setInterval(async () => {
