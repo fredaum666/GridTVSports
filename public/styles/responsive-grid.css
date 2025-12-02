@@ -1225,9 +1225,8 @@ html, body {
   margin-bottom: clamp(8px, 1.5vmin, 20px) !important;
 }
 
-.fullscreen-grid.grid-4 .fullscreen-team-record {
-  font-size: clamp(10px, 1.5vmin, 16px) !important;
-}
+/* Note: .fullscreen-grid.grid-4 .fullscreen-team-record sizing now handled by individual page CSS
+   to allow different sizes for different sports (NFL/NCAA use 1.1rem, NBA/NHL use 0.75rem) */
 
 .fullscreen-grid.grid-4 .fullscreen-vs {
   font-size: clamp(12px, 1.8vmin, 18px) !important;

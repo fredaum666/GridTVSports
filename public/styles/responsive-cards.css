@@ -1,59 +1,75 @@
-/* ================================================================
-   GRIDTV SPORTS - RESPONSIVE GAME CARDS (Non-Fullscreen View)
-   Auto-scaling cards for regular browsing view
-   ================================================================ */
+/* ╔══════════════════════════════════════════════════════════════════════════════╗
+   ║       GRIDTV SPORTS - RESPONSIVE GAME CARDS (Non-Fullscreen View)            ║
+   ║                                                                               ║
+   ║   Auto-scaling cards for regular browsing view                                ║
+   ║                                                                               ║
+   ║   EASY EDIT GUIDE: Adjust values using CSS clamp(MIN, PREFERRED, MAX)         ║
+   ║   - MIN: Smallest the element will ever be                                    ║
+   ║   - PREFERRED: Scales with viewport (vw = width, vh = height)                 ║
+   ║   - MAX: Largest the element will ever be                                     ║
+   ║                                                                               ║
+   ║   Organized by: SECTION → BREAKPOINT → ELEMENT                                ║
+   ╚══════════════════════════════════════════════════════════════════════════════╝ */
 
-/* ================================================================
-   CONTAINER - No horizontal scroll
-   ================================================================ */
+/* ==================================================================================
+   ███ CONTAINER ███
+   ================================================================================== */
+
+/* --- Container styling - No horizontal scroll --- */
 .container {
   max-width: 100%;
   margin: 0 auto;
-  padding: clamp(12px, 2vw, 24px);
+  padding: clamp(12px, 2vw, 24px);              /* ◄ Container padding */
   overflow-x: hidden;
 }
 
-/* ================================================================
-   GAMES GRID - Responsive columns
-   ================================================================ */
+/* ==================================================================================
+   ███ GAMES GRID ███
+   ================================================================================== */
+
+/* --- Games Grid - Responsive columns --- */
 .games-grid {
   display: grid;
-  gap: clamp(12px, 2vw, 24px);
+  gap: clamp(12px, 2vw, 24px);                  /* ◄ Grid gap */
   width: 100%;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
 }
 
-/* ================================================================
-   GAME CARDS - Auto-scaling
-   ================================================================ */
+/* ==================================================================================
+   ███ GAME CARDS ███
+   ================================================================================== */
+
+/* --- Game Card - Base styling --- */
 .game-card {
   background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
   border: 2px solid #334155;
-  border-radius: clamp(8px, 1vw, 16px);
-  padding: clamp(12px, 2vw, 20px);
+  border-radius: clamp(8px, 1vw, 16px);         /* ◄ Card border radius */
+  padding: clamp(12px, 2vw, 20px);              /* ◄ Card padding */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  gap: clamp(8px, 1vw, 16px);
-  min-width: 0; /* Allow flex shrinking */
+  gap: clamp(8px, 1vw, 16px);                   /* ◄ Card content gap */
+  min-width: 0;
   overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
 }
 
-/* Hover effect completely removed - cards are static */
+/* ==================================================================================
+   ███ CARD HEADER ███
+   ================================================================================== */
 
-/* ================================================================
-   CARD HEADER
-   ================================================================ */
+/* --- Card Header --- */
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: clamp(8px, 1vw, 12px);
+  padding-bottom: clamp(8px, 1vw, 12px);        /* ◄ Header padding bottom */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-wrap: wrap;
   gap: 8px;
 }
 
+/* --- Game Status --- */
 .game-status {
   display: flex;
   align-items: center;
@@ -61,10 +77,11 @@
   flex-shrink: 0;
 }
 
+/* --- Status Badge --- */
 .status-badge {
-  padding: clamp(4px, 0.5vw, 8px) clamp(8px, 1vw, 16px);
+  padding: clamp(4px, 0.5vw, 8px) clamp(8px, 1vw, 16px);  /* ◄ Badge padding */
   border-radius: 12px;
-  font-size: clamp(11px, 1.2vw, 14px);
+  font-size: clamp(11px, 1.2vw, 14px);                    /* ◄ Badge font size */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -87,30 +104,34 @@
   color: white;
 }
 
+/* --- Game Time --- */
 .game-time {
-  font-size: clamp(12px, 1.3vw, 16px);
+  font-size: clamp(12px, 1.3vw, 16px);          /* ◄ Game time font size */
   color: #9ca3af;
   font-weight: 500;
 }
 
-/* ================================================================
-   TEAMS SECTION
-   ================================================================ */
+/* ==================================================================================
+   ███ TEAMS SECTION ███
+   ================================================================================== */
+
+/* --- Teams Section Container --- */
 .teams-section {
   display: flex;
   flex-direction: column;
-  gap: clamp(8px, 1vw, 16px);
+  gap: clamp(8px, 1vw, 16px);                   /* ◄ Teams section gap */
 }
 
+/* --- Team Row --- */
 .team-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(8px, 1vw, 16px);
-  padding: clamp(8px, 1vw, 12px);
+  gap: clamp(8px, 1vw, 16px);                   /* ◄ Team row gap */
+  padding: clamp(8px, 1vw, 12px);               /* ◄ Team row padding */
   background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  min-width: 0; /* Allow flex shrinking */
+  min-width: 0;
 }
 
 .team-row.winning {
@@ -118,21 +139,24 @@
   border-left: 3px solid #22c55e;
 }
 
+/* --- Team Info --- */
 .team-info {
   display: flex;
   align-items: center;
-  gap: clamp(8px, 1vw, 12px);
+  gap: clamp(8px, 1vw, 12px);                   /* ◄ Team info gap */
   flex: 1;
-  min-width: 0; /* Allow text truncation */
+  min-width: 0;
 }
 
+/* --- Team Logo --- */
 .team-logo {
-  width: clamp(35px, 5vw, 60px);
-  height: clamp(35px, 5vw, 60px);
+  width: clamp(35px, 5vw, 60px);                /* ◄ Team logo width */
+  height: clamp(35px, 5vw, 60px);               /* ◄ Team logo height */
   object-fit: contain;
   flex-shrink: 0;
 }
 
+/* --- Team Details --- */
 .team-details {
   display: flex;
   flex-direction: column;
@@ -141,8 +165,9 @@
   min-width: 0;
 }
 
+/* --- Team Name --- */
 .team-name {
-  font-size: clamp(14px, 1.8vw, 20px);
+  font-size: clamp(14px, 1.8vw, 20px);          /* ◄ Team name font size */
   font-weight: 700;
   color: #f3f4f6;
   white-space: nowrap;
@@ -150,16 +175,18 @@
   text-overflow: ellipsis;
 }
 
+/* --- Team Record --- */
 .team-record {
-  font-size: clamp(11px, 1.2vw, 14px);
+  font-size: clamp(11px, 1.2vw, 14px);          /* ◄ Team record font size */
   color: #9ca3af;
 }
 
+/* --- Team Score --- */
 .team-score {
-  font-size: clamp(24px, 4vw, 40px);
+  font-size: clamp(24px, 4vw, 40px);            /* ◄ Team score font size */
   font-weight: 900;
   color: #e0e0e0;
-  min-width: clamp(40px, 6vw, 60px);
+  min-width: clamp(40px, 6vw, 60px);            /* ◄ Team score min width */
   text-align: right;
   flex-shrink: 0;
 }
@@ -168,18 +195,21 @@
   color: #22c55e;
 }
 
-/* ================================================================
-   GAME DETAILS - Sport-specific info
-   ================================================================ */
+/* ==================================================================================
+   ███ GAME DETAILS (Sport-specific info) ███
+   ================================================================================== */
+
+/* --- Game Details Container --- */
 .game-details {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: clamp(8px, 1vw, 12px);
-  padding: clamp(8px, 1vw, 12px);
+  gap: clamp(8px, 1vw, 12px);                   /* ◄ Details gap */
+  padding: clamp(8px, 1vw, 12px);               /* ◄ Details padding */
   background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
 }
 
+/* --- Detail Item --- */
 .detail-item {
   display: flex;
   flex-direction: column;
@@ -187,177 +217,212 @@
   gap: 4px;
 }
 
+/* --- Detail Label --- */
 .detail-label {
-  font-size: clamp(10px, 1.1vw, 12px);
+  font-size: clamp(10px, 1.1vw, 12px);          /* ◄ Detail label font size */
   color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
+/* --- Detail Value --- */
 .detail-value {
-  font-size: clamp(13px, 1.5vw, 16px);
+  font-size: clamp(13px, 1.5vw, 16px);          /* ◄ Detail value font size */
   font-weight: 600;
   color: #e0e0e0;
 }
 
-/* ================================================================
-   EMPTY STATE
-   ================================================================ */
+/* ==================================================================================
+   ███ EMPTY STATE ███
+   ================================================================================== */
+
+/* --- No Games Container --- */
 .no-games {
   text-align: center;
-  padding: clamp(40px, 6vw, 80px) clamp(20px, 3vw, 40px);
+  padding: clamp(40px, 6vw, 80px) clamp(20px, 3vw, 40px);  /* ◄ No games padding */
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 2px dashed rgba(255, 255, 255, 0.2);
 }
 
+/* --- No Games Icon --- */
 .no-games-icon {
-  font-size: clamp(48px, 8vw, 80px);
-  margin-bottom: clamp(16px, 2vw, 24px);
+  font-size: clamp(48px, 8vw, 80px);            /* ◄ Icon font size */
+  margin-bottom: clamp(16px, 2vw, 24px);        /* ◄ Icon margin bottom */
 }
 
+/* --- No Games Heading --- */
 .no-games h2 {
-  font-size: clamp(20px, 3vw, 32px);
-  margin-bottom: clamp(8px, 1vw, 12px);
+  font-size: clamp(20px, 3vw, 32px);            /* ◄ Heading font size */
+  margin-bottom: clamp(8px, 1vw, 12px);         /* ◄ Heading margin bottom */
   color: #f3f4f6;
 }
 
+/* --- No Games Text --- */
 .no-games p {
-  font-size: clamp(14px, 1.5vw, 18px);
+  font-size: clamp(14px, 1.5vw, 18px);          /* ◄ Text font size */
   color: #9ca3af;
 }
 
-/* ================================================================
-   RESPONSIVE BREAKPOINTS - Cards View
-   ================================================================ */
-
-/* Desktop - 3 columns */
+/* ==================================================================================
+   ███ DESKTOP BREAKPOINT (≥1600px) - 3 columns ███
+   ================================================================================== */
 @media (min-width: 1600px) {
+
+  /* --- Desktop: GAMES GRID --- */
   .games-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);      /* ◄ 3 columns on large desktop */
   }
 }
 
-/* Laptop - 2 columns */
+/* ==================================================================================
+   ███ LAPTOP BREAKPOINT (1024px - 1599px) - 2 columns ███
+   ================================================================================== */
 @media (min-width: 1024px) and (max-width: 1599px) {
+
+  /* --- Laptop: GAMES GRID --- */
   .games-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);      /* ◄ 2 columns on laptop */
   }
 }
 
-/* Tablet - 2 columns */
+/* ==================================================================================
+   ███ TABLET BREAKPOINT (768px - 1023px) - 2 columns ███
+   ================================================================================== */
 @media (min-width: 768px) and (max-width: 1023px) {
+
+  /* --- Tablet: GAMES GRID --- */
   .games-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);      /* ◄ 2 columns on tablet */
   }
 
+  /* --- Tablet: TEAM NAME --- */
   .team-name {
-    font-size: 16px;
+    font-size: 16px;                            /* ◄ Tablet team name size */
   }
 
+  /* --- Tablet: TEAM SCORE --- */
   .team-score {
-    font-size: 32px;
+    font-size: 32px;                            /* ◄ Tablet team score size */
   }
 }
 
-/* Mobile - 1 column */
+/* ==================================================================================
+   ███ MOBILE BREAKPOINT (≤767px) - 1 column ███
+   ================================================================================== */
 @media (max-width: 767px) {
+
+  /* --- Mobile: GAMES GRID --- */
   .games-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr;                 /* ◄ 1 column on mobile */
+    gap: 16px;                                  /* ◄ Mobile grid gap */
   }
 
+  /* --- Mobile: GAME CARD --- */
   .game-card {
-    padding: 16px;
+    padding: 16px;                              /* ◄ Mobile card padding */
   }
 
+  /* --- Mobile: TEAM ROW --- */
   .team-row {
-    padding: 12px;
+    padding: 12px;                              /* ◄ Mobile team row padding */
   }
 
+  /* --- Mobile: TEAM NAME --- */
   .team-name {
-    font-size: 16px;
+    font-size: 16px;                            /* ◄ Mobile team name size */
   }
 
+  /* --- Mobile: TEAM SCORE --- */
   .team-score {
-    font-size: 28px;
+    font-size: 28px;                            /* ◄ Mobile team score size */
   }
 
+  /* --- Mobile: GAME DETAILS --- */
   .game-details {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);      /* ◄ Mobile details columns */
   }
 }
 
-/* Very Small Mobile */
+/* ==================================================================================
+   ███ EXTRA SMALL MOBILE (≤380px) ███
+   ================================================================================== */
 @media (max-width: 380px) {
+
+  /* --- XS Mobile: TEAM INFO --- */
   .team-info {
     flex-direction: column;
     align-items: flex-start;
   }
 
+  /* --- XS Mobile: TEAM LOGO --- */
   .team-logo {
-    width: 40px;
-    height: 40px;
+    width: 40px;                                /* ◄ XS mobile logo width */
+    height: 40px;                               /* ◄ XS mobile logo height */
   }
 
+  /* --- XS Mobile: TEAM SCORE --- */
   .team-score {
-    font-size: 24px;
+    font-size: 24px;                            /* ◄ XS mobile score size */
   }
 
+  /* --- XS Mobile: GAME DETAILS --- */
   .game-details {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);      /* ◄ XS mobile details columns */
   }
 }
 
-/* ================================================================
-   LOADING STATE
-   ================================================================ */
+/* ==================================================================================
+   ███ LOADING STATE ███
+   ================================================================================== */
+
+/* --- Loading Container --- */
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 50vh;
-  gap: clamp(16px, 2vw, 24px);
+  gap: clamp(16px, 2vw, 24px);                  /* ◄ Loading gap */
 }
 
+/* --- Loading Spinner --- */
 .loading-spinner {
-  width: clamp(40px, 6vw, 60px);
-  height: clamp(40px, 6vw, 60px);
+  width: clamp(40px, 6vw, 60px);                /* ◄ Spinner width */
+  height: clamp(40px, 6vw, 60px);               /* ◄ Spinner height */
   border: 4px solid rgba(59, 130, 246, 0.2);
   border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
+/* --- Loading Text --- */
 .loading-text {
-  font-size: clamp(16px, 2vw, 20px);
+  font-size: clamp(16px, 2vw, 20px);            /* ◄ Loading text size */
   color: #9ca3af;
 }
 
-/* ================================================================
-   SPORT LOGOS (Header)
-   ================================================================ */
+/* ==================================================================================
+   ███ SPORT LOGOS (Header) ███
+   ================================================================================== */
+
+/* --- Sport Logo --- */
 .sport-logo {
-  width: clamp(40px, 5vw, 70px);
-  height: clamp(40px, 5vw, 70px);
+  width: clamp(40px, 5vw, 70px);                /* ◄ Sport logo width */
+  height: clamp(40px, 5vw, 70px);               /* ◄ Sport logo height */
   object-fit: contain;
   flex-shrink: 0;
 }
 
-/* ================================================================
-   BUTTONS - Responsive sizing
-   ================================================================ */
+/* ==================================================================================
+   ███ BUTTONS ███
+   ================================================================================== */
+
+/* --- Button Base --- */
 .btn,
 button {
-  padding: clamp(8px, 1vw, 12px) clamp(16px, 2vw, 24px);
-  font-size: clamp(13px, 1.4vw, 16px);
+  padding: clamp(8px, 1vw, 12px) clamp(16px, 2vw, 24px);  /* ◄ Button padding */
+  font-size: clamp(13px, 1.4vw, 16px);                    /* ◄ Button font size */
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
@@ -377,33 +442,38 @@ button:active {
   transform: translateY(0);
 }
 
-/* ================================================================
-   SECTION HEADERS
-   ================================================================ */
+/* ==================================================================================
+   ███ SECTION HEADERS ███
+   ================================================================================== */
+
+/* --- Section Header --- */
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: clamp(16px, 2vw, 24px);
+  margin-bottom: clamp(16px, 2vw, 24px);        /* ◄ Header margin bottom */
   flex-wrap: wrap;
-  gap: clamp(8px, 1vw, 16px);
+  gap: clamp(8px, 1vw, 16px);                   /* ◄ Header gap */
 }
 
+/* --- Section Title --- */
 .section-title {
-  font-size: clamp(20px, 3vw, 32px);
+  font-size: clamp(20px, 3vw, 32px);            /* ◄ Title font size */
   font-weight: 700;
   color: #f3f4f6;
 }
 
+/* --- Section Actions --- */
 .section-actions {
   display: flex;
-  gap: clamp(8px, 1vw, 12px);
+  gap: clamp(8px, 1vw, 12px);                   /* ◄ Actions gap */
   flex-wrap: wrap;
 }
 
-/* ================================================================
-   ANIMATIONS
-   ================================================================ */
+/* ==================================================================================
+   ███ ANIMATIONS ███
+   ================================================================================== */
+
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
@@ -424,13 +494,16 @@ button:active {
   }
 }
 
-.game-card {
-  animation: fadeIn 0.3s ease-out;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* ================================================================
-   SCROLLBAR STYLING (Optional)
-   ================================================================ */
+/* ==================================================================================
+   ███ SCROLLBAR STYLING ███
+   ================================================================================== */
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

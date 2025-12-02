@@ -1063,6 +1063,14 @@
   }
 
   /* Mobile 4 Games - Each ~50vh, 50vw */
+  .fullscreen-grid.grid-4 .fullscreen-team-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3vh;
+  }
+
   .fullscreen-grid.grid-4 .fullscreen-team-logo {
     width: 11vw;
     height: 11vw;
@@ -1072,15 +1080,23 @@
 
   .fullscreen-grid.grid-4 .fullscreen-live-team-name {
     font-size: clamp(1rem, 5vw, 1.6rem);
+    text-align: center;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-team-record {
+    font-size: clamp(0.65rem, 2.5vw, 1rem);
+    text-align: center;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-live-score-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .fullscreen-grid.grid-4 .fullscreen-team-score {
     font-size: clamp(2rem, 10vw, 3.5rem);
     min-width: auto;
-  }
-
-  .fullscreen-grid.grid-4 .fullscreen-team-record {
-    font-size: clamp(0.65rem, 2.5vw, 1rem);
   }
 
   .fullscreen-grid.grid-4 .fullscreen-status-text {

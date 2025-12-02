@@ -1566,6 +1566,12 @@
       100% { background-position: 200% center; }
     }
 
+    /* ════════════════════════════════════════════════════════════════════════════════
+       ███ DESKTOP/TABLET SCREENS (min-width: 769px) ███
+       Grid-specific responsive sizing - Only applies to larger screens
+       ════════════════════════════════════════════════════════════════════════════════ */
+    @media (min-width: 769px) {
+
     /* Grid-specific responsive sizing */
     /* 6-Grid Layout - Smaller text to fit 3 columns */
     .fullscreen-grid.grid-6 .fullscreen-team-logo {
@@ -1747,9 +1753,7 @@
       margin-bottom: 8px !important;
     }
 
-    .fullscreen-grid.grid-4 .fullscreen-team-record {
-      font-size: 0.9rem !important;
-    }
+    /* Note: .fullscreen-team-record size defined above at 1.1rem - do not duplicate */
 
     .fullscreen-grid.grid-4 .sport-logo-indicator {
       width: 80px !important;
@@ -1834,7 +1838,27 @@
       }
     }
 
-    /* MOBILE RESPONSIVE - Uses new class names from fullscreen card template */
+    } /* ◄ End @media (min-width: 769px) - Desktop/Tablet grid rules */
+
+    /* ╔══════════════════════════════════════════════════════════════════════════════╗
+       ║          FULLSCREEN CARD SIZING CONFIGURATION - NCAA FOOTBALL PAGE           ║
+       ╠══════════════════════════════════════════════════════════════════════════════╣
+       ║  This section controls all element sizes in fullscreen cards.                ║
+       ║  Organized by: SCREEN TYPE → GRID LAYOUT → ELEMENT                           ║
+       ║                                                                              ║
+       ║  SIZE FORMAT: clamp(MIN, PREFERRED, MAX)                                     ║
+       ║    - MIN: Smallest the element will ever be                                  ║
+       ║    - PREFERRED: Scales with viewport (vw = viewport width)                   ║
+       ║    - MAX: Largest the element will ever be                                   ║
+       ║                                                                              ║
+       ║  ELEMENTS: Team Logo, Team Name, Team Record, Score, League Logo,            ║
+       ║            Clock & Quarter, VS Text, Down & Distance, Ball Position,         ║
+       ║            Field Visualization, Timeouts                                     ║
+       ╚══════════════════════════════════════════════════════════════════════════════╝ */
+
+    /* ════════════════════════════════════════════════════════════════════════════════
+       ███ MOBILE SCREENS (max-width: 768px) ███
+       ════════════════════════════════════════════════════════════════════════════════ */
     @media (max-width: 768px) {
       /* Grid preview in modal */
       .grid-preview.grid-4,
@@ -1842,20 +1866,24 @@
         grid-template-columns: 1fr;
       }
 
-      /* ========== 1 GAME - FULL SCREEN VERTICAL LAYOUT ========== */
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                         GRID 1 - SINGLE GAME                                 │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
+
+      /* --- Grid 1: LAYOUT --- */
       .fullscreen-grid.grid-1 {
         grid-template-columns: 1fr !important;
         grid-template-rows: 1fr !important;
         height: 100dvh !important;
-        padding: 10px !important;
-        gap: 0 !important;
+        padding: 10px !important;                 /* ◄ Grid padding */
+        gap: 0 !important;                        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-1 .fullscreen-game-card {
         max-width: 100% !important;
         height: calc(100dvh - 20px) !important;
-        padding: 15px !important;
+        padding: 15px !important;                 /* ◄ Card inner padding */
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -1870,12 +1898,12 @@
         justify-content: center !important;
         height: 100% !important;
         width: 100% !important;
-        gap: 1vh !important;
+        gap: 1vh !important;                      /* ◄ Content gap */
       }
 
       .fullscreen-grid.grid-1 .fullscreen-live-score-header {
         flex-direction: column !important;
-        gap: 1vh !important;
+        gap: 1vh !important;                      /* ◄ Header gap */
         width: 100% !important;
         align-items: center !important;
       }
@@ -1885,83 +1913,98 @@
         align-items: center !important;
         justify-content: center !important;
         width: 100% !important;
-        gap: 3vw !important;
+        gap: 3vw !important;                      /* ◄ Team stack gap */
       }
 
+      /* --- Grid 1: TEAM LOGO --- */
+      .fullscreen-grid.grid-1 .fullscreen-team-logo {
+        width: 20vw !important;                   /* ◄ Logo width */
+        height: 20vw !important;                  /* ◄ Logo height */
+        max-width: 100px !important;              /* ◄ Logo max width */
+        max-height: 100px !important;             /* ◄ Logo max height */
+      }
+
+      /* --- Grid 1: TEAM NAME --- */
+      .fullscreen-grid.grid-1 .fullscreen-live-team-name {
+        font-size: clamp(2rem, 10vw, 4rem) !important;    /* ◄ Team name size */
+        white-space: nowrap !important;
+      }
+
+      /* --- Grid 1: TEAM RECORD --- */
+      .fullscreen-grid.grid-1 .fullscreen-team-record {
+        font-size: clamp(1rem, 4vw, 1.6rem) !important;   /* ◄ Record size */
+      }
+
+      /* --- Grid 1: SCORE --- */
+      .fullscreen-grid.grid-1 .fullscreen-team-score {
+        font-size: clamp(4rem, 18vw, 7rem) !important;    /* ◄ Score size */
+        min-width: auto !important;
+      }
+
+      /* --- Grid 1: LEAGUE LOGO --- */
+      .fullscreen-grid.grid-1 .sport-logo-indicator {
+        width: 22vw !important;                   /* ◄ League logo width */
+        height: 22vw !important;                  /* ◄ League logo height */
+        max-width: 110px !important;              /* ◄ League logo max width */
+        max-height: 110px !important;             /* ◄ League logo max height */
+        top: 15px !important;                     /* ◄ Position from top */
+        left: 15px !important;                    /* ◄ Position from left */
+      }
+
+      /* --- Grid 1: CLOCK & QUARTER --- */
+      .fullscreen-grid.grid-1 .fullscreen-status-text {
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important; /* ◄ Clock/quarter size */
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-upcoming-status-text {
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important; /* ◄ Upcoming status size */
+      }
+
+      /* --- Grid 1: VS TEXT --- */
       .fullscreen-grid.grid-1 .fullscreen-vs-divider-live {
         display: block !important;
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important; /* ◄ VS text size */
         color: rgba(255,255,255,0.7) !important;
         margin: 0.5vh 0 !important;
       }
 
-      .fullscreen-grid.grid-1 .fullscreen-team-logo {
-        width: 20vw !important;
-        height: 20vw !important;
-        max-width: 100px !important;
-        max-height: 100px !important;
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-live-team-name {
-        font-size: clamp(2rem, 10vw, 4rem) !important;
-        white-space: nowrap !important;
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-team-score {
-        font-size: clamp(4rem, 18vw, 7rem) !important;
-        min-width: auto !important;
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-team-record {
-        font-size: clamp(1rem, 4vw, 1.6rem) !important;
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-status-text {
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-upcoming-status-text {
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
-      }
-
+      /* --- Grid 1: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-1 .fullscreen-situation-info {
-        font-size: clamp(1.3rem, 5vw, 2rem) !important;
+        font-size: clamp(1.3rem, 5vw, 2rem) !important;   /* ◄ Down/distance size */
       }
 
-      .fullscreen-grid.grid-1 .sport-logo-indicator {
-        width: 22vw !important;
-        height: 22vw !important;
-        max-width: 110px !important;
-        max-height: 110px !important;
-        top: 15px !important;
-        left: 15px !important;
-      }
-
-      .fullscreen-grid.grid-1 .field-container {
-        height: 40px !important;
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-timeouts {
-        display: none !important;
-      }
-
+      /* --- Grid 1: BALL POSITION --- */
       .fullscreen-grid.grid-1 .fullscreen-field-position {
-        font-size: clamp(1rem, 3.5vw, 1.4rem) !important;
+        font-size: clamp(1rem, 3.5vw, 1.4rem) !important; /* ◄ Ball position text */
       }
 
-      /* ========== 2 GAMES - HORIZONTAL LAYOUT STACKED ========== */
+      /* --- Grid 1: FIELD VISUALIZATION --- */
+      .fullscreen-grid.grid-1 .field-container {
+        height: 40px !important;                  /* ◄ Field height */
+      }
+
+      /* --- Grid 1: TIMEOUTS --- */
+      .fullscreen-grid.grid-1 .fullscreen-timeouts {
+        display: none !important;                 /* ◄ Hidden on mobile */
+      }
+
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                         GRID 2 - TWO GAMES                                   │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
+
+      /* --- Grid 2: LAYOUT --- */
       .fullscreen-grid.grid-2 {
         grid-template-columns: 1fr !important;
         grid-template-rows: repeat(2, 1fr) !important;
         height: 100dvh !important;
-        padding: 8px !important;
-        gap: 8px !important;
+        padding: 8px !important;                  /* ◄ Grid padding */
+        gap: 8px !important;                      /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-2 .fullscreen-game-card {
         height: calc((100dvh - 24px) / 2) !important;
-        padding: 8px !important;
+        padding: 8px !important;                  /* ◄ Card inner padding */
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -1976,12 +2019,12 @@
         justify-content: center !important;
         height: 100% !important;
         width: 100% !important;
-        gap: 0.5vh !important;
+        gap: 0.5vh !important;                    /* ◄ Content gap */
       }
 
       .fullscreen-grid.grid-2 .fullscreen-live-score-header {
         flex-direction: row !important;
-        gap: 2vw !important;
+        gap: 2vw !important;                      /* ◄ Header gap */
         width: 100% !important;
         align-items: center !important;
         justify-content: center !important;
@@ -1991,47 +2034,68 @@
       .fullscreen-grid.grid-2 .fullscreen-team-stack {
         flex-direction: column !important;
         align-items: center !important;
-        gap: 0.3vh !important;
+        gap: 0.3vh !important;                    /* ◄ Team stack gap */
         flex: 0 0 auto !important;
         min-width: 0 !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-vs-divider-live {
-        font-size: clamp(1rem, 4vw, 1.8rem) !important;
-        flex-shrink: 0 !important;
-      }
-
+      /* --- Grid 2: TEAM LOGO --- */
       .fullscreen-grid.grid-2 .fullscreen-team-logo {
-        width: 16vw !important;
-        height: 16vw !important;
-        max-width: 80px !important;
-        max-height: 80px !important;
+        width: 16vw !important;                   /* ◄ Logo width */
+        height: 16vw !important;                  /* ◄ Logo height */
+        max-width: 80px !important;               /* ◄ Logo max width */
+        max-height: 80px !important;              /* ◄ Logo max height */
       }
 
+      /* --- Grid 2: TEAM NAME --- */
       .fullscreen-grid.grid-2 .fullscreen-live-team-name {
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important; /* ◄ Team name size */
         white-space: nowrap !important;
       }
 
+      /* --- Grid 2: TEAM RECORD --- */
+      .fullscreen-grid.grid-2 .fullscreen-team-record {
+        font-size: clamp(0.85rem, 3vw, 1.2rem) !important; /* ◄ Record size */
+      }
+
+      /* --- Grid 2: SCORE --- */
       .fullscreen-grid.grid-2 .fullscreen-team-score {
-        font-size: clamp(3rem, 14vw, 5.5rem) !important;
+        font-size: clamp(3rem, 14vw, 5.5rem) !important;  /* ◄ Score size */
         min-width: auto !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-team-record {
-        font-size: clamp(0.85rem, 3vw, 1.2rem) !important;
+      /* --- Grid 2: LEAGUE LOGO --- */
+      .fullscreen-grid.grid-2 .sport-logo-indicator {
+        width: 14vw !important;                   /* ◄ League logo width */
+        height: 14vw !important;                  /* ◄ League logo height */
+        max-width: 70px !important;               /* ◄ League logo max width */
+        max-height: 70px !important;              /* ◄ League logo max height */
+        top: 8px !important;                      /* ◄ Position from top */
+        left: 8px !important;                     /* ◄ Position from left */
       }
 
+      /* --- Grid 2: CLOCK & QUARTER --- */
       .fullscreen-grid.grid-2 .fullscreen-status-text {
-        font-size: clamp(1.2rem, 5vw, 1.9rem) !important;
+        font-size: clamp(1.2rem, 5vw, 1.9rem) !important; /* ◄ Clock/quarter size */
       }
 
       .fullscreen-grid.grid-2 .fullscreen-status-container {
         margin-bottom: 0.5vh !important;
       }
 
+      .fullscreen-grid.grid-2 .fullscreen-upcoming-status-text {
+        font-size: clamp(1.2rem, 5vw, 1.9rem) !important; /* ◄ Upcoming status size */
+      }
+
+      /* --- Grid 2: VS TEXT --- */
+      .fullscreen-grid.grid-2 .fullscreen-vs-divider-live {
+        font-size: clamp(1rem, 4vw, 1.8rem) !important;   /* ◄ VS text size */
+        flex-shrink: 0 !important;
+      }
+
+      /* --- Grid 2: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-2 .fullscreen-situation-info {
-        font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
+        font-size: clamp(1.2rem, 5vw, 1.8rem) !important; /* ◄ Down/distance size */
         margin-top: 0.8vh !important;
       }
 
@@ -2040,62 +2104,56 @@
       }
 
       .fullscreen-grid.grid-2 .fullscreen-down-distance {
-        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important;
+        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important; /* ◄ Down distance alt */
       }
 
-      .fullscreen-grid.grid-2 .sport-logo-indicator {
-        width: 14vw !important;
-        height: 14vw !important;
-        max-width: 70px !important;
-        max-height: 70px !important;
-        top: 8px !important;
-        left: 8px !important;
+      /* --- Grid 2: BALL POSITION --- */
+      .fullscreen-grid.grid-2 .fullscreen-field-position {
+        font-size: clamp(0.85rem, 3vw, 1.2rem) !important; /* ◄ Ball position text */
       }
 
+      /* --- Grid 2: FIELD VISUALIZATION --- */
       .fullscreen-grid.grid-2 .field-container {
-        height: 32px !important;
+        height: 32px !important;                  /* ◄ Field height */
       }
 
       .fullscreen-grid.grid-2 .field-visualizer {
         margin-top: 0.5vh !important;
-        max-width: 95% !important;
+        max-width: 95% !important;                /* ◄ Field max width */
         width: 95% !important;
       }
 
       .fullscreen-grid.grid-2 .field-visualizer .ball-marker {
-        width: 12px !important;
+        width: 12px !important;                   /* ◄ Ball marker size */
         height: 12px !important;
       }
 
       .fullscreen-grid.grid-2 .field-visualizer .yard-line {
-        font-size: 0.7rem !important;
+        font-size: 0.7rem !important;             /* ◄ Yard line text size */
       }
 
+      /* --- Grid 2: TIMEOUTS --- */
       .fullscreen-grid.grid-2 .fullscreen-timeouts {
-        display: none !important;
+        display: none !important;                 /* ◄ Hidden on mobile */
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-upcoming-status-text {
-        font-size: clamp(1.2rem, 5vw, 1.9rem) !important;
-      }
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                         GRID 3 - THREE GAMES                                 │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
 
-      .fullscreen-grid.grid-2 .fullscreen-field-position {
-        font-size: clamp(0.85rem, 3vw, 1.2rem) !important;
-      }
-
-      /* ========== 3 GAMES - VERTICAL STACK ========== */
+      /* --- Grid 3: LAYOUT --- */
       .fullscreen-grid.grid-3 {
         grid-template-columns: 1fr !important;
         grid-template-rows: repeat(3, 1fr) !important;
         height: 100dvh !important;
-        padding: 6px !important;
-        gap: 6px !important;
+        padding: 6px !important;                  /* ◄ Grid padding */
+        gap: 6px !important;                      /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-3 .fullscreen-game-card {
         height: calc((100dvh - 24px) / 3) !important;
-        padding: 6px !important;
+        padding: 6px !important;                  /* ◄ Card inner padding */
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -2110,12 +2168,12 @@
         justify-content: center !important;
         height: 100% !important;
         width: 100% !important;
-        gap: 0.3vh !important;
+        gap: 0.3vh !important;                    /* ◄ Content gap */
       }
 
       .fullscreen-grid.grid-3 .fullscreen-live-score-header {
         flex-direction: row !important;
-        gap: 2vw !important;
+        gap: 2vw !important;                      /* ◄ Header gap */
         width: 100% !important;
         align-items: center !important;
         justify-content: center !important;
@@ -2125,302 +2183,383 @@
       .fullscreen-grid.grid-3 .fullscreen-team-stack {
         flex-direction: column !important;
         align-items: center !important;
-        gap: 0.2vh !important;
+        gap: 0.2vh !important;                    /* ◄ Team stack gap */
         flex: 0 0 auto !important;
         min-width: 0 !important;
       }
 
-      .fullscreen-grid.grid-3 .fullscreen-vs-divider-live {
-        font-size: clamp(0.8rem, 3vw, 1.4rem) !important;
-        flex-shrink: 0 !important;
-      }
-
+      /* --- Grid 3: TEAM LOGO --- */
       .fullscreen-grid.grid-3 .fullscreen-team-logo {
-        width: 12vw !important;
-        height: 12vw !important;
-        max-width: 60px !important;
-        max-height: 60px !important;
+        width: 12vw !important;                   /* ◄ Logo width */
+        height: 12vw !important;                  /* ◄ Logo height */
+        max-width: 60px !important;               /* ◄ Logo max width */
+        max-height: 60px !important;              /* ◄ Logo max height */
       }
 
+      /* --- Grid 3: TEAM NAME --- */
       .fullscreen-grid.grid-3 .fullscreen-live-team-name {
-        font-size: clamp(1.1rem, 5vw, 1.8rem) !important;
+        font-size: clamp(1.1rem, 5vw, 1.8rem) !important; /* ◄ Team name size */
         white-space: nowrap !important;
       }
 
+      /* --- Grid 3: TEAM RECORD --- */
+      .fullscreen-grid.grid-3 .fullscreen-team-record {
+        font-size: clamp(0.65rem, 2.5vw, 1rem) !important; /* ◄ Record size */
+      }
+
+      /* --- Grid 3: SCORE --- */
       .fullscreen-grid.grid-3 .fullscreen-team-score {
-        font-size: clamp(2.2rem, 11vw, 4.2rem) !important;
+        font-size: clamp(2.2rem, 11vw, 4.2rem) !important; /* ◄ Score size */
         min-width: auto !important;
       }
 
-      .fullscreen-grid.grid-3 .fullscreen-team-record {
-        font-size: clamp(0.65rem, 2.5vw, 1rem) !important;
+      /* --- Grid 3: LEAGUE LOGO --- */
+      .fullscreen-grid.grid-3 .sport-logo-indicator {
+        width: 12vw !important;                   /* ◄ League logo width */
+        height: 12vw !important;                  /* ◄ League logo height */
+        max-width: 55px !important;               /* ◄ League logo max width */
+        max-height: 55px !important;              /* ◄ League logo max height */
+        top: 6px !important;                      /* ◄ Position from top */
+        left: 6px !important;                     /* ◄ Position from left */
       }
 
+      /* --- Grid 3: CLOCK & QUARTER --- */
       .fullscreen-grid.grid-3 .fullscreen-status-text {
-        font-size: clamp(1rem, 4.5vw, 1.5rem) !important;
+        font-size: clamp(1rem, 4.5vw, 1.5rem) !important; /* ◄ Clock/quarter size */
       }
 
       .fullscreen-grid.grid-3 .fullscreen-status-container {
         margin-bottom: 0.3vh !important;
       }
 
+      .fullscreen-grid.grid-3 .fullscreen-upcoming-status-text {
+        font-size: clamp(1rem, 4.5vw, 1.5rem) !important; /* ◄ Upcoming status size */
+      }
+
+      /* --- Grid 3: VS TEXT --- */
+      .fullscreen-grid.grid-3 .fullscreen-vs-divider-live {
+        font-size: clamp(0.8rem, 3vw, 1.4rem) !important; /* ◄ VS text size */
+        flex-shrink: 0 !important;
+      }
+
+      /* --- Grid 3: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-3 .fullscreen-situation-info {
-        font-size: clamp(0.9rem, 3.5vw, 1.3rem) !important;
+        font-size: clamp(0.9rem, 3.5vw, 1.3rem) !important; /* ◄ Down/distance size */
         margin-top: 0.3vh !important;
       }
 
-      .fullscreen-grid.grid-3 .sport-logo-indicator {
-        width: 12vw !important;
-        height: 12vw !important;
-        max-width: 55px !important;
-        max-height: 55px !important;
-        top: 6px !important;
-        left: 6px !important;
+      /* --- Grid 3: BALL POSITION --- */
+      .fullscreen-grid.grid-3 .fullscreen-field-position {
+        font-size: clamp(0.75rem, 2.5vw, 1.1rem) !important; /* ◄ Ball position text */
       }
 
+      /* --- Grid 3: FIELD VISUALIZATION --- */
       .fullscreen-grid.grid-3 .field-container {
-        height: 22px !important;
+        height: 22px !important;                  /* ◄ Field height */
       }
 
       .fullscreen-grid.grid-3 .field-visualizer {
         margin-top: 0.3vh !important;
-        max-width: 90% !important;
+        max-width: 90% !important;                /* ◄ Field max width */
       }
 
+      /* --- Grid 3: TIMEOUTS --- */
       .fullscreen-grid.grid-3 .fullscreen-timeouts {
-        display: none !important;
+        display: none !important;                 /* ◄ Hidden on mobile */
       }
 
-      .fullscreen-grid.grid-3 .fullscreen-upcoming-status-text {
-        font-size: clamp(1rem, 4.5vw, 1.5rem) !important;
-      }
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                         GRID 4 - FOUR GAMES                                  │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
 
-      .fullscreen-grid.grid-3 .fullscreen-field-position {
-        font-size: clamp(0.75rem, 2.5vw, 1.1rem) !important;
-      }
-
-      /* ========== 4 GAMES - VERTICAL STACK (MOBILE) ========== */
+      /* --- Grid 4: LAYOUT --- */
       .fullscreen-grid.grid-4 {
         grid-template-columns: 1fr !important;
         grid-template-rows: repeat(4, 1fr) !important;
         height: 100dvh !important;
-        padding: 4px !important;
-        gap: 4px !important;
+        padding: 4px !important;                  /* ◄ Grid padding */
+        gap: 4px !important;                      /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-game-card {
-        padding: 3px !important;
+        padding: 3px !important;                  /* ◄ Card inner padding */
         overflow: hidden !important;
       }
 
-      .fullscreen-grid.grid-4 .sport-logo-indicator {
-        width: 10vw !important;
-        height: 10vw !important;
-        max-width: 45px !important;
-        max-height: 45px !important;
-        top: 3px !important;
-        left: 3px !important;
-      }
-
-      .fullscreen-grid.grid-4 .fullscreen-team-logo {
-        width: 11vw !important;
-        height: 11vw !important;
-        max-width: 55px !important;
-        max-height: 55px !important;
-      }
-
-      .fullscreen-grid.grid-4 .fullscreen-live-team-name {
-        font-size: clamp(1rem, 5vw, 1.6rem) !important;
-      }
-
-      .fullscreen-grid.grid-4 .fullscreen-team-score {
-        font-size: clamp(2rem, 10vw, 3.5rem) !important;
-        min-width: auto !important;
-      }
-
-      .fullscreen-grid.grid-4 .fullscreen-team-record {
-        font-size: clamp(0.65rem, 2.5vw, 1rem) !important;
-      }
-
-      .fullscreen-grid.grid-4 .fullscreen-status-text {
-        font-size: clamp(0.9rem, 4vw, 1.3rem) !important;
-      }
-
-      .fullscreen-grid.grid-4 .fullscreen-vs-divider,
-      .fullscreen-grid.grid-4 .fullscreen-vs-divider-live {
-        font-size: clamp(0.8rem, 3vw, 1.1rem) !important;
-        padding: 0 3px !important;
-      }
-
       .fullscreen-grid.grid-4 .fullscreen-team-stack {
-        gap: 2px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;                      /* ◄ Team stack gap */
         padding: 3px !important;
       }
 
+      .fullscreen-grid.grid-4 .fullscreen-live-score-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      /* --- Grid 4: TEAM LOGO --- */
+      .fullscreen-grid.grid-4 .fullscreen-team-logo {
+        width: 11vw !important;                   /* ◄ Logo width */
+        height: 11vw !important;                  /* ◄ Logo height */
+        max-width: 55px !important;               /* ◄ Logo max width */
+        max-height: 55px !important;              /* ◄ Logo max height */
+      }
+
+      /* --- Grid 4: TEAM NAME --- */
+      .fullscreen-grid.grid-4 .fullscreen-live-team-name {
+        font-size: clamp(1rem, 5vw, 1.6rem) !important;   /* ◄ Team name size */
+        text-align: center !important;
+      }
+
+      /* --- Grid 4: TEAM RECORD --- */
+      .fullscreen-grid.grid-4 .fullscreen-team-record {
+        font-size: clamp(0.65rem, 2.5vw, 1rem) !important; /* ◄ Record size */
+        text-align: center !important;
+      }
+
+      /* --- Grid 4: SCORE --- */
+      .fullscreen-grid.grid-4 .fullscreen-team-score {
+        font-size: clamp(2rem, 10vw, 3.5rem) !important;  /* ◄ Score size */
+        min-width: auto !important;
+      }
+
+      /* --- Grid 4: LEAGUE LOGO --- */
+      .fullscreen-grid.grid-4 .sport-logo-indicator {
+        width: 10vw !important;                   /* ◄ League logo width */
+        height: 10vw !important;                  /* ◄ League logo height */
+        max-width: 45px !important;               /* ◄ League logo max width */
+        max-height: 45px !important;              /* ◄ League logo max height */
+        top: 3px !important;                      /* ◄ Position from top */
+        left: 3px !important;                     /* ◄ Position from left */
+      }
+
+      /* --- Grid 4: CLOCK & QUARTER --- */
+      .fullscreen-grid.grid-4 .fullscreen-status-text {
+        font-size: clamp(0.9rem, 4vw, 1.3rem) !important; /* ◄ Clock/quarter size */
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-upcoming-status-text {
+        font-size: clamp(0.9rem, 4vw, 1.3rem) !important; /* ◄ Upcoming status size */
+      }
+
+      /* --- Grid 4: VS TEXT --- */
+      .fullscreen-grid.grid-4 .fullscreen-vs-divider,
+      .fullscreen-grid.grid-4 .fullscreen-vs-divider-live {
+        font-size: clamp(0.8rem, 3vw, 1.1rem) !important; /* ◄ VS text size */
+        padding: 0 3px !important;
+      }
+
+      /* --- Grid 4: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-4 .situation-info,
       .fullscreen-grid.grid-4 .fullscreen-situation-info {
-        font-size: clamp(0.85rem, 3.5vw, 1.2rem) !important;
+        font-size: clamp(0.85rem, 3.5vw, 1.2rem) !important; /* ◄ Down/distance size */
         padding: 2px 4px !important;
         margin-top: 2px !important;
       }
 
       .fullscreen-grid.grid-4 .down-distance {
-        font-size: clamp(0.85rem, 3.5vw, 1.2rem) !important;
+        font-size: clamp(0.85rem, 3.5vw, 1.2rem) !important; /* ◄ Down distance alt */
       }
 
+      /* --- Grid 4: BALL POSITION --- */
+      .fullscreen-grid.grid-4 .fullscreen-field-position {
+        font-size: clamp(0.7rem, 2.5vw, 1rem) !important; /* ◄ Ball position text */
+      }
+
+      /* --- Grid 4: FIELD VISUALIZATION --- */
       .fullscreen-grid.grid-4 .field-container {
-        height: 24px !important;
+        height: 24px !important;                  /* ◄ Field height */
         margin-top: 2px !important;
       }
 
       .fullscreen-grid.grid-4 .field-visualizer {
         margin-top: 2px !important;
-        max-width: 90% !important;
+        max-width: 90% !important;                /* ◄ Field max width */
       }
 
+      /* --- Grid 4: TIMEOUTS --- */
       .fullscreen-grid.grid-4 .fullscreen-timeouts {
-        display: none !important;
+        display: none !important;                 /* ◄ Hidden on mobile */
       }
 
-      .fullscreen-grid.grid-4 .fullscreen-upcoming-status-text {
-        font-size: clamp(0.9rem, 4vw, 1.3rem) !important;
-      }
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                         GRID 6 - SIX GAMES                                   │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
 
-      .fullscreen-grid.grid-4 .fullscreen-field-position {
-        font-size: clamp(0.7rem, 2.5vw, 1rem) !important;
-      }
-
-      /* ========== 6+ GAMES - 2x GRID ========== */
-      .fullscreen-grid.grid-6,
-      .fullscreen-grid.grid-8 {
-        grid-template-columns: repeat(2, 1fr) !important;
-        height: 100dvh !important;
-        padding: 6px !important;
-        gap: 6px !important;
-        overflow: hidden !important;
-      }
-
+      /* --- Grid 6: LAYOUT --- */
       .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: repeat(3, 1fr) !important;
-      }
-
-      .fullscreen-grid.grid-8 {
-        grid-template-rows: repeat(4, 1fr) !important;
-      }
-
-      .fullscreen-grid.grid-6 .fullscreen-game-card,
-      .fullscreen-grid.grid-8 .fullscreen-game-card {
-        padding: 6px !important;
+        height: 100dvh !important;
+        padding: 6px !important;                  /* ◄ Grid padding */
+        gap: 6px !important;                      /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
+      .fullscreen-grid.grid-6 .fullscreen-game-card {
+        padding: 6px !important;                  /* ◄ Card inner padding */
+        overflow: hidden !important;
+      }
+
+      /* --- Grid 6: TEAM LOGO --- */
       .fullscreen-grid.grid-6 .fullscreen-team-logo {
-        width: 9vw !important;
-        height: 9vw !important;
-        max-width: 42px !important;
-        max-height: 42px !important;
+        width: 9vw !important;                    /* ◄ Logo width */
+        height: 9vw !important;                   /* ◄ Logo height */
+        max-width: 42px !important;               /* ◄ Logo max width */
+        max-height: 42px !important;              /* ◄ Logo max height */
       }
 
-      .fullscreen-grid.grid-8 .fullscreen-team-logo {
-        width: 7vw !important;
-        height: 7vw !important;
-        max-width: 32px !important;
-        max-height: 32px !important;
-      }
-
+      /* --- Grid 6: TEAM NAME --- */
       .fullscreen-grid.grid-6 .fullscreen-live-team-name {
-        font-size: clamp(0.85rem, 4vw, 1.3rem) !important;
+        font-size: clamp(0.85rem, 4vw, 1.3rem) !important; /* ◄ Team name size */
       }
 
-      .fullscreen-grid.grid-8 .fullscreen-live-team-name {
-        font-size: clamp(0.7rem, 3.5vw, 1.1rem) !important;
-      }
-
-      .fullscreen-grid.grid-6 .fullscreen-team-score {
-        font-size: clamp(1.6rem, 8vw, 2.8rem) !important;
-        min-width: auto !important;
-      }
-
-      .fullscreen-grid.grid-8 .fullscreen-team-score {
-        font-size: clamp(1.3rem, 6.5vw, 2.2rem) !important;
-        min-width: auto !important;
-      }
-
+      /* --- Grid 6: TEAM RECORD --- */
       .fullscreen-grid.grid-6 .fullscreen-team-record {
-        font-size: clamp(0.55rem, 2vw, 0.9rem) !important;
+        font-size: clamp(0.55rem, 2vw, 0.9rem) !important; /* ◄ Record size */
       }
 
-      .fullscreen-grid.grid-8 .fullscreen-team-record {
-        font-size: clamp(0.5rem, 1.8vw, 0.75rem) !important;
+      /* --- Grid 6: SCORE --- */
+      .fullscreen-grid.grid-6 .fullscreen-team-score {
+        font-size: clamp(1.6rem, 8vw, 2.8rem) !important; /* ◄ Score size */
+        min-width: auto !important;
       }
 
-      .fullscreen-grid.grid-6 .fullscreen-status-text {
-        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important;
-      }
-
-      .fullscreen-grid.grid-8 .fullscreen-status-text {
-        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important;
-      }
-
+      /* --- Grid 6: LEAGUE LOGO --- */
       .fullscreen-grid.grid-6 .sport-logo-indicator {
-        width: 8vw !important;
-        height: 8vw !important;
-        max-width: 36px !important;
-        max-height: 36px !important;
+        width: 8vw !important;                    /* ◄ League logo width */
+        height: 8vw !important;                   /* ◄ League logo height */
+        max-width: 36px !important;               /* ◄ League logo max width */
+        max-height: 36px !important;              /* ◄ League logo max height */
       }
 
-      .fullscreen-grid.grid-8 .sport-logo-indicator {
-        width: 7vw !important;
-        height: 7vw !important;
-        max-width: 30px !important;
-        max-height: 30px !important;
-      }
-
-      .fullscreen-grid.grid-6 .fullscreen-timeouts,
-      .fullscreen-grid.grid-8 .fullscreen-timeouts {
-        display: none !important;
-      }
-
-      .fullscreen-grid.grid-6 .fullscreen-situation-info {
-        font-size: clamp(0.7rem, 3vw, 1rem) !important;
-      }
-
-      .fullscreen-grid.grid-8 .fullscreen-situation-info {
-        font-size: clamp(0.6rem, 2.5vw, 0.85rem) !important;
-      }
-
-      .fullscreen-grid.grid-6 .field-container {
-        height: 20px !important;
-      }
-
-      .fullscreen-grid.grid-8 .field-container {
-        height: 16px !important;
+      /* --- Grid 6: CLOCK & QUARTER --- */
+      .fullscreen-grid.grid-6 .fullscreen-status-text {
+        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important; /* ◄ Clock/quarter size */
       }
 
       .fullscreen-grid.grid-6 .fullscreen-upcoming-status-text {
-        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important;
+        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important; /* ◄ Upcoming status size */
+      }
+
+      /* --- Grid 6: VS TEXT --- */
+      .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
+        font-size: clamp(0.7rem, 2.5vw, 0.95rem) !important; /* ◄ VS text size */
+      }
+
+      /* --- Grid 6: DOWN & DISTANCE --- */
+      .fullscreen-grid.grid-6 .fullscreen-situation-info {
+        font-size: clamp(0.7rem, 3vw, 1rem) !important;   /* ◄ Down/distance size */
+      }
+
+      /* --- Grid 6: BALL POSITION --- */
+      .fullscreen-grid.grid-6 .fullscreen-field-position {
+        font-size: clamp(0.6rem, 2vw, 0.85rem) !important; /* ◄ Ball position text */
+      }
+
+      /* --- Grid 6: FIELD VISUALIZATION --- */
+      .fullscreen-grid.grid-6 .field-container {
+        height: 20px !important;                  /* ◄ Field height */
+      }
+
+      /* --- Grid 6: TIMEOUTS --- */
+      .fullscreen-grid.grid-6 .fullscreen-timeouts {
+        display: none !important;                 /* ◄ Hidden on mobile */
+      }
+
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                         GRID 8 - EIGHT GAMES                                 │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
+
+      /* --- Grid 8: LAYOUT --- */
+      .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(4, 1fr) !important;
+        height: 100dvh !important;
+        padding: 6px !important;                  /* ◄ Grid padding */
+        gap: 6px !important;                      /* ◄ Gap between cards */
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-8 .fullscreen-game-card {
+        padding: 6px !important;                  /* ◄ Card inner padding */
+        overflow: hidden !important;
+      }
+
+      /* --- Grid 8: TEAM LOGO --- */
+      .fullscreen-grid.grid-8 .fullscreen-team-logo {
+        width: 7vw !important;                    /* ◄ Logo width */
+        height: 7vw !important;                   /* ◄ Logo height */
+        max-width: 32px !important;               /* ◄ Logo max width */
+        max-height: 32px !important;              /* ◄ Logo max height */
+      }
+
+      /* --- Grid 8: TEAM NAME --- */
+      .fullscreen-grid.grid-8 .fullscreen-live-team-name {
+        font-size: clamp(0.7rem, 3.5vw, 1.1rem) !important; /* ◄ Team name size */
+      }
+
+      /* --- Grid 8: TEAM RECORD --- */
+      .fullscreen-grid.grid-8 .fullscreen-team-record {
+        font-size: clamp(0.5rem, 1.8vw, 0.75rem) !important; /* ◄ Record size */
+      }
+
+      /* --- Grid 8: SCORE --- */
+      .fullscreen-grid.grid-8 .fullscreen-team-score {
+        font-size: clamp(1.3rem, 6.5vw, 2.2rem) !important; /* ◄ Score size */
+        min-width: auto !important;
+      }
+
+      /* --- Grid 8: LEAGUE LOGO --- */
+      .fullscreen-grid.grid-8 .sport-logo-indicator {
+        width: 7vw !important;                    /* ◄ League logo width */
+        height: 7vw !important;                   /* ◄ League logo height */
+        max-width: 30px !important;               /* ◄ League logo max width */
+        max-height: 30px !important;              /* ◄ League logo max height */
+      }
+
+      /* --- Grid 8: CLOCK & QUARTER --- */
+      .fullscreen-grid.grid-8 .fullscreen-status-text {
+        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important; /* ◄ Clock/quarter size */
       }
 
       .fullscreen-grid.grid-8 .fullscreen-upcoming-status-text {
-        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important;
+        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important; /* ◄ Upcoming status size */
       }
 
-      .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
-        font-size: clamp(0.7rem, 2.5vw, 0.95rem) !important;
-      }
-
+      /* --- Grid 8: VS TEXT --- */
       .fullscreen-grid.grid-8 .fullscreen-vs-divider-live {
-        font-size: clamp(0.55rem, 2vw, 0.8rem) !important;
+        font-size: clamp(0.55rem, 2vw, 0.8rem) !important; /* ◄ VS text size */
       }
 
-      .fullscreen-grid.grid-6 .fullscreen-field-position {
-        font-size: clamp(0.6rem, 2vw, 0.85rem) !important;
+      /* --- Grid 8: DOWN & DISTANCE --- */
+      .fullscreen-grid.grid-8 .fullscreen-situation-info {
+        font-size: clamp(0.6rem, 2.5vw, 0.85rem) !important; /* ◄ Down/distance size */
       }
 
+      /* --- Grid 8: BALL POSITION --- */
       .fullscreen-grid.grid-8 .fullscreen-field-position {
-        font-size: clamp(0.5rem, 1.8vw, 0.7rem) !important;
+        font-size: clamp(0.5rem, 1.8vw, 0.7rem) !important; /* ◄ Ball position text */
       }
+
+      /* --- Grid 8: FIELD VISUALIZATION --- */
+      .fullscreen-grid.grid-8 .field-container {
+        height: 16px !important;                  /* ◄ Field height */
+      }
+
+      /* --- Grid 8: TIMEOUTS --- */
+      .fullscreen-grid.grid-8 .fullscreen-timeouts {
+        display: none !important;                 /* ◄ Hidden on mobile */
+      }
+
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                         COMMON MOBILE STYLES                                 │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
 
       /* Hide game selector on mobile */
       .fs-game-selector-container {
@@ -2434,50 +2573,76 @@
       }
     }
 
-    /* Extra small screens (phones in portrait) - Scale down clamp minimums */
+    /* ════════════════════════════════════════════════════════════════════════════════
+       ███ EXTRA SMALL SCREENS (max-width: 480px) ███
+       ════════════════════════════════════════════════════════════════════════════════ */
     @media (max-width: 480px) {
       .fullscreen-grid {
-        gap: 6px !important;
-        padding: 6px !important;
+        gap: 6px !important;                      /* ◄ Grid gap */
+        padding: 6px !important;                  /* ◄ Grid padding */
       }
 
-      /* Further reduce for very small screens - using new class names */
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                    GRID 1 - EXTRA SMALL OVERRIDES                            │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
+
+      /* --- Grid 1: TEAM NAME (XS) --- */
       .fullscreen-grid.grid-1 .fullscreen-live-team-name {
-        font-size: clamp(1.4rem, 7vw, 2.5rem) !important;
+        font-size: clamp(1.4rem, 7vw, 2.5rem) !important; /* ◄ Team name size */
       }
 
+      /* --- Grid 1: SCORE (XS) --- */
       .fullscreen-grid.grid-1 .fullscreen-team-score {
-        font-size: clamp(2.5rem, 12vw, 5rem) !important;
+        font-size: clamp(2.5rem, 12vw, 5rem) !important;  /* ◄ Score size */
       }
 
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                    GRID 2 - EXTRA SMALL OVERRIDES                            │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
+
+      /* --- Grid 2: TEAM NAME (XS) --- */
       .fullscreen-grid.grid-2 .fullscreen-live-team-name {
-        font-size: clamp(0.8rem, 3.5vw, 1.3rem) !important;
+        font-size: clamp(0.8rem, 3.5vw, 1.3rem) !important; /* ◄ Team name size */
       }
 
+      /* --- Grid 2: SCORE (XS) --- */
       .fullscreen-grid.grid-2 .fullscreen-team-score {
-        font-size: clamp(1.5rem, 7vw, 3rem) !important;
+        font-size: clamp(1.5rem, 7vw, 3rem) !important;   /* ◄ Score size */
       }
 
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                    GRID 4 - EXTRA SMALL OVERRIDES                            │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
+
+      /* --- Grid 4: TEAM NAME (XS) --- */
       .fullscreen-grid.grid-4 .fullscreen-live-team-name {
-        font-size: clamp(0.45rem, 2vw, 0.75rem) !important;
+        font-size: clamp(0.45rem, 2vw, 0.75rem) !important; /* ◄ Team name size */
       }
 
+      /* --- Grid 4: SCORE (XS) --- */
       .fullscreen-grid.grid-4 .fullscreen-team-score {
-        font-size: clamp(0.9rem, 4.5vw, 1.4rem) !important;
+        font-size: clamp(0.9rem, 4.5vw, 1.4rem) !important; /* ◄ Score size */
       }
 
+      /* ┌──────────────────────────────────────────────────────────────────────────────┐
+         │                  GRID 6 & 8 - EXTRA SMALL OVERRIDES                          │
+         └──────────────────────────────────────────────────────────────────────────────┘ */
+
+      /* --- Grid 6/8: TEAM NAME (XS) --- */
       .fullscreen-grid.grid-6 .fullscreen-live-team-name,
       .fullscreen-grid.grid-8 .fullscreen-live-team-name {
-        font-size: clamp(0.5rem, 2.5vw, 0.9rem) !important;
+        font-size: clamp(0.5rem, 2.5vw, 0.9rem) !important; /* ◄ Team name size */
       }
 
+      /* --- Grid 6/8: SCORE (XS) --- */
       .fullscreen-grid.grid-6 .fullscreen-team-score,
       .fullscreen-grid.grid-8 .fullscreen-team-score {
-        font-size: clamp(1rem, 5vw, 1.8rem) !important;
+        font-size: clamp(1rem, 5vw, 1.8rem) !important;   /* ◄ Score size */
       }
 
+      /* --- LEAGUE LOGO OPACITY (XS) --- */
       .sport-logo-indicator {
-        opacity: 0.6 !important;
+        opacity: 0.6 !important;                  /* ◄ Reduced opacity on small screens */
       }
     }
 
@@ -5643,11 +5808,11 @@
         teamNameFontSize: Math.max(14, Math.min(56, cardHeight * 0.075)),
         
         // Score
-        scoreFontSize: Math.max(24, Math.min(96, cardHeight * 0.14)),
-        scoreMinWidth: Math.max(50, Math.min(150, cardWidth * 0.15)),
+        scoreFontSize: Math.max(64, Math.min(96, cardHeight * 0.14)),
+        scoreMinWidth: Math.max(90, Math.min(150, cardWidth * 0.15)),
         
         // Team record
-        recordFontSize: Math.max(10, Math.min(18, cardHeight * 0.022)),
+        recordFontSize: Math.max(20, Math.min(18, cardHeight * 0.022)),
         
         // VS text
         vsFontSize: Math.max(12, Math.min(32, cardHeight * 0.04)),
