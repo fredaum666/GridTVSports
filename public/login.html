@@ -224,6 +224,30 @@
       display: none;
     }
 
+    /* Forgot password form */
+    .forgot-form {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .forgot-form.show {
+      display: flex;
+    }
+
+    .forgot-link {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+      text-decoration: none;
+      text-align: right;
+      margin-top: -10px;
+      transition: color 0.3s ease;
+    }
+
+    .forgot-link:hover {
+      color: #6366f1;
+    }
+
     .back-to-login {
       color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
@@ -276,8 +300,29 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
       </div>
+      <a href="#" class="forgot-link" id="showForgot">Forgot password?</a>
       <button type="submit" class="login-btn" id="loginBtn">
         Sign In
+      </button>
+    </form>
+
+    <!-- Forgot Password Form -->
+    <form class="forgot-form" id="forgotForm">
+      <a href="#" class="back-to-login" id="backToLoginFromForgot">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to login
+      </a>
+      <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-bottom: 10px;">
+        Enter your email address and we'll send you a link to reset your password.
+      </p>
+      <div class="form-group">
+        <label for="forgotEmail">Email Address</label>
+        <input type="email" id="forgotEmail" name="email" placeholder="Enter your email" required autocomplete="email">
+      </div>
+      <button type="submit" class="login-btn" id="forgotBtn">
+        Send Reset Link
       </button>
     </form>
 
@@ -318,26 +363,52 @@
   <script>
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    const forgotForm = document.getElementById('forgotForm');
     const registerSection = document.getElementById('registerSection');
     const showRegisterLink = document.getElementById('showRegister');
+    const showForgotLink = document.getElementById('showForgot');
     const backToLoginLink = document.getElementById('backToLogin');
+    const backToLoginFromForgot = document.getElementById('backToLoginFromForgot');
     const errorMessage = document.getElementById('errorMessage');
     const successMessage = document.getElementById('successMessage');
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
+    const forgotBtn = document.getElementById('forgotBtn');
 
     // Show register form
     showRegisterLink.addEventListener('click', (e) => {
       e.preventDefault();
       loginForm.classList.add('hide');
       registerSection.style.display = 'none';
+      forgotForm.classList.remove('show');
       registerForm.classList.add('show');
       hideMessages();
     });
 
-    // Back to login
+    // Show forgot password form
+    showForgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginForm.classList.add('hide');
+      registerSection.style.display = 'none';
+      registerForm.classList.remove('show');
+      forgotForm.classList.add('show');
+      hideMessages();
+    });
+
+    // Back to login from register
     backToLoginLink.addEventListener('click', (e) => {
       e.preventDefault();
+      registerForm.classList.remove('show');
+      forgotForm.classList.remove('show');
+      loginForm.classList.remove('hide');
+      registerSection.style.display = 'block';
+      hideMessages();
+    });
+
+    // Back to login from forgot password
+    backToLoginFromForgot.addEventListener('click', (e) => {
+      e.preventDefault();
+      forgotForm.classList.remove('show');
       registerForm.classList.remove('show');
       loginForm.classList.remove('hide');
       registerSection.style.display = 'block';
@@ -367,7 +438,13 @@
         button.innerHTML = '<span class="loading-spinner"></span>Please wait...';
       } else {
         button.disabled = false;
-        button.textContent = button.id === 'loginBtn' ? 'Sign In' : 'Create Account';
+        if (button.id === 'loginBtn') {
+          button.textContent = 'Sign In';
+        } else if (button.id === 'registerBtn') {
+          button.textContent = 'Create Account';
+        } else if (button.id === 'forgotBtn') {
+          button.textContent = 'Send Reset Link';
+        }
       }
     }
 
@@ -452,6 +529,38 @@
         showError('Connection error. Please try again.');
       } finally {
         setLoading(registerBtn, false);
+      }
+    });
+
+    // Forgot password form submission
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMessages();
+
+      const email = document.getElementById('forgotEmail').value;
+      setLoading(forgotBtn, true);
+
+      try {
+        const response = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showSuccess('If an account exists with this email, a password reset link has been sent. Please check your inbox.');
+          document.getElementById('forgotEmail').value = '';
+        } else {
+          showError(data.error || 'Failed to send reset link');
+        }
+      } catch (error) {
+        showError('Connection error. Please try again.');
+      } finally {
+        setLoading(forgotBtn, false);
       }
     });
 

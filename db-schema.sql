@@ -175,3 +175,25 @@ COMMENT ON TABLE payment_history IS 'Stores payment transaction history';
 COMMENT ON TABLE subscription_plans IS 'Stores available subscription plans';
 COMMENT ON COLUMN users.subscription_status IS 'Subscription status: trial, active, canceled, expired';
 COMMENT ON COLUMN users.trial_ends_at IS 'Trial period end date (10 days from registration)';
+
+-- ============================================
+-- PASSWORD RESET TOKENS TABLE
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  token VARCHAR(255) UNIQUE NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  used BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for password reset tokens
+CREATE INDEX IF NOT EXISTS idx_reset_tokens_token ON password_reset_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_reset_tokens_user ON password_reset_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_reset_tokens_expires ON password_reset_tokens(expires_at);
+
+COMMENT ON TABLE password_reset_tokens IS 'Stores password reset tokens for users';
+COMMENT ON COLUMN password_reset_tokens.token IS 'Secure random token sent via email';
+COMMENT ON COLUMN password_reset_tokens.expires_at IS 'Token expiration time (1 hour from creation)';

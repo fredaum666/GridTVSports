@@ -8,8 +8,28 @@ const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const bcrypt = require('bcrypt');
 const rateLimit = require('express-rate-limit');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const { pool } = require('./db');
 require('dotenv').config();
+
+// Email transporter configuration
+let emailTransporter = null;
+const emailConfigured = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS;
+if (emailConfigured) {
+  emailTransporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+  console.log('✅ Email transporter configured');
+} else {
+  console.log('⚠️ Email not configured - password reset emails will be logged to console');
+}
 
 // Initialize Stripe (optional - only if keys are configured)
 let stripe = null;
@@ -609,6 +629,193 @@ app.post('/api/auth/logout', (req, res) => {
     console.log(`👋 User logged out: ${userEmail || 'unknown'}`);
     res.json({ success: true });
   });
+});
+
+// ============================================
+// PASSWORD RESET ENDPOINTS
+// ============================================
+
+// Request password reset
+app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  try {
+    // Check if user exists
+    const userResult = await pool.query(
+      'SELECT id, email, display_name FROM users WHERE email = $1',
+      [email.toLowerCase()]
+    );
+
+    // Always return success to prevent email enumeration attacks
+    if (userResult.rows.length === 0) {
+      console.log(`🔒 Password reset requested for non-existent email: ${email}`);
+      return res.json({ success: true, message: 'If an account exists with this email, a reset link will be sent.' });
+    }
+
+    const user = userResult.rows[0];
+
+    // Generate secure random token
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+    // Invalidate any existing tokens for this user
+    await pool.query(
+      'UPDATE password_reset_tokens SET used = TRUE WHERE user_id = $1 AND used = FALSE',
+      [user.id]
+    );
+
+    // Store the token
+    await pool.query(
+      'INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, token, expiresAt]
+    );
+
+    // Build reset URL
+    const appUrl = process.env.APP_URL || `http://localhost:${PORT}`;
+    const resetUrl = `${appUrl}/reset-password.html?token=${token}`;
+
+    // Send email or log to console
+    if (emailTransporter) {
+      await emailTransporter.sendMail({
+        from: process.env.SMTP_FROM || '"GridTV Sports" <noreply@gridtvsports.com>',
+        to: user.email,
+        subject: 'Reset Your Password - GridTV Sports',
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #6366f1; margin: 0;">GridTV Sports</h1>
+            </div>
+            <h2 style="color: #333;">Reset Your Password</h2>
+            <p style="color: #666; font-size: 16px;">Hi ${user.display_name || 'there'},</p>
+            <p style="color: #666; font-size: 16px;">We received a request to reset your password. Click the button below to create a new password:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">Reset Password</a>
+            </div>
+            <p style="color: #666; font-size: 14px;">This link will expire in 1 hour.</p>
+            <p style="color: #666; font-size: 14px;">If you didn't request this, you can safely ignore this email.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">GridTV Sports - Live Sports Streaming Platform</p>
+          </div>
+        `,
+        text: `Reset your password for GridTV Sports.\n\nClick this link to reset your password: ${resetUrl}\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, you can safely ignore this email.`,
+      });
+      console.log(`📧 Password reset email sent to: ${user.email}`);
+    } else {
+      // Log reset link to console for development
+      console.log('='.repeat(60));
+      console.log('📧 PASSWORD RESET LINK (Email not configured)');
+      console.log(`User: ${user.email}`);
+      console.log(`Reset URL: ${resetUrl}`);
+      console.log('='.repeat(60));
+    }
+
+    res.json({ success: true, message: 'If an account exists with this email, a reset link will be sent.' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Failed to process request. Please try again.' });
+  }
+});
+
+// Verify reset token
+app.get('/api/auth/verify-reset-token', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ error: 'Token is required' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT prt.id, prt.user_id, prt.expires_at, prt.used, u.email
+       FROM password_reset_tokens prt
+       JOIN users u ON prt.user_id = u.id
+       WHERE prt.token = $1`,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid or expired reset link' });
+    }
+
+    const tokenData = result.rows[0];
+
+    if (tokenData.used) {
+      return res.status(400).json({ error: 'This reset link has already been used' });
+    }
+
+    if (new Date(tokenData.expires_at) < new Date()) {
+      return res.status(400).json({ error: 'This reset link has expired' });
+    }
+
+    res.json({ valid: true, email: tokenData.email });
+  } catch (error) {
+    console.error('Verify token error:', error);
+    res.status(500).json({ error: 'Failed to verify token' });
+  }
+});
+
+// Reset password with token
+app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ error: 'Token and password are required' });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
+
+  try {
+    // Verify token
+    const tokenResult = await pool.query(
+      `SELECT prt.id, prt.user_id, prt.expires_at, prt.used, u.email
+       FROM password_reset_tokens prt
+       JOIN users u ON prt.user_id = u.id
+       WHERE prt.token = $1`,
+      [token]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid or expired reset link' });
+    }
+
+    const tokenData = tokenResult.rows[0];
+
+    if (tokenData.used) {
+      return res.status(400).json({ error: 'This reset link has already been used' });
+    }
+
+    if (new Date(tokenData.expires_at) < new Date()) {
+      return res.status(400).json({ error: 'This reset link has expired' });
+    }
+
+    // Hash new password
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    // Update password
+    await pool.query(
+      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
+      [passwordHash, tokenData.user_id]
+    );
+
+    // Mark token as used
+    await pool.query(
+      'UPDATE password_reset_tokens SET used = TRUE WHERE id = $1',
+      [tokenData.id]
+    );
+
+    console.log(`🔐 Password reset successful for: ${tokenData.email}`);
+    res.json({ success: true, message: 'Password has been reset successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Failed to reset password. Please try again.' });
+  }
 });
 
 // ============================================
