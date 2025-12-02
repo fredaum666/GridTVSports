@@ -1949,6 +1949,11 @@
       height: var(--regular-team-logo-large, 60px);
       object-fit: contain;
       flex-shrink: 0;
+      /* Handle broken images - hide alt text overflow */
+      overflow: hidden;
+      text-indent: -9999px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
     }
 
     .page-1-upcoming .team-name-large {
@@ -2001,6 +2006,11 @@
       object-fit: contain;
       flex-shrink: 0;
       max-width: 100%;
+      /* Handle broken images - hide alt text overflow */
+      overflow: hidden;
+      text-indent: -9999px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
     }
 
     .possession-icon {

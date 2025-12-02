@@ -1877,6 +1877,11 @@
       display: block !important;
       visibility: visible !important;
       opacity: 1 !important;
+      /* Handle broken images - hide alt text overflow */
+      overflow: hidden;
+      text-indent: -9999px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
     }
 
     .team-info-block {
@@ -1993,6 +1998,11 @@
       height: 32px;
       object-fit: contain;
       flex-shrink: 0;
+      /* Handle broken images - hide alt text overflow */
+      overflow: hidden;
+      text-indent: -9999px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 6px;
     }
 
     .team-name {
