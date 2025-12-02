@@ -2825,55 +2825,6 @@
       }
     }
 
-    /* Presentation display (TV) - Hide controls and show only fullscreen */
-    body.presentation-mode .header,
-    body.presentation-mode .container {
-      display: none !important;
-    }
-
-    body.presentation-mode .fullscreen-container {
-      display: block !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-    }
-
-    body.presentation-mode .fullscreen-controls {
-      display: none !important;
-    }
-
-    body.presentation-mode .fs-game-selector-container {
-      display: none !important;
-    }
-
-    body.presentation-mode .fullscreen-hover-trigger {
-      display: none !important;
-    }
-
-    /* Alternative: Use media query for presentation mode */
-    @media (display-mode: presentation) {
-      .header,
-      .container {
-        display: none !important;
-      }
-
-      .fullscreen-container {
-        display: block !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-      }
-
-      .fullscreen-controls {
-        display: none !important;
-      }
-
-      .fs-game-selector-container {
-        display: none !important;
-      }
-
-      .fullscreen-hover-trigger {
-        display: none !important;
-      }
-    }
   </style>
   <link rel="stylesheet" href="/styles/themes.css">
   <link rel="stylesheet" href="/styles/mobile-fullscreen.css">
@@ -2949,19 +2900,7 @@
   </div>
 
   <script>
-    // VERY EARLY: Check if running in presentation mode on TV
-    // This runs BEFORE any other code to ensure TV doesn't crash
-    var IS_TV_MODE = false;
-    try {
-      IS_TV_MODE = window.location.search.indexOf('presentation=true') !== -1;
-      if (IS_TV_MODE) {
-        console.log('TV MODE DETECTED - Early initialization');
-      }
-    } catch (e) {
-      // Ignore - not in TV mode
-    }
-
-    // Global error handler to catch uncaught errors (helps prevent TV crashes)
+    // Global error handler to catch uncaught errors
     window.onerror = function(message, source, lineno, colno, error) {
       console.error('Global error caught:', message, 'at', source, 'line', lineno);
       // Don't let errors propagate and crash the page
@@ -2980,8 +2919,6 @@
     var currentLayout = 4;
     var fullscreenRefreshInterval;
     var sessionKeepAliveInterval = null; // Keep session alive during fullscreen
-    var presentationRequest = null;
-    var presentationConnection = null;
 
     // Calculate ball position percentage for field visualizer
     // Field position format: "DAL 32" means Dallas has ball at their own 32 yard line
@@ -3056,10 +2993,8 @@
         ]);
 
         // Check for session expiration (401) on any response
-        // Skip redirect if in presentation mode (TV display) - TV doesn't have session
         const responses = [nflResponse, nflNextWeekResponse, ncaaResponse, ncaaNextWeekResponse, nbaResponse, mlbResponse, nhlResponse];
-        const isPresentationMode = new URLSearchParams(window.location.search).get('presentation') === 'true';
-        if (responses.some(r => r.status === 401) && !isPresentationMode) {
+        if (responses.some(r => r.status === 401)) {
           console.log('Session expired, redirecting to login...');
           window.location.href = '/login';
           return;
