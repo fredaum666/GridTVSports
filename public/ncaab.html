@@ -1180,16 +1180,330 @@
       }
     }
 
+    /* MOBILE RESPONSIVE - Uses same CSS patterns as NFL page */
     @media (max-width: 768px) {
       .grid-preview.grid-4,
       .grid-preview.grid-6 {
         grid-template-columns: 1fr;
       }
 
-      .fullscreen-grid.grid-4,
+      /* ========== 1 GAME - FULL SCREEN VERTICAL LAYOUT ========== */
+      .fullscreen-grid.grid-1 {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: 1fr !important;
+        height: 100dvh !important;
+        padding: 10px !important;
+        gap: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-game-card {
+        max-width: 100% !important;
+        height: calc(100dvh - 20px) !important;
+        padding: 15px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-card-content {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 15px !important;
+        padding: 10px !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: clamp(15px, 4vw, 40px) !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-stack {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 8px !important;
+        min-width: 0 !important;
+        flex: 0 1 auto !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-logo {
+        width: clamp(60px, 18vw, 120px) !important;
+        height: clamp(60px, 18vw, 120px) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-live-team-name {
+        font-size: clamp(1rem, 4vw, 1.8rem) !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 35vw !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-score {
+        font-size: clamp(3rem, 12vw, 7rem) !important;
+        min-width: clamp(50px, 15vw, 100px) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-status-text,
+      .fullscreen-grid.grid-1 .fullscreen-upcoming-status-text {
+        font-size: clamp(1rem, 3.5vw, 1.6rem) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-record {
+        font-size: clamp(0.7rem, 2.5vw, 1rem) !important;
+      }
+
+      /* ========== 2 GAMES - VERTICAL STACK ========== */
+      .fullscreen-grid.grid-2 {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+        height: 100dvh !important;
+        padding: 8px !important;
+        gap: 8px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-game-card {
+        max-width: 100% !important;
+        height: 100% !important;
+        padding: 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-card-content {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 5px !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-live-score-header {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: clamp(10px, 3vw, 30px) !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-stack {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 4px !important;
+        min-width: 0 !important;
+        flex: 0 1 auto !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-logo {
+        width: clamp(40px, 12vw, 80px) !important;
+        height: clamp(40px, 12vw, 80px) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-live-team-name {
+        font-size: clamp(0.8rem, 3vw, 1.3rem) !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 30vw !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-score {
+        font-size: clamp(2rem, 8vw, 4.5rem) !important;
+        min-width: clamp(40px, 12vw, 80px) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-status-text,
+      .fullscreen-grid.grid-2 .fullscreen-upcoming-status-text {
+        font-size: clamp(0.75rem, 2.5vw, 1.1rem) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-record {
+        font-size: clamp(0.6rem, 2vw, 0.85rem) !important;
+      }
+
+      /* ========== 3 GAMES - VERTICAL STACK ========== */
+      .fullscreen-grid.grid-3 {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(3, 1fr) !important;
+        height: 100dvh !important;
+        padding: 6px !important;
+        gap: 6px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-game-card {
+        max-width: 100% !important;
+        height: 100% !important;
+        padding: 8px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-card-content {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 5px !important;
+        padding: 3px !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-live-score-header {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: clamp(8px, 2.5vw, 25px) !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-team-stack {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 2px !important;
+        min-width: 0 !important;
+        flex: 0 1 auto !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-team-logo {
+        width: clamp(30px, 9vw, 60px) !important;
+        height: clamp(30px, 9vw, 60px) !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-live-team-name {
+        font-size: clamp(0.65rem, 2.5vw, 1rem) !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 28vw !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-team-score {
+        font-size: clamp(1.5rem, 6vw, 3.5rem) !important;
+        min-width: clamp(35px, 10vw, 60px) !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-status-text,
+      .fullscreen-grid.grid-3 .fullscreen-upcoming-status-text {
+        font-size: clamp(0.6rem, 2vw, 0.9rem) !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-team-record {
+        font-size: clamp(0.5rem, 1.5vw, 0.7rem) !important;
+      }
+
+      /* ========== 4 GAMES - VERTICAL STACK ========== */
+      .fullscreen-grid.grid-4 {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(4, 1fr) !important;
+        height: 100dvh !important;
+        padding: 5px !important;
+        gap: 5px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-game-card {
+        max-width: 100% !important;
+        height: 100% !important;
+        padding: 6px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-card-content {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 3px !important;
+        padding: 2px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-live-score-header {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: clamp(6px, 2vw, 20px) !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-stack {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 1px !important;
+        min-width: 0 !important;
+        flex: 0 1 auto !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-logo {
+        width: clamp(24px, 7vw, 50px) !important;
+        height: clamp(24px, 7vw, 50px) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-live-team-name {
+        font-size: clamp(0.55rem, 2vw, 0.85rem) !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 26vw !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-score {
+        font-size: clamp(1.2rem, 5vw, 2.8rem) !important;
+        min-width: clamp(30px, 8vw, 50px) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-status-text,
+      .fullscreen-grid.grid-4 .fullscreen-upcoming-status-text {
+        font-size: clamp(0.5rem, 1.8vw, 0.8rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-record {
+        font-size: clamp(0.45rem, 1.3vw, 0.6rem) !important;
+      }
+
+      /* ========== 5+ GAMES - DEFAULT GRID BEHAVIOR ========== */
+      .fullscreen-grid.grid-5,
       .fullscreen-grid.grid-6 {
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(2, 1fr);
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(2, 1fr) !important;
       }
 
       .fullscreen-live-team-name {
