@@ -448,39 +448,7 @@
       opacity: 0.5;
     }
 
-    /* Cast Button - Secondary style */
-    #mobile-cast-only {
-      background: #64748b !important;
-    }
-
-    #mobile-cast-only:hover:not(:disabled) {
-      background: #475569 !important;
-      transform: translateY(-1px);
-    }
-
-    #mobile-cast-only:disabled {
-      background: #475569 !important;
-      cursor: not-allowed;
-      opacity: 0.5;
-    }
-
-    .mobile-cast-info {
-      display: none;
-      background: rgba(139, 92, 246, 0.1);
-      border: 2px solid rgba(139, 92, 246, 0.3);
-      border-radius: 8px;
-      padding: 15px;
-      margin-top: 15px;
-      text-align: center;
-      color: #c4b5fd;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
     @media screen and (max-width: 768px) {
-      .mobile-cast-info {
-        display: block;
-      }
 
       /* Header responsive fix */
       .header {
@@ -1700,11 +1668,6 @@
       100% { transform: scale(1); }
     }
 
-    @keyframes castPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-
     .fs-game-selector {
       width: 100%;
       padding: 8px 12px;
@@ -2027,38 +1990,6 @@
       margin-top: 3px !important;
     }
 
-    /* Cast Button Styles */
-    .cast-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-right: 10px;
-    }
-
-    .cast-btn:hover:not(:disabled) {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-      transform: translateY(-1px);
-    }
-
-    .cast-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .cast-btn.casting {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      animation: castPulse 2s infinite;
-    }
-
     /* Mobile Responsive Styles */
     @media screen and (max-width: 768px) {
       /* Header adjustments */
@@ -2076,16 +2007,6 @@
         padding: 20px 10px;
       }
 
-      /* Hide launch fullscreen button on mobile */
-      #launch-fullscreen {
-        display: none !important;
-      }
-
-      /* Show cast button prominently on mobile */
-      #mobile-cast-only {
-        display: block !important;
-      }
-
       /* Fullscreen controls for mobile */
       .fullscreen-controls {
         padding: 8px;
@@ -2095,16 +2016,6 @@
       .fullscreen-controls button {
         padding: 8px 12px;
         font-size: 12px;
-      }
-
-      .cast-btn {
-        padding: 8px 12px;
-        font-size: 12px;
-      }
-
-      /* Hide fullscreen container on mobile - it should never show */
-      .fullscreen-container {
-        display: none !important;
       }
 
       /* Mobile sport logos */
@@ -2168,238 +2079,503 @@
 
     /* ==================================================
        MOBILE RESPONSIVE - PHONE (≤768px)
-       Single column layout for all grid sizes
+       Uses same CSS patterns as NFL page for mobile fullscreen
        ================================================== */
     @media screen and (max-width: 768px) {
-      /* Force all grid layouts to single column on phones */
-      .fullscreen-grid.grid-1,
-      .fullscreen-grid.grid-2,
-      .fullscreen-grid.grid-4,
-      .fullscreen-grid.grid-6,
-      .fullscreen-grid.grid-8 {
-        grid-template-columns: 1fr !important;
-        grid-template-rows: auto !important;
-        gap: 15px !important;
-        padding: 15px !important;
-      }
-
-      /* 1 Game - Full viewport height */
+      /* ========== 1 GAME - FULL SCREEN VERTICAL LAYOUT ========== */
       .fullscreen-grid.grid-1 {
+        grid-template-columns: 1fr !important;
         grid-template-rows: 1fr !important;
-        height: 100vh !important;
         height: 100dvh !important;
-        padding: 12px !important;
+        padding: 10px !important;
         gap: 0 !important;
+        overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-1 .fullscreen-game-card {
-        height: calc(100vh - 24px) !important;
-        height: calc(100dvh - 24px) !important;
-        min-height: unset !important;
-      }
-
-      /* 2 Games - Each takes half viewport */
-      .fullscreen-grid.grid-2 {
-        grid-template-rows: repeat(2, 1fr) !important;
-        height: 100vh !important;
-        height: 100dvh !important;
-        padding: 10px !important;
-        gap: 10px !important;
-      }
-
-      .fullscreen-grid.grid-2 .fullscreen-game-card {
-        height: calc((100vh - 30px) / 2) !important;
-        height: calc((100dvh - 30px) / 2) !important;
-        min-height: unset !important;
-      }
-
-      /* Adjust card sizing for phones */
-      .fullscreen-game-card {
-        padding: 20px 20px 30px 20px !important;
-        min-height: 300px !important;
-        overflow: visible !important;
+        max-width: 100% !important;
+        height: calc(100dvh - 20px) !important;
+        padding: 15px !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
         align-items: center !important;
+        overflow: hidden !important;
       }
 
-      /* ========== 1 GAME - FULL SCREEN SIZES ========== */
-      .fullscreen-grid.grid-1 .fullscreen-game-card {
-        padding: clamp(25px, 5vw, 40px) !important;
+      .fullscreen-grid.grid-1 .fullscreen-card-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 100% !important;
+        width: 100% !important;
+        gap: 1vh !important;
       }
 
-      .fullscreen-grid.grid-1 .fullscreen-quarter {
-        font-size: clamp(1.8rem, 5vw, 2.8rem) !important;
-        margin-bottom: 20px !important;
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header {
+        flex-direction: column !important;
+        gap: 1vh !important;
+        width: 100% !important;
+        align-items: center !important;
       }
 
-      .fullscreen-grid.grid-1 .fullscreen-team-name {
-        font-size: clamp(3rem, 10vw, 5rem) !important;
-        letter-spacing: 2px !important;
+      .fullscreen-grid.grid-1 .fullscreen-team-stack {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        gap: 3vw !important;
       }
 
-      .fullscreen-grid.grid-1 .fullscreen-team-record {
-        font-size: clamp(1.3rem, 4vw, 2rem) !important;
-        min-width: 80px !important;
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-score {
-        font-size: clamp(5rem, 15vw, 8rem) !important;
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-vs {
-        font-size: clamp(1.8rem, 5vw, 2.8rem) !important;
-        margin: 25px 0 !important;
+      .fullscreen-grid.grid-1 .fullscreen-vs-divider-live {
+        display: block !important;
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        color: rgba(255,255,255,0.7) !important;
+        margin: 0.5vh 0 !important;
       }
 
       .fullscreen-grid.grid-1 .fullscreen-team-logo {
-        width: clamp(100px, 20vw, 150px) !important;
-        height: clamp(100px, 20vw, 150px) !important;
+        width: 15vw !important;
+        height: 15vw !important;
+        max-width: 80px !important;
+        max-height: 80px !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-live-team-name {
+        font-size: clamp(1.5rem, 8vw, 3rem) !important;
+        white-space: nowrap !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-score {
+        font-size: clamp(3rem, 15vw, 6rem) !important;
+        min-width: auto !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-team-record {
+        font-size: clamp(0.8rem, 3vw, 1.2rem) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-status-text {
+        font-size: clamp(1.2rem, 5vw, 2rem) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-upcoming-status-text {
+        font-size: clamp(1.2rem, 5vw, 2rem) !important;
+      }
+
+      .fullscreen-grid.grid-1 .fullscreen-situation-info {
+        font-size: clamp(1rem, 4vw, 1.5rem) !important;
       }
 
       .fullscreen-grid.grid-1 .sport-logo-indicator {
-        width: clamp(60px, 14vw, 90px) !important;
-        height: clamp(60px, 14vw, 90px) !important;
+        width: 18vw !important;
+        height: 18vw !important;
+        max-width: 90px !important;
+        max-height: 90px !important;
         top: 15px !important;
         left: 15px !important;
       }
 
-      .fullscreen-grid.grid-1 .fullscreen-down-distance {
-        font-size: clamp(1.4rem, 4vw, 2rem) !important;
-        padding: 10px 20px !important;
-        margin-top: 15px !important;
+      .fullscreen-grid.grid-1 .field-container {
+        height: 30px !important;
       }
 
-      .fullscreen-grid.grid-1 .fullscreen-possession {
-        width: 35px !important;
-        height: 35px !important;
-        margin-left: 12px !important;
+      .fullscreen-grid.grid-1 .fullscreen-timeouts {
+        display: none !important;
       }
 
-      .fullscreen-grid.grid-1 .fullscreen-teams {
-        gap: clamp(30px, 6vh, 50px) !important;
+      /* ========== 2 GAMES - HORIZONTAL LAYOUT STACKED ========== */
+      .fullscreen-grid.grid-2 {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+        height: 100dvh !important;
+        padding: 8px !important;
+        gap: 8px !important;
+        overflow: hidden !important;
       }
 
-      .fullscreen-grid.grid-1 .fullscreen-team {
-        gap: clamp(15px, 3vw, 25px) !important;
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-team-header {
-        gap: clamp(15px, 4vw, 25px) !important;
-      }
-
-      /* ========== 2 GAMES - HALF SCREEN SIZES ========== */
       .fullscreen-grid.grid-2 .fullscreen-game-card {
-        padding: clamp(15px, 4vw, 25px) !important;
+        height: calc((100dvh - 24px) / 2) !important;
+        padding: 8px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-quarter {
-        font-size: clamp(1.3rem, 4vw, 2rem) !important;
-        margin-bottom: 12px !important;
+      .fullscreen-grid.grid-2 .fullscreen-card-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 100% !important;
+        width: 100% !important;
+        gap: 0.5vh !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-team-name {
-        font-size: clamp(2rem, 7vw, 3.5rem) !important;
-        letter-spacing: 1px !important;
+      .fullscreen-grid.grid-2 .fullscreen-live-score-header {
+        flex-direction: row !important;
+        gap: 2vw !important;
+        width: 100% !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-wrap: nowrap !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-team-record {
-        font-size: clamp(1rem, 3vw, 1.5rem) !important;
-        min-width: 60px !important;
+      .fullscreen-grid.grid-2 .fullscreen-team-stack {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.3vh !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-score {
-        font-size: clamp(3.5rem, 10vw, 5.5rem) !important;
-      }
-
-      .fullscreen-grid.grid-2 .fullscreen-vs {
-        font-size: clamp(1.3rem, 4vw, 2rem) !important;
-        margin: 15px 0 !important;
+      .fullscreen-grid.grid-2 .fullscreen-vs-divider-live {
+        font-size: clamp(1rem, 4vw, 1.8rem) !important;
+        flex-shrink: 0 !important;
       }
 
       .fullscreen-grid.grid-2 .fullscreen-team-logo {
-        width: clamp(70px, 15vw, 100px) !important;
-        height: clamp(70px, 15vw, 100px) !important;
+        width: 14vw !important;
+        height: 14vw !important;
+        max-width: 70px !important;
+        max-height: 70px !important;
       }
 
-      .fullscreen-grid.grid-2 .sport-logo-indicator {
-        width: clamp(45px, 10vw, 65px) !important;
-        height: clamp(45px, 10vw, 65px) !important;
-        top: 10px !important;
-        left: 10px !important;
+      .fullscreen-grid.grid-2 .fullscreen-live-team-name {
+        font-size: clamp(1.2rem, 5vw, 2rem) !important;
+        white-space: nowrap !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-score {
+        font-size: clamp(2.5rem, 12vw, 5rem) !important;
+        min-width: auto !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-record {
+        font-size: clamp(0.7rem, 2.5vw, 1rem) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-status-text {
+        font-size: clamp(1rem, 4.5vw, 1.6rem) !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-status-container {
+        margin-bottom: 0.5vh !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-situation-info {
+        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important;
+        margin-top: 0.8vh !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-down-distance-container {
+        margin-top: 0.5vh !important;
       }
 
       .fullscreen-grid.grid-2 .fullscreen-down-distance {
-        font-size: clamp(1.1rem, 3vw, 1.5rem) !important;
-        padding: 8px 16px !important;
-        margin-top: 10px !important;
+        font-size: clamp(1rem, 4vw, 1.4rem) !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-possession {
-        width: 28px !important;
+      .fullscreen-grid.grid-2 .sport-logo-indicator {
+        width: 12vw !important;
+        height: 12vw !important;
+        max-width: 60px !important;
+        max-height: 60px !important;
+        top: 8px !important;
+        left: 8px !important;
+      }
+
+      .fullscreen-grid.grid-2 .field-container {
         height: 28px !important;
-        margin-left: 10px !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-teams {
-        gap: clamp(15px, 3vh, 30px) !important;
+      .fullscreen-grid.grid-2 .field-visualizer {
+        margin-top: 0.5vh !important;
+        max-width: 95% !important;
+        width: 95% !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-team {
-        gap: clamp(10px, 2vw, 18px) !important;
+      .fullscreen-grid.grid-2 .field-visualizer .ball-marker {
+        width: 10px !important;
+        height: 10px !important;
       }
 
-      .fullscreen-grid.grid-2 .fullscreen-team-header {
-        gap: clamp(10px, 3vw, 18px) !important;
+      .fullscreen-grid.grid-2 .field-visualizer .yard-line {
+        font-size: 0.6rem !important;
       }
 
-      /* ========== DEFAULT (4+ GAMES) ========== */
-      /* Scale down fonts for mobile */
-      .fullscreen-quarter {
-        font-size: 1.4rem !important;
+      .fullscreen-grid.grid-2 .fullscreen-timeouts {
+        display: none !important;
       }
 
-      .fullscreen-team-name {
-        font-size: 1.6rem !important;
+      /* ========== 3 GAMES - VERTICAL STACK ========== */
+      .fullscreen-grid.grid-3 {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(3, 1fr) !important;
+        height: 100dvh !important;
+        padding: 6px !important;
+        gap: 6px !important;
+        overflow: hidden !important;
       }
 
-      .fullscreen-team-record {
-        font-size: 1rem !important;
-        margin-top: 4px !important;
-        min-width: 48px !important;
-        padding-right: 8px !important;
+      .fullscreen-grid.grid-3 .fullscreen-game-card {
+        height: calc((100dvh - 24px) / 3) !important;
+        padding: 6px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important;
       }
 
-      .fullscreen-score {
-        font-size: 4.5rem !important;
+      .fullscreen-grid.grid-3 .fullscreen-card-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 100% !important;
+        width: 100% !important;
+        gap: 0.3vh !important;
       }
 
-      .fullscreen-vs {
-        font-size: 1.5rem !important;
-        margin: 8px 0 !important;
+      .fullscreen-grid.grid-3 .fullscreen-live-score-header {
+        flex-direction: row !important;
+        gap: 2vw !important;
+        width: 100% !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-wrap: nowrap !important;
       }
 
-      .fullscreen-team-logo {
-        width: 50px !important;
-        height: 50px !important;
+      .fullscreen-grid.grid-3 .fullscreen-team-stack {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.2vh !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
       }
 
-      .sport-logo-indicator {
-        width: 45px !important;
-        height: 45px !important;
+      .fullscreen-grid.grid-3 .fullscreen-vs-divider-live {
+        font-size: clamp(0.8rem, 3vw, 1.4rem) !important;
+        flex-shrink: 0 !important;
       }
 
-      .fullscreen-down-distance {
-        font-size: 1.4rem !important;
-        padding: 6px 12px !important;
-        margin-top: 10px !important;
+      .fullscreen-grid.grid-3 .fullscreen-team-logo {
+        width: 10vw !important;
+        height: 10vw !important;
+        max-width: 50px !important;
+        max-height: 50px !important;
       }
 
-      .fullscreen-possession {
-        width: 22px !important;
-        height: 22px !important;
-        margin-left: 8px !important;
+      .fullscreen-grid.grid-3 .fullscreen-live-team-name {
+        font-size: clamp(0.9rem, 4vw, 1.5rem) !important;
+        white-space: nowrap !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-team-score {
+        font-size: clamp(1.8rem, 9vw, 3.5rem) !important;
+        min-width: auto !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-team-record {
+        font-size: clamp(0.5rem, 2vw, 0.8rem) !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-status-text {
+        font-size: clamp(0.8rem, 3.5vw, 1.2rem) !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-status-container {
+        margin-bottom: 0.3vh !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-situation-info {
+        font-size: clamp(0.7rem, 3vw, 1.1rem) !important;
+        margin-top: 0.3vh !important;
+      }
+
+      .fullscreen-grid.grid-3 .sport-logo-indicator {
+        width: 10vw !important;
+        height: 10vw !important;
+        max-width: 50px !important;
+        max-height: 50px !important;
+        top: 6px !important;
+        left: 6px !important;
+      }
+
+      .fullscreen-grid.grid-3 .field-container {
+        height: 18px !important;
+      }
+
+      .fullscreen-grid.grid-3 .field-visualizer {
+        margin-top: 0.3vh !important;
+        max-width: 90% !important;
+      }
+
+      .fullscreen-grid.grid-3 .fullscreen-timeouts {
+        display: none !important;
+      }
+
+      /* ========== 4 GAMES - VERTICAL STACK (MOBILE) ========== */
+      .fullscreen-grid.grid-4 {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(4, 1fr) !important;
+        height: 100dvh !important;
+        padding: 4px !important;
+        gap: 4px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-game-card {
+        padding: 3px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-4 .sport-logo-indicator {
+        width: 6vw !important;
+        height: 6vw !important;
+        max-width: 28px !important;
+        max-height: 28px !important;
+        top: 3px !important;
+        left: 3px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-logo {
+        width: 6vw !important;
+        height: 6vw !important;
+        max-width: 30px !important;
+        max-height: 30px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-live-team-name {
+        font-size: clamp(0.55rem, 2.5vw, 0.9rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-score {
+        font-size: clamp(1rem, 5vw, 1.6rem) !important;
+        min-width: auto !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-record {
+        font-size: clamp(0.35rem, 1.2vw, 0.55rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-status-text {
+        font-size: clamp(0.5rem, 2vw, 0.75rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-vs-divider,
+      .fullscreen-grid.grid-4 .fullscreen-vs-divider-live {
+        font-size: clamp(0.5rem, 2vw, 0.8rem) !important;
+        padding: 0 3px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-stack {
+        gap: 1px !important;
+        padding: 2px !important;
+      }
+
+      .fullscreen-grid.grid-4 .situation-info {
+        font-size: clamp(0.4rem, 1.5vw, 0.6rem) !important;
+        padding: 1px 3px !important;
+        margin-top: 1px !important;
+      }
+
+      .fullscreen-grid.grid-4 .down-distance {
+        font-size: clamp(0.4rem, 1.5vw, 0.6rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .field-container {
+        height: 8px !important;
+        margin-top: 1px !important;
+      }
+
+      .fullscreen-grid.grid-4 .field-visualizer {
+        margin-top: 1px !important;
+        max-width: 85% !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-timeouts {
+        display: none !important;
+      }
+
+      /* ========== 6+ GAMES - 2x GRID ========== */
+      .fullscreen-grid.grid-6,
+      .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        height: 100dvh !important;
+        padding: 6px !important;
+        gap: 6px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-6 {
+        grid-template-rows: repeat(3, 1fr) !important;
+      }
+
+      .fullscreen-grid.grid-8 {
+        grid-template-rows: repeat(4, 1fr) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-game-card,
+      .fullscreen-grid.grid-8 .fullscreen-game-card {
+        padding: 5px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-team-logo,
+      .fullscreen-grid.grid-8 .fullscreen-team-logo {
+        width: 7vw !important;
+        height: 7vw !important;
+        max-width: 35px !important;
+        max-height: 35px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-live-team-name,
+      .fullscreen-grid.grid-8 .fullscreen-live-team-name {
+        font-size: clamp(0.6rem, 3vw, 1rem) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-team-score,
+      .fullscreen-grid.grid-8 .fullscreen-team-score {
+        font-size: clamp(1.2rem, 6vw, 2rem) !important;
+        min-width: auto !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-team-record,
+      .fullscreen-grid.grid-8 .fullscreen-team-record {
+        font-size: clamp(0.4rem, 1.5vw, 0.7rem) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-status-text,
+      .fullscreen-grid.grid-8 .fullscreen-status-text {
+        font-size: clamp(0.6rem, 2.5vw, 0.9rem) !important;
+      }
+
+      .fullscreen-grid.grid-6 .sport-logo-indicator,
+      .fullscreen-grid.grid-8 .sport-logo-indicator {
+        width: 6vw !important;
+        height: 6vw !important;
+        max-width: 28px !important;
+        max-height: 28px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-timeouts,
+      .fullscreen-grid.grid-8 .fullscreen-timeouts {
+        display: none !important;
+      }
+
+      /* Hide game selector on mobile */
+      .fs-game-selector-container {
+        display: none !important;
+      }
+
+      /* Common mobile styles */
+      .fullscreen-game-card {
+        border-radius: 8px !important;
       }
 
       /* Controls adjustments for mobile */
@@ -2470,11 +2646,6 @@
         padding: 8px 10px !important;
       }
 
-      /* Cast button mobile adjustments */
-      #cast-btn {
-        padding: 8px 12px !important;
-        font-size: 0.9rem !important;
-      }
     }
 
     /* ==================================================
@@ -2762,13 +2933,6 @@
     <!-- Buttons - Modal style layout -->
     <div class="modal-buttons">
       <button id="launch-fullscreen" class="fullscreen-btn" disabled>Enter Sports Bar Mode</button>
-      <button id="mobile-cast-only" class="fullscreen-btn" style="background: #64748b;" disabled>📺 Cast to TV</button>
-    </div>
-
-    <!-- Mobile Information Message -->
-    <div class="mobile-cast-info">
-      📱 <strong>Mobile Viewing:</strong><br>
-      Select your desired grid layout and games above, then use the "Cast to TV" button to display on an external screen.
     </div>
   </div>
 
@@ -2776,9 +2940,6 @@
   <div id="fullscreen-container" class="fullscreen-container">
     <div class="fullscreen-hover-trigger"></div>
     <div class="fullscreen-controls">
-      <button id="cast-btn" class="cast-btn" style="display: none;">
-        📺 Cast to TV
-      </button>
       <button id="change-layout-fs">🔄 Change Layout</button>
       <button id="exit-fullscreen">✕ Exit</button>
     </div>
@@ -3110,19 +3271,14 @@
     // Check if at least one slot is selected
     function checkAllSlotsSelected() {
       const launchBtn = document.getElementById('launch-fullscreen');
-      const mobileCastBtn = document.getElementById('mobile-cast-only');
       const selectedCount = Object.keys(gridGames).length;
 
       if (selectedCount === 0) {
         launchBtn.disabled = true;
         launchBtn.textContent = 'Enter Sports Bar Mode';
-        mobileCastBtn.disabled = true;
-        mobileCastBtn.textContent = '📺 Cast to TV';
       } else {
         launchBtn.disabled = false;
         launchBtn.textContent = 'Enter Sports Bar Mode';
-        mobileCastBtn.disabled = false;
-        mobileCastBtn.textContent = '📺 Cast to TV';
       }
     }
 
@@ -3139,43 +3295,7 @@
     // Launch fullscreen
     document.getElementById('launch-fullscreen').addEventListener('click', enterFullscreen);
 
-    // Mobile cast button - triggers cast instead of fullscreen
-    document.getElementById('mobile-cast-only').addEventListener('click', async () => {
-      console.log('📱 Mobile cast button clicked - initiating cast to TV');
-      
-      // First, ensure Presentation API is initialized
-      if (!presentationRequest) {
-        console.log('📱 Initializing Presentation API for mobile...');
-        initializePresentationAPI();
-        
-        // Wait a moment for initialization
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-      
-      // Check if Presentation API is available
-      if (!presentationRequest) {
-        alert('Cast functionality is not available on this device/browser. Please try using Chrome or Edge.');
-        return;
-      }
-      
-      // Enter fullscreen first to populate the grid
-      enterFullscreen(true); // Pass true to bypass mobile check for casting
-      
-      // Wait for fullscreen to be ready, then start casting
-      setTimeout(() => {
-        startCasting();
-      }, 300);
-    });
-
-    function enterFullscreen(bypassMobileCheck = false) {
-      // Check if on mobile - prevent fullscreen mode (unless casting)
-      const isMobile = window.innerWidth <= 768;
-      if (isMobile && !bypassMobileCheck) {
-        console.log('📱 Mobile device detected - fullscreen mode disabled on mobile');
-        alert('Fullscreen mode is not available on mobile devices. Please use the "Cast to TV" button to display on an external screen.');
-        return;
-      }
-
+    function enterFullscreen() {
       document.getElementById('fullscreen-container').classList.add('active');
       
       const fullscreenGrid = document.getElementById('fullscreen-grid');
@@ -3980,502 +4100,12 @@
         }
       });
 
-      // This will trigger sendStateToPresentationDisplay() via override
-      console.log('✅ Controller refreshed and synced to TV');
-    }
-
-    // ============================================
-    // PRESENTATION API - CAST TO TV FUNCTIONALITY
-    // ============================================
-
-    // Initialize Presentation API
-    function initializePresentationAPI() {
-      const castBtn = document.getElementById('cast-btn');
-      
-      // Check if Presentation API is available
-      if ('PresentationRequest' in window) {
-        try {
-          // Create presentation URL with parameter to indicate presentation mode
-          const baseUrl = window.location.origin + window.location.pathname;
-          const presentationUrl = baseUrl + '?presentation=true';
-          presentationRequest = new PresentationRequest([presentationUrl]);
-
-          // Show cast button
-          castBtn.style.display = 'inline-flex';
-
-          // Monitor availability of presentation displays
-          presentationRequest.addEventListener('connectionavailable', handleConnectionAvailable);
-
-          // Check for available displays
-          presentationRequest.getAvailability()
-            .then(availability => {
-              availability.addEventListener('change', () => {
-                castBtn.disabled = !availability.value;
-                if (availability.value) {
-                  console.log('✅ Cast devices available');
-                } else {
-                  console.log('⚠️ No cast devices found');
-                }
-              });
-              castBtn.disabled = !availability.value;
-            })
-            .catch(err => {
-              console.log('⚠️ Presentation availability check not supported:', err);
-              // Show button anyway, let user try
-              castBtn.disabled = false;
-            });
-
-        } catch (error) {
-          console.error('Error initializing Presentation API:', error);
-          castBtn.style.display = 'none';
-        }
-      } else {
-        console.log('⚠️ Presentation API not supported in this browser');
-        // Try Chrome/Edge specific message
-        if (!navigator.userAgent.includes('Chrome') && !navigator.userAgent.includes('Edg')) {
-          console.log('💡 Try using Chrome or Edge for casting support');
-        }
-      }
-    }
-
-    // Start casting to TV
-    async function startCasting() {
-      const castBtn = document.getElementById('cast-btn');
-      
-      try {
-        // Start presentation connection
-        const connection = await presentationRequest.start();
-        presentationConnection = connection;
-
-        console.log('🎬 Casting started to:', connection.id);
-        
-        // Update button state
-        castBtn.textContent = '📺 Casting...';
-        castBtn.classList.add('casting');
-
-        // Handle connection state changes
-        connection.addEventListener('close', () => {
-          console.log('📴 Presentation closed');
-          resetCastButton();
-        });
-
-        connection.addEventListener('terminate', () => {
-          console.log('🛑 Presentation terminated');
-          resetCastButton();
-        });
-
-        // Wait a moment for connection to stabilize, then send initial state
-        setTimeout(() => {
-          console.log('📤 Sending initial state to TV...');
-          sendStateToPresentationDisplay();
-        }, 500); // 500ms delay (restored from old working version)
-
-      } catch (error) {
-        console.error('Error starting presentation:', error);
-        alert('Unable to cast. Make sure your TV/Chromecast is on the same network.');
-      }
-    }
-
-    // Stop casting
-    function stopCasting() {
-      if (presentationConnection) {
-        presentationConnection.terminate();
-        presentationConnection = null;
-      }
-      resetCastButton();
-    }
-
-    // Reset cast button to default state
-    function resetCastButton() {
-      const castBtn = document.getElementById('cast-btn');
-      castBtn.textContent = '📺 Cast to TV';
-      castBtn.classList.remove('casting');
-      presentationConnection = null;
-    }
-
-    // Handle incoming connections (for reconnection scenarios)
-    function handleConnectionAvailable(event) {
-      const connection = event.connection;
-      presentationConnection = connection;
-      
-      const castBtn = document.getElementById('cast-btn');
-      castBtn.textContent = '📺 Casting...';
-      castBtn.classList.add('casting');
-
-      connection.addEventListener('close', resetCastButton);
-      connection.addEventListener('terminate', resetCastButton);
-    }
-
-    // Send state updates to presentation display
-    function sendStateToPresentationDisplay() {
-      if (!presentationConnection) {
-        // Not casting, skip
-        return;
-      }
-
-      if (presentationConnection.state !== 'connected') {
-        console.log('⚠️ Presentation connection not ready:', presentationConnection.state);
-        return;
-      }
-
-      // Build game objects for selected games
-      const selectedGames = {};
-      Object.entries(gridGames).forEach(([slotIndex, gameId]) => {
-        const game = allGames.find(g => g.id === gameId);
-        if (game) {
-          selectedGames[slotIndex] = game;
-        }
-      });
-
-      const state = {
-        type: 'update',
-        gridGames: gridGames, // Keep IDs for reference
-        selectedGames: selectedGames, // Include full game objects
-        currentLayout: currentLayout,
-        timestamp: Date.now()
-      };
-
-      try {
-        presentationConnection.send(JSON.stringify(state));
-        console.log('📤 Sent state to TV:', {
-          layout: currentLayout,
-          gameCount: Object.keys(gridGames).length,
-          timestamp: new Date().toLocaleTimeString()
-        });
-      } catch (error) {
-        console.error('❌ Error sending to presentation:', error);
-      }
-    }
-
-    // INLINE RECEIVER SETUP - Executes immediately at script load (like old working version)
-    // This is critical for TV mode to work - must be set up before DOMContentLoaded
-    if (navigator.presentation && navigator.presentation.receiver) {
-      console.log('TV: Setting up inline presentation receiver...');
-      navigator.presentation.receiver.connectionList.then(list => {
-        console.log('TV: Inline receiver ready, connections:', list.connections ? list.connections.length : 0);
-        list.connections.forEach(connection => {
-          connection.addEventListener('message', event => {
-            try {
-              const data = JSON.parse(event.data);
-              if (data.type === 'update') {
-                // Update the TV display with new state
-                gridGames = data.gridGames || {};
-                currentLayout = data.currentLayout || 4;
-
-                // Merge game objects
-                if (data.selectedGames) {
-                  Object.values(data.selectedGames).forEach(game => {
-                    const existingIndex = allGames.findIndex(g => g.id === game.id);
-                    if (existingIndex === -1) {
-                      allGames.push(game);
-                    } else {
-                      allGames[existingIndex] = game;
-                    }
-                  });
-                }
-
-                renderFullscreenGames();
-                console.log('📥 TV: Received update from controller (inline)');
-              }
-            } catch (err) {
-              console.error('TV: Error parsing inline message:', err);
-            }
-          });
-        });
-
-        list.addEventListener('connectionavailable', event => {
-          console.log('TV: New controller connected (inline)');
-          const connection = event.connection;
-          connection.addEventListener('message', event => {
-            try {
-              const data = JSON.parse(event.data);
-              if (data.type === 'update') {
-                gridGames = data.gridGames || {};
-                currentLayout = data.currentLayout || 4;
-
-                if (data.selectedGames) {
-                  Object.values(data.selectedGames).forEach(game => {
-                    const existingIndex = allGames.findIndex(g => g.id === game.id);
-                    if (existingIndex === -1) {
-                      allGames.push(game);
-                    } else {
-                      allGames[existingIndex] = game;
-                    }
-                  });
-                }
-
-                renderFullscreenGames();
-              }
-            } catch (err) {
-              console.error('TV: Error parsing inline message:', err);
-            }
-          });
-        });
-      }).catch(err => {
-        console.log('TV: Inline receiver setup skipped:', err.message);
-      });
-    }
-
-    // Setup presentation receiver for TV mode (backup - called from DOMContentLoaded)
-    // This is a backup in case the inline setup above didn't catch the connection
-    function setupPresentationReceiver() {
-      try {
-        if (typeof navigator === 'undefined' || !navigator.presentation || !navigator.presentation.receiver) {
-          console.log('TV: No presentation receiver API available');
-          return;
-        }
-
-        navigator.presentation.receiver.connectionList.then(function(list) {
-          console.log('TV: Presentation receiver ready');
-
-          if (list && list.connections) {
-            list.connections.forEach(function(connection) {
-              console.log('TV: Found existing connection');
-              if (connection) {
-                connection.addEventListener('message', function(event) {
-                  try {
-                    var data = JSON.parse(event.data);
-                    if (data && data.type === 'update') {
-                      console.log('TV: Received update from controller');
-                      gridGames = data.gridGames || {};
-                      currentLayout = data.currentLayout || 4;
-
-                      if (data.selectedGames) {
-                        Object.values(data.selectedGames).forEach(function(game) {
-                          var existingIndex = allGames.findIndex(function(g) { return g.id === game.id; });
-                          if (existingIndex === -1) {
-                            allGames.push(game);
-                          } else {
-                            allGames[existingIndex] = game;
-                          }
-                        });
-                      }
-
-                      renderFullscreenGames();
-                      console.log('TV: Update applied');
-                    }
-                  } catch (err) {
-                    console.error('TV: Error parsing message:', err);
-                  }
-                });
-              }
-            });
-          }
-
-          if (list) {
-            list.addEventListener('connectionavailable', function(event) {
-              console.log('TV: New controller connected');
-              var connection = event.connection;
-              if (connection) {
-                connection.addEventListener('message', function(msgEvent) {
-                  try {
-                    var data = JSON.parse(msgEvent.data);
-                    if (data && data.type === 'update') {
-                      gridGames = data.gridGames || {};
-                      currentLayout = data.currentLayout || 4;
-
-                      if (data.selectedGames) {
-                        Object.values(data.selectedGames).forEach(function(game) {
-                          var existingIndex = allGames.findIndex(function(g) { return g.id === game.id; });
-                          if (existingIndex === -1) {
-                            allGames.push(game);
-                          } else {
-                            allGames[existingIndex] = game;
-                          }
-                        });
-                      }
-
-                      renderFullscreenGames();
-                    }
-                  } catch (err) {
-                    console.error('TV: Error parsing message:', err);
-                  }
-                });
-              }
-            });
-          }
-        }).catch(function(err) {
-          console.error('TV: Error getting connection list:', err);
-        });
-      } catch (err) {
-        console.error('TV: Error setting up presentation receiver:', err);
-      }
-    }
-
-    // Cast button click handler
-    document.getElementById('cast-btn')?.addEventListener('click', () => {
-      const castBtn = document.getElementById('cast-btn');
-      if (castBtn.classList.contains('casting')) {
-        // Stop casting
-        stopCasting();
-      } else {
-        // Start casting
-        startCasting();
-      }
-    });
-
-    // Override renderFullscreenGames to sync with TV when casting
-    const originalRenderFullscreenGames = renderFullscreenGames;
-    renderFullscreenGames = function() {
-      originalRenderFullscreenGames();
-      sendStateToPresentationDisplay();
-    };
-
-    // ============================================
-    // END PRESENTATION API
-    // ============================================
-
-    // Check if this page is loaded in presentation mode (on TV)
-    function checkPresentationMode() {
-      try {
-        // Safely check URL params
-        var urlParams;
-        try {
-          urlParams = new URLSearchParams(window.location.search);
-        } catch (e) {
-          console.error('TV: Error parsing URL params:', e);
-          return false;
-        }
-
-        var isPresentationMode = urlParams.get('presentation') === 'true';
-
-        if (isPresentationMode) {
-          console.log('Running in PRESENTATION MODE (TV Display)');
-
-          // Add presentation mode class to body
-          if (document.body) {
-            document.body.classList.add('presentation-mode');
-          }
-
-          // Hide header and container, show fullscreen immediately
-          var header = document.querySelector('.header');
-          var container = document.querySelector('.container');
-          if (header) header.style.display = 'none';
-          if (container) container.style.display = 'none';
-
-          var fullscreenContainer = document.getElementById('fullscreen-container');
-          if (fullscreenContainer) {
-            fullscreenContainer.classList.add('active');
-            fullscreenContainer.style.display = 'block';
-            fullscreenContainer.style.opacity = '1';
-            fullscreenContainer.style.pointerEvents = 'auto';
-          }
-
-          // NOTE: Presentation receiver setup is now done in DOMContentLoaded handler
-          // after this function returns, to ensure proper sequencing
-
-          return true;
-        }
-
-        return false;
-      } catch (error) {
-        console.error('Error in checkPresentationMode:', error);
-        return false;
-      }
-    }
-
-    // Handle messages from controller device
-    function handlePresentationMessage(event) {
-      try {
-        var data = JSON.parse(event.data);
-        console.log('TV: Received from controller:', {
-          type: data.type,
-          layout: data.currentLayout,
-          gameCount: Object.keys(data.gridGames || {}).length
-        });
-
-        if (data && data.type === 'update') {
-          // Update the TV display with new state
-          gridGames = data.gridGames || {};
-          currentLayout = data.currentLayout || 4;
-
-          // If we received full game objects, merge them into allGames
-          if (data.selectedGames) {
-            Object.values(data.selectedGames).forEach(function(game) {
-              var existingIndex = allGames.findIndex(function(g) { return g.id === game.id; });
-              if (existingIndex === -1) {
-                allGames.push(game);
-              } else {
-                allGames[existingIndex] = game;
-              }
-            });
-          }
-
-          // Update grid layout class
-          var fullscreenGrid = document.getElementById('fullscreen-grid');
-          if (fullscreenGrid) {
-            fullscreenGrid.className = 'fullscreen-grid grid-' + currentLayout;
-          }
-
-          // Render the games
-          renderFullscreenGames();
-        }
-      } catch (error) {
-        console.error('Error handling presentation message:', error);
-      }
+      console.log('✅ Controller refreshed');
     }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
-      // FIRST: Check if we're in presentation mode (TV display)
-      // This MUST be checked before any server requests to avoid 401 redirects
-      let isPresentationMode = false;
-
-      try {
-        isPresentationMode = checkPresentationMode();
-      } catch (e) {
-        console.error('Error checking presentation mode:', e);
-        // Default to regular mode if check fails
-        isPresentationMode = false;
-      }
-
-      if (isPresentationMode) {
-        // In presentation mode (TV), load games and setup auto-refresh
-        console.log('TV Display ready - loading games and waiting for controller...');
-
-        // Setup presentation receiver to receive messages from controller
-        try {
-          setupPresentationReceiver();
-          console.log('TV: Presentation receiver setup complete');
-        } catch (receiverError) {
-          console.error('TV: Error setting up receiver:', receiverError);
-        }
-
-        try {
-          // Load games (scoreboard APIs don't require auth, so this works on TV)
-          await loadAllGames();
-          console.log('TV: Games loaded successfully');
-        } catch (loadError) {
-          console.error('TV: Error loading games:', loadError);
-        }
-
-        // TV needs its own refresh interval to update live scores
-        setInterval(async () => {
-          console.log('TV auto-refreshing game data...');
-          try {
-            await loadAllGames();
-
-            // Show refresh indicators
-            document.querySelectorAll('.fullscreen-game-slot, .fullscreen-game-card').forEach((slot) => {
-              const indicator = slot.querySelector('.fullscreen-refresh-indicator');
-              if (indicator) {
-                indicator.classList.add('active');
-                setTimeout(() => indicator.classList.remove('active'), 1000);
-              }
-            });
-
-            // Re-render with updated data
-            renderFullscreenGames();
-            console.log('TV display refreshed');
-          } catch (refreshError) {
-            console.error('TV: Error refreshing:', refreshError);
-          }
-        }, 15000); // Refresh every 15 seconds
-
-        return; // Exit early, don't run normal initialization (grid lock checks, etc.)
-      }
-
-      // Normal mode (not TV display) - fetch access permissions and apply grid locks
+      // Normal mode - fetch access permissions and apply grid locks
       try {
         const accessResponse = await fetch('/api/subscription/access');
         if (accessResponse.ok) {
@@ -4525,7 +4155,6 @@
       // Normal mode - show selection interface
       loadAllGames();
       renderGridPreview();
-      initializePresentationAPI();
     });
   </script>
 </body>
