@@ -2295,23 +2295,28 @@ cron.schedule('*/15 * * * * *', async () => {
 app.post('/api/final-games/save', (req, res) => {
   try {
     const { sport, gameId, gameData, week } = req.body;
-    
+
     if (!sport || !gameId || !gameData) {
       return res.status(400).json({ error: 'Missing required fields: sport, gameId, gameData' });
     }
-    
+
     if (!finalGamesStore[sport]) {
       return res.status(400).json({ error: 'Invalid sport. Must be: nfl, nba, mlb, or nhl' });
     }
-    
+
+    // Only log when saving a NEW game (not updating existing)
+    const isNewGame = !finalGamesStore[sport].has(gameId);
+
     finalGamesStore[sport].set(gameId, {
       ...gameData,
       savedAt: Date.now(),
       week: week || null
     });
-    
-    console.log(`💾 Saved final game: ${sport.toUpperCase()} - ${gameId}`);
-    res.json({ success: true, gameId });
+
+    if (isNewGame) {
+      console.log(`💾 Saved final game: ${sport.toUpperCase()} - ${gameId}`);
+    }
+    res.json({ success: true, gameId, isNew: isNewGame });
   } catch (error) {
     console.error('Error saving final game:', error);
     res.status(500).json({ error: 'Failed to save final game' });

@@ -4178,6 +4178,7 @@
     let liveGames = [];
     let finalGames = [];
     let currentWeek = 1; // Will be fetched from server
+    const savedFinalGames = new Set(); // Track games already saved to avoid duplicate saves
 
     // Team data for logos
     const teams = [
@@ -4306,8 +4307,9 @@
             const home = comp.competitors.find(c => c.homeAway === 'home');
             const away = comp.competitors.find(c => c.homeAway === 'away');
             
-            // Check if this game is completed and save it to database
-            if (isFinal || isCompleted) {
+            // Check if this game is completed and save it to database (only once per session)
+            if ((isFinal || isCompleted) && !savedFinalGames.has(game.id)) {
+              savedFinalGames.add(game.id);
               fetch('/api/final-games/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
