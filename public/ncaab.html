@@ -1265,6 +1265,15 @@
         font-size: clamp(0.7rem, 2.5vw, 1rem) !important;
       }
 
+      .fullscreen-grid.grid-1 .sport-logo-indicator {
+        width: 18vw !important;
+        height: 18vw !important;
+        max-width: 90px !important;
+        max-height: 90px !important;
+        top: 15px !important;
+        left: 15px !important;
+      }
+
       /* ========== 2 GAMES - VERTICAL STACK ========== */
       .fullscreen-grid.grid-2 {
         grid-template-columns: 1fr !important;
@@ -1341,6 +1350,15 @@
 
       .fullscreen-grid.grid-2 .fullscreen-team-record {
         font-size: clamp(0.6rem, 2vw, 0.85rem) !important;
+      }
+
+      .fullscreen-grid.grid-2 .sport-logo-indicator {
+        width: 12vw !important;
+        height: 12vw !important;
+        max-width: 60px !important;
+        max-height: 60px !important;
+        top: 8px !important;
+        left: 8px !important;
       }
 
       /* ========== 3 GAMES - VERTICAL STACK ========== */
@@ -1421,6 +1439,15 @@
         font-size: clamp(0.5rem, 1.5vw, 0.7rem) !important;
       }
 
+      .fullscreen-grid.grid-3 .sport-logo-indicator {
+        width: 10vw !important;
+        height: 10vw !important;
+        max-width: 50px !important;
+        max-height: 50px !important;
+        top: 6px !important;
+        left: 6px !important;
+      }
+
       /* ========== 4 GAMES - VERTICAL STACK ========== */
       .fullscreen-grid.grid-4 {
         grid-template-columns: 1fr !important;
@@ -1497,6 +1524,15 @@
 
       .fullscreen-grid.grid-4 .fullscreen-team-record {
         font-size: clamp(0.45rem, 1.3vw, 0.6rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .sport-logo-indicator {
+        width: 6vw !important;
+        height: 6vw !important;
+        max-width: 28px !important;
+        max-height: 28px !important;
+        top: 3px !important;
+        left: 3px !important;
       }
 
       /* ========== 5+ GAMES - DEFAULT GRID BEHAVIOR ========== */
@@ -1811,6 +1847,8 @@
       flex-direction: column;
       align-items: center;
       gap: 6px;
+      max-width: 120px;
+      overflow: hidden;
     }
 
     .page-1-upcoming .team-logo-large {
@@ -1818,6 +1856,11 @@
       height: var(--regular-team-logo-large, 60px);
       object-fit: contain;
       flex-shrink: 0;
+      /* Handle broken images - hide alt text overflow */
+      overflow: hidden;
+      text-indent: -9999px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
     }
 
     .page-1-upcoming .team-name-large {
@@ -1826,6 +1869,10 @@
       text-align: center;
       color: #e5e7eb;
       line-height: 1.2;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .page-1-upcoming .team-standing {
@@ -1862,6 +1909,8 @@
       flex-direction: column;
       align-items: center;
       gap: 4px;
+      max-width: 100px;
+      overflow: hidden;
     }
 
     .live-team-logo {
@@ -1870,6 +1919,11 @@
       object-fit: contain;
       flex-shrink: 0;
       max-width: 100%;
+      /* Handle broken images - hide alt text overflow */
+      overflow: hidden;
+      text-indent: -9999px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
     }
 
     .possession-icon {
@@ -1888,6 +1942,10 @@
       color: #e5e7eb;
       line-height: 1.1;
       text-align: center;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .live-team-name.winning {
