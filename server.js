@@ -818,6 +818,39 @@ app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
   }
 });
 
+// Update user profile
+app.post('/api/auth/update-profile', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const { displayName } = req.body;
+
+  if (!displayName || displayName.trim().length === 0) {
+    return res.status(400).json({ error: 'Display name is required' });
+  }
+
+  if (displayName.length > 100) {
+    return res.status(400).json({ error: 'Display name must be 100 characters or less' });
+  }
+
+  try {
+    await pool.query(
+      'UPDATE users SET display_name = $1, updated_at = NOW() WHERE id = $2',
+      [displayName.trim(), req.session.userId]
+    );
+
+    // Update session
+    req.session.displayName = displayName.trim();
+
+    console.log(`✏️ Profile updated for user ID: ${req.session.userId}`);
+    res.json({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ error: 'Failed to update profile. Please try again.' });
+  }
+});
+
 // ============================================
 // SUBSCRIPTION MIDDLEWARE
 // ============================================

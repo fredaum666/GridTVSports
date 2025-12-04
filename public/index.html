@@ -29,11 +29,6 @@
       width: 100%;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 60px;
-    }
-
     .header h1 {
       font-size: 48px;
       font-weight: 900;
@@ -391,18 +386,6 @@
         max-width: 100%;
       }
 
-      .header {
-        margin-bottom: 40px;
-      }
-
-      .header h1 {
-        font-size: 32px;
-      }
-
-      .header p {
-        font-size: 16px;
-      }
-
       .sports-grid {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -464,19 +447,6 @@
     @media (max-width: 480px) {
       body {
         padding: 10px;
-      }
-
-      .header {
-        margin-bottom: 30px;
-      }
-
-      .header h1 {
-        font-size: 28px;
-        line-height: 1.2;
-      }
-
-      .header p {
-        font-size: 14px;
       }
 
       .sports-grid {
@@ -560,14 +530,6 @@
     }
 
     @media (max-width: 360px) {
-      .header h1 {
-        font-size: 24px;
-      }
-
-      .header p {
-        font-size: 13px;
-      }
-
       .sport-logo {
         width: 80px;
         height: 80px;
@@ -673,28 +635,54 @@
       }
     }
 
+    /* Header Row with User Menu */
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto 60px auto;
+      padding: 0 70px;
+    }
+
+    .header {
+      text-align: center;
+      flex: 1;
+      margin-bottom: 0;
+    }
+
     /* User Menu */
     .user-menu {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
       display: flex;
       align-items: center;
       gap: 15px;
       z-index: 100;
     }
 
-    .user-info {
+    .user-menu-trigger {
       display: flex;
       align-items: center;
       gap: 10px;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 14px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .user-menu-trigger:hover {
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .user-avatar {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       display: flex;
@@ -702,33 +690,114 @@
       justify-content: center;
       color: white;
       font-weight: 600;
-      font-size: 14px;
-    }
-
-    .logout-btn {
-      padding: 10px 20px;
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 8px;
-      color: #f87171;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
+      font-size: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
       transition: all 0.3s ease;
     }
 
-    .logout-btn:hover {
-      background: rgba(239, 68, 68, 0.3);
-      border-color: rgba(239, 68, 68, 0.5);
+    .user-menu-trigger:hover .user-avatar {
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.05);
+    }
+
+    /* Dropdown Menu */
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: rgba(26, 26, 46, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      min-width: 280px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .user-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-header {
+      padding: 20px;
+      background: rgba(99, 102, 241, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dropdown-user-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .dropdown-user-email {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .dropdown-menu {
+      padding: 10px 0;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: #ffffff;
+    }
+
+    .dropdown-item-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 8px 0;
+    }
+
+    .dropdown-item.logout {
+      color: #f87171;
+    }
+
+    .dropdown-item.logout:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    .subscription-status-row {
+      padding: 8px 20px 12px 56px;
     }
 
     .subscription-badge {
-      padding: 6px 12px;
+      padding: 5px 12px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
-      text-decoration: none;
-      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .subscription-badge.trial {
@@ -749,55 +818,235 @@
       color: #f87171;
     }
 
-    .subscription-badge:hover {
-      transform: scale(1.05);
+    /* Profile Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: rgba(26, 26, 46, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 25px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+
+    .modal-body {
+      padding: 25px;
+    }
+
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .modal-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-form-group label {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .modal-form-group input {
+      padding: 14px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .modal-form-group input:focus {
+      border-color: #6366f1;
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .modal-form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .modal-form-group input:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .modal-btn {
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: #ffffff;
+    }
+
+    .modal-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .modal-btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .modal-message {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .modal-message.success {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+      display: block;
+    }
+
+    .modal-message.error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .header-row {
+        padding: 0 60px;
+        margin-bottom: 40px;
+      }
+
+      .header h1 {
+        font-size: 32px;
+      }
+
+      .header p {
+        font-size: 14px;
+      }
     }
 
     @media (max-width: 600px) {
-      body {
-        padding-top: 70px; /* Make room for user menu */
+      .header-row {
+        padding: 0 50px;
+        margin-bottom: 30px;
       }
 
-      .user-menu {
-        top: 10px;
-        right: 10px;
-        gap: 8px; /* Reduce gap between items */
-        flex-wrap: wrap; /* Allow wrapping if needed */
-        max-width: calc(100% - 20px); /* Prevent overflow */
+      .user-menu-trigger {
+        padding: 6px 8px;
       }
 
-      .user-info {
-        order: 2; /* Move user info to end */
+      .user-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
       }
 
-      .user-info span {
-        display: none;
+      .user-dropdown {
+        min-width: 260px;
+        right: -5px;
+      }
+
+      .modal-content {
+        margin: 10px;
+      }
+
+      .header h1 {
+        font-size: 28px;
+      }
+
+      .header p {
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .header-row {
+        padding: 0 45px;
+      }
+
+      .header h1 {
+        font-size: 24px;
       }
 
       .user-avatar {
         width: 30px;
         height: 30px;
         font-size: 12px;
-      }
-
-      .logout-btn {
-        padding: 6px 10px;
-        font-size: 11px;
-        order: 3; /* Move logout to end */
-      }
-
-      .subscription-badge {
-        padding: 4px 8px;
-        font-size: 10px;
-        order: 1; /* Keep badge first */
-      }
-
-      .header h1 {
-        font-size: 32px; /* Smaller title on mobile */
-      }
-
-      .header p {
-        font-size: 14px; /* Smaller subtitle on mobile */
       }
     }
 
@@ -871,20 +1120,70 @@
   <script src="/scripts/theme-manager.js"></script>
 </head>
 <body>
-  <!-- User Menu -->
-  <div class="user-menu" id="userMenu" style="display: none;">
-    <a href="/subscription" class="subscription-badge trial" id="subscriptionBadge">Trial</a>
-    <div class="user-info">
-      <div class="user-avatar" id="userAvatar">U</div>
-      <span id="userName">User</span>
+  <!-- Profile Edit Modal -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Edit Profile</h2>
+        <button class="modal-close" id="closeProfileModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-message" id="profileMessage"></div>
+        <form class="modal-form" id="profileForm">
+          <div class="modal-form-group">
+            <label for="profileName">Display Name</label>
+            <input type="text" id="profileName" placeholder="Enter your name" required>
+          </div>
+          <div class="modal-form-group">
+            <label for="profileEmail">Email Address</label>
+            <input type="email" id="profileEmail" placeholder="Your email" disabled>
+          </div>
+          <button type="submit" class="modal-btn modal-btn-primary" id="saveProfileBtn">
+            Save Changes
+          </button>
+        </form>
+      </div>
     </div>
-    <button class="logout-btn" id="logoutBtn">Logout</button>
   </div>
 
   <div class="container">
-    <div class="header">
-      <h1>GridTV Sports</h1>
-      <p>Live Multi-Sport Grid Monitoring</p>
+    <!-- Header Row with User Menu -->
+    <div class="header-row">
+      <div class="header">
+        <h1>GridTV Sports</h1>
+        <p>Live Multi-Sport Grid Monitoring</p>
+      </div>
+      <!-- User Menu -->
+      <div class="user-menu" id="userMenu" style="display: none;">
+        <div class="user-menu-trigger" id="userMenuTrigger">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <!-- Dropdown Menu -->
+          <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-header">
+              <div class="dropdown-user-name" id="dropdownUserName">User Name</div>
+              <div class="dropdown-user-email" id="dropdownUserEmail">user@email.com</div>
+            </div>
+            <div class="dropdown-menu">
+              <button class="dropdown-item" id="openProfileModal">
+                <span class="dropdown-item-icon">👤</span>
+                <span>Edit Profile</span>
+              </button>
+              <a href="#" class="dropdown-item" id="subscriptionLink">
+                <span class="dropdown-item-icon">💳</span>
+                <span id="subscriptionLinkText">Manage Subscription</span>
+              </a>
+              <div class="subscription-status-row" id="subscriptionStatusRow">
+                <span class="subscription-badge trial" id="subscriptionBadge">Trial</span>
+              </div>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item logout" id="logoutBtn">
+                <span class="dropdown-item-icon">🚪</span>
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Professional Leagues Row -->
@@ -1029,9 +1328,115 @@
     (async function() {
       const userMenu = document.getElementById('userMenu');
       const userAvatar = document.getElementById('userAvatar');
-      const userName = document.getElementById('userName');
+      const userMenuTrigger = document.getElementById('userMenuTrigger');
+      const userDropdown = document.getElementById('userDropdown');
+      const dropdownUserName = document.getElementById('dropdownUserName');
+      const dropdownUserEmail = document.getElementById('dropdownUserEmail');
       const logoutBtn = document.getElementById('logoutBtn');
       const subscriptionBadge = document.getElementById('subscriptionBadge');
+      const subscriptionLink = document.getElementById('subscriptionLink');
+      const subscriptionLinkText = document.getElementById('subscriptionLinkText');
+      const openProfileModalBtn = document.getElementById('openProfileModal');
+      const profileModal = document.getElementById('profileModal');
+      const closeProfileModalBtn = document.getElementById('closeProfileModal');
+      const profileForm = document.getElementById('profileForm');
+      const profileName = document.getElementById('profileName');
+      const profileEmail = document.getElementById('profileEmail');
+      const profileMessage = document.getElementById('profileMessage');
+      const saveProfileBtn = document.getElementById('saveProfileBtn');
+
+      let currentUser = null;
+      let isSubscribed = false;
+
+      // Toggle dropdown menu
+      userMenuTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!userMenuTrigger.contains(e.target)) {
+          userDropdown.classList.remove('show');
+        }
+      });
+
+      // Prevent dropdown from closing when clicking inside it
+      userDropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+      // Open profile modal
+      openProfileModalBtn.addEventListener('click', () => {
+        userDropdown.classList.remove('show');
+        profileModal.classList.add('show');
+        profileMessage.className = 'modal-message';
+        profileMessage.textContent = '';
+        if (currentUser) {
+          profileName.value = currentUser.displayName || '';
+          profileEmail.value = currentUser.email || '';
+        }
+      });
+
+      // Close profile modal
+      closeProfileModalBtn.addEventListener('click', () => {
+        profileModal.classList.remove('show');
+      });
+
+      // Close modal when clicking overlay
+      profileModal.addEventListener('click', (e) => {
+        if (e.target === profileModal) {
+          profileModal.classList.remove('show');
+        }
+      });
+
+      // Close modal on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          profileModal.classList.remove('show');
+          userDropdown.classList.remove('show');
+        }
+      });
+
+      // Save profile
+      profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        saveProfileBtn.disabled = true;
+        saveProfileBtn.textContent = 'Saving...';
+        profileMessage.className = 'modal-message';
+
+        try {
+          const response = await fetch('/api/auth/update-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ displayName: profileName.value })
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            profileMessage.className = 'modal-message success';
+            profileMessage.textContent = 'Profile updated successfully!';
+            // Update UI
+            currentUser.displayName = profileName.value;
+            userAvatar.textContent = profileName.value.charAt(0).toUpperCase();
+            dropdownUserName.textContent = profileName.value;
+            // Close modal after delay
+            setTimeout(() => {
+              profileModal.classList.remove('show');
+            }, 1500);
+          } else {
+            profileMessage.className = 'modal-message error';
+            profileMessage.textContent = data.error || 'Failed to update profile';
+          }
+        } catch (error) {
+          profileMessage.className = 'modal-message error';
+          profileMessage.textContent = 'Connection error. Please try again.';
+        } finally {
+          saveProfileBtn.disabled = false;
+          saveProfileBtn.textContent = 'Save Changes';
+        }
+      });
 
       // Check authentication status
       try {
@@ -1039,29 +1444,40 @@
         if (response.ok) {
           const data = await response.json();
           if (data.authenticated && data.user) {
+            currentUser = data.user;
+
             // Show user menu
             userMenu.style.display = 'flex';
-            userName.textContent = data.user.displayName || data.user.email;
             userAvatar.textContent = (data.user.displayName || data.user.email).charAt(0).toUpperCase();
+            dropdownUserName.textContent = data.user.displayName || data.user.email.split('@')[0];
+            dropdownUserEmail.textContent = data.user.email;
 
-            // Update subscription badge
+            // Update subscription badge and link
             if (data.subscription) {
               const sub = data.subscription;
               subscriptionBadge.className = 'subscription-badge';
 
               if (sub.status === 'active') {
+                isSubscribed = true;
                 subscriptionBadge.classList.add('active');
                 subscriptionBadge.textContent = sub.plan ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Pro';
+                subscriptionLink.href = '/subscription';
+                subscriptionLinkText.textContent = 'Manage Subscription';
               } else if (sub.status === 'trial') {
                 subscriptionBadge.classList.add('trial');
                 subscriptionBadge.textContent = sub.daysRemaining > 0 ? `Trial: ${sub.daysRemaining}d` : 'Trial';
+                subscriptionLink.href = '/pricing';
+                subscriptionLinkText.textContent = 'Upgrade Plan';
               } else if (sub.status === 'expired' || sub.status === 'canceled') {
                 subscriptionBadge.classList.add('expired');
                 subscriptionBadge.textContent = 'Subscribe';
-                subscriptionBadge.href = '/pricing';
+                subscriptionLink.href = '/pricing';
+                subscriptionLinkText.textContent = 'Subscribe Now';
               } else {
                 subscriptionBadge.classList.add('trial');
                 subscriptionBadge.textContent = 'Trial';
+                subscriptionLink.href = '/pricing';
+                subscriptionLinkText.textContent = 'Upgrade Plan';
               }
             }
           }
