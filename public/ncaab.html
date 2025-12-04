@@ -1742,6 +1742,62 @@
       transform: translateY(0);
     }
 
+    
+    /* Sort Filter Buttons */
+    .sort-filters {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sort-filter-btn {
+      background: var(--bg-tertiary, #334155);
+      color: var(--text-secondary, #94a3b8);
+      border: 2px solid transparent;
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .sort-filter-btn:hover {
+      background: var(--border-hover, #475569);
+      color: var(--text-primary, #fff);
+    }
+
+    .sort-filter-btn.active {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border-color: #818cf8;
+    }
+
+    .sort-filter-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .sort-filters {
+        gap: 6px;
+      }
+
+      .sort-filter-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+
+      .sort-filter-btn svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
     /* Games Grid - Fully Responsive */
     .games-grid {
       display: grid;
@@ -2989,10 +3045,28 @@
             <span>Auto-refreshing every 15 seconds</span>
           </div>
         </div>
-        <button class="refresh-btn" onclick="manualRefresh()">
-          <span>🔄</span>
-          <span>Refresh Now</span>
-        </button>
+        
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div class="sort-filters">
+            <button class="sort-filter-btn active" id="sort-favorites" title="Sort by Favorites First">
+              <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              <span>Favorites</span>
+            </button>
+            <button class="sort-filter-btn" id="sort-time" title="Sort by Game Time">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>Time</span>
+            </button>
+          </div>
+          <button class="refresh-btn" onclick="manualRefresh()">
+            <span>🔄</span>
+            <span>Refresh Now</span>
+          </button>
+        </div>
       </div>
       <div class="games-grid" id="games-list"></div>
     </div>
@@ -3002,6 +3076,7 @@
     let refreshInterval = null;
     let liveGames = [];
     let userFavoriteTeams = []; // Store user's favorite team IDs for this league
+    let currentSortMode = 'favorites'; // 'favorites' or 'time'
 
     // Fetch user's favorite teams
     async function fetchFavoriteTeams() {
@@ -3041,6 +3116,10 @@
 
     // Sort games prioritizing favorites within each category
     function sortByFavorites(games) {
+      // If sorting by time, return games sorted by date
+      if (currentSortMode === 'time') {
+        return games.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+      }
       if (!userFavoriteTeams.length) return games;
 
       const favoriteGames = games.filter(g => gameInvolvesFavorite(g));
@@ -3048,6 +3127,17 @@
 
       return [...favoriteGames, ...otherGames];
     }
+
+    // Sort by favorites priority (used for auto-selection in Sports Bar Mode - always prioritizes favorites)
+    function sortByFavoritesPriority(games) {
+      if (!userFavoriteTeams.length) return games;
+
+      const favoriteGames = games.filter(g => gameInvolvesFavorite(g));
+      const otherGames = games.filter(g => !gameInvolvesFavorite(g));
+
+      return [...favoriteGames, ...otherGames];
+    }
+
 
     // NBA Team data for logos
     const teams = [
@@ -4352,6 +4442,25 @@
     (async function init() {
       await fetchFavoriteTeams();
       fetchLiveGames();
+
+      // Sort filter button event listeners
+      document.getElementById('sort-favorites').addEventListener('click', function() {
+        if (currentSortMode !== 'favorites') {
+          currentSortMode = 'favorites';
+          document.getElementById('sort-favorites').classList.add('active');
+          document.getElementById('sort-time').classList.remove('active');
+          renderGamesList();
+        }
+      });
+
+      document.getElementById('sort-time').addEventListener('click', function() {
+        if (currentSortMode !== 'time') {
+          currentSortMode = 'time';
+          document.getElementById('sort-time').classList.add('active');
+          document.getElementById('sort-favorites').classList.remove('active');
+          renderGamesList();
+        }
+      });
     })();
 
     // Auto-refresh every 5 seconds for live updates
@@ -4452,6 +4561,8 @@
     // Auto-select the first N games based on current layout
     function autoSelectFirstGames() {
       const liveGames = window.liveGamesData || [];
+      // Sort games to prioritize favorites for auto-selection
+      const sortedGames = sortByFavoritesPriority(liveGames);
       const layout = parseInt(document.querySelector('input[name="layout"]:checked').value);
       const selectors = document.querySelectorAll('.game-selector');
 
@@ -4459,11 +4570,11 @@
       gridGames = {};
 
       // Select first N games (up to available games)
-      const gamesToSelect = Math.min(layout, liveGames.length);
+      const gamesToSelect = Math.min(layout, sortedGames.length);
 
       selectors.forEach((selector, index) => {
-        if (index < gamesToSelect && liveGames[index]) {
-          const gameId = liveGames[index].id;
+        if (index < gamesToSelect && sortedGames[index]) {
+          const gameId = sortedGames[index].id;
           gridGames[index] = gameId;
         }
       });
