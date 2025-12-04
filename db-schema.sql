@@ -197,3 +197,30 @@ CREATE INDEX IF NOT EXISTS idx_reset_tokens_expires ON password_reset_tokens(exp
 COMMENT ON TABLE password_reset_tokens IS 'Stores password reset tokens for users';
 COMMENT ON COLUMN password_reset_tokens.token IS 'Secure random token sent via email';
 COMMENT ON COLUMN password_reset_tokens.expires_at IS 'Token expiration time (1 hour from creation)';
+
+-- ============================================
+-- FAVORITE TEAMS TABLE
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS favorite_teams (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  team_id VARCHAR(50) NOT NULL,
+  team_name VARCHAR(100) NOT NULL,
+  team_abbreviation VARCHAR(10),
+  team_logo VARCHAR(500),
+  league VARCHAR(20) NOT NULL, -- 'NFL', 'NBA', 'MLB', 'NHL', 'NCAAF', 'NCAAB'
+  rank INT NOT NULL CHECK (rank >= 1 AND rank <= 6),
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, team_id),
+  UNIQUE(user_id, league, rank)
+);
+
+-- Create indexes for favorite teams
+CREATE INDEX IF NOT EXISTS idx_favorite_teams_user ON favorite_teams(user_id);
+CREATE INDEX IF NOT EXISTS idx_favorite_teams_league ON favorite_teams(league);
+CREATE INDEX IF NOT EXISTS idx_favorite_teams_rank ON favorite_teams(user_id, rank);
+
+COMMENT ON TABLE favorite_teams IS 'Stores user favorite teams with ranking';
+COMMENT ON COLUMN favorite_teams.rank IS 'Ranking 1-6, order of selection';
+COMMENT ON COLUMN favorite_teams.league IS 'League: NFL, NBA, MLB, NHL, NCAAF, NCAAB';

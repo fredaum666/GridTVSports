@@ -3022,6 +3022,53 @@
   <script>
     let refreshInterval = null;
     let liveGames = [];
+    let userFavoriteTeams = []; // Store user's favorite team IDs for this league
+
+    // Fetch user's favorite teams
+    async function fetchFavoriteTeams() {
+      try {
+        const response = await fetch('/api/favorites');
+        if (response.ok) {
+          const data = await response.json();
+          // Filter for MLB teams and store team IDs
+          userFavoriteTeams = (data.favorites || [])
+            .filter(f => f.league === 'MLB')
+            .map(f => f.team_id);
+          console.log('⭐ Loaded favorite teams:', userFavoriteTeams);
+        }
+      } catch (error) {
+        console.log('Could not load favorite teams:', error);
+      }
+    }
+
+    // Check if a game involves a favorite team
+    function gameInvolvesFavorite(game) {
+      if (!userFavoriteTeams.length) return false;
+      const comp = game.competitions?.[0];
+      if (!comp) return false;
+
+      const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+
+      const homeId = homeTeam?.team?.id;
+      const awayId = awayTeam?.team?.id;
+
+      // Check if any favorite team is involved
+      return userFavoriteTeams.some(favId => {
+        const teamId = favId.replace('MLB-', '');
+        return teamId === homeId || teamId === awayId;
+      });
+    }
+
+    // Sort games prioritizing favorites within each category
+    function sortByFavorites(games) {
+      if (!userFavoriteTeams.length) return games;
+
+      const favoriteGames = games.filter(g => gameInvolvesFavorite(g));
+      const otherGames = games.filter(g => !gameInvolvesFavorite(g));
+
+      return [...favoriteGames, ...otherGames];
+    }
 
     // Team data for logos (MLB - 30 teams)
     const teams = [
@@ -3160,7 +3207,12 @@
           });
 
           // Combine all games in order: Live -> Upcoming -> Final
-          liveGames = [...liveGamesList, ...upcomingGamesList, ...finalGamesList];
+          // Apply favorites sorting within each category
+          liveGames = [
+            ...sortByFavorites(liveGamesList),
+            ...sortByFavorites(upcomingGamesList),
+            ...sortByFavorites(finalGamesList)
+          ];
 
           console.log(`⚾ Found ${allGames.length} total games:`);
           console.log(`  🔴 ${liveGamesList.length} LIVE`);
@@ -4685,8 +4737,11 @@
       }, 500);
     }
 
-    // Initialize
-    fetchLiveGames();
+    // Initialize - load favorites first, then fetch games
+    (async function init() {
+      await fetchFavoriteTeams();
+      fetchLiveGames();
+    })();
 
     // Auto-refresh every 15 seconds for live updates
     refreshInterval = setInterval(() => {

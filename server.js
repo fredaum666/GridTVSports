@@ -852,6 +852,170 @@ app.post('/api/auth/update-profile', async (req, res) => {
 });
 
 // ============================================
+// FAVORITE TEAMS API ROUTES
+// ============================================
+
+// Get user's favorite teams
+app.get('/api/favorites', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT id, team_id, team_name, team_abbreviation, team_logo, league, rank
+       FROM favorite_teams
+       WHERE user_id = $1
+       ORDER BY rank ASC`,
+      [req.session.userId]
+    );
+    res.json({ favorites: result.rows });
+  } catch (error) {
+    console.error('Error fetching favorites:', error);
+    res.status(500).json({ error: 'Failed to fetch favorites' });
+  }
+});
+
+// Add a favorite team
+app.post('/api/favorites', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const { teamId, teamName, teamAbbreviation, teamLogo, league } = req.body;
+
+  if (!teamId || !teamName || !league) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Check if user already has 6 favorites for this league
+    const countResult = await pool.query(
+      'SELECT COUNT(*) as count FROM favorite_teams WHERE user_id = $1 AND league = $2',
+      [req.session.userId, league]
+    );
+
+    if (parseInt(countResult.rows[0].count) >= 6) {
+      return res.status(400).json({ error: `Maximum 6 favorite teams allowed per league` });
+    }
+
+    // Check if team is already a favorite
+    const existingResult = await pool.query(
+      'SELECT id FROM favorite_teams WHERE user_id = $1 AND team_id = $2',
+      [req.session.userId, teamId]
+    );
+
+    if (existingResult.rows.length > 0) {
+      return res.status(400).json({ error: 'Team is already in favorites' });
+    }
+
+    // Get the next rank number for this league
+    const rankResult = await pool.query(
+      'SELECT COALESCE(MAX(rank), 0) + 1 as next_rank FROM favorite_teams WHERE user_id = $1 AND league = $2',
+      [req.session.userId, league]
+    );
+    const nextRank = rankResult.rows[0].next_rank;
+
+    // Insert the new favorite
+    const insertResult = await pool.query(
+      `INSERT INTO favorite_teams (user_id, team_id, team_name, team_abbreviation, team_logo, league, rank)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, team_id, team_name, team_abbreviation, team_logo, league, rank`,
+      [req.session.userId, teamId, teamName, teamAbbreviation || '', teamLogo || '', league, nextRank]
+    );
+
+    res.json({ favorite: insertResult.rows[0] });
+  } catch (error) {
+    console.error('Error adding favorite:', error);
+    res.status(500).json({ error: 'Failed to add favorite' });
+  }
+});
+
+// Remove a favorite team
+app.delete('/api/favorites/:teamId', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const { teamId } = req.params;
+
+  try {
+    // Get the rank and league of the team being deleted
+    const rankResult = await pool.query(
+      'SELECT rank, league FROM favorite_teams WHERE user_id = $1 AND team_id = $2',
+      [req.session.userId, teamId]
+    );
+
+    if (rankResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Favorite not found' });
+    }
+
+    const deletedRank = rankResult.rows[0].rank;
+    const league = rankResult.rows[0].league;
+
+    // Delete the favorite
+    await pool.query(
+      'DELETE FROM favorite_teams WHERE user_id = $1 AND team_id = $2',
+      [req.session.userId, teamId]
+    );
+
+    // Reorder remaining favorites in the same league to fill the gap
+    await pool.query(
+      `UPDATE favorite_teams
+       SET rank = rank - 1
+       WHERE user_id = $1 AND league = $2 AND rank > $3`,
+      [req.session.userId, league, deletedRank]
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error removing favorite:', error);
+    res.status(500).json({ error: 'Failed to remove favorite' });
+  }
+});
+
+// Reorder favorite teams within a league
+app.post('/api/favorites/reorder', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const { teamIds, league } = req.body; // Array of team IDs in new order and the league
+
+  if (!Array.isArray(teamIds) || teamIds.length === 0 || teamIds.length > 6 || !league) {
+    return res.status(400).json({ error: 'Invalid team IDs or league' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Temporarily set all ranks to negative for this league to avoid unique constraint conflicts
+    await client.query(
+      `UPDATE favorite_teams SET rank = -rank WHERE user_id = $1 AND league = $2`,
+      [req.session.userId, league]
+    );
+
+    // Update each team's rank based on position in array
+    for (let i = 0; i < teamIds.length; i++) {
+      await client.query(
+        `UPDATE favorite_teams SET rank = $1 WHERE user_id = $2 AND team_id = $3 AND league = $4`,
+        [i + 1, req.session.userId, teamIds[i], league]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error reordering favorites:', error);
+    res.status(500).json({ error: 'Failed to reorder favorites' });
+  } finally {
+    client.release();
+  }
+});
+
+// ============================================
 // SUBSCRIPTION MIDDLEWARE
 // ============================================
 
@@ -1633,7 +1797,7 @@ openLeagues.forEach(league => {
 });
 
 // Other pages (no access control)
-const otherPages = ['LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin'];
+const otherPages = ['LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin', 'favorites'];
 otherPages.forEach(page => {
   app.get(`/${page}`, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', `${page}.html`));
