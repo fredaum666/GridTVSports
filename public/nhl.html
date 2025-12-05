@@ -811,7 +811,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: clamp(12px, 2.5vh, 40px);
+      /*gap: clamp(12px, 2.5vh, 40px);*/
       padding: clamp(10px, 2vmin, 30px);
       box-sizing: border-box;
       overflow: hidden;
@@ -1685,39 +1685,38 @@
       .fullscreen-grid.grid-4 .fullscreen-team-logo {
         width: 6vw !important;                    /* ◄ Logo width */
         height: 6vw !important;                   /* ◄ Logo height */
-        max-width: 30px !important;               /* ◄ Logo max width */
-        max-height: 30px !important;              /* ◄ Logo max height */
+        max-width: 50px !important;               /* ◄ Logo max width */
+        max-height: 50px !important;              /* ◄ Logo max height */
       }
 
       /* --- Grid 4: TEAM NAME --- */
       .fullscreen-grid.grid-4 .fullscreen-live-team-name {
-        font-size: clamp(0.55rem, 2.5vw, 0.9rem) !important; /* ◄ Team name size */
+        font-size: clamp(1.2rem, 3vmin, 2.5rem) !important; /* ◄ Team name size */
       }
 
       /* --- Grid 4: TEAM RECORD --- */
       .fullscreen-grid.grid-4 .fullscreen-team-record {
-        font-size: clamp(0.35rem, 1.2vw, 0.55rem) !important; /* ◄ Record size */
+        font-size: clamp(0.8rem, 1.8vmin, 1.2rem) !important; /* ◄ Record size */
       }
 
       /* --- Grid 4: SCORE --- */
       .fullscreen-grid.grid-4 .fullscreen-team-score {
-        font-size: clamp(1rem, 5vw, 1.6rem) !important;   /* ◄ Score size */
+        font-size: clamp(1rem, 12vw, 1.6rem) !important;   /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 4: LEAGUE LOGO --- */
       .fullscreen-grid.grid-4 .sport-logo-indicator {
-        width: 6vw !important;                    /* ◄ League logo width */
-        height: 6vw !important;                   /* ◄ League logo height */
-        max-width: 28px !important;               /* ◄ League logo max width */
-        max-height: 28px !important;              /* ◄ League logo max height */
-        top: 3px !important;                      /* ◄ Position from top */
-        left: 3px !important;                     /* ◄ Position from left */
+        width: 100vw !important;                    /* ◄ League logo width */
+        height: 100vw !important;                   /* ◄ League logo height */
+        max-width: 50px !important;               /* ◄ League logo max width */
+        max-height: 50px !important;              /* ◄ League logo max height */
+        
       }
 
       /* --- Grid 4: PERIOD/STATUS --- */
       .fullscreen-grid.grid-4 .fullscreen-status-text {
-        font-size: clamp(0.5rem, 2vw, 0.75rem) !important; /* ◄ Period/status size */
+        font-size: clamp(1.2rem, 3vmin, 2.5rem) !important; /* ◄ Period/status size */
       }
 
       /* --- Grid 4: VS TEXT --- */
@@ -1843,9 +1842,19 @@
          │                         COMMON MOBILE STYLES                                 │
          └──────────────────────────────────────────────────────────────────────────────┘ */
 
-      /* Hide game selector on mobile */
+      /* Game selector - responsive sizing for mobile (hidden by default, shown on tap) */
       .fs-game-selector-container {
-        display: none !important;
+        padding: 4px !important;
+        margin-bottom: 4px !important;
+      }
+      .fs-game-selector {
+        padding: 4px 8px !important;
+        font-size: clamp(10px, 2.5vw, 14px) !important;
+        border-radius: 6px !important;
+      }
+      /* Always show selector on empty slots */
+      .fullscreen-game-card.empty-slot .fs-game-selector-container {
+        display: block !important;
       }
 
       /* Common mobile styles */
@@ -3171,6 +3180,84 @@
         font-size: 24px;
       }
     }
+
+    /* ============================================
+       ORIENTATION LOCK OVERLAYS
+       Mobile (phones) = Portrait only
+       Tablet = Landscape only
+       ============================================ */
+
+    .orientation-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+      z-index: 100000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+
+    .orientation-overlay .rotate-icon {
+      font-size: 80px;
+      margin-bottom: 30px;
+      animation: rotateHint 2s ease-in-out infinite;
+    }
+
+    .orientation-overlay h2 {
+      color: #ffffff;
+      font-size: 28px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .orientation-overlay p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 18px;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
+    @keyframes rotateHint {
+      0%, 100% {
+        transform: rotate(0deg);
+      }
+      25% {
+        transform: rotate(-15deg);
+      }
+      75% {
+        transform: rotate(15deg);
+      }
+    }
+
+    /* Mobile phones in landscape - show "rotate to portrait" overlay */
+    /* Targets phones (max-height 500px when in landscape, indicating small device) */
+    @media screen and (max-width: 932px) and (max-height: 500px) and (orientation: landscape) {
+      .orientation-overlay.portrait-required {
+        display: flex !important;
+      }
+    }
+
+    /* Tablets in portrait - show "rotate to landscape" overlay */
+    /* Targets tablets (min-width 600px in portrait mode) */
+    @media screen and (min-width: 600px) and (max-width: 1024px) and (orientation: portrait) {
+      .orientation-overlay.landscape-required {
+        display: flex !important;
+      }
+    }
+
+    /* Also catch larger tablets in portrait */
+    @media screen and (min-width: 768px) and (max-width: 1366px) and (orientation: portrait) and (min-height: 900px) {
+      .orientation-overlay.landscape-required {
+        display: flex !important;
+      }
+    }
   </style>
   <link rel="stylesheet" href="/styles/themes.css">
   <link rel="stylesheet" href="/styles/mobile-fullscreen.css">
@@ -3179,6 +3266,18 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   </head>
 <body>
+  <!-- Orientation Lock Overlays -->
+  <div class="orientation-overlay portrait-required">
+    <div class="rotate-icon">📱</div>
+    <h2>Please Rotate Your Device</h2>
+    <p>This app works best in portrait mode on mobile phones</p>
+  </div>
+  <div class="orientation-overlay landscape-required">
+    <div class="rotate-icon">📱</div>
+    <h2>Please Rotate Your Device</h2>
+    <p>This app works best in landscape mode on tablets</p>
+  </div>
+
   <div class="header">
     <div class="header-content">
       <h1 style="display: flex; align-items: center; gap: 15px;">
@@ -5099,6 +5198,7 @@
     let currentLayout = 4;
     let fullscreenRefreshInterval = null;
     let sessionKeepAliveInterval = null; // Keep session alive during fullscreen
+    let fullscreenEnteredAt = null; // Timestamp when fullscreen mode was entered - animations only show for plays after this time
 
     // Open game selection modal
     function openGameSelectionModal() {
@@ -5289,7 +5389,10 @@
       const modal = document.getElementById('game-selection-modal');
       const container = document.getElementById('fullscreen-container');
       const controls = document.getElementById('fullscreen-controls');
-      
+
+      // Record when fullscreen mode was entered - only show animations for plays AFTER this time
+      fullscreenEnteredAt = Date.now();
+
       modal.classList.remove('show');
       container.classList.add('active');
       
@@ -5928,6 +6031,12 @@
 
     // Show play animation overlay
     function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '') {
+      // Skip animations during the first update cycle after entering fullscreen mode
+      // This prevents showing animations for past plays that already happened
+      if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 6000) {
+        return; // Don't show animations for the first 6 seconds (first update cycle + buffer)
+      }
+
       // Remove any existing animation
       const existingAnimation = card.querySelector('.play-animation');
       if (existingAnimation) {

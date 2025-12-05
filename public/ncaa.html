@@ -1388,6 +1388,58 @@
       }
     }
 
+    /* Missed Field Goal / Missed Extra Point Animation - Red with YFrame and ball missing */
+    .play-animation.missed-kick .play-animation-text {
+      color: #ef4444;
+      text-shadow: 0 0 20px #ef4444;
+    }
+
+    .missed-kick-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: clamp(10px, 2vmin, 20px);
+      width: 100%;
+      max-width: clamp(120px, 30vmin, 300px);
+      height: clamp(100px, 25vmin, 250px);
+    }
+
+    .yframe-image-missed {
+      width: clamp(60px, 15vmin, 150px);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 10px #ef4444);
+    }
+
+    .missed-football {
+      position: absolute;
+      font-size: clamp(2rem, 5vmin, 4rem);
+      bottom: 20%;
+      left: 50%;
+      animation: missedBallFly 1.2s ease-out forwards;
+      filter: drop-shadow(0 0 10px #ef4444);
+    }
+
+    @keyframes missedBallFly {
+      0% {
+        transform: translateX(-50%) translateY(0) rotate(0deg) scale(0.8);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(30%) translateY(-80%) rotate(360deg) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(100%) translateY(-120%) rotate(720deg) scale(0.6);
+        opacity: 0;
+      }
+    }
+
     /* 1st Down Animation - Green with arrows coming together */
     .play-animation.first-down .play-animation-text {
       color: #22c55e;
@@ -1985,7 +2037,13 @@
 
       /* --- Grid 1: TIMEOUTS --- */
       .fullscreen-grid.grid-1 .fullscreen-timeouts {
-        display: none !important;                 /* ◄ Hidden on mobile */
+        display: flex !important;
+        gap: 6px !important;
+        margin-top: 8px !important;
+      }
+      .fullscreen-grid.grid-1 .timeout-bar {
+        width: clamp(20px, 5vw, 35px) !important;
+        height: clamp(6px, 1.5vh, 10px) !important;
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -2134,7 +2192,13 @@
 
       /* --- Grid 2: TIMEOUTS --- */
       .fullscreen-grid.grid-2 .fullscreen-timeouts {
-        display: none !important;                 /* ◄ Hidden on mobile */
+        display: flex !important;
+        gap: 5px !important;
+        margin-top: 6px !important;
+      }
+      .fullscreen-grid.grid-2 .timeout-bar {
+        width: clamp(16px, 4vw, 28px) !important;
+        height: clamp(5px, 1.2vh, 8px) !important;
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -2265,7 +2329,13 @@
 
       /* --- Grid 3: TIMEOUTS --- */
       .fullscreen-grid.grid-3 .fullscreen-timeouts {
-        display: none !important;                 /* ◄ Hidden on mobile */
+        display: flex !important;
+        gap: 4px !important;
+        margin-top: 5px !important;
+      }
+      .fullscreen-grid.grid-3 .timeout-bar {
+        width: clamp(14px, 3.5vw, 24px) !important;
+        height: clamp(4px, 1vh, 7px) !important;
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -2384,7 +2454,13 @@
 
       /* --- Grid 4: TIMEOUTS --- */
       .fullscreen-grid.grid-4 .fullscreen-timeouts {
-        display: none !important;                 /* ◄ Hidden on mobile */
+        display: flex !important;
+        gap: 3px !important;
+        margin-top: 4px !important;
+      }
+      .fullscreen-grid.grid-4 .timeout-bar {
+        width: clamp(12px, 3vw, 20px) !important;
+        height: clamp(3px, 0.8vh, 6px) !important;
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -2469,7 +2545,14 @@
 
       /* --- Grid 6: TIMEOUTS --- */
       .fullscreen-grid.grid-6 .fullscreen-timeouts {
-        display: none !important;                 /* ◄ Hidden on mobile */
+        display: flex !important;
+        gap: 2px !important;
+        margin-top: 3px !important;
+      }
+      .fullscreen-grid.grid-6 .timeout-bar {
+        width: clamp(10px, 2.5vw, 16px) !important;
+        height: clamp(2px, 0.6vh, 5px) !important;
+        border-width: 1px !important;
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -2554,16 +2637,33 @@
 
       /* --- Grid 8: TIMEOUTS --- */
       .fullscreen-grid.grid-8 .fullscreen-timeouts {
-        display: none !important;                 /* ◄ Hidden on mobile */
+        display: flex !important;
+        gap: 2px !important;
+        margin-top: 2px !important;
+      }
+      .fullscreen-grid.grid-8 .timeout-bar {
+        width: clamp(8px, 2vw, 14px) !important;
+        height: clamp(2px, 0.5vh, 4px) !important;
+        border-width: 1px !important;
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
          │                         COMMON MOBILE STYLES                                 │
          └──────────────────────────────────────────────────────────────────────────────┘ */
 
-      /* Hide game selector on mobile */
+      /* Game selector - responsive sizing for mobile (hidden by default, shown on tap) */
       .fs-game-selector-container {
-        display: none !important;
+        padding: 4px !important;
+        margin-bottom: 4px !important;
+      }
+      .fs-game-selector {
+        padding: 4px 8px !important;
+        font-size: clamp(10px, 2.5vw, 14px) !important;
+        border-radius: 6px !important;
+      }
+      /* Always show selector on empty slots */
+      .fullscreen-game-card.empty-slot .fs-game-selector-container {
+        display: block !important;
       }
 
       /* Common mobile styles */
@@ -4127,6 +4227,84 @@
         font-size: 24px;
       }
     }
+
+    /* ============================================
+       ORIENTATION LOCK OVERLAYS
+       Mobile (phones) = Portrait only
+       Tablet = Landscape only
+       ============================================ */
+
+    .orientation-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+      z-index: 100000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+
+    .orientation-overlay .rotate-icon {
+      font-size: 80px;
+      margin-bottom: 30px;
+      animation: rotateHint 2s ease-in-out infinite;
+    }
+
+    .orientation-overlay h2 {
+      color: #ffffff;
+      font-size: 28px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .orientation-overlay p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 18px;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
+    @keyframes rotateHint {
+      0%, 100% {
+        transform: rotate(0deg);
+      }
+      25% {
+        transform: rotate(-15deg);
+      }
+      75% {
+        transform: rotate(15deg);
+      }
+    }
+
+    /* Mobile phones in landscape - show "rotate to portrait" overlay */
+    /* Targets phones (max-height 500px when in landscape, indicating small device) */
+    @media screen and (max-width: 932px) and (max-height: 500px) and (orientation: landscape) {
+      .orientation-overlay.portrait-required {
+        display: flex !important;
+      }
+    }
+
+    /* Tablets in portrait - show "rotate to landscape" overlay */
+    /* Targets tablets (min-width 600px in portrait mode) */
+    @media screen and (min-width: 600px) and (max-width: 1024px) and (orientation: portrait) {
+      .orientation-overlay.landscape-required {
+        display: flex !important;
+      }
+    }
+
+    /* Also catch larger tablets in portrait */
+    @media screen and (min-width: 768px) and (max-width: 1366px) and (orientation: portrait) and (min-height: 900px) {
+      .orientation-overlay.landscape-required {
+        display: flex !important;
+      }
+    }
   </style>
   <link rel="stylesheet" href="/styles/themes.css">
   <link rel="stylesheet" href="/styles/theme-overrides.css">
@@ -4136,6 +4314,18 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   </head>
 <body>
+  <!-- Orientation Lock Overlays -->
+  <div class="orientation-overlay portrait-required">
+    <div class="rotate-icon">📱</div>
+    <h2>Please Rotate Your Device</h2>
+    <p>This app works best in portrait mode on mobile phones</p>
+  </div>
+  <div class="orientation-overlay landscape-required">
+    <div class="rotate-icon">📱</div>
+    <h2>Please Rotate Your Device</h2>
+    <p>This app works best in landscape mode on tablets</p>
+  </div>
+
   <div class="header">
     <div class="header-content">
       <h1 style="display: flex; align-items: center; gap: 15px;">
@@ -5877,6 +6067,7 @@
     let currentLayout = 4;
     let fullscreenRefreshInterval = null;
     let sessionKeepAliveInterval = null; // Keep session alive during fullscreen
+    let fullscreenEnteredAt = null; // Timestamp when fullscreen mode was entered - animations only show for plays after this time
     let dynamicStyles = null; // Store dynamic style element
 
     // ============================================
@@ -6433,7 +6624,10 @@
       const modal = document.getElementById('game-selection-modal');
       const container = document.getElementById('fullscreen-container');
       const controls = document.getElementById('fullscreen-controls');
-      
+
+      // Record when fullscreen mode was entered - only show animations for plays AFTER this time
+      fullscreenEnteredAt = Date.now();
+
       modal.classList.remove('show');
       container.classList.add('active');
       
@@ -6739,7 +6933,7 @@
       div.dataset.isLive = isLive ? 'true' : 'false';
       div.dataset.isFinal = isFinal ? 'true' : 'false';
       div.dataset.gameId = game.id;
-      
+
       div.innerHTML = `
         <img src="/assets/NCAA logo.png" alt="NCAA" class="sport-logo-indicator">
         <div class="fullscreen-refresh-indicator"></div>
@@ -6876,13 +7070,18 @@
           const awayTeam = comp?.competitors?.[1]?.team?.shortDisplayName || 'Away';
           const homeTeam = comp?.competitors?.[0]?.team?.shortDisplayName || 'Home';
 
-          // Determine status - LIVE or UPCOMING
+          // Determine status - LIVE, UPCOMING, or FINAL
           const statusState = comp?.status?.type?.state;
-          const isLive = statusState === 'in' || comp?.status?.period > 0;
+          const isCompleted = comp?.status?.type?.completed;
+          const statusName = comp?.status?.type?.name || '';
+          const isFinal = statusName.includes('Final') || statusState === 'post' || isCompleted;
+          const isLive = !isFinal && (statusState === 'in' || comp?.status?.period > 0);
           const isUpcoming = statusState === 'pre';
-          
+
           let statusLabel;
-          if (isUpcoming) {
+          if (isFinal) {
+            statusLabel = '🏁 FINAL';
+          } else if (isUpcoming) {
             statusLabel = '🕒 UPCOMING';
           } else if (isLive) {
             const quarter = comp?.status?.type?.shortDetail || 'Live';
@@ -7018,6 +7217,12 @@
 
     // Show play animation overlay
     function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', scorerName = '') {
+      // Skip animations during the first update cycle after entering fullscreen mode
+      // This prevents showing animations for past plays that already happened
+      if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 6000) {
+        return; // Don't show animations for the first 6 seconds (first update cycle + buffer)
+      }
+
       // Remove any existing animation
       const existingAnimation = card.querySelector('.play-animation');
       if (existingAnimation) {
@@ -7070,6 +7275,16 @@
           <div class="field-goal-container">
             <img src="/assets/YFrame.png" alt="Goal Post" class="yframe-image" onerror="this.style.display='none';">
             <div class="spinning-football">🏈</div>
+          </div>
+          <div class="play-animation-text">${playText}</div>
+          ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+        `;
+      } else if (playType === 'missed-kick') {
+        // Special HTML for missed field goal/XP with YFrame and ball missing
+        animationDiv.innerHTML = `
+          <div class="missed-kick-container">
+            <img src="/assets/YFrame.png" alt="Goal Post" class="yframe-image-missed" onerror="this.style.display='none';">
+            <div class="missed-football">🏈</div>
           </div>
           <div class="play-animation-text">${playText}</div>
           ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
@@ -7312,6 +7527,29 @@
 
               showPlayAnimation(card, 'sack', 'SACK!', '', '', '', sackerName);
               card.dataset.lastSack = lastPlay;
+            }
+          }
+
+          // Missed Field Goal detection
+          if ((lowerPlay.includes('field goal') &&
+               (lowerPlay.includes('missed') || lowerPlay.includes('no good') ||
+                lowerPlay.includes('wide') || lowerPlay.includes('short') || lowerPlay.includes('blocked'))) ||
+              (lowerPlay.includes('fg') &&
+               (lowerPlay.includes('missed') || lowerPlay.includes('no good') || lowerPlay.includes('blocked')))) {
+            if (!card.dataset.lastMissedFG || card.dataset.lastMissedFG !== lastPlay) {
+              console.log('🚫 MISSED FIELD GOAL detected:', lastPlay);
+              showPlayAnimation(card, 'missed-kick', 'MISSED FIELD GOAL!');
+              card.dataset.lastMissedFG = lastPlay;
+            }
+          }
+          // Missed Extra Point detection
+          else if ((lowerPlay.includes('extra point') || lowerPlay.includes('pat') || lowerPlay.includes('xp')) &&
+                   (lowerPlay.includes('missed') || lowerPlay.includes('no good') ||
+                    lowerPlay.includes('failed') || lowerPlay.includes('blocked'))) {
+            if (!card.dataset.lastMissedXP || card.dataset.lastMissedXP !== lastPlay) {
+              console.log('🚫 MISSED EXTRA POINT detected:', lastPlay);
+              showPlayAnimation(card, 'missed-kick', 'MISSED EXTRA POINT!');
+              card.dataset.lastMissedXP = lastPlay;
             }
           }
 
