@@ -4574,8 +4574,8 @@
     }
 
     /* Mobile phones in landscape - show "rotate to portrait" overlay */
-    /* Targets phones (max-height 500px when in landscape, indicating small device) */
-    @media screen and (max-width: 932px) and (max-height: 500px) and (orientation: landscape) {
+    /* Targets phones: landscape orientation with height under 600px (phone screens) */
+    @media screen and (orientation: landscape) and (max-height: 600px) {
       .orientation-overlay.portrait-required {
         display: flex !important;
       }
