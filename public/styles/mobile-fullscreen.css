@@ -162,6 +162,31 @@
     gap: clamp(15px, 4vw, 25px) !important;  /* ◄ Team header gap */
   }
 
+  /* --- Grid 1: TEAM STACK - Column layout for single game view --- */
+  .fullscreen-grid.grid-1 .fullscreen-team-stack {
+    flex-direction: column !important;       /* ◄ Stack elements vertically */
+    align-items: center !important;
+    gap: 8px !important;                     /* ◄ Gap between logo, name, record */
+  }
+
+  /* --- Grid 1: TEAM NAME (Live games class) --- */
+  .fullscreen-grid.grid-1 .fullscreen-live-team-name {
+    font-size: clamp(2.5rem, 9vw, 4rem) !important;  /* ◄ Team name size */
+    margin-top: 5px !important;
+  }
+
+  /* --- Grid 1: TEAM RECORD - Below team name --- */
+  .fullscreen-grid.grid-1 .fullscreen-team-record {
+    font-size: clamp(1.1rem, 3.5vw, 1.6rem) !important;  /* ◄ Record size */
+    margin-top: -2px !important;             /* ◄ Tighter spacing below name */
+    order: unset !important;                 /* ◄ Keep natural order (after name) */
+  }
+
+  /* --- Grid 1: TIMEOUTS - Below record --- */
+  .fullscreen-grid.grid-1 .fullscreen-timeouts {
+    margin-top: 5px !important;
+  }
+
   /* ════════════════════════════════════════════════════════════════════════════════
      ░░░ GRID 2: TWO GAMES - STACKED ░░░
      ════════════════════════════════════════════════════════════════════════════════ */

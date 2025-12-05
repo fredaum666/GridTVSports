@@ -1961,11 +1961,11 @@
       }
 
       .fullscreen-grid.grid-1 .fullscreen-team-stack {
-        flex-direction: row !important;
+        flex-direction: column !important;         /* ◄ Stack vertically: logo, name, record */
         align-items: center !important;
         justify-content: center !important;
         width: 100% !important;
-        gap: 3vw !important;                      /* ◄ Team stack gap */
+        gap: 8px !important;                       /* ◄ Gap between logo, name, record */
       }
 
       /* --- Grid 1: TEAM LOGO --- */
@@ -1978,13 +1978,15 @@
 
       /* --- Grid 1: TEAM NAME --- */
       .fullscreen-grid.grid-1 .fullscreen-live-team-name {
-        font-size: clamp(2rem, 10vw, 4rem) !important;    /* ◄ Team name size */
+        font-size: clamp(2.5rem, 9vw, 4rem) !important;   /* ◄ Team name size */
         white-space: nowrap !important;
+        margin-top: 5px !important;
       }
 
-      /* --- Grid 1: TEAM RECORD --- */
+      /* --- Grid 1: TEAM RECORD - Below team name --- */
       .fullscreen-grid.grid-1 .fullscreen-team-record {
-        font-size: clamp(1rem, 4vw, 1.6rem) !important;   /* ◄ Record size */
+        font-size: clamp(1.1rem, 3.5vw, 1.6rem) !important;  /* ◄ Record size */
+        margin-top: -2px !important;               /* ◄ Tighter spacing below name */
       }
 
       /* --- Grid 1: SCORE --- */
