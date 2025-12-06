@@ -6587,13 +6587,18 @@
             const awayScore = comp?.competitors?.[1]?.score || '0';
             const homeScore = comp?.competitors?.[0]?.score || '0';
             
-            // Determine status - LIVE or UPCOMING
+            // Determine status - LIVE, UPCOMING, or FINAL
             const statusState = comp?.status?.type?.state;
-            const isLive = statusState === 'in' || comp?.status?.period > 0;
+            const isCompleted = comp?.status?.type?.completed;
+            const statusName = comp?.status?.type?.name || '';
+            const isFinal = statusName.includes('Final') || statusState === 'post' || isCompleted;
+            const isLive = !isFinal && (statusState === 'in' || comp?.status?.period > 0);
             const isUpcoming = statusState === 'pre';
-            
+
             let statusLabel;
-            if (isUpcoming) {
+            if (isFinal) {
+              statusLabel = 'FINAL';
+            } else if (isUpcoming) {
               const gameDate = new Date(game.date);
               const now = new Date();
               const hoursUntil = Math.round((gameDate - now) / (1000 * 60 * 60));
@@ -6961,10 +6966,6 @@
       const fieldPosition = comp?.situation?.possessionText || '';
       const yardsToGo = comp?.situation?.distance || 0;
 
-      // Get timeout information - ESPN API provides this in the situation object
-      const awayTimeouts = comp?.situation?.awayTimeouts ?? 3;
-      const homeTimeouts = comp?.situation?.homeTimeouts ?? 3;
-
       div.className = cardClass;
       div.dataset.slotIndex = slotIndex;
       div.dataset.isLive = isLive ? 'true' : 'false';
@@ -7015,13 +7016,6 @@
                 </div>
                 <div class="fullscreen-live-team-name ${awayScore > homeScore ? 'winning' : ''}">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
                 ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
-                ${isLive ? `
-                  <div class="fullscreen-timeouts">
-                    <div class="timeout-bar ${awayTimeouts < 3 ? 'used' : ''}"></div>
-                    <div class="timeout-bar ${awayTimeouts < 2 ? 'used' : ''}"></div>
-                    <div class="timeout-bar ${awayTimeouts < 1 ? 'used' : ''}"></div>
-                  </div>
-                ` : ''}
               </div>
               <div class="fullscreen-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
               <div class="fullscreen-vs-divider-live">VS</div>
@@ -7033,13 +7027,6 @@
                 </div>
                 <div class="fullscreen-live-team-name ${homeScore > awayScore ? 'winning' : ''}">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
                 ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
-                ${isLive ? `
-                  <div class="fullscreen-timeouts">
-                    <div class="timeout-bar ${homeTimeouts < 3 ? 'used' : ''}"></div>
-                    <div class="timeout-bar ${homeTimeouts < 2 ? 'used' : ''}"></div>
-                    <div class="timeout-bar ${homeTimeouts < 1 ? 'used' : ''}"></div>
-                  </div>
-                ` : ''}
               </div>
             </div>
 
@@ -7718,29 +7705,6 @@
             if (homeLogoContainer) {
               homeLogoContainer.insertAdjacentHTML('beforeend', '<span class="fullscreen-possession">🏈</span>');
             }
-          }
-
-          // Update timeout bars
-          const awayTimeouts = comp?.situation?.awayTimeouts ?? 3;
-          const homeTimeouts = comp?.situation?.homeTimeouts ?? 3;
-
-          const teamStacks2 = card.querySelectorAll('.fullscreen-team-stack');
-          if (teamStacks2.length >= 2) {
-            // Update away team timeouts
-            const awayTimeoutBars = teamStacks2[0].querySelectorAll('.timeout-bar');
-            awayTimeoutBars.forEach((bar, idx) => {
-              if (idx === 0) bar.classList.toggle('used', awayTimeouts < 3);
-              if (idx === 1) bar.classList.toggle('used', awayTimeouts < 2);
-              if (idx === 2) bar.classList.toggle('used', awayTimeouts < 1);
-            });
-
-            // Update home team timeouts
-            const homeTimeoutBars = teamStacks2[1].querySelectorAll('.timeout-bar');
-            homeTimeoutBars.forEach((bar, idx) => {
-              if (idx === 0) bar.classList.toggle('used', homeTimeouts < 3);
-              if (idx === 1) bar.classList.toggle('used', homeTimeouts < 2);
-              if (idx === 2) bar.classList.toggle('used', homeTimeouts < 1);
-            });
           }
 
           // Update field position visualizer
