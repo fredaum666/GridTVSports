@@ -3987,7 +3987,7 @@
       
       .down-distance,
       .yard-line {
-        font-size: 9px;
+        /*font-size: 9px;*/
         padding: 2px 6px;
       }
 
@@ -4136,7 +4136,7 @@
 
       .down-distance,
       .yard-line {
-        font-size: 8px;
+        /*font-size: 8px;*/
         padding: 2px 4px;
       }
     }
@@ -4760,23 +4760,25 @@
                        statusName.toLowerCase().includes('quarter');
 
         const existingCard = existingCards.get(gameId);
+        const existingStatus = existingCard?.dataset?.status;
+        const currentStatus = isFinal ? 'post' : (isLive ? 'in' : 'pre');
 
         // If card exists and is final, reuse it (never update final games)
-        if (existingCard && isFinal) {
+        if (existingCard && isFinal && existingStatus === 'post') {
           fragment.appendChild(existingCard);
           existingCards.delete(gameId);
           return;
         }
 
-        // If card exists and is live, reuse it and queue for update
-        if (existingCard && isLive) {
+        // If card exists and is live AND was created as live, reuse it and queue for update
+        if (existingCard && isLive && existingStatus === 'in') {
           fragment.appendChild(existingCard);
           updateQueue.push({ card: existingCard, game });
           existingCards.delete(gameId);
           return;
         }
 
-        // If card exists but status changed (pre->live, live->final), recreate it
+        // If card exists but status changed (pre->in, pre->post, in->post), recreate it
         if (existingCard) {
           existingCard.remove();
           existingCards.delete(gameId);
@@ -4937,9 +4939,10 @@
         // Final: 1 page (final score with quarter history combined)
         const numPages = isLive ? 2 : 1;
 
-        // Build the card HTML
+        // Build the card HTML - include data-status to track state transitions
+        const cardStatus = isPregame ? 'pre' : (isLive ? 'in' : 'post');
         let cardHtml = `
-          <div class="game-card" data-game-id="${game.id}">
+          <div class="game-card" data-game-id="${game.id}" data-status="${cardStatus}">
             <div class="card-slider-container">
               <div class="card-pages" data-current-page="0">
         `;

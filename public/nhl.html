@@ -3662,23 +3662,25 @@
         const isPregame = statusType === 'pre';
 
         const existingCard = existingCards.get(gameId);
+        const existingStatus = existingCard?.dataset?.status;
+        const currentStatus = isFinal ? 'post' : (isLive ? 'in' : 'pre');
 
-        // If card exists and is final, skip it entirely (never update final games)
-        if (existingCard && isFinal) {
+        // If card exists and is final AND was created as final, skip it entirely (never update final games)
+        if (existingCard && isFinal && existingStatus === 'post') {
           existingCards.delete(gameId); // Mark as still valid
           finalGamesData.push(game);
           return;
         }
 
-        // If card exists and is live, queue for update after repositioning
-        if (existingCard && isLive) {
+        // If card exists and is live AND was created as live, queue for update after repositioning
+        if (existingCard && isLive && existingStatus === 'in') {
           existingCards.delete(gameId); // Mark as still valid
           cardsToUpdate.push({ card: existingCard, game });
           liveGamesData.push(game);
           return;
         }
 
-        // If card exists but status changed (pre->live, live->final), recreate it
+        // If card exists but status changed (pre->in, pre->post, in->post), recreate it
         if (existingCard) {
           existingCard.remove();
         }
@@ -3857,9 +3859,10 @@
       // Final: 1 page (final score with period history combined)
       const numPages = isLive ? 2 : 1;
 
-      // Build the card HTML
+      // Build the card HTML - include data-status to track state transitions
+      const cardStatus = isPregame ? 'pre' : (isLive ? 'in' : 'post');
       let cardHtml = `
-        <div class="game-card" data-game-id="${game.id}">
+        <div class="game-card" data-game-id="${game.id}" data-status="${cardStatus}">
           <div class="card-slider-container">
             <div class="card-pages" data-current-page="0">
       `;
