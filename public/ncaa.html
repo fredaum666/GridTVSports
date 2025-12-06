@@ -7685,6 +7685,29 @@
             }
           }
 
+          // Update timeout bars
+          const awayTimeouts = comp?.situation?.awayTimeouts ?? 3;
+          const homeTimeouts = comp?.situation?.homeTimeouts ?? 3;
+
+          const teamStacks2 = card.querySelectorAll('.fullscreen-team-stack');
+          if (teamStacks2.length >= 2) {
+            // Update away team timeouts
+            const awayTimeoutBars = teamStacks2[0].querySelectorAll('.timeout-bar');
+            awayTimeoutBars.forEach((bar, idx) => {
+              if (idx === 0) bar.classList.toggle('used', awayTimeouts < 3);
+              if (idx === 1) bar.classList.toggle('used', awayTimeouts < 2);
+              if (idx === 2) bar.classList.toggle('used', awayTimeouts < 1);
+            });
+
+            // Update home team timeouts
+            const homeTimeoutBars = teamStacks2[1].querySelectorAll('.timeout-bar');
+            homeTimeoutBars.forEach((bar, idx) => {
+              if (idx === 0) bar.classList.toggle('used', homeTimeouts < 3);
+              if (idx === 1) bar.classList.toggle('used', homeTimeouts < 2);
+              if (idx === 2) bar.classList.toggle('used', homeTimeouts < 1);
+            });
+          }
+
           // Update field position visualizer
           const fieldPosition = comp?.situation?.possessionText || '';
           const yardsToGo = comp?.situation?.distance || 0;
