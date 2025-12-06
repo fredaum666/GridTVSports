@@ -3122,8 +3122,8 @@
       line-height: 1.5;
     }
 
-    /* Show fullscreen orientation overlay on mobile phones in portrait when fullscreen is active */
-    @media screen and (orientation: portrait) and (max-width: 768px) {
+    /* Show fullscreen orientation overlay on mobile phones in landscape when fullscreen is active */
+    @media screen and (orientation: landscape) and (max-height: 500px) {
       .fullscreen-container.active .fullscreen-orientation-overlay {
         display: flex !important;
       }
@@ -4669,11 +4669,11 @@
 
   <!-- Full Screen Container -->
   <div id="fullscreen-container" class="fullscreen-container">
-    <!-- Fullscreen Orientation Overlay - for mobile phones in portrait -->
+    <!-- Fullscreen Orientation Overlay - for mobile phones in landscape -->
     <div class="fullscreen-orientation-overlay">
       <div class="rotate-icon">📱</div>
       <h2>Please Rotate Your Device</h2>
-      <p>Sports Bar Mode works best in landscape orientation</p>
+      <p>Sports Bar Mode works best in portrait orientation</p>
     </div>
     <!-- Hover trigger zone at top -->
     <div class="fullscreen-hover-trigger"></div>
