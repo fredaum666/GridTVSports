@@ -3134,13 +3134,13 @@
         
         <div style="display: flex; gap: 12px; align-items: center;">
           <div class="sort-filters">
-            <button class="sort-filter-btn active" id="sort-favorites" title="Sort by Favorites First">
+            <button class="sort-filter-btn" id="sort-favorites" title="Sort by Favorites First">
               <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
               <span>Favorites</span>
             </button>
-            <button class="sort-filter-btn" id="sort-time" title="Sort by Game Time">
+            <button class="sort-filter-btn active" id="sort-time" title="Sort by Game Time">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
                 <polyline points="12 6 12 12 16 14"/>
@@ -3197,7 +3197,7 @@
     let refreshInterval = null;
     let liveGames = [];
     let userFavoriteTeams = []; // Store user's favorite team IDs for this league
-    let currentSortMode = 'favorites'; // 'favorites' or 'time'
+    let currentSortMode = 'time'; // 'favorites' or 'time' - default to time sort on page load
 
     // Fetch user's favorite teams
     async function fetchFavoriteTeams() {

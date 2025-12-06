@@ -4650,13 +4650,13 @@
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
           <div class="sort-filters">
-            <button class="sort-filter-btn active" id="sort-favorites" title="Sort by Favorites First">
+            <button class="sort-filter-btn" id="sort-favorites" title="Sort by Favorites First">
               <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
               <span>Favorites</span>
             </button>
-            <button class="sort-filter-btn" id="sort-time" title="Sort by Game Time">
+            <button class="sort-filter-btn active" id="sort-time" title="Sort by Game Time">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
                 <polyline points="12 6 12 12 16 14"/>
@@ -4681,7 +4681,7 @@
     let currentWeek = 1; // Will be fetched from server
     const savedFinalGames = new Set(); // Track games already saved to avoid duplicate saves
     let userFavoriteTeams = []; // Store user's favorite team IDs for this league
-    let currentSortMode = 'favorites'; // 'favorites' or 'time'
+    let currentSortMode = 'time'; // 'favorites' or 'time' - default to time sort on page load
 
     // Fetch user's favorite teams
     async function fetchFavoriteTeams() {
@@ -4741,6 +4741,21 @@
       const otherGames = games.filter(g => !gameInvolvesFavorite(g));
 
       return [...favoriteGames, ...otherGames];
+    }
+
+    // Sort games by live status first (for fullscreen grid modal default)
+    function sortByLiveFirst(games) {
+      const liveGames = games.filter(g => {
+        const comp = g.competitions?.[0];
+        const statusType = comp?.status?.type?.state;
+        return statusType === 'in';
+      });
+      const otherGames = games.filter(g => {
+        const comp = g.competitions?.[0];
+        const statusType = comp?.status?.type?.state;
+        return statusType !== 'in';
+      });
+      return [...liveGames, ...otherGames];
     }
 
     // Team data for logos
@@ -5154,9 +5169,9 @@
       // Update down/distance and ball position
       const downDistanceText = comp.situation?.downDistanceText || '';
       const ballPosition = comp.situation?.possessionText || '';
-      let situationInfo = card.querySelector('.game-situation-info');
+      let situationInfo = page1Live?.querySelector('.game-situation-info');
 
-      if (downDistanceText) {
+      if (downDistanceText && page1Live) {
         if (situationInfo) {
           // Update existing element
           const downDistanceEl = situationInfo.querySelector('.down-distance');
@@ -5167,7 +5182,7 @@
           if (ballPosEl) ballPosEl.remove();
         } else {
           // Create situation info if it doesn't exist
-          const liveScoreHeader = card.querySelector('.live-score-header');
+          const liveScoreHeader = page1Live.querySelector('.live-score-header');
           if (liveScoreHeader) {
             liveScoreHeader.insertAdjacentHTML('afterend', `
               <div class="game-situation-info">
@@ -6839,10 +6854,10 @@
       // Reset gridGames
       gridGames = {};
 
-      // Sort games to prioritize favorites for auto-selection
-      const sortedGames = sortByFavoritesPriority(liveGames);
+      // Sort games to prioritize live events first for auto-selection
+      const sortedGames = sortByLiveFirst(liveGames);
 
-      // Select first N games (up to available games) - favorites will be selected first
+      // Select first N games (up to available games) - live games will be selected first
       const gamesToSelect = Math.min(layout, sortedGames.length);
 
       selectors.forEach((selector, index) => {
