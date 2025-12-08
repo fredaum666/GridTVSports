@@ -1985,16 +1985,8 @@
         gap: 6px !important;
         grid-column: 1 !important;
       }
-      /* First team stack (away) */
-      .fullscreen-grid.grid-1 .fullscreen-team-stack:first-child {
-        grid-row: 1 !important;
-      }
-      /* Second team stack (home) */
-      .fullscreen-grid.grid-1 .fullscreen-team-stack:last-child {
-        grid-row: 3 !important;
-      }
 
-      /* --- Grid 1: SCORE - Right column, aligned with team --- */
+      /* --- Grid 1: SCORE - Right column --- */
       .fullscreen-grid.grid-1 .fullscreen-team-score {
         grid-column: 2 !important;
         font-size: clamp(5rem, 22vw, 9rem) !important;
@@ -2003,20 +1995,37 @@
         line-height: 1 !important;
         font-weight: 700 !important;
       }
-      /* First score (away) */
-      .fullscreen-grid.grid-1 .fullscreen-team-score:nth-of-type(1) {
+
+      /* --- Grid 1: Position elements by DOM order using nth-child --- */
+      /* Child 1: Away Team Stack → Row 1, Col 1 */
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(1) {
         grid-row: 1 !important;
+        grid-column: 1 !important;
       }
-      /* Second score (home) */
-      .fullscreen-grid.grid-1 .fullscreen-team-score:nth-of-type(2) {
+      /* Child 2: Away Score → Row 1, Col 2 */
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(2) {
+        grid-row: 1 !important;
+        grid-column: 2 !important;
+      }
+      /* Child 3: VS Divider → Row 2, span both cols */
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(3) {
+        grid-row: 2 !important;
+        grid-column: 1 / -1 !important;
+      }
+      /* Child 4: Home Score → Row 3, Col 2 */
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(4) {
         grid-row: 3 !important;
+        grid-column: 2 !important;
+      }
+      /* Child 5: Home Team Stack → Row 3, Col 1 */
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(5) {
+        grid-row: 3 !important;
+        grid-column: 1 !important;
       }
 
-      /* --- Grid 1: VS divider - Center row spanning both columns --- */
+      /* --- Grid 1: VS divider styling --- */
       .fullscreen-grid.grid-1 .fullscreen-vs-divider-live {
         display: block !important;
-        grid-column: 1 / -1 !important;
-        grid-row: 2 !important;
         text-align: center !important;
         font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
         color: rgba(255, 255, 255, 0.6) !important;
