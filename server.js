@@ -1660,6 +1660,80 @@ app.patch('/api/admin/users/:userId', requireAdmin, async (req, res) => {
   }
 });
 
+// Localhost-only middleware for sensitive admin operations
+function requireLocalhost(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress || '';
+  const isLocalhost = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip === 'localhost';
+
+  if (!isLocalhost) {
+    return res.status(403).json({ error: 'This endpoint is only accessible from localhost' });
+  }
+  next();
+}
+
+// Update user subscription (full control) - LOCALHOST ONLY
+app.patch('/api/admin/users/:userId/subscription', requireAdmin, requireLocalhost, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { subscription_status, subscription_plan, trial_ends_at, subscription_ends_at } = req.body;
+
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    // Subscription status
+    if (subscription_status !== undefined) {
+      const validStatuses = ['trial', 'active', 'expired', 'canceled'];
+      if (!validStatuses.includes(subscription_status)) {
+        return res.status(400).json({ error: 'Invalid subscription status' });
+      }
+      updates.push(`subscription_status = $${paramIndex++}`);
+      values.push(subscription_status);
+    }
+
+    // Subscription plan
+    if (subscription_plan !== undefined) {
+      if (subscription_plan && !['monthly', 'yearly'].includes(subscription_plan)) {
+        return res.status(400).json({ error: 'Invalid subscription plan' });
+      }
+      updates.push(`subscription_plan = $${paramIndex++}`);
+      values.push(subscription_plan || null);
+    }
+
+    // Trial end date
+    if (trial_ends_at !== undefined) {
+      updates.push(`trial_ends_at = $${paramIndex++}`);
+      values.push(trial_ends_at ? new Date(trial_ends_at) : null);
+    }
+
+    // Subscription end date
+    if (subscription_ends_at !== undefined) {
+      updates.push(`subscription_ends_at = $${paramIndex++}`);
+      values.push(subscription_ends_at ? new Date(subscription_ends_at) : null);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No valid updates provided' });
+    }
+
+    values.push(userId);
+    const result = await pool.query(
+      `UPDATE users SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${paramIndex} RETURNING id, email, subscription_status, subscription_plan, trial_ends_at, subscription_ends_at`,
+      values
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    console.log(`[Admin] Subscription updated for user ${result.rows[0].email} by admin ${req.session.userId}`);
+    res.json({ success: true, user: result.rows[0] });
+  } catch (error) {
+    console.error('Error updating subscription:', error);
+    res.status(500).json({ error: 'Failed to update subscription' });
+  }
+});
+
 // ============================================
 // STATIC FILE SERVING (with auth protection)
 // ============================================
@@ -1671,7 +1745,7 @@ app.use('/scripts', express.static(path.join(__dirname, 'public', 'scripts')));
 app.use('/styles', express.static(path.join(__dirname, 'public', 'styles')));
 
 // List of valid page routes (without .html)
-const pageRoutes = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab', 'LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin'];
+const pageRoutes = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab', 'LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin', 'admin-subscriptions'];
 
 // Protected static files (require auth)
 app.use((req, res, next) => {
@@ -1802,6 +1876,17 @@ otherPages.forEach(page => {
   app.get(`/${page}`, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', `${page}.html`));
   });
+});
+
+// Admin subscription management page - LOCALHOST ONLY
+app.get('/admin-subscriptions', (req, res) => {
+  const ip = req.ip || req.connection.remoteAddress || '';
+  const isLocalhost = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip === 'localhost';
+
+  if (!isLocalhost) {
+    return res.status(403).send('This page is only accessible from localhost');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'admin-subscriptions.html'));
 });
 
 // Serve static files (protected by middleware above)
