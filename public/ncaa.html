@@ -1920,132 +1920,175 @@
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
          │                         GRID 1 - SINGLE GAME                                 │
+         │           Mobile Layout: Team info stacked center, score on right            │
          └──────────────────────────────────────────────────────────────────────────────┘ */
 
-      /* --- Grid 1: LAYOUT --- */
+      /* --- Grid 1: Layout Structure --- */
       .fullscreen-grid.grid-1 {
         grid-template-columns: 1fr !important;
         grid-template-rows: 1fr !important;
         height: 100dvh !important;
-        padding: 10px !important;                 /* ◄ Grid padding */
-        gap: 0 !important;                        /* ◄ Gap between cards */
+        padding: 10px !important;
+        gap: 0 !important;
         overflow: hidden !important;
       }
-
       .fullscreen-grid.grid-1 .fullscreen-game-card {
         max-width: 100% !important;
         height: calc(100dvh - 20px) !important;
-        padding: 15px !important;                 /* ◄ Card inner padding */
+        padding: 20px !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: center !important;
+        justify-content: flex-start !important;
         align-items: center !important;
         overflow: hidden !important;
       }
-
       .fullscreen-grid.grid-1 .fullscreen-card-content {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        justify-content: center !important;
+        justify-content: flex-start !important;
         height: 100% !important;
         width: 100% !important;
-        gap: 1vh !important;                      /* ◄ Content gap */
+        gap: 2vh !important;
+        padding-top: 1vh !important;
       }
 
-      .fullscreen-grid.grid-1 .fullscreen-live-score-header {
-        flex-direction: column !important;
-        gap: 1vh !important;                      /* ◄ Header gap */
+      /* --- Grid 1: Status/Clock at top --- */
+      .fullscreen-grid.grid-1 .fullscreen-status-container {
         width: 100% !important;
+        text-align: center !important;
+        margin-bottom: 2vh !important;
+      }
+      .fullscreen-grid.grid-1 .fullscreen-status-text {
+        font-size: clamp(1.8rem, 7vw, 3rem) !important;
+      }
+      .fullscreen-grid.grid-1 .fullscreen-upcoming-status-text {
+        font-size: clamp(1.8rem, 7vw, 3rem) !important;
+      }
+
+      /* --- Grid 1: Score Header - CSS Grid for team rows with score on right --- */
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-rows: auto auto auto !important; /* 3 rows: away, VS, home */
+        gap: 2vh 20px !important;
+        width: 100% !important;
+        padding: 0 20px !important;
         align-items: center !important;
       }
 
+      /* --- Grid 1: Team Stack - Left column, centered --- */
       .fullscreen-grid.grid-1 .fullscreen-team-stack {
-        flex-direction: column !important;         /* ◄ Stack vertically: logo, name, record */
+        flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        width: 100% !important;
-        gap: 8px !important;                       /* ◄ Gap between logo, name, record */
+        gap: 6px !important;
+        grid-column: 1 !important;
+      }
+      /* First team stack (away) */
+      .fullscreen-grid.grid-1 .fullscreen-team-stack:first-child {
+        grid-row: 1 !important;
+      }
+      /* Second team stack (home) */
+      .fullscreen-grid.grid-1 .fullscreen-team-stack:last-child {
+        grid-row: 3 !important;
+      }
+
+      /* --- Grid 1: SCORE - Right column, aligned with team --- */
+      .fullscreen-grid.grid-1 .fullscreen-team-score {
+        grid-column: 2 !important;
+        font-size: clamp(5rem, 22vw, 9rem) !important;
+        min-width: auto !important;
+        text-align: right !important;
+        line-height: 1 !important;
+        font-weight: 700 !important;
+      }
+      /* First score (away) */
+      .fullscreen-grid.grid-1 .fullscreen-team-score:nth-of-type(1) {
+        grid-row: 1 !important;
+      }
+      /* Second score (home) */
+      .fullscreen-grid.grid-1 .fullscreen-team-score:nth-of-type(2) {
+        grid-row: 3 !important;
+      }
+
+      /* --- Grid 1: VS divider - Center row spanning both columns --- */
+      .fullscreen-grid.grid-1 .fullscreen-vs-divider-live {
+        display: block !important;
+        grid-column: 1 / -1 !important;
+        grid-row: 2 !important;
+        text-align: center !important;
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        color: rgba(255, 255, 255, 0.6) !important;
+        font-weight: 600 !important;
+        padding: 1vh 0 !important;
       }
 
       /* --- Grid 1: TEAM LOGO --- */
       .fullscreen-grid.grid-1 .fullscreen-team-logo {
-        width: 20vw !important;                   /* ◄ Logo width */
-        height: 20vw !important;                  /* ◄ Logo height */
-        max-width: 100px !important;              /* ◄ Logo max width */
-        max-height: 100px !important;             /* ◄ Logo max height */
+        width: 20vw !important;
+        height: 20vw !important;
+        max-width: 90px !important;
+        max-height: 90px !important;
       }
 
       /* --- Grid 1: TEAM NAME --- */
       .fullscreen-grid.grid-1 .fullscreen-live-team-name {
-        font-size: clamp(2.5rem, 9vw, 4rem) !important;   /* ◄ Team name size */
+        font-size: clamp(2.2rem, 9vw, 3.5rem) !important;
         white-space: nowrap !important;
-        margin-top: 5px !important;
+        margin-top: 0 !important;
+        text-align: center !important;
       }
 
-      /* --- Grid 1: TEAM RECORD - Below team name --- */
+      /* --- Grid 1: TEAM RECORD --- */
       .fullscreen-grid.grid-1 .fullscreen-team-record {
-        font-size: clamp(1.1rem, 3.5vw, 1.6rem) !important;  /* ◄ Record size */
-        margin-top: -2px !important;               /* ◄ Tighter spacing below name */
+        font-size: clamp(1.1rem, 4vw, 1.5rem) !important;
+        margin-top: 0 !important;
+        text-align: center !important;
       }
 
-      /* --- Grid 1: SCORE --- */
-      .fullscreen-grid.grid-1 .fullscreen-team-score {
-        font-size: clamp(4rem, 18vw, 7rem) !important;    /* ◄ Score size */
-        min-width: auto !important;
+      /* --- Grid 1: TIMEOUTS - Below record, centered --- */
+      .fullscreen-grid.grid-1 .fullscreen-timeouts {
+        display: flex !important;
+        gap: 8px !important;
+        margin-top: 6px !important;
+        justify-content: center !important;
+      }
+      .fullscreen-grid.grid-1 .timeout-bar {
+        width: clamp(24px, 7vw, 40px) !important;
+        height: clamp(7px, 1.8vh, 12px) !important;
       }
 
       /* --- Grid 1: LEAGUE LOGO --- */
       .fullscreen-grid.grid-1 .sport-logo-indicator {
-        width: 22vw !important;                   /* ◄ League logo width */
-        height: 22vw !important;                  /* ◄ League logo height */
-        max-width: 110px !important;              /* ◄ League logo max width */
-        max-height: 110px !important;             /* ◄ League logo max height */
-        top: 15px !important;                     /* ◄ Position from top */
-        left: 15px !important;                    /* ◄ Position from left */
-      }
-
-      /* --- Grid 1: CLOCK & QUARTER --- */
-      .fullscreen-grid.grid-1 .fullscreen-status-text {
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important; /* ◄ Clock/quarter size */
-      }
-
-      .fullscreen-grid.grid-1 .fullscreen-upcoming-status-text {
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important; /* ◄ Upcoming status size */
-      }
-
-      /* --- Grid 1: VS TEXT --- */
-      .fullscreen-grid.grid-1 .fullscreen-vs-divider-live {
-        display: block !important;
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important; /* ◄ VS text size */
-        color: rgba(255,255,255,0.7) !important;
-        margin: 0.5vh 0 !important;
+        width: 16vw !important;
+        height: 16vw !important;
+        max-width: 70px !important;
+        max-height: 70px !important;
+        top: 10px !important;
+        left: 10px !important;
       }
 
       /* --- Grid 1: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-1 .fullscreen-situation-info {
-        font-size: clamp(1.3rem, 5vw, 2rem) !important;   /* ◄ Down/distance size */
+        font-size: clamp(1.4rem, 5vw, 2rem) !important;
+        text-align: center !important;
+        width: 100% !important;
+        margin-top: 2vh !important;
+      }
+
+      /* --- Grid 1: FIELD VISUALIZATION --- */
+      .fullscreen-grid.grid-1 .field-visualizer {
+        width: 100% !important;
+        margin-top: 1vh !important;
+      }
+      .fullscreen-grid.grid-1 .field-container {
+        height: 45px !important;
       }
 
       /* --- Grid 1: BALL POSITION --- */
       .fullscreen-grid.grid-1 .fullscreen-field-position {
-        font-size: clamp(1rem, 3.5vw, 1.4rem) !important; /* ◄ Ball position text */
-      }
-
-      /* --- Grid 1: FIELD VISUALIZATION --- */
-      .fullscreen-grid.grid-1 .field-container {
-        height: 40px !important;                  /* ◄ Field height */
-      }
-
-      /* --- Grid 1: TIMEOUTS --- */
-      .fullscreen-grid.grid-1 .fullscreen-timeouts {
-        display: flex !important;
-        gap: 6px !important;
-        margin-top: 8px !important;
-      }
-      .fullscreen-grid.grid-1 .timeout-bar {
-        width: clamp(20px, 5vw, 35px) !important;
-        height: clamp(6px, 1.5vh, 10px) !important;
+        font-size: clamp(1rem, 3.5vw, 1.4rem) !important;
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
