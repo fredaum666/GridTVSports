@@ -23,7 +23,8 @@
       "Bash(npm run init-db:*)",
       "Bash(npm start)",
       "Bash(copy \"c:\\Users\\HomePC\\OneDrive\\Desktop\\GridTVSports\\public\\nba.html\" \"c:\\Users\\HomePC\\OneDrive\\Desktop\\GridTVSports\\public\\ncaab.html\")",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
