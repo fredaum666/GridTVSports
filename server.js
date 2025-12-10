@@ -27,8 +27,13 @@ if (emailConfigured) {
     },
   });
   console.log('✅ Email transporter configured');
+  console.log('   Host:', process.env.SMTP_HOST);
+  console.log('   User:', process.env.SMTP_USER);
 } else {
-  console.log('⚠️ Email not configured - password reset emails will be logged to console');
+  console.log('⚠️ Email not configured. Missing variables:');
+  if (!process.env.SMTP_HOST) console.log('   - SMTP_HOST is missing');
+  if (!process.env.SMTP_USER) console.log('   - SMTP_USER is missing');
+  if (!process.env.SMTP_PASS) console.log('   - SMTP_PASS is missing');
 }
 
 // Initialize Stripe (optional - only if keys are configured)
@@ -100,7 +105,7 @@ const apiLimiter = rateLimit({
 // Rate limiting - auth endpoints (stricter)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 login attempts per windowMs
+  max: 100, // Increased to 100 for testing/debugging
   message: { error: 'Too many login attempts, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
