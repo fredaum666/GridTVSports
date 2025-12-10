@@ -93,7 +93,8 @@ const apiLimiter = rateLimit({
   keyGenerator: (req) => {
     // Handle IPs with ports (azure/load balancer issue)
     return req.ip ? req.ip.replace(/:\d+$/, '') : req.ip;
-  }
+  },
+  validate: { ip: false } // Disable IPv6 check since we sanitize manually
 });
 
 // Rate limiting - auth endpoints (stricter)
@@ -106,7 +107,8 @@ const authLimiter = rateLimit({
   keyGenerator: (req) => {
     // Handle IPs with ports (azure/load balancer issue)
     return req.ip ? req.ip.replace(/:\d+$/, '') : req.ip;
-  }
+  },
+  validate: { ip: false } // Disable IPv6 check since we sanitize manually
 });
 
 app.use(cors({
