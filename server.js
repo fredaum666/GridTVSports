@@ -90,6 +90,10 @@ const apiLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => {
+    // Handle IPs with ports (azure/load balancer issue)
+    return req.ip ? req.ip.replace(/:\d+$/, '') : req.ip;
+  }
 });
 
 // Rate limiting - auth endpoints (stricter)
@@ -99,6 +103,10 @@ const authLimiter = rateLimit({
   message: { error: 'Too many login attempts, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => {
+    // Handle IPs with ports (azure/load balancer issue)
+    return req.ip ? req.ip.replace(/:\d+$/, '') : req.ip;
+  }
 });
 
 app.use(cors({
