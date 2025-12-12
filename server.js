@@ -1279,6 +1279,39 @@ app.post('/api/subscription/validate-grid', async (req, res) => {
   }
 });
 
+// Debug endpoint to check Stripe configuration (TEMPORARY - for troubleshooting)
+app.get('/api/debug/stripe-status', (req, res) => {
+  const debugInfo = {
+    stripeInitialized: !!stripe,
+    environmentVariables: {
+      hasSecretKey: !!process.env.STRIPE_SECRET_KEY,
+      secretKeyStart: process.env.STRIPE_SECRET_KEY ?
+        process.env.STRIPE_SECRET_KEY.substring(0, 7) + '...' : 'NOT SET',
+      secretKeyLength: process.env.STRIPE_SECRET_KEY ?
+        process.env.STRIPE_SECRET_KEY.length : 0,
+      containsKeyVault: process.env.STRIPE_SECRET_KEY ?
+        process.env.STRIPE_SECRET_KEY.includes('@Microsoft.KeyVault') : false,
+      containsPlaceholder: process.env.STRIPE_SECRET_KEY ?
+        process.env.STRIPE_SECRET_KEY.includes('your_stripe') : false,
+      hasPublishableKey: !!process.env.STRIPE_PUBLISHABLE_KEY,
+      publishableKeyStart: process.env.STRIPE_PUBLISHABLE_KEY ?
+        process.env.STRIPE_PUBLISHABLE_KEY.substring(0, 7) + '...' : 'NOT SET',
+      hasWebhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
+      webhookSecretStart: process.env.STRIPE_WEBHOOK_SECRET ?
+        process.env.STRIPE_WEBHOOK_SECRET.substring(0, 7) + '...' : 'NOT SET',
+      hasMonthlyPriceId: !!process.env.STRIPE_MONTHLY_PRICE_ID,
+      monthlyPriceId: process.env.STRIPE_MONTHLY_PRICE_ID || 'NOT SET',
+      hasYearlyPriceId: !!process.env.STRIPE_YEARLY_PRICE_ID,
+      yearlyPriceId: process.env.STRIPE_YEARLY_PRICE_ID || 'NOT SET',
+    },
+    nodeEnv: process.env.NODE_ENV || 'not set',
+    timestamp: new Date().toISOString()
+  };
+
+  console.log('🔍 Stripe Debug Info:', JSON.stringify(debugInfo, null, 2));
+  res.json(debugInfo);
+});
+
 // Get available plans
 app.get('/api/subscription/plans', (req, res) => {
   res.json({
