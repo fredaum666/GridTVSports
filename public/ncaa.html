@@ -1440,6 +1440,63 @@
       }
     }
 
+    /* Two-Point Conversion Animation - Green/Gold like touchdown but smaller */
+    .play-animation.two-point .play-animation-text {
+      background: linear-gradient(90deg, #22c55e, #fbbf24, #22c55e);
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+      font-size: clamp(1.5rem, 4vh, 4rem) !important;
+    }
+
+    .two-point-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .two-point-team-logo {
+      width: clamp(60px, 12vmin, 120px);
+      height: clamp(60px, 12vmin, 120px);
+      object-fit: contain;
+      margin-bottom: clamp(10px, 2vmin, 20px);
+      animation: touchdownLogoEntry 0.8s ease-out, touchdownLogoPulse 1.5s ease-in-out infinite 0.8s;
+      filter: drop-shadow(0 0 20px #fbbf24) drop-shadow(0 0 40px #22c55e);
+    }
+
+    .two-point-scorer {
+      font-size: clamp(1rem, 2.5vmin, 2rem);
+      font-weight: 800;
+      color: #ffffff;
+      text-align: center;
+      margin-top: clamp(8px, 1.5vmin, 15px);
+      text-shadow: 0 0 10px #fbbf24, 0 0 20px #22c55e;
+      animation: playTextSlide 0.8s ease-out 0.5s backwards;
+      letter-spacing: 1px;
+    }
+
+    /* Safety Animation - Orange/Red */
+    .play-animation.safety .play-animation-text {
+      color: #f97316;
+      text-shadow: 0 0 20px #f97316, 0 0 40px #dc2626;
+      animation: playTextSlide 0.8s ease-out, safetyPulse 1s ease-in-out infinite 0.8s;
+    }
+
+    @keyframes safetyPulse {
+      0%, 100% {
+        text-shadow: 0 0 20px #f97316, 0 0 40px #dc2626;
+        transform: scale(1);
+      }
+      50% {
+        text-shadow: 0 0 30px #f97316, 0 0 60px #dc2626;
+        transform: scale(1.05);
+      }
+    }
+
     /* 1st Down Animation - Green with arrows coming together */
     .play-animation.first-down .play-animation-text {
       color: #22c55e;
@@ -7267,7 +7324,7 @@
     function extractTouchdownScorer(playText) {
       if (!playText) return '';
 
-      console.log('Extracting scorer from play text:', playText);
+      console.log('🏈 Extracting scorer from play text:', playText);
 
       // Common patterns for touchdown plays:
       // "J.Smith pass complete to M.Jones for 15 yards, TOUCHDOWN"
@@ -7276,41 +7333,66 @@
       // "(5:23) J.Tucker 15 yard rush TOUCHDOWN"
 
       // Pattern 1: "pass to [Player Name]" or "pass complete to [Player Name]" - receiver scores
+      // Match full name like "T.Kelce" or "Travis Kelce"
       let match = playText.match(/pass(?:\s+complete)?\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
       if (match) {
-        console.log('Matched pattern 1 (pass to):', match[1]);
+        console.log('✅ Matched pattern 1 (pass to):', match[1]);
         return match[1].trim();
       }
 
       // Pattern 2: "yard pass to [Player Name]" - receiver scores
       match = playText.match(/yard\s+pass\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
       if (match) {
-        console.log('Matched pattern 2 (yard pass to):', match[1]);
+        console.log('✅ Matched pattern 2 (yard pass to):', match[1]);
         return match[1].trim();
       }
 
-      // Pattern 3: "[Player Name] rush" or "[Player Name] run" - rusher scores
+      // Pattern 3: "[Player Name] for X yard(s)" before TOUCHDOWN - works for rush or pass
+      // This should match the actual scoring player regardless of play type
+      match = playText.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+for\s+\d+\s+yard/i);
+      if (match) {
+        const playerName = match[1].trim();
+        // Make sure it's not the QB (avoid patterns like "Mahomes pass to...")
+        if (!playText.match(new RegExp(playerName.replace('.', '\\.') + '\\s+pass', 'i'))) {
+          console.log('✅ Matched pattern 3 (player for X yards):', playerName);
+          return playerName;
+        }
+      }
+
+      // Pattern 4: "[Player Name] rush" or "[Player Name] run" - rusher scores
+      // Be more specific: look for name followed by number then "yard rush/run"
       match = playText.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+\d+\s+yard\s+(?:rush|run)/i);
       if (match) {
-        console.log('Matched pattern 3 (rush/run with yards):', match[1]);
+        console.log('✅ Matched pattern 4 (rush/run with yards):', match[1]);
         return match[1].trim();
       }
 
-      // Pattern 4: "caught by [Player Name]"
+      // Pattern 5: "caught by [Player Name]"
       match = playText.match(/caught\s+by\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
       if (match) {
-        console.log('Matched pattern 4 (caught by):', match[1]);
+        console.log('✅ Matched pattern 5 (caught by):', match[1]);
         return match[1].trim();
       }
 
-      // Pattern 5: Look for name at beginning after timestamp like "(5:23) J.Name"
+      // Pattern 6: Look for second name in play (first is usually QB on pass plays)
+      // Match all player names and return the last one (usually the scorer)
+      const allNames = playText.match(/\b([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\b/g);
+      if (allNames && allNames.length > 1) {
+        // If it's a pass play, return the second name (receiver)
+        if (playText.toLowerCase().includes('pass')) {
+          console.log('✅ Matched pattern 6 (second name on pass play):', allNames[1]);
+          return allNames[1].trim();
+        }
+      }
+
+      // Pattern 7: Look for name at beginning after timestamp like "(5:23) J.Name"
       match = playText.match(/^\([^)]+\)\s+([A-Z][a-z]*\.[A-Z][A-Za-z'-]+)/);
       if (match) {
-        console.log('Matched pattern 5 (after timestamp):', match[1]);
+        console.log('✅ Matched pattern 7 (after timestamp):', match[1]);
         return match[1].trim();
       }
 
-      console.log('No scorer pattern matched');
+      console.log('❌ No scorer pattern matched');
       return '';
     }
 
@@ -7331,8 +7413,17 @@
         playType = 'field-goal';
         playText = 'FIELD GOAL!';
       } else if (scoreChange === 2) {
-        playType = 'field-goal';
-        playText = 'SAFETY!';
+        // Check if it's a 2-point conversion or a safety
+        const lowerPlay = lastPlayText.toLowerCase();
+        if (lowerPlay.includes('two-point') || lowerPlay.includes('2-pt') ||
+            lowerPlay.includes('two point') || lowerPlay.includes('conversion')) {
+          playType = 'two-point';
+          playText = '2-POINT CONVERSION!';
+          scorerName = extractTouchdownScorer(lastPlayText);
+        } else {
+          playType = 'safety';
+          playText = 'SAFETY!';
+        }
       } else if (scoreChange === 1) {
         playType = 'field-goal';
         playText = 'EXTRA POINT!';
@@ -7446,6 +7537,16 @@
           <div class="play-animation-icon">${icon}</div>
           <div class="play-animation-text">${playText}</div>
           ${scorerName ? `<div class="play-animation-subtext">${scorerName}</div>` : (teamName ? `<div class="play-animation-subtext">${teamName}</div>` : '')}
+        `;
+      } else if (playType === 'two-point') {
+        // Special HTML for two-point conversion with team logo and scorer
+        const teamLogoPath = teamName ? `/assets/${encodeURIComponent(teamName)}.png` : '';
+        animationDiv.innerHTML = `
+          <div class="two-point-container">
+            ${teamLogoPath ? `<img src="${teamLogoPath}" alt="${teamName}" class="two-point-team-logo" onerror="this.style.display='none';">` : ''}
+          </div>
+          <div class="play-animation-text">${playText}</div>
+          ${scorerName ? `<div class="two-point-scorer">${scorerName}</div>` : ''}
         `;
       } else {
         animationDiv.innerHTML = `
