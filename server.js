@@ -1312,40 +1312,66 @@ app.get('/api/debug/stripe-status', (req, res) => {
   res.json(debugInfo);
 });
 
-// Get available plans
-app.get('/api/subscription/plans', (req, res) => {
-  res.json({
-    plans: [
-      {
-        id: 'monthly',
-        name: 'Monthly',
-        price: 7.99,
-        priceId: process.env.STRIPE_MONTHLY_PRICE_ID,
-        interval: 'month',
-        features: [
-          'All live sports games',
-          'NFL, NBA, MLB, NHL coverage',
-          'College sports included',
-          'Real-time score updates'
-        ]
-      },
-      {
-        id: 'yearly',
-        name: 'Yearly',
-        price: 76.70,
-        priceId: process.env.STRIPE_YEARLY_PRICE_ID,
-        interval: 'year',
-        savings: '20%',
-        features: [
-          'All live sports games',
-          'NFL, NBA, MLB, NHL coverage',
-          'College sports included',
-          'Real-time score updates',
-          'Save 20% annually!'
-        ]
-      }
-    ]
-  });
+// Get available plans (from database)
+app.get('/api/subscription/plans', async (req, res) => {
+  try {
+    const result = await db.pool.query(`
+      SELECT plan_type, price, discount_percentage, features
+      FROM pricing_config
+      WHERE is_active = true
+      ORDER BY plan_type
+    `);
+
+    const plans = result.rows.map(row => {
+      const isYearly = row.plan_type === 'yearly';
+      return {
+        id: row.plan_type,
+        name: row.plan_type.charAt(0).toUpperCase() + row.plan_type.slice(1),
+        price: parseFloat(row.price),
+        priceId: isYearly ? process.env.STRIPE_YEARLY_PRICE_ID : process.env.STRIPE_MONTHLY_PRICE_ID,
+        interval: isYearly ? 'year' : 'month',
+        savings: row.discount_percentage > 0 ? `${row.discount_percentage}%` : null,
+        features: row.features || []
+      };
+    });
+
+    res.json({ plans });
+  } catch (error) {
+    console.error('❌ Error fetching pricing plans:', error);
+    // Fallback to hardcoded values if database fails
+    res.json({
+      plans: [
+        {
+          id: 'monthly',
+          name: 'Monthly',
+          price: 7.99,
+          priceId: process.env.STRIPE_MONTHLY_PRICE_ID,
+          interval: 'month',
+          features: [
+            'Watch up to 8 games in one view',
+            'All leagues (NFL, NBA, MLB, NHL, NCAA)',
+            'No ads or interruptions',
+            'Sports Bar Mode with custom layouts'
+          ]
+        },
+        {
+          id: 'yearly',
+          name: 'Yearly',
+          price: 76.70,
+          priceId: process.env.STRIPE_YEARLY_PRICE_ID,
+          interval: 'year',
+          savings: '20%',
+          features: [
+            'Watch up to 8 games in one view',
+            'All leagues (NFL, NBA, MLB, NHL, NCAA)',
+            'No ads or interruptions',
+            'Sports Bar Mode with custom layouts',
+            '20% savings vs monthly'
+          ]
+        }
+      ]
+    });
+  }
 });
 
 // Create checkout session
@@ -1863,6 +1889,91 @@ app.patch('/api/admin/users/:userId/subscription', requireAdmin, requireLocalhos
   } catch (error) {
     console.error('Error updating subscription:', error);
     res.status(500).json({ error: 'Failed to update subscription' });
+  }
+});
+
+// ============================================
+// ADMIN PRICING MANAGEMENT
+// ============================================
+
+// Get pricing configuration for admin
+app.get('/api/admin/pricing', requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, plan_type, price, discount_percentage, features, is_active, updated_at
+      FROM pricing_config
+      ORDER BY plan_type
+    `);
+
+    res.json({ pricing: result.rows });
+  } catch (error) {
+    console.error('❌ Error fetching pricing config:', error);
+    res.status(500).json({ error: 'Failed to fetch pricing configuration' });
+  }
+});
+
+// Update pricing configuration
+app.put('/api/admin/pricing/:planType', requireAdmin, async (req, res) => {
+  try {
+    const { planType } = req.params;
+    const { price, discount_percentage, features } = req.body;
+
+    // Validate inputs
+    if (price !== undefined && (isNaN(price) || price < 0)) {
+      return res.status(400).json({ error: 'Invalid price value' });
+    }
+
+    if (discount_percentage !== undefined && (isNaN(discount_percentage) || discount_percentage < 0 || discount_percentage > 100)) {
+      return res.status(400).json({ error: 'Discount must be between 0 and 100' });
+    }
+
+    if (features && !Array.isArray(features)) {
+      return res.status(400).json({ error: 'Features must be an array' });
+    }
+
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (price !== undefined) {
+      updates.push(`price = $${paramIndex++}`);
+      values.push(price);
+    }
+
+    if (discount_percentage !== undefined) {
+      updates.push(`discount_percentage = $${paramIndex++}`);
+      values.push(discount_percentage);
+    }
+
+    if (features) {
+      updates.push(`features = $${paramIndex++}`);
+      values.push(JSON.stringify(features));
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No valid updates provided' });
+    }
+
+    updates.push(`updated_at = NOW()`);
+    values.push(planType);
+
+    const result = await pool.query(
+      `UPDATE pricing_config
+       SET ${updates.join(', ')}
+       WHERE plan_type = $${paramIndex}
+       RETURNING id, plan_type, price, discount_percentage, features, updated_at`,
+      values
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Pricing plan not found' });
+    }
+
+    console.log(`[Admin] Pricing updated for ${planType} plan by admin ${req.session.userId}`);
+    res.json({ success: true, pricing: result.rows[0] });
+  } catch (error) {
+    console.error('❌ Error updating pricing:', error);
+    res.status(500).json({ error: 'Failed to update pricing' });
   }
 });
 

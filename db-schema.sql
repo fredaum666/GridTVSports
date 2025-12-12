@@ -224,3 +224,32 @@ CREATE INDEX IF NOT EXISTS idx_favorite_teams_rank ON favorite_teams(user_id, ra
 COMMENT ON TABLE favorite_teams IS 'Stores user favorite teams with ranking';
 COMMENT ON COLUMN favorite_teams.rank IS 'Ranking 1-6, order of selection';
 COMMENT ON COLUMN favorite_teams.league IS 'League: NFL, NBA, MLB, NHL, NCAAF, NCAAB';
+
+-- ============================================
+-- PRICING CONFIGURATION TABLE
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS pricing_config (
+  id SERIAL PRIMARY KEY,
+  plan_type VARCHAR(50) UNIQUE NOT NULL, -- 'monthly' or 'yearly'
+  price DECIMAL(10, 2) NOT NULL,
+  discount_percentage INT DEFAULT 0,
+  features JSONB,
+  is_active BOOLEAN DEFAULT TRUE,
+  updated_at TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Insert default pricing if not exists
+INSERT INTO pricing_config (plan_type, price, discount_percentage, features, is_active)
+VALUES
+  ('monthly', 7.99, 0, '["Watch up to 8 games in one view", "All leagues (NFL, NBA, MLB, NHL, NCAA)", "No ads or interruptions", "Sports Bar Mode with custom layouts", "Access to historical game data", "Mobile-responsive design"]'::jsonb, true),
+  ('yearly', 76.70, 20, '["Watch up to 8 games in one view", "All leagues (NFL, NBA, MLB, NHL, NCAA)", "No ads or interruptions", "Sports Bar Mode with custom layouts", "Access to historical game data", "Mobile-responsive design", "20% savings vs monthly"]'::jsonb, true)
+ON CONFLICT (plan_type) DO NOTHING;
+
+CREATE INDEX IF NOT EXISTS idx_pricing_active ON pricing_config(is_active);
+
+COMMENT ON TABLE pricing_config IS 'Stores pricing configuration for subscription plans (admin editable)';
+COMMENT ON COLUMN pricing_config.price IS 'Price in dollars (e.g., 7.99)';
+COMMENT ON COLUMN pricing_config.discount_percentage IS 'Discount percentage shown on pricing page';
+COMMENT ON COLUMN pricing_config.features IS 'JSON array of feature strings';
