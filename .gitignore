@@ -26,4 +26,4 @@ Thumbs.db
 .claude/settings.local.json
 
 # Webpack build output (production obfuscated files)
-public/dist/
+# public/dist/
