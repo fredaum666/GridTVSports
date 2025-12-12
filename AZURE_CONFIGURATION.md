@@ -18,7 +18,7 @@ Since your local `.env` file is not uploaded to the cloud (for security), you mu
 | `SMTP_USER` | `noreply@gridtvsports.com` |
 | `SMTP_PASS` | *(Your App Password)* |
 | `SMTP_SECURE` | `false` |
-| `APP_URL` | `https://your-app-name.azurewebsites.net` |
+| `APP_URL` | `https://gridtvsports.com` (or your Azure URL if testing) |
 
 6.  Click **Apply** or **OK** for each one.
 7.  **IMPORTANT:** Click the **Save** button at the top of the page.
