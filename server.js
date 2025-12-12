@@ -1434,24 +1434,39 @@ app.post('/api/subscription/portal', async (req, res) => {
   }
 
   try {
+    console.log('🏛️ Creating portal session for user:', req.session.userId);
+
     const userResult = await pool.query(
       'SELECT stripe_customer_id FROM users WHERE id = $1',
       [req.session.userId]
     );
 
-    if (userResult.rows.length === 0 || !userResult.rows[0].stripe_customer_id) {
-      return res.status(400).json({ error: 'No subscription found' });
+    console.log('📊 Portal - User query result:', userResult.rows.length > 0 ? 'User found' : 'User not found');
+
+    if (userResult.rows.length === 0) {
+      console.log('❌ Portal - User not found in database');
+      return res.status(404).json({ error: 'User not found' });
     }
+
+    if (!userResult.rows[0].stripe_customer_id) {
+      console.log('⚠️ Portal - User has no Stripe customer ID');
+      return res.status(400).json({ error: 'No subscription found - please subscribe first' });
+    }
+
+    console.log('👤 Portal - Creating session for customer:', userResult.rows[0].stripe_customer_id);
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: userResult.rows[0].stripe_customer_id,
       return_url: `${req.protocol}://${req.get('host')}/subscription`,
     });
 
+    console.log('✅ Portal session created:', portalSession.id);
+
     res.json({ url: portalSession.url });
   } catch (error) {
-    console.error('Error creating portal session:', error);
-    res.status(500).json({ error: 'Failed to create portal session' });
+    console.error('❌ Portal error:', error.message);
+    console.error('Portal error stack:', error.stack);
+    res.status(500).json({ error: 'Failed to create portal session: ' + error.message });
   }
 });
 
@@ -1473,7 +1488,7 @@ app.post('/api/subscription/sync', async (req, res) => {
   }
 
   try {
-    console.log('🔄 Syncing subscription status from Stripe...');
+    console.log('🔄 Syncing subscription status from Stripe for user:', req.session.userId);
 
     // Get user's Stripe customer ID
     const userResult = await pool.query(
@@ -1481,8 +1496,19 @@ app.post('/api/subscription/sync', async (req, res) => {
       [req.session.userId]
     );
 
-    if (userResult.rows.length === 0 || !userResult.rows[0].stripe_customer_id) {
-      return res.status(404).json({ error: 'No Stripe customer found' });
+    console.log('📊 User query result:', userResult.rows.length > 0 ? 'User found' : 'User not found');
+
+    if (userResult.rows.length === 0) {
+      console.log('❌ User not found in database');
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!userResult.rows[0].stripe_customer_id) {
+      console.log('⚠️ User has no Stripe customer ID - not subscribed yet');
+      return res.json({
+        synced: false,
+        message: 'No Stripe customer found - user has not subscribed yet'
+      });
     }
 
     const customerId = userResult.rows[0].stripe_customer_id;
