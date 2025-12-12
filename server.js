@@ -1315,7 +1315,7 @@ app.get('/api/debug/stripe-status', (req, res) => {
 // Get available plans (from database)
 app.get('/api/subscription/plans', async (req, res) => {
   try {
-    const result = await db.pool.query(`
+    const result = await pool.query(`
       SELECT plan_type, price, discount_percentage, features
       FROM pricing_config
       WHERE is_active = true
