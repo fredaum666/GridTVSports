@@ -733,7 +733,31 @@ class SportsBarMode {
     /**
      * Enter fullscreen mode
      */
-    enterFullscreen() {
+    async enterFullscreen() {
+        // SECURITY: Validate grid size with server before allowing access
+        try {
+            const response = await fetch('/api/subscription/validate-grid', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ gridSize: this.gridLayout })
+            });
+
+            const result = await response.json();
+
+            if (!result.allowed) {
+                // Access denied - redirect to pricing page
+                alert(result.message || 'This grid size requires a subscription upgrade.');
+                window.location.href = '/pricing';
+                return;
+            }
+        } catch (error) {
+            console.error('Failed to validate grid access:', error);
+            alert('Unable to verify subscription status. Please try again.');
+            return;
+        }
+
         this.closeModal();
 
         const fullscreenGrid = document.getElementById('fullscreenGrid');

@@ -24,3 +24,6 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Webpack build output (production obfuscated files)
+public/dist/

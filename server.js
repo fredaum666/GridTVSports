@@ -1221,6 +1221,64 @@ app.get('/api/subscription/access', async (req, res) => {
   }
 });
 
+// Validate sports bar mode access
+app.post('/api/subscription/validate-grid', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated', allowed: false });
+  }
+
+  const { gridSize } = req.body;
+
+  try {
+    const result = await pool.query(
+      `SELECT subscription_status, subscription_plan, trial_ends_at, subscription_ends_at
+       FROM users WHERE id = $1`,
+      [req.session.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found', allowed: false });
+    }
+
+    const user = result.rows[0];
+    const now = new Date();
+
+    let allowedGrids = [];
+
+    // Check if user has active trial
+    if (user.subscription_status === 'trial' && user.trial_ends_at) {
+      const trialEnd = new Date(user.trial_ends_at);
+      if (trialEnd > now) {
+        allowedGrids = [1, 2];
+      }
+    }
+
+    // Check if user has active paid subscription
+    if (user.subscription_status === 'active' && user.subscription_ends_at) {
+      const subEnd = new Date(user.subscription_ends_at);
+      if (subEnd > now) {
+        allowedGrids = [1, 2, 3, 4, 6, 8];
+      }
+    }
+
+    const allowed = allowedGrids.includes(parseInt(gridSize));
+
+    if (!allowed) {
+      console.log(`🚫 Grid validation failed: User ${req.session.userId} tried to access ${gridSize}-grid (allowed: ${allowedGrids.join(', ')})`);
+    }
+
+    res.json({
+      allowed,
+      allowedGrids,
+      maxGrid: Math.max(...allowedGrids, 0),
+      message: allowed ? 'Access granted' : 'Upgrade to access this grid size'
+    });
+  } catch (error) {
+    console.error('Error validating grid access:', error);
+    res.status(500).json({ error: 'Failed to validate access', allowed: false });
+  }
+});
+
 // Get available plans
 app.get('/api/subscription/plans', (req, res) => {
   res.json({
@@ -1904,6 +1962,22 @@ app.get('/admin-subscriptions', (req, res) => {
     return res.status(403).send('This page is only accessible from localhost');
   }
   res.sendFile(path.join(__dirname, 'public', 'admin-subscriptions.html'));
+});
+
+// ============================================
+// DYNAMIC JS SERVING (PRODUCTION OBFUSCATION)
+// ============================================
+// Serve obfuscated sportsBarMode.js in production, original in development
+app.get('/sportsBarMode.js', (req, res) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const filePath = isProduction
+    ? path.join(__dirname, 'public/dist/sportsBarMode.min.js')
+    : path.join(__dirname, 'public/sportsBarMode.js');
+
+  console.log(`🔧 Serving sportsBarMode.js: ${isProduction ? 'PRODUCTION (obfuscated)' : 'DEVELOPMENT (original)'}`);
+
+  res.type('application/javascript');
+  res.sendFile(filePath);
 });
 
 // Serve static files (protected by middleware above)
