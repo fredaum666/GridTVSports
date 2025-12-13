@@ -5231,8 +5231,10 @@
             document.getElementById('cast-status').querySelector('.pulse-dot').style.background = '#22c55e';
             document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
 
-            // Show end casting button
-            document.getElementById('end-casting-btn').style.display = 'block';
+            // Show end casting button and reset text (in case it was changed to Cancel)
+            const endBtn = document.getElementById('end-casting-btn');
+            endBtn.style.display = 'block';
+            endBtn.textContent = 'End Cast';
 
             // Sync current state
             syncCastingState();
@@ -5256,7 +5258,11 @@
             document.getElementById('cast-status').querySelector('.pulse-dot').style.background = '#eab308';
             document.getElementById('cast-status-text').textContent = 'TV disconnected. Waiting for reconnection...';
 
-            document.getElementById('end-casting-btn').style.display = 'none';
+            // Keep the End Cast button visible so user can cancel the session
+            // Change button text to indicate it will end the session
+            const endBtn = document.getElementById('end-casting-btn');
+            endBtn.style.display = 'block';
+            endBtn.textContent = 'End Connection';
           });
 
           // Session ended

@@ -1996,11 +1996,22 @@ app.use((req, res, next) => {
   if (req.path === '/login' ||
     req.path === '/login.html' ||
     req.path === '/reset-password.html' ||
+    req.path === '/tv-receiver' ||
+    req.path === '/tv-receiver.html' ||
     req.path.startsWith('/assets/') ||
     req.path.startsWith('/css/') ||
     req.path.startsWith('/scripts/') ||
     req.path.startsWith('/styles/') ||
     req.path.startsWith('/api/auth/') ||
+    // Public game data APIs (for TV receiver and public access)
+    req.path.startsWith('/api/nfl/') ||
+    req.path.startsWith('/api/nba/') ||
+    req.path.startsWith('/api/mlb/') ||
+    req.path.startsWith('/api/nhl/') ||
+    req.path.startsWith('/api/ncaa/') ||
+    req.path.startsWith('/api/ncaab/') ||
+    req.path.startsWith('/api/health') ||
+    req.path.startsWith('/api/final-games/') ||
     req.method === 'OPTIONS') {
     return next();
   }
