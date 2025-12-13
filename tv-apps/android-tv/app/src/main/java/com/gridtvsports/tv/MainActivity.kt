@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     // ========================================
     // CHANGE THIS TO YOUR PRODUCTION URL
     // ========================================
-    private val TV_RECEIVER_URL = "https://gridtvsports.com/tv-receiver.html"
+    private val TV_RECEIVER_URL = "https://gridtvsports.com/tv-receiver"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,8 +1,8 @@
-# Android Studio / Gradle
+# Gradle build files
 .gradle/
 build/
-*.iml
-.idea/
+
+# Local properties (contains SDK path)
 local.properties
 
 # OS files
