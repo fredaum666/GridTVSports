@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GridTV Sports</string>
+    <string name="loading">Loading GridTV Sports...</string>
+    <string name="connection_error">Connection error. Retrying...</string>
+    <string name="no_internet">No internet connection</string>
+</resources>

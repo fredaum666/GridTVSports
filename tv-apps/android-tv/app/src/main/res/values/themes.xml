@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.GridTVSports" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/background_dark</item>
+        <item name="android:colorPrimary">@color/accent_orange</item>
+        <item name="android:colorPrimaryDark">@color/accent_orange_dark</item>
+        <item name="android:colorAccent">@color/accent_orange</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="colorPrimary">@color/accent_orange</item>
+        <item name="colorPrimaryDark">@color/accent_orange_dark</item>
+        <item name="colorAccent">@color/accent_orange</item>
+    </style>
+</resources>

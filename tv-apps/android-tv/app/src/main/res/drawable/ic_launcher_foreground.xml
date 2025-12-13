@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- TV Icon shape -->
+    <group
+        android:translateX="22"
+        android:translateY="22">
+
+        <!-- TV Screen (outer) -->
+        <path
+            android:fillColor="#FF6B00"
+            android:pathData="M8,8 L56,8 C58.2,8 60,9.8 60,12 L60,44 C60,46.2 58.2,48 56,48 L8,48 C5.8,48 4,46.2 4,44 L4,12 C4,9.8 5.8,8 8,8 Z" />
+
+        <!-- TV Screen (inner/display) -->
+        <path
+            android:fillColor="#1A1A2E"
+            android:pathData="M10,12 L54,12 C55.1,12 56,12.9 56,14 L56,42 C56,43.1 55.1,44 54,44 L10,44 C8.9,44 8,43.1 8,42 L8,14 C8,12.9 8.9,12 10,12 Z" />
+
+        <!-- Grid lines (horizontal) -->
+        <path
+            android:fillColor="#FF6B00"
+            android:strokeWidth="0.5"
+            android:pathData="M10,22 L54,22" />
+        <path
+            android:fillColor="#FF6B00"
+            android:strokeWidth="0.5"
+            android:pathData="M10,34 L54,34" />
+
+        <!-- Grid lines (vertical) -->
+        <path
+            android:fillColor="#FF6B00"
+            android:strokeWidth="0.5"
+            android:pathData="M25,14 L25,42" />
+        <path
+            android:fillColor="#FF6B00"
+            android:strokeWidth="0.5"
+            android:pathData="M39,14 L39,42" />
+
+        <!-- TV Stand -->
+        <path
+            android:fillColor="#FF6B00"
+            android:pathData="M24,48 L24,54 L16,54 L16,56 L48,56 L48,54 L40,54 L40,48 Z" />
+
+    </group>
+</vector>

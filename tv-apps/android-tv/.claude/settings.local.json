@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(where:*)",
+      "Bash(dir \"C:\\Program Files\\Java\")",
+      "Bash(dir \"C:\\Program Files\\Android\\Android Studio\\jbr\")",
+      "Bash(dir \"C:\\Program Files\\Android\\Android Studio\\jre\")",
+      "Bash(set \"JAVA_HOME=C:\\Program Files\\Android\\Android Studio\\jbr\")",
+      "Bash(cmd /c \"set JAVA_HOME=C:\\Program Files\\Android\\Android Studio\\jbr && gradlew.bat assembleDebug\")",
+      "Bash($env:JAVA_HOME = \"C:\\Program Files\\Android\\Android Studio\\jbr\")",
+      "Bash(.gradlew.bat assembleDebug:*)",
+      "Bash(cmd.exe /C \"set JAVA_HOME=C:\\Program Files\\Android\\Android Studio\\jbr&& call gradlew.bat assembleDebug\")",
+      "Bash(JAVA_HOME=\"C:/Program Files/Android/Android Studio/jbr\" ./gradlew:*)"
+    ]
+  }
+}

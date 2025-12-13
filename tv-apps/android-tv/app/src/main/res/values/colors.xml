@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Colors -->
+    <color name="accent_orange">#FF6B00</color>
+    <color name="accent_orange_dark">#CC5500</color>
+
+    <!-- Background Colors -->
+    <color name="background_dark">#1A1A2E</color>
+    <color name="background_darker">#0F0F1A</color>
+
+    <!-- Text Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray_light">#9CA3AF</color>
+    <color name="gray_dark">#374151</color>
+
+    <!-- Status Colors -->
+    <color name="success_green">#22C55E</color>
+    <color name="error_red">#EF4444</color>
+    <color name="warning_yellow">#EAB308</color>
+</resources>
