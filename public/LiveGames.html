@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🏆 Mixed Sports Bar Mode - GridTV Sports</title>
   <link rel="icon" type="image/png" href="/assets/logo.png">
+  <script src="/socket.io/socket.io.js"></script>
   <style>
     /* ============================================
        EASY EDIT SECTION - ALL CARD SIZING VARIABLES
@@ -15,31 +17,44 @@
       /* ========== REGULAR CARD SIZES ========== */
 
       /* Regular Card - Team Logos */
-      --regular-team-logo-large: 80px;           /* Upcoming game logos */
-      --regular-team-logo-live: 48px;            /* Live game logos */
+      --regular-team-logo-large: 80px;
+      /* Upcoming game logos */
+      --regular-team-logo-live: 48px;
+      /* Live game logos */
 
       /* Regular Card - Team Names */
-      --regular-team-name-large: 18px;           /* Upcoming game team names */
-      --regular-team-name-live: 16px;            /* Live game team names */
+      --regular-team-name-large: 18px;
+      /* Upcoming game team names */
+      --regular-team-name-live: 16px;
+      /* Live game team names */
 
       /* Regular Card - Scores */
-      --regular-score-size: 48px;                /* Live/Final game scores */
+      --regular-score-size: 48px;
+      /* Live/Final game scores */
 
       /* Regular Card - Records */
-      --regular-team-record: 11px;               /* Team records (e.g., "10-3") */
+      --regular-team-record: 11px;
+      /* Team records (e.g., "10-3") */
 
       /* Regular Card - Status Text */
-      --regular-status-badge: 9px;               /* LIVE/FINAL badge text */
-      --regular-status-detail: 10px;             /* Quarter/time info */
+      --regular-status-badge: 9px;
+      /* LIVE/FINAL badge text */
+      --regular-status-detail: 10px;
+      /* Quarter/time info */
 
       /* Regular Card - Quarter Grid */
-      --regular-quarter-header: 9px;             /* Quarter numbers (1,2,3,4,T) */
-      --regular-quarter-score: 13px;             /* Quarter scores */
-      --regular-quarter-total: 14px;             /* Total score in grid */
+      --regular-quarter-header: 9px;
+      /* Quarter numbers (1,2,3,4,T) */
+      --regular-quarter-score: 13px;
+      /* Quarter scores */
+      --regular-quarter-total: 14px;
+      /* Total score in grid */
 
       /* Regular Card - Spacing */
-      --regular-card-gap: 12px;                  /* Gap between elements */
-      --regular-page-padding: 16px;              /* Internal padding */
+      --regular-card-gap: 12px;
+      /* Gap between elements */
+      --regular-page-padding: 16px;
+      /* Internal padding */
 
 
       /* ========== FULLSCREEN CARD SIZES ========== */
@@ -160,13 +175,66 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.8;
+      }
     }
 
     @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1f2e;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 700px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid #334155;
+    }
+
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
     }
 
     .back-btn {
@@ -245,7 +313,7 @@
       margin: 0;
     }
 
-    .layout-options input[type="radio"]:checked + span {
+    .layout-options input[type="radio"]:checked+span {
       font-weight: 700;
     }
 
@@ -370,20 +438,50 @@
       color: #fff;
     }
 
-    .league-filter-btn.nfl { border-color: #1d4ed8; }
-    .league-filter-btn.nfl.active { background: #1e40af; border-color: #3b82f6; }
+    .league-filter-btn.nfl {
+      border-color: #1d4ed8;
+    }
 
-    .league-filter-btn.ncaa { border-color: #7c3aed; }
-    .league-filter-btn.ncaa.active { background: #6d28d9; border-color: #8b5cf6; }
+    .league-filter-btn.nfl.active {
+      background: #1e40af;
+      border-color: #3b82f6;
+    }
 
-    .league-filter-btn.nba { border-color: #ea580c; }
-    .league-filter-btn.nba.active { background: #c2410c; border-color: #f97316; }
+    .league-filter-btn.ncaa {
+      border-color: #7c3aed;
+    }
 
-    .league-filter-btn.nhl { border-color: #0891b2; }
-    .league-filter-btn.nhl.active { background: #0e7490; border-color: #06b6d4; }
+    .league-filter-btn.ncaa.active {
+      background: #6d28d9;
+      border-color: #8b5cf6;
+    }
 
-    .league-filter-btn.mlb { border-color: #dc2626; }
-    .league-filter-btn.mlb.active { background: #b91c1c; border-color: #ef4444; }
+    .league-filter-btn.nba {
+      border-color: #ea580c;
+    }
+
+    .league-filter-btn.nba.active {
+      background: #c2410c;
+      border-color: #f97316;
+    }
+
+    .league-filter-btn.nhl {
+      border-color: #0891b2;
+    }
+
+    .league-filter-btn.nhl.active {
+      background: #0e7490;
+      border-color: #06b6d4;
+    }
+
+    .league-filter-btn.mlb {
+      border-color: #dc2626;
+    }
+
+    .league-filter-btn.mlb.active {
+      background: #b91c1c;
+      border-color: #ef4444;
+    }
 
     .game-selector {
       width: 100%;
@@ -475,7 +573,7 @@
         padding: 3px 8px;
       }
 
-      .header-content > div {
+      .header-content>div {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
@@ -491,8 +589,15 @@
       .back-btn {
         font-size: 12px;
         padding: 8px 12px;
-        flex: 1;
+        flex: 1 1 auto;
+        min-width: 100px;
+        max-width: 150px;
+      }
+
+      #cast-to-tv-btn {
+        flex: 1 1 auto;
         min-width: 120px;
+        max-width: 150px;
       }
 
       .sports-bar-btn {
@@ -606,7 +711,7 @@
       pointer-events: auto;
     }
 
-    .fullscreen-hover-trigger:hover ~ .fullscreen-controls {
+    .fullscreen-hover-trigger:hover~.fullscreen-controls {
       transform: translateY(0);
     }
 
@@ -911,15 +1016,39 @@
     }
 
     @-webkit-keyframes scoreUpdate {
-      0% { -webkit-transform: scale(1); transform: scale(1); }
-      50% { -webkit-transform: scale(1.1); transform: scale(1.1); color: #22c55e; }
-      100% { -webkit-transform: scale(1); transform: scale(1); }
+      0% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
+
+      50% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+        color: #22c55e;
+      }
+
+      100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
     }
 
     @keyframes scoreUpdate {
-      0% { -webkit-transform: scale(1); transform: scale(1); }
-      50% { -webkit-transform: scale(1.1); transform: scale(1.1); color: #22c55e; }
-      100% { -webkit-transform: scale(1); transform: scale(1); }
+      0% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
+
+      50% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+        color: #22c55e;
+      }
+
+      100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
     }
 
     .fullscreen-vs-divider-live {
@@ -999,13 +1128,27 @@
     }
 
     @-webkit-keyframes possessionBlink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
     }
 
     @keyframes possessionBlink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
     }
 
     /* Down/Distance and Field Position Container */
@@ -1326,14 +1469,21 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* ==================================================
        NFL PLAY ANIMATIONS (Touchdown, Field Goal, Interception, Fumble)
        ================================================== */
-    
+
     .play-animation {
       position: absolute;
       top: 0;
@@ -1455,23 +1605,45 @@
       opacity: 0;
     }
 
-    .sack-stars.star-1 { top: 10%; left: 20%; animation-delay: 0.3s; }
-    .sack-stars.star-2 { top: 5%; right: 25%; animation-delay: 0.4s; }
-    .sack-stars.star-3 { top: 20%; left: 10%; animation-delay: 0.5s; }
-    .sack-stars.star-4 { top: 15%; right: 15%; animation-delay: 0.6s; }
+    .sack-stars.star-1 {
+      top: 10%;
+      left: 20%;
+      animation-delay: 0.3s;
+    }
+
+    .sack-stars.star-2 {
+      top: 5%;
+      right: 25%;
+      animation-delay: 0.4s;
+    }
+
+    .sack-stars.star-3 {
+      top: 20%;
+      left: 10%;
+      animation-delay: 0.5s;
+    }
+
+    .sack-stars.star-4 {
+      top: 15%;
+      right: 15%;
+      animation-delay: 0.6s;
+    }
 
     @keyframes sackImpact {
       0% {
         transform: scale(0) translateY(-100px);
         opacity: 0;
       }
+
       60% {
         transform: scale(1.4) translateY(10px);
         opacity: 1;
       }
+
       80% {
         transform: scale(0.9) translateY(-5px);
       }
+
       100% {
         transform: scale(1) translateY(0);
         opacity: 1;
@@ -1479,11 +1651,27 @@
     }
 
     @keyframes sackShake {
-      0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-10px) rotate(-3deg); }
-      40% { transform: translateX(10px) rotate(3deg); }
-      60% { transform: translateX(-5px) rotate(-1deg); }
-      80% { transform: translateX(5px) rotate(1deg); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-10px) rotate(-3deg);
+      }
+
+      40% {
+        transform: translateX(10px) rotate(3deg);
+      }
+
+      60% {
+        transform: translateX(-5px) rotate(-1deg);
+      }
+
+      80% {
+        transform: translateX(5px) rotate(1deg);
+      }
     }
 
     @keyframes sackStars {
@@ -1491,10 +1679,12 @@
         opacity: 0;
         transform: scale(0) rotate(0deg);
       }
+
       50% {
         opacity: 1;
         transform: scale(1.2) rotate(180deg);
       }
+
       100% {
         opacity: 0;
         transform: scale(0.5) rotate(360deg) translateY(-20px);
@@ -1635,37 +1825,81 @@
        ================================================== */
 
     @keyframes firstDownPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
     }
 
     @keyframes fadeOut {
-      0% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 1;
+      }
+
+      80% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     @keyframes playIconBounce {
-      0% { transform: scale(0) rotate(0deg); }
-      50% { transform: scale(1.2) rotate(180deg); }
-      100% { transform: scale(1) rotate(360deg); }
+      0% {
+        transform: scale(0) rotate(0deg);
+      }
+
+      50% {
+        transform: scale(1.2) rotate(180deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(360deg);
+      }
     }
 
     @keyframes playTextSlide {
-      0% { transform: translateY(50px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+      0% {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     @keyframes gradientShift {
-      0% { background-position: 0% center; }
-      100% { background-position: 200% center; }
+      0% {
+        background-position: 0% center;
+      }
+
+      100% {
+        background-position: 200% center;
+      }
     }
 
     /* Score update animation */
     @keyframes scoreUpdate {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); color: #fbbf24; }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.15);
+        color: #fbbf24;
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     .fs-game-selector {
@@ -1747,259 +1981,262 @@
        ════════════════════════════════════════════════════════════════════════════════ */
     @media (min-width: 769px) {
 
-    /* Grid Responsive Sizing */
-    .fullscreen-grid.grid-6 .sport-logo-indicator {
-      width: 70px !important;
-      height: 70px !important;
-      top: 10px !important;
-      left: 10px !important;
-    }
+      /* Grid Responsive Sizing */
+      .fullscreen-grid.grid-6 .sport-logo-indicator {
+        width: 70px !important;
+        height: 70px !important;
+        top: 10px !important;
+        left: 10px !important;
+      }
 
-    .fullscreen-grid.grid-6 .fullscreen-team-logo {
-      width: 45px !important;
-      height: 45px !important;
-    }
+      .fullscreen-grid.grid-6 .fullscreen-team-logo {
+        width: 45px !important;
+        height: 45px !important;
+      }
 
-    .fullscreen-grid.grid-6 .fullscreen-team-name {
-      font-size: 1.6rem !important;
-    }
+      .fullscreen-grid.grid-6 .fullscreen-team-name {
+        font-size: 1.6rem !important;
+      }
 
-    .fullscreen-grid.grid-6 .fullscreen-score {
-      font-size: 3rem !important;
-    }
+      .fullscreen-grid.grid-6 .fullscreen-score {
+        font-size: 3rem !important;
+      }
 
-    .fullscreen-grid.grid-6 .fullscreen-quarter {
-      font-size: 1.2rem !important;
-    }
+      .fullscreen-grid.grid-6 .fullscreen-quarter {
+        font-size: 1.2rem !important;
+      }
 
-    .fullscreen-grid.grid-6 .fullscreen-vs {
-      font-size: 1rem !important;
-    }
+      .fullscreen-grid.grid-6 .fullscreen-vs {
+        font-size: 1rem !important;
+      }
 
-    .fullscreen-grid.grid-6 .fullscreen-team-record {
-      font-size: 0.9rem !important;
-      min-width: 45px !important;
-      padding-right: 8px !important;
-    }
+      .fullscreen-grid.grid-6 .fullscreen-team-record {
+        font-size: 0.9rem !important;
+        min-width: 45px !important;
+        padding-right: 8px !important;
+      }
 
-    .fullscreen-grid.grid-6 .fullscreen-game-card,
-    .fullscreen-grid.grid-6 .fullscreen-game-slot {
-      padding: 15px !important;
-    }
+      .fullscreen-grid.grid-6 .fullscreen-game-card,
+      .fullscreen-grid.grid-6 .fullscreen-game-slot {
+        padding: 15px !important;
+      }
 
-    .fullscreen-grid.grid-4 .sport-logo-indicator {
-      width: 85px !important;
-      height: 85px !important;
-      top: 12px !important;
-      left: 12px !important;
-    }
+      .fullscreen-grid.grid-4 .sport-logo-indicator {
+        width: 85px !important;
+        height: 85px !important;
+        top: 12px !important;
+        left: 12px !important;
+      }
 
-    .fullscreen-grid.grid-4 .fullscreen-team-logo {
-      width: 55px !important;
-      height: 55px !important;
-    }
+      .fullscreen-grid.grid-4 .fullscreen-team-logo {
+        width: 55px !important;
+        height: 55px !important;
+      }
 
-    .fullscreen-grid.grid-4 .fullscreen-team-name {
-      font-size: 1.8rem !important;
-    }
+      .fullscreen-grid.grid-4 .fullscreen-team-name {
+        font-size: 1.8rem !important;
+      }
 
-    .fullscreen-grid.grid-4 .fullscreen-score {
-      font-size: 3.5rem !important;
-    }
+      .fullscreen-grid.grid-4 .fullscreen-score {
+        font-size: 3.5rem !important;
+      }
 
-    .fullscreen-grid.grid-4 .fullscreen-quarter {
-      font-size: 1.3rem !important;
-    }
+      .fullscreen-grid.grid-4 .fullscreen-quarter {
+        font-size: 1.3rem !important;
+      }
 
-    .fullscreen-grid.grid-4 .fullscreen-vs {
-      font-size: 1.1rem !important;
-    }
+      .fullscreen-grid.grid-4 .fullscreen-vs {
+        font-size: 1.1rem !important;
+      }
 
-    .fullscreen-grid.grid-4 .fullscreen-team-record {
-      font-size: 1.1rem !important;
-      min-width: 52px !important;
-      padding-right: 9px !important;
-    }
+      .fullscreen-grid.grid-4 .fullscreen-team-record {
+        font-size: 1.1rem !important;
+        min-width: 52px !important;
+        padding-right: 9px !important;
+      }
 
-    .fullscreen-grid.grid-4 .fullscreen-game-card,
-    .fullscreen-grid.grid-4 .fullscreen-game-slot {
-      padding: 18px !important;
-    }
+      .fullscreen-grid.grid-4 .fullscreen-game-card,
+      .fullscreen-grid.grid-4 .fullscreen-game-slot {
+        padding: 18px !important;
+      }
 
-    .fullscreen-grid.grid-8 .sport-logo-indicator {
-      width: 55px !important;
-      height: 55px !important;
-      top: 8px !important;
-      left: 8px !important;
-    }
+      .fullscreen-grid.grid-8 .sport-logo-indicator {
+        width: 55px !important;
+        height: 55px !important;
+        top: 8px !important;
+        left: 8px !important;
+      }
 
-    .fullscreen-grid.grid-8 .fullscreen-team-logo {
-      width: 40px !important;
-      height: 40px !important;
-    }
+      .fullscreen-grid.grid-8 .fullscreen-team-logo {
+        width: 40px !important;
+        height: 40px !important;
+      }
 
-    .fullscreen-grid.grid-8 .fullscreen-team-name {
-      font-size: 1.3rem !important;
-    }
+      .fullscreen-grid.grid-8 .fullscreen-team-name {
+        font-size: 1.3rem !important;
+      }
 
-    .fullscreen-grid.grid-8 .fullscreen-score {
-      font-size: 2.5rem !important;
-    }
+      .fullscreen-grid.grid-8 .fullscreen-score {
+        font-size: 2.5rem !important;
+      }
 
-    .fullscreen-grid.grid-8 .fullscreen-quarter {
-      font-size: 1rem !important;
-    }
+      .fullscreen-grid.grid-8 .fullscreen-quarter {
+        font-size: 1rem !important;
+      }
 
-    .fullscreen-grid.grid-8 .fullscreen-vs {
-      font-size: 0.9rem !important;
-    }
+      .fullscreen-grid.grid-8 .fullscreen-vs {
+        font-size: 0.9rem !important;
+      }
 
-    .fullscreen-grid.grid-8 .fullscreen-team-record {
-      font-size: 0.8rem !important;
-      min-width: 40px !important;
-      padding-right: 6px !important;
-    }
+      .fullscreen-grid.grid-8 .fullscreen-team-record {
+        font-size: 0.8rem !important;
+        min-width: 40px !important;
+        padding-right: 6px !important;
+      }
 
-    .fullscreen-grid.grid-8 .fullscreen-game-card,
-    .fullscreen-grid.grid-8 .fullscreen-game-slot {
-      padding: 12px !important;
-    }
+      .fullscreen-grid.grid-8 .fullscreen-game-card,
+      .fullscreen-grid.grid-8 .fullscreen-game-slot {
+        padding: 12px !important;
+      }
 
-    /* ==================================================
+      /* ==================================================
        NFL/NCAA/NBA Layout Responsive Sizing
        ================================================== */
 
-    /* Grid-6 (3x2) - Smallest cards */
-    .fullscreen-grid.grid-6 .fullscreen-live-team-name {
-      font-size: clamp(0.9rem, 2vmin, 1.2rem) !important;
+      /* Grid-6 (3x2) - Smallest cards */
+      .fullscreen-grid.grid-6 .fullscreen-live-team-name {
+        font-size: clamp(0.9rem, 2vmin, 1.2rem) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-team-score {
+        font-size: clamp(2rem, 5vmin, 3rem) !important;
+        min-width: clamp(40px, 8vmin, 70px) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-status-text {
+        font-size: clamp(0.8rem, 1.8vmin, 1.1rem) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
+        font-size: clamp(0.7rem, 1.5vmin, 1rem) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-situation-info {
+        font-size: clamp(0.7rem, 1.5vmin, 0.9rem) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-team-stack {
+        gap: clamp(2px, 0.5vh, 5px) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-live-score-header {
+        gap: clamp(8px, 2vw, 15px) !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-timeouts {
+        gap: clamp(2px, 0.4vw, 4px) !important;
+      }
+
+      .fullscreen-grid.grid-6 .timeout-bar {
+        width: clamp(12px, 2vw, 18px) !important;
+        height: clamp(3px, 0.6vh, 5px) !important;
+      }
+
+      .fullscreen-grid.grid-6 .field-visualizer {
+        transform: scale(0.8);
+        margin-top: 5px !important;
+      }
+
+      /* Grid-4 (2x2) - Medium cards */
+      .fullscreen-grid.grid-4 .fullscreen-live-team-name {
+        font-size: clamp(1rem, 2.5vmin, 1.5rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-score {
+        font-size: clamp(2.5rem, 6vmin, 4rem) !important;
+        min-width: clamp(50px, 10vmin, 90px) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-status-text {
+        font-size: clamp(0.9rem, 2vmin, 1.3rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-vs-divider-live {
+        font-size: clamp(0.8rem, 1.8vmin, 1.2rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-situation-info {
+        font-size: clamp(0.8rem, 1.8vmin, 1.1rem) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-stack {
+        gap: clamp(3px, 0.7vh, 8px) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-live-score-header {
+        gap: clamp(12px, 3vw, 25px) !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-timeouts {
+        gap: clamp(3px, 0.5vw, 6px) !important;
+      }
+
+      .fullscreen-grid.grid-4 .timeout-bar {
+        width: clamp(15px, 2.5vw, 22px) !important;
+        height: clamp(4px, 0.7vh, 6px) !important;
+      }
+
+      /* Grid-8 (4x2) - Smallest cards */
+      .fullscreen-grid.grid-8 .fullscreen-live-team-name {
+        font-size: clamp(0.7rem, 1.5vmin, 1rem) !important;
+      }
+
+      .fullscreen-grid.grid-8 .fullscreen-team-score {
+        font-size: clamp(1.5rem, 4vmin, 2.5rem) !important;
+        min-width: clamp(30px, 6vmin, 50px) !important;
+      }
+
+      .fullscreen-grid.grid-8 .fullscreen-status-text {
+        font-size: clamp(0.6rem, 1.4vmin, 0.9rem) !important;
+      }
+
+      .fullscreen-grid.grid-8 .fullscreen-vs-divider-live {
+        font-size: clamp(0.5rem, 1.2vmin, 0.8rem) !important;
+      }
+
+      .fullscreen-grid.grid-8 .fullscreen-situation-info {
+        font-size: clamp(0.5rem, 1.2vmin, 0.7rem) !important;
+      }
+
+      .fullscreen-grid.grid-8 .fullscreen-team-stack {
+        gap: clamp(1px, 0.3vh, 3px) !important;
+      }
+
+      .fullscreen-grid.grid-8 .fullscreen-live-score-header {
+        gap: clamp(5px, 1.5vw, 10px) !important;
+      }
+
+      .fullscreen-grid.grid-8 .fullscreen-timeouts {
+        gap: clamp(1px, 0.3vw, 3px) !important;
+      }
+
+      .fullscreen-grid.grid-8 .timeout-bar {
+        width: clamp(8px, 1.5vw, 14px) !important;
+        height: clamp(2px, 0.4vh, 4px) !important;
+      }
+
+      .fullscreen-grid.grid-8 .field-visualizer {
+        transform: scale(0.6);
+        margin-top: 3px !important;
+      }
+
     }
 
-    .fullscreen-grid.grid-6 .fullscreen-team-score {
-      font-size: clamp(2rem, 5vmin, 3rem) !important;
-      min-width: clamp(40px, 8vmin, 70px) !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-status-text {
-      font-size: clamp(0.8rem, 1.8vmin, 1.1rem) !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
-      font-size: clamp(0.7rem, 1.5vmin, 1rem) !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-situation-info {
-      font-size: clamp(0.7rem, 1.5vmin, 0.9rem) !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-team-stack {
-      gap: clamp(2px, 0.5vh, 5px) !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-live-score-header {
-      gap: clamp(8px, 2vw, 15px) !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-timeouts {
-      gap: clamp(2px, 0.4vw, 4px) !important;
-    }
-
-    .fullscreen-grid.grid-6 .timeout-bar {
-      width: clamp(12px, 2vw, 18px) !important;
-      height: clamp(3px, 0.6vh, 5px) !important;
-    }
-
-    .fullscreen-grid.grid-6 .field-visualizer {
-      transform: scale(0.8);
-      margin-top: 5px !important;
-    }
-
-    /* Grid-4 (2x2) - Medium cards */
-    .fullscreen-grid.grid-4 .fullscreen-live-team-name {
-      font-size: clamp(1rem, 2.5vmin, 1.5rem) !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-team-score {
-      font-size: clamp(2.5rem, 6vmin, 4rem) !important;
-      min-width: clamp(50px, 10vmin, 90px) !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-status-text {
-      font-size: clamp(0.9rem, 2vmin, 1.3rem) !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-vs-divider-live {
-      font-size: clamp(0.8rem, 1.8vmin, 1.2rem) !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-situation-info {
-      font-size: clamp(0.8rem, 1.8vmin, 1.1rem) !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-team-stack {
-      gap: clamp(3px, 0.7vh, 8px) !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-live-score-header {
-      gap: clamp(12px, 3vw, 25px) !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-timeouts {
-      gap: clamp(3px, 0.5vw, 6px) !important;
-    }
-
-    .fullscreen-grid.grid-4 .timeout-bar {
-      width: clamp(15px, 2.5vw, 22px) !important;
-      height: clamp(4px, 0.7vh, 6px) !important;
-    }
-
-    /* Grid-8 (4x2) - Smallest cards */
-    .fullscreen-grid.grid-8 .fullscreen-live-team-name {
-      font-size: clamp(0.7rem, 1.5vmin, 1rem) !important;
-    }
-
-    .fullscreen-grid.grid-8 .fullscreen-team-score {
-      font-size: clamp(1.5rem, 4vmin, 2.5rem) !important;
-      min-width: clamp(30px, 6vmin, 50px) !important;
-    }
-
-    .fullscreen-grid.grid-8 .fullscreen-status-text {
-      font-size: clamp(0.6rem, 1.4vmin, 0.9rem) !important;
-    }
-
-    .fullscreen-grid.grid-8 .fullscreen-vs-divider-live {
-      font-size: clamp(0.5rem, 1.2vmin, 0.8rem) !important;
-    }
-
-    .fullscreen-grid.grid-8 .fullscreen-situation-info {
-      font-size: clamp(0.5rem, 1.2vmin, 0.7rem) !important;
-    }
-
-    .fullscreen-grid.grid-8 .fullscreen-team-stack {
-      gap: clamp(1px, 0.3vh, 3px) !important;
-    }
-
-    .fullscreen-grid.grid-8 .fullscreen-live-score-header {
-      gap: clamp(5px, 1.5vw, 10px) !important;
-    }
-
-    .fullscreen-grid.grid-8 .fullscreen-timeouts {
-      gap: clamp(1px, 0.3vw, 3px) !important;
-    }
-
-    .fullscreen-grid.grid-8 .timeout-bar {
-      width: clamp(8px, 1.5vw, 14px) !important;
-      height: clamp(2px, 0.4vh, 4px) !important;
-    }
-
-    .fullscreen-grid.grid-8 .field-visualizer {
-      transform: scale(0.6);
-      margin-top: 3px !important;
-    }
-
-    } /* ◄ End @media (min-width: 769px) - Desktop/Tablet grid rules */
+    /* ◄ End @media (min-width: 769px) - Desktop/Tablet grid rules */
 
     /* Mobile Responsive Styles */
     @media screen and (max-width: 768px) {
+
       /* Header adjustments */
       .header h1 {
         font-size: 20px;
@@ -2110,8 +2347,10 @@
       .fullscreen-grid.grid-1 {
         grid-template-columns: 1fr !important;
         grid-template-rows: 1fr !important;
-        height: 100dvh !important;               /* ◄ Full viewport height */
-        padding: 10px !important;                /* ◄ Container padding */
+        height: 100dvh !important;
+        /* ◄ Full viewport height */
+        padding: 10px !important;
+        /* ◄ Container padding */
         gap: 0 !important;
         overflow: hidden !important;
       }
@@ -2119,8 +2358,10 @@
       /* --- Grid 1: GAME CARD --- */
       .fullscreen-grid.grid-1 .fullscreen-game-card {
         max-width: 100% !important;
-        height: calc(100dvh - 20px) !important;  /* ◄ Card height */
-        padding: 15px !important;                /* ◄ Card padding */
+        height: calc(100dvh - 20px) !important;
+        /* ◄ Card height */
+        padding: 15px !important;
+        /* ◄ Card padding */
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -2136,13 +2377,15 @@
         justify-content: center !important;
         height: 100% !important;
         width: 100% !important;
-        gap: 1vh !important;                     /* ◄ Content gap */
+        gap: 1vh !important;
+        /* ◄ Content gap */
       }
 
       /* --- Grid 1: SCORE HEADER --- */
       .fullscreen-grid.grid-1 .fullscreen-live-score-header {
         flex-direction: column !important;
-        gap: 1vh !important;                     /* ◄ Header gap */
+        gap: 1vh !important;
+        /* ◄ Header gap */
         width: 100% !important;
         align-items: center !important;
       }
@@ -2153,80 +2396,101 @@
         align-items: center !important;
         justify-content: center !important;
         width: 100% !important;
-        gap: 3vw !important;                     /* ◄ Team stack gap */
+        gap: 3vw !important;
+        /* ◄ Team stack gap */
       }
 
       /* --- Grid 1: VS DIVIDER --- */
       .fullscreen-grid.grid-1 .fullscreen-vs-divider-live {
         display: block !important;
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;  /* ◄ VS text size */
-        color: rgba(255,255,255,0.7) !important;
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        /* ◄ VS text size */
+        color: rgba(255, 255, 255, 0.7) !important;
         margin: 0.5vh 0 !important;
       }
 
       /* --- Grid 1: TEAM LOGO --- */
       .fullscreen-grid.grid-1 .fullscreen-team-logo {
-        width: 20vw !important;                  /* ◄ Logo width */
-        height: 20vw !important;                 /* ◄ Logo height */
-        max-width: 100px !important;             /* ◄ Logo max width */
-        max-height: 100px !important;            /* ◄ Logo max height */
+        width: 20vw !important;
+        /* ◄ Logo width */
+        height: 20vw !important;
+        /* ◄ Logo height */
+        max-width: 100px !important;
+        /* ◄ Logo max width */
+        max-height: 100px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 1: TEAM NAME --- */
       .fullscreen-grid.grid-1 .fullscreen-live-team-name {
-        font-size: clamp(2rem, 10vw, 4rem) !important;     /* ◄ Team name size */
+        font-size: clamp(2rem, 10vw, 4rem) !important;
+        /* ◄ Team name size */
         white-space: nowrap !important;
       }
 
       /* --- Grid 1: TEAM SCORE --- */
       .fullscreen-grid.grid-1 .fullscreen-team-score {
-        font-size: clamp(4rem, 18vw, 7rem) !important;     /* ◄ Score size */
+        font-size: clamp(4rem, 18vw, 7rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 1: TEAM RECORD --- */
       .fullscreen-grid.grid-1 .fullscreen-team-record {
-        font-size: clamp(1rem, 4vw, 1.6rem) !important;    /* ◄ Record size */
+        font-size: clamp(1rem, 4vw, 1.6rem) !important;
+        /* ◄ Record size */
       }
 
       /* --- Grid 1: STATUS TEXT (Quarter/Period/Inning) --- */
       .fullscreen-grid.grid-1 .fullscreen-status-text {
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;  /* ◄ Status size */
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        /* ◄ Status size */
       }
 
       /* --- Grid 1: UPCOMING STATUS --- */
       .fullscreen-grid.grid-1 .fullscreen-upcoming-status-text {
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;  /* ◄ Upcoming status size */
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 1: SITUATION INFO (All Sports) --- */
       .fullscreen-grid.grid-1 .fullscreen-situation-info {
-        font-size: clamp(1.3rem, 5vw, 2rem) !important;    /* ◄ Situation info size */
+        font-size: clamp(1.3rem, 5vw, 2rem) !important;
+        /* ◄ Situation info size */
       }
 
       /* --- Grid 1: SPORT LOGO --- */
       .fullscreen-grid.grid-1 .sport-logo-indicator {
-        width: 22vw !important;                  /* ◄ Sport logo width */
-        height: 22vw !important;                 /* ◄ Sport logo height */
-        max-width: 110px !important;             /* ◄ Sport logo max width */
-        max-height: 110px !important;            /* ◄ Sport logo max height */
-        top: 15px !important;                    /* ◄ Sport logo top position */
-        left: 15px !important;                   /* ◄ Sport logo left position */
+        width: 22vw !important;
+        /* ◄ Sport logo width */
+        height: 22vw !important;
+        /* ◄ Sport logo height */
+        max-width: 110px !important;
+        /* ◄ Sport logo max width */
+        max-height: 110px !important;
+        /* ◄ Sport logo max height */
+        top: 15px !important;
+        /* ◄ Sport logo top position */
+        left: 15px !important;
+        /* ◄ Sport logo left position */
       }
 
       /* --- Grid 1: FIELD CONTAINER (Football) --- */
       .fullscreen-grid.grid-1 .field-container {
-        height: 40px !important;                 /* ◄ Field height */
+        height: 40px !important;
+        /* ◄ Field height */
       }
 
       /* --- Grid 1: FIELD POSITION (Football) --- */
       .fullscreen-grid.grid-1 .fullscreen-field-position {
-        font-size: clamp(1rem, 3.5vw, 1.4rem) !important;  /* ◄ Field position size */
+        font-size: clamp(1rem, 3.5vw, 1.4rem) !important;
+        /* ◄ Field position size */
       }
 
       /* --- Grid 1: TIMEOUTS --- */
       .fullscreen-grid.grid-1 .fullscreen-timeouts {
-        display: none !important;                /* ◄ Hide timeouts on mobile */
+        display: none !important;
+        /* ◄ Hide timeouts on mobile */
       }
 
       /* ════════════════════════════════════════════════════════════════════════════════
@@ -2237,16 +2501,21 @@
       .fullscreen-grid.grid-2 {
         grid-template-columns: 1fr !important;
         grid-template-rows: repeat(2, 1fr) !important;
-        height: 100dvh !important;               /* ◄ Full viewport height */
-        padding: 8px !important;                 /* ◄ Container padding */
-        gap: 8px !important;                     /* ◄ Gap between cards */
+        height: 100dvh !important;
+        /* ◄ Full viewport height */
+        padding: 8px !important;
+        /* ◄ Container padding */
+        gap: 8px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       /* --- Grid 2: GAME CARD --- */
       .fullscreen-grid.grid-2 .fullscreen-game-card {
-        height: calc((100dvh - 24px) / 2) !important;  /* ◄ Card height */
-        padding: 8px !important;                 /* ◄ Card padding */
+        height: calc((100dvh - 24px) / 2) !important;
+        /* ◄ Card height */
+        padding: 8px !important;
+        /* ◄ Card padding */
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -2262,13 +2531,15 @@
         justify-content: center !important;
         height: 100% !important;
         width: 100% !important;
-        gap: 0.5vh !important;                   /* ◄ Content gap */
+        gap: 0.5vh !important;
+        /* ◄ Content gap */
       }
 
       /* --- Grid 2: SCORE HEADER --- */
       .fullscreen-grid.grid-2 .fullscreen-live-score-header {
         flex-direction: row !important;
-        gap: 2vw !important;                     /* ◄ Header gap */
+        gap: 2vw !important;
+        /* ◄ Header gap */
         width: 100% !important;
         align-items: center !important;
         justify-content: center !important;
@@ -2279,114 +2550,143 @@
       .fullscreen-grid.grid-2 .fullscreen-team-stack {
         flex-direction: column !important;
         align-items: center !important;
-        gap: 0.3vh !important;                   /* ◄ Team stack gap */
+        gap: 0.3vh !important;
+        /* ◄ Team stack gap */
         flex: 0 0 auto !important;
         min-width: 0 !important;
       }
 
       /* --- Grid 2: VS DIVIDER --- */
       .fullscreen-grid.grid-2 .fullscreen-vs-divider-live {
-        font-size: clamp(1rem, 4vw, 1.8rem) !important;    /* ◄ VS text size */
+        font-size: clamp(1rem, 4vw, 1.8rem) !important;
+        /* ◄ VS text size */
         flex-shrink: 0 !important;
       }
 
       /* --- Grid 2: TEAM LOGO --- */
       .fullscreen-grid.grid-2 .fullscreen-team-logo {
-        width: 16vw !important;                  /* ◄ Logo width */
-        height: 16vw !important;                 /* ◄ Logo height */
-        max-width: 80px !important;              /* ◄ Logo max width */
-        max-height: 80px !important;             /* ◄ Logo max height */
+        width: 16vw !important;
+        /* ◄ Logo width */
+        height: 16vw !important;
+        /* ◄ Logo height */
+        max-width: 80px !important;
+        /* ◄ Logo max width */
+        max-height: 80px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 2: TEAM NAME --- */
       .fullscreen-grid.grid-2 .fullscreen-live-team-name {
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;  /* ◄ Team name size */
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        /* ◄ Team name size */
         white-space: nowrap !important;
       }
 
       /* --- Grid 2: TEAM SCORE --- */
       .fullscreen-grid.grid-2 .fullscreen-team-score {
-        font-size: clamp(3rem, 14vw, 5.5rem) !important;   /* ◄ Score size */
+        font-size: clamp(3rem, 14vw, 5.5rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 2: TEAM RECORD --- */
       .fullscreen-grid.grid-2 .fullscreen-team-record {
-        font-size: clamp(0.85rem, 3vw, 1.2rem) !important; /* ◄ Record size */
+        font-size: clamp(0.85rem, 3vw, 1.2rem) !important;
+        /* ◄ Record size */
       }
 
       /* --- Grid 2: STATUS TEXT (Quarter/Period/Inning) --- */
       .fullscreen-grid.grid-2 .fullscreen-status-text {
-        font-size: clamp(1.2rem, 5vw, 1.9rem) !important;  /* ◄ Status size */
+        font-size: clamp(1.2rem, 5vw, 1.9rem) !important;
+        /* ◄ Status size */
       }
 
       /* --- Grid 2: STATUS CONTAINER --- */
       .fullscreen-grid.grid-2 .fullscreen-status-container {
-        margin-bottom: 0.5vh !important;         /* ◄ Status margin */
+        margin-bottom: 0.5vh !important;
+        /* ◄ Status margin */
       }
 
       /* --- Grid 2: SITUATION INFO (All Sports) --- */
       .fullscreen-grid.grid-2 .fullscreen-situation-info {
-        font-size: clamp(1.2rem, 5vw, 1.8rem) !important;  /* ◄ Situation info size */
+        font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
+        /* ◄ Situation info size */
         margin-top: 0.8vh !important;
       }
 
       /* --- Grid 2: DOWN & DISTANCE CONTAINER (Football) --- */
       .fullscreen-grid.grid-2 .fullscreen-down-distance-container {
-        margin-top: 0.5vh !important;            /* ◄ Down/distance margin */
+        margin-top: 0.5vh !important;
+        /* ◄ Down/distance margin */
       }
 
       /* --- Grid 2: DOWN & DISTANCE TEXT (Football) --- */
       .fullscreen-grid.grid-2 .fullscreen-down-distance {
-        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important; /* ◄ Down/distance size */
+        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important;
+        /* ◄ Down/distance size */
       }
 
       /* --- Grid 2: SPORT LOGO --- */
       .fullscreen-grid.grid-2 .sport-logo-indicator {
-        width: 14vw !important;                  /* ◄ Sport logo width */
-        height: 14vw !important;                 /* ◄ Sport logo height */
-        max-width: 70px !important;              /* ◄ Sport logo max width */
-        max-height: 70px !important;             /* ◄ Sport logo max height */
-        top: 8px !important;                     /* ◄ Sport logo top position */
-        left: 8px !important;                    /* ◄ Sport logo left position */
+        width: 14vw !important;
+        /* ◄ Sport logo width */
+        height: 14vw !important;
+        /* ◄ Sport logo height */
+        max-width: 70px !important;
+        /* ◄ Sport logo max width */
+        max-height: 70px !important;
+        /* ◄ Sport logo max height */
+        top: 8px !important;
+        /* ◄ Sport logo top position */
+        left: 8px !important;
+        /* ◄ Sport logo left position */
       }
 
       /* --- Grid 2: FIELD CONTAINER (Football) --- */
       .fullscreen-grid.grid-2 .field-container {
-        height: 32px !important;                 /* ◄ Field height */
+        height: 32px !important;
+        /* ◄ Field height */
       }
 
       /* --- Grid 2: FIELD VISUALIZER (Football) --- */
       .fullscreen-grid.grid-2 .field-visualizer {
         margin-top: 0.5vh !important;
-        max-width: 95% !important;               /* ◄ Field max width */
-        width: 95% !important;                   /* ◄ Field width */
+        max-width: 95% !important;
+        /* ◄ Field max width */
+        width: 95% !important;
+        /* ◄ Field width */
       }
 
       /* --- Grid 2: BALL MARKER (Football) --- */
       .fullscreen-grid.grid-2 .field-visualizer .ball-marker {
-        width: 12px !important;                  /* ◄ Ball marker width */
-        height: 12px !important;                 /* ◄ Ball marker height */
+        width: 12px !important;
+        /* ◄ Ball marker width */
+        height: 12px !important;
+        /* ◄ Ball marker height */
       }
 
       /* --- Grid 2: YARD LINE (Football) --- */
       .fullscreen-grid.grid-2 .field-visualizer .yard-line {
-        font-size: 0.7rem !important;            /* ◄ Yard line size */
+        font-size: 0.7rem !important;
+        /* ◄ Yard line size */
       }
 
       /* --- Grid 2: FIELD POSITION (Football) --- */
       .fullscreen-grid.grid-2 .fullscreen-field-position {
-        font-size: clamp(0.85rem, 3vw, 1.2rem) !important; /* ◄ Field position size */
+        font-size: clamp(0.85rem, 3vw, 1.2rem) !important;
+        /* ◄ Field position size */
       }
 
       /* --- Grid 2: UPCOMING STATUS --- */
       .fullscreen-grid.grid-2 .fullscreen-upcoming-status-text {
-        font-size: clamp(1.2rem, 5vw, 1.9rem) !important;  /* ◄ Upcoming status size */
+        font-size: clamp(1.2rem, 5vw, 1.9rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 2: TIMEOUTS --- */
       .fullscreen-grid.grid-2 .fullscreen-timeouts {
-        display: none !important;                /* ◄ Hide timeouts on mobile */
+        display: none !important;
+        /* ◄ Hide timeouts on mobile */
       }
 
       /* ════════════════════════════════════════════════════════════════════════════════
@@ -2397,16 +2697,21 @@
       .fullscreen-grid.grid-3 {
         grid-template-columns: 1fr !important;
         grid-template-rows: repeat(3, 1fr) !important;
-        height: 100dvh !important;               /* ◄ Full viewport height */
-        padding: 6px !important;                 /* ◄ Container padding */
-        gap: 6px !important;                     /* ◄ Gap between cards */
+        height: 100dvh !important;
+        /* ◄ Full viewport height */
+        padding: 6px !important;
+        /* ◄ Container padding */
+        gap: 6px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       /* --- Grid 3: GAME CARD --- */
       .fullscreen-grid.grid-3 .fullscreen-game-card {
-        height: calc((100dvh - 24px) / 3) !important;  /* ◄ Card height */
-        padding: 6px !important;                 /* ◄ Card padding */
+        height: calc((100dvh - 24px) / 3) !important;
+        /* ◄ Card height */
+        padding: 6px !important;
+        /* ◄ Card padding */
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -2422,13 +2727,15 @@
         justify-content: center !important;
         height: 100% !important;
         width: 100% !important;
-        gap: 0.3vh !important;                   /* ◄ Content gap */
+        gap: 0.3vh !important;
+        /* ◄ Content gap */
       }
 
       /* --- Grid 3: SCORE HEADER --- */
       .fullscreen-grid.grid-3 .fullscreen-live-score-header {
         flex-direction: row !important;
-        gap: 2vw !important;                     /* ◄ Header gap */
+        gap: 2vw !important;
+        /* ◄ Header gap */
         width: 100% !important;
         align-items: center !important;
         justify-content: center !important;
@@ -2439,92 +2746,115 @@
       .fullscreen-grid.grid-3 .fullscreen-team-stack {
         flex-direction: column !important;
         align-items: center !important;
-        gap: 0.2vh !important;                   /* ◄ Team stack gap */
+        gap: 0.2vh !important;
+        /* ◄ Team stack gap */
         flex: 0 0 auto !important;
         min-width: 0 !important;
       }
 
       /* --- Grid 3: VS DIVIDER --- */
       .fullscreen-grid.grid-3 .fullscreen-vs-divider-live {
-        font-size: clamp(0.8rem, 3vw, 1.4rem) !important;  /* ◄ VS text size */
+        font-size: clamp(0.8rem, 3vw, 1.4rem) !important;
+        /* ◄ VS text size */
         flex-shrink: 0 !important;
       }
 
       /* --- Grid 3: TEAM LOGO --- */
       .fullscreen-grid.grid-3 .fullscreen-team-logo {
-        width: 12vw !important;                  /* ◄ Logo width */
-        height: 12vw !important;                 /* ◄ Logo height */
-        max-width: 60px !important;              /* ◄ Logo max width */
-        max-height: 60px !important;             /* ◄ Logo max height */
+        width: 12vw !important;
+        /* ◄ Logo width */
+        height: 12vw !important;
+        /* ◄ Logo height */
+        max-width: 60px !important;
+        /* ◄ Logo max width */
+        max-height: 60px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 3: TEAM NAME --- */
       .fullscreen-grid.grid-3 .fullscreen-live-team-name {
-        font-size: clamp(1.1rem, 5vw, 1.8rem) !important;  /* ◄ Team name size */
+        font-size: clamp(1.1rem, 5vw, 1.8rem) !important;
+        /* ◄ Team name size */
         white-space: nowrap !important;
       }
 
       /* --- Grid 3: TEAM SCORE --- */
       .fullscreen-grid.grid-3 .fullscreen-team-score {
-        font-size: clamp(2.2rem, 11vw, 4.2rem) !important; /* ◄ Score size */
+        font-size: clamp(2.2rem, 11vw, 4.2rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 3: TEAM RECORD --- */
       .fullscreen-grid.grid-3 .fullscreen-team-record {
-        font-size: clamp(0.65rem, 2.5vw, 1rem) !important; /* ◄ Record size */
+        font-size: clamp(0.65rem, 2.5vw, 1rem) !important;
+        /* ◄ Record size */
       }
 
       /* --- Grid 3: STATUS TEXT (Quarter/Period/Inning) --- */
       .fullscreen-grid.grid-3 .fullscreen-status-text {
-        font-size: clamp(1rem, 4.5vw, 1.5rem) !important;  /* ◄ Status size */
+        font-size: clamp(1rem, 4.5vw, 1.5rem) !important;
+        /* ◄ Status size */
       }
 
       /* --- Grid 3: STATUS CONTAINER --- */
       .fullscreen-grid.grid-3 .fullscreen-status-container {
-        margin-bottom: 0.3vh !important;         /* ◄ Status margin */
+        margin-bottom: 0.3vh !important;
+        /* ◄ Status margin */
       }
 
       /* --- Grid 3: SITUATION INFO (All Sports) --- */
       .fullscreen-grid.grid-3 .fullscreen-situation-info {
-        font-size: clamp(0.9rem, 3.5vw, 1.3rem) !important; /* ◄ Situation info size */
+        font-size: clamp(0.9rem, 3.5vw, 1.3rem) !important;
+        /* ◄ Situation info size */
         margin-top: 0.3vh !important;
       }
 
       /* --- Grid 3: SPORT LOGO --- */
       .fullscreen-grid.grid-3 .sport-logo-indicator {
-        width: 12vw !important;                  /* ◄ Sport logo width */
-        height: 12vw !important;                 /* ◄ Sport logo height */
-        max-width: 55px !important;              /* ◄ Sport logo max width */
-        max-height: 55px !important;             /* ◄ Sport logo max height */
-        top: 6px !important;                     /* ◄ Sport logo top position */
-        left: 6px !important;                    /* ◄ Sport logo left position */
+        width: 12vw !important;
+        /* ◄ Sport logo width */
+        height: 12vw !important;
+        /* ◄ Sport logo height */
+        max-width: 55px !important;
+        /* ◄ Sport logo max width */
+        max-height: 55px !important;
+        /* ◄ Sport logo max height */
+        top: 6px !important;
+        /* ◄ Sport logo top position */
+        left: 6px !important;
+        /* ◄ Sport logo left position */
       }
 
       /* --- Grid 3: FIELD CONTAINER (Football) --- */
       .fullscreen-grid.grid-3 .field-container {
-        height: 22px !important;                 /* ◄ Field height */
+        height: 22px !important;
+        /* ◄ Field height */
       }
 
       /* --- Grid 3: FIELD VISUALIZER (Football) --- */
       .fullscreen-grid.grid-3 .field-visualizer {
         margin-top: 0.3vh !important;
-        max-width: 90% !important;               /* ◄ Field max width */
+        max-width: 90% !important;
+        /* ◄ Field max width */
       }
 
       /* --- Grid 3: FIELD POSITION (Football) --- */
       .fullscreen-grid.grid-3 .fullscreen-field-position {
-        font-size: clamp(0.75rem, 2.5vw, 1.1rem) !important; /* ◄ Field position size */
+        font-size: clamp(0.75rem, 2.5vw, 1.1rem) !important;
+        /* ◄ Field position size */
       }
 
       /* --- Grid 3: UPCOMING STATUS --- */
       .fullscreen-grid.grid-3 .fullscreen-upcoming-status-text {
-        font-size: clamp(1rem, 4.5vw, 1.5rem) !important;  /* ◄ Upcoming status size */
+        font-size: clamp(1rem, 4.5vw, 1.5rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 3: TIMEOUTS --- */
       .fullscreen-grid.grid-3 .fullscreen-timeouts {
-        display: none !important;                /* ◄ Hide timeouts on mobile */
+        display: none !important;
+        /* ◄ Hide timeouts on mobile */
       }
 
       /* ════════════════════════════════════════════════════════════════════════════════
@@ -2535,63 +2865,82 @@
       .fullscreen-grid.grid-4 {
         grid-template-columns: 1fr !important;
         grid-template-rows: repeat(4, 1fr) !important;
-        height: 100dvh !important;               /* ◄ Full viewport height */
-        padding: 4px !important;                 /* ◄ Container padding */
-        gap: 4px !important;                     /* ◄ Gap between cards */
+        height: 100dvh !important;
+        /* ◄ Full viewport height */
+        padding: 4px !important;
+        /* ◄ Container padding */
+        gap: 4px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       /* --- Grid 4: GAME CARD --- */
       .fullscreen-grid.grid-4 .fullscreen-game-card {
-        padding: 3px !important;                 /* ◄ Card padding */
+        padding: 3px !important;
+        /* ◄ Card padding */
         overflow: hidden !important;
       }
 
       /* --- Grid 4: SPORT LOGO --- */
       .fullscreen-grid.grid-4 .sport-logo-indicator {
-        width: 10vw !important;                  /* ◄ Sport logo width */
-        height: 10vw !important;                 /* ◄ Sport logo height */
-        max-width: 45px !important;              /* ◄ Sport logo max width */
-        max-height: 45px !important;             /* ◄ Sport logo max height */
-        top: 3px !important;                     /* ◄ Sport logo top position */
-        left: 3px !important;                    /* ◄ Sport logo left position */
+        width: 10vw !important;
+        /* ◄ Sport logo width */
+        height: 10vw !important;
+        /* ◄ Sport logo height */
+        max-width: 45px !important;
+        /* ◄ Sport logo max width */
+        max-height: 45px !important;
+        /* ◄ Sport logo max height */
+        top: 3px !important;
+        /* ◄ Sport logo top position */
+        left: 3px !important;
+        /* ◄ Sport logo left position */
       }
 
       /* --- Grid 4: TEAM LOGO --- */
       .fullscreen-grid.grid-4 .fullscreen-team-logo {
-        width: 11vw !important;                  /* ◄ Logo width */
-        height: 11vw !important;                 /* ◄ Logo height */
-        max-width: 55px !important;              /* ◄ Logo max width */
-        max-height: 55px !important;             /* ◄ Logo max height */
+        width: 11vw !important;
+        /* ◄ Logo width */
+        height: 11vw !important;
+        /* ◄ Logo height */
+        max-width: 55px !important;
+        /* ◄ Logo max width */
+        max-height: 55px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 4: TEAM NAME --- */
       .fullscreen-grid.grid-4 .fullscreen-live-team-name {
-        font-size: clamp(1rem, 5vw, 1.6rem) !important;    /* ◄ Team name size */
+        font-size: clamp(1rem, 5vw, 1.6rem) !important;
+        /* ◄ Team name size */
         text-align: center !important;
       }
 
       /* --- Grid 4: TEAM SCORE --- */
       .fullscreen-grid.grid-4 .fullscreen-team-score {
-        font-size: clamp(2rem, 10vw, 3.5rem) !important;   /* ◄ Score size */
+        font-size: clamp(2rem, 10vw, 3.5rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 4: TEAM RECORD --- */
       .fullscreen-grid.grid-4 .fullscreen-team-record {
-        font-size: clamp(0.65rem, 2.5vw, 1rem) !important; /* ◄ Record size */
+        font-size: clamp(0.65rem, 2.5vw, 1rem) !important;
+        /* ◄ Record size */
         text-align: center !important;
       }
 
       /* --- Grid 4: STATUS TEXT (Quarter/Period/Inning) --- */
       .fullscreen-grid.grid-4 .fullscreen-status-text {
-        font-size: clamp(0.9rem, 4vw, 1.3rem) !important;  /* ◄ Status size */
+        font-size: clamp(0.9rem, 4vw, 1.3rem) !important;
+        /* ◄ Status size */
       }
 
       /* --- Grid 4: VS DIVIDER --- */
       .fullscreen-grid.grid-4 .fullscreen-vs-divider,
       .fullscreen-grid.grid-4 .fullscreen-vs-divider-live {
-        font-size: clamp(0.8rem, 3vw, 1.1rem) !important;  /* ◄ VS text size */
+        font-size: clamp(0.8rem, 3vw, 1.1rem) !important;
+        /* ◄ VS text size */
         padding: 0 3px !important;
       }
 
@@ -2601,7 +2950,8 @@
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 2px !important;                     /* ◄ Team stack gap */
+        gap: 2px !important;
+        /* ◄ Team stack gap */
         padding: 3px !important;
       }
 
@@ -2615,41 +2965,48 @@
       /* --- Grid 4: SITUATION INFO (All Sports) --- */
       .fullscreen-grid.grid-4 .situation-info,
       .fullscreen-grid.grid-4 .fullscreen-situation-info {
-        font-size: clamp(0.85rem, 3.5vw, 1.2rem) !important; /* ◄ Situation info size */
+        font-size: clamp(0.85rem, 3.5vw, 1.2rem) !important;
+        /* ◄ Situation info size */
         padding: 2px 4px !important;
         margin-top: 2px !important;
       }
 
       /* --- Grid 4: DOWN & DISTANCE TEXT (Football) --- */
       .fullscreen-grid.grid-4 .down-distance {
-        font-size: clamp(0.85rem, 3.5vw, 1.2rem) !important; /* ◄ Down/distance size */
+        font-size: clamp(0.85rem, 3.5vw, 1.2rem) !important;
+        /* ◄ Down/distance size */
       }
 
       /* --- Grid 4: FIELD CONTAINER (Football) --- */
       .fullscreen-grid.grid-4 .field-container {
-        height: 24px !important;                 /* ◄ Field height */
+        height: 24px !important;
+        /* ◄ Field height */
         margin-top: 2px !important;
       }
 
       /* --- Grid 4: FIELD VISUALIZER (Football) --- */
       .fullscreen-grid.grid-4 .field-visualizer {
         margin-top: 2px !important;
-        max-width: 90% !important;               /* ◄ Field max width */
+        max-width: 90% !important;
+        /* ◄ Field max width */
       }
 
       /* --- Grid 4: FIELD POSITION (Football) --- */
       .fullscreen-grid.grid-4 .fullscreen-field-position {
-        font-size: clamp(0.7rem, 2.5vw, 1rem) !important;  /* ◄ Field position size */
+        font-size: clamp(0.7rem, 2.5vw, 1rem) !important;
+        /* ◄ Field position size */
       }
 
       /* --- Grid 4: UPCOMING STATUS --- */
       .fullscreen-grid.grid-4 .fullscreen-upcoming-status-text {
-        font-size: clamp(0.9rem, 4vw, 1.3rem) !important;  /* ◄ Upcoming status size */
+        font-size: clamp(0.9rem, 4vw, 1.3rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 4: TIMEOUTS --- */
       .fullscreen-grid.grid-4 .fullscreen-timeouts {
-        display: none !important;                /* ◄ Hide timeouts on mobile */
+        display: none !important;
+        /* ◄ Hide timeouts on mobile */
       }
 
       /* ════════════════════════════════════════════════════════════════════════════════
@@ -2660,83 +3017,105 @@
       .fullscreen-grid.grid-6 {
         grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: repeat(3, 1fr) !important;
-        height: 100dvh !important;               /* ◄ Full viewport height */
-        padding: 6px !important;                 /* ◄ Container padding */
-        gap: 6px !important;                     /* ◄ Gap between cards */
+        height: 100dvh !important;
+        /* ◄ Full viewport height */
+        padding: 6px !important;
+        /* ◄ Container padding */
+        gap: 6px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       /* --- Grid 6: GAME CARD --- */
       .fullscreen-grid.grid-6 .fullscreen-game-card {
-        padding: 6px !important;                 /* ◄ Card padding */
+        padding: 6px !important;
+        /* ◄ Card padding */
         overflow: hidden !important;
       }
 
       /* --- Grid 6: TEAM LOGO --- */
       .fullscreen-grid.grid-6 .fullscreen-team-logo {
-        width: 9vw !important;                   /* ◄ Logo width */
-        height: 9vw !important;                  /* ◄ Logo height */
-        max-width: 42px !important;              /* ◄ Logo max width */
-        max-height: 42px !important;             /* ◄ Logo max height */
+        width: 9vw !important;
+        /* ◄ Logo width */
+        height: 9vw !important;
+        /* ◄ Logo height */
+        max-width: 42px !important;
+        /* ◄ Logo max width */
+        max-height: 42px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 6: TEAM NAME --- */
       .fullscreen-grid.grid-6 .fullscreen-live-team-name {
-        font-size: clamp(0.85rem, 4vw, 1.3rem) !important; /* ◄ Team name size */
+        font-size: clamp(0.85rem, 4vw, 1.3rem) !important;
+        /* ◄ Team name size */
       }
 
       /* --- Grid 6: TEAM SCORE --- */
       .fullscreen-grid.grid-6 .fullscreen-team-score {
-        font-size: clamp(1.6rem, 8vw, 2.8rem) !important;  /* ◄ Score size */
+        font-size: clamp(1.6rem, 8vw, 2.8rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 6: TEAM RECORD --- */
       .fullscreen-grid.grid-6 .fullscreen-team-record {
-        font-size: clamp(0.55rem, 2vw, 0.9rem) !important; /* ◄ Record size */
+        font-size: clamp(0.55rem, 2vw, 0.9rem) !important;
+        /* ◄ Record size */
       }
 
       /* --- Grid 6: STATUS TEXT (Quarter/Period/Inning) --- */
       .fullscreen-grid.grid-6 .fullscreen-status-text {
-        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important; /* ◄ Status size */
+        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important;
+        /* ◄ Status size */
       }
 
       /* --- Grid 6: SPORT LOGO --- */
       .fullscreen-grid.grid-6 .sport-logo-indicator {
-        width: 8vw !important;                   /* ◄ Sport logo width */
-        height: 8vw !important;                  /* ◄ Sport logo height */
-        max-width: 36px !important;              /* ◄ Sport logo max width */
-        max-height: 36px !important;             /* ◄ Sport logo max height */
+        width: 8vw !important;
+        /* ◄ Sport logo width */
+        height: 8vw !important;
+        /* ◄ Sport logo height */
+        max-width: 36px !important;
+        /* ◄ Sport logo max width */
+        max-height: 36px !important;
+        /* ◄ Sport logo max height */
       }
 
       /* --- Grid 6: SITUATION INFO (All Sports) --- */
       .fullscreen-grid.grid-6 .fullscreen-situation-info {
-        font-size: clamp(0.7rem, 3vw, 1rem) !important;    /* ◄ Situation info size */
+        font-size: clamp(0.7rem, 3vw, 1rem) !important;
+        /* ◄ Situation info size */
       }
 
       /* --- Grid 6: FIELD CONTAINER (Football) --- */
       .fullscreen-grid.grid-6 .field-container {
-        height: 20px !important;                 /* ◄ Field height */
+        height: 20px !important;
+        /* ◄ Field height */
       }
 
       /* --- Grid 6: FIELD POSITION (Football) --- */
       .fullscreen-grid.grid-6 .fullscreen-field-position {
-        font-size: clamp(0.6rem, 2vw, 0.85rem) !important; /* ◄ Field position size */
+        font-size: clamp(0.6rem, 2vw, 0.85rem) !important;
+        /* ◄ Field position size */
       }
 
       /* --- Grid 6: VS DIVIDER --- */
       .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
-        font-size: clamp(0.7rem, 2.5vw, 0.95rem) !important; /* ◄ VS text size */
+        font-size: clamp(0.7rem, 2.5vw, 0.95rem) !important;
+        /* ◄ VS text size */
       }
 
       /* --- Grid 6: UPCOMING STATUS --- */
       .fullscreen-grid.grid-6 .fullscreen-upcoming-status-text {
-        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important; /* ◄ Upcoming status size */
+        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 6: TIMEOUTS --- */
       .fullscreen-grid.grid-6 .fullscreen-timeouts {
-        display: none !important;                /* ◄ Hide timeouts on mobile */
+        display: none !important;
+        /* ◄ Hide timeouts on mobile */
       }
 
       /* ════════════════════════════════════════════════════════════════════════════════
@@ -2747,83 +3126,105 @@
       .fullscreen-grid.grid-8 {
         grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: repeat(4, 1fr) !important;
-        height: 100dvh !important;               /* ◄ Full viewport height */
-        padding: 6px !important;                 /* ◄ Container padding */
-        gap: 6px !important;                     /* ◄ Gap between cards */
+        height: 100dvh !important;
+        /* ◄ Full viewport height */
+        padding: 6px !important;
+        /* ◄ Container padding */
+        gap: 6px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       /* --- Grid 8: GAME CARD --- */
       .fullscreen-grid.grid-8 .fullscreen-game-card {
-        padding: 6px !important;                 /* ◄ Card padding */
+        padding: 6px !important;
+        /* ◄ Card padding */
         overflow: hidden !important;
       }
 
       /* --- Grid 8: TEAM LOGO --- */
       .fullscreen-grid.grid-8 .fullscreen-team-logo {
-        width: 7vw !important;                   /* ◄ Logo width */
-        height: 7vw !important;                  /* ◄ Logo height */
-        max-width: 32px !important;              /* ◄ Logo max width */
-        max-height: 32px !important;             /* ◄ Logo max height */
+        width: 7vw !important;
+        /* ◄ Logo width */
+        height: 7vw !important;
+        /* ◄ Logo height */
+        max-width: 32px !important;
+        /* ◄ Logo max width */
+        max-height: 32px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 8: TEAM NAME --- */
       .fullscreen-grid.grid-8 .fullscreen-live-team-name {
-        font-size: clamp(0.7rem, 3.5vw, 1.1rem) !important; /* ◄ Team name size */
+        font-size: clamp(0.7rem, 3.5vw, 1.1rem) !important;
+        /* ◄ Team name size */
       }
 
       /* --- Grid 8: TEAM SCORE --- */
       .fullscreen-grid.grid-8 .fullscreen-team-score {
-        font-size: clamp(1.3rem, 6.5vw, 2.2rem) !important; /* ◄ Score size */
+        font-size: clamp(1.3rem, 6.5vw, 2.2rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 8: TEAM RECORD --- */
       .fullscreen-grid.grid-8 .fullscreen-team-record {
-        font-size: clamp(0.5rem, 1.8vw, 0.75rem) !important; /* ◄ Record size */
+        font-size: clamp(0.5rem, 1.8vw, 0.75rem) !important;
+        /* ◄ Record size */
       }
 
       /* --- Grid 8: STATUS TEXT (Quarter/Period/Inning) --- */
       .fullscreen-grid.grid-8 .fullscreen-status-text {
-        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important; /* ◄ Status size */
+        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important;
+        /* ◄ Status size */
       }
 
       /* --- Grid 8: SPORT LOGO --- */
       .fullscreen-grid.grid-8 .sport-logo-indicator {
-        width: 7vw !important;                   /* ◄ Sport logo width */
-        height: 7vw !important;                  /* ◄ Sport logo height */
-        max-width: 30px !important;              /* ◄ Sport logo max width */
-        max-height: 30px !important;             /* ◄ Sport logo max height */
+        width: 7vw !important;
+        /* ◄ Sport logo width */
+        height: 7vw !important;
+        /* ◄ Sport logo height */
+        max-width: 30px !important;
+        /* ◄ Sport logo max width */
+        max-height: 30px !important;
+        /* ◄ Sport logo max height */
       }
 
       /* --- Grid 8: SITUATION INFO (All Sports) --- */
       .fullscreen-grid.grid-8 .fullscreen-situation-info {
-        font-size: clamp(0.6rem, 2.5vw, 0.85rem) !important; /* ◄ Situation info size */
+        font-size: clamp(0.6rem, 2.5vw, 0.85rem) !important;
+        /* ◄ Situation info size */
       }
 
       /* --- Grid 8: FIELD CONTAINER (Football) --- */
       .fullscreen-grid.grid-8 .field-container {
-        height: 16px !important;                 /* ◄ Field height */
+        height: 16px !important;
+        /* ◄ Field height */
       }
 
       /* --- Grid 8: FIELD POSITION (Football) --- */
       .fullscreen-grid.grid-8 .fullscreen-field-position {
-        font-size: clamp(0.5rem, 1.8vw, 0.7rem) !important; /* ◄ Field position size */
+        font-size: clamp(0.5rem, 1.8vw, 0.7rem) !important;
+        /* ◄ Field position size */
       }
 
       /* --- Grid 8: VS DIVIDER --- */
       .fullscreen-grid.grid-8 .fullscreen-vs-divider-live {
-        font-size: clamp(0.55rem, 2vw, 0.8rem) !important;  /* ◄ VS text size */
+        font-size: clamp(0.55rem, 2vw, 0.8rem) !important;
+        /* ◄ VS text size */
       }
 
       /* --- Grid 8: UPCOMING STATUS --- */
       .fullscreen-grid.grid-8 .fullscreen-upcoming-status-text {
-        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important; /* ◄ Upcoming status size */
+        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 8: TIMEOUTS --- */
       .fullscreen-grid.grid-8 .fullscreen-timeouts {
-        display: none !important;                /* ◄ Hide timeouts on mobile */
+        display: none !important;
+        /* ◄ Hide timeouts on mobile */
       }
 
       /* ════════════════════════════════════════════════════════════════════════════════
@@ -2835,11 +3236,13 @@
         padding: 4px !important;
         margin-bottom: 4px !important;
       }
+
       .fs-game-selector {
         padding: 4px 8px !important;
         font-size: clamp(10px, 2.5vw, 14px) !important;
         border-radius: 6px !important;
       }
+
       /* Always show selector on empty slots */
       .fullscreen-game-slot .fs-game-selector-container {
         display: block !important;
@@ -2847,12 +3250,14 @@
 
       /* --- GAME CARD STYLING --- */
       .fullscreen-game-card {
-        border-radius: 8px !important;           /* ◄ Card border radius */
+        border-radius: 8px !important;
+        /* ◄ Card border radius */
       }
 
       /* --- CONTROLS --- */
       .fullscreen-controls {
-        padding: 10px !important;                /* ◄ Controls padding */
+        padding: 10px !important;
+        /* ◄ Controls padding */
         flex-direction: column !important;
         gap: 8px !important;
       }
@@ -2925,6 +3330,7 @@
        Keep 2-column layouts for most grids
        ================================================== */
     @media screen and (min-width: 769px) and (max-width: 1024px) {
+
       /* 2 games: Keep 2 columns (1 row) */
       .fullscreen-grid.grid-2 {
         grid-template-columns: repeat(2, 1fr) !important;
@@ -3075,6 +3481,7 @@
        Keep original layouts
        ================================================== */
     @media screen and (min-width: 1025px) {
+
       /* Desktop keeps the original grid layouts */
       .fullscreen-grid.grid-2 {
         grid-template-columns: repeat(2, 1fr);
@@ -3141,12 +3548,16 @@
     }
 
     @keyframes rotateHint {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: rotate(0deg);
       }
+
       25% {
         transform: rotate(-15deg);
       }
+
       75% {
         transform: rotate(15deg);
       }
@@ -3174,13 +3585,13 @@
         display: flex !important;
       }
     }
-
   </style>
   <!-- <link rel="stylesheet" href="/styles/themes.css"> -->
   <link rel="stylesheet" href="/styles/mobile-fullscreen.css">
   <!-- <script src="/scripts/theme-manager.js"></script> -->
   <link rel="stylesheet" href="/styles/responsive-cards.css">
 </head>
+
 <body>
   <!-- Orientation Lock Overlays -->
   <div class="orientation-overlay portrait-required">
@@ -3203,7 +3614,11 @@
           LIVE
         </span>
       </h1>
-      <div style="display: flex; gap: 10px; align-items: center;">
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <button class="back-btn" id="cast-to-tv-btn"
+          style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+          📺 Cast to TV
+        </button>
         <button class="back-btn" onclick="window.location.href='/'">← Back to Home</button>
       </div>
     </div>
@@ -3249,6 +3664,56 @@
     </div>
   </div>
 
+  <!-- Cast to TV Modal -->
+  <div id="cast-modal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <h2 style="margin-bottom: 20px;">📺 Cast to TV</h2>
+
+      <div id="cast-setup" style="display: block;">
+        <p style="color: #94a3b8; margin-bottom: 20px; text-align: center;">
+          Enter this PIN on your TV to connect
+        </p>
+
+        <div style="background: #0f172a; padding: 30px; border-radius: 12px; margin-bottom: 20px;">
+          <div id="pin-display"
+            style="font-size: 4rem; font-weight: 900; text-align: center; letter-spacing: 10px; color: #6366f1;">
+            ------
+          </div>
+        </div>
+
+        <div id="qr-code" style="display: flex; justify-content: center; margin-bottom: 20px;">
+          <!-- QR code will be inserted here -->
+        </div>
+
+        <div id="cast-status"
+          style="text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: none;">
+          <div style="display: inline-flex; align-items: center; gap: 10px;">
+            <div class="pulse-dot"></div>
+            <span id="cast-status-text">Waiting for TV...</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button id="close-cast-modal"
+            style="flex: 1; background: #64748b; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
+            Cancel
+          </button>
+          <button id="end-casting-btn"
+            style="flex: 1; background: #ef4444; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; display: none;">
+            End Casting
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Casting Indicator -->
+  <div id="casting-indicator"
+    style="display: none; position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); z-index: 9999; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s;">
+    <div class="pulse-dot" style="background: #22c55e;"></div>
+    <span style="font-weight: 600;">📺 Casting...</span>
+  </div>
+
   <!-- Fullscreen Container -->
   <div id="fullscreen-container" class="fullscreen-container">
     <div class="fullscreen-hover-trigger"></div>
@@ -3263,14 +3728,14 @@
 
   <script>
     // Global error handler to catch uncaught errors
-    window.onerror = function(message, source, lineno, colno, error) {
+    window.onerror = function (message, source, lineno, colno, error) {
       console.error('Global error caught:', message, 'at', source, 'line', lineno);
       // Don't let errors propagate and crash the page
       return true;
     };
 
     // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', function(event) {
+    window.addEventListener('unhandledrejection', function (event) {
       console.error('Unhandled promise rejection:', event.reason);
       event.preventDefault();
     });
@@ -3517,7 +3982,7 @@
           if (statusState === 'post') {
             const gameDate = new Date(game.date);
             const timeSinceGame = Date.now() - gameDate.getTime();
-            
+
             // Skip if game finished more than 2 hours ago
             if (timeSinceGame > TWO_HOURS_MS) {
               return;
@@ -3538,7 +4003,7 @@
           const option = document.createElement('option');
           option.value = gameId;
           option.textContent = `[${game.sport.toUpperCase()}] ${awayTeam} (${awayScore}) @ ${homeTeam} (${homeScore}) - ${statusText}`;
-          
+
           if (currentSelection === gameId) {
             option.selected = true;
           }
@@ -3603,7 +4068,7 @@
       fullscreenGrid.className = `fullscreen-grid grid-${currentLayout}`;
 
       renderFullscreenGames();
-      
+
       console.log('⏱️ Starting auto-refresh interval (every 5 seconds)');
       fullscreenRefreshInterval = setInterval(updateFullscreenGames, 5000);
 
@@ -3630,7 +4095,7 @@
 
     function exitFullscreen() {
       document.getElementById('fullscreen-container').classList.remove('active');
-      
+
       if (fullscreenRefreshInterval) {
         clearInterval(fullscreenRefreshInterval);
       }
@@ -3641,7 +4106,8 @@
         sessionKeepAliveInterval = null;
       }
 
-      if (document.exitFullscreen) {
+      // Only exit fullscreen if we're actually in fullscreen mode
+      if (document.fullscreenElement && document.exitFullscreen) {
         document.exitFullscreen();
       }
     }
@@ -3653,6 +4119,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 300);
     });
+
 
     // Render fullscreen games
     function renderFullscreenGames() {
@@ -3702,22 +4169,22 @@
     // Create fullscreen game card
     function createFullscreenGameCard(game, slotIndex) {
       const div = document.createElement('div');
-      
+
       const comp = game.competitions?.[0];
       const awayTeam = comp?.competitors?.[1];
       const homeTeam = comp?.competitors?.[0];
       const awayScore = parseInt(awayTeam?.score || 0);
       const homeScore = parseInt(homeTeam?.score || 0);
-      
+
       const statusState = comp?.status?.type?.state;
       const isFinal = statusState === 'post';
       const isLive = (statusState === 'in' || comp?.status?.period > 0) && !isFinal;
       const isUpcoming = statusState === 'pre' && !isFinal;
-      
+
       // Get team records
       const awayRecord = awayTeam?.records?.[0]?.summary || awayTeam?.record?.displayValue || '';
       const homeRecord = homeTeam?.records?.[0]?.summary || homeTeam?.record?.displayValue || '';
-      
+
       // Get possession and situation info (for NFL/NCAA)
       const possession = comp?.situation?.possession;
       const downDistanceText = comp?.situation?.downDistanceText || '';
@@ -3749,9 +4216,9 @@
         awayTimeouts = 3;
         homeTimeouts = 3;
       }
-      
+
       let cardClass = 'fullscreen-game-card';
-      
+
       if (isUpcoming) {
         cardClass += ' upcoming-game';
       } else {
@@ -3761,7 +4228,7 @@
       }
 
       let statusDisplay = comp?.status?.type?.shortDetail || 'Live';
-      
+
       if (isUpcoming) {
         const gameDate = new Date(game.date);
         const now = new Date();
@@ -3796,7 +4263,7 @@
         'ncaa': '/assets/NCAA logo.png'
       };
       const sportLogo = sportLogos[game.sport] || '/assets/logo.png';
-      
+
       // Get possession icon based on sport
       const possessionIcon = game.sport === 'nba' ? '🏀' : game.sport === 'nhl' ? '🏒' : '🏈';
 
@@ -3924,7 +4391,7 @@
 
       allGames.forEach(game => {
         const gameId = game.id;
-        
+
         if (selectedGames.includes(gameId) && currentSelection !== gameId) {
           return;
         }
@@ -3946,7 +4413,7 @@
         const option = document.createElement('option');
         option.value = gameId;
         option.textContent = `[${game.sport.toUpperCase()}] ${awayTeam} @ ${homeTeam} - ${statusText}`;
-        
+
         if (currentSelection === gameId) {
           option.selected = true;
         }
@@ -4053,7 +4520,7 @@
 
       // Choose icon based on sport and play type
       let icon;
-      switch(`${sport}-${playType}`) {
+      switch (`${sport}-${playType}`) {
         // NFL
         case 'nfl-touchdown':
           icon = '🏈';
@@ -4216,7 +4683,7 @@
 
       console.log(`🎬 detectPlayType called:`, { sport, pointChange, teamName, lastPlayText });
 
-      switch(sport) {
+      switch (sport) {
         case 'nfl':
         case 'ncaa':
           if (pointChange === 6) {
@@ -4288,11 +4755,11 @@
     // Update fullscreen games
     async function updateFullscreenGames() {
       console.log('🔄 Controller auto-refreshing game data...');
-      
+
       // Store previous scores AND play data before loading new data
       const previousScores = {};
       const previousPlays = {}; // Store last interceptions and fumbles
-      
+
       document.querySelectorAll('.fullscreen-game-card').forEach((card) => {
         const gameId = card.dataset.gameId;
         const sport = card.dataset.sport;
@@ -4315,23 +4782,23 @@
           };
         }
       });
-      
+
       console.log(`📊 Stored previous scores for ${Object.keys(previousScores).length} games`);
       console.log(`🏈 Stored previous play data for ${Object.keys(previousPlays).length} games`);
-      
+
       await loadAllGames();
-      
+
       renderFullscreenGames(); // Render first to create fresh cards
-      
+
       // THEN check for score changes and show animations on the NEW cards
       document.querySelectorAll('.fullscreen-game-card').forEach((card) => {
         const gameId = card.dataset.gameId;
         const game = allGames.find(g => g.id === gameId);
-        
+
         if (game && previousScores[gameId]) {
           const prevScores = previousScores[gameId];
           detectScoreChange(card, game, prevScores.away, prevScores.home);
-          
+
           // Restore previous play data to the new card
           if (previousPlays[gameId]) {
             card.dataset.lastInterception = previousPlays[gameId].lastInterception;
@@ -4390,16 +4857,16 @@
 
               // Trigger first down when: down changes from 2/3/4 to 1, no score change, not a turnover
               if (currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
-                  awayScoreChange === 0 && homeScoreChange === 0 &&
-                  !lastPlay.toLowerCase().includes('interception') &&
-                  !lastPlay.toLowerCase().includes('fumble')) {
+                awayScoreChange === 0 && homeScoreChange === 0 &&
+                !lastPlay.toLowerCase().includes('interception') &&
+                !lastPlay.toLowerCase().includes('fumble')) {
                 showPlayAnimation(card, 'ncaa', 'first-down', '1ST DOWN!');
               }
               card.dataset.prevDown = currentDown || 0;
             }
           }
         }
-        
+
         // Show refresh indicator
         const indicator = card.querySelector('.fullscreen-refresh-indicator');
         if (indicator) {
@@ -4411,9 +4878,265 @@
       console.log('✅ Controller refreshed');
     }
 
+    // ============================================
+    // CASTING FUNCTIONALITY
+    // ============================================
+
+    let castSocket = null;
+    let castSessionId = null;
+    let castingActive = false;
+
+    // All casting event listeners are attached in DOMContentLoaded below
+
+    function endCastingSession() {
+      castingActive = false;
+      castSessionId = null;
+      document.getElementById('cast-modal').classList.remove('show');
+      document.getElementById('pin-display').textContent = '------';
+      document.getElementById('qr-code').innerHTML = '';
+      document.getElementById('cast-status').style.display = 'none';
+      document.getElementById('end-casting-btn').style.display = 'none';
+
+      // Hide floating indicator
+      hideCastingIndicator();
+
+      if (castSocket) {
+        castSocket.disconnect();
+      }
+    }
+
+    function showCastingIndicator() {
+      const indicator = document.getElementById('casting-indicator');
+      indicator.style.display = 'flex';
+
+      // Click to reopen modal
+      indicator.onclick = () => {
+        document.getElementById('cast-modal').classList.add('show');
+      };
+    }
+
+    function hideCastingIndicator() {
+      const indicator = document.getElementById('casting-indicator');
+      indicator.style.display = 'none';
+      indicator.onclick = null;
+    }
+
+
+    function syncCastingState() {
+      if (!castingActive || !castSocket || !castSessionId) return;
+
+      // Get current grid layout
+      const checkedLayout = document.querySelector('input[name="layout"]:checked');
+      const layout = checkedLayout ? parseInt(checkedLayout.value) : 2;
+
+      // Get current game selections from dropdowns using the correct class
+      const games = {};
+      const selectors = document.querySelectorAll('.game-selector[data-slot]');
+
+      selectors.forEach((selector) => {
+        const slotIndex = parseInt(selector.dataset.slot);
+        const gameId = selector.value;
+
+        if (gameId) {
+          // Find the game in allGames to get the sport
+          const game = allGames.find(g => g.id === gameId);
+          if (game) {
+            // Include sport prefix for TV receiver to parse correctly
+            games[`slot${slotIndex + 1}`] = `${game.sport}:${gameId}`;
+          }
+        }
+      });
+
+      // Check if fullscreen is active
+      const fullscreenContainer = document.getElementById('fullscreen-container');
+      const isActive = fullscreenContainer.classList.contains('active');
+
+      // Send state to TV
+      const state = {
+        layout,
+        games,
+        isActive
+      };
+
+      console.log('Syncing state to TV:', state);
+      castSocket.emit('cast:sync-state', {
+        sessionId: castSessionId,
+        state
+      });
+
+      // Store state globally for TV receiver
+      window.currentCastState = state;
+    }
+
+    // Intercept layout changes and sync to TV
+    document.querySelectorAll('input[name="layout"]').forEach(input => {
+      input.addEventListener('change', () => {
+        if (castingActive) {
+          setTimeout(syncCastingState, 100);
+        }
+      });
+    });
+
+    // Intercept game selection changes and sync to TV
+    document.addEventListener('change', (e) => {
+      if (e.target.classList.contains('game-selector') && castingActive) {
+        setTimeout(syncCastingState, 100);
+      }
+    });
+
+    // Intercept fullscreen launch and sync to TV
+    const originalEnterFullscreen = window.enterFullScreen || function () { };
+    window.enterFullScreen = function () {
+      originalEnterFullscreen.call(this);
+      if (castingActive) {
+        setTimeout(syncCastingState, 500);
+      }
+    };
+
+
     // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
+      // Attach casting button event listeners after DOM is loaded
+      document.getElementById('close-cast-modal').addEventListener('click', () => {
+        document.getElementById('cast-modal').classList.remove('show');
+      });
+
+      // Prevent modal content clicks from closing modal
+      document.querySelector('#cast-modal .modal-content').addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+
+      document.getElementById('end-casting-btn').addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        console.log('End casting button clicked');
+
+        // Use setTimeout to ensure dialog appears
+        setTimeout(() => {
+          if (confirm('End casting session?')) {
+            console.log('User confirmed end casting');
+            if (castSocket && castSessionId) {
+              castSocket.emit('cast:end-session', { sessionId: castSessionId });
+            }
+            endCastingSession();
+          } else {
+            console.log('User cancelled end casting');
+          }
+        }, 100);
+      });
+
+
+      document.getElementById('cast-to-tv-btn').addEventListener('click', async () => {
+        if (castingActive) {
+          // Already casting, show modal with controls
+          document.getElementById('cast-modal').classList.add('show');
+          return;
+        }
+
+        // Create new casting session
+        const authResponse = await fetch('/api/auth/check');
+        const authData = await authResponse.json();
+
+        if (!authData.authenticated) {
+          alert('Please log in to use casting');
+          return;
+        }
+
+        // Initialize Socket.IO if not already
+        if (!castSocket) {
+          castSocket = io({ withCredentials: true });
+
+          castSocket.on('connect', () => {
+            console.log('Casting WebSocket connected');
+
+            // Create session
+            castSocket.emit('cast:create-session', {
+              userId: authData.user.id,
+              deviceName: navigator.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop'
+            }, (response) => {
+              if (response.success) {
+                castSessionId = response.sessionId;
+                castingActive = true;
+
+                // Display PIN
+                document.getElementById('pin-display').textContent = response.pin;
+
+                // Generate QR code (simple text for now, can be enhanced)
+                const tvUrl = `${window.location.origin}/tv-receiver.html`;
+                document.getElementById('qr-code').innerHTML = `
+                <div style="font-size: 0.8rem; color: #94a3b8; text-align: center;">
+                  <div>Or scan to open:</div>
+                  <div style="margin-top: 8px; font-weight: 600;">${tvUrl}</div>
+                </div>
+              `;
+
+                // Show status
+                document.getElementById('cast-status').style.display = 'block';
+                document.getElementById('cast-status').style.background = 'rgba(234, 179, 8, 0.1)';
+                document.getElementById('cast-status').style.border = '1px solid #eab308';
+                document.getElementById('cast-status').querySelector('.pulse-dot').style.background = '#eab308';
+                document.getElementById('cast-status-text').textContent = 'Waiting for TV...';
+
+                // Show modal
+                document.getElementById('cast-modal').classList.add('show');
+              }
+            });
+          });
+
+          // Listen for TV connection
+          castSocket.on('cast:receiver-connected', ({ sessionId }) => {
+            console.log('TV receiver connected');
+
+            // Update status
+            document.getElementById('cast-status').style.background = 'rgba(34, 197, 94, 0.1)';
+            document.getElementById('cast-status').style.border = '1px solid #22c55e';
+            document.getElementById('cast-status').querySelector('.pulse-dot').style.background = '#22c55e';
+            document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
+
+            // Show end casting button
+            document.getElementById('end-casting-btn').style.display = 'block';
+
+            // Sync current state
+            syncCastingState();
+
+            // Auto-close modal after 1.5 seconds so user can continue using the page
+            setTimeout(() => {
+              document.getElementById('cast-modal').classList.remove('show');
+
+              // Show a minimized floating indicator that casting is active
+              showCastingIndicator();
+            }, 1500);
+          });
+
+
+          // Listen for TV disconnection
+          castSocket.on('cast:receiver-disconnected', () => {
+            console.log('TV receiver disconnected');
+
+            document.getElementById('cast-status').style.background = 'rgba(234, 179, 8, 0.1)';
+            document.getElementById('cast-status').style.border = '1px solid #eab308';
+            document.getElementById('cast-status').querySelector('.pulse-dot').style.background = '#eab308';
+            document.getElementById('cast-status-text').textContent = 'TV disconnected. Waiting for reconnection...';
+
+            document.getElementById('end-casting-btn').style.display = 'none';
+          });
+
+          // Session ended
+          castSocket.on('cast:session-ended', () => {
+            endCastingSession();
+          });
+
+          castSocket.on('cast:session-expired', () => {
+            alert('Casting session expired');
+            endCastingSession();
+          });
+        } else {
+          castSocket.connect();
+        }
+      });
+
       // Normal mode - fetch access permissions and apply grid locks
+
       try {
         const accessResponse = await fetch('/api/subscription/access');
         if (accessResponse.ok) {
@@ -4466,4 +5189,5 @@
     });
   </script>
 </body>
+
 </html>

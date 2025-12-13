@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📺 TV Receiver - GridTV Sports</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0e1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #94a3b8;
+            margin-bottom: 3rem;
+        }
+
+        .pin-entry-section {
+            background: #1a1f2e;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+
+        .pin-entry-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .pin-entry-section p {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .pin-input-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .pin-digit {
+            width: 70px;
+            height: 90px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            background: #0f172a;
+            border: 3px solid #475569;
+            border-radius: 12px;
+            color: #fff;
+            transition: all 0.2s;
+        }
+
+        .pin-digit:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        .connect-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .connect-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        .connect-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            margin-top: 1rem;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            color: #ef4444;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .status-message {
+            margin-top: 1rem;
+            padding: 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            color: #22c55e;
+            display: none;
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        /* Connected State */
+        .tv-display {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0a0e1a;
+            z-index: 99999;
+        }
+
+        .tv-display.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tv-header {
+            background: rgba(26, 31, 46, 0.95);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+        }
+
+        .connected-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #22c55e;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 12px;
+            height: 12px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .device-name {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .fullscreen-grid {
+            flex: 1;
+            display: grid;
+            gap: clamp(10px, 1.5vh, 20px);
+            padding: clamp(15px, 2vh, 25px);
+            overflow: hidden;
+            height: calc(100vh - 80px);
+            box-sizing: border-box;
+        }
+
+        .fullscreen-grid.grid-1 {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+            place-items: center;
+            padding: clamp(20px, 3vh, 40px);
+        }
+
+        .fullscreen-grid.grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: 1fr;
+        }
+
+        .fullscreen-grid.grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+
+        .fullscreen-grid.grid-6 {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+
+        .fullscreen-grid.grid-8 {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+            border-radius: clamp(8px, 1.2vh, 16px);
+            padding: clamp(15px, 2.5vh, 30px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border: 3px solid #334155;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .waiting-for-games {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            color: #94a3b8;
+        }
+
+        .waiting-for-games .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #334155;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- PIN Entry Screen -->
+    <div id="pin-entry" class="container">
+        <h1>📺</h1>
+        <div class="subtitle">GridTV Sports - TV Receiver</div>
+
+        <div class="pin-entry-section">
+            <h2>Enter PIN Code</h2>
+            <p>Enter the 6-digit PIN from your control device</p>
+
+            <div class="pin-input-container">
+                <input type="text" class="pin-digit" id="pin1" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="text" class="pin-digit" id="pin2" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="text" class="pin-digit" id="pin3" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="text" class="pin-digit" id="pin4" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="text" class="pin-digit" id="pin5" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                <input type="text" class="pin-digit" id="pin6" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            </div>
+
+            <button class="connect-btn" id="connect-btn">Connect to Sports Bar</button>
+
+            <div class="error-message" id="error-message"></div>
+            <div class="status-message" id="status-message"></div>
+        </div>
+    </div>
+
+    <!-- TV Display Screen -->
+    <div id="tv-display" class="tv-display">
+        <div class="tv-header">
+            <div class="connected-indicator">
+                <div class="pulse-dot"></div>
+                <span>Connected</span>
+            </div>
+            <div class="device-name" id="device-name">Control Device</div>
+        </div>
+
+        <div class="fullscreen-grid grid-2" id="fullscreen-grid">
+            <div class="game-card waiting-for-games">
+                <div class="spinner"></div>
+                <div>Waiting for games to be selected...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let sessionId = null;
+        let currentUserId = null;
+        let refreshInterval = null;
+
+        // Check authentication first
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/check');
+                const data = await response.json();
+
+                if (!data.authenticated) {
+                    window.location.href = '/login.html?redirect=/tv-receiver.html';
+                    return false;
+                }
+
+                currentUserId = data.user.id;
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                showError('Authentication error. Please refresh the page.');
+                return false;
+            }
+        }
+
+        // PIN input auto-advance
+        const pinInputs = document.querySelectorAll('.pin-digit');
+        pinInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+
+                // Only allow digits
+                if (!/^\d$/.test(value)) {
+                    e.target.value = '';
+                    return;
+                }
+
+                // Auto-advance to next input
+                if (value && index < pinInputs.length - 1) {
+                    pinInputs[index + 1].focus();
+                }
+
+                // Auto-submit when all 6 digits entered
+                const allFilled = Array.from(pinInputs).every(input => input.value.length === 1);
+                if (allFilled) {
+                    document.getElementById('connect-btn').disabled = false;
+                } else {
+                    document.getElementById('connect-btn').disabled = true;
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                // Backspace - go to previous input
+                if (e.key === 'Backspace' && !input.value && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            });
+
+            // Paste handling
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                pasteData.split('').forEach((char, i) => {
+                    if (pinInputs[i]) {
+                        pinInputs[i].value = char;
+                    }
+                });
+                if (pasteData.length === 6) {
+                    document.getElementById('connect-btn').disabled = false;
+                }
+            });
+        });
+
+        // Connect button
+        document.getElementById('connect-btn').addEventListener('click', async () => {
+            const pin = Array.from(pinInputs).map(input => input.value).join('');
+
+            if (pin.length !== 6) {
+                showError('Please enter a 6-digit PIN');
+                return;
+            }
+
+            await connectToSession(pin);
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+        }
+
+        function showStatus(message) {
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.textContent = message;
+            statusDiv.classList.add('show');
+        }
+
+        async function connectToSession(pin) {
+            const isAuth = await checkAuth();
+            if (!isAuth) return;
+
+            showStatus('Connecting...');
+            document.getElementById('connect-btn').disabled = true;
+
+            // Initialize Socket.IO
+            socket = io({ withCredentials: true });
+
+            socket.on('connect', () => {
+                console.log('WebSocket connected');
+
+                // Join session with PIN
+                socket.emit('cast:join-session', {
+                    pin,
+                    userId: currentUserId
+                }, (response) => {
+                    if (response.success) {
+                        sessionId = response.sessionId;
+                        console.log('Joined session:', sessionId);
+
+                        // Switch to TV display mode
+                        document.getElementById('pin-entry').style.display = 'none';
+                        document.getElementById('tv-display').classList.add('active');
+                        document.getElementById('device-name').textContent = response.deviceName;
+
+                        // Apply initial state
+                        if (response.state) {
+                            updateTVDisplay(response.state);
+                        }
+
+                        // Start auto-refresh for live scores
+                        startAutoRefresh();
+                    } else {
+                        showError(response.error || 'Failed to connect. Please check your PIN.');
+                        document.getElementById('connect-btn').disabled = false;
+                    }
+                });
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('Connection error:', error);
+                showError('Connection error. Please try again.');
+                document.getElementById('connect-btn').disabled = false;
+            });
+
+            // Listen for state updates from controller
+            socket.on('cast:state-updated', ({ state }) => {
+                console.log('State updated:', state);
+                updateTVDisplay(state);
+            });
+
+            // Handle controller disconnect
+            socket.on('cast:controller-disconnected', () => {
+                showDisconnectedMessage();
+            });
+
+            // Handle session end
+            socket.on('cast:session-ended', () => {
+                alert('Casting session ended by controller');
+                window.location.reload();
+            });
+
+            socket.on('cast:session-expired', () => {
+                alert('Casting session expired');
+                window.location.reload();
+            });
+        }
+
+        function updateTVDisplay(state) {
+            const grid = document.getElementById('fullscreen-grid');
+
+            // Update grid layout
+            grid.className = `fullscreen-grid grid-${state.layout || 2}`;
+
+            // Clear existing content
+            grid.innerHTML = '';
+
+            // Check if games are selected (don't require isActive)
+            if (!state.games || Object.keys(state.games).length === 0) {
+                // Show waiting message
+                const waitingCard = document.createElement('div');
+                waitingCard.className = 'game-card waiting-for-games';
+                waitingCard.innerHTML = `
+          <div class="spinner"></div>
+          <div>Waiting for games to be selected...</div>
+        `;
+                grid.appendChild(waitingCard);
+                return;
+            }
+
+            // Render game cards (simplified for now, will be populated by auto-refresh)
+            const slotCount = state.layout || 2;
+            for (let i = 1; i <= slotCount; i++) {
+                const gameId = state.games[`slot${i}`];
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.id = `game-slot-${i}`;
+                card.innerHTML = `<div class="loading">Loading game data...</div>`;
+                grid.appendChild(card);
+            }
+
+            // Trigger immediate refresh of game data
+            refreshGameData(state);
+        }
+
+        async function refreshGameData(state) {
+            if (!state || !state.games) {
+                console.log('No state or games to refresh');
+                return;
+            }
+
+            console.log('Refreshing game data with state:', state);
+
+            // Store games globally for auto-refresh
+            window.currentGames = state.games;
+
+            // For each slot, fetch and display game data
+            for (const [slot, gameId] of Object.entries(state.games)) {
+                if (!gameId) continue;
+
+                const slotNumber = slot.replace('slot', '');
+                const cardElement = document.getElementById(`game-slot-${slotNumber}`);
+
+                if (!cardElement) {
+                    console.warn(`Card element not found for ${slot}`);
+                    continue;
+                }
+
+                try {
+                    // Extract sport and actual game ID
+                    const parts = gameId.split(':');
+                    if (parts.length !== 2) {
+                        console.error(`Invalid game ID format: ${gameId}`);
+                        cardElement.innerHTML = `<div style="color: #ef4444;">Invalid game ID format</div>`;
+                        continue;
+                    }
+
+                    const [sport, actualGameId] = parts;
+                    console.log(`Fetching ${sport} game ${actualGameId} for ${slot}`);
+
+                    // Determine the correct API endpoint based on sport
+                    let apiUrl;
+                    if (sport === 'nfl' || sport === 'ncaa') {
+                        // NFL and NCAA need week parameter
+                        const weekResponse = await fetch(`/api/${sport}/current-week`);
+                        const weekData = await weekResponse.json();
+                        apiUrl = `/api/${sport}/scoreboard?week=${weekData.week}`;
+                    } else {
+                        // NBA, MLB, NHL use date-based scoreboard
+                        apiUrl = `/api/${sport}/scoreboard`;
+                    }
+
+                    console.log(`Fetching from: ${apiUrl}`);
+                    const response = await fetch(apiUrl);
+
+                    if (!response.ok) {
+                        throw new Error(`API returned ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log(`API response for ${sport}:`, data);
+
+                    // Find the specific game - check both data.games and data.events
+                    const games = data.games || data.events || [];
+                    const game = games.find(g => g.id === actualGameId);
+
+                    if (game) {
+                        console.log(`Found game:`, game);
+                        cardElement.innerHTML = renderGameCard(game, sport);
+                    } else {
+                        console.warn(`Game ${actualGameId} not found in API response`);
+                        cardElement.innerHTML = `<div style="color: #94a3b8; text-align: center;">Game not found</div>`;
+                    }
+                } catch (error) {
+                    console.error(`Error fetching game ${gameId}:`, error);
+                    cardElement.innerHTML = `<div style="color: #ef4444; text-align: center;">Error: ${error.message}</div>`;
+                }
+            }
+        }
+
+
+        function renderGameCard(game, sport) {
+            console.log('Rendering game card for:', game);
+
+            // Get competition data
+            const comp = game.competitions?.[0];
+            if (!comp) {
+                return '<div style="color: #ef4444;">No competition data</div>';
+            }
+
+            // Get competitors (index 1 = away, index 0 = home for ESPN API)
+            const awayTeam = comp.competitors?.[1];
+            const homeTeam = comp.competitors?.[0];
+
+            if (!awayTeam || !homeTeam) {
+                return '<div style="color: #ef4444;">Missing team data</div>';
+            }
+
+            // Extract team data
+            const awayLogo = awayTeam.team?.logo || '';
+            const homeLogo = homeTeam.team?.logo || '';
+            const awayName = awayTeam.team?.abbreviation || awayTeam.team?.shortDisplayName || 'AWAY';
+            const homeName = homeTeam.team?.abbreviation || homeTeam.team?.shortDisplayName || 'HOME';
+            const awayScore = parseInt(awayTeam.score || 0);
+            const homeScore = parseInt(homeTeam.score || 0);
+            const awayRecord = awayTeam.records?.[0]?.summary || '';
+            const homeRecord = homeTeam.records?.[0]?.summary || '';
+
+            // Get game status
+            const status = comp.status?.type?.detail || game.status?.type?.detail || 'Scheduled';
+            const statusState = comp.status?.type?.state || 'pre';
+            const isLive = statusState === 'in';
+            const isFinal = statusState === 'post';
+
+            // Determine status color and badge
+            let statusColor = '#94a3b8';
+            let statusBadge = '';
+            if (isLive) {
+                statusColor = '#ef4444';
+                statusBadge = '<span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; margin-left: 8px;">LIVE</span>';
+            } else if (isFinal) {
+                statusColor = '#6b7280';
+                statusBadge = '<span style="background: #6b7280; color: white; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; margin-left: 8px;">FINAL</span>';
+            }
+
+            // Sport logo mapping
+            const sportLogos = {
+                nfl: 'https://a.espncdn.com/i/teamlogos/leagues/500/nfl.png',
+                ncaa: 'https://a.espncdn.com/i/teamlogos/leagues/500/ncaa.png',
+                nba: 'https://a.espncdn.com/i/teamlogos/leagues/500/nba.png',
+                mlb: 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png',
+                nhl: 'https://a.espncdn.com/i/teamlogos/leagues/500/nhl.png'
+            };
+            const sportLogo = sportLogos[sport.toLowerCase()] || '';
+
+            return `
+                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; padding: clamp(10px, 2vh, 20px);">
+                    ${sportLogo ? `<img src="${sportLogo}" style="position: absolute; top: 10px; left: 10px; width: clamp(40px, 6vh, 70px); height: clamp(40px, 6vh, 70px); opacity: 0.7;" />` : ''}
+                    
+                    <div style="font-size: clamp(0.9rem, 2vmin, 1.2rem); color: ${statusColor}; margin-bottom: clamp(10px, 2vh, 20px); font-weight: 600; text-align: center;">
+                        ${status}${statusBadge}
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: clamp(15px, 3vh, 30px); width: 100%; max-width: 600px;">
+                        <!-- Away Team -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: clamp(10px, 2vmin, 20px);">
+                                ${awayLogo ? `<img src="${awayLogo}" style="width: clamp(50px, 8vmin, 90px); height: clamp(50px, 8vmin, 90px);" onerror="this.style.display='none'" />` : ''}
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: clamp(1.5rem, 4vmin, 3rem); font-weight: 900; color: white;">${awayName}</span>
+                                    ${awayRecord ? `<span style="font-size: clamp(0.8rem, 1.5vmin, 1rem); color: #94a3b8;">${awayRecord}</span>` : ''}
+                                </div>
+                            </div>
+                            <span style="font-size: clamp(3rem, 10vmin, 6rem); font-weight: 900; color: ${awayScore > homeScore ? '#22c55e' : 'white'};">${awayScore}</span>
+                        </div>
+
+                        <!-- Home Team -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: clamp(10px, 2vmin, 20px);">
+                                ${homeLogo ? `<img src="${homeLogo}" style="width: clamp(50px, 8vmin, 90px); height: clamp(50px, 8vmin, 90px);" onerror="this.style.display='none'" />` : ''}
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: clamp(1.5rem, 4vmin, 3rem); font-weight: 900; color: white;">${homeName}</span>
+                                    ${homeRecord ? `<span style="font-size: clamp(0.8rem, 1.5vmin, 1rem); color: #94a3b8;">${homeRecord}</span>` : ''}
+                                </div>
+                            </div>
+                            <span style="font-size: clamp(3rem, 10vmin, 6rem); font-weight: 900; color: ${homeScore > awayScore ? '#22c55e' : 'white'};">${homeScore}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        function startAutoRefresh() {
+            // Refresh every 15 seconds
+            refreshInterval = setInterval(() => {
+                if (sessionId && socket?.connected) {
+                    // Get current state from the grid
+                    const grid = document.getElementById('fullscreen-grid');
+                    const layoutMatch = grid.className.match(/grid-(\d+)/);
+                    const layout = layoutMatch ? parseInt(layoutMatch[1]) : 2;
+
+                    // Refresh with mock state - in production this would come from controller
+                    refreshGameData({
+                        layout,
+                        games: window.currentGames || {},
+                        isActive: true
+                    });
+                }
+            }, 15000);
+        }
+
+        function showDisconnectedMessage() {
+            const grid = document.getElementById('fullscreen-grid');
+            grid.innerHTML = `
+        <div class="game-card waiting-for-games">
+          <div style="font-size: 2rem; color: #ef4444; margin-bottom: 1rem;">⚠️</div>
+          <div style="font-size: 1.5rem; color: #ef4444;">Controller Disconnected</div>
+          <div style="margin-top: 1rem; color: #94a3b8;">Waiting for reconnection...</div>
+        </div>
+      `;
+
+            // Stop auto-refresh
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+
+        // Auto-focus first PIN input on load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth().then(isAuth => {
+                if (isAuth) {
+                    document.getElementById('pin1').focus();
+                }
+            });
+        });
+
+        // Store current games globally for refresh
+        window.currentGames = {};
+    </script>
+</body>
+
+</html>

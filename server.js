@@ -3231,18 +3231,223 @@ app.get('/api/health', async (req, res) => {
 
 
 // ============================================
+// SERVE STATIC PAGES (Clean URLs)
+// ============================================
+
+// Serve TV Receiver page without .html extension
+app.get('/tv-receiver', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'tv-receiver.html'));
+});
+
+// Serve public folder for all other static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ============================================
 // START SERVER
 // ============================================
 
-app.listen(PORT, () => {
+const httpServer = app.listen(PORT, () => {
   console.log(`✅ GridTV Sports Multi-Sport Server running on port ${PORT}`);
   console.log(`🏈 NFL API: http://localhost:${PORT}/api/nfl/scoreboard`);
-  console.log(`� NCAA API: http://localhost:${PORT}/api/ncaa/scoreboard`);
-  console.log(`�🏀 NBA API: http://localhost:${PORT}/api/nba/scoreboard`);
+  console.log(`🏈 NCAA API: http://localhost:${PORT}/api/ncaa/scoreboard`);
+  console.log(`🏀 NBA API: http://localhost:${PORT}/api/nba/scoreboard`);
   console.log(`⚾ MLB API: http://localhost:${PORT}/api/mlb/scoreboard`);
   console.log(`🏒 NHL API: http://localhost:${PORT}/api/nhl/scoreboard`);
   console.log(`🌐 Frontend: http://localhost:${PORT}`);
+  console.log(`📺 TV Receiver: http://localhost:${PORT}/tv-receiver.html`);
 
   // Clean up any stale dates from cache
   cleanupActiveDates();
 });
+
+// ============================================
+// SOCKET.IO SETUP FOR CASTING
+// ============================================
+
+const { Server } = require('socket.io');
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.NODE_ENV === 'production' ? process.env.ALLOWED_ORIGIN : true,
+    credentials: true
+  }
+});
+
+// In-memory casting session store
+const castingSessions = new Map();
+
+// Generate 6-digit PIN
+function generatePIN() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Session cleanup - remove expired sessions every minute
+setInterval(() => {
+  const now = Date.now();
+  for (const [sessionId, session] of castingSessions.entries()) {
+    if (session.expiresAt < now) {
+      console.log(`🧹 Cleaning up expired casting session: ${sessionId}`);
+      castingSessions.delete(sessionId);
+      // Notify connected clients
+      io.to(sessionId).emit('cast:session-expired');
+    }
+  }
+}, 60000);
+
+// Socket.IO authentication middleware
+io.use((socket, next) => {
+  const sessionCookie = socket.handshake.headers.cookie;
+  if (!sessionCookie) {
+    return next(new Error('Authentication required'));
+  }
+  // Session is validated via express-session cookie
+  next();
+});
+
+// Socket.IO connection handler
+io.on('connection', (socket) => {
+  console.log(`🔌 WebSocket connected: ${socket.id}`);
+
+  // Controller wants to create a casting session
+  socket.on('cast:create-session', (data, callback) => {
+    try {
+      const { userId, deviceName } = data;
+      const sessionId = crypto.randomBytes(16).toString('hex');
+      const pin = generatePIN();
+
+      const session = {
+        sessionId,
+        pin,
+        userId,
+        deviceName: deviceName || 'Control Device',
+        controllerSocketId: socket.id,
+        receiverSocketId: null,
+        state: {
+          layout: 2,
+          games: {},
+          isActive: false
+        },
+        createdAt: Date.now(),
+        expiresAt: Date.now() + (4 * 60 * 60 * 1000) // 4 hours
+      };
+
+      castingSessions.set(sessionId, session);
+      socket.join(sessionId);
+
+      console.log(`📺 Created casting session ${sessionId} with PIN ${pin}`);
+
+      callback({ success: true, sessionId, pin });
+    } catch (error) {
+      console.error('Error creating session:', error);
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // TV receiver wants to join a session
+  socket.on('cast:join-session', (data, callback) => {
+    try {
+      const { pin, userId } = data;
+
+      // Find session by PIN
+      let targetSession = null;
+      let targetSessionId = null;
+
+      for (const [sessionId, session] of castingSessions.entries()) {
+        if (session.pin === pin && session.userId === userId) {
+          targetSession = session;
+          targetSessionId = sessionId;
+          break;
+        }
+      }
+
+      if (!targetSession) {
+        return callback({ success: false, error: 'Invalid PIN or session not found' });
+      }
+
+      // Update session with receiver socket
+      targetSession.receiverSocketId = socket.id;
+      socket.join(targetSessionId);
+
+      console.log(`📺 TV receiver joined session ${targetSessionId}`);
+
+      // Notify controller that TV connected
+      if (targetSession.controllerSocketId) {
+        io.to(targetSession.controllerSocketId).emit('cast:receiver-connected', {
+          sessionId: targetSessionId
+        });
+      }
+
+      callback({
+        success: true,
+        sessionId: targetSessionId,
+        state: targetSession.state,
+        deviceName: targetSession.deviceName
+      });
+    } catch (error) {
+      console.error('Error joining session:', error);
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // Sync state from controller to TV
+  socket.on('cast:sync-state', (data) => {
+    const { sessionId, state } = data;
+    const session = castingSessions.get(sessionId);
+
+    if (session && session.controllerSocketId === socket.id) {
+      session.state = { ...session.state, ...state };
+
+      // Broadcast to receiver
+      if (session.receiverSocketId) {
+        io.to(session.receiverSocketId).emit('cast:state-updated', { state: session.state });
+      }
+    }
+  });
+
+  // End casting session
+  socket.on('cast:end-session', (data) => {
+    const { sessionId } = data;
+    const session = castingSessions.get(sessionId);
+
+    if (session) {
+      console.log(`📺 Ending casting session ${sessionId}`);
+
+      // Notify all clients in the session
+      io.to(sessionId).emit('cast:session-ended');
+
+      // Remove session
+      castingSessions.delete(sessionId);
+    }
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log(`🔌 WebSocket disconnected: ${socket.id}`);
+
+    // Find and update any sessions this socket was part of
+    for (const [sessionId, session] of castingSessions.entries()) {
+      if (session.controllerSocketId === socket.id) {
+        console.log(`📺 Controller disconnected from session ${sessionId}`);
+        // Notify receiver
+        if (session.receiverSocketId) {
+          io.to(session.receiverSocketId).emit('cast:controller-disconnected');
+        }
+        // Remove session after 30 seconds if controller doesn't reconnect
+        setTimeout(() => {
+          if (castingSessions.has(sessionId)) {
+            castingSessions.delete(sessionId);
+            io.to(sessionId).emit('cast:session-ended');
+          }
+        }, 30000);
+      } else if (session.receiverSocketId === socket.id) {
+        console.log(`📺 Receiver disconnected from session ${sessionId}`);
+        session.receiverSocketId = null;
+        // Notify controller
+        if (session.controllerSocketId) {
+          io.to(session.controllerSocketId).emit('cast:receiver-disconnected');
+        }
+      }
+    }
+  });
+});
+
+console.log('✅ Socket.IO casting server initialized');
