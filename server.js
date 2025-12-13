@@ -3307,17 +3307,18 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
   console.log(`🔌 WebSocket connected: ${socket.id}`);
 
-  // TV Receiver creates a session and displays PIN (TV is the receiver, waiting for controller)
+  // TV Receiver creates a session and displays PIN (NO LOGIN REQUIRED)
+  // The TV just displays a PIN and waits for an authenticated controller to connect
   socket.on('cast:create-session', (data, callback) => {
     try {
-      const { userId, deviceName } = data;
+      const { deviceName } = data;
       const sessionId = crypto.randomBytes(16).toString('hex');
       const pin = generatePIN();
 
       const session = {
         sessionId,
         pin,
-        userId,
+        userId: null,  // Will be set when controller joins
         deviceName: deviceName || 'TV Receiver',
         controllerSocketId: null,  // Controller joins later
         receiverSocketId: socket.id,  // TV receiver creates the session
@@ -3343,16 +3344,25 @@ io.on('connection', (socket) => {
   });
 
   // Controller (LiveGames) joins a session by entering PIN
+  // Controller MUST be authenticated - they provide the userId
   socket.on('cast:join-session', (data, callback) => {
     try {
       const { pin, userId, deviceName } = data;
 
-      // Find session by PIN
+      if (!userId) {
+        return callback({ success: false, error: 'Authentication required' });
+      }
+
+      // Find session by PIN only (no userId check since TV doesn't have one)
       let targetSession = null;
       let targetSessionId = null;
 
       for (const [sessionId, session] of castingSessions.entries()) {
-        if (session.pin === pin && session.userId === userId) {
+        if (session.pin === pin) {
+          // Check if session is already claimed by another user
+          if (session.userId && session.userId !== userId) {
+            return callback({ success: false, error: 'This TV is already connected to another user' });
+          }
           targetSession = session;
           targetSessionId = sessionId;
           break;
@@ -3360,15 +3370,16 @@ io.on('connection', (socket) => {
       }
 
       if (!targetSession) {
-        return callback({ success: false, error: 'Invalid PIN or session not found' });
+        return callback({ success: false, error: 'Invalid PIN. Check the code on your TV.' });
       }
 
-      // Update session with controller socket
+      // Claim the session for this user
+      targetSession.userId = userId;
       targetSession.controllerSocketId = socket.id;
       targetSession.controllerDeviceName = deviceName || 'Control Device';
       socket.join(targetSessionId);
 
-      console.log(`📺 Controller joined session ${targetSessionId}`);
+      console.log(`📺 Controller (user ${userId}) joined session ${targetSessionId}`);
 
       // Notify TV receiver that controller connected
       if (targetSession.receiverSocketId) {

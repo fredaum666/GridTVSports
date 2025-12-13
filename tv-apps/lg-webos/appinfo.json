@@ -1,0 +1,15 @@
+{
+    "id": "com.gridtvsports.tv",
+    "version": "1.0.0",
+    "vendor": "GridTV Sports",
+    "type": "web",
+    "main": "index.html",
+    "title": "GridTV Sports",
+    "icon": "icon.png",
+    "largeIcon": "largeIcon.png",
+    "bgImage": "bgImage.png",
+    "splashBackground": "splash.png",
+    "resolution": "1920x1080",
+    "disableBackHistoryAPI": true,
+    "transparent": false
+}

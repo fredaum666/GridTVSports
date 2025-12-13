@@ -478,45 +478,21 @@
     <script>
         let socket = null;
         let sessionId = null;
-        let currentUserId = null;
         let refreshInterval = null;
 
-        // Check authentication first
-        async function checkAuth() {
-            try {
-                const response = await fetch('/api/auth/check');
-                const data = await response.json();
-
-                if (!data.authenticated) {
-                    window.location.href = '/login.html?redirect=/tv-receiver.html';
-                    return false;
-                }
-
-                currentUserId = data.user.id;
-                return true;
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                showError('Authentication error. Please refresh the page.');
-                return false;
-            }
-        }
-
-        // Auto-create session on page load
+        // Auto-create session on page load (NO LOGIN REQUIRED)
+        // The TV just displays a PIN - the controller (LiveGames) handles authentication
         async function initTVReceiver() {
-            const isAuth = await checkAuth();
-            if (!isAuth) return;
-
             showStatus('Initializing TV...');
 
-            // Initialize Socket.IO
-            socket = io({ withCredentials: true });
+            // Initialize Socket.IO (no credentials needed for TV)
+            socket = io();
 
             socket.on('connect', () => {
                 console.log('WebSocket connected');
 
-                // Create casting session automatically
+                // Create casting session automatically (no userId needed)
                 socket.emit('cast:create-session', {
-                    userId: currentUserId,
                     deviceName: 'TV Receiver'
                 }, (response) => {
                     if (response.success) {
