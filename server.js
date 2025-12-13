@@ -3293,15 +3293,10 @@ setInterval(() => {
   }
 }, 60000);
 
-// Socket.IO authentication middleware
-io.use((socket, next) => {
-  const sessionCookie = socket.handshake.headers.cookie;
-  if (!sessionCookie) {
-    return next(new Error('Authentication required'));
-  }
-  // Session is validated via express-session cookie
-  next();
-});
+// Socket.IO authentication middleware - REMOVED
+// TV Receivers need to connect without authentication
+// Controllers are authenticated when they join a session (userId check in 'cast:join-session')
+
 
 // Socket.IO connection handler
 io.on('connection', (socket) => {
