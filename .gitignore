@@ -27,3 +27,4 @@ Thumbs.db
 
 # Webpack build output (production obfuscated files)
 # public/dist/
+nul
