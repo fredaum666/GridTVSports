@@ -3666,45 +3666,69 @@
 
   <!-- Cast to TV Modal -->
   <div id="cast-modal" class="modal">
-    <div class="modal-content" style="max-width: 500px;">
-      <h2 style="margin-bottom: 20px;">📺 Cast to TV</h2>
+    <div class="modal-content" id="cast-modal-content">
+      <h2 style="margin-bottom: 1.5rem; color: white;">📺 Cast to TV</h2>
 
-      <div id="cast-setup" style="display: block;">
-        <p style="color: #94a3b8; margin-bottom: 20px; text-align: center;">
-          Enter this PIN on your TV to connect
+      <!-- PIN Entry Section -->
+      <div id="pin-entry-section" style="text-align: center;">
+        <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 1.1rem;">
+          Enter the code shown on your TV:
         </p>
 
-        <div style="background: #0f172a; padding: 30px; border-radius: 12px; margin-bottom: 20px;">
-          <div id="pin-display"
-            style="font-size: 4rem; font-weight: 900; text-align: center; letter-spacing: 10px; color: #6366f1;">
-            ------
-          </div>
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 2rem;">
+          <input type="text" class="controller-pin-digit" id="controller-pin1" maxlength="1" pattern="[0-9]"
+            inputmode="numeric"
+            style="width: 50px; height: 60px; font-size: 2rem; text-align: center; border: 2px solid #475569; border-radius: 8px; background: #0f172a; color: white; font-weight: 700;">
+          <input type="text" class="controller-pin-digit" id="controller-pin2" maxlength="1" pattern="[0-9]"
+            inputmode="numeric"
+            style="width: 50px; height: 60px; font-size: 2rem; text-align: center; border: 2px solid #475569; border-radius: 8px; background: #0f172a; color: white; font-weight: 700;">
+          <input type="text" class="controller-pin-digit" id="controller-pin3" maxlength="1" pattern="[0-9]"
+            inputmode="numeric"
+            style="width: 50px; height: 60px; font-size: 2rem; text-align: center; border: 2px solid #475569; border-radius: 8px; background: #0f172a; color: white; font-weight: 700;">
+          <input type="text" class="controller-pin-digit" id="controller-pin4" maxlength="1" pattern="[0-9]"
+            inputmode="numeric"
+            style="width: 50px; height: 60px; font-size: 2rem; text-align: center; border: 2px solid #475569; border-radius: 8px; background: #0f172a; color: white; font-weight: 700;">
+          <input type="text" class="controller-pin-digit" id="controller-pin5" maxlength="1" pattern="[0-9]"
+            inputmode="numeric"
+            style="width: 50px; height: 60px; font-size: 2rem; text-align: center; border: 2px solid #475569; border-radius: 8px; background: #0f172a; color: white; font-weight: 700;">
+          <input type="text" class="controller-pin-digit" id="controller-pin6" maxlength="1" pattern="[0-9]"
+            inputmode="numeric"
+            style="width: 50px; height: 60px; font-size: 2rem; text-align: center; border: 2px solid #475569; border-radius: 8px; background: #0f172a; color: white; font-weight: 700;">
         </div>
 
-        <div id="qr-code" style="display: flex; justify-content: center; margin-bottom: 20px;">
-          <!-- QR code will be inserted here -->
-        </div>
+        <button id="connect-with-pin-btn"
+          style="width: 100%; padding: 15px; font-size: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 1rem;"
+          disabled>
+          Connect to TV
+        </button>
 
-        <div id="cast-status"
-          style="text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: none;">
-          <div style="display: inline-flex; align-items: center; gap: 10px;">
-            <div class="pulse-dot"></div>
-            <span id="cast-status-text">Waiting for TV...</span>
-          </div>
-        </div>
+        <p style="color: #64748b; font-size: 0.9rem;">
+          Open <code style="background: #1e293b; padding: 2px 8px; border-radius: 4px;">/tv-receiver</code> on your TV
+          to get the PIN
+        </p>
+      </div>
 
-        <div style="display: flex; gap: 10px;">
-          <button id="close-cast-modal"
-            style="flex: 1; background: #64748b; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
-            Cancel
-          </button>
-          <button id="end-casting-btn"
-            style="flex: 1; background: #ef4444; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; display: none;">
-            End Casting
-          </button>
+      <!-- Connection Status (shown after connecting) -->
+      <div id="cast-status"
+        style="display: none; padding: 15px; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+        <div style="display: inline-flex; align-items: center; gap: 10px;">
+          <div class="pulse-dot"></div>
+          <span id="cast-status-text">Waiting for TV...</span>
         </div>
       </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button id="close-cast-modal"
+          style="flex: 1; background: #64748b; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
+          Cancel
+        </button>
+        <button id="end-casting-btn"
+          style="flex: 1; background: #ef4444; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; display: none;">
+          End Casting
+        </button>
+      </div>
     </div>
+  </div>
   </div>
 
   <!-- Floating Casting Indicator -->
@@ -4891,11 +4915,27 @@
     function endCastingSession() {
       castingActive = false;
       castSessionId = null;
-      document.getElementById('cast-modal').classList.remove('show');
-      document.getElementById('pin-display').textContent = '------';
-      document.getElementById('qr-code').innerHTML = '';
-      document.getElementById('cast-status').style.display = 'none';
-      document.getElementById('end-casting-btn').style.display = 'none';
+
+      const castModal = document.getElementById('cast-modal');
+      if (castModal) castModal.classList.remove('show');
+
+      // Reset PIN input fields (LiveGames uses individual input fields, not pin-display)
+      for (let i = 1; i <= 6; i++) {
+        const pinInput = document.getElementById(`controller-pin${i}`);
+        if (pinInput) pinInput.value = '';
+      }
+
+      const castStatus = document.getElementById('cast-status');
+      if (castStatus) castStatus.style.display = 'none';
+
+      const endCastingBtn = document.getElementById('end-casting-btn');
+      if (endCastingBtn) endCastingBtn.style.display = 'none';
+
+      const connectBtn = document.getElementById('connect-with-pin-btn');
+      if (connectBtn) connectBtn.disabled = true;
+
+      const pinEntrySection = document.getElementById('pin-entry-section');
+      if (pinEntrySection) pinEntrySection.style.display = 'block';
 
       // Hide floating indicator
       hideCastingIndicator();
@@ -4907,16 +4947,19 @@
 
     function showCastingIndicator() {
       const indicator = document.getElementById('casting-indicator');
+      if (!indicator) return;
       indicator.style.display = 'flex';
 
       // Click to reopen modal
       indicator.onclick = () => {
-        document.getElementById('cast-modal').classList.add('show');
+        const modal = document.getElementById('cast-modal');
+        if (modal) modal.classList.add('show');
       };
     }
 
     function hideCastingIndicator() {
       const indicator = document.getElementById('casting-indicator');
+      if (!indicator) return;
       indicator.style.display = 'none';
       indicator.onclick = null;
     }
@@ -4929,13 +4972,23 @@
       const checkedLayout = document.querySelector('input[name="layout"]:checked');
       const layout = checkedLayout ? parseInt(checkedLayout.value) : 2;
 
-      // Get current game selections from dropdowns using the correct class
+      // Check if fullscreen is active
+      const fullscreenContainer = document.getElementById('fullscreen-container');
+      const isActive = fullscreenContainer.classList.contains('active');
+
+      // Get current game selections from dropdowns
+      // Use fullscreen selectors if fullscreen is active, otherwise use regular selectors
       const games = {};
-      const selectors = document.querySelectorAll('.game-selector[data-slot]');
+      const selectorClass = isActive ? '.fs-game-selector[data-slot]' : '.game-selector[data-slot]';
+      const selectors = document.querySelectorAll(selectorClass);
+
+      console.log('Looking for selectors with class:', selectorClass, 'Found:', selectors.length);
 
       selectors.forEach((selector) => {
         const slotIndex = parseInt(selector.dataset.slot);
         const gameId = selector.value;
+
+        console.log(`Slot ${slotIndex}: gameId = ${gameId}`);
 
         if (gameId) {
           // Find the game in allGames to get the sport
@@ -4946,10 +4999,6 @@
           }
         }
       });
-
-      // Check if fullscreen is active
-      const fullscreenContainer = document.getElementById('fullscreen-container');
-      const isActive = fullscreenContainer.classList.contains('active');
 
       // Send state to TV
       const state = {
@@ -4979,7 +5028,7 @@
 
     // Intercept game selection changes and sync to TV
     document.addEventListener('change', (e) => {
-      if (e.target.classList.contains('game-selector') && castingActive) {
+      if ((e.target.classList.contains('game-selector') || e.target.classList.contains('fs-game-selector')) && castingActive) {
         setTimeout(syncCastingState, 100);
       }
     });
@@ -5025,22 +5074,102 @@
         }, 100);
       });
 
-
-      document.getElementById('cast-to-tv-btn').addEventListener('click', async () => {
+      // Cast to TV button - show PIN entry
+      document.getElementById('cast-to-tv-btn').addEventListener('click', () => {
         if (castingActive) {
-          // Already casting, show modal with controls
+          // Already casting, show modal with status
           document.getElementById('cast-modal').classList.add('show');
+          document.getElementById('pin-entry-section').style.display = 'none';
+          document.getElementById('cast-status').style.display = 'block';
           return;
         }
 
-        // Create new casting session
+        // Show modal with PIN entry
+        document.getElementById('cast-modal').classList.add('show');
+        document.getElementById('pin-entry-section').style.display = 'block';
+        document.getElementById('cast-status').style.display = 'none';
+
+        // Focus first PIN input
+        setTimeout(() => document.getElementById('controller-pin1').focus(), 100);
+      });
+
+      // PIN auto-advance
+      const controllerPinInputs = document.querySelectorAll('.controller-pin-digit');
+      controllerPinInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          const value = e.target.value;
+
+          // Only allow digits
+          if (!/^\d$/.test(value)) {
+            e.target.value = '';
+            return;
+          }
+
+          // Auto-advance to next input
+          if (value && index < controllerPinInputs.length - 1) {
+            controllerPinInputs[index + 1].focus();
+          }
+
+          // Enable connect button when all digits entered
+          const allFilled = Array.from(controllerPinInputs).every(inp => inp.value.length === 1);
+          document.getElementById('connect-with-pin-btn').disabled = !allFilled;
+        });
+
+        input.addEventListener('keydown', (e) => {
+          // Backspace - go to previous input
+          if (e.key === 'Backspace' && !input.value && index > 0) {
+            controllerPinInputs[index - 1].focus();
+          }
+        });
+
+        // Handle paste - distribute digits across all inputs
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+          const digits = pastedData.replace(/\D/g, '').slice(0, 6); // Get only digits, max 6
+
+          if (digits.length > 0) {
+            digits.split('').forEach((digit, i) => {
+              if (controllerPinInputs[i]) {
+                controllerPinInputs[i].value = digit;
+              }
+            });
+
+            // Focus last filled input or next empty one
+            const nextIndex = Math.min(digits.length, controllerPinInputs.length - 1);
+            controllerPinInputs[nextIndex].focus();
+
+            // Enable connect button if all filled
+            const allFilled = Array.from(controllerPinInputs).every(inp => inp.value.length === 1);
+            document.getElementById('connect-with-pin-btn').disabled = !allFilled;
+          }
+        });
+      });
+
+      // Connect with PIN button
+      document.getElementById('connect-with-pin-btn').addEventListener('click', async () => {
+        const pin = Array.from(controllerPinInputs).map(inp => inp.value).join('');
+
+        if (pin.length !== 6) {
+          alert('Please enter a 6-digit PIN');
+          return;
+        }
+
+        // Check authentication
         const authResponse = await fetch('/api/auth/check');
         const authData = await authResponse.json();
-
         if (!authData.authenticated) {
           alert('Please log in to use casting');
           return;
         }
+
+        // Show connecting status
+        document.getElementById('pin-entry-section').style.display = 'none';
+        document.getElementById('cast-status').style.display = 'block';
+        document.getElementById('cast-status').style.background = 'rgba(234, 179, 8, 0.1)';
+        document.getElementById('cast-status').style.border = '1px solid #eab308';
+        document.getElementById('cast-status').querySelector('.pulse-dot').style.background = '#eab308';
+        document.getElementById('cast-status-text').textContent = 'Connecting to TV...';
 
         // Initialize Socket.IO if not already
         if (!castSocket) {
@@ -5049,8 +5178,9 @@
           castSocket.on('connect', () => {
             console.log('Casting WebSocket connected');
 
-            // Create session
-            castSocket.emit('cast:create-session', {
+            // Join session with PIN
+            castSocket.emit('cast:join-session', {
+              pin,
               userId: authData.user.id,
               deviceName: navigator.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop'
             }, (response) => {
@@ -5058,27 +5188,35 @@
                 castSessionId = response.sessionId;
                 castingActive = true;
 
-                // Display PIN
-                document.getElementById('pin-display').textContent = response.pin;
+                // Update status to connected
+                document.getElementById('cast-status').style.background = 'rgba(34, 197, 94, 0.1)';
+                document.getElementById('cast-status').style.border = '1px solid #22c55e';
+                document.getElementById('cast-status').querySelector('.pulse-dot').style.background = '#22c55e';
+                document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
 
-                // Generate QR code (simple text for now, can be enhanced)
-                const tvUrl = `${window.location.origin}/tv-receiver.html`;
-                document.getElementById('qr-code').innerHTML = `
-                <div style="font-size: 0.8rem; color: #94a3b8; text-align: center;">
-                  <div>Or scan to open:</div>
-                  <div style="margin-top: 8px; font-weight: 600;">${tvUrl}</div>
-                </div>
-              `;
+                // Show end casting button
+                document.getElementById('end-casting-btn').style.display = 'block';
 
-                // Show status
-                document.getElementById('cast-status').style.display = 'block';
-                document.getElementById('cast-status').style.background = 'rgba(234, 179, 8, 0.1)';
-                document.getElementById('cast-status').style.border = '1px solid #eab308';
-                document.getElementById('cast-status').querySelector('.pulse-dot').style.background = '#eab308';
-                document.getElementById('cast-status-text').textContent = 'Waiting for TV...';
+                // Sync current state
+                syncCastingState();
 
-                // Show modal
-                document.getElementById('cast-modal').classList.add('show');
+                // Auto-close modal and show floating indicator
+                setTimeout(() => {
+                  document.getElementById('cast-modal').classList.remove('show');
+                  showCastingIndicator();
+
+                  // Clear PIN inputs
+                  controllerPinInputs.forEach(inp => inp.value = '');
+                  document.getElementById('connect-with-pin-btn').disabled = true;
+                }, 1500);
+              } else {
+                // Connection failed
+                alert(response.error || 'Invalid PIN. Please check the code on your TV.');
+
+                // Show PIN entry again
+                document.getElementById('pin-entry-section').style.display = 'block';
+                document.getElementById('cast-status').style.display = 'none';
+                document.getElementById('controller-pin1').focus();
               }
             });
           });

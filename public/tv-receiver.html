@@ -67,30 +67,20 @@
             font-size: 1.1rem;
         }
 
-        .pin-input-container {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-
-        .pin-digit {
-            width: 70px;
-            height: 90px;
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-align: center;
+        .pin-display-unified {
             background: #0f172a;
-            border: 3px solid #475569;
-            border-radius: 12px;
-            color: #fff;
-            transition: all 0.2s;
+            border-radius: 16px;
+            padding: 30px 50px;
+            margin-bottom: 2rem;
+            display: inline-block;
         }
 
-        .pin-digit:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        .pin-display-unified .pin-code {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            color: #6366f1;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
         .connect-btn {
@@ -445,25 +435,22 @@
 </head>
 
 <body>
-    <!-- PIN Entry Screen -->
-    <div id="pin-entry" class="container">
+    <!-- PIN Display Screen -->
+    <div id="pin-display" class="container">
         <h1>📺</h1>
         <div class="subtitle">GridTV Sports - TV Receiver</div>
 
         <div class="pin-entry-section">
-            <h2>Enter PIN Code</h2>
-            <p>Enter the 6-digit PIN from your control device</p>
+            <h2>Cast Your Games to This TV</h2>
+            <p>Enter this code on your device:</p>
 
-            <div class="pin-input-container">
-                <input type="text" class="pin-digit" id="pin1" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                <input type="text" class="pin-digit" id="pin2" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                <input type="text" class="pin-digit" id="pin3" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                <input type="text" class="pin-digit" id="pin4" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                <input type="text" class="pin-digit" id="pin5" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                <input type="text" class="pin-digit" id="pin6" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <div class="pin-display-unified">
+                <span class="pin-code" id="pin-code">------</span>
             </div>
 
-            <button class="connect-btn" id="connect-btn">Connect to Sports Bar</button>
+            <p style="color: #94a3b8; font-size: 1.1rem; margin-top: 2rem;">
+                On your device: LiveGames → Click "📺 Cast to TV" → Enter code above
+            </p>
 
             <div class="error-message" id="error-message"></div>
             <div class="status-message" id="status-message"></div>
@@ -514,85 +501,12 @@
             }
         }
 
-        // PIN input auto-advance
-        const pinInputs = document.querySelectorAll('.pin-digit');
-        pinInputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                const value = e.target.value;
-
-                // Only allow digits
-                if (!/^\d$/.test(value)) {
-                    e.target.value = '';
-                    return;
-                }
-
-                // Auto-advance to next input
-                if (value && index < pinInputs.length - 1) {
-                    pinInputs[index + 1].focus();
-                }
-
-                // Auto-submit when all 6 digits entered
-                const allFilled = Array.from(pinInputs).every(input => input.value.length === 1);
-                if (allFilled) {
-                    document.getElementById('connect-btn').disabled = false;
-                } else {
-                    document.getElementById('connect-btn').disabled = true;
-                }
-            });
-
-            input.addEventListener('keydown', (e) => {
-                // Backspace - go to previous input
-                if (e.key === 'Backspace' && !input.value && index > 0) {
-                    pinInputs[index - 1].focus();
-                }
-            });
-
-            // Paste handling
-            input.addEventListener('paste', (e) => {
-                e.preventDefault();
-                const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-                pasteData.split('').forEach((char, i) => {
-                    if (pinInputs[i]) {
-                        pinInputs[i].value = char;
-                    }
-                });
-                if (pasteData.length === 6) {
-                    document.getElementById('connect-btn').disabled = false;
-                }
-            });
-        });
-
-        // Connect button
-        document.getElementById('connect-btn').addEventListener('click', async () => {
-            const pin = Array.from(pinInputs).map(input => input.value).join('');
-
-            if (pin.length !== 6) {
-                showError('Please enter a 6-digit PIN');
-                return;
-            }
-
-            await connectToSession(pin);
-        });
-
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            setTimeout(() => errorDiv.classList.remove('show'), 5000);
-        }
-
-        function showStatus(message) {
-            const statusDiv = document.getElementById('status-message');
-            statusDiv.textContent = message;
-            statusDiv.classList.add('show');
-        }
-
-        async function connectToSession(pin) {
+        // Auto-create session on page load
+        async function initTVReceiver() {
             const isAuth = await checkAuth();
             if (!isAuth) return;
 
-            showStatus('Connecting...');
-            document.getElementById('connect-btn').disabled = true;
+            showStatus('Initializing TV...');
 
             // Initialize Socket.IO
             socket = io({ withCredentials: true });
@@ -600,42 +514,48 @@
             socket.on('connect', () => {
                 console.log('WebSocket connected');
 
-                // Join session with PIN
-                socket.emit('cast:join-session', {
-                    pin,
-                    userId: currentUserId
+                // Create casting session automatically
+                socket.emit('cast:create-session', {
+                    userId: currentUserId,
+                    deviceName: 'TV Receiver'
                 }, (response) => {
                     if (response.success) {
                         sessionId = response.sessionId;
-                        console.log('Joined session:', sessionId);
+                        const pin = response.pin;
 
-                        // Switch to TV display mode
-                        document.getElementById('pin-entry').style.display = 'none';
-                        document.getElementById('tv-display').classList.add('active');
-                        document.getElementById('device-name').textContent = response.deviceName;
+                        console.log('Session created:', sessionId, 'PIN:', pin);
 
-                        // Apply initial state
-                        if (response.state) {
-                            updateTVDisplay(response.state);
-                        }
+                        // Display PIN on screen
+                        document.getElementById('pin-code').textContent = pin;
 
-                        // Start auto-refresh for live scores
-                        startAutoRefresh();
+                        showStatus('✓ Ready! Waiting for controller to connect...');
                     } else {
-                        showError(response.error || 'Failed to connect. Please check your PIN.');
-                        document.getElementById('connect-btn').disabled = false;
+                        showError('Failed to initialize TV. Please refresh the page.');
                     }
                 });
             });
 
             socket.on('connect_error', (error) => {
                 console.error('Connection error:', error);
-                showError('Connection error. Please try again.');
-                document.getElementById('connect-btn').disabled = false;
+                showError('Connection error. Please refresh the page.');
+            });
+
+            // Listen for controller connection
+            socket.on('cast:receiver-connected', ({ deviceName }) => {
+                console.log('Controller connected:', deviceName);
+
+                // Switch to TV display mode
+                document.getElementById('pin-display').style.display = 'none';
+                document.getElementById('tv-display').classList.add('active');
+                document.getElementById('device-name').textContent = deviceName;
+
+                // Start auto-refresh for live scores
+                startAutoRefresh();
             });
 
             // Listen for state updates from controller
             socket.on('cast:state-updated', ({ state }) => {
+
                 console.log('State updated:', state);
                 updateTVDisplay(state);
             });
@@ -655,9 +575,34 @@
                 alert('Casting session expired');
                 window.location.reload();
             });
+
+            // Listen for session end
+            socket.on('cast:session-ended', () => {
+                console.log('Session ended');
+                // Reload page to get new PIN
+                window.location.reload();
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Socket disconnected');
+            });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+        }
+
+        function showStatus(message) {
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.textContent = message;
+            statusDiv.classList.add('show');
         }
 
         function updateTVDisplay(state) {
+
             const grid = document.getElementById('fullscreen-grid');
 
             // Update grid layout
@@ -909,13 +854,9 @@
             }
         }
 
-        // Auto-focus first PIN input on load
+        // Initialize TV receiver on page load
         window.addEventListener('DOMContentLoaded', () => {
-            checkAuth().then(isAuth => {
-                if (isAuth) {
-                    document.getElementById('pin1').focus();
-                }
-            });
+            initTVReceiver();
         });
 
         // Store current games globally for refresh

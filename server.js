@@ -3307,7 +3307,7 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
   console.log(`🔌 WebSocket connected: ${socket.id}`);
 
-  // Controller wants to create a casting session
+  // TV Receiver creates a session and displays PIN (TV is the receiver, waiting for controller)
   socket.on('cast:create-session', (data, callback) => {
     try {
       const { userId, deviceName } = data;
@@ -3318,9 +3318,9 @@ io.on('connection', (socket) => {
         sessionId,
         pin,
         userId,
-        deviceName: deviceName || 'Control Device',
-        controllerSocketId: socket.id,
-        receiverSocketId: null,
+        deviceName: deviceName || 'TV Receiver',
+        controllerSocketId: null,  // Controller joins later
+        receiverSocketId: socket.id,  // TV receiver creates the session
         state: {
           layout: 2,
           games: {},
@@ -3333,7 +3333,7 @@ io.on('connection', (socket) => {
       castingSessions.set(sessionId, session);
       socket.join(sessionId);
 
-      console.log(`📺 Created casting session ${sessionId} with PIN ${pin}`);
+      console.log(`📺 TV Receiver created session ${sessionId} with PIN ${pin}`);
 
       callback({ success: true, sessionId, pin });
     } catch (error) {
@@ -3342,10 +3342,10 @@ io.on('connection', (socket) => {
     }
   });
 
-  // TV receiver wants to join a session
+  // Controller (LiveGames) joins a session by entering PIN
   socket.on('cast:join-session', (data, callback) => {
     try {
-      const { pin, userId } = data;
+      const { pin, userId, deviceName } = data;
 
       // Find session by PIN
       let targetSession = null;
@@ -3363,16 +3363,18 @@ io.on('connection', (socket) => {
         return callback({ success: false, error: 'Invalid PIN or session not found' });
       }
 
-      // Update session with receiver socket
-      targetSession.receiverSocketId = socket.id;
+      // Update session with controller socket
+      targetSession.controllerSocketId = socket.id;
+      targetSession.controllerDeviceName = deviceName || 'Control Device';
       socket.join(targetSessionId);
 
-      console.log(`📺 TV receiver joined session ${targetSessionId}`);
+      console.log(`📺 Controller joined session ${targetSessionId}`);
 
-      // Notify controller that TV connected
-      if (targetSession.controllerSocketId) {
-        io.to(targetSession.controllerSocketId).emit('cast:receiver-connected', {
-          sessionId: targetSessionId
+      // Notify TV receiver that controller connected
+      if (targetSession.receiverSocketId) {
+        io.to(targetSession.receiverSocketId).emit('cast:receiver-connected', {
+          sessionId: targetSessionId,
+          deviceName: deviceName || 'Control Device'
         });
       }
 
