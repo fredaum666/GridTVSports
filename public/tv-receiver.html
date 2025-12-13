@@ -273,6 +273,7 @@
             animation: spin 1s linear infinite;
         }
 
+
         @keyframes spin {
             to {
                 transform: rotate(360deg);
@@ -284,6 +285,161 @@
             justify-content: center;
             align-items: center;
             min-height: 300px;
+        }
+
+        /* Card State Styles */
+        .game-card.winning-home,
+        .game-card.winning-away {
+            border-color: #22c55e;
+            background: linear-gradient(135deg, #1a1f2e 0%, #1e3a2e 100%);
+        }
+
+        .game-card.tied {
+            border-color: #fbbf24;
+            background: linear-gradient(135deg, #1a1f2e 0%, #3a2e1e 100%);
+        }
+
+        .game-card.upcoming-game {
+            border-color: #6366f1;
+            background: linear-gradient(135deg, #1a1f2e 0%, #1e2a3a 100%);
+            opacity: 0.95;
+        }
+
+        /* Fullscreen Layout Styles */
+        .fullscreen-card-content {
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(12px, 2.5vh, 40px);
+            padding: clamp(10px, 2vmin, 30px);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .fullscreen-live-score-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(15px, 3vw, 40px);
+            width: 100%;
+            max-width: 95%;
+            margin: 0 auto;
+            flex-shrink: 1;
+            min-height: 0;
+        }
+
+        .fullscreen-team-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(3px, 1vh, 10px);
+            position: relative;
+            flex-shrink: 1;
+            min-height: 0;
+        }
+
+        .fullscreen-team-logo {
+            width: clamp(40px, 8vmin, 90px);
+            height: clamp(40px, 8vmin, 90px);
+            object-fit: contain;
+            flex-shrink: 1;
+        }
+
+        .fullscreen-live-team-name {
+            font-size: clamp(1.2rem, 3.5vmin, 2.5rem);
+            font-weight: 700;
+            color: #e5e7eb;
+            line-height: 1.1;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(6px, 1.2vw, 12px);
+        }
+
+        .fullscreen-live-team-name.winning {
+            color: #10b981;
+        }
+
+        .fullscreen-team-record {
+            font-size: clamp(0.7rem, 1.8vmin, 1.1rem);
+            color: #9ca3af;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .fullscreen-team-score {
+            font-size: clamp(2.5rem, 8vmin, 5rem);
+            font-weight: 700;
+            color: #e5e7eb;
+            min-width: clamp(60px, 12vmin, 120px);
+            text-align: center;
+            line-height: 1;
+        }
+
+        .fullscreen-team-score.winning {
+            color: #10b981;
+        }
+
+        .fullscreen-team-score.losing {
+            color: #9ca3af;
+        }
+
+        .fullscreen-status-container {
+            margin-bottom: clamp(5px, 1vh, 15px);
+        }
+
+        .fullscreen-status-text {
+            font-size: clamp(0.9rem, 2.5vmin, 1.5rem);
+            font-weight: 700;
+            color: #17a2b8;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .fullscreen-vs-divider-live {
+            font-size: clamp(0.9rem, 2.5vmin, 1.3rem);
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 0 clamp(5px, 1vw, 15px);
+        }
+
+        .fullscreen-upcoming-status-text {
+            font-size: clamp(1rem, 3vmin, 1.8rem);
+            font-weight: 700;
+            color: #6366f1;
+            margin-bottom: clamp(10px, 2vh, 20px);
+            text-align: center;
+        }
+
+        .sport-logo-indicator {
+            position: absolute;
+            top: clamp(5px, 1vh, 15px);
+            left: clamp(5px, 1vw, 15px);
+            width: clamp(35px, 6vmin, 70px);
+            height: clamp(35px, 6vmin, 70px);
+            opacity: 0.7;
+            object-fit: contain;
+            z-index: 1;
+        }
+
+        @keyframes scoreUpdate {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+                color: #22c55e;
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
     </style>
 </head>
@@ -642,68 +798,79 @@
             const homeRecord = homeTeam.records?.[0]?.summary || '';
 
             // Get game status
-            const status = comp.status?.type?.detail || game.status?.type?.detail || 'Scheduled';
             const statusState = comp.status?.type?.state || 'pre';
-            const isLive = statusState === 'in';
             const isFinal = statusState === 'post';
+            const isLive = (statusState === 'in' || comp.status?.period > 0) && !isFinal;
+            const isUpcoming = statusState === 'pre' && !isFinal;
 
-            // Determine status color and badge
-            let statusColor = '#94a3b8';
-            let statusBadge = '';
-            if (isLive) {
-                statusColor = '#ef4444';
-                statusBadge = '<span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; margin-left: 8px;">LIVE</span>';
-            } else if (isFinal) {
-                statusColor = '#6b7280';
-                statusBadge = '<span style="background: #6b7280; color: white; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; margin-left: 8px;">FINAL</span>';
-            }
+            const statusDisplay = comp.status?.type?.shortDetail || comp.status?.type?.detail || 'Scheduled';
 
             // Sport logo mapping
             const sportLogos = {
-                nfl: 'https://a.espncdn.com/i/teamlogos/leagues/500/nfl.png',
-                ncaa: 'https://a.espncdn.com/i/teamlogos/leagues/500/ncaa.png',
-                nba: 'https://a.espncdn.com/i/teamlogos/leagues/500/nba.png',
-                mlb: 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png',
-                nhl: 'https://a.espncdn.com/i/teamlogos/leagues/500/nhl.png'
+                nfl: '/assets/NFL-logo.png',
+                ncaa: '/assets/NCAA logo.png',
+                nba: '/assets/NBA-logo.png',
+                mlb: '/assets/MLB-logo.png',
+                nhl: '/assets/NHL-logo.png'
             };
-            const sportLogo = sportLogos[sport.toLowerCase()] || '';
+            const sportLogo = sportLogos[sport.toLowerCase()] || '/assets/logo.png';
+
+            // Possession indicators
+            const possession = comp.situation?.possession;
+            const awayHasBall = possession === awayTeam.id;
+            const homeHasBall = possession === homeTeam.id;
+            const possessionIcon = sport === 'nba' ? '🏀' : sport === 'nhl' ? '🏒' : '🏈';
 
             return `
-                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; padding: clamp(10px, 2vh, 20px);">
-                    ${sportLogo ? `<img src="${sportLogo}" style="position: absolute; top: 10px; left: 10px; width: clamp(40px, 6vh, 70px); height: clamp(40px, 6vh, 70px); opacity: 0.7;" />` : ''}
+                <div class="fullscreen-card-content">
+                    <img src="${sportLogo}" alt="${sport.toUpperCase()}" class="sport-logo-indicator">
                     
-                    <div style="font-size: clamp(0.9rem, 2vmin, 1.2rem); color: ${statusColor}; margin-bottom: clamp(10px, 2vh, 20px); font-weight: 600; text-align: center;">
-                        ${status}${statusBadge}
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; gap: clamp(15px, 3vh, 30px); width: 100%; max-width: 600px;">
-                        <!-- Away Team -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <div style="display: flex; align-items: center; gap: clamp(10px, 2vmin, 20px);">
-                                ${awayLogo ? `<img src="${awayLogo}" style="width: clamp(50px, 8vmin, 90px); height: clamp(50px, 8vmin, 90px);" onerror="this.style.display='none'" />` : ''}
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-size: clamp(1.5rem, 4vmin, 3rem); font-weight: 900; color: white;">${awayName}</span>
-                                    ${awayRecord ? `<span style="font-size: clamp(0.8rem, 1.5vmin, 1rem); color: #94a3b8;">${awayRecord}</span>` : ''}
-                                </div>
+                    ${isUpcoming ? `
+                        <!-- Upcoming Game -->
+                        <div class="fullscreen-upcoming-status-text">⏰ ${statusDisplay}</div>
+                        <div class="fullscreen-live-score-header">
+                            <div class="fullscreen-team-stack">
+                                ${awayLogo ? `<img src="${awayLogo}" alt="${awayName}" class="fullscreen-team-logo">` : ''}
+                                <div class="fullscreen-live-team-name">${awayName}</div>
+                                ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
                             </div>
-                            <span style="font-size: clamp(3rem, 10vmin, 6rem); font-weight: 900; color: ${awayScore > homeScore ? '#22c55e' : 'white'};">${awayScore}</span>
-                        </div>
-
-                        <!-- Home Team -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <div style="display: flex; align-items: center; gap: clamp(10px, 2vmin, 20px);">
-                                ${homeLogo ? `<img src="${homeLogo}" style="width: clamp(50px, 8vmin, 90px); height: clamp(50px, 8vmin, 90px);" onerror="this.style.display='none'" />` : ''}
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-size: clamp(1.5rem, 4vmin, 3rem); font-weight: 900; color: white;">${homeName}</span>
-                                    ${homeRecord ? `<span style="font-size: clamp(0.8rem, 1.5vmin, 1rem); color: #94a3b8;">${homeRecord}</span>` : ''}
-                                </div>
+                            <div class="fullscreen-team-score">-</div>
+                            <div class="fullscreen-vs-divider-live">VS</div>
+                            <div class="fullscreen-team-score">-</div>
+                            <div class="fullscreen-team-stack">
+                                ${homeLogo ? `<img src="${homeLogo}" alt="${homeName}" class="fullscreen-team-logo">` : ''}
+                                <div class="fullscreen-live-team-name">${homeName}</div>
+                                ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
                             </div>
-                            <span style="font-size: clamp(3rem, 10vmin, 6rem); font-weight: 900; color: ${homeScore > awayScore ? '#22c55e' : 'white'};">${homeScore}</span>
                         </div>
-                    </div>
+                    ` : `
+                        <!-- Live or Final Game -->
+                        <div class="fullscreen-status-container">
+                            <div class="fullscreen-status-text">${statusDisplay}</div>
+                        </div>
+                        
+                        <div class="fullscreen-live-score-header">
+                            <div class="fullscreen-team-stack">
+                                ${awayLogo ? `<img src="${awayLogo}" alt="${awayName}" class="fullscreen-team-logo"  onerror="this.style.display='none'">` : ''}
+                                <div class="fullscreen-live-team-name ${awayScore > homeScore ? 'winning' : ''}">${awayName}${awayHasBall && (sport === 'nfl' || sport === 'ncaa' || sport === 'nba') ? ` ${possessionIcon}` : ''}</div>
+                                ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
+                            </div>
+                            <div class="fullscreen-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
+                            
+                            <div class="fullscreen-vs-divider-live">VS</div>
+                            
+                            <div class="fullscreen-team-score ${homeScore > awayScore ? 'winning' : 'losing'}">${homeScore}</div>
+                            <div class="fullscreen-team-stack">
+                                ${homeLogo ? `<img src="${homeLogo}" alt="${homeName}" class="fullscreen-team-logo" onerror="this.style.display='none'">` : ''}
+                                <div class="fullscreen-live-team-name ${homeScore > awayScore ? 'winning' : ''}">${homeName}${homeHasBall && (sport === 'nfl' || sport === 'ncaa' || sport === 'nba') ? ` ${possessionIcon}` : ''}</div>
+                                ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
+                            </div>
+                        </div>
+                    `}
                 </div>
             `;
         }
+
 
 
         function startAutoRefresh() {
