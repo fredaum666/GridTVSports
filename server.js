@@ -3234,8 +3234,8 @@ app.get('/api/health', async (req, res) => {
 // SERVE STATIC PAGES (Clean URLs)
 // ============================================
 
-// Serve TV Receiver page without .html extension
-app.get('/tv-receiver', requireAuth, (req, res) => {
+// Serve TV Receiver page without .html extension (NO AUTH REQUIRED for TVs)
+app.get('/tv-receiver', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'tv-receiver.html'));
 });
 
