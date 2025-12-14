@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorize TV - GridTV Sports</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(26, 26, 46, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .device-info {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 25px 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .device-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .device-name {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .device-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-text {
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .approve-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .approve-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+        }
+
+        .approve-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-section {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .login-section p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .login-btn {
+            display: inline-block;
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        .state-container {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .state-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .state-icon.success { color: #22c55e; }
+        .state-icon.error { color: #ef4444; }
+        .state-icon.warning { color: #f59e0b; }
+        .state-icon.loading { color: #6366f1; }
+
+        .state-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .state-title.success { color: #22c55e; }
+        .state-title.error { color: #ef4444; }
+        .state-title.warning { color: #f59e0b; }
+
+        .state-message {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(99, 102, 241, 0.2);
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .retry-btn {
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .retry-btn:hover {
+            background: rgba(99, 102, 241, 0.3);
+        }
+
+        .close-note {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 8px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-section">
+            <img src="/assets/logo.png" alt="GridTV Sports" class="logo" onerror="this.style.display='none'">
+            <h1>Authorize TV</h1>
+            <p class="subtitle">Connect your TV to your account</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="state-container">
+            <div class="spinner"></div>
+            <p class="state-message">Verifying authorization request...</p>
+        </div>
+
+        <!-- Authorization Content (shown when user is logged in) -->
+        <div id="auth-content" class="hidden">
+            <div class="device-info">
+                <span class="device-icon">📺</span>
+                <div class="device-name" id="device-name">TV Receiver</div>
+                <div class="device-label">Requesting Access</div>
+            </div>
+
+            <p class="info-text">
+                This TV is requesting access to your GridTV Sports account.
+                Once authorized, you can cast games to this TV.
+            </p>
+
+            <button id="approve-btn" class="approve-btn">
+                <span>✓</span>
+                <span>Authorize This TV</span>
+            </button>
+        </div>
+
+        <!-- Login Prompt (shown when user not logged in) -->
+        <div id="login-prompt" class="hidden">
+            <div class="device-info">
+                <span class="device-icon">📺</span>
+                <div class="device-name" id="device-name-login">TV Receiver</div>
+                <div class="device-label">Requesting Access</div>
+            </div>
+
+            <div class="login-section">
+                <p>Sign in to authorize this TV</p>
+                <a href="#" id="login-link" class="login-btn">Sign In to Continue</a>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div id="success-state" class="hidden state-container">
+            <span class="state-icon success">✓</span>
+            <h2 class="state-title success">TV Authorized!</h2>
+            <p class="state-message">
+                Your TV is now connected to your account.<br>
+                You can start casting games from LiveGames.
+            </p>
+            <div class="close-note">
+                You can close this page. The TV will update automatically.
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden state-container">
+            <span class="state-icon error">✕</span>
+            <h2 class="state-title error">Authorization Failed</h2>
+            <p id="error-message" class="state-message"></p>
+            <button class="retry-btn" onclick="location.reload()">Try Again</button>
+        </div>
+
+        <!-- Expired State -->
+        <div id="expired-state" class="hidden state-container">
+            <span class="state-icon warning">⏰</span>
+            <h2 class="state-title warning">Code Expired</h2>
+            <p class="state-message">
+                The QR code has expired.<br>
+                Please scan a new code on your TV.
+            </p>
+        </div>
+
+        <!-- No Token State -->
+        <div id="no-token-state" class="hidden state-container">
+            <span class="state-icon warning">?</span>
+            <h2 class="state-title warning">Missing Code</h2>
+            <p class="state-message">
+                No authorization code found.<br>
+                Please scan the QR code on your TV to authorize it.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        function hideAllStates() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('auth-content').classList.add('hidden');
+            document.getElementById('login-prompt').classList.add('hidden');
+            document.getElementById('success-state').classList.add('hidden');
+            document.getElementById('error-state').classList.add('hidden');
+            document.getElementById('expired-state').classList.add('hidden');
+            document.getElementById('no-token-state').classList.add('hidden');
+        }
+
+        function showState(stateId) {
+            hideAllStates();
+            document.getElementById(stateId).classList.remove('hidden');
+        }
+
+        function showError(message) {
+            hideAllStates();
+            document.getElementById('error-message').textContent = message;
+            document.getElementById('error-state').classList.remove('hidden');
+        }
+
+        async function init() {
+            if (!token) {
+                showState('no-token-state');
+                return;
+            }
+
+            try {
+                // Verify token
+                const tokenResponse = await fetch(`/api/tv/verify-token?token=${encodeURIComponent(token)}`);
+
+                if (!tokenResponse.ok) {
+                    const error = await tokenResponse.json();
+                    if (error.error && error.error.toLowerCase().includes('expired')) {
+                        showState('expired-state');
+                    } else {
+                        showError(error.error || 'Invalid authorization code');
+                    }
+                    return;
+                }
+
+                const tokenData = await tokenResponse.json();
+                document.getElementById('device-name').textContent = tokenData.deviceName || 'TV Receiver';
+                document.getElementById('device-name-login').textContent = tokenData.deviceName || 'TV Receiver';
+
+                // Check if user is logged in
+                const authResponse = await fetch('/api/auth/check');
+                const authData = await authResponse.json();
+
+                if (authData.authenticated) {
+                    // User is logged in, show approve button
+                    showState('auth-content');
+                } else {
+                    // Not logged in, show login prompt
+                    const returnUrl = encodeURIComponent(window.location.href);
+                    document.getElementById('login-link').href = `/login.html?return=${returnUrl}`;
+                    showState('login-prompt');
+                }
+            } catch (error) {
+                console.error('Init error:', error);
+                showError('Connection error. Please check your internet and try again.');
+            }
+        }
+
+        // Approve button handler
+        document.getElementById('approve-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('approve-btn');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span>Authorizing...</span>';
+
+            try {
+                const response = await fetch('/api/tv/approve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showState('success-state');
+                } else {
+                    if (data.error && data.error.toLowerCase().includes('expired')) {
+                        showState('expired-state');
+                    } else {
+                        showError(data.error || 'Authorization failed. Please try again.');
+                    }
+                }
+            } catch (error) {
+                console.error('Approve error:', error);
+                showError('Connection error. Please check your internet and try again.');
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+        });
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>

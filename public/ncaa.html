@@ -735,6 +735,28 @@
       filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.6));
     }
 
+    /* Bowl Game Name Banner */
+    .postseason-game-name {
+      color: #ff6b00;
+      text-align: center;
+      font-size: clamp(0.7rem, 1.5vh, 1.1rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: clamp(2px, 0.5vh, 6px);
+    }
+
+    /* Regular card bowl game name */
+    .postseason-game-name-small {
+      color: #ff6b00;
+      text-align: center;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 2px;
+    }
+
     .fullscreen-game-card.empty-slot {
       border-style: dashed;
       border-color: #475569;
@@ -4546,6 +4568,7 @@
     let liveGames = [];
     let finalGames = [];
     let currentWeek = 1; // Will be fetched from server
+    let isBowlSeason = false; // Track if we're in bowl season
     let userFavoriteTeams = []; // Store user's favorite team IDs for this league
     let currentSortMode = 'time'; // 'favorites' or 'time' - default to time sort on page load
 
@@ -4667,32 +4690,44 @@
 
     async function fetchLiveGames() {
       try {
-        // Fetch current week from server if not already set
-        if (currentWeek === 1) {
-          try {
-            const weekResponse = await fetch('/api/ncaa/current-week');
-            const weekData = await weekResponse.json();
+        // Fetch current week/bowl season info from server
+        try {
+          const weekResponse = await fetch('/api/ncaa/current-week');
+          const weekData = await weekResponse.json();
+          isBowlSeason = weekData.isBowlSeason || false;
+          if (!isBowlSeason && typeof weekData.week === 'number') {
             currentWeek = weekData.week;
-            console.log(`📅 Fetched current NCAA week from server: Week ${currentWeek}`);
-          } catch (error) {
-            console.error('Error fetching current week, defaulting to 1:', error);
+          }
+          console.log(`📅 NCAA: ${isBowlSeason ? 'Bowl Season' : 'Week ' + currentWeek}`);
+        } catch (error) {
+          console.error('Error fetching current week, defaulting to week 1:', error);
+          currentWeek = 1;
+          isBowlSeason = false;
+        }
+
+        let currentWeekResponse, nextWeekResponse;
+
+        if (isBowlSeason) {
+          // Bowl season - fetch postseason games
+          console.log(`🏈 Fetching NCAA Bowl Games...`);
+          currentWeekResponse = await fetch('/api/ncaa/scoreboard?week=bowl');
+          nextWeekResponse = { ok: false }; // No "next week" for bowl season
+        } else {
+          // Regular season - fetch current and next week
+          // Ensure currentWeek is a valid number
+          if (typeof currentWeek !== 'number' || isNaN(currentWeek) || currentWeek < 1) {
+            console.warn(`⚠️ Invalid currentWeek value: ${currentWeek}, resetting to 1`);
             currentWeek = 1;
           }
-        }
 
-        // Ensure currentWeek is a valid number
-        if (typeof currentWeek !== 'number' || isNaN(currentWeek) || currentWeek < 1) {
-          console.warn(`⚠️ Invalid currentWeek value: ${currentWeek}, resetting to 1`);
-          currentWeek = 1;
-        }
+          console.log(`🔍 Fetching NCAA games for Week ${currentWeek} and Week ${currentWeek + 1}...`);
 
-        console.log(`🔍 Fetching NCAA games for Week ${currentWeek} and Week ${currentWeek + 1}...`);
-        
-        // Fetch BOTH current week AND next week to catch upcoming games within 36 hours
-        const [currentWeekResponse, nextWeekResponse] = await Promise.all([
-          fetch(`/api/ncaa/scoreboard?week=${currentWeek}`),
-          fetch(`/api/ncaa/scoreboard?week=${currentWeek + 1}`)
-        ]);
+          // Fetch BOTH current week AND next week to catch upcoming games within 36 hours
+          [currentWeekResponse, nextWeekResponse] = await Promise.all([
+            fetch(`/api/ncaa/scoreboard?week=${currentWeek}`),
+            fetch(`/api/ncaa/scoreboard?week=${currentWeek + 1}`)
+          ]);
+        }
 
         // Check for session expiration (401)
         if (currentWeekResponse.status === 401 || nextWeekResponse.status === 401) {
@@ -5111,7 +5146,7 @@
         if (isLive) {
           statusText = `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}`;
         } else if (isFinal) {
-          statusText = 'Final';
+          statusText = ''; // Badge already shows FINAL, no need for duplicate text
         } else {
           const gameDate = new Date(game.date);
           const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -5133,12 +5168,16 @@
               <div class="card-pages" data-current-page="0">
         `;
 
+        // Get bowl/postseason game name
+        const bowlGameNameSmall = isBowlSeason && comp?.notes?.[0]?.headline ? comp.notes[0].headline : '';
+
         // PAGE 1
         if (isPregame) {
           // Upcoming Game - Page 1 Only
           cardHtml += `
             <div class="card-page">
               <div class="page-1-upcoming">
+                ${bowlGameNameSmall ? `<div class="postseason-game-name-small">${bowlGameNameSmall}</div>` : ''}
                 <div style="text-align: center; color: #9ca3af; font-size: 11px; font-weight: 600; margin-bottom: 4px;">
                   ${statusText}
                 </div>
@@ -5173,12 +5212,11 @@
             <div class="card-page">
               <div class="page-1-live">
                 <div style="text-align: center; margin-bottom: 8px;">
+                  ${bowlGameNameSmall ? `<div class="postseason-game-name-small">${bowlGameNameSmall}</div>` : ''}
                   <div style="display: inline-block; background: ${isLive ? '#ef4444' : '#6b7280'}; color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase;">
                     ${isLive ? '<span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE' : 'FINAL'}
                   </div>
-                  <div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">
-                    ${statusText}
-                  </div>
+                  ${statusText ? `<div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">${statusText}</div>` : ''}
                 </div>
 
                 <div class="live-score-header">
@@ -7133,10 +7171,12 @@
       div.dataset.isFinal = isFinal ? 'true' : 'false';
       div.dataset.gameId = game.id;
 
+      const bowlGameName = isBowlSeason && comp?.notes?.[0]?.headline ? comp.notes[0].headline : '';
+
       div.innerHTML = `
         <img src="/assets/NCAA logo.png" alt="NCAA" class="sport-logo-indicator">
         <div class="fullscreen-refresh-indicator"></div>
-        
+
         <!-- Game Selector Dropdown (hidden initially) -->
         <div class="fs-game-selector-container">
           <select class="fs-game-selector" data-slot="${slotIndex}">
@@ -7147,6 +7187,7 @@
         <div class="fullscreen-card-content">
           ${isUpcoming ? `
             <!-- Upcoming Game -->
+            ${bowlGameName ? `<div class="postseason-game-name">${bowlGameName}</div>` : ''}
             <div class="fullscreen-upcoming-status-text">⏰ ${statusDisplay}</div>
             <div class="fullscreen-live-score-header">
               <div class="fullscreen-team-stack">
@@ -7165,6 +7206,7 @@
             </div>
           ` : `
             <!-- Live or Final Game -->
+            ${bowlGameName ? `<div class="postseason-game-name">${bowlGameName}</div>` : ''}
             <div class="fullscreen-status-container">
               <div class="fullscreen-status-text">${quarterText}</div>
             </div>
@@ -7569,11 +7611,19 @@
     // Update full screen scores
     async function updateFullScreenScores() {
       try {
-        // Fetch updated game data from BOTH current week AND next week (same as initial fetch)
-        const [currentWeekResponse, nextWeekResponse] = await Promise.all([
-          fetch(`/api/ncaa/scoreboard?week=${currentWeek}`),
-          fetch(`/api/ncaa/scoreboard?week=${currentWeek + 1}`)
-        ]);
+        let currentWeekResponse, nextWeekResponse;
+
+        if (isBowlSeason) {
+          // Bowl season - fetch postseason games
+          currentWeekResponse = await fetch('/api/ncaa/scoreboard?week=bowl');
+          nextWeekResponse = { ok: false };
+        } else {
+          // Fetch updated game data from BOTH current week AND next week (same as initial fetch)
+          [currentWeekResponse, nextWeekResponse] = await Promise.all([
+            fetch(`/api/ncaa/scoreboard?week=${currentWeek}`),
+            fetch(`/api/ncaa/scoreboard?week=${currentWeek + 1}`)
+          ]);
+        }
 
         if (!currentWeekResponse.ok && !nextWeekResponse.ok) {
           throw new Error(`Failed to fetch scores from both weeks`);

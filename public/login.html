@@ -471,7 +471,14 @@
         if (response.ok) {
           showSuccess('Login successful! Redirecting...');
           setTimeout(() => {
-            window.location.href = '/';
+            // Check for return URL (used for TV auth flow)
+            const urlParams = new URLSearchParams(window.location.search);
+            const returnUrl = urlParams.get('return');
+            if (returnUrl && (returnUrl.startsWith('/tv-auth') || returnUrl.includes('/tv-auth'))) {
+              window.location.href = decodeURIComponent(returnUrl);
+            } else {
+              window.location.href = '/';
+            }
           }, 1000);
         } else {
           showError(data.error || 'Invalid email or password');
@@ -568,8 +575,16 @@
     async function checkAuth() {
       try {
         const response = await fetch('/api/auth/check');
-        if (response.ok) {
-          window.location.href = '/';
+        const data = await response.json();
+        if (response.ok && data.authenticated) {
+          // Check for return URL (used for TV auth flow)
+          const urlParams = new URLSearchParams(window.location.search);
+          const returnUrl = urlParams.get('return');
+          if (returnUrl && (returnUrl.startsWith('/tv-auth') || returnUrl.includes('/tv-auth'))) {
+            window.location.href = decodeURIComponent(returnUrl);
+          } else {
+            window.location.href = '/';
+          }
         }
       } catch (error) {
         // Not logged in, stay on login page

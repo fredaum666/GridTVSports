@@ -1940,6 +1940,17 @@
       filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.6));
     }
 
+    /* Postseason/Bowl Game Name Banner */
+    .postseason-game-name {
+      color: #ff6b00;
+      text-align: center;
+      font-size: clamp(0.7rem, 1.5vh, 1.1rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: clamp(2px, 0.5vh, 6px);
+    }
+
     /* Sport Badges */
     .sport-badge {
       display: inline-block;
@@ -3771,6 +3782,8 @@
     var fullscreenRefreshInterval;
     var sessionKeepAliveInterval = null; // Keep session alive during fullscreen
     var fullscreenEnteredAt = null; // Timestamp when fullscreen mode was entered - animations only show for plays after this time
+    var isNFLPostseason = false; // Track NFL postseason status
+    var isNCAABowlSeason = false; // Track NCAA bowl season status
 
     // Calculate ball position percentage for field visualizer
     // Field position format: "DAL 32" means Dallas has ball at their own 32 yard line
@@ -3831,44 +3844,85 @@
           fetch('/api/nfl/current-week'),
           fetch('/api/ncaa/current-week')
         ]);
-        const { week: nflWeek } = await nflWeekResponse.json();
-        const { week: ncaaWeek } = await ncaaWeekResponse.json();
+        const nflWeekData = await nflWeekResponse.json();
+        const nflWeek = nflWeekData.week;
+        isNFLPostseason = nflWeekData.isPostseason || false; // Update global
+        const nflSeasonType = nflWeekData.seasonType || 2;
 
-        const [nflResponse, nflNextWeekResponse, ncaaResponse, ncaaNextWeekResponse, nbaResponse, mlbResponse, nhlResponse] = await Promise.all([
-          fetch(`/api/nfl/scoreboard?week=${nflWeek}`),
-          fetch(`/api/nfl/scoreboard?week=${nflWeek + 1}`),
-          fetch(`/api/ncaa/scoreboard?week=${ncaaWeek}`),
-          fetch(`/api/ncaa/scoreboard?week=${ncaaWeek + 1}`),
+        const ncaaWeekData = await ncaaWeekResponse.json();
+        const ncaaWeek = ncaaWeekData.week;
+        isNCAABowlSeason = ncaaWeekData.isBowlSeason || false; // Update global
+
+        // Build NFL fetch URLs based on postseason
+        let nflFetchUrl, nflNextWeekFetchUrl;
+        if (isNFLPostseason) {
+          nflFetchUrl = `/api/nfl/scoreboard?week=playoffs&seasontype=${nflWeek}`;
+          let nextRoundWeek = nflWeek + 1;
+          if (nextRoundWeek === 4) nextRoundWeek = 5; // Skip Pro Bowl
+          if (nextRoundWeek <= 5) {
+            nflNextWeekFetchUrl = `/api/nfl/scoreboard?week=playoffs&seasontype=${nextRoundWeek}`;
+          } else {
+            nflNextWeekFetchUrl = null;
+          }
+        } else {
+          nflFetchUrl = `/api/nfl/scoreboard?week=${nflWeek}`;
+          nflNextWeekFetchUrl = `/api/nfl/scoreboard?week=${nflWeek + 1}`;
+        }
+
+        // Build NCAA fetch URLs based on bowl season
+        let ncaaFetchUrl, ncaaNextWeekFetchUrl;
+        if (isNCAABowlSeason) {
+          ncaaFetchUrl = '/api/ncaa/scoreboard?week=bowl';
+          ncaaNextWeekFetchUrl = null;
+        } else {
+          ncaaFetchUrl = `/api/ncaa/scoreboard?week=${ncaaWeek}`;
+          ncaaNextWeekFetchUrl = `/api/ncaa/scoreboard?week=${ncaaWeek + 1}`;
+        }
+
+        // Build fetch array
+        const fetchPromises = [
+          fetch(nflFetchUrl),
+          fetch(ncaaFetchUrl),
           fetch('/api/nba/scoreboard'),
           fetch('/api/mlb/scoreboard'),
           fetch('/api/nhl/scoreboard')
-        ]);
+        ];
+
+        // Add optional fetches
+        if (nflNextWeekFetchUrl) fetchPromises.push(fetch(nflNextWeekFetchUrl));
+        if (ncaaNextWeekFetchUrl) fetchPromises.push(fetch(ncaaNextWeekFetchUrl));
+
+        const responses = await Promise.all(fetchPromises);
 
         // Check for session expiration (401) on any response
-        const responses = [nflResponse, nflNextWeekResponse, ncaaResponse, ncaaNextWeekResponse, nbaResponse, mlbResponse, nhlResponse];
         if (responses.some(r => r.status === 401)) {
           console.log('Session expired, redirecting to login...');
           window.location.href = '/login';
           return;
         }
 
-        const [nflData, nflNextWeekData, ncaaData, ncaaNextWeekData, nbaData, mlbData, nhlData] = await Promise.all([
-          nflResponse.json(),
-          nflNextWeekResponse.json(),
-          ncaaResponse.json(),
-          ncaaNextWeekResponse.json(),
-          nbaResponse.json(),
-          mlbResponse.json(),
-          nhlResponse.json()
-        ]);
+        // Parse base responses
+        const [nflResponse, ncaaResponse, nbaResponse, mlbResponse, nhlResponse] = responses;
+        let responseIndex = 5;
+
+        const nflNextWeekResponse = nflNextWeekFetchUrl ? responses[responseIndex++] : null;
+        const ncaaNextWeekResponse = ncaaNextWeekFetchUrl ? responses[responseIndex++] : null;
+
+        const nflData = await nflResponse.json();
+        const ncaaData = await ncaaResponse.json();
+        const nbaData = await nbaResponse.json();
+        const mlbData = await mlbResponse.json();
+        const nhlData = await nhlResponse.json();
+        const nflNextWeekData = nflNextWeekResponse ? await nflNextWeekResponse.json() : null;
+        const ncaaNextWeekData = ncaaNextWeekResponse ? await ncaaNextWeekResponse.json() : null;
 
         allGames = [];
 
-        // NFL - combine current and next week
+        // NFL - combine current and next week/round
         if (nflData.events) {
           nflData.events.forEach(game => allGames.push({ ...game, sport: 'nfl' }));
         }
-        if (nflNextWeekData.events) {
+        if (nflNextWeekData && nflNextWeekData.events) {
           nflNextWeekData.events.forEach(game => {
             // Avoid duplicates
             if (!allGames.find(g => g.id === game.id)) {
@@ -3877,11 +3931,11 @@
           });
         }
 
-        // NCAA - combine current and next week
+        // NCAA - combine current and next week (if available)
         if (ncaaData.events) {
           ncaaData.events.forEach(game => allGames.push({ ...game, sport: 'ncaa' }));
         }
-        if (ncaaNextWeekData.events) {
+        if (ncaaNextWeekData && ncaaNextWeekData.events) {
           ncaaNextWeekData.events.forEach(game => {
             // Avoid duplicates
             if (!allGames.find(g => g.id === game.id)) {
@@ -4291,6 +4345,10 @@
       // Get possession icon based on sport
       const possessionIcon = game.sport === 'nba' ? '🏀' : game.sport === 'nhl' ? '🏒' : '🏈';
 
+      // Check if this is a postseason game (NFL postseason or NCAA bowl) - use notes headline for bowl/playoff name
+      const postseasonGameName = comp?.notes?.[0]?.headline || '';
+      const showGameName = postseasonGameName && ((game.sport === 'nfl' && isNFLPostseason) || (game.sport === 'ncaa' && isNCAABowlSeason));
+
       // All sports use the same horizontal layout (matching NBA page style)
       div.innerHTML = `
           <img src="${sportLogo}" alt="${game.sport.toUpperCase()}" class="sport-logo-indicator">
@@ -4304,6 +4362,7 @@
           <div class="fullscreen-card-content">
             ${isUpcoming ? `
               <!-- Upcoming Game -->
+              ${showGameName ? `<div class="postseason-game-name">${postseasonGameName}</div>` : ''}
               <div class="fullscreen-upcoming-status-text">⏰ ${statusDisplay}</div>
               <div class="fullscreen-live-score-header">
                 <div class="fullscreen-team-stack">
@@ -4322,6 +4381,7 @@
               </div>
             ` : `
               <!-- Live or Final Game -->
+              ${showGameName ? `<div class="postseason-game-name">${postseasonGameName}</div>` : ''}
               <div class="fullscreen-status-container">
                 <div class="fullscreen-status-text">${statusDisplay}</div>
               </div>

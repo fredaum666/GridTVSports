@@ -4032,7 +4032,7 @@
       if (isLive) {
         statusText = `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}`;
       } else if (isFinal) {
-        statusText = 'Final';
+        statusText = ''; // Badge already shows FINAL, no need for duplicate text
       } else {
         const gameDate = new Date(game.date);
         const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -4088,9 +4088,7 @@
                   <div style="display: inline-block; background: ${isLive ? '#ef4444' : '#6b7280'}; color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase;">
                     ${isLive ? '<span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE' : 'FINAL'}
                   </div>
-                  <div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">
-                    ${statusText}
-                  </div>
+                  ${statusText ? `<div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">${statusText}</div>` : ''}
                 </div>
 
                 <div class="live-score-header">

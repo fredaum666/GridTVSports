@@ -74,7 +74,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://cdn.jsdelivr.net"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https://a.espncdn.com", "https://*.espncdn.com", "https://*.stripe.com"],
@@ -1984,7 +1984,13 @@ app.put('/api/admin/pricing/:planType', requireAdmin, async (req, res) => {
 // Public routes (no auth required)
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
-app.use('/scripts', express.static(path.join(__dirname, 'public', 'scripts')));
+app.use('/scripts', express.static(path.join(__dirname, 'public', 'scripts'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    }
+  }
+}));
 app.use('/styles', express.static(path.join(__dirname, 'public', 'styles')));
 
 // List of valid page routes (without .html)
@@ -1998,6 +2004,8 @@ app.use((req, res, next) => {
     req.path === '/reset-password.html' ||
     req.path === '/tv-receiver' ||
     req.path === '/tv-receiver.html' ||
+    req.path === '/tv-auth' ||
+    req.path === '/tv-auth.html' ||
     req.path.startsWith('/assets/') ||
     req.path.startsWith('/css/') ||
     req.path.startsWith('/scripts/') ||
@@ -2012,6 +2020,8 @@ app.use((req, res, next) => {
     req.path.startsWith('/api/ncaab/') ||
     req.path.startsWith('/api/health') ||
     req.path.startsWith('/api/final-games/') ||
+    // TV authentication APIs (must be public for QR code flow)
+    req.path.startsWith('/api/tv/') ||
     req.method === 'OPTIONS') {
     return next();
   }
@@ -2299,17 +2309,93 @@ async function fetchESPN(url, retries = 3) {
 // NFL HELPERS
 // ============================================
 
-function getCurrentNFLWeek() {
-  // 2025 NFL Season started September 4, 2025 (Thursday Night Football)
-  const seasonStart = new Date('2025-09-04');
+// NFL Postseason schedule (approximate dates for 2024-2025 season)
+// Wild Card: January 11-13, 2025
+// Divisional: January 18-19, 2025
+// Conference Championships: January 26, 2025
+// Super Bowl: February 9, 2025
+
+function getNFLSeasonInfo() {
   const now = new Date();
+  const month = now.getMonth() + 1; // 1-12
+  const day = now.getDate();
+  const year = now.getFullYear();
+
+  // Determine the NFL season year (season starts in September)
+  // If we're in Jan-Feb, we're in the previous year's season
+  const seasonYear = (month >= 9) ? year : year - 1;
+
+  // Check if we're in postseason (January through early February)
+  if (month === 1 || (month === 2 && day <= 15)) {
+    // Postseason period
+    // Wild Card Weekend: ~Jan 11-13
+    // Divisional Round: ~Jan 18-19
+    // Conference Championships: ~Jan 26
+    // Super Bowl: ~Feb 9
+
+    let postseasonWeek;
+    if (month === 1 && day <= 14) {
+      postseasonWeek = 1; // Wild Card
+    } else if (month === 1 && day <= 21) {
+      postseasonWeek = 2; // Divisional
+    } else if (month === 1) {
+      postseasonWeek = 3; // Conference Championships
+    } else if (month === 2 && day <= 2) {
+      postseasonWeek = 3; // Still Conference week window
+    } else {
+      postseasonWeek = 5; // Super Bowl (skip Pro Bowl week 4)
+    }
+
+    return {
+      seasonType: 3, // Postseason
+      week: postseasonWeek,
+      seasonYear: seasonYear,
+      isPostseason: true,
+      postseasonRound: getPostseasonRoundName(postseasonWeek)
+    };
+  }
+
+  // Regular season calculation
+  // 2024 NFL Season started September 5, 2024 (Thursday Night Football)
+  const seasonStart = new Date(`${seasonYear}-09-05`);
   const diffDays = Math.floor((now - seasonStart) / (1000 * 60 * 60 * 24));
   const week = Math.floor(diffDays / 7) + 1;
 
-  console.log(`📅 NFL Week Calculation: Days since season start = ${diffDays}, Calculated week = ${week}`);
+  // If week > 18, we might be in the gap between regular season and playoffs
+  if (week > 18) {
+    return {
+      seasonType: 2,
+      week: 18, // Show week 18 games
+      seasonYear: seasonYear,
+      isPostseason: false,
+      postseasonRound: null
+    };
+  }
 
-  // Return week 1-18
-  return Math.max(1, Math.min(week, 18));
+  return {
+    seasonType: 2, // Regular season
+    week: Math.max(1, Math.min(week, 18)),
+    seasonYear: seasonYear,
+    isPostseason: false,
+    postseasonRound: null
+  };
+}
+
+function getPostseasonRoundName(week) {
+  switch (week) {
+    case 1: return 'Wild Card';
+    case 2: return 'Divisional';
+    case 3: return 'Conference Championships';
+    case 4: return 'Pro Bowl';
+    case 5: return 'Super Bowl';
+    default: return 'Postseason';
+  }
+}
+
+function getCurrentNFLWeek() {
+  const info = getNFLSeasonInfo();
+  console.log(`📅 NFL Season Info: ${info.isPostseason ? info.postseasonRound : 'Week ' + info.week} (seasonType=${info.seasonType})`);
+  return info.week;
 }
 
 function areAllGamesComplete(scoreboard) {
@@ -2386,8 +2472,41 @@ function getTomorrowDate() {
 
 app.get('/api/nfl/scoreboard', async (req, res) => {
   try {
-    const week = req.query.week || getCurrentNFLWeek();
-    const cacheKey = `week-${week}`;
+    const seasonInfo = getNFLSeasonInfo();
+    const requestedWeek = req.query.week;
+    const requestedSeasonType = req.query.seasontype;
+
+    // Determine what to fetch
+    let week, seasonType, cacheKey, url;
+
+    if (requestedWeek === 'playoffs' || requestedWeek === 'postseason') {
+      // Explicitly requesting postseason
+      seasonType = 3;
+      week = requestedSeasonType ? parseInt(requestedSeasonType) : seasonInfo.week;
+      cacheKey = `postseason-week-${week}`;
+      url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${week}`;
+    } else if (requestedWeek) {
+      // Specific week requested
+      week = parseInt(requestedWeek);
+      // If requesting week > 18, treat as postseason week
+      if (week > 18) {
+        seasonType = 3;
+        week = week - 18; // Convert to postseason week (19=1, 20=2, etc.)
+        cacheKey = `postseason-week-${week}`;
+        url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${week}`;
+      } else {
+        seasonType = 2;
+        cacheKey = `regular-week-${week}`;
+        url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=2&week=${week}`;
+      }
+    } else {
+      // Auto-detect based on current date
+      seasonType = seasonInfo.seasonType;
+      week = seasonInfo.week;
+      cacheKey = seasonType === 3 ? `postseason-week-${week}` : `regular-week-${week}`;
+      url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=${seasonType}&week=${week}`;
+    }
+
     const cached = sportsCache.nfl.data.get(cacheKey);
     const now = Date.now();
 
@@ -2395,7 +2514,7 @@ app.get('/api/nfl/scoreboard', async (req, res) => {
       return res.json(cached.data);
     }
 
-    const url = `${ESPN_BASE}/football/nfl/scoreboard?week=${week}`;
+    console.log(`[NFL] Fetching: ${url}`);
     const data = await fetchESPN(url);
     const isComplete = areAllGamesComplete(data);
 
@@ -2406,18 +2525,20 @@ app.get('/api/nfl/scoreboard', async (req, res) => {
       return acc;
     }, {}) || {};
 
-    console.log(`[NFL] Week ${week} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
+    const roundName = seasonType === 3 ? getPostseasonRoundName(week) : `Week ${week}`;
+    console.log(`[NFL] ${roundName} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
 
     sportsCache.nfl.data.set(cacheKey, { data, timestamp: now, isComplete });
 
     if (!isComplete) {
-      sportsCache.nfl.activeWeeks.add(week);
+      sportsCache.nfl.activeWeeks.add(cacheKey);
     } else {
-      sportsCache.nfl.activeWeeks.delete(week);
+      sportsCache.nfl.activeWeeks.delete(cacheKey);
     }
 
     res.json(data);
   } catch (error) {
+    console.error('[NFL] Error fetching scoreboard:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -2433,17 +2554,69 @@ app.get('/api/nfl/summary/:gameId', async (req, res) => {
 });
 
 app.get('/api/nfl/current-week', (req, res) => {
-  res.json({ week: getCurrentNFLWeek() });
+  const info = getNFLSeasonInfo();
+  res.json({
+    week: info.week,
+    seasonType: info.seasonType,
+    isPostseason: info.isPostseason,
+    postseasonRound: info.postseasonRound,
+    seasonYear: info.seasonYear
+  });
 });
 
 // ============================================
 // API ROUTES - NCAA COLLEGE FOOTBALL
 // ============================================
 
+// Helper to determine if we're in bowl season
+function isCollegeBowlSeason() {
+  const now = new Date();
+  const month = now.getMonth() + 1; // 1-12
+  const day = now.getDate();
+
+  // Bowl season: December 14 - January 20 (approximately)
+  // CFP runs through mid-January
+  if (month === 12 && day >= 14) return true;
+  if (month === 1 && day <= 20) return true;
+  return false;
+}
+
+// Get current NCAA week or bowl indicator
+function getCurrentNCAAWeek() {
+  if (isCollegeBowlSeason()) {
+    return 'bowl'; // Special indicator for bowl season
+  }
+
+  // College football regular season starts late August
+  // Week 1 is typically the last week of August / first week of September
+  const seasonStart = new Date('2024-08-24'); // 2024 season start (Week 0/1)
+  const now = new Date();
+  const diffDays = Math.floor((now - seasonStart) / (1000 * 60 * 60 * 24));
+  const week = Math.floor(diffDays / 7) + 1;
+
+  // Regular season is weeks 1-15 (conference championships in week 15)
+  return Math.max(1, Math.min(week, 15));
+}
+
 app.get('/api/ncaa/scoreboard', async (req, res) => {
   try {
-    const week = req.query.week || getCurrentNFLWeek(); // Using same week logic as NFL
-    const cacheKey = `week-${week}`;
+    const requestedWeek = req.query.week;
+    const isBowlRequest = requestedWeek === 'bowl' || (!requestedWeek && isCollegeBowlSeason());
+
+    let cacheKey, url;
+
+    if (isBowlRequest) {
+      // Bowl season - use postseason API
+      cacheKey = 'bowl-season';
+      url = `${ESPN_BASE}/football/college-football/scoreboard?seasontype=3&groups=80`;
+      console.log(`[NCAA] Fetching bowl games (postseason)`);
+    } else {
+      // Regular season
+      const week = requestedWeek || getCurrentNCAAWeek();
+      cacheKey = `week-${week}`;
+      url = `${ESPN_BASE}/football/college-football/scoreboard?week=${week}&groups=80`;
+    }
+
     const cached = sportsCache.ncaa.data.get(cacheKey);
     const now = Date.now();
 
@@ -2451,7 +2624,6 @@ app.get('/api/ncaa/scoreboard', async (req, res) => {
       return res.json(cached.data);
     }
 
-    const url = `${ESPN_BASE}/football/college-football/scoreboard?week=${week}&groups=80`; // Division I FBS
     const data = await fetchESPN(url);
     const isComplete = areAllGamesComplete(data);
 
@@ -2461,18 +2633,19 @@ app.get('/api/ncaa/scoreboard', async (req, res) => {
       return acc;
     }, {}) || {};
 
-    console.log(`[NCAA] Week ${week} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
+    console.log(`[NCAA] ${isBowlRequest ? 'Bowl Season' : 'Week ' + (requestedWeek || getCurrentNCAAWeek())} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
 
     sportsCache.ncaa.data.set(cacheKey, { data, timestamp: now, isComplete });
 
     if (!isComplete) {
-      sportsCache.ncaa.activeWeeks.add(week);
+      sportsCache.ncaa.activeWeeks.add(cacheKey);
     } else {
-      sportsCache.ncaa.activeWeeks.delete(week);
+      sportsCache.ncaa.activeWeeks.delete(cacheKey);
     }
 
     res.json(data);
   } catch (error) {
+    console.error('[NCAA] Error fetching scoreboard:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -2488,7 +2661,11 @@ app.get('/api/ncaa/summary/:gameId', async (req, res) => {
 });
 
 app.get('/api/ncaa/current-week', (req, res) => {
-  res.json({ week: getCurrentNFLWeek() }); // Using same week logic as NFL
+  const week = getCurrentNCAAWeek();
+  res.json({
+    week: week,
+    isBowlSeason: isCollegeBowlSeason()
+  });
 });
 
 // ============================================
@@ -3242,8 +3419,277 @@ app.get('/api/health', async (req, res) => {
 
 
 // ============================================
+// TV QR CODE AUTHENTICATION API
+// ============================================
+
+// Rate limiter for TV auth (10 requests per minute per IP)
+const tvAuthLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10,
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.ip ? req.ip.replace(/:\d+$/, '') : req.ip,
+  validate: false
+});
+
+// Clean up expired TV auth tokens every 5 minutes
+setInterval(async () => {
+  try {
+    const result = await pool.query(
+      "UPDATE tv_auth_tokens SET status = 'expired' WHERE status = 'pending' AND expires_at < NOW()"
+    );
+    if (result.rowCount > 0) {
+      console.log(`🧹 Cleaned up ${result.rowCount} expired TV auth tokens`);
+    }
+  } catch (error) {
+    console.error('TV auth token cleanup error:', error);
+  }
+}, 5 * 60 * 1000);
+
+// Generate QR token (TV calls this to get a new QR code)
+app.post('/api/tv/generate-qr-token', tvAuthLimiter, async (req, res) => {
+  try {
+    const { deviceId, deviceName } = req.body;
+
+    if (!deviceId) {
+      return res.status(400).json({ error: 'Device ID is required' });
+    }
+
+    // Generate secure token (32 bytes = 64 hex chars)
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    // Invalidate any existing pending tokens for this device
+    await pool.query(
+      "UPDATE tv_auth_tokens SET status = 'expired' WHERE device_id = $1 AND status = 'pending'",
+      [deviceId]
+    );
+
+    // Insert new token
+    await pool.query(
+      `INSERT INTO tv_auth_tokens (token, device_id, device_name, expires_at)
+       VALUES ($1, $2, $3, $4)`,
+      [token, deviceId, deviceName || 'TV Receiver', expiresAt]
+    );
+
+    // Build QR code URL
+    const appUrl = process.env.APP_URL || `http://localhost:${PORT}`;
+    const authUrl = `${appUrl}/tv-auth?token=${token}`;
+
+    console.log(`📺 QR token generated for device: ${deviceId.substring(0, 8)}...`);
+
+    res.json({
+      success: true,
+      token,
+      authUrl,
+      expiresAt: expiresAt.toISOString()
+    });
+  } catch (error) {
+    console.error('Generate QR token error:', error.message);
+    console.error('Stack:', error.stack);
+    res.status(500).json({ error: 'Failed to generate authentication token', details: error.message });
+  }
+});
+
+// Verify QR token (Mobile authorization page calls this)
+app.get('/api/tv/verify-token', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ error: 'Token is required' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT id, device_id, device_name, status, expires_at
+       FROM tv_auth_tokens
+       WHERE token = $1`,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Invalid or expired token' });
+    }
+
+    const tokenData = result.rows[0];
+
+    if (tokenData.status !== 'pending') {
+      return res.status(400).json({ error: 'Token has already been used or expired' });
+    }
+
+    if (new Date(tokenData.expires_at) < new Date()) {
+      return res.status(400).json({ error: 'Token has expired' });
+    }
+
+    res.json({
+      valid: true,
+      deviceId: tokenData.device_id,
+      deviceName: tokenData.device_name,
+      expiresAt: tokenData.expires_at
+    });
+  } catch (error) {
+    console.error('Verify token error:', error);
+    res.status(500).json({ error: 'Failed to verify token' });
+  }
+});
+
+// Approve TV (Mobile authorization page calls this after user logs in)
+app.post('/api/tv/approve', requireAuth, async (req, res) => {
+  const { token } = req.body;
+  const userId = req.session.userId;
+
+  if (!token) {
+    return res.status(400).json({ error: 'Token is required' });
+  }
+
+  try {
+    // Get and validate token
+    const tokenResult = await pool.query(
+      `SELECT id, device_id, device_name, status, expires_at, socket_id
+       FROM tv_auth_tokens
+       WHERE token = $1`,
+      [token]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Invalid token' });
+    }
+
+    const tokenData = tokenResult.rows[0];
+
+    if (tokenData.status !== 'pending') {
+      return res.status(400).json({ error: 'Token has already been used' });
+    }
+
+    if (new Date(tokenData.expires_at) < new Date()) {
+      return res.status(400).json({ error: 'Token has expired' });
+    }
+
+    // Generate long-lived session token for TV
+    const sessionToken = crypto.randomBytes(32).toString('hex');
+
+    // Update auth token to approved
+    await pool.query(
+      `UPDATE tv_auth_tokens
+       SET status = 'approved', user_id = $1, approved_at = NOW()
+       WHERE id = $2`,
+      [userId, tokenData.id]
+    );
+
+    // Create or update TV session
+    await pool.query(
+      `INSERT INTO tv_sessions (device_id, user_id, device_name, session_token)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (device_id)
+       DO UPDATE SET user_id = $2, session_token = $4, is_active = TRUE, last_seen_at = NOW()`,
+      [tokenData.device_id, userId, tokenData.device_name, sessionToken]
+    );
+
+    // Get user info for TV
+    const userResult = await pool.query(
+      'SELECT email, display_name FROM users WHERE id = $1',
+      [userId]
+    );
+    const user = userResult.rows[0];
+
+    console.log(`📺 TV approved for user ${userId}, device: ${tokenData.device_id.substring(0, 8)}...`);
+
+    // Notify TV via Socket.IO if connected (io is defined later, but available via closure)
+    if (tokenData.socket_id && global.io) {
+      global.io.to(tokenData.socket_id).emit('tv:auth-approved', {
+        sessionToken,
+        userId,
+        userEmail: user?.email,
+        displayName: user?.display_name
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'TV has been authorized',
+      deviceName: tokenData.device_name
+    });
+  } catch (error) {
+    console.error('Approve TV error:', error);
+    res.status(500).json({ error: 'Failed to approve TV' });
+  }
+});
+
+// Validate TV session (TV calls this on startup to check stored session)
+app.post('/api/tv/validate-session', async (req, res) => {
+  const { deviceId, sessionToken } = req.body;
+
+  if (!deviceId || !sessionToken) {
+    return res.status(400).json({ error: 'Device ID and session token required' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT ts.id, ts.user_id, ts.device_name, ts.is_active,
+              u.email, u.display_name, u.subscription_status
+       FROM tv_sessions ts
+       JOIN users u ON ts.user_id = u.id
+       WHERE ts.device_id = $1 AND ts.session_token = $2 AND ts.is_active = TRUE`,
+      [deviceId, sessionToken]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid or expired session' });
+    }
+
+    const session = result.rows[0];
+
+    // Update last seen
+    await pool.query(
+      'UPDATE tv_sessions SET last_seen_at = NOW() WHERE id = $1',
+      [session.id]
+    );
+
+    res.json({
+      valid: true,
+      userId: session.user_id,
+      userEmail: session.email,
+      displayName: session.display_name,
+      subscriptionStatus: session.subscription_status
+    });
+  } catch (error) {
+    console.error('Validate session error:', error);
+    res.status(500).json({ error: 'Failed to validate session' });
+  }
+});
+
+// Sign out TV (TV calls this to clear its session)
+app.post('/api/tv/sign-out', async (req, res) => {
+  const { deviceId, sessionToken } = req.body;
+
+  if (!deviceId || !sessionToken) {
+    return res.status(400).json({ error: 'Device ID and session token required' });
+  }
+
+  try {
+    await pool.query(
+      'UPDATE tv_sessions SET is_active = FALSE WHERE device_id = $1 AND session_token = $2',
+      [deviceId, sessionToken]
+    );
+
+    console.log(`📺 TV signed out: ${deviceId.substring(0, 8)}...`);
+
+    res.json({ success: true, message: 'Signed out successfully' });
+  } catch (error) {
+    console.error('TV sign out error:', error);
+    res.status(500).json({ error: 'Failed to sign out' });
+  }
+});
+
+// ============================================
 // SERVE STATIC PAGES (Clean URLs)
 // ============================================
+
+// Serve TV Auth page (mobile authorization page)
+app.get('/tv-auth', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'tv-auth.html'));
+});
 
 // Serve TV Receiver page without .html extension (NO AUTH REQUIRED for TVs)
 app.get('/tv-receiver', (req, res) => {
@@ -3282,6 +3728,9 @@ const io = new Server(httpServer, {
     credentials: true
   }
 });
+
+// Make io globally available for TV auth notifications
+global.io = io;
 
 // In-memory casting session store
 const castingSessions = new Map();
@@ -3348,6 +3797,87 @@ io.on('connection', (socket) => {
       callback({ success: false, error: error.message });
     }
   });
+
+  // ============================================
+  // TV QR CODE AUTHENTICATION SOCKET EVENTS
+  // ============================================
+
+  // TV registers its socket for QR auth notifications
+  socket.on('tv:register-for-auth', async (data, callback) => {
+    try {
+      const { token } = data;
+
+      if (!token) {
+        return callback({ success: false, error: 'Token is required' });
+      }
+
+      // Update the token record with this socket ID
+      await pool.query(
+        "UPDATE tv_auth_tokens SET socket_id = $1 WHERE token = $2 AND status = 'pending'",
+        [socket.id, token]
+      );
+
+      console.log(`📺 TV registered socket ${socket.id} for auth token`);
+      callback({ success: true });
+    } catch (error) {
+      console.error('Register for auth error:', error);
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // TV polls for auth status (backup for Socket.IO issues)
+  socket.on('tv:check-auth-status', async (data, callback) => {
+    try {
+      const { token } = data;
+
+      if (!token) {
+        return callback({ success: false, error: 'Token is required' });
+      }
+
+      const result = await pool.query(
+        `SELECT status, user_id FROM tv_auth_tokens WHERE token = $1`,
+        [token]
+      );
+
+      if (result.rows.length === 0) {
+        return callback({ success: false, error: 'Token not found' });
+      }
+
+      const tokenData = result.rows[0];
+
+      if (tokenData.status === 'approved') {
+        // Get session token
+        const sessionResult = await pool.query(
+          `SELECT session_token FROM tv_sessions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+          [tokenData.user_id]
+        );
+
+        // Get user info
+        const userResult = await pool.query(
+          'SELECT email, display_name FROM users WHERE id = $1',
+          [tokenData.user_id]
+        );
+        const user = userResult.rows[0];
+
+        callback({
+          success: true,
+          status: 'approved',
+          sessionToken: sessionResult.rows[0]?.session_token,
+          userEmail: user?.email,
+          displayName: user?.display_name
+        });
+      } else {
+        callback({ success: true, status: tokenData.status });
+      }
+    } catch (error) {
+      console.error('Check auth status error:', error);
+      callback({ success: false, error: error.message });
+    }
+  });
+
+  // ============================================
+  // CASTING SOCKET EVENTS
+  // ============================================
 
   // Controller (LiveGames) joins a session by entering PIN
   // Controller MUST be authenticated - they provide the userId

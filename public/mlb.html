@@ -3730,7 +3730,7 @@
       } else if (isPregame) {
         inningDisplay = statusName;
       } else if (isFinal) {
-        inningDisplay = 'Final';
+        inningDisplay = ''; // Badge already shows FINAL, no need for duplicate text
       }
 
       // Get game description (e.g., "ALCS Game 7")
@@ -3804,9 +3804,7 @@
                 <div style="display: inline-block; background: ${isLive ? '#ef4444' : '#6b7280'}; color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase;">
                   ${isLive ? '<span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE' : 'FINAL'}
                 </div>
-                <div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">
-                  ${inningDisplay}
-                </div>
+                ${inningDisplay ? `<div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">${inningDisplay}</div>` : ''}
               </div>
 
               ${gameNote ? `<div class="game-title">${gameNote}</div>` : ''}
@@ -5377,7 +5375,7 @@
         const gameDate = new Date(game.date);
         inningDisplay = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
       } else {
-        inningDisplay = 'Final';
+        inningDisplay = ''; // Badge already shows FINAL, no need for duplicate text
       }
       
       console.log('🎮 Creating MLB fullscreen card:', {
