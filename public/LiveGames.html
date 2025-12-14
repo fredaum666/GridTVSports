@@ -4527,60 +4527,9 @@
     // SPORT ANIMATIONS
     // ============================================
 
-    // Extract touchdown scorer name from play text
-    function extractTouchdownScorer(playText) {
-      if (!playText) return '';
-
-      console.log('Extracting scorer from play text:', playText);
-
-      // Common patterns for touchdown plays:
-      // "J.Smith pass complete to M.Jones for 15 yards, TOUCHDOWN"
-      // "D.Henry rush for 5 yards, TOUCHDOWN"
-      // "P.Mahomes 15 yard pass to T.Kelce, TOUCHDOWN"
-      // "(5:23) J.Tucker 15 yard rush TOUCHDOWN"
-
-      // Pattern 1: "pass to [Player Name]" or "pass complete to [Player Name]" - receiver scores
-      let match = playText.match(/pass(?:\s+complete)?\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
-      if (match) {
-        console.log('Matched pattern 1 (pass to):', match[1]);
-        return match[1].trim();
-      }
-
-      // Pattern 2: "yard pass to [Player Name]" - receiver scores
-      match = playText.match(/yard\s+pass\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
-      if (match) {
-        console.log('Matched pattern 2 (yard pass to):', match[1]);
-        return match[1].trim();
-      }
-
-      // Pattern 3: "[Player Name] rush" or "[Player Name] run" - rusher scores
-      match = playText.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+\d+\s+yard\s+(?:rush|run)/i);
-      if (match) {
-        console.log('Matched pattern 3 (rush/run with yards):', match[1]);
-        return match[1].trim();
-      }
-
-      // Pattern 4: "caught by [Player Name]"
-      match = playText.match(/caught\s+by\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
-      if (match) {
-        console.log('Matched pattern 4 (caught by):', match[1]);
-        return match[1].trim();
-      }
-
-      // Pattern 5: Look for name at beginning after timestamp like "(5:23) J.Name"
-      match = playText.match(/^\([^)]+\)\s+([A-Z][a-z]*\.[A-Z][A-Za-z'-]+)/);
-      if (match) {
-        console.log('Matched pattern 5 (after timestamp):', match[1]);
-        return match[1].trim();
-      }
-
-      console.log('No scorer pattern matched');
-      return '';
-    }
-
     // Show play animation on game card
-    function showPlayAnimation(card, sport, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', scorerName = '') {
-      console.log(`🎭 showPlayAnimation called:`, { sport, playType, playText, teamName, scorerName, cardExists: !!card });
+    function showPlayAnimation(card, sport, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '') {
+      console.log(`🎭 showPlayAnimation called:`, { sport, playType, playText, teamName, cardExists: !!card });
 
       // Skip animations during the first update cycle after entering fullscreen mode
       // This prevents showing animations for past plays that already happened
@@ -4689,14 +4638,13 @@
             <span class="sack-stars star-4">💫</span>
           </div>
           <div class="play-animation-text">${playText}</div>
-          ${scorerName ? `<div class="play-animation-subtext">${scorerName}</div>` : ''}
         `;
       } else if (playType === 'touchdown') {
-        // Touchdown with scorer name
+        // Touchdown with team name
         animationDiv.innerHTML = `
           <div class="play-animation-icon">${icon}</div>
           <div class="play-animation-text">${playText}</div>
-          ${scorerName ? `<div class="play-animation-subtext">${scorerName}</div>` : (teamName ? `<div class="play-animation-subtext">${teamName}</div>` : '')}
+          ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
         `;
       } else {
         animationDiv.innerHTML = `
@@ -4763,7 +4711,6 @@
     // Determine play type based on sport and point change
     function detectPlayType(card, sport, pointChange, teamName, lastPlayText = '') {
       let playType, playText;
-      let scorerName = '';
 
       console.log(`🎬 detectPlayType called:`, { sport, pointChange, teamName, lastPlayText });
 
@@ -4773,11 +4720,9 @@
           if (pointChange === 6) {
             playType = 'touchdown';
             playText = 'TOUCHDOWN!';
-            scorerName = extractTouchdownScorer(lastPlayText);
           } else if (pointChange === 7 || pointChange === 8) {
             playType = 'touchdown';
             playText = pointChange === 7 ? 'TOUCHDOWN! +PAT' : 'TOUCHDOWN! +2PT';
-            scorerName = extractTouchdownScorer(lastPlayText);
           } else if (pointChange === 3) {
             playType = 'field-goal';
             playText = 'FIELD GOAL!';
@@ -4829,7 +4774,7 @@
           playText = `+${pointChange}!`;
       }
 
-      showPlayAnimation(card, sport, playType, playText, teamName, '', '', scorerName);
+      showPlayAnimation(card, sport, playType, playText, teamName);
     }
 
     // ============================================

@@ -1388,17 +1388,6 @@
       filter: drop-shadow(0 0 30px #fbbf24) drop-shadow(0 0 60px #22c55e);
     }
 
-    .touchdown-scorer {
-      font-size: clamp(1.2rem, 3vmin, 2.5rem);
-      font-weight: 800;
-      color: #ffffff;
-      text-align: center;
-      margin-top: clamp(10px, 2vmin, 20px);
-      text-shadow: 0 0 10px #fbbf24, 0 0 20px #22c55e;
-      animation: playTextSlide 0.8s ease-out 0.5s backwards;
-      letter-spacing: 1px;
-    }
-
     @keyframes touchdownLogoEntry {
       0% {
         transform: scale(0) rotate(-180deg);
@@ -1509,17 +1498,6 @@
       margin-bottom: clamp(10px, 2vmin, 20px);
       animation: touchdownLogoEntry 0.8s ease-out, touchdownLogoPulse 1.5s ease-in-out infinite 0.8s;
       filter: drop-shadow(0 0 20px #fbbf24) drop-shadow(0 0 40px #22c55e);
-    }
-
-    .two-point-scorer {
-      font-size: clamp(1rem, 2.5vmin, 2rem);
-      font-weight: 800;
-      color: #ffffff;
-      text-align: center;
-      margin-top: clamp(8px, 1.5vmin, 15px);
-      text-shadow: 0 0 10px #fbbf24, 0 0 20px #22c55e;
-      animation: playTextSlide 0.8s ease-out 0.5s backwards;
-      letter-spacing: 1px;
     }
 
     /* Safety Animation - Orange/Red */
@@ -7754,16 +7732,13 @@
     // Detect play type based on score change and show animation
     function detectAndAnimatePlay(card, scoreChange, teamName, lastPlayText = '') {
       let playType, playText;
-      let scorerName = '';
 
       if (scoreChange === 6) {
         playType = 'touchdown';
         playText = 'TOUCHDOWN!';
-        scorerName = extractTouchdownScorer(lastPlayText);
       } else if (scoreChange === 7 || scoreChange === 8) {
         playType = 'touchdown';
         playText = 'TOUCHDOWN!';
-        scorerName = extractTouchdownScorer(lastPlayText);
       } else if (scoreChange === 3) {
         playType = 'field-goal';
         playText = 'FIELD GOAL!';
@@ -7774,7 +7749,6 @@
             lowerPlay.includes('two point') || lowerPlay.includes('conversion')) {
           playType = 'two-point';
           playText = '2-POINT CONVERSION!';
-          scorerName = extractTouchdownScorer(lastPlayText);
         } else {
           playType = 'safety';
           playText = 'SAFETY!';
@@ -7786,87 +7760,11 @@
         return; // Unknown score change
       }
 
-      showPlayAnimation(card, playType, playText, teamName, '', '', scorerName);
-    }
-
-    // Extract touchdown scorer name from play text
-    function extractTouchdownScorer(playText) {
-      if (!playText) return '';
-
-      console.log('🏈 Extracting scorer from play text:', playText);
-
-      // Common patterns for touchdown plays:
-      // "J.Smith pass complete to M.Jones for 15 yards, TOUCHDOWN"
-      // "D.Henry rush for 5 yards, TOUCHDOWN"
-      // "P.Mahomes 15 yard pass to T.Kelce, TOUCHDOWN"
-      // "(5:23) J.Tucker 15 yard rush TOUCHDOWN"
-
-      // Pattern 1: "pass to [Player Name]" or "pass complete to [Player Name]" - receiver scores
-      // Match full name like "T.Kelce" or "Travis Kelce"
-      let match = playText.match(/pass(?:\s+complete)?\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
-      if (match) {
-        console.log('✅ Matched pattern 1 (pass to):', match[1]);
-        return match[1].trim();
-      }
-
-      // Pattern 2: "yard pass to [Player Name]" - receiver scores
-      match = playText.match(/yard\s+pass\s+to\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
-      if (match) {
-        console.log('✅ Matched pattern 2 (yard pass to):', match[1]);
-        return match[1].trim();
-      }
-
-      // Pattern 3: "[Player Name] for X yard(s)" before TOUCHDOWN - works for rush or pass
-      // This should match the actual scoring player regardless of play type
-      match = playText.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+for\s+\d+\s+yard/i);
-      if (match) {
-        const playerName = match[1].trim();
-        // Make sure it's not the QB (avoid patterns like "Mahomes pass to...")
-        if (!playText.match(new RegExp(playerName.replace('.', '\\.') + '\\s+pass', 'i'))) {
-          console.log('✅ Matched pattern 3 (player for X yards):', playerName);
-          return playerName;
-        }
-      }
-
-      // Pattern 4: "[Player Name] rush" or "[Player Name] run" - rusher scores
-      // Be more specific: look for name followed by number then "yard rush/run"
-      match = playText.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+\d+\s+yard\s+(?:rush|run)/i);
-      if (match) {
-        console.log('✅ Matched pattern 4 (rush/run with yards):', match[1]);
-        return match[1].trim();
-      }
-
-      // Pattern 5: "caught by [Player Name]"
-      match = playText.match(/caught\s+by\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
-      if (match) {
-        console.log('✅ Matched pattern 5 (caught by):', match[1]);
-        return match[1].trim();
-      }
-
-      // Pattern 6: Look for second name in play (first is usually QB on pass plays)
-      // Match all player names and return the last one (usually the scorer)
-      const allNames = playText.match(/\b([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\b/g);
-      if (allNames && allNames.length > 1) {
-        // If it's a pass play, return the second name (receiver)
-        if (playText.toLowerCase().includes('pass')) {
-          console.log('✅ Matched pattern 6 (second name on pass play):', allNames[1]);
-          return allNames[1].trim();
-        }
-      }
-
-      // Pattern 7: Look for name at beginning after timestamp like "(5:23) J.Name"
-      match = playText.match(/^\([^)]+\)\s+([A-Z][a-z]*\.[A-Z][A-Za-z'-]+)/);
-      if (match) {
-        console.log('✅ Matched pattern 7 (after timestamp):', match[1]);
-        return match[1].trim();
-      }
-
-      console.log('❌ No scorer pattern matched');
-      return '';
+      showPlayAnimation(card, playType, playText, teamName);
     }
 
     // Show play animation overlay
-    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', scorerName = '') {
+    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '') {
       // Skip animations during the first update cycle after entering fullscreen mode
       // This prevents showing animations for past plays that already happened
       if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 6000) {
@@ -7916,7 +7814,7 @@
         recoveryHTML = `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>`;
       }
 
-      // Special HTML for touchdown with team logo and scorer
+      // Special HTML for touchdown with team logo
       if (playType === 'touchdown' && teamName) {
         const teamLogoPath = `/assets/${encodeURIComponent(teamName)}.png`;
         animationDiv.innerHTML = `
@@ -7925,17 +7823,15 @@
             <div class="touchdown-fallback-icon" style="display:none;">🏈</div>
           </div>
           <div class="play-animation-text">${playText}</div>
-          ${scorerName ? `<div class="touchdown-scorer">${scorerName}</div>` : ''}
         `;
       } else if (playType === 'two-point') {
-        // Special HTML for two-point conversion with team logo and scorer
+        // Special HTML for two-point conversion with team logo
         const teamLogoPath = `/assets/${encodeURIComponent(teamName)}.png`;
         animationDiv.innerHTML = `
           <div class="two-point-container">
             <img src="${teamLogoPath}" alt="${teamName}" class="two-point-team-logo" onerror="this.style.display='none';">
           </div>
           <div class="play-animation-text">${playText}</div>
-          ${scorerName ? `<div class="two-point-scorer">${scorerName}</div>` : ''}
         `;
       } else if (playType === 'field-goal') {
         // Special HTML for field goal with YFrame and spinning ball
@@ -7987,7 +7883,6 @@
             <span class="sack-stars star-4">💫</span>
           </div>
           <div class="play-animation-text">${playText}</div>
-          ${scorerName ? `<div class="play-animation-subtext">${scorerName}</div>` : ''}
         `;
       } else if (playType === 'penalty') {
         // Special HTML for penalty with referee throwing and penalty details
