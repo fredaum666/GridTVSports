@@ -1692,6 +1692,155 @@
     }
 
     /* ==================================================
+       PENALTY FLAG ANIMATION (Two-phase for NFL/NCAA)
+       ================================================== */
+    .play-animation.nfl-penalty,
+    .play-animation.ncaa-penalty {
+      background: rgba(234, 179, 8, 0.15) !important;
+    }
+
+    /* Phase 1: Referee throwing - shows for 3 seconds then fades out */
+    .penalty-phase-1 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: penaltyPhase1 5s ease-out forwards;
+    }
+
+    @keyframes penaltyPhase1 {
+      0% { opacity: 0; }
+      8% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .referee-throwing {
+      width: clamp(150px, 35vmin, 350px);
+      height: auto;
+      object-fit: contain;
+      animation: refereeThrow 0.8s ease-out;
+      filter: drop-shadow(0 0 30px #fbbf24);
+    }
+
+    @keyframes refereeThrow {
+      0% {
+        transform: scale(0.5) translateY(50px);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.1) translateY(-10px);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .penalty-phase-1-text {
+      font-size: clamp(2.5rem, 8vmin, 5rem);
+      font-weight: 900;
+      color: #fbbf24;
+      text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+      margin-top: clamp(15px, 3vmin, 30px);
+      letter-spacing: clamp(3px, 1vmin, 8px);
+      animation: flagPulse 1s ease-in-out infinite;
+    }
+
+    /* Phase 2: Penalty info - appears after referee fades */
+    .penalty-phase-2 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      animation: penaltyPhase2 6s ease-out 5s forwards;
+    }
+
+    @keyframes penaltyPhase2 {
+      0% { opacity: 0; transform: scale(0.8); }
+      12% { opacity: 1; transform: scale(1); }
+      88% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes flagPulse {
+      0%, 100% {
+        text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+        transform: scale(1);
+      }
+      50% {
+        text-shadow: 0 0 40px #fbbf24, 0 0 80px #fbbf24, 0 0 100px #fbbf24;
+        transform: scale(1.05);
+      }
+    }
+
+    .penalty-info-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(12px, 2vmin, 20px);
+      background: rgba(20, 20, 20, 0.95);
+      border: 4px solid #fbbf24;
+      border-radius: clamp(12px, 2vmin, 20px);
+      padding: clamp(20px, 4vmin, 40px);
+      max-width: 85%;
+      box-shadow: 0 0 30px rgba(251, 191, 36, 0.5), inset 0 0 40px rgba(251, 191, 36, 0.1);
+    }
+
+    .penalty-team-logo {
+      width: clamp(80px, 18vmin, 150px);
+      height: clamp(80px, 18vmin, 150px);
+      object-fit: contain;
+      animation: penaltyLogoEntry 0.6s ease-out backwards;
+      filter: drop-shadow(0 0 15px #fbbf24);
+    }
+
+    @keyframes penaltyLogoEntry {
+      0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    .penalty-type {
+      font-size: clamp(1.2rem, 3vmin, 2rem);
+      font-weight: 800;
+      color: #fbbf24;
+      text-align: center;
+      text-shadow: 0 0 10px #fbbf24;
+    }
+
+    .penalty-on {
+      font-size: clamp(0.9rem, 2vmin, 1.4rem);
+      font-weight: 600;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .penalty-player {
+      font-size: clamp(1rem, 2.5vmin, 1.6rem);
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    /* ==================================================
        NCAA-SPECIFIC ANIMATIONS (same as NFL + first-down)
        ================================================== */
 
@@ -1992,122 +2141,122 @@
        ════════════════════════════════════════════════════════════════════════════════ */
     @media (min-width: 769px) {
 
-      /* Grid Responsive Sizing */
+      /* Grid Responsive Sizing - Using clamp() for better scaling on smaller screens */
       .fullscreen-grid.grid-6 .sport-logo-indicator {
-        width: 70px !important;
-        height: 70px !important;
-        top: 10px !important;
-        left: 10px !important;
+        width: clamp(50px, 6vw, 70px) !important;
+        height: clamp(50px, 6vw, 70px) !important;
+        top: clamp(6px, 1vw, 10px) !important;
+        left: clamp(6px, 1vw, 10px) !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-team-logo {
-        width: 45px !important;
-        height: 45px !important;
+        width: clamp(30px, 4.5vw, 55px) !important;
+        height: clamp(30px, 4.5vw, 55px) !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-team-name {
-        font-size: 1.6rem !important;
+        font-size: clamp(1rem, 2vw, 1.6rem) !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-score {
-        font-size: 3rem !important;
+        font-size: clamp(1.8rem, 4vw, 3rem) !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-quarter {
-        font-size: 1.2rem !important;
+        font-size: clamp(0.8rem, 1.5vw, 1.2rem) !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-vs {
-        font-size: 1rem !important;
+        font-size: clamp(0.7rem, 1.2vw, 1rem) !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-team-record {
-        font-size: 0.9rem !important;
-        min-width: 45px !important;
-        padding-right: 8px !important;
+        font-size: clamp(0.7rem, 1.2vw, 0.9rem) !important;
+        min-width: clamp(30px, 4vw, 45px) !important;
+        padding-right: clamp(5px, 0.8vw, 8px) !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-game-card,
       .fullscreen-grid.grid-6 .fullscreen-game-slot {
-        padding: 15px !important;
+        padding: clamp(10px, 1.5vw, 15px) !important;
       }
 
       .fullscreen-grid.grid-4 .sport-logo-indicator {
-        width: 85px !important;
-        height: 85px !important;
-        top: 12px !important;
-        left: 12px !important;
+        width: clamp(60px, 8vw, 85px) !important;
+        height: clamp(60px, 8vw, 85px) !important;
+        top: clamp(8px, 1.2vw, 12px) !important;
+        left: clamp(8px, 1.2vw, 12px) !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-team-logo {
-        width: 55px !important;
-        height: 55px !important;
+        width: clamp(40px, 6vw, 70px) !important;
+        height: clamp(40px, 6vw, 70px) !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-team-name {
-        font-size: 1.8rem !important;
+        font-size: clamp(1.2rem, 2.5vw, 1.8rem) !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-score {
-        font-size: 3.5rem !important;
+        font-size: clamp(2.2rem, 5vw, 3.5rem) !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-quarter {
-        font-size: 1.3rem !important;
+        font-size: clamp(0.9rem, 1.8vw, 1.3rem) !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-vs {
-        font-size: 1.1rem !important;
+        font-size: clamp(0.8rem, 1.5vw, 1.1rem) !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-team-record {
-        font-size: 1.1rem !important;
-        min-width: 52px !important;
-        padding-right: 9px !important;
+        font-size: clamp(0.8rem, 1.5vw, 1.1rem) !important;
+        min-width: clamp(35px, 5vw, 52px) !important;
+        padding-right: clamp(5px, 1vw, 9px) !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-game-card,
       .fullscreen-grid.grid-4 .fullscreen-game-slot {
-        padding: 18px !important;
+        padding: clamp(12px, 2vw, 18px) !important;
       }
 
       .fullscreen-grid.grid-8 .sport-logo-indicator {
-        width: 55px !important;
-        height: 55px !important;
-        top: 8px !important;
-        left: 8px !important;
+        width: clamp(40px, 5vw, 55px) !important;
+        height: clamp(40px, 5vw, 55px) !important;
+        top: clamp(5px, 0.8vw, 8px) !important;
+        left: clamp(5px, 0.8vw, 8px) !important;
       }
 
       .fullscreen-grid.grid-8 .fullscreen-team-logo {
-        width: 40px !important;
-        height: 40px !important;
+        width: clamp(28px, 4vw, 45px) !important;
+        height: clamp(28px, 4vw, 45px) !important;
       }
 
       .fullscreen-grid.grid-8 .fullscreen-team-name {
-        font-size: 1.3rem !important;
+        font-size: clamp(0.9rem, 1.6vw, 1.3rem) !important;
       }
 
       .fullscreen-grid.grid-8 .fullscreen-score {
-        font-size: 2.5rem !important;
+        font-size: clamp(1.6rem, 3.5vw, 2.5rem) !important;
       }
 
       .fullscreen-grid.grid-8 .fullscreen-quarter {
-        font-size: 1rem !important;
+        font-size: clamp(0.7rem, 1.2vw, 1rem) !important;
       }
 
       .fullscreen-grid.grid-8 .fullscreen-vs {
-        font-size: 0.9rem !important;
+        font-size: clamp(0.6rem, 1vw, 0.9rem) !important;
       }
 
       .fullscreen-grid.grid-8 .fullscreen-team-record {
-        font-size: 0.8rem !important;
-        min-width: 40px !important;
-        padding-right: 6px !important;
+        font-size: clamp(0.6rem, 1vw, 0.8rem) !important;
+        min-width: clamp(28px, 3.5vw, 40px) !important;
+        padding-right: clamp(4px, 0.6vw, 6px) !important;
       }
 
       .fullscreen-grid.grid-8 .fullscreen-game-card,
       .fullscreen-grid.grid-8 .fullscreen-game-slot {
-        padding: 12px !important;
+        padding: clamp(8px, 1.2vw, 12px) !important;
       }
 
       /* ==================================================
@@ -4656,6 +4805,33 @@
           </div>
           <div class="play-animation-text">${playText}</div>
         `;
+      } else if (playType === 'penalty') {
+        // Special HTML for penalty with two-phase animation (NFL/NCAA only)
+        // Phase 1: Referee throwing (3 seconds)
+        // Phase 2: Penalty info with team logo (fades in after phase 1)
+        // recoveryInfo contains: penaltyName|offenseDefense|playerName|teamLogo
+        const penaltyParts = recoveryInfo ? recoveryInfo.split('|') : ['', '', '', ''];
+        const penaltyName = penaltyParts[0] || 'PENALTY';
+        const offenseDefense = penaltyParts[1] || '';
+        const playerName = penaltyParts[2] || '';
+        const teamLogoUrl = penaltyParts[3] || '';
+
+        animationDiv.innerHTML = `
+          <!-- Phase 1: Referee throwing flag -->
+          <div class="penalty-phase-1">
+            <img src="/assets/NFLrefereethrowingBlur.png" alt="Referee" class="referee-throwing" onerror="this.style.display='none';">
+            <div class="penalty-phase-1-text">FLAG!</div>
+          </div>
+          <!-- Phase 2: Penalty details (appears after 3 seconds) -->
+          <div class="penalty-phase-2">
+            <div class="penalty-info-box">
+              ${teamLogoUrl ? `<img src="${teamLogoUrl}" alt="Team" class="penalty-team-logo">` : ''}
+              <div class="penalty-type">${penaltyName}</div>
+              ${offenseDefense ? `<div class="penalty-on">${offenseDefense}</div>` : ''}
+              ${playerName ? `<div class="penalty-player">${playerName}</div>` : ''}
+            </div>
+          </div>
+        `;
       } else if (playType === 'touchdown') {
         // Touchdown with team name
         animationDiv.innerHTML = `
@@ -4677,11 +4853,16 @@
 
       console.log(`✅ Animation added to card! Will remove in 5 seconds.`);
 
-      // Remove after animation completes (5 seconds)
+      // Remove after animation completes
+      // Penalty gets 11 seconds (3.5s phase 1 + 8s phase 2), others get 5 seconds
+      let animationDuration = 5000;
+      if (playType === 'penalty') {
+        animationDuration = 11000;
+      }
       setTimeout(() => {
         animationDiv.remove();
         console.log(`🔚 Animation removed`);
-      }, 5000);
+      }, animationDuration);
     }
 
     // Detect score changes and show appropriate animation
