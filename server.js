@@ -3110,30 +3110,36 @@ app.get('/api/nhl/summary/:gameId', async (req, res) => {
 
 // Update NFL cache every 15 seconds for active weeks
 cron.schedule('*/15 * * * * *', async () => {
-  for (const week of sportsCache.nfl.activeWeeks) {
+  for (const cacheKey of sportsCache.nfl.activeWeeks) {
     try {
-      const url = `${ESPN_BASE}/football/nfl/scoreboard?week=${week}`;
+      // Parse cacheKey format: "regular-week-15" or "postseason-week-1"
+      const isPostseason = cacheKey.startsWith('postseason-');
+      const weekMatch = cacheKey.match(/week-(\d+)/);
+      const weekNum = weekMatch ? weekMatch[1] : '1';
+      const seasonType = isPostseason ? 3 : 2;
+
+      const url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=${seasonType}&week=${weekNum}`;
       const data = await fetchESPN(url);
       const isComplete = areAllGamesComplete(data);
 
-      sportsCache.nfl.data.set(`week-${week}`, {
+      sportsCache.nfl.data.set(cacheKey, {
         data,
         timestamp: Date.now(),
         isComplete
       });
 
       if (isComplete) {
-        sportsCache.nfl.activeWeeks.delete(week);
-        console.log(`[NFL] Week ${week} marked complete - removed from active tracking`);
+        sportsCache.nfl.activeWeeks.delete(cacheKey);
+        console.log(`[NFL] ${cacheKey} marked complete - removed from active tracking`);
       }
 
       // Count live and upcoming games
       const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
       const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
 
-      console.log(`[NFL] Week ${week} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
+      console.log(`[NFL] ${cacheKey} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
     } catch (error) {
-      console.error(`[NFL] Failed to update week ${week}:`, error.message);
+      console.error(`[NFL] Failed to update ${cacheKey}:`, error.message);
     }
   }
 });
