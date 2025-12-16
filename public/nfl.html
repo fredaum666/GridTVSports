@@ -5298,6 +5298,47 @@
     let userFavoriteTeams = []; // Store user's favorite team IDs for this league
     let currentSortMode = 'time'; // 'favorites' or 'time' - default to time sort on page load
 
+    // NFL Team Primary Colors - used for possession-related UI elements
+    const NFL_TEAM_COLORS = {
+      'ARI': '#97233F', // Arizona Cardinals - Cardinal Red
+      'ATL': '#A71930', // Atlanta Falcons - Red
+      'BAL': '#241773', // Baltimore Ravens - Purple
+      'BUF': '#00338D', // Buffalo Bills - Royal Blue
+      'CAR': '#0085CA', // Carolina Panthers - Process Blue
+      'CHI': '#0B162A', // Chicago Bears - Navy Blue
+      'CIN': '#FB4F14', // Cincinnati Bengals - Orange
+      'CLE': '#FF3C00', // Cleveland Browns - Orange
+      'DAL': '#002244', // Dallas Cowboys - Navy Blue
+      'DEN': '#FB4F14', // Denver Broncos - Orange
+      'DET': '#0076B6', // Detroit Lions - Honolulu Blue
+      'GB': '#203731',  // Green Bay Packers - Dark Green
+      'HOU': '#03202F', // Houston Texans - Deep Steel Blue
+      'IND': '#002C5F', // Indianapolis Colts - Royal Blue
+      'JAX': '#006778', // Jacksonville Jaguars - Teal
+      'KC': '#E31837',  // Kansas City Chiefs - Red
+      'LV': '#A5ACAF',  // Las Vegas Raiders - Silver
+      'LAC': '#0080C6', // Los Angeles Chargers - Powder Blue
+      'LAR': '#003594', // Los Angeles Rams - Royal Blue
+      'MIA': '#008E97', // Miami Dolphins - Aqua
+      'MIN': '#4F2683', // Minnesota Vikings - Purple
+      'NE': '#002244',  // New England Patriots - Navy Blue
+      'NO': '#D3BC8D',  // New Orleans Saints - Old Gold
+      'NYG': '#0B2265', // New York Giants - Royal Blue
+      'NYJ': '#125740', // New York Jets - Gotham Green
+      'PHI': '#004C54', // Philadelphia Eagles - Midnight Green
+      'PIT': '#FFB612', // Pittsburgh Steelers - Gold
+      'SF': '#AA0000',  // San Francisco 49ers - Scarlet Red
+      'SEA': '#002244', // Seattle Seahawks - College Navy
+      'TB': '#D50A0A',  // Tampa Bay Buccaneers - Red
+      'TEN': '#4B92DB', // Tennessee Titans - Titans Blue
+      'WSH': '#5A1414'  // Washington Commanders - Burgundy
+    };
+
+    // Get team color by abbreviation
+    function getTeamColor(teamAbbr) {
+      return NFL_TEAM_COLORS[teamAbbr] || '#fbbf24'; // Default to yellow if not found
+    }
+
     // Fetch user's favorite teams
     async function fetchFavoriteTeams() {
       try {
@@ -7808,6 +7849,28 @@
       const firstDownLine = card.querySelector('.first-down-line');
       if (!ballIndicator || !fieldPosition) return;
 
+      // Determine possession team and get their color
+      const possessionIsAway = possession === awayTeam?.id;
+      const possessionTeam = possessionIsAway ? awayTeam : homeTeam;
+      const teamAbbr = possessionTeam?.team?.abbreviation;
+      const teamColor = getTeamColor(teamAbbr);
+
+      // Apply team color to situation info and field position elements
+      const situationInfo = card.querySelector('.fullscreen-situation-info');
+      const fieldPositionEl = card.querySelector('.fullscreen-field-position');
+
+      if (situationInfo) {
+        situationInfo.style.color = teamColor;
+        situationInfo.style.textShadow = `0 2px 6px ${teamColor}40`;
+      }
+      if (fieldPositionEl) {
+        fieldPositionEl.style.color = teamColor;
+      }
+
+      // Apply team color to scrimmage line (ball indicator)
+      ballIndicator.style.background = `linear-gradient(to bottom, ${teamColor}, ${teamColor}dd)`;
+      ballIndicator.style.boxShadow = `0 0 10px ${teamColor}cc, 0 0 6px ${teamColor}99`;
+
       // Calculate scrimmage line (ball) position
       const ballPosition = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
       ballIndicator.style.left = `${ballPosition}%`;
@@ -7815,8 +7878,6 @@
 
       // Calculate first down line position
       if (firstDownLine && yardsToGo > 0) {
-        const possessionIsAway = possession === awayTeam?.id;
-
         // First down line is ahead of scrimmage in the direction of attack
         let firstDownPosition;
         if (possessionIsAway) {
@@ -7997,7 +8058,7 @@
             <div class="fullscreen-live-score-header">
               <div class="fullscreen-team-stack">
                 ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
-                <div class="fullscreen-live-team-name">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
+                <div class="fullscreen-live-team-name" style="color: ${getTeamColor(awayTeam?.team?.abbreviation)}">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
                 ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
               </div>
               <div class="fullscreen-team-score">-</div>
@@ -8005,7 +8066,7 @@
               <div class="fullscreen-team-score">-</div>
               <div class="fullscreen-team-stack">
                 ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
-                <div class="fullscreen-live-team-name">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
+                <div class="fullscreen-live-team-name" style="color: ${getTeamColor(homeTeam?.team?.abbreviation)}">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
                 ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
               </div>
             </div>
@@ -8022,7 +8083,7 @@
                   ${awayTeam?.team?.logo ? `<img src="${awayTeam.team.logo}" alt="${awayTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
                   ${isLive && possession === awayTeam?.id ? '<span class="fullscreen-possession">🏈</span>' : ''}
                 </div>
-                <div class="fullscreen-live-team-name ${awayScore > homeScore ? 'winning' : ''}">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
+                <div class="fullscreen-live-team-name" style="color: ${getTeamColor(awayTeam?.team?.abbreviation)}">${awayTeam?.team?.abbreviation || awayTeam?.team?.shortDisplayName || awayTeam?.team?.displayName || 'AWAY'}</div>
                 ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
                 ${isLive ? `
                   <div class="fullscreen-timeouts">
@@ -8040,7 +8101,7 @@
                   ${homeTeam?.team?.logo ? `<img src="${homeTeam.team.logo}" alt="${homeTeam.team.displayName}" class="fullscreen-team-logo">` : ''}
                   ${isLive && possession === homeTeam?.id ? '<span class="fullscreen-possession">🏈</span>' : ''}
                 </div>
-                <div class="fullscreen-live-team-name ${homeScore > awayScore ? 'winning' : ''}">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
+                <div class="fullscreen-live-team-name" style="color: ${getTeamColor(homeTeam?.team?.abbreviation)}">${homeTeam?.team?.abbreviation || homeTeam?.team?.shortDisplayName || homeTeam?.team?.displayName || 'HOME'}</div>
                 ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
                 ${isLive ? `
                   <div class="fullscreen-timeouts">
@@ -8803,12 +8864,12 @@
             else if (homeScore < awayScore) homeScoreEl.classList.add('losing');
           }
 
-          // Update winning classes for team names
+          // Apply team colors to team names (not winning colors)
           if (teamNames.length >= 2) {
             teamNames[0].classList.remove('winning');
             teamNames[1].classList.remove('winning');
-            if (awayScore > homeScore) teamNames[0].classList.add('winning');
-            else if (homeScore > awayScore) teamNames[1].classList.add('winning');
+            teamNames[0].style.color = getTeamColor(awayTeam?.team?.abbreviation);
+            teamNames[1].style.color = getTeamColor(homeTeam?.team?.abbreviation);
           }
 
           // Update card class for winner
