@@ -1022,6 +1022,10 @@
       align-items: center;
       justify-content: center;
       gap: clamp(6px, 1.2vw, 12px);
+      /* Neutral background for better readability with team colors */
+      background: rgba(0, 0, 0, 0.5);
+      padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 16px);
+      border-radius: clamp(4px, 0.8vmin, 8px);
     }
 
     .fullscreen-live-team-name.winning {
@@ -1150,8 +1154,11 @@
       font-weight: 700;
       text-align: center;
       margin-top: clamp(8px, 1.5vh, 16px);
-      width: 100%;
-      max-width: 95%;
+      /* Neutral background for better readability with team colors */
+      background: rgba(0, 0, 0, 0.5);
+      padding: clamp(4px, 0.8vmin, 8px) clamp(12px, 2vmin, 24px);
+      border-radius: clamp(4px, 0.8vmin, 8px);
+      display: inline-block;
     }
 
     .fullscreen-possession {
