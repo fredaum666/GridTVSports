@@ -1023,9 +1023,10 @@
       justify-content: center;
       gap: clamp(6px, 1.2vw, 12px);
       /* Neutral background for better readability with team colors */
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(240, 235, 235, 0.74);
       padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 16px);
       border-radius: clamp(4px, 0.8vmin, 8px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .fullscreen-live-team-name.winning {
@@ -1155,10 +1156,33 @@
       text-align: center;
       margin-top: clamp(8px, 1.5vh, 16px);
       /* Neutral background for better readability with team colors */
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(240, 235, 235, 0.74);
       padding: clamp(4px, 0.8vmin, 8px) clamp(12px, 2vmin, 24px);
       border-radius: clamp(4px, 0.8vmin, 8px);
       display: inline-block;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .fullscreen-situation-info.updating {
+      animation: situationPulse 0.6s ease-out;
+    }
+
+    @keyframes situationPulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      30% {
+        transform: scale(1.08);
+        box-shadow: 0 6px 20px rgba(251, 191, 36, 0.5), 0 4px 8px rgba(0, 0, 0, 0.4);
+      }
+
+      100% {
+        transform: scale(1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
     }
 
     .fullscreen-possession {
@@ -1990,10 +2014,21 @@
     }
 
     @keyframes penaltyPhase1 {
-      0% { opacity: 0; }
-      8% { opacity: 1; }
-      85% { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 0;
+      }
+
+      8% {
+        opacity: 1;
+      }
+
+      85% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     .referee-throwing {
@@ -2009,10 +2044,12 @@
         transform: scale(0.5) translateY(50px);
         opacity: 0;
       }
+
       60% {
         transform: scale(1.1) translateY(-10px);
         opacity: 1;
       }
+
       100% {
         transform: scale(1) translateY(0);
         opacity: 1;
@@ -2045,17 +2082,33 @@
     }
 
     @keyframes penaltyPhase2 {
-      0% { opacity: 0; transform: scale(0.8); }
-      12% { opacity: 1; transform: scale(1); }
-      88% { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+
+      12% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      88% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     @keyframes flagPulse {
-      0%, 100% {
+
+      0%,
+      100% {
         text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
         transform: scale(1);
       }
+
       50% {
         text-shadow: 0 0 40px #fbbf24, 0 0 80px #fbbf24, 0 0 100px #fbbf24;
         transform: scale(1.05);
@@ -8894,10 +8947,20 @@
           const downDistance = comp?.situation?.downDistanceText || '';
 
           if (downDistanceEl) {
+            const previousDownDistance = downDistanceEl.textContent;
             downDistanceEl.textContent = downDistance || '';
             // Show/hide based on whether we have down/distance data
             if (downDistance) {
               downDistanceEl.style.display = 'block';
+              // Trigger pulse animation if down/distance changed
+              if (previousDownDistance && previousDownDistance !== downDistance) {
+                downDistanceEl.classList.remove('updating');
+                // Force reflow to restart animation
+                void downDistanceEl.offsetWidth;
+                downDistanceEl.classList.add('updating');
+                // Remove class after animation completes
+                setTimeout(() => downDistanceEl.classList.remove('updating'), 600);
+              }
             } else {
               downDistanceEl.style.display = 'none';
             }
