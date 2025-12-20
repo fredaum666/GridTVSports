@@ -2564,6 +2564,132 @@ app.get('/api/nfl/current-week', (req, res) => {
   });
 });
 
+// NFL Playoff Bracket endpoint
+app.get('/api/nfl/playoff-bracket', async (req, res) => {
+  try {
+    const cacheKey = 'playoff-bracket';
+    const cached = sportsCache.nfl.data.get(cacheKey);
+    const now = Date.now();
+
+    // Cache for 30 seconds
+    if (cached && (now - cached.timestamp) < 30000) {
+      return res.json(cached.data);
+    }
+
+    // Fetch all playoff rounds: Wild Card (1), Divisional (2), Conference (3), Super Bowl (5)
+    const rounds = [1, 2, 3, 5];
+    const roundData = await Promise.all(
+      rounds.map(week =>
+        fetchESPN(`${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${week}`)
+          .catch(err => {
+            console.log(`[NFL Bracket] Week ${week} fetch failed:`, err.message);
+            return { events: [] };
+          })
+      )
+    );
+
+    // AFC and NFC team lists for conference detection
+    const AFC_TEAMS = ['BAL', 'BUF', 'CIN', 'CLE', 'DEN', 'HOU', 'IND', 'JAX', 'KC', 'LV', 'LAC', 'MIA', 'NE', 'NYJ', 'PIT', 'TEN'];
+    const NFC_TEAMS = ['ARI', 'ATL', 'CAR', 'CHI', 'DAL', 'DET', 'GB', 'LAR', 'MIN', 'NO', 'NYG', 'PHI', 'SF', 'SEA', 'TB', 'WSH'];
+
+    function getConference(teamAbbr) {
+      if (AFC_TEAMS.includes(teamAbbr)) return 'AFC';
+      if (NFC_TEAMS.includes(teamAbbr)) return 'NFC';
+      return null;
+    }
+
+    function transformGame(event) {
+      if (!event) return null;
+      const competition = event.competitions?.[0];
+      if (!competition) return null;
+
+      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+      const isComplete = event.status?.type?.completed === true;
+
+      let winner = null;
+      if (isComplete && homeTeam && awayTeam) {
+        const homeScore = parseInt(homeTeam.score) || 0;
+        const awayScore = parseInt(awayTeam.score) || 0;
+        winner = homeScore > awayScore ? homeTeam.team?.abbreviation : awayTeam.team?.abbreviation;
+      }
+
+      return {
+        id: event.id,
+        name: event.name,
+        shortName: event.shortName,
+        status: event.status?.type?.state, // pre, in, post
+        isComplete,
+        homeTeam: homeTeam ? {
+          id: homeTeam.id,
+          abbreviation: homeTeam.team?.abbreviation,
+          displayName: homeTeam.team?.displayName,
+          shortDisplayName: homeTeam.team?.shortDisplayName,
+          logo: homeTeam.team?.logo,
+          score: homeTeam.score,
+          seed: homeTeam.curatedRank?.current || homeTeam.rank,
+          winner: winner === homeTeam.team?.abbreviation
+        } : null,
+        awayTeam: awayTeam ? {
+          id: awayTeam.id,
+          abbreviation: awayTeam.team?.abbreviation,
+          displayName: awayTeam.team?.displayName,
+          shortDisplayName: awayTeam.team?.shortDisplayName,
+          logo: awayTeam.team?.logo,
+          score: awayTeam.score,
+          seed: awayTeam.curatedRank?.current || awayTeam.rank,
+          winner: winner === awayTeam.team?.abbreviation
+        } : null,
+        winner,
+        conference: homeTeam ? getConference(homeTeam.team?.abbreviation) : null
+      };
+    }
+
+    function transformRound(data, roundName) {
+      const games = (data.events || []).map(transformGame).filter(g => g !== null);
+      return {
+        roundName,
+        afc: games.filter(g => g.conference === 'AFC'),
+        nfc: games.filter(g => g.conference === 'NFC'),
+        superBowl: roundName === 'Super Bowl' ? games[0] || null : null
+      };
+    }
+
+    const roundNames = ['Wild Card', 'Divisional', 'Conference Championship', 'Super Bowl'];
+    const bracket = {
+      wildCard: transformRound(roundData[0], roundNames[0]),
+      divisional: transformRound(roundData[1], roundNames[1]),
+      conference: transformRound(roundData[2], roundNames[2]),
+      superBowl: transformRound(roundData[3], roundNames[3]),
+      currentRound: 1
+    };
+
+    // Determine current round based on game states
+    if (bracket.superBowl.superBowl?.isComplete) {
+      bracket.currentRound = 5;
+    } else if (bracket.conference.afc.length > 0 && bracket.conference.afc.every(g => g.isComplete)) {
+      bracket.currentRound = 5;
+    } else if (bracket.divisional.afc.length > 0 && bracket.divisional.afc.every(g => g.isComplete)) {
+      bracket.currentRound = 3;
+    } else if (bracket.wildCard.afc.length > 0 && bracket.wildCard.afc.every(g => g.isComplete)) {
+      bracket.currentRound = 2;
+    }
+
+    // Find conference champions
+    bracket.afcChampion = bracket.conference.afc.find(g => g.isComplete)?.winner || null;
+    bracket.nfcChampion = bracket.conference.nfc.find(g => g.isComplete)?.winner || null;
+    bracket.superBowlWinner = bracket.superBowl.superBowl?.winner || null;
+
+    console.log(`[NFL Bracket] Fetched - WC: ${bracket.wildCard.afc.length + bracket.wildCard.nfc.length} games, Div: ${bracket.divisional.afc.length + bracket.divisional.nfc.length} games, Conf: ${bracket.conference.afc.length + bracket.conference.nfc.length} games, SB: ${bracket.superBowl.superBowl ? 1 : 0} games`);
+
+    sportsCache.nfl.data.set(cacheKey, { data: bracket, timestamp: now });
+    res.json(bracket);
+  } catch (error) {
+    console.error('[NFL Bracket] Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============================================
 // API ROUTES - NCAA COLLEGE FOOTBALL
 // ============================================
@@ -2666,6 +2792,199 @@ app.get('/api/ncaa/current-week', (req, res) => {
     week: week,
     isBowlSeason: isCollegeBowlSeason()
   });
+});
+
+// College Football Playoff Bracket endpoint
+app.get('/api/ncaa/playoff-bracket', async (req, res) => {
+  try {
+    const cacheKey = 'cfp-bracket';
+    const cached = sportsCache.ncaa.data.get(cacheKey);
+    const now = Date.now();
+
+    // Cache for 30 seconds
+    if (cached && (now - cached.timestamp) < 30000) {
+      return res.json(cached.data);
+    }
+
+    // Fetch postseason games (seasontype=3)
+    const url = `${ESPN_BASE}/football/college-football/scoreboard?seasontype=3&groups=80`;
+    const data = await fetchESPN(url);
+
+    // CFP game identifiers in notes/headlines
+    const CFP_KEYWORDS = [
+      'CFP', 'College Football Playoff', 'Playoff',
+      'Quarterfinal', 'Semifinal', 'Championship',
+      'First Round', 'Fiesta Bowl', 'Peach Bowl',
+      'Rose Bowl', 'Sugar Bowl', 'Orange Bowl', 'Cotton Bowl'
+    ];
+
+    // Major bowl games that are part of CFP rotation
+    const CFP_BOWLS = ['Fiesta Bowl', 'Peach Bowl', 'Rose Bowl', 'Sugar Bowl', 'Orange Bowl', 'Cotton Bowl'];
+
+    function isCFPGame(event) {
+      const notes = event.competitions?.[0]?.notes || [];
+      const headline = notes[0]?.headline || '';
+      const name = event.name || '';
+      const shortName = event.shortName || '';
+
+      // Check if it's explicitly a CFP game
+      if (headline.includes('CFP') || headline.includes('College Football Playoff') ||
+          headline.includes('Quarterfinal') || headline.includes('Semifinal') ||
+          headline.includes('First Round') || headline.includes('National Championship')) {
+        return true;
+      }
+
+      // Check for CFP bowl games
+      for (const bowl of CFP_BOWLS) {
+        if (headline.includes(bowl) || name.includes(bowl)) {
+          // During CFP, major bowls are playoff games
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function getCFPRound(event) {
+      const notes = event.competitions?.[0]?.notes || [];
+      const headline = notes[0]?.headline || '';
+      const name = event.name || '';
+
+      if (headline.includes('National Championship') || name.includes('National Championship')) {
+        return 'championship';
+      }
+      if (headline.includes('Semifinal')) {
+        return 'semifinal';
+      }
+      if (headline.includes('Quarterfinal')) {
+        return 'quarterfinal';
+      }
+      if (headline.includes('First Round')) {
+        return 'firstRound';
+      }
+
+      // For major bowls, determine based on date or structure
+      // During CFP, Rose/Sugar are typically semifinals, others are quarterfinals
+      for (const bowl of ['Rose Bowl', 'Sugar Bowl']) {
+        if (headline.includes(bowl) || name.includes(bowl)) {
+          return 'semifinal';
+        }
+      }
+      for (const bowl of ['Fiesta Bowl', 'Peach Bowl', 'Orange Bowl', 'Cotton Bowl']) {
+        if (headline.includes(bowl) || name.includes(bowl)) {
+          return 'quarterfinal';
+        }
+      }
+
+      return 'firstRound';
+    }
+
+    function transformGame(event) {
+      if (!event) return null;
+      const competition = event.competitions?.[0];
+      if (!competition) return null;
+
+      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+      const isComplete = event.status?.type?.completed === true;
+      const notes = competition.notes || [];
+      const bowlName = notes[0]?.headline || '';
+
+      let winner = null;
+      if (isComplete && homeTeam && awayTeam) {
+        const homeScore = parseInt(homeTeam.score) || 0;
+        const awayScore = parseInt(awayTeam.score) || 0;
+        winner = homeScore > awayScore ? homeTeam.team?.abbreviation : awayTeam.team?.abbreviation;
+      }
+
+      return {
+        id: event.id,
+        name: event.name,
+        shortName: event.shortName,
+        bowlName,
+        status: event.status?.type?.state,
+        statusDetail: event.status?.type?.shortDetail,
+        isComplete,
+        date: event.date,
+        homeTeam: homeTeam ? {
+          id: homeTeam.id,
+          abbreviation: homeTeam.team?.abbreviation,
+          displayName: homeTeam.team?.displayName,
+          shortDisplayName: homeTeam.team?.shortDisplayName,
+          logo: homeTeam.team?.logo,
+          score: homeTeam.score,
+          seed: homeTeam.curatedRank?.current || homeTeam.rank,
+          winner: winner === homeTeam.team?.abbreviation
+        } : null,
+        awayTeam: awayTeam ? {
+          id: awayTeam.id,
+          abbreviation: awayTeam.team?.abbreviation,
+          displayName: awayTeam.team?.displayName,
+          shortDisplayName: awayTeam.team?.shortDisplayName,
+          logo: awayTeam.team?.logo,
+          score: awayTeam.score,
+          seed: awayTeam.curatedRank?.current || awayTeam.rank,
+          winner: winner === awayTeam.team?.abbreviation
+        } : null,
+        winner,
+        round: getCFPRound(event)
+      };
+    }
+
+    // Filter and transform CFP games
+    const allGames = (data.events || []);
+    const cfpGames = allGames
+      .filter(isCFPGame)
+      .map(transformGame)
+      .filter(g => g !== null);
+
+    // Organize by round
+    const bracket = {
+      firstRound: cfpGames.filter(g => g.round === 'firstRound'),
+      quarterfinal: cfpGames.filter(g => g.round === 'quarterfinal'),
+      semifinal: cfpGames.filter(g => g.round === 'semifinal'),
+      championship: cfpGames.find(g => g.round === 'championship') || null,
+      currentRound: 'firstRound',
+      champion: null
+    };
+
+    // Sort games by seed (lower seed = higher in bracket)
+    const sortBySeed = (a, b) => {
+      const seedA = Math.min(a.homeTeam?.seed || 99, a.awayTeam?.seed || 99);
+      const seedB = Math.min(b.homeTeam?.seed || 99, b.awayTeam?.seed || 99);
+      return seedA - seedB;
+    };
+
+    bracket.firstRound.sort(sortBySeed);
+    bracket.quarterfinal.sort(sortBySeed);
+    bracket.semifinal.sort(sortBySeed);
+
+    // Determine current round
+    if (bracket.championship?.isComplete) {
+      bracket.currentRound = 'complete';
+      bracket.champion = bracket.championship.winner;
+    } else if (bracket.championship) {
+      bracket.currentRound = 'championship';
+    } else if (bracket.semifinal.length > 0 && bracket.semifinal.every(g => g.isComplete)) {
+      bracket.currentRound = 'championship';
+    } else if (bracket.semifinal.length > 0) {
+      bracket.currentRound = 'semifinal';
+    } else if (bracket.quarterfinal.length > 0 && bracket.quarterfinal.every(g => g.isComplete)) {
+      bracket.currentRound = 'semifinal';
+    } else if (bracket.quarterfinal.length > 0) {
+      bracket.currentRound = 'quarterfinal';
+    } else if (bracket.firstRound.length > 0 && bracket.firstRound.every(g => g.isComplete)) {
+      bracket.currentRound = 'quarterfinal';
+    }
+
+    console.log(`[CFP Bracket] Fetched - First Round: ${bracket.firstRound.length}, Quarterfinals: ${bracket.quarterfinal.length}, Semifinals: ${bracket.semifinal.length}, Championship: ${bracket.championship ? 1 : 0}`);
+
+    sportsCache.ncaa.data.set(cacheKey, { data: bracket, timestamp: now });
+    res.json(bracket);
+  } catch (error) {
+    console.error('[CFP Bracket] Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // ============================================

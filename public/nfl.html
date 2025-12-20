@@ -36,7 +36,7 @@
       /* Live/Final game scores */
 
       /* Regular Card - Records */
-      --regular-team-record: 11px;
+      --regular-team-record: 17px;
       /* Team records (e.g., "10-3") */
 
       /* Regular Card - Status Text */
@@ -5265,6 +5265,729 @@
         display: flex !important;
       }
     }
+
+    /* ============================================
+       NFL PLAYOFF BRACKET STYLES
+       ============================================ */
+
+    /* Bracket Preview Card */
+    .bracket-card {
+      background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+      border: 2px solid #3182ce;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bracket-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(49, 130, 206, 0.4);
+    }
+
+    .bracket-card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bracket-card-title svg {
+      width: 28px;
+      height: 28px;
+      fill: #fbbf24;
+    }
+
+    .bracket-card-subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .bracket-mini-preview {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 15px 0;
+    }
+
+    .bracket-mini-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bracket-mini-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #3182ce;
+      text-transform: uppercase;
+    }
+
+    .bracket-mini-teams {
+      display: flex;
+      gap: 4px;
+    }
+
+    .bracket-mini-team {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bracket-mini-team img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .bracket-mini-vs {
+      font-size: 24px;
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 300;
+    }
+
+    .bracket-view-btn {
+      background: rgba(49, 130, 206, 0.2);
+      border: 1px solid #3182ce;
+      color: #63b3ed;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .bracket-view-btn:hover {
+      background: rgba(49, 130, 206, 0.4);
+      color: #fff;
+    }
+
+    /* Bracket Modal */
+    .bracket-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .bracket-modal-overlay.active {
+      display: flex;
+    }
+
+    .bracket-modal {
+      background: linear-gradient(180deg, #1a1a2e 0%, #0f0f23 100%);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 1400px;
+      max-height: 95vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .bracket-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 25px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      background: linear-gradient(180deg, #1a1a2e 0%, #1a1a2e 100%);
+      z-index: 10;
+    }
+
+    .bracket-modal-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bracket-modal-title svg {
+      width: 32px;
+      height: 32px;
+      fill: #fbbf24;
+    }
+
+    .bracket-modal-close {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .bracket-modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .bracket-container {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 20px;
+      padding: 25px;
+      min-height: 500px;
+    }
+
+    /* Conference bracket side */
+    .bracket-conference {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .bracket-conference.afc {
+      align-items: flex-start;
+    }
+
+    .bracket-conference.nfc {
+      align-items: flex-end;
+    }
+
+    .bracket-conference-header {
+      font-size: 18px;
+      font-weight: 700;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .bracket-conference.afc .bracket-conference-header {
+      background: linear-gradient(90deg, #dc2626 0%, transparent 100%);
+      color: #fca5a5;
+    }
+
+    .bracket-conference.nfc .bracket-conference-header {
+      background: linear-gradient(270deg, #2563eb 0%, transparent 100%);
+      color: #93c5fd;
+    }
+
+    .bracket-rounds {
+      display: flex;
+      gap: 15px;
+      width: 100%;
+    }
+
+    .bracket-conference.afc .bracket-rounds {
+      flex-direction: row;
+    }
+
+    .bracket-conference.nfc .bracket-rounds {
+      flex-direction: row-reverse;
+    }
+
+    .bracket-round {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 140px;
+    }
+
+    .bracket-round-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .bracket-games {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+      flex: 1;
+    }
+
+    /* Individual matchup */
+    .bracket-matchup {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .bracket-team {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .bracket-team:last-child {
+      border-bottom: none;
+    }
+
+    .bracket-team.winner {
+      background: rgba(34, 197, 94, 0.15);
+    }
+
+    .bracket-team.loser {
+      opacity: 0.5;
+    }
+
+    .bracket-team-seed {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      min-width: 16px;
+    }
+
+    .bracket-team-logo {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .bracket-team-name {
+      font-size: 12px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .bracket-team-score {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.8);
+      min-width: 24px;
+      text-align: right;
+    }
+
+    .bracket-team.winner .bracket-team-score {
+      color: #22c55e;
+    }
+
+    .bracket-team-empty {
+      color: rgba(255, 255, 255, 0.3);
+      font-style: italic;
+      font-size: 11px;
+    }
+
+    /* Super Bowl center column */
+    .bracket-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      min-width: 200px;
+    }
+
+    .bracket-superbowl {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+    }
+
+    .bracket-superbowl-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #1a1a2e;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+    }
+
+    .bracket-superbowl-matchup {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .bracket-superbowl-team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bracket-superbowl-team img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    .bracket-superbowl-team span {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .bracket-superbowl-vs {
+      font-size: 18px;
+      font-weight: 300;
+      color: rgba(26, 26, 46, 0.5);
+    }
+
+    .bracket-superbowl-tbd {
+      font-size: 13px;
+      color: rgba(26, 26, 46, 0.6);
+      font-style: italic;
+    }
+
+    .bracket-champion {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(251, 191, 36, 0.4);
+    }
+
+    .bracket-champion-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(26, 26, 46, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+    }
+
+    .bracket-champion-team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bracket-champion-team img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+
+    .bracket-champion-team span {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1a1a2e;
+    }
+
+    .bracket-champion-trophy {
+      font-size: 40px;
+      margin-top: 10px;
+    }
+
+    /* Responsive bracket - Modal only */
+    @media (max-width: 1000px) {
+      .bracket-modal .bracket-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      /* Order: AFC first, Super Bowl middle, NFC last (inverted) */
+      .bracket-modal .bracket-conference.afc {
+        order: 1;
+      }
+
+      .bracket-modal .bracket-center {
+        order: 2;
+      }
+
+      .bracket-modal .bracket-conference.nfc {
+        order: 3;
+      }
+
+      /* Stack rounds vertically in modal */
+      .bracket-modal .bracket-rounds {
+        flex-direction: column !important;
+      }
+
+      /* NFC rounds in reverse order in modal: Conference first, then Divisional, then Wild Card */
+      .bracket-modal .bracket-conference.nfc .bracket-rounds {
+        flex-direction: column-reverse !important;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .bracket-round {
+        min-width: 100%;
+      }
+
+      .bracket-modal {
+        border-radius: 0;
+        max-height: 100vh;
+      }
+
+      .bracket-modal-header {
+        padding: 15px;
+      }
+
+      .bracket-container {
+        padding: 15px;
+      }
+    }
+
+    /* Fullscreen bracket styles */
+    .fullscreen-bracket-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, #0a0e1a 0%, #1a1a2e 100%);
+      padding: clamp(8px, 1.5vmin, 20px);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .fullscreen-bracket-title {
+      text-align: center;
+      font-size: clamp(12px, 2vmin, 24px);
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: clamp(5px, 1vmin, 15px);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      flex-shrink: 0;
+    }
+
+    .fullscreen-bracket-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: clamp(5px, 1vmin, 20px);
+      align-items: stretch;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .fullscreen-bracket-content .bracket-conference {
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .fullscreen-bracket-content .bracket-conference-header {
+      font-size: clamp(10px, 1.5vmin, 16px);
+      padding: clamp(4px, 0.8vmin, 10px) clamp(8px, 1.5vmin, 16px);
+      flex-shrink: 0;
+    }
+
+    .fullscreen-bracket-content .bracket-rounds {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      gap: clamp(5px, 1vmin, 15px);
+    }
+
+    .fullscreen-bracket-content .bracket-round {
+      min-width: clamp(80px, 12vmin, 140px);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .fullscreen-bracket-content .bracket-round-title {
+      font-size: clamp(8px, 1vmin, 11px);
+      padding-bottom: clamp(3px, 0.5vmin, 8px);
+      flex-shrink: 0;
+    }
+
+    .fullscreen-bracket-content .bracket-games {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      gap: clamp(4px, 0.8vmin, 10px);
+    }
+
+    .fullscreen-bracket-content .bracket-matchup {
+      flex-shrink: 1;
+      min-height: 0;
+    }
+
+    .fullscreen-bracket-content .bracket-team {
+      padding: clamp(3px, 0.6vmin, 8px) clamp(5px, 0.8vmin, 10px);
+      gap: clamp(3px, 0.5vmin, 8px);
+    }
+
+    .fullscreen-bracket-content .bracket-team-seed {
+      font-size: clamp(7px, 0.9vmin, 10px);
+      min-width: clamp(10px, 1.5vmin, 16px);
+    }
+
+    .fullscreen-bracket-content .bracket-team-logo {
+      width: clamp(14px, 2vmin, 24px);
+      height: clamp(14px, 2vmin, 24px);
+    }
+
+    .fullscreen-bracket-content .bracket-team-name {
+      font-size: clamp(8px, 1.2vmin, 12px);
+    }
+
+    .fullscreen-bracket-content .bracket-team-score {
+      font-size: clamp(8px, 1.2vmin, 13px);
+    }
+
+    .fullscreen-bracket-content .bracket-team-empty {
+      font-size: clamp(7px, 1vmin, 11px);
+    }
+
+    /* Fullscreen Super Bowl center */
+    .fullscreen-bracket-content .bracket-center {
+      min-width: clamp(100px, 15vmin, 200px);
+      gap: clamp(8px, 1.5vmin, 20px);
+    }
+
+    .fullscreen-bracket-content .bracket-superbowl {
+      padding: clamp(8px, 1.5vmin, 20px);
+      border-radius: clamp(6px, 1vmin, 12px);
+    }
+
+    .fullscreen-bracket-content .bracket-superbowl-title {
+      font-size: clamp(9px, 1.2vmin, 14px);
+      margin-bottom: clamp(6px, 1vmin, 15px);
+    }
+
+    .fullscreen-bracket-content .bracket-superbowl-matchup {
+      gap: clamp(6px, 1vmin, 15px);
+    }
+
+    .fullscreen-bracket-content .bracket-superbowl-team {
+      gap: clamp(4px, 0.8vmin, 8px);
+    }
+
+    .fullscreen-bracket-content .bracket-superbowl-team img {
+      width: clamp(24px, 4vmin, 48px);
+      height: clamp(24px, 4vmin, 48px);
+    }
+
+    .fullscreen-bracket-content .bracket-superbowl-team span {
+      font-size: clamp(9px, 1.2vmin, 14px);
+    }
+
+    .fullscreen-bracket-content .bracket-superbowl-vs {
+      font-size: clamp(12px, 1.5vmin, 18px);
+    }
+
+    .fullscreen-bracket-content .bracket-superbowl-tbd {
+      font-size: clamp(8px, 1vmin, 13px);
+    }
+
+    .fullscreen-bracket-content .bracket-champion {
+      padding: clamp(10px, 2vmin, 25px);
+      border-radius: clamp(6px, 1vmin, 12px);
+    }
+
+    .fullscreen-bracket-content .bracket-champion-title {
+      font-size: clamp(8px, 1vmin, 12px);
+      margin-bottom: clamp(6px, 1vmin, 15px);
+    }
+
+    .fullscreen-bracket-content .bracket-champion-team {
+      gap: clamp(5px, 1vmin, 10px);
+    }
+
+    .fullscreen-bracket-content .bracket-champion-team img {
+      width: clamp(32px, 5vmin, 64px);
+      height: clamp(32px, 5vmin, 64px);
+    }
+
+    .fullscreen-bracket-content .bracket-champion-team span {
+      font-size: clamp(10px, 1.5vmin, 18px);
+    }
+
+    .fullscreen-bracket-content .bracket-champion-trophy {
+      font-size: clamp(20px, 3vmin, 40px);
+      margin-top: clamp(5px, 1vmin, 10px);
+    }
+
+    /* Fullscreen bracket - vertical/portrait layout for narrow cards */
+    @media (max-aspect-ratio: 1/1) {
+      .fullscreen-bracket-container {
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .fullscreen-bracket-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: clamp(10px, 2vmin, 20px);
+        overflow: visible;
+        align-items: start;
+      }
+
+      /* Order: AFC, Super Bowl, NFC */
+      .fullscreen-bracket-content .bracket-conference.afc {
+        order: 1;
+      }
+
+      .fullscreen-bracket-content .bracket-center {
+        order: 2;
+        width: 100%;
+        min-width: unset;
+      }
+
+      .fullscreen-bracket-content .bracket-conference.nfc {
+        order: 3;
+      }
+
+      .fullscreen-bracket-content .bracket-conference {
+        height: auto;
+        overflow: visible;
+      }
+
+      .fullscreen-bracket-content .bracket-rounds {
+        flex-direction: row !important;
+        overflow: visible;
+        flex-wrap: nowrap;
+      }
+
+      .fullscreen-bracket-content .bracket-round {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .fullscreen-bracket-content .bracket-games {
+        overflow: visible;
+      }
+
+      .fullscreen-bracket-content .bracket-superbowl {
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+      }
+    }
   </style>
   <!-- <link rel="stylesheet" href="/styles/themes.css"> -->
   <!-- <link rel="stylesheet" href="/styles/theme-overrides.css"> -->
@@ -5285,6 +6008,25 @@
     <div class="rotate-icon">📱</div>
     <h2>Please Rotate Your Device</h2>
     <p>This app works best in landscape mode on tablets</p>
+  </div>
+
+  <!-- Playoff Bracket Modal -->
+  <div class="bracket-modal-overlay" id="bracket-modal">
+    <div class="bracket-modal">
+      <div class="bracket-modal-header">
+        <div class="bracket-modal-title">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+          </svg>
+          NFL Playoffs Bracket
+        </div>
+        <button class="bracket-modal-close" onclick="closeBracketModal()">&times;</button>
+      </div>
+      <div class="bracket-container" id="bracket-content">
+        <!-- Bracket content will be rendered here -->
+      </div>
+    </div>
   </div>
 
   <div class="header">
@@ -5397,6 +6139,47 @@
     // Get team color by abbreviation
     function getTeamColor(teamAbbr) {
       return NFL_TEAM_COLORS[teamAbbr] || '#fbbf24'; // Default to yellow if not found
+    }
+
+    // NFL Team Logos - maps abbreviation to local asset path
+    const NFL_TEAM_LOGOS = {
+      'ARI': '/assets/Arizona Cardinals.png',
+      'ATL': '/assets/Atlanta Falcons.png',
+      'BAL': '/assets/Baltimore Ravens.png',
+      'BUF': '/assets/Buffalo Bills.png',
+      'CAR': '/assets/Carolina Panthers.png',
+      'CHI': '/assets/Chicago Bears.png',
+      'CIN': '/assets/Cincinnati Bengals.png',
+      'CLE': '/assets/Cleveland Browns.png',
+      'DAL': '/assets/Dallas Cowboys.png',
+      'DEN': '/assets/Denver Broncos.png',
+      'DET': '/assets/Detroit Lions.png',
+      'GB': '/assets/Green Bay Packers.png',
+      'HOU': '/assets/Houston Texans.png',
+      'IND': '/assets/Indianapolis Colts.png',
+      'JAX': '/assets/Jacksonville Jaguars.png',
+      'KC': '/assets/Kansas City Chiefs.png',
+      'LV': '/assets/Las Vegas Raiders.png',
+      'LAC': '/assets/Los Angeles Chargers.png',
+      'LAR': '/assets/Los Angeles Rams.png',
+      'MIA': '/assets/Miami Dolphins.png',
+      'MIN': '/assets/Minnesota Vikings.png',
+      'NE': '/assets/New England Patriots.png',
+      'NO': '/assets/New Orleans Saints.png',
+      'NYG': '/assets/New York Giants.png',
+      'NYJ': '/assets/New York Jets.png',
+      'PHI': '/assets/Philadelphia Eagles.png',
+      'PIT': '/assets/Pittsburgh Steelers.png',
+      'SF': '/assets/San Francisco 49ers.png',
+      'SEA': '/assets/Seattle Seahawks.png',
+      'TB': '/assets/Tampa Bay Buccaneers.png',
+      'TEN': '/assets/Tennessee Titans.png',
+      'WSH': '/assets/Washington Commanders.png'
+    };
+
+    // Get team logo by abbreviation (local asset)
+    function getTeamLogo(teamAbbr) {
+      return NFL_TEAM_LOGOS[teamAbbr] || null;
     }
 
     // Fetch user's favorite teams
@@ -5833,6 +6616,11 @@
 
       // Clear the container and append all cards in the correct order
       container.innerHTML = '';
+
+      // Add bracket card at the beginning (always show for now - change to isPostseason for prod)
+      const bracketCard = createBracketPreviewCard();
+      container.appendChild(bracketCard);
+
       container.appendChild(fragment);
 
       // Remove any leftover cards that are no longer in the game list
@@ -7082,6 +7870,400 @@
     window.addEventListener('beforeunload', () => {
       if (refreshInterval) clearInterval(refreshInterval);
     });
+
+    // ============================================
+    // NFL PLAYOFF BRACKET FUNCTIONS
+    // ============================================
+
+    let bracketData = null;
+    let bracketRefreshInterval = null;
+
+    // Create the bracket preview card for the games grid
+    function createBracketPreviewCard() {
+      const card = document.createElement('div');
+      card.className = 'bracket-card';
+      card.onclick = openBracketModal;
+
+      card.innerHTML = `
+        <div class="bracket-card-title">
+          
+          NFL Playoffs
+        </div>
+        <div class="bracket-card-subtitle">${postseasonRound || 'Postseason'}</div>
+        <div class="bracket-mini-preview" id="bracket-mini-preview">
+          <div class="bracket-mini-side">
+            <div class="bracket-mini-label">AFC</div>
+            <div class="bracket-mini-teams" id="bracket-mini-afc"></div>
+          </div>
+          <div class="bracket-mini-vs">vs</div>
+          <div class="bracket-mini-side">
+            <div class="bracket-mini-label">NFC</div>
+            <div class="bracket-mini-teams" id="bracket-mini-nfc"></div>
+          </div>
+        </div>
+        <button class="bracket-view-btn">View Full Bracket</button>
+      `;
+
+      // Load mini preview
+      fetchBracketData().then(data => {
+        if (data) updateBracketMiniPreview(data);
+      });
+
+      return card;
+    }
+
+    // Update mini preview with team logos
+    function updateBracketMiniPreview(data) {
+      const afcContainer = document.getElementById('bracket-mini-afc');
+      const nfcContainer = document.getElementById('bracket-mini-nfc');
+      if (!afcContainer || !nfcContainer) return;
+
+      // Get teams from the most recent active round
+      const getActiveTeams = (conference) => {
+        const teams = [];
+        // Check from Super Bowl down to Wild Card
+        if (data.superBowl?.superBowl) {
+          const sb = data.superBowl.superBowl;
+          if (conference === 'afc' && sb.homeTeam?.abbreviation && data.afcChampion) {
+            teams.push(sb.homeTeam?.abbreviation === data.afcChampion ? sb.homeTeam : sb.awayTeam);
+          } else if (conference === 'nfc' && sb.homeTeam?.abbreviation && data.nfcChampion) {
+            teams.push(sb.homeTeam?.abbreviation === data.nfcChampion ? sb.homeTeam : sb.awayTeam);
+          }
+        }
+        if (teams.length === 0) {
+          const confGames = conference === 'afc' ? data.conference?.afc : data.conference?.nfc;
+          confGames?.forEach(g => {
+            if (g.homeTeam) teams.push(g.homeTeam);
+            if (g.awayTeam) teams.push(g.awayTeam);
+          });
+        }
+        if (teams.length === 0) {
+          const divGames = conference === 'afc' ? data.divisional?.afc : data.divisional?.nfc;
+          divGames?.forEach(g => {
+            if (g.homeTeam) teams.push(g.homeTeam);
+            if (g.awayTeam) teams.push(g.awayTeam);
+          });
+        }
+        if (teams.length === 0) {
+          const wcGames = conference === 'afc' ? data.wildCard?.afc : data.wildCard?.nfc;
+          wcGames?.forEach(g => {
+            if (g.homeTeam) teams.push(g.homeTeam);
+            if (g.awayTeam) teams.push(g.awayTeam);
+          });
+        }
+        return teams.slice(0, 4); // Show max 4 teams
+      };
+
+      const afcTeams = getActiveTeams('afc').filter(t => t && t.abbreviation);
+      const nfcTeams = getActiveTeams('nfc').filter(t => t && t.abbreviation);
+
+      if (afcTeams.length > 0) {
+        afcContainer.innerHTML = afcTeams.map(t => {
+          const localLogo = NFL_TEAM_LOGOS[t.abbreviation];
+          const logoSrc = localLogo || t.logo;
+          return logoSrc ? `
+            <div class="bracket-mini-team">
+              <img src="${logoSrc}" alt="${t.abbreviation || ''}" onerror="this.style.display='none'">
+            </div>
+          ` : '';
+        }).join('');
+      } else {
+        afcContainer.innerHTML = '<span style="color: rgba(255,255,255,0.4); font-size: 10px;">TBD</span>';
+      }
+
+      if (nfcTeams.length > 0) {
+        nfcContainer.innerHTML = nfcTeams.map(t => {
+          const localLogo = NFL_TEAM_LOGOS[t.abbreviation];
+          const logoSrc = localLogo || t.logo;
+          return logoSrc ? `
+            <div class="bracket-mini-team">
+              <img src="${logoSrc}" alt="${t.abbreviation || ''}" onerror="this.style.display='none'">
+            </div>
+          ` : '';
+        }).join('');
+      } else {
+        nfcContainer.innerHTML = '<span style="color: rgba(255,255,255,0.4); font-size: 10px;">TBD</span>';
+      }
+    }
+
+    // Fetch bracket data from API
+    async function fetchBracketData() {
+      try {
+        const response = await fetch('/api/nfl/playoff-bracket');
+        if (!response.ok) throw new Error('Failed to fetch bracket');
+        bracketData = await response.json();
+        return bracketData;
+      } catch (error) {
+        console.error('Error fetching bracket:', error);
+        return null;
+      }
+    }
+
+    // Open bracket modal
+    async function openBracketModal() {
+      const modal = document.getElementById('bracket-modal');
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      const data = await fetchBracketData();
+      if (data) {
+        renderBracket(data);
+      }
+
+      // Start refresh interval
+      bracketRefreshInterval = setInterval(async () => {
+        const newData = await fetchBracketData();
+        if (newData) renderBracket(newData);
+      }, 60000); // Refresh every 60 seconds
+    }
+
+    // Close bracket modal
+    function closeBracketModal() {
+      const modal = document.getElementById('bracket-modal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+
+      if (bracketRefreshInterval) {
+        clearInterval(bracketRefreshInterval);
+        bracketRefreshInterval = null;
+      }
+    }
+
+    // Render the full bracket
+    function renderBracket(data) {
+      const container = document.getElementById('bracket-content');
+      if (!container) return;
+
+      container.innerHTML = `
+        <!-- AFC Side -->
+        <div class="bracket-conference afc">
+          <div class="bracket-conference-header">AFC</div>
+          <div class="bracket-rounds">
+            ${renderBracketRound('Wild Card', data.wildCard?.afc || [], 3)}
+            ${renderBracketRound('Divisional', data.divisional?.afc || [], 2)}
+            ${renderBracketRound('Conference', data.conference?.afc || [], 1)}
+          </div>
+        </div>
+
+        <!-- Super Bowl Center -->
+        <div class="bracket-center">
+          ${renderSuperBowl(data)}
+        </div>
+
+        <!-- NFC Side -->
+        <div class="bracket-conference nfc">
+          <div class="bracket-conference-header">NFC</div>
+          <div class="bracket-rounds">
+            ${renderBracketRound('Wild Card', data.wildCard?.nfc || [], 3)}
+            ${renderBracketRound('Divisional', data.divisional?.nfc || [], 2)}
+            ${renderBracketRound('Conference', data.conference?.nfc || [], 1)}
+          </div>
+        </div>
+      `;
+    }
+
+    // Render a single round with its games
+    function renderBracketRound(roundName, games, expectedGames) {
+      const matchups = [];
+
+      // Render actual games
+      games.forEach(game => {
+        matchups.push(renderMatchup(game));
+      });
+
+      // Add empty slots for games not yet determined
+      while (matchups.length < expectedGames) {
+        matchups.push(renderEmptyMatchup());
+      }
+
+      return `
+        <div class="bracket-round">
+          <div class="bracket-round-title">${roundName}</div>
+          <div class="bracket-games">
+            ${matchups.join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Render a single matchup
+    function renderMatchup(game) {
+      const homeTeam = game.homeTeam;
+      const awayTeam = game.awayTeam;
+
+      return `
+        <div class="bracket-matchup">
+          ${renderBracketTeam(awayTeam, game.isComplete, game.winner)}
+          ${renderBracketTeam(homeTeam, game.isComplete, game.winner)}
+        </div>
+      `;
+    }
+
+    // Render a team in the bracket
+    function renderBracketTeam(team, isComplete, winner) {
+      if (!team || !team.abbreviation || team.abbreviation === 'TBD') {
+        return `
+          <div class="bracket-team">
+            <span class="bracket-team-empty">TBD</span>
+          </div>
+        `;
+      }
+
+      const isWinner = winner === team.abbreviation;
+      const isLoser = isComplete && !isWinner;
+      const teamColor = getTeamColor(team.abbreviation);
+      // Use local logo if available, fallback to ESPN logo
+      const localLogo = getTeamLogo(team.abbreviation);
+      const logoSrc = localLogo || team.logo;
+      const logoHtml = logoSrc ? `<img class="bracket-team-logo" src="${logoSrc}" alt="${team.abbreviation}" onerror="this.style.display='none'">` : '';
+
+      return `
+        <div class="bracket-team ${isWinner ? 'winner' : ''} ${isLoser ? 'loser' : ''}">
+          <span class="bracket-team-seed">${team.seed || ''}</span>
+          ${logoHtml}
+          <span class="bracket-team-name" style="color: ${teamColor}">${team.abbreviation}</span>
+          ${isComplete ? `<span class="bracket-team-score">${team.score || 0}</span>` : ''}
+        </div>
+      `;
+    }
+
+    // Render empty matchup slot
+    function renderEmptyMatchup() {
+      return `
+        <div class="bracket-matchup">
+          <div class="bracket-team">
+            <span class="bracket-team-empty">TBD</span>
+          </div>
+          <div class="bracket-team">
+            <span class="bracket-team-empty">TBD</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Super Bowl section
+    function renderSuperBowl(data) {
+      const sb = data.superBowl?.superBowl;
+      const afcChamp = data.afcChampion;
+      const nfcChamp = data.nfcChampion;
+      const sbWinner = data.superBowlWinner;
+
+      // Helper to check if team is valid (not TBD) - now checks local logo too
+      const isValidTeam = (team) => team && team.abbreviation && team.abbreviation !== 'TBD' && (getTeamLogo(team.abbreviation) || team.logo);
+
+      // Helper to get logo src (local first, then ESPN)
+      const getLogoSrc = (team) => getTeamLogo(team.abbreviation) || team.logo;
+
+      // If we have a Super Bowl winner
+      if (sbWinner && sb) {
+        const winnerTeam = sb.homeTeam?.abbreviation === sbWinner ? sb.homeTeam : sb.awayTeam;
+        if (isValidTeam(winnerTeam)) {
+          return `
+            <div class="bracket-champion">
+              <div class="bracket-champion-title">Super Bowl Champion</div>
+              <div class="bracket-champion-team">
+                <img src="${getLogoSrc(winnerTeam)}" alt="${winnerTeam.abbreviation}" onerror="this.style.display='none'">
+                <span style="color: ${getTeamColor(winnerTeam.abbreviation)}">${winnerTeam.displayName || winnerTeam.abbreviation}</span>
+              </div>
+              <div class="bracket-champion-trophy">🏆</div>
+            </div>
+          `;
+        }
+      }
+
+      // If we have Super Bowl matchup with valid teams
+      if (sb && isValidTeam(sb.homeTeam) && isValidTeam(sb.awayTeam)) {
+        return `
+          <div class="bracket-superbowl">
+            <div class="bracket-superbowl-title">Super Bowl</div>
+            <div class="bracket-superbowl-matchup">
+              <div class="bracket-superbowl-team">
+                <img src="${getLogoSrc(sb.awayTeam)}" alt="${sb.awayTeam.abbreviation}" onerror="this.style.display='none'">
+                <span style="color: ${getTeamColor(sb.awayTeam.abbreviation)}">${sb.awayTeam.abbreviation}</span>
+              </div>
+              <div class="bracket-superbowl-vs">vs</div>
+              <div class="bracket-superbowl-team">
+                <img src="${getLogoSrc(sb.homeTeam)}" alt="${sb.homeTeam.abbreviation}" onerror="this.style.display='none'">
+                <span style="color: ${getTeamColor(sb.homeTeam.abbreviation)}">${sb.homeTeam.abbreviation}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // If we have conference champions but no SB game yet
+      if (afcChamp || nfcChamp) {
+        const afcTeam = findTeamByAbbr(data, afcChamp);
+        const nfcTeam = findTeamByAbbr(data, nfcChamp);
+
+        return `
+          <div class="bracket-superbowl">
+            <div class="bracket-superbowl-title">Super Bowl</div>
+            <div class="bracket-superbowl-matchup">
+              ${isValidTeam(afcTeam) ? `
+                <div class="bracket-superbowl-team">
+                  <img src="${getLogoSrc(afcTeam)}" alt="${afcTeam.abbreviation}" onerror="this.style.display='none'">
+                  <span style="color: ${getTeamColor(afcTeam.abbreviation)}">${afcTeam.abbreviation}</span>
+                </div>
+              ` : '<div class="bracket-superbowl-tbd">AFC Champion</div>'}
+              <div class="bracket-superbowl-vs">vs</div>
+              ${isValidTeam(nfcTeam) ? `
+                <div class="bracket-superbowl-team">
+                  <img src="${getLogoSrc(nfcTeam)}" alt="${nfcTeam.abbreviation}" onerror="this.style.display='none'">
+                  <span style="color: ${getTeamColor(nfcTeam.abbreviation)}">${nfcTeam.abbreviation}</span>
+                </div>
+              ` : '<div class="bracket-superbowl-tbd">NFC Champion</div>'}
+            </div>
+          </div>
+        `;
+      }
+
+      // Default - TBD
+      return `
+        <div class="bracket-superbowl">
+          <div class="bracket-superbowl-title">Super Bowl</div>
+          <div class="bracket-superbowl-matchup">
+            <div class="bracket-superbowl-tbd">AFC Champion</div>
+            <div class="bracket-superbowl-vs">vs</div>
+            <div class="bracket-superbowl-tbd">NFC Champion</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Helper to find team object by abbreviation
+    function findTeamByAbbr(data, abbr) {
+      if (!abbr) return null;
+
+      const searchRounds = [
+        ...(data.conference?.afc || []),
+        ...(data.conference?.nfc || []),
+        ...(data.divisional?.afc || []),
+        ...(data.divisional?.nfc || []),
+        ...(data.wildCard?.afc || []),
+        ...(data.wildCard?.nfc || [])
+      ];
+
+      for (const game of searchRounds) {
+        if (game.homeTeam?.abbreviation === abbr) return game.homeTeam;
+        if (game.awayTeam?.abbreviation === abbr) return game.awayTeam;
+      }
+      return null;
+    }
+
+    // Close modal on overlay click
+    document.getElementById('bracket-modal')?.addEventListener('click', (e) => {
+      if (e.target.classList.contains('bracket-modal-overlay')) {
+        closeBracketModal();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeBracketModal();
+      }
+    });
   </script>
 
   <!-- Game Selection Modal -->
@@ -7681,6 +8863,15 @@
         // Clear existing options except first
         selector.innerHTML = '<option value="">-- Select Game --</option>';
 
+        // Add bracket option (always show for now - change to isPostseason check for prod)
+        const bracketOption = document.createElement('option');
+        bracketOption.value = 'bracket';
+        bracketOption.textContent = '🏆 NFL Playoffs Bracket';
+        if (currentSelection === 'bracket') {
+          bracketOption.selected = true;
+        }
+        selector.appendChild(bracketOption);
+
         liveGames.forEach((game, gameIndex) => {
           const gameId = game.id;
           // Show game if: it's not used OR it's the current selection for this slot
@@ -7833,17 +9024,83 @@
       // Render in slot order (0, 1, 2, ...)
       for (let slotIndex = 0; slotIndex < currentLayout; slotIndex++) {
         const gameId = gridGames[slotIndex]; // Now uses game ID
-        const game = liveGames.find(g => g.id === gameId); // Find game by ID
 
-        if (game) {
-          const card = createFullScreenGameCard(game, slotIndex);
+        // Check if this slot is the bracket
+        if (gameId === 'bracket') {
+          const card = createFullScreenBracketCard(slotIndex);
           grid.appendChild(card);
         } else {
-          // Empty slot - show logo and game selector
-          const card = createEmptySlotCard(slotIndex);
-          grid.appendChild(card);
+          const game = liveGames.find(g => g.id === gameId); // Find game by ID
+
+          if (game) {
+            const card = createFullScreenGameCard(game, slotIndex);
+            grid.appendChild(card);
+          } else {
+            // Empty slot - show logo and game selector
+            const card = createEmptySlotCard(slotIndex);
+            grid.appendChild(card);
+          }
         }
       }
+    }
+
+    // Create fullscreen bracket card
+    function createFullScreenBracketCard(slotIndex) {
+      const card = document.createElement('div');
+      card.className = 'fullscreen-game-card fullscreen-bracket';
+      card.dataset.slot = slotIndex;
+      card.dataset.gameId = 'bracket';
+
+      card.innerHTML = `
+        <div class="fullscreen-bracket-container">
+          <div class="fullscreen-bracket-title">NFL Playoffs Bracket</div>
+          <div class="fullscreen-bracket-content" id="fullscreen-bracket-content-${slotIndex}">
+            <!-- Bracket will be rendered here -->
+          </div>
+        </div>
+      `;
+
+      // Load bracket data
+      fetchBracketData().then(data => {
+        if (data) {
+          renderFullScreenBracket(data, slotIndex);
+        }
+      });
+
+      return card;
+    }
+
+    // Render bracket in fullscreen format
+    function renderFullScreenBracket(data, slotIndex) {
+      const container = document.getElementById(`fullscreen-bracket-content-${slotIndex}`);
+      if (!container) return;
+
+      container.innerHTML = `
+        <!-- AFC Side -->
+        <div class="bracket-conference afc">
+          <div class="bracket-conference-header">AFC</div>
+          <div class="bracket-rounds">
+            ${renderBracketRound('Wild Card', data.wildCard?.afc || [], 3)}
+            ${renderBracketRound('Divisional', data.divisional?.afc || [], 2)}
+            ${renderBracketRound('Conference', data.conference?.afc || [], 1)}
+          </div>
+        </div>
+
+        <!-- Super Bowl Center -->
+        <div class="bracket-center">
+          ${renderSuperBowl(data)}
+        </div>
+
+        <!-- NFC Side -->
+        <div class="bracket-conference nfc">
+          <div class="bracket-conference-header">NFC</div>
+          <div class="bracket-rounds">
+            ${renderBracketRound('Wild Card', data.wildCard?.nfc || [], 3)}
+            ${renderBracketRound('Divisional', data.divisional?.nfc || [], 2)}
+            ${renderBracketRound('Conference', data.conference?.nfc || [], 1)}
+          </div>
+        </div>
+      `;
     }
 
     // Calculate ball position percentage on field (0-100%)
@@ -8574,8 +9831,18 @@
         const cards = grid.querySelectorAll('.fullscreen-game-card');
 
         cards.forEach((card, index) => {
-          const slotIndex = parseInt(card.dataset.slotIndex);
+          const slotIndex = parseInt(card.dataset.slot || card.dataset.slotIndex);
           const gameId = gridGames[slotIndex]; // Now uses game ID
+
+          // Handle bracket updates
+          if (gameId === 'bracket' && card.classList.contains('fullscreen-bracket')) {
+            // Refresh bracket data every update cycle
+            fetchBracketData().then(data => {
+              if (data) renderFullScreenBracket(data, slotIndex);
+            });
+            return;
+          }
+
           const game = window.liveGamesData.find(g => g.id === gameId); // Find by ID
 
           if (!game || card.classList.contains('empty-slot')) return;

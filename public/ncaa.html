@@ -4672,6 +4672,508 @@
         display: flex !important;
       }
     }
+
+    /* ============================================
+       CFP BRACKET STYLES
+       ============================================ */
+
+    /* Bracket Preview Card */
+    .cfp-bracket-card {
+      background: linear-gradient(135deg, #1a3a1a 0%, #2d4a2d 50%, #1a3a1a 100%);
+      border: 2px solid #4a7c4a;
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cfp-bracket-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(74, 124, 74, 0.4);
+    }
+
+    .cfp-bracket-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .cfp-bracket-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cfp-bracket-card-title::before {
+      content: '🏈';
+      font-size: 20px;
+    }
+
+    .cfp-bracket-round-badge {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
+
+    .cfp-bracket-mini-preview {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex: 1;
+      gap: 8px;
+    }
+
+    .cfp-bracket-mini-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cfp-bracket-mini-label {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cfp-bracket-mini-teams {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: center;
+      max-width: 100px;
+    }
+
+    .cfp-bracket-mini-team {
+      width: 28px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .cfp-bracket-mini-team img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .cfp-bracket-view-btn {
+      background: rgba(74, 124, 74, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 12px;
+      transition: background 0.2s;
+    }
+
+    .cfp-bracket-view-btn:hover {
+      background: rgba(74, 124, 74, 0.6);
+    }
+
+    /* CFP Bracket Modal */
+    .cfp-bracket-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .cfp-bracket-modal.active {
+      display: flex;
+    }
+
+    .cfp-bracket-modal-content {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 1400px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+    }
+
+    .cfp-bracket-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cfp-bracket-modal-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cfp-bracket-modal-close {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .cfp-bracket-modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* CFP Bracket Layout - Linear Flow */
+    .cfp-bracket-container {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .cfp-bracket-round {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .cfp-bracket-round-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #4a7c4a;
+      text-align: center;
+      padding: 8px 16px;
+      background: rgba(74, 124, 74, 0.15);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .cfp-bracket-games {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      justify-items: center;
+    }
+
+    /* CFP Game Matchup Card */
+    .cfp-bracket-game {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .cfp-bracket-game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cfp-bracket-bowl-name {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cfp-bracket-game-status {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .cfp-bracket-game-status.pre {
+      background: rgba(100, 100, 100, 0.3);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .cfp-bracket-game-status.in {
+      background: rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      animation: pulse 1.5s infinite;
+    }
+
+    .cfp-bracket-game-status.post {
+      background: rgba(74, 124, 74, 0.3);
+      color: #4a7c4a;
+    }
+
+    .cfp-bracket-teams {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cfp-bracket-team {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      transition: background 0.2s;
+    }
+
+    .cfp-bracket-team.winner {
+      background: rgba(74, 124, 74, 0.2);
+      border: 1px solid rgba(74, 124, 74, 0.4);
+    }
+
+    .cfp-bracket-team.loser {
+      opacity: 0.5;
+    }
+
+    .cfp-bracket-team-seed {
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.5);
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .cfp-bracket-team-logo {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .cfp-bracket-team-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cfp-bracket-team-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .cfp-bracket-team-abbr {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .cfp-bracket-team-score {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    /* TBD Slot */
+    .cfp-bracket-team.tbd {
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.3);
+      font-style: italic;
+    }
+
+    /* Championship Game Special Styling */
+    .cfp-bracket-championship {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+      border: 2px solid rgba(212, 175, 55, 0.5);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .cfp-bracket-championship .cfp-bracket-round-title {
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.3), rgba(255, 215, 0, 0.2));
+      color: #d4af37;
+    }
+
+    .cfp-bracket-champion-display {
+      text-align: center;
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(255, 215, 0, 0.2) 100%);
+      border-radius: 12px;
+      margin-top: 16px;
+    }
+
+    .cfp-bracket-champion-label {
+      font-size: 14px;
+      color: rgba(212, 175, 55, 0.8);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .cfp-bracket-champion-team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cfp-bracket-champion-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+    }
+
+    .cfp-bracket-champion-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #d4af37;
+    }
+
+    /* Fullscreen Bracket Styles */
+    .fullscreen-cfp-bracket {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(8px, 2vmin, 24px);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .fullscreen-cfp-bracket-header {
+      text-align: center;
+      margin-bottom: clamp(8px, 2vmin, 16px);
+    }
+
+    .fullscreen-cfp-bracket-title {
+      font-size: clamp(1rem, 3vmin, 2rem);
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .fullscreen-cfp-bracket-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 1.5vmin, 16px);
+      overflow-y: auto;
+    }
+
+    .fullscreen-cfp-round {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(4px, 1vmin, 8px);
+    }
+
+    .fullscreen-cfp-round-title {
+      font-size: clamp(0.7rem, 1.8vmin, 1rem);
+      font-weight: 600;
+      color: #4a7c4a;
+      text-align: center;
+    }
+
+    .fullscreen-cfp-games {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: clamp(4px, 1vmin, 12px);
+    }
+
+    .fullscreen-cfp-game {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: clamp(4px, 1vmin, 8px);
+      padding: clamp(4px, 1vmin, 12px);
+      min-width: clamp(100px, 15vmin, 200px);
+    }
+
+    .fullscreen-cfp-team {
+      display: flex;
+      align-items: center;
+      gap: clamp(4px, 0.8vmin, 8px);
+      padding: clamp(2px, 0.5vmin, 6px);
+    }
+
+    .fullscreen-cfp-team-logo {
+      width: clamp(16px, 3vmin, 32px);
+      height: clamp(16px, 3vmin, 32px);
+      object-fit: contain;
+    }
+
+    .fullscreen-cfp-team-seed {
+      font-size: clamp(0.5rem, 1.2vmin, 0.8rem);
+      color: rgba(255, 255, 255, 0.5);
+      min-width: clamp(12px, 2vmin, 20px);
+    }
+
+    .fullscreen-cfp-team-name {
+      font-size: clamp(0.6rem, 1.4vmin, 0.9rem);
+      color: #fff;
+      flex: 1;
+    }
+
+    .fullscreen-cfp-team-score {
+      font-size: clamp(0.7rem, 1.6vmin, 1rem);
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .fullscreen-cfp-team.winner {
+      background: rgba(74, 124, 74, 0.2);
+      border-radius: clamp(2px, 0.5vmin, 4px);
+    }
+
+    .fullscreen-cfp-team.loser {
+      opacity: 0.5;
+    }
+
+    /* Mobile Responsive for Modal */
+    @media (max-width: 768px) {
+      .cfp-bracket-modal-content {
+        padding: 16px;
+      }
+
+      .cfp-bracket-modal-title {
+        font-size: 18px;
+      }
+
+      .cfp-bracket-games {
+        grid-template-columns: 1fr;
+      }
+
+      .cfp-bracket-game {
+        max-width: 100%;
+      }
+    }
   </style>
   <!-- <link rel="stylesheet" href="/styles/themes.css"> -->
   <!-- <link rel="stylesheet" href="/styles/theme-overrides.css"> -->
@@ -4749,6 +5251,19 @@
         </div>
       </div>
       <div class="games-grid" id="games-list"></div>
+    </div>
+  </div>
+
+  <!-- CFP Bracket Modal -->
+  <div class="cfp-bracket-modal" id="cfp-bracket-modal">
+    <div class="cfp-bracket-modal-content">
+      <div class="cfp-bracket-modal-header">
+        <h2 class="cfp-bracket-modal-title">🏈 College Football Playoff Bracket</h2>
+        <button class="cfp-bracket-modal-close" onclick="closeCFPBracketModal()">✕</button>
+      </div>
+      <div class="cfp-bracket-container" id="cfp-bracket-content">
+        <!-- Bracket will be rendered here -->
+      </div>
     </div>
   </div>
 
@@ -5133,6 +5648,14 @@
 
       // Create a document fragment to build the ordered list
       const fragment = document.createDocumentFragment();
+
+      // Add CFP Bracket card at the beginning (only during bowl season)
+      if (isBowlSeason) {
+        const bracketCard = createCFPBracketPreviewCard();
+        if (bracketCard) {
+          fragment.appendChild(bracketCard);
+        }
+      }
 
       // Process games in order: Live, Upcoming, Final
       const allGamesList = [...liveGamesList, ...upcomingGamesList, ...finalGamesList];
@@ -6416,9 +6939,293 @@
     window.addEventListener('beforeunload', () => {
       if (refreshInterval) clearInterval(refreshInterval);
     });
-    // Cleanup on page unload
-    window.addEventListener('beforeunload', () => {
-      if (refreshInterval) clearInterval(refreshInterval);
+
+    // ============================================
+    // CFP BRACKET FUNCTIONS
+    // ============================================
+
+    let cfpBracketData = null;
+
+    // Fetch CFP bracket data
+    async function fetchCFPBracketData() {
+      try {
+        const response = await fetch('/api/ncaa/playoff-bracket');
+        if (!response.ok) throw new Error('Failed to fetch CFP bracket');
+        cfpBracketData = await response.json();
+        return cfpBracketData;
+      } catch (error) {
+        console.error('Error fetching CFP bracket:', error);
+        return null;
+      }
+    }
+
+    // Get round display name
+    function getCFPRoundName(round) {
+      const names = {
+        'firstRound': 'First Round',
+        'quarterfinal': 'Quarterfinals',
+        'semifinal': 'Semifinals',
+        'championship': 'National Championship'
+      };
+      return names[round] || round;
+    }
+
+    // Create CFP Bracket preview card for games grid
+    function createCFPBracketPreviewCard() {
+      const card = document.createElement('div');
+      card.className = 'cfp-bracket-card';
+      card.onclick = openCFPBracketModal;
+
+      card.innerHTML = `
+        <div class="cfp-bracket-card-header">
+          <div class="cfp-bracket-card-title">CFP Bracket</div>
+          <div class="cfp-bracket-round-badge" id="cfp-round-badge">Loading...</div>
+        </div>
+        <div class="cfp-bracket-mini-preview">
+          <div class="cfp-bracket-mini-side">
+            <div class="cfp-bracket-mini-label">Top Seeds</div>
+            <div class="cfp-bracket-mini-teams" id="cfp-mini-top"></div>
+          </div>
+          <div class="cfp-bracket-mini-side">
+            <div class="cfp-bracket-mini-label">Contenders</div>
+            <div class="cfp-bracket-mini-teams" id="cfp-mini-bottom"></div>
+          </div>
+        </div>
+        <button class="cfp-bracket-view-btn">View Full Bracket</button>
+      `;
+
+      // Load bracket data for preview
+      fetchCFPBracketData().then(data => {
+        if (data) updateCFPMiniPreview(data);
+      });
+
+      return card;
+    }
+
+    // Update mini preview with team logos
+    function updateCFPMiniPreview(data) {
+      const topContainer = document.getElementById('cfp-mini-top');
+      const bottomContainer = document.getElementById('cfp-mini-bottom');
+      const roundBadge = document.getElementById('cfp-round-badge');
+
+      if (!topContainer || !bottomContainer) return;
+
+      // Update round badge
+      if (roundBadge) {
+        roundBadge.textContent = getCFPRoundName(data.currentRound);
+      }
+
+      // Collect all teams from bracket
+      const allTeams = [];
+
+      // Get teams from first round
+      data.firstRound?.forEach(game => {
+        if (game.homeTeam?.logo) allTeams.push(game.homeTeam);
+        if (game.awayTeam?.logo) allTeams.push(game.awayTeam);
+      });
+
+      // Get teams from quarterfinals
+      data.quarterfinal?.forEach(game => {
+        if (game.homeTeam?.logo) allTeams.push(game.homeTeam);
+        if (game.awayTeam?.logo) allTeams.push(game.awayTeam);
+      });
+
+      // Sort by seed and get unique teams
+      const uniqueTeams = [];
+      const seenAbbrs = new Set();
+      allTeams.sort((a, b) => (a.seed || 99) - (b.seed || 99)).forEach(team => {
+        if (team.abbreviation && !seenAbbrs.has(team.abbreviation)) {
+          seenAbbrs.add(team.abbreviation);
+          uniqueTeams.push(team);
+        }
+      });
+
+      // Split into top seeds (1-6) and contenders (7-12)
+      const topSeeds = uniqueTeams.filter(t => t.seed && t.seed <= 6).slice(0, 4);
+      const contenders = uniqueTeams.filter(t => t.seed && t.seed > 6).slice(0, 4);
+
+      if (topSeeds.length > 0) {
+        topContainer.innerHTML = topSeeds.map(t => `
+          <div class="cfp-bracket-mini-team">
+            <img src="${t.logo}" alt="${t.abbreviation || ''}" onerror="this.style.display='none'">
+          </div>
+        `).join('');
+      } else {
+        topContainer.innerHTML = '<span style="color: rgba(255,255,255,0.4); font-size: 10px;">TBD</span>';
+      }
+
+      if (contenders.length > 0) {
+        bottomContainer.innerHTML = contenders.map(t => `
+          <div class="cfp-bracket-mini-team">
+            <img src="${t.logo}" alt="${t.abbreviation || ''}" onerror="this.style.display='none'">
+          </div>
+        `).join('');
+      } else {
+        bottomContainer.innerHTML = '<span style="color: rgba(255,255,255,0.4); font-size: 10px;">TBD</span>';
+      }
+    }
+
+    // Open CFP bracket modal
+    async function openCFPBracketModal() {
+      const modal = document.getElementById('cfp-bracket-modal');
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Fetch fresh data
+      const data = await fetchCFPBracketData();
+      if (data) {
+        renderCFPBracket(data);
+      }
+
+      // Close on escape key
+      document.addEventListener('keydown', handleCFPModalEscape);
+    }
+
+    // Close CFP bracket modal
+    function closeCFPBracketModal() {
+      const modal = document.getElementById('cfp-bracket-modal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleCFPModalEscape);
+    }
+
+    function handleCFPModalEscape(e) {
+      if (e.key === 'Escape') closeCFPBracketModal();
+    }
+
+    // Render CFP bracket team
+    function renderCFPBracketTeam(team, isComplete, winner) {
+      if (!team || !team.abbreviation) {
+        return `<div class="cfp-bracket-team tbd">TBD</div>`;
+      }
+
+      const isWinner = isComplete && winner === team.abbreviation;
+      const isLoser = isComplete && winner && winner !== team.abbreviation;
+      const classes = ['cfp-bracket-team'];
+      if (isWinner) classes.push('winner');
+      if (isLoser) classes.push('loser');
+
+      const logoHtml = team.logo ? `<img class="cfp-bracket-team-logo" src="${team.logo}" alt="${team.abbreviation}" onerror="this.style.display='none'">` : '';
+
+      return `
+        <div class="${classes.join(' ')}">
+          <span class="cfp-bracket-team-seed">${team.seed || '-'}</span>
+          ${logoHtml}
+          <div class="cfp-bracket-team-info">
+            <span class="cfp-bracket-team-name">${team.shortDisplayName || team.displayName || team.abbreviation}</span>
+            <span class="cfp-bracket-team-abbr">${team.abbreviation}</span>
+          </div>
+          ${isComplete ? `<span class="cfp-bracket-team-score">${team.score || 0}</span>` : ''}
+        </div>
+      `;
+    }
+
+    // Render CFP bracket game
+    function renderCFPBracketGame(game) {
+      if (!game) return '';
+
+      const statusClass = game.status || 'pre';
+      const statusText = game.isComplete ? 'FINAL' : (game.status === 'in' ? 'LIVE' : game.statusDetail || 'Upcoming');
+
+      return `
+        <div class="cfp-bracket-game">
+          <div class="cfp-bracket-game-header">
+            <span class="cfp-bracket-bowl-name">${game.bowlName || game.shortName || ''}</span>
+            <span class="cfp-bracket-game-status ${statusClass}">${statusText}</span>
+          </div>
+          <div class="cfp-bracket-teams">
+            ${renderCFPBracketTeam(game.awayTeam, game.isComplete, game.winner)}
+            ${renderCFPBracketTeam(game.homeTeam, game.isComplete, game.winner)}
+          </div>
+        </div>
+      `;
+    }
+
+    // Render CFP bracket round
+    function renderCFPBracketRound(games, title, isChampionship = false) {
+      if (!games || (Array.isArray(games) && games.length === 0)) {
+        return '';
+      }
+
+      const gamesHtml = Array.isArray(games)
+        ? games.map(g => renderCFPBracketGame(g)).join('')
+        : renderCFPBracketGame(games);
+
+      return `
+        <div class="cfp-bracket-round ${isChampionship ? 'cfp-bracket-championship' : ''}">
+          <div class="cfp-bracket-round-title">${title}</div>
+          <div class="cfp-bracket-games">
+            ${gamesHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    // Render full CFP bracket
+    function renderCFPBracket(data) {
+      const container = document.getElementById('cfp-bracket-content');
+      if (!container) return;
+
+      let html = '';
+
+      // First Round (4 games - seeds 5-12)
+      if (data.firstRound && data.firstRound.length > 0) {
+        html += renderCFPBracketRound(data.firstRound, 'First Round (Seeds 5-12)');
+      }
+
+      // Quarterfinals (4 games - includes bye teams 1-4)
+      if (data.quarterfinal && data.quarterfinal.length > 0) {
+        html += renderCFPBracketRound(data.quarterfinal, 'Quarterfinals');
+      }
+
+      // Semifinals (2 games)
+      if (data.semifinal && data.semifinal.length > 0) {
+        html += renderCFPBracketRound(data.semifinal, 'Semifinals');
+      }
+
+      // Championship
+      if (data.championship) {
+        html += renderCFPBracketRound(data.championship, 'National Championship', true);
+      }
+
+      // Champion display
+      if (data.champion) {
+        const championTeam = data.championship?.homeTeam?.abbreviation === data.champion
+          ? data.championship.homeTeam
+          : data.championship?.awayTeam;
+
+        if (championTeam) {
+          html += `
+            <div class="cfp-bracket-champion-display">
+              <div class="cfp-bracket-champion-label">🏆 National Champion</div>
+              <div class="cfp-bracket-champion-team">
+                ${championTeam.logo ? `<img class="cfp-bracket-champion-logo" src="${championTeam.logo}" alt="${championTeam.abbreviation}">` : ''}
+                <div class="cfp-bracket-champion-name">${championTeam.displayName || championTeam.abbreviation}</div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      // If no games yet
+      if (!html) {
+        html = `
+          <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+            <div style="font-size: 48px; margin-bottom: 16px;">🏈</div>
+            <div style="font-size: 18px;">College Football Playoff bracket will appear here</div>
+            <div style="font-size: 14px; margin-top: 8px;">Check back when the playoff begins</div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Close modal when clicking outside content
+    document.getElementById('cfp-bracket-modal')?.addEventListener('click', (e) => {
+      if (e.target.classList.contains('cfp-bracket-modal')) {
+        closeCFPBracketModal();
+      }
     });
   </script>
 
@@ -6967,6 +7774,17 @@
         // Clear existing options except first
         selector.innerHTML = '<option value="">-- Select Game --</option>';
 
+        // Add CFP Bracket option during bowl season
+        if (isBowlSeason) {
+          const bracketOption = document.createElement('option');
+          bracketOption.value = 'cfp-bracket';
+          bracketOption.textContent = '🏈 CFP Playoff Bracket';
+          if (currentSelection === 'cfp-bracket') {
+            bracketOption.selected = true;
+          }
+          selector.appendChild(bracketOption);
+        }
+
         liveGames.forEach((game, gameIndex) => {
           const gameId = game.id;
           // Show game if: it's not used OR it's the current selection for this slot
@@ -7124,8 +7942,16 @@
       // Render in slot order (0, 1, 2, ...)
       for (let slotIndex = 0; slotIndex < currentLayout; slotIndex++) {
         const gameId = gridGames[slotIndex]; // Now uses game ID
+
+        // Check if this is the CFP bracket
+        if (gameId === 'cfp-bracket') {
+          const card = createFullScreenCFPBracketCard(slotIndex);
+          grid.appendChild(card);
+          continue;
+        }
+
         const game = liveGames.find(g => g.id === gameId); // Find game by ID
-        
+
         if (game) {
           const card = createFullScreenGameCard(game, slotIndex);
           grid.appendChild(card);
@@ -7135,6 +7961,132 @@
           grid.appendChild(card);
         }
       }
+    }
+
+    // Create fullscreen CFP bracket card
+    function createFullScreenCFPBracketCard(slotIndex) {
+      const div = document.createElement('div');
+      div.className = 'fullscreen-game-card cfp-bracket-fullscreen';
+      div.dataset.slotIndex = slotIndex;
+      div.dataset.isBracket = 'true';
+
+      div.innerHTML = `
+        <div class="fullscreen-cfp-bracket">
+          <div class="fullscreen-cfp-bracket-header">
+            <h2 class="fullscreen-cfp-bracket-title">🏈 College Football Playoff</h2>
+          </div>
+          <div class="fullscreen-cfp-bracket-content" id="fullscreen-cfp-bracket-${slotIndex}">
+            <div style="text-align: center; color: rgba(255,255,255,0.5);">Loading bracket...</div>
+          </div>
+        </div>
+      `;
+
+      // Fetch and render bracket data
+      fetchCFPBracketData().then(data => {
+        if (data) {
+          renderFullScreenCFPBracket(data, slotIndex);
+        }
+      });
+
+      return div;
+    }
+
+    // Render CFP bracket in fullscreen mode
+    function renderFullScreenCFPBracket(data, slotIndex) {
+      const container = document.getElementById(`fullscreen-cfp-bracket-${slotIndex}`);
+      if (!container) return;
+
+      let html = '';
+
+      // Helper to render a team row
+      const renderTeam = (team, isComplete, winner) => {
+        if (!team || !team.abbreviation) {
+          return `<div class="fullscreen-cfp-team tbd">TBD</div>`;
+        }
+        const isWinner = isComplete && winner === team.abbreviation;
+        const isLoser = isComplete && winner && winner !== team.abbreviation;
+        const classes = ['fullscreen-cfp-team'];
+        if (isWinner) classes.push('winner');
+        if (isLoser) classes.push('loser');
+
+        return `
+          <div class="${classes.join(' ')}">
+            <span class="fullscreen-cfp-team-seed">${team.seed || '-'}</span>
+            ${team.logo ? `<img class="fullscreen-cfp-team-logo" src="${team.logo}" onerror="this.style.display='none'">` : ''}
+            <span class="fullscreen-cfp-team-name">${team.abbreviation}</span>
+            ${isComplete ? `<span class="fullscreen-cfp-team-score">${team.score || 0}</span>` : ''}
+          </div>
+        `;
+      };
+
+      // Helper to render a game
+      const renderGame = (game) => {
+        if (!game) return '';
+        return `
+          <div class="fullscreen-cfp-game">
+            ${renderTeam(game.awayTeam, game.isComplete, game.winner)}
+            ${renderTeam(game.homeTeam, game.isComplete, game.winner)}
+          </div>
+        `;
+      };
+
+      // First Round
+      if (data.firstRound && data.firstRound.length > 0) {
+        html += `
+          <div class="fullscreen-cfp-round">
+            <div class="fullscreen-cfp-round-title">First Round</div>
+            <div class="fullscreen-cfp-games">
+              ${data.firstRound.map(g => renderGame(g)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // Quarterfinals
+      if (data.quarterfinal && data.quarterfinal.length > 0) {
+        html += `
+          <div class="fullscreen-cfp-round">
+            <div class="fullscreen-cfp-round-title">Quarterfinals</div>
+            <div class="fullscreen-cfp-games">
+              ${data.quarterfinal.map(g => renderGame(g)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // Semifinals
+      if (data.semifinal && data.semifinal.length > 0) {
+        html += `
+          <div class="fullscreen-cfp-round">
+            <div class="fullscreen-cfp-round-title">Semifinals</div>
+            <div class="fullscreen-cfp-games">
+              ${data.semifinal.map(g => renderGame(g)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // Championship
+      if (data.championship) {
+        html += `
+          <div class="fullscreen-cfp-round">
+            <div class="fullscreen-cfp-round-title" style="color: #d4af37;">Championship</div>
+            <div class="fullscreen-cfp-games">
+              ${renderGame(data.championship)}
+            </div>
+          </div>
+        `;
+      }
+
+      if (!html) {
+        html = `
+          <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">
+            <div>CFP Bracket will appear here when available</div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
     }
 
     // Calculate ball position percentage on field (0-100%)
@@ -7481,6 +8433,17 @@
 
       selector.innerHTML = '<option value="">-- Select Game --</option>';
 
+      // Add CFP Bracket option during bowl season
+      if (isBowlSeason) {
+        const bracketOption = document.createElement('option');
+        bracketOption.value = 'cfp-bracket';
+        bracketOption.textContent = '🏈 CFP Playoff Bracket';
+        if (currentSelection === 'cfp-bracket') {
+          bracketOption.selected = true;
+        }
+        selector.appendChild(bracketOption);
+      }
+
       liveGames.forEach((game, gameIndex) => {
         const gameId = game.id;
         if (!usedGameIds.includes(gameId) || currentSelection === gameId) {
@@ -7524,7 +8487,7 @@
       selector.addEventListener('change', (e) => {
         const newGameId = e.target.value; // Game ID
         const card = document.querySelector(`[data-slot-index="${slotIndex}"]`);
-        
+
         if (newGameId === '') {
           // User deselected - show empty slot
           delete gridGames[slotIndex];
@@ -7532,13 +8495,20 @@
             const emptyCard = createEmptySlotCard(slotIndex);
             card.replaceWith(emptyCard);
           }
+        } else if (newGameId === 'cfp-bracket') {
+          // User selected CFP bracket
+          gridGames[slotIndex] = 'cfp-bracket';
+          if (card) {
+            const bracketCard = createFullScreenCFPBracketCard(slotIndex);
+            card.replaceWith(bracketCard);
+          }
         } else {
           // User selected a game
           gridGames[slotIndex] = newGameId; // Store game ID
-          
+
           const liveGames = window.liveGamesData || [];
           const newGame = liveGames.find(g => g.id === newGameId); // Find by ID
-          
+
           if (newGame && card) {
             const newCard = createFullScreenGameCard(newGame, slotIndex);
             card.replaceWith(newCard);
@@ -7803,8 +8773,18 @@
         cards.forEach((card, index) => {
           const slotIndex = parseInt(card.dataset.slotIndex);
           const gameId = gridGames[slotIndex]; // Now uses game ID
+
+          // Skip bracket cards - they refresh separately
+          if (gameId === 'cfp-bracket' || card.dataset.isBracket === 'true') {
+            // Refresh bracket data periodically
+            fetchCFPBracketData().then(data => {
+              if (data) renderFullScreenCFPBracket(data, slotIndex);
+            });
+            return;
+          }
+
           const game = window.liveGamesData.find(g => g.id === gameId); // Find by ID
-          
+
           if (!game || card.classList.contains('empty-slot')) return;
 
           const comp = game.competitions?.[0];
