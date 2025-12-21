@@ -4007,6 +4007,64 @@ app.post('/api/tv/sign-out', async (req, res) => {
   }
 });
 
+// TV Login with email/password (for remote-based login on TV)
+app.post('/api/tv/login', tvAuthLimiter, async (req, res) => {
+  const { email, password, deviceId } = req.body;
+
+  if (!email || !password || !deviceId) {
+    return res.status(400).json({ success: false, message: 'Email, password, and device ID required' });
+  }
+
+  try {
+    // Find user by email
+    const userResult = await pool.query(
+      'SELECT id, email, display_name, password_hash, subscription_status FROM users WHERE email = $1',
+      [email.toLowerCase().trim()]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    const user = userResult.rows[0];
+
+    // Verify password
+    const bcrypt = require('bcryptjs');
+    const passwordValid = await bcrypt.compare(password, user.password_hash);
+
+    if (!passwordValid) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    // Deactivate existing sessions for this device
+    await pool.query(
+      'UPDATE tv_sessions SET is_active = FALSE WHERE device_id = $1',
+      [deviceId]
+    );
+
+    // Create new session
+    const sessionToken = crypto.randomUUID() + '-' + crypto.randomUUID();
+    await pool.query(
+      `INSERT INTO tv_sessions (user_id, device_id, device_name, session_token, is_active, created_at, last_seen_at)
+       VALUES ($1, $2, $3, $4, TRUE, NOW(), NOW())`,
+      [user.id, deviceId, 'GridTV Android TV', sessionToken]
+    );
+
+    console.log(`📺 TV login successful for: ${user.email}`);
+
+    res.json({
+      success: true,
+      sessionToken,
+      userEmail: user.email,
+      displayName: user.display_name,
+      subscriptionStatus: user.subscription_status
+    });
+  } catch (error) {
+    console.error('TV login error:', error);
+    res.status(500).json({ success: false, message: 'Login failed. Please try again.' });
+  }
+});
+
 // ============================================
 // SERVE STATIC PAGES (Clean URLs)
 // ============================================
@@ -4019,6 +4077,11 @@ app.get('/tv-auth', (req, res) => {
 // Serve TV Receiver page without .html extension (NO AUTH REQUIRED for TVs)
 app.get('/tv-receiver', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'tv-receiver.html'));
+});
+
+// Serve TV Home page without .html extension (NO AUTH REQUIRED for TVs)
+app.get('/tv-home', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'tv-home.html'));
 });
 
 // Serve public folder for all other static files

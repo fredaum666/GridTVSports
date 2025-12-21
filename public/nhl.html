@@ -3437,10 +3437,15 @@
       }
     }
 
+    /* TV Mode - hide orientation overlays */
+    body.tv-mode .orientation-overlay {
+      display: none !important;
+    }
+
     /* Mobile phones in landscape - show "rotate to portrait" overlay */
     /* Targets phones: landscape orientation with height under 600px (phone screens) */
     @media screen and (orientation: landscape) and (max-height: 600px) {
-      .orientation-overlay.portrait-required {
+      body:not(.tv-mode) .orientation-overlay.portrait-required {
         display: flex !important;
       }
     }
@@ -3448,14 +3453,14 @@
     /* Tablets in portrait - show "rotate to landscape" overlay */
     /* Targets tablets (min-width 600px in portrait mode) */
     @media screen and (min-width: 600px) and (max-width: 1024px) and (orientation: portrait) {
-      .orientation-overlay.landscape-required {
+      body:not(.tv-mode) .orientation-overlay.landscape-required {
         display: flex !important;
       }
     }
 
     /* Also catch larger tablets in portrait */
     @media screen and (min-width: 768px) and (max-width: 1366px) and (orientation: portrait) and (min-height: 900px) {
-      .orientation-overlay.landscape-required {
+      body:not(.tv-mode) .orientation-overlay.landscape-required {
         display: flex !important;
       }
     }
@@ -3513,6 +3518,24 @@
 </head>
 
 <body>
+  <script>
+    // Detect TV mode from URL parameter or user agent
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isTV = urlParams.get('tv') === '1' ||
+                   navigator.userAgent.includes('AndroidTV') ||
+                   navigator.userAgent.includes('GoogleTV') ||
+                   navigator.userAgent.includes('FireTV') ||
+                   navigator.userAgent.includes('BRAVIA') ||
+                   navigator.userAgent.includes('SmartTV') ||
+                   navigator.userAgent.includes('Web0S') ||
+                   navigator.userAgent.includes('Tizen') ||
+                   navigator.userAgent.includes('GridTVSports-AndroidTV');
+      if (isTV) {
+        document.body.classList.add('tv-mode');
+      }
+    })();
+  </script>
   <!-- Orientation Lock Overlays -->
   <div class="orientation-overlay portrait-required">
     <div class="rotate-icon">📱</div>

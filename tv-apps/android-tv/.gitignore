@@ -5,6 +5,9 @@ build/
 # Local properties (contains SDK path)
 local.properties
 
+# Keystore credentials (NEVER commit this!)
+keystore.properties
+
 # OS files
 .DS_Store
 Thumbs.db

@@ -1,6 +1,10 @@
 # GridTV Sports - Android TV / Fire TV App
 
-A WebView wrapper app that loads the TV receiver page on Android TV and Amazon Fire TV.
+A WebView wrapper app for Android TV and Amazon Fire TV that provides:
+- **League Navigation** - Browse NFL, NBA, MLB, NHL, NCAA directly on TV
+- **Sports Bar Mode** - Set up multi-game displays using the TV remote
+- **Phone Remote** - Connect phone for mixed multi-sport Sports Bar mode
+- **D-pad Navigation** - Full remote control support
 
 ## Prerequisites
 
@@ -92,13 +96,13 @@ Fire TV runs a modified Android, so the same APK works!
 Before building, update the URL in `MainActivity.kt`:
 
 ```kotlin
-// Line 28 - Change this to your production URL
-private val TV_RECEIVER_URL = "https://gridtvsports.com/tv-receiver.html"
+// Line 24 - Change this to your production URL
+private val TV_HOME_URL = "https://gridtvsports.com/tv-home.html"
 ```
 
 For local testing, you can use your local network IP:
 ```kotlin
-private val TV_RECEIVER_URL = "http://192.168.1.100:3001/tv-receiver.html"
+private val TV_HOME_URL = "http://192.168.1.100:3001/tv-home.html"
 ```
 
 ## Troubleshooting

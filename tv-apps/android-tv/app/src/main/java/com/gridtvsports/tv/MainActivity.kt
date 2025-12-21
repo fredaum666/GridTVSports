@@ -20,11 +20,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var loadingText: TextView
     private lateinit var loadingOverlay: View
 
-    // Production URL
-    private val TV_RECEIVER_URL = "https://gridtvsports.com/tv-receiver"
+    // Production URL - TV Home with league navigation
+    private val TV_HOME_URL = "https://gridtvsports.com/tv-home.html"
 
-    // For local development, use your computer's IP address:
-    // private val TV_RECEIVER_URL = "http://192.168.1.100:3001/tv-receiver"
+    // For Android Emulator: use 10.0.2.2 to reach host machine's localhost
+    //private val TV_HOME_URL = "http://10.0.2.2:3001/tv-home"
+
+    // For physical Android TV device on same network, use your computer's IP:
+    // private val TV_HOME_URL = "http://192.168.1.100:3001/tv-home"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         loadingOverlay = findViewById(R.id.loadingOverlay)
 
         setupWebView()
-        loadTVReceiver()
+        loadTVHome()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -122,9 +125,9 @@ class MainActivity : AppCompatActivity() {
         webView.requestFocus()
     }
 
-    private fun loadTVReceiver() {
+    private fun loadTVHome() {
         showLoading()
-        webView.loadUrl(TV_RECEIVER_URL)
+        webView.loadUrl(TV_HOME_URL)
     }
 
     private fun showLoading() {
@@ -141,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         loadingText.text = message
         // Retry after 5 seconds
         loadingOverlay.postDelayed({
-            loadTVReceiver()
+            loadTVHome()
         }, 5000)
     }
 
