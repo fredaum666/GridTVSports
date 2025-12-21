@@ -702,7 +702,7 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 80px;
+      height: 15px;  /* Reduced from 80px - thin strip at very top edge */
       z-index: 999;
       pointer-events: auto;
     }
@@ -4672,6 +4672,42 @@
       }, 300);
     });
 
+    // Auto-hide header controls after 5 seconds
+    (function() {
+      const hoverTrigger = document.querySelector('.fullscreen-hover-trigger');
+      const controls = document.querySelector('.fullscreen-controls');
+      let headerHideTimeout = null;
+
+      const showControls = () => {
+        controls.style.transform = 'translateY(0)';
+        if (headerHideTimeout) clearTimeout(headerHideTimeout);
+        headerHideTimeout = setTimeout(() => {
+          controls.style.transform = 'translateY(-100%)';
+        }, 5000);
+      };
+
+      const hideControls = () => {
+        if (headerHideTimeout) clearTimeout(headerHideTimeout);
+        controls.style.transform = 'translateY(-100%)';
+      };
+
+      // Keep visible while hovering over controls
+      controls.addEventListener('mouseenter', () => {
+        if (headerHideTimeout) clearTimeout(headerHideTimeout);
+        controls.style.transform = 'translateY(0)';
+      });
+
+      controls.addEventListener('mouseleave', () => {
+        headerHideTimeout = setTimeout(() => {
+          controls.style.transform = 'translateY(-100%)';
+        }, 5000);
+      });
+
+      hoverTrigger.addEventListener('mouseenter', showControls);
+      hoverTrigger.addEventListener('mouseleave', () => {
+        // Don't immediately hide - let the 5-second timeout handle it
+      });
+    })();
 
     // Render fullscreen games
     function renderFullscreenGames() {
@@ -4930,12 +4966,45 @@
       const selector = div.querySelector('.fs-game-selector');
       populateFullscreenGameSelector(selector, slotIndex);
 
-      div.addEventListener('mouseenter', () => {
-        div.querySelector('.fs-game-selector-container').style.display = 'block';
+      // Auto-hide selector after 5 seconds of inactivity
+      let selectorHideTimeout = null;
+      const selectorContainer = div.querySelector('.fs-game-selector-container');
+
+      const showSelector = () => {
+        selectorContainer.style.display = 'block';
+        // Clear any existing timeout
+        if (selectorHideTimeout) {
+          clearTimeout(selectorHideTimeout);
+        }
+        // Set new 5-second auto-hide timeout
+        selectorHideTimeout = setTimeout(() => {
+          selectorContainer.style.display = 'none';
+        }, 5000);
+      };
+
+      const hideSelector = () => {
+        if (selectorHideTimeout) {
+          clearTimeout(selectorHideTimeout);
+        }
+        selectorContainer.style.display = 'none';
+      };
+
+      // Reset timeout when user interacts with selector
+      selectorContainer.addEventListener('mouseenter', () => {
+        if (selectorHideTimeout) {
+          clearTimeout(selectorHideTimeout);
+        }
       });
-      div.addEventListener('mouseleave', () => {
-        div.querySelector('.fs-game-selector-container').style.display = 'none';
+
+      selectorContainer.addEventListener('mouseleave', () => {
+        // Restart the 5-second timeout when leaving selector
+        selectorHideTimeout = setTimeout(() => {
+          selectorContainer.style.display = 'none';
+        }, 5000);
       });
+
+      div.addEventListener('mouseenter', showSelector);
+      div.addEventListener('mouseleave', hideSelector);
 
       return div;
     }
