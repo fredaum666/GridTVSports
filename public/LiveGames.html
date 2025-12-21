@@ -3829,7 +3829,7 @@
           if (!isFullscreenActive && !isGameModalOpen) {
             if (e.key === 'Escape' || e.key === 'Backspace' || e.keyCode === 27 || e.keyCode === 8) {
               e.preventDefault();
-              window.location.href = '/tv-home';
+              window.location.href = '/tv-home?menu=1';
             }
           }
         });
@@ -3862,7 +3862,7 @@
           style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
           📺 Cast to TV
         </button>
-        <button class="tv-back-btn" onclick="window.location.href='/tv-home'">
+        <button class="tv-back-btn" onclick="window.location.href='/tv-home?menu=1'">
           ◀ Back to TV Home
         </button>
         <button class="back-btn" onclick="window.location.href='/'">← Back to Home</button>

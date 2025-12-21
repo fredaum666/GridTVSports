@@ -652,7 +652,7 @@
     <!-- ================================ -->
     <!-- LOGIN OPTION SELECTION SCREEN    -->
     <!-- ================================ -->
-    <div class="login-screen" id="login-screen">
+    <div class="login-screen hidden" id="login-screen">
         <div class="login-header">
             <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
             <h1>GridTV Sports</h1>
@@ -858,6 +858,10 @@
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check for menu=1 parameter (returning from league page)
+            const urlParams = new URLSearchParams(window.location.search);
+            const returnToMenu = urlParams.get('menu') === '1';
+
             // Generate or retrieve device ID
             deviceId = localStorage.getItem('gridtv_device_id');
             if (!deviceId) {
@@ -870,12 +874,22 @@
             if (sessionToken) {
                 const valid = await validateExistingSession();
                 if (valid) {
+                    // Clean up URL if we had menu=1 parameter
+                    if (returnToMenu) {
+                        history.replaceState({}, '', '/tv-home');
+                    }
                     showHomeScreen();
                     return;
                 } else {
                     localStorage.removeItem('gridtv_session_token');
                     sessionToken = null;
                 }
+            }
+
+            // If returning to menu but no valid session, still show login
+            // Clean up URL
+            if (returnToMenu) {
+                history.replaceState({}, '', '/tv-home');
             }
 
             // Show login screen
