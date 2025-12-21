@@ -1,8 +1,8 @@
 # Environment variables (contains sensitive database credentials)
 .env
 
-# Node modules (now tracked in git for deployment)
-# node_modules/
+# Node modules
+node_modules/
 
 # Logs
 *.log
