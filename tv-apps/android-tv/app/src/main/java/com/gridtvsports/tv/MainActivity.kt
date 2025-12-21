@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var loadingOverlay: View
 
     // Production URL - TV Home with league navigation
-    private val TV_HOME_URL = "https://gridtvsports.com/tv-home.html"
+    private val TV_HOME_URL = "https://gridtvsports.com/tv-home"
 
     // For Android Emulator: use 10.0.2.2 to reach host machine's localhost
     //private val TV_HOME_URL = "http://10.0.2.2:3001/tv-home"
