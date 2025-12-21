@@ -699,3 +699,101 @@
     backface-visibility: hidden !important;
   }
 }
+
+/* ==================================================================================
+   ███ TV MODE OVERRIDES ███
+   Force horizontal grid layouts for Android TV / Fire TV
+   These rules override mobile media queries when body has 'tv-mode' class
+   ================================================================================== */
+
+/* --- TV Mode: Grid 6 = 3 columns x 2 rows (horizontal layout) --- */
+body.tv-mode .fullscreen-grid.grid-6 {
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-rows: repeat(2, 1fr) !important;
+  height: calc(100vh - 80px) !important;
+  gap: clamp(8px, 1vh, 15px) !important;
+  padding: clamp(10px, 1.5vh, 20px) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-game-card,
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-game-slot {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-team-logo {
+  width: clamp(50px, 6vh, 80px) !important;
+  height: clamp(50px, 6vh, 80px) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-team-score,
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-score {
+  font-size: clamp(2.5rem, 6vh, 4rem) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-live-team-name,
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-team-name {
+  font-size: clamp(1rem, 2vh, 1.5rem) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-status-text,
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-quarter {
+  font-size: clamp(1rem, 2vh, 1.4rem) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-6 .fullscreen-situation-info {
+  font-size: clamp(0.9rem, 1.8vh, 1.2rem) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-6 .sport-logo-indicator {
+  width: clamp(35px, 4vh, 55px) !important;
+  height: clamp(35px, 4vh, 55px) !important;
+}
+
+/* --- TV Mode: Grid 8 = 4 columns x 2 rows (horizontal layout) --- */
+body.tv-mode .fullscreen-grid.grid-8 {
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-rows: repeat(2, 1fr) !important;
+  height: calc(100vh - 80px) !important;
+  gap: clamp(6px, 0.8vh, 12px) !important;
+  padding: clamp(8px, 1.2vh, 15px) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-game-card,
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-game-slot {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-team-logo {
+  width: clamp(40px, 5vh, 65px) !important;
+  height: clamp(40px, 5vh, 65px) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-team-score,
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-score {
+  font-size: clamp(2rem, 5vh, 3.5rem) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-live-team-name,
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-team-name {
+  font-size: clamp(0.9rem, 1.8vh, 1.3rem) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-status-text,
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-quarter {
+  font-size: clamp(0.9rem, 1.8vh, 1.2rem) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-8 .fullscreen-situation-info {
+  font-size: clamp(0.8rem, 1.5vh, 1rem) !important;
+}
+
+body.tv-mode .fullscreen-grid.grid-8 .sport-logo-indicator {
+  width: clamp(30px, 3.5vh, 45px) !important;
+  height: clamp(30px, 3.5vh, 45px) !important;
+}
