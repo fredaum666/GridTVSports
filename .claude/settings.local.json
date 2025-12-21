@@ -27,7 +27,8 @@
       "Bash(find:*)",
       "Bash(git reset:*)",
       "Bash(git add:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(cd:*)"
     ],
     "deny": [],
     "ask": []
