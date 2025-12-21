@@ -629,11 +629,7 @@
         font-size: 12px;
       }
 
-      /* Hide 6 and 8 game options on mobile - max 4 games */
-      .layout-options label:has(input[value="6"]),
-      .layout-options label:has(input[value="8"]) {
-        display: none;
-      }
+      /* All grid options available on mobile - user can cast to TV for larger grids */
 
       .grid-preview {
         padding: 8px;
@@ -4484,14 +4480,24 @@
       checkAllSlotsSelected();
     }
 
+    // Check if device is mobile
+    function isMobileDevice() {
+      return window.innerWidth <= 768;
+    }
+
     // Check if at least one slot is selected
     function checkAllSlotsSelected() {
       const launchBtn = document.getElementById('launch-fullscreen');
       const selectedCount = Object.keys(gridGames).length;
+      const isMobile = isMobileDevice();
 
       if (selectedCount === 0) {
         launchBtn.disabled = true;
         launchBtn.textContent = 'Enter Sports Bar Mode';
+      } else if (isMobile && currentLayout > 4) {
+        // On mobile, restrict Sports Bar Mode to 4 or fewer games
+        launchBtn.disabled = true;
+        launchBtn.textContent = '📺 Use Cast to TV for ' + currentLayout + ' games';
       } else {
         launchBtn.disabled = false;
         launchBtn.textContent = 'Enter Sports Bar Mode';
@@ -4506,6 +4512,11 @@
         slotFilters = {}; // Reset filters on layout change
         renderGridPreview();
       });
+    });
+
+    // Re-check button state on window resize (for mobile detection)
+    window.addEventListener('resize', () => {
+      checkAllSlotsSelected();
     });
 
     // Launch fullscreen
