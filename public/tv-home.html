@@ -1369,11 +1369,18 @@
                     if (response.ok) {
                         const data = await response.json();
                         const events = data.events || [];
-                        const liveGames = events.filter(e =>
-                            e.status?.type?.state === 'in' ||
-                            (e.competitions?.[0]?.status?.type?.state === 'in')
-                        ).length;
-                        const totalGames = events.length;
+
+                        // Count live games (in progress)
+                        const liveGames = events.filter(e => {
+                            const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
+                            return state === 'in';
+                        }).length;
+
+                        // Count upcoming games (not started yet)
+                        const upcomingGames = events.filter(e => {
+                            const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
+                            return state === 'pre';
+                        }).length;
 
                         const statusEl = document.getElementById(`${league.id}-status`);
                         const cardEl = statusEl?.closest('.league-card');
@@ -1387,8 +1394,8 @@
                                 badge.textContent = 'LIVE';
                                 cardEl.appendChild(badge);
                             }
-                        } else if (totalGames > 0) {
-                            statusEl.textContent = `${totalGames} games today`;
+                        } else if (upcomingGames > 0) {
+                            statusEl.textContent = `${upcomingGames} games today`;
                             // Remove live badge if exists
                             cardEl?.querySelector('.live-badge')?.remove();
                         } else {
