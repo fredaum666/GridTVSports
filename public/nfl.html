@@ -5203,6 +5203,35 @@
       display: none !important;
     }
 
+    /* TV Mode - Back to TV Home button */
+    .tv-back-btn {
+      display: none;
+      padding: 12px 24px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #6366f1;
+      color: white;
+      border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+    }
+
+    .tv-back-btn:hover,
+    .tv-back-btn:focus {
+      background: #6366f1;
+      outline: none;
+    }
+
+    body.tv-mode .tv-back-btn {
+      display: flex;
+    }
+
+    body.tv-mode .back-btn {
+      display: none;
+    }
+
     /* Mobile phones in landscape - show "rotate to portrait" overlay */
     /* Targets phones: landscape orientation with height under 600px (phone screens) */
     /* Skip for TV mode (detected via body class) */
@@ -6019,6 +6048,25 @@
                    navigator.userAgent.includes('GridTVSports-AndroidTV');
       if (isTV) {
         document.body.classList.add('tv-mode');
+
+        // Add keyboard handler for TV mode - Back/Escape goes to TV home
+        document.addEventListener('keydown', (e) => {
+          // Only handle if not in fullscreen mode and not in a modal
+          const fullscreenContainer = document.getElementById('fullscreen-container');
+          const bracketModal = document.getElementById('bracket-modal');
+          const gameModal = document.getElementById('game-selection-modal');
+
+          const isFullscreenActive = fullscreenContainer && fullscreenContainer.classList.contains('active');
+          const isBracketOpen = bracketModal && bracketModal.classList.contains('show');
+          const isGameModalOpen = gameModal && gameModal.classList.contains('show');
+
+          if (!isFullscreenActive && !isBracketOpen && !isGameModalOpen) {
+            if (e.key === 'Escape' || e.key === 'Backspace' || e.keyCode === 27 || e.keyCode === 8) {
+              e.preventDefault();
+              window.location.href = '/tv-home';
+            }
+          }
+        });
       }
     })();
   </script>
@@ -6066,6 +6114,9 @@
       <div style="display: flex; gap: 10px; align-items: center;">
         <button class="sports-bar-btn" id="sports-bar-btn">
           📺 Sports Bar Mode
+        </button>
+        <button class="tv-back-btn" onclick="window.location.href='/tv-home'">
+          ◀ Back to TV Home
         </button>
         <button class="back-btn" onclick="window.location.href='/'">
           ← Back to Sports

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -14,7 +15,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -454,7 +456,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -514,8 +516,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         /* Special Cards */
@@ -624,7 +633,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -633,53 +644,10 @@
             color: #94a3b8;
         }
 
-        /* iframe for league pages */
-        .league-iframe-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 500;
-            display: none;
-        }
-
-        .league-iframe-container.active {
-            display: block;
-        }
-
-        .league-iframe-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .back-button {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 600;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #6366f1;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .back-button.active {
-            display: flex;
-        }
-
-        .back-button.focused {
-            background: #6366f1;
-        }
+        /* CSS for iframe/back button removed - now using direct navigation */
     </style>
 </head>
+
 <body>
     <!-- ================================ -->
     <!-- LOGIN OPTION SELECTION SCREEN    -->
@@ -737,7 +705,8 @@
 
             <div class="form-group">
                 <label for="login-password">Password</label>
-                <input type="password" id="login-password" class="focusable-form" placeholder="Enter your password" tabindex="0">
+                <input type="password" id="login-password" class="focusable-form" placeholder="Enter your password"
+                    tabindex="0">
             </div>
 
             <button class="login-btn focusable-form" id="login-submit-btn" tabindex="0">Sign In</button>
@@ -806,7 +775,7 @@
                 <h2 class="section-title">Select a League</h2>
                 <div class="league-grid" id="league-grid">
                     <div class="league-card focusable" data-league="nfl" data-url="/nfl.html" tabindex="0">
-                        <img src="/assets/NFL logo.png" alt="NFL">
+                        <img src="/assets/NFL-logo.png" alt="NFL">
                         <span class="league-name">NFL</span>
                         <span class="league-status" id="nfl-status">Loading...</span>
                     </div>
@@ -867,15 +836,7 @@
         <div class="loading-text">Loading...</div>
     </div>
 
-    <!-- League Page Container -->
-    <div class="league-iframe-container" id="league-container">
-        <iframe id="league-iframe" src="about:blank"></iframe>
-    </div>
-
-    <!-- Back Button (shown when viewing league) -->
-    <button class="back-button" id="back-button">
-        <span>◀</span> Back to Home
-    </button>
+    <!-- League pages now load via direct navigation for better compatibility -->
 
     <script>
         // ============================================
@@ -884,8 +845,6 @@
         let currentScreen = 'login'; // 'login', 'password', 'qr', 'home'
         let currentFocusIndex = 0;
         let focusableElements = [];
-        let isInLeaguePage = false;
-        let leagueIframe = null;
 
         // Auth state
         let socket = null;
@@ -1459,17 +1418,6 @@
         }
 
         function handleKeyDown(e) {
-            // If in league page, handle differently
-            if (isInLeaguePage) {
-                if (e.key === 'Escape' || e.key === 'Backspace' || e.keyCode === 27 || e.keyCode === 8) {
-                    e.preventDefault();
-                    goBackToHome();
-                    return;
-                }
-                // Let the iframe handle other keys
-                return;
-            }
-
             const cols = 5; // Number of columns in league grid
             let newIndex = currentFocusIndex;
 
@@ -1546,201 +1494,19 @@
         }
 
         function openLeaguePage(url) {
-            // Show loading
-            const loading = document.getElementById('loading-overlay');
-            const loadingText = loading.querySelector('.loading-text');
-            loadingText.textContent = 'Loading...';
-            loading.classList.add('active');
-
-            // Load in iframe
-            const container = document.getElementById('league-container');
-            const iframe = document.getElementById('league-iframe');
-            leagueIframe = iframe;
-
-            // Add TV mode parameter
+            // Add TV mode parameter and navigate directly (simpler than iframe)
             const tvUrl = url + (url.includes('?') ? '&' : '?') + 'tv=1';
+            console.log('Navigating to league page:', tvUrl);
 
-            iframe.onload = () => {
-                loading.classList.remove('active');
-                container.classList.add('active');
-                document.getElementById('back-button').classList.add('active');
-                isInLeaguePage = true;
+            // Store current state so we can return
+            sessionStorage.setItem('gridtv_return_to_home', 'true');
 
-                // Inject TV navigation into iframe
-                injectTVNavigation(iframe);
-            };
-
-            iframe.src = tvUrl;
+            // Navigate to the league page
+            window.location.href = tvUrl;
         }
 
-        function injectTVNavigation(iframe) {
-            try {
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-                // Add TV mode styles
-                const style = iframeDoc.createElement('style');
-                style.textContent = `
-                    /* TV Mode Enhancements */
-                    body.tv-mode {
-                        cursor: none !important;
-                    }
-
-                    .tv-mode .focusable-tv:focus,
-                    .tv-mode .focusable-tv.tv-focused {
-                        outline: 4px solid #6366f1 !important;
-                        outline-offset: 4px !important;
-                        box-shadow: 0 0 30px rgba(99, 102, 241, 0.5) !important;
-                    }
-
-                    .tv-mode .game-card:focus,
-                    .tv-mode .game-card.tv-focused {
-                        transform: scale(1.02) !important;
-                        outline: 4px solid #6366f1 !important;
-                        outline-offset: 4px !important;
-                    }
-
-                    .tv-mode .sports-bar-btn:focus,
-                    .tv-mode .sports-bar-btn.tv-focused {
-                        transform: scale(1.05) !important;
-                        outline: 4px solid #6366f1 !important;
-                    }
-
-                    /* Hide elements not needed on TV */
-                    .tv-mode .nav-menu,
-                    .tv-mode .mobile-only {
-                        display: none !important;
-                    }
-                `;
-                iframeDoc.head.appendChild(style);
-
-                // Add TV mode class
-                iframeDoc.body.classList.add('tv-mode');
-
-                // Set up D-pad navigation within iframe
-                setupIframeNavigation(iframe);
-
-            } catch (e) {
-                console.log('Could not inject TV navigation:', e);
-            }
-        }
-
-        function setupIframeNavigation(iframe) {
-            try {
-                const iframeWin = iframe.contentWindow;
-                const iframeDoc = iframeWin.document;
-
-                // Find focusable elements
-                let tvFocusables = Array.from(iframeDoc.querySelectorAll(
-                    '.game-card, .sports-bar-btn, button, [tabindex], a, .bracket-card, .cfp-bracket-card'
-                )).filter(el => {
-                    const style = iframeWin.getComputedStyle(el);
-                    return style.display !== 'none' && style.visibility !== 'hidden';
-                });
-
-                let tvFocusIndex = 0;
-
-                function setTVFocus(index) {
-                    tvFocusables.forEach(el => el.classList.remove('tv-focused'));
-                    tvFocusIndex = Math.max(0, Math.min(index, tvFocusables.length - 1));
-                    const el = tvFocusables[tvFocusIndex];
-                    if (el) {
-                        el.classList.add('tv-focused');
-                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-
-                // Initial focus
-                if (tvFocusables.length > 0) {
-                    // Try to focus Sports Bar button first
-                    const sportsBarBtn = iframeDoc.querySelector('.sports-bar-btn');
-                    if (sportsBarBtn) {
-                        tvFocusIndex = tvFocusables.indexOf(sportsBarBtn);
-                        if (tvFocusIndex === -1) tvFocusIndex = 0;
-                    }
-                    setTVFocus(tvFocusIndex);
-                }
-
-                // Handle key events in iframe
-                iframeDoc.addEventListener('keydown', (e) => {
-                    // Refresh focusables (they might change dynamically)
-                    tvFocusables = Array.from(iframeDoc.querySelectorAll(
-                        '.game-card, .sports-bar-btn, button, [tabindex], a, .bracket-card, .cfp-bracket-card'
-                    )).filter(el => {
-                        const style = iframeWin.getComputedStyle(el);
-                        return style.display !== 'none' && style.visibility !== 'hidden';
-                    });
-
-                    let newIndex = tvFocusIndex;
-                    const cols = 3; // Approximate columns in game grid
-
-                    switch (e.key) {
-                        case 'ArrowUp':
-                        case 'Up':
-                            e.preventDefault();
-                            newIndex = Math.max(0, tvFocusIndex - cols);
-                            break;
-
-                        case 'ArrowDown':
-                        case 'Down':
-                            e.preventDefault();
-                            newIndex = Math.min(tvFocusables.length - 1, tvFocusIndex + cols);
-                            break;
-
-                        case 'ArrowLeft':
-                        case 'Left':
-                            e.preventDefault();
-                            newIndex = Math.max(0, tvFocusIndex - 1);
-                            break;
-
-                        case 'ArrowRight':
-                        case 'Right':
-                            e.preventDefault();
-                            newIndex = Math.min(tvFocusables.length - 1, tvFocusIndex + 1);
-                            break;
-
-                        case 'Enter':
-                        case ' ':
-                            e.preventDefault();
-                            const focused = tvFocusables[tvFocusIndex];
-                            if (focused) {
-                                focused.click();
-                            }
-                            return;
-
-                        case 'Escape':
-                        case 'Backspace':
-                            e.preventDefault();
-                            goBackToHome();
-                            return;
-                    }
-
-                    if (newIndex !== tvFocusIndex) {
-                        setTVFocus(newIndex);
-                    }
-                });
-
-            } catch (e) {
-                console.log('Could not setup iframe navigation:', e);
-            }
-        }
-
-        function goBackToHome() {
-            const container = document.getElementById('league-container');
-            const iframe = document.getElementById('league-iframe');
-            const backBtn = document.getElementById('back-button');
-
-            container.classList.remove('active');
-            backBtn.classList.remove('active');
-            iframe.src = 'about:blank';
-            isInLeaguePage = false;
-            leagueIframe = null;
-
-            // Restore focus on home page
-            setFocus(currentFocusIndex);
-        }
-
-        // Back button click
-        document.getElementById('back-button').addEventListener('click', goBackToHome);
+        // Iframe navigation code removed - now using direct navigation
+        // League pages handle their own TV mode and back button via ?tv=1 parameter
 
         // Click handlers for focusable elements
         document.querySelectorAll('.focusable').forEach((el, index) => {
@@ -1772,4 +1538,5 @@
         document.getElementById('login-submit-btn').addEventListener('click', handlePasswordLogin);
     </script>
 </body>
+
 </html>

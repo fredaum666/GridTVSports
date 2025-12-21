@@ -78,14 +78,17 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https://a.espncdn.com", "https://*.espncdn.com", "https://*.stripe.com"],
-      connectSrc: ["'self'", "https://api.stripe.com"],
+      connectSrc: ["'self'", "https://api.stripe.com", "wss:", "ws:"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"],
+      frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com", "http://localhost:3001", "https://localhost:3001"],
+      frameAncestors: ["'self'", "http://localhost:3001", "https://localhost:3001"],
     },
   },
   crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false,
+  crossOriginResourcePolicy: { policy: "same-origin" },
 }));
 
 // Rate limiting - general API (very high limit for authenticated users)
@@ -4036,17 +4039,13 @@ app.post('/api/tv/login', tvAuthLimiter, async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    // Deactivate existing sessions for this device
-    await pool.query(
-      'UPDATE tv_sessions SET is_active = FALSE WHERE device_id = $1',
-      [deviceId]
-    );
-
-    // Create new session
+    // Create or update session for this device (upsert pattern)
     const sessionToken = crypto.randomUUID() + '-' + crypto.randomUUID();
     await pool.query(
       `INSERT INTO tv_sessions (user_id, device_id, device_name, session_token, is_active, created_at, last_seen_at)
-       VALUES ($1, $2, $3, $4, TRUE, NOW(), NOW())`,
+       VALUES ($1, $2, $3, $4, TRUE, NOW(), NOW())
+       ON CONFLICT (device_id)
+       DO UPDATE SET user_id = $1, session_token = $4, is_active = TRUE, last_seen_at = NOW()`,
       [user.id, deviceId, 'GridTV Android TV', sessionToken]
     );
 
