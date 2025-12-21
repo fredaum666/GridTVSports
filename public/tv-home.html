@@ -39,46 +39,46 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: clamp(20px, 4vh, 60px);
         }
 
         .login-header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: clamp(25px, 5vh, 60px);
         }
 
         .login-header img {
-            height: 80px;
-            margin-bottom: 20px;
+            height: clamp(50px, 8vh, 100px);
+            margin-bottom: clamp(10px, 2vh, 25px);
         }
 
         .login-header h1 {
-            font-size: 48px;
+            font-size: clamp(28px, 5vw, 60px);
             font-weight: 700;
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
+            margin-bottom: clamp(5px, 1vh, 15px);
         }
 
         .login-header p {
-            font-size: 22px;
+            font-size: clamp(14px, 2vw, 26px);
             color: #94a3b8;
         }
 
         .login-options {
             display: flex;
-            gap: 60px;
+            gap: clamp(30px, 4vw, 80px);
             align-items: stretch;
         }
 
         .login-option {
-            width: 400px;
+            width: clamp(280px, 22vw, 500px);
             background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
             border: 3px solid transparent;
-            border-radius: 24px;
-            padding: 40px;
+            border-radius: clamp(16px, 1.5vw, 30px);
+            padding: clamp(25px, 3vw, 50px);
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -91,20 +91,20 @@
         }
 
         .login-option h2 {
-            font-size: 28px;
-            margin-bottom: 15px;
+            font-size: clamp(18px, 1.8vw, 34px);
+            margin-bottom: clamp(10px, 1.5vh, 20px);
             color: #fff;
         }
 
         .login-option p {
-            font-size: 16px;
+            font-size: clamp(12px, 1.2vw, 20px);
             color: #94a3b8;
-            margin-bottom: 30px;
+            margin-bottom: clamp(15px, 2.5vh, 35px);
         }
 
         .login-option .icon {
-            font-size: 64px;
-            margin-bottom: 20px;
+            font-size: clamp(40px, 5vw, 80px);
+            margin-bottom: clamp(12px, 2vh, 25px);
             display: block;
         }
 
@@ -114,7 +114,7 @@
             align-items: center;
             justify-content: center;
             color: #64748b;
-            font-size: 20px;
+            font-size: clamp(14px, 1.3vw, 24px);
             font-weight: 600;
         }
 
@@ -122,12 +122,12 @@
         .login-divider::after {
             content: '';
             width: 2px;
-            height: 80px;
+            height: clamp(50px, 8vh, 100px);
             background: #334155;
         }
 
         .login-divider span {
-            padding: 20px 0;
+            padding: clamp(12px, 2vh, 25px) 0;
         }
 
         /* Password Login Form */
@@ -138,47 +138,47 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: clamp(20px, 4vh, 60px);
         }
 
         .login-form {
-            width: 500px;
+            width: clamp(320px, 30vw, 600px);
             background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            border-radius: 24px;
-            padding: 50px;
+            border-radius: clamp(16px, 1.5vw, 30px);
+            padding: clamp(30px, 4vw, 60px);
         }
 
         .login-form h2 {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: clamp(22px, 2.2vw, 40px);
+            margin-bottom: clamp(6px, 1vh, 15px);
             text-align: center;
         }
 
         .login-form .subtitle {
             color: #94a3b8;
             text-align: center;
-            margin-bottom: 40px;
-            font-size: 16px;
+            margin-bottom: clamp(25px, 4vh, 50px);
+            font-size: clamp(12px, 1.2vw, 20px);
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: clamp(15px, 2.5vh, 30px);
         }
 
         .form-group label {
             display: block;
-            font-size: 16px;
+            font-size: clamp(12px, 1.2vw, 20px);
             color: #94a3b8;
-            margin-bottom: 10px;
+            margin-bottom: clamp(6px, 1vh, 12px);
         }
 
         .form-group input {
             width: 100%;
-            padding: 18px 20px;
-            font-size: 20px;
+            padding: clamp(12px, 1.5vw, 22px) clamp(14px, 1.5vw, 24px);
+            font-size: clamp(14px, 1.4vw, 24px);
             background: #0f172a;
             border: 3px solid #334155;
-            border-radius: 12px;
+            border-radius: clamp(8px, 1vw, 16px);
             color: #fff;
             outline: none;
             transition: all 0.3s;
@@ -196,16 +196,16 @@
 
         .login-btn {
             width: 100%;
-            padding: 20px;
-            font-size: 22px;
+            padding: clamp(14px, 1.8vw, 24px);
+            font-size: clamp(16px, 1.6vw, 26px);
             font-weight: 700;
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
             border: 3px solid transparent;
-            border-radius: 12px;
+            border-radius: clamp(8px, 1vw, 16px);
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 20px;
+            margin-top: clamp(12px, 2vh, 25px);
         }
 
         .login-btn:focus,
@@ -221,13 +221,13 @@
         }
 
         .back-link {
-            margin-top: 30px;
+            margin-top: clamp(20px, 3vh, 40px);
             color: #6366f1;
-            font-size: 18px;
+            font-size: clamp(14px, 1.3vw, 22px);
             cursor: pointer;
-            padding: 15px 30px;
+            padding: clamp(10px, 1.5vh, 20px) clamp(20px, 2vw, 40px);
             border: 2px solid transparent;
-            border-radius: 10px;
+            border-radius: clamp(6px, 0.8vw, 12px);
             transition: all 0.3s;
         }
 
@@ -240,11 +240,12 @@
         .login-error {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid #ef4444;
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: clamp(6px, 0.8vw, 12px);
+            padding: clamp(10px, 1.5vh, 20px);
             color: #ef4444;
-            margin-bottom: 20px;
+            margin-bottom: clamp(12px, 2vh, 25px);
             text-align: center;
+            font-size: clamp(12px, 1.1vw, 18px);
             display: none;
         }
 
@@ -260,39 +261,41 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: clamp(20px, 4vh, 60px);
         }
 
         .qr-login-box {
-            width: 500px;
+            width: clamp(320px, 30vw, 600px);
             background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            border-radius: 24px;
-            padding: 50px;
+            border-radius: clamp(16px, 1.5vw, 30px);
+            padding: clamp(30px, 4vw, 60px);
             text-align: center;
         }
 
         .qr-login-box h2 {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: clamp(22px, 2.2vw, 40px);
+            margin-bottom: clamp(6px, 1vh, 15px);
         }
 
         .qr-login-box .subtitle {
             color: #94a3b8;
-            margin-bottom: 30px;
-            font-size: 16px;
+            margin-bottom: clamp(20px, 3vh, 40px);
+            font-size: clamp(12px, 1.2vw, 20px);
         }
 
         .qr-container {
             background: #fff;
-            border-radius: 16px;
-            padding: 25px;
+            border-radius: clamp(10px, 1.2vw, 20px);
+            padding: clamp(15px, 2vw, 30px);
             display: inline-block;
-            margin: 20px 0;
+            margin: clamp(12px, 2vh, 25px) 0;
         }
 
         .qr-container canvas,
         .qr-container img {
             display: block;
+            width: clamp(150px, 15vw, 250px) !important;
+            height: clamp(150px, 15vw, 250px) !important;
         }
 
         #login-qr-code {
@@ -300,19 +303,19 @@
         }
 
         .qr-loading {
-            width: 200px;
-            height: 200px;
+            width: clamp(150px, 15vw, 250px);
+            height: clamp(150px, 15vw, 250px);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #6366f1;
-            font-size: 16px;
+            font-size: clamp(12px, 1.2vw, 20px);
         }
 
         .qr-timer {
             color: #94a3b8;
-            font-size: 16px;
-            margin-top: 15px;
+            font-size: clamp(12px, 1.2vw, 20px);
+            margin-top: clamp(10px, 1.5vh, 20px);
         }
 
         .qr-timer span:last-child {
@@ -321,10 +324,10 @@
         }
 
         .qr-status {
-            margin-top: 20px;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 16px;
+            margin-top: clamp(12px, 2vh, 25px);
+            padding: clamp(8px, 1vh, 15px) clamp(14px, 1.5vw, 25px);
+            border-radius: clamp(6px, 0.8vw, 12px);
+            font-size: clamp(12px, 1.2vw, 20px);
         }
 
         .qr-status.success {
@@ -349,17 +352,17 @@
         .tv-user-info {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: clamp(12px, 1.5vw, 25px);
             color: #94a3b8;
-            font-size: 16px;
+            font-size: clamp(12px, 1.2vw, 20px);
         }
 
         .tv-user-info .sign-out-link {
             color: #6366f1;
             cursor: pointer;
-            padding: 8px 16px;
+            padding: clamp(6px, 0.8vh, 12px) clamp(10px, 1.2vw, 20px);
             border: 2px solid transparent;
-            border-radius: 8px;
+            border-radius: clamp(5px, 0.6vw, 10px);
             transition: all 0.3s;
         }
 
@@ -375,7 +378,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            padding: 40px 60px;
+            padding: clamp(20px, 4vh, 60px) clamp(30px, 4vw, 80px);
         }
 
         /* Header */
@@ -383,22 +386,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: clamp(20px, 4vh, 50px);
         }
 
         .tv-logo {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: clamp(12px, 1.5vw, 25px);
         }
 
         .tv-logo img {
-            height: 60px;
+            height: clamp(40px, 5vh, 80px);
             width: auto;
         }
 
         .tv-logo h1 {
-            font-size: 36px;
+            font-size: clamp(24px, 2.5vw, 48px);
             font-weight: 700;
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             -webkit-background-clip: text;
@@ -407,7 +410,7 @@
         }
 
         .tv-time {
-            font-size: 24px;
+            font-size: clamp(16px, 1.8vw, 32px);
             color: #94a3b8;
         }
 
@@ -416,33 +419,33 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: clamp(20px, 3vh, 40px);
         }
 
         .section-title {
-            font-size: 24px;
+            font-size: clamp(16px, 1.8vw, 32px);
             color: #94a3b8;
-            margin-bottom: 10px;
+            margin-bottom: clamp(6px, 1vh, 15px);
         }
 
         /* League Grid */
         .league-grid {
             display: flex;
-            gap: 30px;
+            gap: clamp(15px, 2vw, 40px);
             flex-wrap: wrap;
         }
 
         .league-card {
-            width: 280px;
-            height: 200px;
+            width: clamp(180px, 15vw, 350px);
+            height: clamp(130px, 18vh, 250px);
             background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
             border: 3px solid transparent;
-            border-radius: 20px;
+            border-radius: clamp(12px, 1.3vw, 25px);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: clamp(8px, 1.5vh, 20px);
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
@@ -473,43 +476,43 @@
         }
 
         .league-card img {
-            height: 80px;
+            height: clamp(50px, 8vh, 100px);
             width: auto;
             object-fit: contain;
         }
 
         .league-card .league-name {
-            font-size: 24px;
+            font-size: clamp(16px, 1.6vw, 30px);
             font-weight: 600;
             color: #fff;
         }
 
         .league-card .league-status {
-            font-size: 14px;
+            font-size: clamp(10px, 1vw, 18px);
             color: #94a3b8;
             position: absolute;
-            bottom: 15px;
+            bottom: clamp(8px, 1.5vh, 20px);
         }
 
         .league-card .live-badge {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: clamp(8px, 1.2vh, 18px);
+            right: clamp(8px, 1vw, 18px);
             background: #ef4444;
             color: white;
-            font-size: 12px;
+            font-size: clamp(9px, 0.9vw, 15px);
             font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 12px;
+            padding: clamp(3px, 0.4vh, 6px) clamp(6px, 0.7vw, 12px);
+            border-radius: clamp(8px, 1vw, 15px);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: clamp(3px, 0.4vw, 6px);
         }
 
         .league-card .live-badge::before {
             content: '';
-            width: 6px;
-            height: 6px;
+            width: clamp(4px, 0.5vw, 8px);
+            height: clamp(4px, 0.5vw, 8px);
             background: white;
             border-radius: 50%;
             animation: pulse 1.5s infinite;
@@ -530,21 +533,21 @@
         /* Special Cards */
         .special-grid {
             display: flex;
-            gap: 30px;
-            margin-top: 20px;
+            gap: clamp(15px, 2vw, 40px);
+            margin-top: clamp(12px, 2vh, 25px);
         }
 
         .special-card {
             flex: 1;
-            max-width: 400px;
-            height: 120px;
+            max-width: clamp(280px, 25vw, 500px);
+            height: clamp(80px, 12vh, 150px);
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             border: 3px solid transparent;
-            border-radius: 16px;
+            border-radius: clamp(10px, 1.2vw, 20px);
             display: flex;
             align-items: center;
-            padding: 0 30px;
-            gap: 20px;
+            padding: 0 clamp(18px, 2vw, 40px);
+            gap: clamp(12px, 1.5vw, 25px);
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -556,16 +559,16 @@
         }
 
         .special-card .icon {
-            font-size: 48px;
+            font-size: clamp(30px, 3.5vw, 60px);
         }
 
         .special-card .info h3 {
-            font-size: 22px;
-            margin-bottom: 5px;
+            font-size: clamp(14px, 1.5vw, 28px);
+            margin-bottom: clamp(3px, 0.5vh, 8px);
         }
 
         .special-card .info p {
-            font-size: 14px;
+            font-size: clamp(10px, 1vw, 18px);
             color: #94a3b8;
         }
 
@@ -598,8 +601,8 @@
         }
 
         .loading-spinner {
-            width: 60px;
-            height: 60px;
+            width: clamp(40px, 5vw, 80px);
+            height: clamp(40px, 5vw, 80px);
             border: 4px solid #334155;
             border-top-color: #6366f1;
             border-radius: 50%;
@@ -613,9 +616,60 @@
         }
 
         .loading-text {
-            margin-top: 20px;
-            font-size: 20px;
+            margin-top: clamp(12px, 2vh, 25px);
+            font-size: clamp(14px, 1.5vw, 26px);
             color: #94a3b8;
+        }
+
+        /* ================================ */
+        /* TV-SPECIFIC MEDIA QUERIES        */
+        /* ================================ */
+
+        /* 720p TV (1280x720) */
+        @media screen and (min-width: 1200px) and (max-width: 1400px) {
+            .league-grid {
+                gap: 20px;
+            }
+            .league-card {
+                width: 200px;
+                height: 150px;
+            }
+        }
+
+        /* 1080p TV (1920x1080) */
+        @media screen and (min-width: 1800px) and (max-width: 2000px) {
+            .league-card {
+                width: 280px;
+                height: 200px;
+            }
+            .league-card img {
+                height: 80px;
+            }
+        }
+
+        /* 4K TV (3840x2160) */
+        @media screen and (min-width: 3000px) {
+            .tv-home {
+                padding: 80px 120px;
+            }
+            .league-grid {
+                gap: 50px;
+            }
+            .league-card {
+                width: 400px;
+                height: 280px;
+                border-radius: 30px;
+            }
+            .league-card img {
+                height: 120px;
+            }
+            .league-card .league-name {
+                font-size: 36px;
+            }
+            .special-card {
+                height: 180px;
+                max-width: 600px;
+            }
         }
 
         /* CSS for iframe/back button removed - now using direct navigation */

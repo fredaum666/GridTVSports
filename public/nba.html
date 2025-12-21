@@ -3442,6 +3442,146 @@
       display: none;
     }
 
+    /* ================================ */
+    /* TV MODE RESPONSIVE STYLES        */
+    /* ================================ */
+
+    /* TV Mode - Optimized grid layout for large screens */
+    body.tv-mode .games-grid {
+      grid-template-columns: repeat(auto-fill, minmax(clamp(280px, 18vw, 450px), 1fr));
+      gap: clamp(15px, 1.5vw, 30px);
+      padding: clamp(10px, 2vh, 30px) clamp(15px, 2vw, 40px);
+    }
+
+    body.tv-mode .game-card {
+      border-radius: clamp(10px, 1vw, 20px);
+    }
+
+    body.tv-mode .team-row {
+      padding: clamp(12px, 1.5vh, 24px) clamp(12px, 1.2vw, 24px);
+    }
+
+    body.tv-mode .team-logo {
+      width: clamp(40px, 4vw, 70px);
+      height: clamp(40px, 4vw, 70px);
+    }
+
+    body.tv-mode .team-name {
+      font-size: clamp(14px, 1.3vw, 24px);
+    }
+
+    body.tv-mode .team-record {
+      font-size: clamp(10px, 0.9vw, 16px);
+    }
+
+    body.tv-mode .team-score {
+      font-size: clamp(24px, 2.5vw, 48px);
+    }
+
+    body.tv-mode .game-status-bar {
+      padding: clamp(8px, 1vh, 16px) clamp(12px, 1.2vw, 24px);
+    }
+
+    body.tv-mode .game-status-bar .status-text {
+      font-size: clamp(12px, 1.1vw, 20px);
+    }
+
+    body.tv-mode .game-status-bar .broadcast-info {
+      font-size: clamp(11px, 1vw, 18px);
+    }
+
+    /* TV Mode - Header adjustments */
+    body.tv-mode .games-header {
+      padding: clamp(12px, 1.5vh, 24px) clamp(15px, 2vw, 40px);
+    }
+
+    body.tv-mode .games-header h1 {
+      font-size: clamp(20px, 2vw, 36px);
+    }
+
+    body.tv-mode .nav-group button {
+      font-size: clamp(14px, 1.2vw, 22px);
+      padding: clamp(8px, 1vh, 16px) clamp(14px, 1.4vw, 28px);
+    }
+
+    body.tv-mode .nav-group {
+      gap: clamp(8px, 0.8vw, 16px);
+    }
+
+    body.tv-mode .tv-back-btn {
+      font-size: clamp(14px, 1.2vw, 22px);
+      padding: clamp(10px, 1vh, 18px) clamp(18px, 1.5vw, 32px);
+      border-radius: clamp(8px, 0.8vw, 14px);
+    }
+
+    /* TV Mode - 4K specific overrides */
+    @media screen and (min-width: 3000px) {
+      body.tv-mode .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+        gap: 40px;
+        padding: 40px 60px;
+      }
+
+      body.tv-mode .game-card {
+        border-radius: 24px;
+      }
+
+      body.tv-mode .team-logo {
+        width: 90px;
+        height: 90px;
+      }
+
+      body.tv-mode .team-name {
+        font-size: 28px;
+      }
+
+      body.tv-mode .team-score {
+        font-size: 56px;
+      }
+    }
+
+    /* TV Mode - Fullscreen card optimizations */
+    body.tv-mode .fullscreen-container {
+      background: #0a0e1a;
+    }
+
+    body.tv-mode .fullscreen-game-card {
+      border-radius: clamp(16px, 1.5vw, 30px);
+    }
+
+    body.tv-mode .fullscreen-team-logo {
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+    }
+
+    body.tv-mode .fullscreen-live-team-name {
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
+    body.tv-mode .fullscreen-team-score {
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+    }
+
+    body.tv-mode .fullscreen-status-text,
+    body.tv-mode .fullscreen-situation-info {
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+    }
+
+    /* TV Mode - 4K Fullscreen enhancements */
+    @media screen and (min-width: 3000px) {
+      body.tv-mode .fullscreen-game-card {
+        border-radius: 40px;
+      }
+
+      body.tv-mode .fullscreen-team-logo {
+        filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6));
+      }
+
+      body.tv-mode .sport-logo-indicator {
+        width: 100px !important;
+        height: 100px !important;
+      }
+    }
+
     /* Mobile phones in landscape - show "rotate to portrait" overlay */
     /* Targets phones: landscape orientation with height under 600px (phone screens) */
     @media screen and (orientation: landscape) and (max-height: 600px) {
