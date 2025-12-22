@@ -2,6 +2,7 @@ package com.gridtvsports.tv
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -127,6 +128,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadTVHome() {
         showLoading()
+        Log.d("MainActivity", "Loading URL: $TV_HOME_URL")
         webView.loadUrl(TV_HOME_URL)
     }
 
