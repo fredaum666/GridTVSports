@@ -4038,8 +4038,37 @@
                    navigator.userAgent.includes('FireTV') ||
                    navigator.userAgent.includes('GridTVSports-AndroidTV') ||
                    window.self !== window.top; // iframe detection for TV home
+
+      // Debug: Log viewport info
+      console.log('TV Mode Detection:', {
+        isTV,
+        userAgent: navigator.userAgent,
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        devicePixelRatio: window.devicePixelRatio
+      });
+
       if (isTV) {
         document.body.classList.add('tv-mode');
+
+        // Force TV grid layouts via JavaScript (bypass CSS media query issues)
+        const tvGridStyle = document.createElement('style');
+        tvGridStyle.id = 'tv-grid-override';
+        tvGridStyle.textContent = `
+          /* TV Mode Grid Overrides - Applied via JavaScript */
+          body.tv-mode .fullscreen-grid.grid-6 {
+            grid-template-columns: repeat(3, 1fr) !important;
+            grid-template-rows: repeat(2, 1fr) !important;
+          }
+          body.tv-mode .fullscreen-grid.grid-8 {
+            grid-template-columns: repeat(4, 1fr) !important;
+            grid-template-rows: repeat(2, 1fr) !important;
+          }
+        `;
+        document.head.appendChild(tvGridStyle);
+        console.log('TV grid override styles injected');
 
         // Add keyboard handler for TV mode - Back/Escape goes to TV home
         document.addEventListener('keydown', (e) => {
