@@ -1184,6 +1184,17 @@
       .fullscreen-grid.grid-4 .fullscreen-team-score {
         font-size: 3.5rem !important;
       }
+
+      /* TV Mode Override - Force 3x2 horizontal layout */
+      body.tv-mode .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      body.tv-mode .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
     }
 
     } /* ◄ End @media (min-width: 769px) - Desktop/Tablet grid rules */
@@ -1680,6 +1691,17 @@
       .sport-logo-indicator {
         width: 50px !important;
         height: 50px !important;
+      }
+
+      /* TV Mode Override - Force 3x2 horizontal layout even on mobile viewport */
+      body.tv-mode .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      body.tv-mode .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
       }
     }
 

@@ -1094,6 +1094,17 @@
       .fullscreen-grid.grid-4 .fullscreen-score {
         font-size: 4rem !important;
       }
+
+      /* TV Mode Override - Force 3x2 horizontal layout */
+      body.tv-mode .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      body.tv-mode .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
     }
 
     } /* ◄ End @media (min-width: 769px) - Desktop/Tablet grid rules */
@@ -1793,6 +1804,17 @@
         font-size: clamp(12px, 1.8vh, 18px) !important;
         font-weight: 600 !important;
         text-align: center !important;
+      }
+
+      /* TV Mode Override - Force 3x2 horizontal layout even on mobile viewport */
+      body.tv-mode .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      body.tv-mode .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
       }
     }
 

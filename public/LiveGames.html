@@ -3496,6 +3496,17 @@
         padding: 8px 10px !important;
       }
 
+      /* TV Mode Override - Force 3x2 horizontal layout even on mobile viewport */
+      body.tv-mode .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      body.tv-mode .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
     }
 
     /* ==================================================
@@ -3646,6 +3657,17 @@
       .fullscreen-controls button {
         padding: 8px 14px !important;
         font-size: 0.85rem !important;
+      }
+
+      /* TV Mode Override - Force 3x2 horizontal layout even on tablet viewport */
+      body.tv-mode .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      body.tv-mode .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
       }
     }
 

@@ -2572,6 +2572,17 @@
         .fullscreen-grid.grid-4 .fullscreen-score {
           font-size: 4rem !important;
         }
+
+        /* TV Mode Override - Force 3x2 horizontal layout */
+        body.tv-mode .fullscreen-grid.grid-6 {
+          grid-template-columns: repeat(3, 1fr) !important;
+          grid-template-rows: repeat(2, 1fr) !important;
+        }
+
+        body.tv-mode .fullscreen-grid.grid-8 {
+          grid-template-columns: repeat(4, 1fr) !important;
+          grid-template-rows: repeat(2, 1fr) !important;
+        }
       }
 
     }
@@ -3585,6 +3596,17 @@
         border-radius: 8px !important;
         border-width: 2px !important;
       }
+
+      /* TV Mode Override - Force 3x2 horizontal layout even on mobile viewport */
+      body.tv-mode .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      body.tv-mode .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
     }
 
 
@@ -3637,6 +3659,17 @@
 
       .sport-logo-indicator {
         opacity: 0.6 !important;
+      }
+
+      /* TV Mode Override - Force 3x2 horizontal layout even on extra small viewport */
+      body.tv-mode .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      body.tv-mode .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
       }
     }
 
@@ -8788,6 +8821,18 @@
           padding: ${padding}px !important;
           gap: ${gap}px !important;
         }
+
+        /* TV Mode Grid Layout Override - Force horizontal layout */
+        ${document.body.classList.contains('tv-mode') ? `
+        html body.tv-mode .fullscreen-grid.grid-6 {
+          grid-template-columns: repeat(3, 1fr) !important;
+          grid-template-rows: repeat(2, 1fr) !important;
+        }
+        html body.tv-mode .fullscreen-grid.grid-8 {
+          grid-template-columns: repeat(4, 1fr) !important;
+          grid-template-rows: repeat(2, 1fr) !important;
+        }
+        ` : ''}
 
         html body .fullscreen-grid.grid-${layout} .fullscreen-game-card {
           padding: ${sizes.cardPadding}px !important;

@@ -71,10 +71,10 @@ class MainActivity : AppCompatActivity() {
             // Allow media playback
             mediaPlaybackRequiresUserGesture = false
 
-            // Enable responsive layout
-            useWideViewPort = true
-            loadWithOverviewMode = true
-            layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
+            // TV viewport settings - use actual screen dimensions
+            useWideViewPort = false  // Don't use wide viewport meta tag
+            loadWithOverviewMode = false  // Don't zoom out to fit
+            layoutAlgorithm = WebSettings.LayoutAlgorithm.NORMAL  // Normal layout, no text autosizing
 
             // Enable zoom controls (disabled for TV)
             setSupportZoom(false)

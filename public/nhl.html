@@ -1379,6 +1379,17 @@
         .fullscreen-grid.grid-4 .fullscreen-score {
           font-size: 4rem !important;
         }
+
+        /* TV Mode Override - Force 3x2 horizontal layout */
+        body.tv-mode .fullscreen-grid.grid-6 {
+          grid-template-columns: repeat(3, 1fr) !important;
+          grid-template-rows: repeat(2, 1fr) !important;
+        }
+
+        body.tv-mode .fullscreen-grid.grid-8 {
+          grid-template-columns: repeat(4, 1fr) !important;
+          grid-template-rows: repeat(2, 1fr) !important;
+        }
       }
 
     }
@@ -2052,6 +2063,17 @@
       .fullscreen-game-card {
         border-radius: 8px !important;
         border-width: 2px !important;
+      }
+
+      /* TV Mode Override - Force 3x2 horizontal layout even on mobile viewport */
+      body.tv-mode .fullscreen-grid.grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+      }
+
+      body.tv-mode .fullscreen-grid.grid-8 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
       }
     }
 
