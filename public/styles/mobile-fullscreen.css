@@ -26,7 +26,8 @@
     background: #0a0e1a !important;
     width: 100vw !important;
     height: 100vh !important;
-    height: 100dvh !important;               /* ◄ Dynamic viewport height for mobile browsers */
+    height: 100dvh !important;
+    /* ◄ Dynamic viewport height for mobile browsers */
     padding: 0 !important;
     overflow: hidden !important;
   }
@@ -35,9 +36,12 @@
   .fullscreen-grid {
     width: 100vw !important;
     height: 100vh !important;
-    height: 100dvh !important;               /* ◄ Dynamic viewport height */
-    padding: 8px !important;                 /* ◄ Grid padding */
-    gap: 8px !important;                     /* ◄ Gap between cards */
+    height: 100dvh !important;
+    /* ◄ Dynamic viewport height */
+    padding: 8px !important;
+    /* ◄ Grid padding */
+    gap: 8px !important;
+    /* ◄ Gap between cards */
     overflow-y: auto !important;
     overflow-x: hidden !important;
   }
@@ -50,7 +54,8 @@
   .fullscreen-grid.grid-1 {
     grid-template-columns: 1fr !important;
     grid-template-rows: 1fr !important;
-    padding: 12px !important;                /* ◄ Container padding */
+    padding: 12px !important;
+    /* ◄ Container padding */
     place-items: center !important;
   }
 
@@ -60,126 +65,162 @@
     max-width: 100% !important;
     height: 100% !important;
     max-height: calc(100vh - 24px) !important;
-    max-height: calc(100dvh - 24px) !important;  /* ◄ Card max height */
-    padding: clamp(20px, 5vw, 40px) !important;  /* ◄ Card padding */
-    border-radius: 16px !important;              /* ◄ Card border radius */
+    max-height: calc(100dvh - 24px) !important;
+    /* ◄ Card max height */
+    padding: clamp(20px, 5vw, 40px) !important;
+    /* ◄ Card padding */
+    border-radius: 16px !important;
+    /* ◄ Card border radius */
     border-width: 3px !important;
   }
 
   /* --- Grid 1: TEAM LOGO --- */
   .fullscreen-grid.grid-1 .fullscreen-team-logo {
-    width: clamp(100px, 18vw, 140px) !important;   /* ◄ Logo width */
-    height: clamp(100px, 18vw, 140px) !important;  /* ◄ Logo height */
+    width: clamp(100px, 18vw, 140px) !important;
+    /* ◄ Logo width */
+    height: clamp(100px, 18vw, 140px) !important;
+    /* ◄ Logo height */
   }
 
   /* --- Grid 1: TEAM NAME --- */
   .fullscreen-grid.grid-1 .fullscreen-team-name {
-    font-size: clamp(3rem, 10vw, 5rem) !important; /* ◄ Team name size */
+    font-size: clamp(3rem, 10vw, 5rem) !important;
+    /* ◄ Team name size */
     letter-spacing: 2px !important;
   }
 
   /* --- Grid 1: TEAM SCORE --- */
   .fullscreen-grid.grid-1 .fullscreen-score {
-    font-size: clamp(5rem, 15vw, 8rem) !important; /* ◄ Score size */
+    font-size: clamp(5rem, 15vw, 8rem) !important;
+    /* ◄ Score size */
   }
 
   /* --- Grid 1: TEAM RECORD --- */
   .fullscreen-grid.grid-1 .fullscreen-team-record {
-    font-size: clamp(1.2rem, 4vw, 1.8rem) !important; /* ◄ Record size */
+    font-size: clamp(1.2rem, 4vw, 1.8rem) !important;
+    /* ◄ Record size */
     min-width: 80px !important;
   }
 
   /* --- Grid 1: STATUS (Quarter/Period/Inning) --- */
   .fullscreen-grid.grid-1 .fullscreen-quarter,
   .fullscreen-grid.grid-1 .fullscreen-inning {
-    font-size: clamp(1.5rem, 5vw, 2.5rem) !important;  /* ◄ Status size */
-    padding: 10px 20px !important;                     /* ◄ Status padding */
+    font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+    /* ◄ Status size */
+    padding: 10px 20px !important;
+    /* ◄ Status padding */
   }
 
   /* --- Grid 1: VS DIVIDER --- */
   .fullscreen-grid.grid-1 .fullscreen-vs {
-    font-size: clamp(1.5rem, 5vw, 2.5rem) !important;  /* ◄ VS text size */
-    margin: 20px 0 !important;                         /* ◄ VS margin */
+    font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+    /* ◄ VS text size */
+    margin: 20px 0 !important;
+    /* ◄ VS margin */
   }
 
   /* --- Grid 1: SPORT LOGO --- */
   .fullscreen-grid.grid-1 .sport-logo-indicator {
-    width: clamp(60px, 12vw, 80px) !important;   /* ◄ Sport logo width */
-    height: clamp(60px, 12vw, 80px) !important;  /* ◄ Sport logo height */
-    top: 15px !important;                        /* ◄ Sport logo top position */
-    left: 15px !important;                       /* ◄ Sport logo left position */
+    width: clamp(60px, 12vw, 80px) !important;
+    /* ◄ Sport logo width */
+    height: clamp(60px, 12vw, 80px) !important;
+    /* ◄ Sport logo height */
+    top: 15px !important;
+    /* ◄ Sport logo top position */
+    left: 15px !important;
+    /* ◄ Sport logo left position */
   }
 
   /* --- Grid 1: DOWN & DISTANCE (Football) --- */
   .fullscreen-grid.grid-1 .fullscreen-down-distance {
-    font-size: clamp(1.3rem, 4vw, 2rem) !important;  /* ◄ Down/distance size */
-    padding: 10px 20px !important;                   /* ◄ Down/distance padding */
+    font-size: clamp(1.3rem, 4vw, 2rem) !important;
+    /* ◄ Down/distance size */
+    padding: 10px 20px !important;
+    /* ◄ Down/distance padding */
   }
 
   /* --- Grid 1: FIELD POSITION (Football) --- */
   .fullscreen-grid.grid-1 .fullscreen-field-position {
-    font-size: clamp(1rem, 3vw, 1.5rem) !important;  /* ◄ Field position size */
+    font-size: clamp(1rem, 3vw, 1.5rem) !important;
+    /* ◄ Field position size */
   }
 
   /* --- Grid 1: POSSESSION INDICATOR (Football) --- */
   .fullscreen-grid.grid-1 .fullscreen-possession {
-    font-size: clamp(2rem, 6vw, 3rem) !important;  /* ◄ Possession size */
-    width: 35px !important;                        /* ◄ Possession width */
-    height: 35px !important;                       /* ◄ Possession height */
+    font-size: clamp(2rem, 6vw, 3rem) !important;
+    /* ◄ Possession size */
+    width: 35px !important;
+    /* ◄ Possession width */
+    height: 35px !important;
+    /* ◄ Possession height */
   }
 
   /* --- Grid 1: TIMEOUT BARS --- */
   .fullscreen-grid.grid-1 .timeout-bar {
-    width: clamp(50px, 10vw, 70px) !important;  /* ◄ Timeout bar width */
-    height: 10px !important;                    /* ◄ Timeout bar height */
+    width: clamp(50px, 10vw, 70px) !important;
+    /* ◄ Timeout bar width */
+    height: 10px !important;
+    /* ◄ Timeout bar height */
   }
 
   /* --- Grid 1: COUNT/STATUS (Basketball/Baseball) --- */
   .fullscreen-grid.grid-1 .fullscreen-count,
   .fullscreen-grid.grid-1 .fullscreen-baseball-status {
-    font-size: clamp(1.2rem, 4vw, 1.8rem) !important;  /* ◄ Count/status size */
+    font-size: clamp(1.2rem, 4vw, 1.8rem) !important;
+    /* ◄ Count/status size */
     gap: 15px !important;
   }
 
   /* --- Grid 1: BASEBALL DIAMOND --- */
   .fullscreen-grid.grid-1 .fullscreen-diamond-container svg {
-    width: clamp(70px, 15vw, 100px) !important;   /* ◄ Diamond width */
-    height: clamp(70px, 15vw, 100px) !important;  /* ◄ Diamond height */
+    width: clamp(70px, 15vw, 100px) !important;
+    /* ◄ Diamond width */
+    height: clamp(70px, 15vw, 100px) !important;
+    /* ◄ Diamond height */
   }
 
   /* --- Grid 1: TEAMS CONTAINER --- */
   .fullscreen-grid.grid-1 .fullscreen-teams {
-    gap: clamp(25px, 5vh, 40px) !important;  /* ◄ Teams gap */
+    gap: clamp(25px, 5vh, 40px) !important;
+    /* ◄ Teams gap */
   }
 
   /* --- Grid 1: TEAM ELEMENT --- */
   .fullscreen-grid.grid-1 .fullscreen-team {
-    gap: clamp(12px, 3vw, 20px) !important;  /* ◄ Team element gap */
+    gap: clamp(12px, 3vw, 20px) !important;
+    /* ◄ Team element gap */
   }
 
   /* --- Grid 1: TEAM HEADER --- */
   .fullscreen-grid.grid-1 .fullscreen-team-header {
-    gap: clamp(15px, 4vw, 25px) !important;  /* ◄ Team header gap */
+    gap: clamp(15px, 4vw, 25px) !important;
+    /* ◄ Team header gap */
   }
 
   /* --- Grid 1: TEAM STACK - Column layout for single game view --- */
   .fullscreen-grid.grid-1 .fullscreen-team-stack {
-    flex-direction: column !important;       /* ◄ Stack elements vertically */
+    flex-direction: column !important;
+    /* ◄ Stack elements vertically */
     align-items: center !important;
-    gap: 8px !important;                     /* ◄ Gap between logo, name, record */
+    gap: 8px !important;
+    /* ◄ Gap between logo, name, record */
   }
 
   /* --- Grid 1: TEAM NAME (Live games class) --- */
   .fullscreen-grid.grid-1 .fullscreen-live-team-name {
-    font-size: clamp(2.5rem, 9vw, 4rem) !important;  /* ◄ Team name size */
+    font-size: clamp(2.5rem, 9vw, 4rem) !important;
+    /* ◄ Team name size */
     margin-top: 5px !important;
   }
 
   /* --- Grid 1: TEAM RECORD - Below team name --- */
   .fullscreen-grid.grid-1 .fullscreen-team-record {
-    font-size: clamp(1.1rem, 3.5vw, 1.6rem) !important;  /* ◄ Record size */
-    margin-top: -2px !important;             /* ◄ Tighter spacing below name */
-    order: unset !important;                 /* ◄ Keep natural order (after name) */
+    font-size: clamp(1.1rem, 3.5vw, 1.6rem) !important;
+    /* ◄ Record size */
+    margin-top: -2px !important;
+    /* ◄ Tighter spacing below name */
+    order: unset !important;
+    /* ◄ Keep natural order (after name) */
   }
 
   /* --- Grid 1: TIMEOUTS - Below record --- */
@@ -195,7 +236,8 @@
   .fullscreen-grid.grid-2 {
     grid-template-columns: 1fr !important;
     grid-template-rows: repeat(2, 1fr) !important;
-    padding: 8px !important;                 /* ◄ Container padding */
+    padding: 8px !important;
+    /* ◄ Container padding */
   }
 
   /* --- Grid 2: GAME CARD --- */
@@ -203,106 +245,136 @@
     width: 100% !important;
     height: 100% !important;
     min-height: calc((100vh - 24px) / 2) !important;
-    min-height: calc((100dvh - 24px) / 2) !important;  /* ◄ Card min height */
-    padding: clamp(15px, 4vw, 30px) !important;        /* ◄ Card padding */
-    border-radius: 14px !important;                    /* ◄ Card border radius */
+    min-height: calc((100dvh - 24px) / 2) !important;
+    /* ◄ Card min height */
+    padding: clamp(15px, 4vw, 30px) !important;
+    /* ◄ Card padding */
+    border-radius: 14px !important;
+    /* ◄ Card border radius */
     border-width: 3px !important;
   }
 
   /* --- Grid 2: TEAM LOGO --- */
   .fullscreen-grid.grid-2 .fullscreen-team-logo {
-    width: clamp(70px, 14vw, 100px) !important;   /* ◄ Logo width */
-    height: clamp(70px, 14vw, 100px) !important;  /* ◄ Logo height */
+    width: clamp(70px, 14vw, 100px) !important;
+    /* ◄ Logo width */
+    height: clamp(70px, 14vw, 100px) !important;
+    /* ◄ Logo height */
   }
 
   /* --- Grid 2: TEAM NAME --- */
   .fullscreen-grid.grid-2 .fullscreen-team-name {
-    font-size: clamp(2rem, 7vw, 3.5rem) !important;  /* ◄ Team name size */
+    font-size: clamp(2rem, 7vw, 3.5rem) !important;
+    /* ◄ Team name size */
     letter-spacing: 1px !important;
   }
 
   /* --- Grid 2: TEAM SCORE --- */
   .fullscreen-grid.grid-2 .fullscreen-score {
-    font-size: clamp(3.5rem, 10vw, 5.5rem) !important;  /* ◄ Score size */
+    font-size: clamp(3.5rem, 10vw, 5.5rem) !important;
+    /* ◄ Score size */
   }
 
   /* --- Grid 2: TEAM RECORD --- */
   .fullscreen-grid.grid-2 .fullscreen-team-record {
-    font-size: clamp(1rem, 3vw, 1.4rem) !important;  /* ◄ Record size */
+    font-size: clamp(1rem, 3vw, 1.4rem) !important;
+    /* ◄ Record size */
     min-width: 60px !important;
   }
 
   /* --- Grid 2: STATUS (Quarter/Period/Inning) --- */
   .fullscreen-grid.grid-2 .fullscreen-quarter,
   .fullscreen-grid.grid-2 .fullscreen-inning {
-    font-size: clamp(1.2rem, 4vw, 1.8rem) !important;  /* ◄ Status size */
-    padding: 8px 16px !important;                      /* ◄ Status padding */
+    font-size: clamp(1.2rem, 4vw, 1.8rem) !important;
+    /* ◄ Status size */
+    padding: 8px 16px !important;
+    /* ◄ Status padding */
   }
 
   /* --- Grid 2: VS DIVIDER --- */
   .fullscreen-grid.grid-2 .fullscreen-vs {
-    font-size: clamp(1.2rem, 4vw, 2rem) !important;  /* ◄ VS text size */
-    margin: 15px 0 !important;                       /* ◄ VS margin */
+    font-size: clamp(1.2rem, 4vw, 2rem) !important;
+    /* ◄ VS text size */
+    margin: 15px 0 !important;
+    /* ◄ VS margin */
   }
 
   /* --- Grid 2: SPORT LOGO --- */
   .fullscreen-grid.grid-2 .sport-logo-indicator {
-    width: clamp(45px, 10vw, 60px) !important;   /* ◄ Sport logo width */
-    height: clamp(45px, 10vw, 60px) !important;  /* ◄ Sport logo height */
-    top: 10px !important;                        /* ◄ Sport logo top position */
-    left: 10px !important;                       /* ◄ Sport logo left position */
+    width: clamp(45px, 10vw, 60px) !important;
+    /* ◄ Sport logo width */
+    height: clamp(45px, 10vw, 60px) !important;
+    /* ◄ Sport logo height */
+    top: 10px !important;
+    /* ◄ Sport logo top position */
+    left: 10px !important;
+    /* ◄ Sport logo left position */
   }
 
   /* --- Grid 2: DOWN & DISTANCE (Football) --- */
   .fullscreen-grid.grid-2 .fullscreen-down-distance {
-    font-size: clamp(1.1rem, 3vw, 1.5rem) !important;  /* ◄ Down/distance size */
-    padding: 8px 16px !important;                      /* ◄ Down/distance padding */
+    font-size: clamp(1.1rem, 3vw, 1.5rem) !important;
+    /* ◄ Down/distance size */
+    padding: 8px 16px !important;
+    /* ◄ Down/distance padding */
   }
 
   /* --- Grid 2: FIELD POSITION (Football) --- */
   .fullscreen-grid.grid-2 .fullscreen-field-position {
-    font-size: clamp(0.9rem, 2.5vw, 1.2rem) !important;  /* ◄ Field position size */
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem) !important;
+    /* ◄ Field position size */
   }
 
   /* --- Grid 2: POSSESSION INDICATOR (Football) --- */
   .fullscreen-grid.grid-2 .fullscreen-possession {
-    font-size: clamp(1.5rem, 4vw, 2rem) !important;  /* ◄ Possession size */
-    width: 28px !important;                          /* ◄ Possession width */
-    height: 28px !important;                         /* ◄ Possession height */
+    font-size: clamp(1.5rem, 4vw, 2rem) !important;
+    /* ◄ Possession size */
+    width: 28px !important;
+    /* ◄ Possession width */
+    height: 28px !important;
+    /* ◄ Possession height */
   }
 
   /* --- Grid 2: TIMEOUT BARS --- */
   .fullscreen-grid.grid-2 .timeout-bar {
-    width: clamp(35px, 8vw, 50px) !important;  /* ◄ Timeout bar width */
-    height: 8px !important;                    /* ◄ Timeout bar height */
+    width: clamp(35px, 8vw, 50px) !important;
+    /* ◄ Timeout bar width */
+    height: 8px !important;
+    /* ◄ Timeout bar height */
   }
 
   /* --- Grid 2: COUNT/STATUS (Basketball/Baseball) --- */
   .fullscreen-grid.grid-2 .fullscreen-count,
   .fullscreen-grid.grid-2 .fullscreen-baseball-status {
-    font-size: clamp(1rem, 3vw, 1.4rem) !important;  /* ◄ Count/status size */
+    font-size: clamp(1rem, 3vw, 1.4rem) !important;
+    /* ◄ Count/status size */
     gap: 12px !important;
   }
 
   /* --- Grid 2: BASEBALL DIAMOND --- */
   .fullscreen-grid.grid-2 .fullscreen-diamond-container svg {
-    width: clamp(50px, 12vw, 70px) !important;   /* ◄ Diamond width */
-    height: clamp(50px, 12vw, 70px) !important;  /* ◄ Diamond height */
+    width: clamp(50px, 12vw, 70px) !important;
+    /* ◄ Diamond width */
+    height: clamp(50px, 12vw, 70px) !important;
+    /* ◄ Diamond height */
   }
 
   /* --- Grid 2: TEAMS CONTAINER --- */
   .fullscreen-grid.grid-2 .fullscreen-teams {
-    gap: clamp(15px, 3vh, 25px) !important;  /* ◄ Teams gap */
+    gap: clamp(15px, 3vh, 25px) !important;
+    /* ◄ Teams gap */
   }
 
   /* --- Grid 2: TEAM ELEMENT --- */
   .fullscreen-grid.grid-2 .fullscreen-team {
-    gap: clamp(8px, 2vw, 15px) !important;  /* ◄ Team element gap */
+    gap: clamp(8px, 2vw, 15px) !important;
+    /* ◄ Team element gap */
   }
 
   /* --- Grid 2: TEAM HEADER --- */
   .fullscreen-grid.grid-2 .fullscreen-team-header {
-    gap: clamp(10px, 3vw, 18px) !important;  /* ◄ Team header gap */
+    gap: clamp(10px, 3vw, 18px) !important;
+    /* ◄ Team header gap */
   }
 
   /* ════════════════════════════════════════════════════════════════════════════════
@@ -313,7 +385,8 @@
   .fullscreen-grid.grid-3 {
     grid-template-columns: 1fr !important;
     grid-template-rows: repeat(3, 1fr) !important;
-    padding: 8px !important;                 /* ◄ Container padding */
+    padding: 8px !important;
+    /* ◄ Container padding */
   }
 
   /* --- Grid 3: GAME CARD --- */
@@ -321,53 +394,67 @@
     width: 100% !important;
     height: 100% !important;
     min-height: calc((100vh - 32px) / 3) !important;
-    min-height: calc((100dvh - 32px) / 3) !important;  /* ◄ Card min height */
+    min-height: calc((100dvh - 32px) / 3) !important;
+    /* ◄ Card min height */
   }
 
   /* --- Grid 3: TEAM LOGO --- */
   .fullscreen-grid.grid-3 .fullscreen-team-logo {
-    width: 45px !important;   /* ◄ Logo width */
-    height: 45px !important;  /* ◄ Logo height */
+    width: 45px !important;
+    /* ◄ Logo width */
+    height: 45px !important;
+    /* ◄ Logo height */
   }
 
   /* --- Grid 3: TEAM NAME --- */
   .fullscreen-grid.grid-3 .fullscreen-team-name {
-    font-size: 16px !important;  /* ◄ Team name size */
+    font-size: 16px !important;
+    /* ◄ Team name size */
   }
 
   /* --- Grid 3: TEAM SCORE --- */
   .fullscreen-grid.grid-3 .fullscreen-score {
-    font-size: 42px !important;  /* ◄ Score size */
+    font-size: 42px !important;
+    /* ◄ Score size */
   }
 
   /* --- Grid 3: TEAM RECORD --- */
   .fullscreen-grid.grid-3 .fullscreen-team-record {
-    font-size: 11px !important;  /* ◄ Record size */
+    font-size: 11px !important;
+    /* ◄ Record size */
   }
 
   /* --- Grid 3: STATUS (Quarter/Period/Inning) --- */
   .fullscreen-grid.grid-3 .fullscreen-quarter,
   .fullscreen-grid.grid-3 .fullscreen-inning {
-    font-size: 13px !important;    /* ◄ Status size */
-    padding: 5px 10px !important;  /* ◄ Status padding */
+    font-size: 13px !important;
+    /* ◄ Status size */
+    padding: 5px 10px !important;
+    /* ◄ Status padding */
   }
 
   /* --- Grid 3: VS DIVIDER --- */
   .fullscreen-grid.grid-3 .fullscreen-vs {
-    font-size: 14px !important;  /* ◄ VS text size */
-    margin: 8px 0 !important;    /* ◄ VS margin */
+    font-size: 14px !important;
+    /* ◄ VS text size */
+    margin: 8px 0 !important;
+    /* ◄ VS margin */
   }
 
   /* --- Grid 3: SPORT LOGO --- */
   .fullscreen-grid.grid-3 .sport-logo-indicator {
-    width: 35px !important;   /* ◄ Sport logo width */
-    height: 35px !important;  /* ◄ Sport logo height */
+    width: 35px !important;
+    /* ◄ Sport logo width */
+    height: 35px !important;
+    /* ◄ Sport logo height */
   }
 
   /* --- Grid 3: DOWN & DISTANCE (Football) --- */
   .fullscreen-grid.grid-3 .fullscreen-down-distance {
-    font-size: 13px !important;    /* ◄ Down/distance size */
-    padding: 5px 10px !important;  /* ◄ Down/distance padding */
+    font-size: 13px !important;
+    /* ◄ Down/distance size */
+    padding: 5px 10px !important;
+    /* ◄ Down/distance padding */
   }
 
   /* ════════════════════════════════════════════════════════════════════════════════
@@ -378,7 +465,8 @@
   .fullscreen-grid.grid-4 {
     grid-template-columns: repeat(2, 1fr) !important;
     grid-template-rows: repeat(2, 1fr) !important;
-    padding: 8px !important;  /* ◄ Container padding */
+    padding: 8px !important;
+    /* ◄ Container padding */
   }
 
   /* --- Grid 4: GAME CARD --- */
@@ -386,7 +474,8 @@
     width: 100% !important;
     height: 100% !important;
     min-height: calc((100vh - 24px) / 2) !important;
-    min-height: calc((100dvh - 24px) / 2) !important;  /* ◄ Card min height */
+    min-height: calc((100dvh - 24px) / 2) !important;
+    /* ◄ Card min height */
   }
 
   /* ════════════════════════════════════════════════════════════════════════════════
@@ -397,7 +486,8 @@
   .fullscreen-grid.grid-6 {
     grid-template-columns: repeat(2, 1fr) !important;
     grid-template-rows: repeat(3, 1fr) !important;
-    padding: 8px !important;  /* ◄ Container padding */
+    padding: 8px !important;
+    /* ◄ Container padding */
   }
 
   /* --- Grid 6: GAME CARD --- */
@@ -405,7 +495,8 @@
     width: 100% !important;
     height: 100% !important;
     min-height: calc((100vh - 32px) / 3) !important;
-    min-height: calc((100dvh - 32px) / 3) !important;  /* ◄ Card min height */
+    min-height: calc((100dvh - 32px) / 3) !important;
+    /* ◄ Card min height */
   }
 
   /* ════════════════════════════════════════════════════════════════════════════════
@@ -414,8 +505,10 @@
 
   /* --- COMMON: GAME CARD STYLING --- */
   .fullscreen-game-card {
-    padding: 12px !important;           /* ◄ Default card padding */
-    border-radius: 12px !important;     /* ◄ Default card border radius */
+    padding: 12px !important;
+    /* ◄ Default card padding */
+    border-radius: 12px !important;
+    /* ◄ Default card border radius */
     border-width: 2px !important;
     font-size: 12px !important;
     display: flex !important;
@@ -427,114 +520,146 @@
 
   /* --- COMMON: TEAM LOGO (Default) --- */
   .fullscreen-team-logo {
-    width: 35px !important;   /* ◄ Default logo width */
-    height: 35px !important;  /* ◄ Default logo height */
+    width: 35px !important;
+    /* ◄ Default logo width */
+    height: 35px !important;
+    /* ◄ Default logo height */
   }
 
   /* --- COMMON: TEAM NAME (Default) --- */
   .fullscreen-team-name {
-    font-size: 14px !important;  /* ◄ Default team name size */
+    font-size: 14px !important;
+    /* ◄ Default team name size */
   }
 
   /* --- COMMON: TEAM SCORE (Default) --- */
   .fullscreen-score {
-    font-size: 32px !important;  /* ◄ Default score size */
+    font-size: 32px !important;
+    /* ◄ Default score size */
   }
 
   /* --- COMMON: STATUS (Default) --- */
   .fullscreen-quarter,
   .fullscreen-inning {
-    font-size: 11px !important;   /* ◄ Default status size */
-    padding: 4px 8px !important;  /* ◄ Default status padding */
+    font-size: 11px !important;
+    /* ◄ Default status size */
+    padding: 4px 8px !important;
+    /* ◄ Default status padding */
   }
 
   /* --- COMMON: VS DIVIDER (Default) --- */
   .fullscreen-vs {
-    font-size: 12px !important;  /* ◄ Default VS size */
-    margin: 6px 0 !important;    /* ◄ Default VS margin */
+    font-size: 12px !important;
+    /* ◄ Default VS size */
+    margin: 6px 0 !important;
+    /* ◄ Default VS margin */
   }
 
   /* --- COMMON: SPORT LOGO (Default) --- */
   .sport-logo-indicator {
-    width: 30px !important;   /* ◄ Default sport logo width */
-    height: 30px !important;  /* ◄ Default sport logo height */
-    top: 8px !important;      /* ◄ Default sport logo top position */
-    left: 8px !important;     /* ◄ Default sport logo left position */
+    width: 30px !important;
+    /* ◄ Default sport logo width */
+    height: 30px !important;
+    /* ◄ Default sport logo height */
+    top: 8px !important;
+    /* ◄ Default sport logo top position */
+    left: 8px !important;
+    /* ◄ Default sport logo left position */
   }
 
   /* --- COMMON: TEAM RECORD (Default) --- */
   .fullscreen-team-record {
-    font-size: 9px !important;  /* ◄ Default record size */
+    font-size: 9px !important;
+    /* ◄ Default record size */
   }
 
   /* --- COMMON: DOWN & DISTANCE (Default) --- */
   .fullscreen-down-distance {
-    font-size: 11px !important;   /* ◄ Default down/distance size */
-    padding: 4px 8px !important;  /* ◄ Default down/distance padding */
+    font-size: 11px !important;
+    /* ◄ Default down/distance size */
+    padding: 4px 8px !important;
+    /* ◄ Default down/distance padding */
   }
 
   /* --- COMMON: FIELD POSITION (Default) --- */
   .fullscreen-field-position {
-    font-size: 10px !important;  /* ◄ Default field position size */
+    font-size: 10px !important;
+    /* ◄ Default field position size */
   }
 
   /* --- COMMON: POSSESSION (Default) --- */
   .fullscreen-possession {
-    font-size: 16px !important;  /* ◄ Default possession size */
+    font-size: 16px !important;
+    /* ◄ Default possession size */
   }
 
   /* --- COMMON: TIMEOUTS (Default) --- */
   .fullscreen-timeouts {
-    gap: 3px !important;  /* ◄ Default timeout gap */
+    gap: 3px !important;
+    /* ◄ Default timeout gap */
   }
 
   .timeout-bar {
-    width: 25px !important;  /* ◄ Default timeout bar width */
-    height: 5px !important;  /* ◄ Default timeout bar height */
+    width: 25px !important;
+    /* ◄ Default timeout bar width */
+    height: 5px !important;
+    /* ◄ Default timeout bar height */
   }
 
   /* --- COMMON: COUNT/STATUS (Default) --- */
   .fullscreen-count,
   .fullscreen-baseball-status {
-    font-size: 10px !important;  /* ◄ Default count/status size */
+    font-size: 10px !important;
+    /* ◄ Default count/status size */
     gap: 6px !important;
   }
 
   /* --- COMMON: BASEBALL DIAMOND (Default) --- */
   .fullscreen-diamond-container svg {
-    width: 35px !important;   /* ◄ Default diamond width */
-    height: 35px !important;  /* ◄ Default diamond height */
+    width: 35px !important;
+    /* ◄ Default diamond width */
+    height: 35px !important;
+    /* ◄ Default diamond height */
   }
 
   /* --- COMMON: TEAMS CONTAINER (Default) --- */
   .fullscreen-teams {
-    gap: 8px !important;  /* ◄ Default teams gap */
+    gap: 8px !important;
+    /* ◄ Default teams gap */
   }
 
   /* --- COMMON: TEAM ELEMENT (Default) --- */
   .fullscreen-team {
-    gap: 6px !important;  /* ◄ Default team element gap */
+    gap: 6px !important;
+    /* ◄ Default team element gap */
   }
 
   /* --- COMMON: TEAM HEADER (Default) --- */
   .fullscreen-team-header {
-    gap: 6px !important;  /* ◄ Default team header gap */
+    gap: 6px !important;
+    /* ◄ Default team header gap */
   }
 
   /* --- COMMON: EXIT BUTTON --- */
   .exit-fullscreen-btn {
-    top: 8px !important;         /* ◄ Exit button top position */
-    right: 8px !important;       /* ◄ Exit button right position */
+    top: 8px !important;
+    /* ◄ Exit button top position */
+    right: 8px !important;
+    /* ◄ Exit button right position */
     padding: 8px 12px !important;
     font-size: 12px !important;
   }
 
   /* --- COMMON: REFRESH INDICATOR --- */
   .fullscreen-refresh-indicator {
-    top: 8px !important;     /* ◄ Refresh indicator top position */
-    right: 50px !important;  /* ◄ Refresh indicator right position */
-    width: 20px !important;  /* ◄ Refresh indicator width */
-    height: 20px !important; /* ◄ Refresh indicator height */
+    top: 8px !important;
+    /* ◄ Refresh indicator top position */
+    right: 50px !important;
+    /* ◄ Refresh indicator right position */
+    width: 20px !important;
+    /* ◄ Refresh indicator width */
+    height: 20px !important;
+    /* ◄ Refresh indicator height */
   }
 
   /* --- COMMON: GAME SELECTOR (Hidden) --- */
@@ -551,11 +676,13 @@
 
   /* --- COMMON: GAME SELECTOR TEXT --- */
   .fs-game-selector-text {
-    font-size: 12px !important;  /* ◄ Selector text size */
+    font-size: 12px !important;
+    /* ◄ Selector text size */
   }
 
   .fullscreen-grid.grid-1 .fs-game-selector-text {
-    font-size: 16px !important;  /* ◄ Grid 1 selector text size */
+    font-size: 16px !important;
+    /* ◄ Grid 1 selector text size */
   }
 }
 
@@ -604,24 +731,30 @@
 
   /* --- Landscape: GAME CARD --- */
   .fullscreen-game-card {
-    padding: 15px !important;    /* ◄ Landscape card padding */
-    font-size: 13px !important;  /* ◄ Landscape card font size */
+    padding: 15px !important;
+    /* ◄ Landscape card padding */
+    font-size: 13px !important;
+    /* ◄ Landscape card font size */
   }
 
   /* --- Landscape: TEAM LOGO --- */
   .fullscreen-team-logo {
-    width: 40px !important;   /* ◄ Landscape logo width */
-    height: 40px !important;  /* ◄ Landscape logo height */
+    width: 40px !important;
+    /* ◄ Landscape logo width */
+    height: 40px !important;
+    /* ◄ Landscape logo height */
   }
 
   /* --- Landscape: TEAM NAME --- */
   .fullscreen-team-name {
-    font-size: 15px !important;  /* ◄ Landscape team name size */
+    font-size: 15px !important;
+    /* ◄ Landscape team name size */
   }
 
   /* --- Landscape: TEAM SCORE --- */
   .fullscreen-score {
-    font-size: 36px !important;  /* ◄ Landscape score size */
+    font-size: 36px !important;
+    /* ◄ Landscape score size */
   }
 }
 
@@ -903,63 +1036,74 @@ body.tv-mode .fullscreen-grid.grid-8 .sport-logo-indicator {
   }
 
   /* --- TV WebView: Grid 6 = 3x2 grid (optimized for 960x540) --- */
-  body.tv-mode .fullscreen-grid.grid-6 {
-    grid-template-columns: repeat(3, 1fr) !important;
-    grid-template-rows: repeat(2, 1fr) !important;
-    padding: 10px !important;
-    gap: 10px !important;
-    height: 100% !important;
+  /* Each card is approx 300x250px - use smaller values to fit content */
+  .fullscreen-grid.grid-6 {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    padding: 6px;
+    gap: 6px;
+    height: 100%;
   }
 
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-game-card {
-    padding: 12px !important;
-    border-radius: 8px !important;
-    min-height: 0 !important;
-    height: 100% !important;
+  .fullscreen-grid.grid-6 .fullscreen-game-card {
+    padding: 6px;
+    border-radius: 6px;
+    border-width: 2px;
   }
 
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-team-logo {
-    width: 38px !important;
-    height: 38px !important;
+  .fullscreen-grid.grid-6 .fullscreen-team-logo {
+    width: 24px;
+    height: 24px;
   }
 
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-score {
-    font-size: 2rem !important;
+  .fullscreen-grid.grid-6 .fullscreen-team-score {
+    font-size: 1.2rem;
+    min-width: 20px;
   }
 
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-team-name,
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-live-team-name {
-    font-size: 0.9rem !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 100px !important;
+  .fullscreen-grid.grid-6 .fullscreen-live-team-name {
+    font-size: 0.65rem;
+    padding: 2px 4px;
   }
 
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-quarter,
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-status-text {
-    font-size: 0.85rem !important;
-    padding: 4px 10px !important;
+  .fullscreen-grid.grid-6 .fullscreen-quarter,
+  .fullscreen-grid.grid-6 .fullscreen-status-text {
+    font-size: 0.7rem;
+    padding: 2px 6px;
   }
 
-  body.tv-mode .fullscreen-grid.grid-6 .sport-logo-indicator {
-    width: 28px !important;
-    height: 28px !important;
-    top: 6px !important;
-    left: 6px !important;
+  .fullscreen-grid.grid-6 .sport-logo-indicator {
+    width: 20px;
+    height: 20px;
+    top: 4px;
+    left: 4px;
   }
 
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-team-record {
-    font-size: 0.7rem !important;
+  .fullscreen-grid.grid-6 .fullscreen-team-record {
+    display: none;
   }
 
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-situation-info {
-    font-size: 0.75rem !important;
+  .fullscreen-grid.grid-6 .fullscreen-team-stack {
+    gap: 2px;
   }
 
-  body.tv-mode .fullscreen-grid.grid-6 .fullscreen-down-distance {
-    font-size: 0.8rem !important;
-    padding: 3px 8px !important;
+  .fullscreen-grid.grid-6 .fullscreen-teams {
+    gap: 4px;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-vs {
+    font-size: 0.6rem;
+    margin: 2px 0;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-down-distance {
+    font-size: 0.6rem;
+    padding: 2px 4px;
+  }
+
+  .fullscreen-grid.grid-6 .postseason-game-name {
+    font-size: 0.55rem;
+    margin-bottom: 2px;
   }
 
   /* --- TV WebView: Grid 8 = 4x2 grid --- */
