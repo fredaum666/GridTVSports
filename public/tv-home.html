@@ -883,9 +883,13 @@
 
             // Check for existing session
             sessionToken = localStorage.getItem('gridtv_session_token');
+            console.log('Init - deviceId:', deviceId?.substring(0, 8), 'sessionToken:', sessionToken ? 'exists' : 'none', 'returnToMenu:', returnToMenu);
+
             if (sessionToken) {
+                console.log('Found existing session token, validating...');
                 const valid = await validateExistingSession();
                 if (valid) {
+                    console.log('Session is valid, showing home screen');
                     // Clean up URL if we had menu=1 parameter
                     if (returnToMenu) {
                         history.replaceState({}, '', '/tv-home');
@@ -893,9 +897,12 @@
                     showHomeScreen();
                     return;
                 } else {
+                    console.log('Session is invalid, clearing token');
                     localStorage.removeItem('gridtv_session_token');
                     sessionToken = null;
                 }
+            } else {
+                console.log('No session token found in localStorage');
             }
 
             // If returning to menu but no valid session, still show login
@@ -915,17 +922,24 @@
         // ============================================
         async function validateExistingSession() {
             try {
+                console.log('Validating session:', { deviceId: deviceId?.substring(0, 8), hasToken: !!sessionToken });
                 const response = await fetch('/api/tv/validate-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ deviceId, sessionToken })
                 });
 
+                console.log('Validation response status:', response.status);
+
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('Session valid for:', data.userEmail || data.displayName);
                     document.getElementById('logged-in-user').textContent = data.userEmail || data.displayName || 'User';
                     return true;
                 }
+
+                const errorData = await response.json().catch(() => ({}));
+                console.log('Session invalid:', errorData.error || response.status);
                 return false;
             } catch (error) {
                 console.error('Session validation error:', error);
@@ -1297,9 +1311,17 @@
             });
 
             socket.on('tv:auth-approved', (data) => {
-                console.log('TV authenticated!', data);
-                sessionToken = data.sessionToken;
-                localStorage.setItem('gridtv_session_token', sessionToken);
+                console.log('TV authenticated via socket!', data);
+                console.log('Received sessionToken:', data.sessionToken ? 'yes' : 'NO TOKEN!');
+
+                if (data.sessionToken) {
+                    sessionToken = data.sessionToken;
+                    localStorage.setItem('gridtv_session_token', sessionToken);
+                    console.log('Session token saved to localStorage');
+                } else {
+                    console.error('ERROR: No sessionToken received from auth-approved event!');
+                }
+
                 document.getElementById('logged-in-user').textContent = data.userEmail || data.displayName || 'User';
 
                 const statusDiv = document.getElementById('login-qr-status');
@@ -1320,8 +1342,17 @@
 
                 socket.emit('tv:check-auth-status', { token: qrToken }, (response) => {
                     if (response.success && response.status === 'approved') {
-                        sessionToken = response.sessionToken;
-                        localStorage.setItem('gridtv_session_token', sessionToken);
+                        console.log('TV authenticated via polling!', response);
+                        console.log('Received sessionToken from poll:', response.sessionToken ? 'yes' : 'NO TOKEN!');
+
+                        if (response.sessionToken) {
+                            sessionToken = response.sessionToken;
+                            localStorage.setItem('gridtv_session_token', sessionToken);
+                            console.log('Session token saved to localStorage (via polling)');
+                        } else {
+                            console.error('ERROR: No sessionToken received from polling!');
+                        }
+
                         document.getElementById('logged-in-user').textContent = response.userEmail || response.displayName || 'User';
 
                         const statusDiv = document.getElementById('login-qr-status');
