@@ -3932,6 +3932,72 @@
       }
     }
 
+    /* ================================ */
+    /* ANDROID TV WEBVIEW VIEWPORT      */
+    /* WebView uses CSS pixels (~960x540 for 4K TVs) */
+    /* ================================ */
+    @media screen and (min-width: 900px) and (max-width: 1100px) and (min-height: 480px) and (max-height: 600px) {
+      body.tv-mode .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+        gap: 12px !important;
+        padding: 10px 15px !important;
+      }
+
+      body.tv-mode .game-card {
+        border-radius: 8px !important;
+      }
+
+      body.tv-mode .team-row {
+        padding: 10px 12px !important;
+      }
+
+      body.tv-mode .team-logo {
+        width: 35px !important;
+        height: 35px !important;
+      }
+
+      body.tv-mode .team-name {
+        font-size: 13px !important;
+      }
+
+      body.tv-mode .team-record {
+        font-size: 9px !important;
+      }
+
+      body.tv-mode .team-score {
+        font-size: 22px !important;
+      }
+
+      body.tv-mode .game-status-bar {
+        padding: 6px 12px !important;
+      }
+
+      body.tv-mode .game-status-bar .status-text {
+        font-size: 11px !important;
+      }
+
+      body.tv-mode .games-header {
+        padding: 10px 15px !important;
+      }
+
+      body.tv-mode .games-header h1 {
+        font-size: 18px !important;
+      }
+
+      body.tv-mode .tv-back-btn {
+        font-size: 12px !important;
+        padding: 8px 14px !important;
+      }
+
+      body.tv-mode .fullscreen-container {
+        padding: 0 !important;
+      }
+
+      body.tv-mode .fullscreen-game-card {
+        border-radius: 8px !important;
+      }
+    }
+
     /* TV Mode - Force horizontal grid layouts (3x2 for 6 games, 4x2 for 8 games) */
     /* This overrides mobile/tablet media queries when in TV mode */
     body.tv-mode .fullscreen-grid.grid-6 {
