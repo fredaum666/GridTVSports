@@ -672,6 +672,233 @@
             }
         }
 
+        /* ================================ */
+        /* ANDROID TV WEBVIEW VIEWPORT      */
+        /* WebView uses CSS pixels (~960x540 for 4K) */
+        /* ================================ */
+        @media screen and (min-width: 900px) and (max-width: 1100px) and (min-height: 480px) and (max-height: 600px) {
+            .tv-home {
+                padding: 15px 25px;
+            }
+
+            .tv-header {
+                margin-bottom: 15px;
+            }
+
+            .tv-logo img {
+                height: 35px;
+            }
+
+            .tv-logo h1 {
+                font-size: 22px;
+            }
+
+            .tv-time {
+                font-size: 16px;
+            }
+
+            .tv-user-info {
+                font-size: 12px;
+                gap: 10px;
+            }
+
+            .section-title {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+            .league-grid {
+                gap: 12px;
+            }
+
+            .league-card {
+                width: 140px;
+                height: 100px;
+                border-radius: 10px;
+                padding: 12px;
+                border-width: 2px;
+            }
+
+            .league-card.focused {
+                transform: scale(1.03);
+                box-shadow: 0 0 25px rgba(99, 102, 241, 0.4);
+            }
+
+            .league-card img {
+                height: 40px;
+            }
+
+            .league-card .league-name {
+                font-size: 13px;
+            }
+
+            .league-card .league-status {
+                font-size: 9px;
+                bottom: 6px;
+            }
+
+            .league-card .live-badge {
+                font-size: 8px;
+                padding: 2px 5px;
+                top: 5px;
+                right: 5px;
+            }
+
+            .special-grid {
+                gap: 12px;
+                margin-top: 10px;
+            }
+
+            .special-card {
+                height: 60px;
+                max-width: 200px;
+                border-radius: 8px;
+                padding: 0 15px;
+                border-width: 2px;
+            }
+
+            .special-card .icon {
+                font-size: 24px;
+            }
+
+            .special-card .info h3 {
+                font-size: 12px;
+                margin-bottom: 2px;
+            }
+
+            .special-card .info p {
+                font-size: 9px;
+            }
+
+            .tv-content {
+                gap: 12px;
+            }
+
+            /* Login screens for WebView viewport */
+            .login-header img {
+                height: 50px;
+            }
+
+            .login-header h1 {
+                font-size: 28px;
+            }
+
+            .login-header p {
+                font-size: 14px;
+            }
+
+            .login-options {
+                gap: 30px;
+            }
+
+            .login-option {
+                width: 220px;
+                padding: 20px;
+                border-radius: 14px;
+            }
+
+            .login-option h2 {
+                font-size: 16px;
+            }
+
+            .login-option p {
+                font-size: 11px;
+                margin-bottom: 15px;
+            }
+
+            .login-option .icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+
+            .login-divider {
+                font-size: 12px;
+            }
+
+            .login-divider::before,
+            .login-divider::after {
+                height: 50px;
+            }
+
+            /* QR Login for WebView viewport */
+            .qr-login-box {
+                width: 280px;
+                padding: 25px;
+            }
+
+            .qr-login-box h2 {
+                font-size: 20px;
+            }
+
+            .qr-login-box .subtitle {
+                font-size: 12px;
+                margin-bottom: 15px;
+            }
+
+            .qr-container {
+                padding: 12px;
+            }
+
+            .qr-container canvas,
+            .qr-container img {
+                width: 130px !important;
+                height: 130px !important;
+            }
+
+            .qr-timer {
+                font-size: 11px;
+                margin-top: 8px;
+            }
+
+            .qr-status {
+                font-size: 11px;
+                padding: 6px 12px;
+                margin-top: 10px;
+            }
+
+            /* Password login for WebView viewport */
+            .login-form {
+                width: 280px;
+                padding: 25px;
+            }
+
+            .login-form h2 {
+                font-size: 20px;
+            }
+
+            .login-form .subtitle {
+                font-size: 11px;
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 12px;
+            }
+
+            .form-group label {
+                font-size: 11px;
+                margin-bottom: 5px;
+            }
+
+            .form-group input {
+                padding: 10px 12px;
+                font-size: 13px;
+                border-radius: 6px;
+            }
+
+            .login-btn {
+                padding: 12px;
+                font-size: 14px;
+                margin-top: 10px;
+            }
+
+            .back-link {
+                font-size: 12px;
+                margin-top: 15px;
+                padding: 8px 16px;
+            }
+        }
+
         /* CSS for iframe/back button removed - now using direct navigation */
     </style>
 </head>

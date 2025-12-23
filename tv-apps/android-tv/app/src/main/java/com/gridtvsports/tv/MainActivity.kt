@@ -2,6 +2,7 @@ package com.gridtvsports.tv
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -58,6 +59,19 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
+        // Get actual screen metrics
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getRealMetrics(displayMetrics)
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+        val density = displayMetrics.density
+
+        Log.d("MainActivity", "Screen: ${screenWidth}x${screenHeight}, Density: $density, DPI: ${displayMetrics.densityDpi}")
+        Log.d("MainActivity", "CSS Viewport will be: ${(screenWidth / density).toInt()}x${(screenHeight / density).toInt()}")
+
+        // Enable WebView debugging
+        WebView.setWebContentsDebuggingEnabled(true)
+
         webView.settings.apply {
             // Enable JavaScript (required for the app)
             javaScriptEnabled = true
@@ -71,18 +85,21 @@ class MainActivity : AppCompatActivity() {
             // Allow media playback
             mediaPlaybackRequiresUserGesture = false
 
-            // TV viewport settings - use actual screen dimensions
-            useWideViewPort = false  // Don't use wide viewport meta tag
-            loadWithOverviewMode = false  // Don't zoom out to fit
-            layoutAlgorithm = WebSettings.LayoutAlgorithm.NORMAL  // Normal layout, no text autosizing
+            // CRITICAL: Enable wide viewport to allow custom viewport width
+            // This makes the WebView respect the viewport meta tag width value
+            useWideViewPort = true
+            loadWithOverviewMode = true
 
-            // Enable zoom controls (disabled for TV)
+            // Disable text auto-sizing
+            textZoom = 100
+
+            // Disable zoom for TV
             setSupportZoom(false)
             builtInZoomControls = false
             displayZoomControls = false
 
-            // Set user agent to identify as TV app
-            userAgentString = "$userAgentString GridTVSports-AndroidTV/1.0"
+            // Set user agent to identify as TV app with actual screen resolution
+            userAgentString = "$userAgentString GridTVSports-AndroidTV/1.0 TVScreen/${screenWidth}x${screenHeight}"
 
             // Allow mixed content (http resources on https page)
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
@@ -91,10 +108,23 @@ class MainActivity : AppCompatActivity() {
             databaseEnabled = true
         }
 
+        // Set initial scale to 100% (no zoom)
+        webView.setInitialScale(100)
+
+        Log.d("MainActivity", "WebView configured for TV mode")
+
         // Handle page loading
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                // Log viewport info for debugging
+                view?.evaluateJavascript("""
+                    (function() {
+                        console.log('📺 TV App - Viewport: ' + window.innerWidth + 'x' + window.innerHeight);
+                        console.log('📺 TV App - Screen: ' + screen.width + 'x' + screen.height);
+                        console.log('📺 TV App - DevicePixelRatio: ' + window.devicePixelRatio);
+                    })();
+                """.trimIndent(), null)
                 hideLoading()
             }
 
@@ -129,6 +159,8 @@ class MainActivity : AppCompatActivity() {
     private fun loadTVHome() {
         showLoading()
         Log.d("MainActivity", "Loading URL: $TV_HOME_URL")
+
+        // Simply load the URL directly - the web page handles TV detection
         webView.loadUrl(TV_HOME_URL)
     }
 
