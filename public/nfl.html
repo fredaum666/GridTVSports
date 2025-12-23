@@ -6392,6 +6392,10 @@
 <body>
   <script>
     // Detect TV mode from URL parameter or user agent
+    // Also store TV session token for authenticated API calls
+    window.tvSessionToken = null;
+    window.isTVMode = false;
+
     (function() {
       const urlParams = new URLSearchParams(window.location.search);
       const isTV = urlParams.get('tv') === '1' ||
@@ -6403,6 +6407,10 @@
                    navigator.userAgent.includes('Web0S') ||
                    navigator.userAgent.includes('Tizen') ||
                    navigator.userAgent.includes('GridTVSports-AndroidTV');
+
+      // Store TV session token for API authentication
+      window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
+      window.isTVMode = isTV;
 
       // Debug: Log viewport info
       console.log('TV Mode Detection:', {
@@ -6455,6 +6463,15 @@
         });
       }
     })();
+
+    // TV-aware fetch wrapper - adds authentication header for TV mode
+    window.tvFetch = function(url, options = {}) {
+      if (window.isTVMode && window.tvSessionToken) {
+        options.headers = options.headers || {};
+        options.headers['x-tv-session'] = window.tvSessionToken;
+      }
+      return fetch(url, options);
+    };
   </script>
   <!-- Orientation Lock Overlays -->
   <div class="orientation-overlay portrait-required">
@@ -6646,7 +6663,7 @@
     // Fetch user's favorite teams
     async function fetchFavoriteTeams() {
       try {
-        const response = await fetch('/api/favorites');
+        const response = await tvFetch('/api/favorites');
         if (response.ok) {
           const data = await response.json();
           // Filter for NFL teams and store team IDs
@@ -6763,7 +6780,7 @@
       try {
         // Fetch current week/postseason info from server
         try {
-          const weekResponse = await fetch('/api/nfl/current-week');
+          const weekResponse = await tvFetch('/api/nfl/current-week');
           const weekData = await weekResponse.json();
           currentWeek = weekData.week;
           isPostseason = weekData.isPostseason || false;
@@ -6783,13 +6800,13 @@
           // Postseason - fetch current round games
           // Also fetch next round if available (week 1->2, 2->3, 3->5 skip Pro Bowl)
           console.log(`🏈 Fetching NFL ${postseasonRound} games...`);
-          currentWeekResponse = await fetch(`/api/nfl/scoreboard?week=playoffs&seasontype=${currentWeek}`);
+          currentWeekResponse = await tvFetch(`/api/nfl/scoreboard?week=playoffs&seasontype=${currentWeek}`);
 
           // Fetch next postseason round
           let nextRoundWeek = currentWeek + 1;
           if (nextRoundWeek === 4) nextRoundWeek = 5; // Skip Pro Bowl
           if (nextRoundWeek <= 5) {
-            nextWeekResponse = await fetch(`/api/nfl/scoreboard?week=playoffs&seasontype=${nextRoundWeek}`);
+            nextWeekResponse = await tvFetch(`/api/nfl/scoreboard?week=playoffs&seasontype=${nextRoundWeek}`);
           } else {
             nextWeekResponse = { ok: false };
           }
@@ -7535,7 +7552,7 @@
       try {
         console.log('📊 Loading win probability for game:', gameId);
         // Use comprehensive game summary with win probability for every play
-        const response = await fetch(`/api/nfl/summary/${gameId}`);
+        const response = await tvFetch(`/api/nfl/summary/${gameId}`);
 
         if (!response.ok) {
           throw new Error(`Failed to fetch game summary: ${response.status}`);
@@ -7669,7 +7686,7 @@
         console.log('📊 Loading game stats for:', gameId);
 
         // Fetch comprehensive game summary (includes leaders, team stats, everything)
-        const summaryResponse = await fetch(`/api/nfl/summary/${gameId}`);
+        const summaryResponse = await tvFetch(`/api/nfl/summary/${gameId}`);
         const gameSummary = await summaryResponse.json();
 
         console.log('NFL Game Summary:', gameSummary);
@@ -7879,7 +7896,7 @@
     async function loadPlays(gameId) {
       try {
         currentGameId = gameId;
-        const response = await fetch(`/api/nfl/summary/${gameId}`);
+        const response = await tvFetch(`/api/nfl/summary/${gameId}`);
         if (!response.ok) throw new Error('Failed to fetch plays');
 
         const data = await response.json();
@@ -8039,7 +8056,7 @@
 
     async function loadBoxScore(gameId, awayTeam, homeTeam) {
       try {
-        const response = await fetch(`/api/nfl/summary/${gameId}`);
+        const response = await tvFetch(`/api/nfl/summary/${gameId}`);
         if (!response.ok) throw new Error('Failed to fetch box score');
 
         const data = await response.json();
@@ -8186,7 +8203,7 @@
         console.log('📊 Loading predictions for game:', gameId, 'Home:', homeTeam, 'Away:', awayTeam);
 
         // Fetch predictor data from ESPN API
-        const response = await fetch(`/api/nfl/summary/${gameId}`);
+        const response = await tvFetch(`/api/nfl/summary/${gameId}`);
 
         if (!response.ok) {
           throw new Error('Predictor data not available');
@@ -8450,7 +8467,7 @@
     // Fetch bracket data from API
     async function fetchBracketData() {
       try {
-        const response = await fetch('/api/nfl/playoff-bracket');
+        const response = await tvFetch('/api/nfl/playoff-bracket');
         if (!response.ok) throw new Error('Failed to fetch bracket');
         bracketData = await response.json();
         return bracketData;
@@ -9186,7 +9203,7 @@
     // Fetch subscription access permissions
     async function fetchAccessPermissions() {
       try {
-        const response = await fetch('/api/subscription/access');
+        const response = await tvFetch('/api/subscription/access');
         if (response.ok) {
           const accessData = await response.json();
           allowedGrids = accessData.allowedGrids || [1, 2, 4, 6];
@@ -9460,7 +9477,7 @@
       // Start session keep-alive every 2 minutes to prevent session expiration
       sessionKeepAliveInterval = setInterval(async () => {
         try {
-          const response = await fetch('/api/auth/check');
+          const response = await tvFetch('/api/auth/check');
           if (!response.ok) {
             console.log('Session expired during fullscreen, redirecting to login...');
             window.location.href = '/login';
@@ -10246,11 +10263,11 @@
 
         if (isPostseason) {
           // Postseason - fetch current round and next round
-          currentWeekResponse = await fetch(`/api/nfl/scoreboard?week=playoffs&seasontype=${currentWeek}`);
+          currentWeekResponse = await tvFetch(`/api/nfl/scoreboard?week=playoffs&seasontype=${currentWeek}`);
           let nextRoundWeek = currentWeek + 1;
           if (nextRoundWeek === 4) nextRoundWeek = 5; // Skip Pro Bowl
           if (nextRoundWeek <= 5) {
-            nextWeekResponse = await fetch(`/api/nfl/scoreboard?week=playoffs&seasontype=${nextRoundWeek}`);
+            nextWeekResponse = await tvFetch(`/api/nfl/scoreboard?week=playoffs&seasontype=${nextRoundWeek}`);
           } else {
             nextWeekResponse = { ok: false };
           }

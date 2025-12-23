@@ -3372,6 +3372,10 @@
 <body>
   <!-- TV Mode Detection - Add tv-mode class for Android TV/Fire TV -->
   <script>
+    // Also store TV session token for authenticated API calls
+    window.tvSessionToken = null;
+    window.isTVMode = false;
+
     (function() {
       const urlParams = new URLSearchParams(window.location.search);
       const isTV = urlParams.get('tv') === '1' ||
@@ -3379,6 +3383,11 @@
                    navigator.userAgent.includes('FireTV') ||
                    navigator.userAgent.includes('GridTVSports-AndroidTV') ||
                    window.self !== window.top; // iframe detection for TV home
+
+      // Store TV session token for API authentication
+      window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
+      window.isTVMode = isTV;
+
       if (isTV) {
         document.body.classList.add('tv-mode');
 
@@ -3400,6 +3409,15 @@
         });
       }
     })();
+
+    // TV-aware fetch wrapper - adds authentication header for TV mode
+    window.tvFetch = function(url, options = {}) {
+      if (window.isTVMode && window.tvSessionToken) {
+        options.headers = options.headers || {};
+        options.headers['x-tv-session'] = window.tvSessionToken;
+      }
+      return fetch(url, options);
+    };
   </script>
   <!-- Orientation Lock Overlays -->
   <div class="orientation-overlay portrait-required">
@@ -3484,7 +3502,7 @@
     // Fetch user's favorite teams
     async function fetchFavoriteTeams() {
       try {
-        const response = await fetch('/api/favorites');
+        const response = await tvFetch('/api/favorites');
         if (response.ok) {
           const data = await response.json();
           // Filter for NCAAB teams and store team IDs
@@ -3601,7 +3619,7 @@
         console.log(`🔍 Fetching College Basketball games...`);
         
         // Fetch FULL data from our backend which calls ESPN API
-        const response = await fetch(`/api/ncaab/scoreboard`);
+        const response = await tvFetch(`/api/ncaab/scoreboard`);
 
         // Check for session expiration (401)
         if (response.status === 401) {
@@ -4233,7 +4251,7 @@
         console.log('📊 Loading game stats for:', gameId);
         
         // Fetch comprehensive game summary (includes leaders, team stats, everything)
-        const summaryResponse = await fetch(`/api/ncaab/summary/${gameId}`);
+        const summaryResponse = await tvFetch(`/api/ncaab/summary/${gameId}`);
         const gameSummary = await summaryResponse.json();
         
         console.log('NFL Game Summary:', gameSummary);
@@ -4443,7 +4461,7 @@
     async function loadPlays(gameId) {
       try {
         currentGameId = gameId;
-        const response = await fetch(`/api/ncaab/summary/${gameId}`);
+        const response = await tvFetch(`/api/ncaab/summary/${gameId}`);
         if (!response.ok) throw new Error('Failed to fetch plays');
 
         const data = await response.json();
@@ -4603,7 +4621,7 @@
 
     async function loadBoxScore(gameId, awayTeam, homeTeam) {
       try {
-        const response = await fetch(`/api/ncaab/summary/${gameId}`);
+        const response = await tvFetch(`/api/ncaab/summary/${gameId}`);
         if (!response.ok) throw new Error('Failed to fetch box score');
 
         const data = await response.json();
@@ -4750,7 +4768,7 @@
         console.log('📊 Loading predictions for game:', gameId, 'Home:', homeTeam, 'Away:', awayTeam);
         
         // Fetch predictor data from ESPN API
-        const response = await fetch(`/api/ncaab/summary/${gameId}`);
+        const response = await tvFetch(`/api/ncaab/summary/${gameId}`);
         
         if (!response.ok) {
           throw new Error('Predictor data not available');
@@ -5176,7 +5194,7 @@
       // Start session keep-alive every 2 minutes to prevent session expiration
       sessionKeepAliveInterval = setInterval(async () => {
         try {
-          const response = await fetch('/api/auth/check');
+          const response = await tvFetch('/api/auth/check');
           if (!response.ok) {
             console.log('Session expired during fullscreen, redirecting to login...');
             window.location.href = '/login';
@@ -5856,7 +5874,7 @@
     async function updateFullScreenScores() {
       try {
         // Fetch updated game data from the same endpoint
-        const response = await fetch(`/api/ncaab/scoreboard`);
+        const response = await tvFetch(`/api/ncaab/scoreboard`);
         if (!response.ok) {
           throw new Error(`Failed to fetch scores: ${response.status}`);
         }

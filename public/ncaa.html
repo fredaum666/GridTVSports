@@ -5440,6 +5440,10 @@
 <body>
   <script>
     // Detect TV mode from URL parameter or user agent
+    // Also store TV session token for authenticated API calls
+    window.tvSessionToken = null;
+    window.isTVMode = false;
+
     (function() {
       const urlParams = new URLSearchParams(window.location.search);
       const isTV = urlParams.get('tv') === '1' ||
@@ -5451,6 +5455,11 @@
                    navigator.userAgent.includes('Web0S') ||
                    navigator.userAgent.includes('Tizen') ||
                    navigator.userAgent.includes('GridTVSports-AndroidTV');
+
+      // Store TV session token for API authentication
+      window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
+      window.isTVMode = isTV;
+
       if (isTV) {
         document.body.classList.add('tv-mode');
 
@@ -5472,6 +5481,15 @@
         });
       }
     })();
+
+    // TV-aware fetch wrapper - adds authentication header for TV mode
+    window.tvFetch = function(url, options = {}) {
+      if (window.isTVMode && window.tvSessionToken) {
+        options.headers = options.headers || {};
+        options.headers['x-tv-session'] = window.tvSessionToken;
+      }
+      return fetch(url, options);
+    };
   </script>
   <!-- Orientation Lock Overlays -->
   <div class="orientation-overlay portrait-required">
@@ -5569,7 +5587,7 @@
     // Fetch user's favorite teams
     async function fetchFavoriteTeams() {
       try {
-        const response = await fetch('/api/favorites');
+        const response = await tvFetch('/api/favorites');
         if (response.ok) {
           const data = await response.json();
           // Filter for NCAAF teams and store team IDs
@@ -5686,7 +5704,7 @@
       try {
         // Fetch current week/bowl season info from server
         try {
-          const weekResponse = await fetch('/api/ncaa/current-week');
+          const weekResponse = await tvFetch('/api/ncaa/current-week');
           const weekData = await weekResponse.json();
           isBowlSeason = weekData.isBowlSeason || false;
           if (!isBowlSeason && typeof weekData.week === 'number') {
@@ -5704,7 +5722,7 @@
         if (isBowlSeason) {
           // Bowl season - fetch postseason games
           console.log(`🏈 Fetching NCAA Bowl Games...`);
-          currentWeekResponse = await fetch('/api/ncaa/scoreboard?week=bowl');
+          currentWeekResponse = await tvFetch('/api/ncaa/scoreboard?week=bowl');
           nextWeekResponse = { ok: false }; // No "next week" for bowl season
         } else {
           // Regular season - fetch current and next week
@@ -6437,7 +6455,7 @@
       try {
         console.log('📊 Loading win probability for game:', gameId);
         // Use comprehensive game summary with win probability for every play
-        const response = await fetch(`/api/ncaa/summary/${gameId}`);
+        const response = await tvFetch(`/api/ncaa/summary/${gameId}`);
         
         if (!response.ok) {
           throw new Error(`Failed to fetch game summary: ${response.status}`);
@@ -6571,7 +6589,7 @@
         console.log('📊 Loading game stats for:', gameId);
         
         // Fetch comprehensive game summary (includes leaders, team stats, everything)
-        const summaryResponse = await fetch(`/api/ncaa/summary/${gameId}`);
+        const summaryResponse = await tvFetch(`/api/ncaa/summary/${gameId}`);
         const gameSummary = await summaryResponse.json();
         
         console.log('NCAA Game Summary:', gameSummary);
@@ -6781,7 +6799,7 @@
     async function loadPlays(gameId) {
       try {
         currentGameId = gameId;
-        const response = await fetch(`/api/ncaa/summary/${gameId}`);
+        const response = await tvFetch(`/api/ncaa/summary/${gameId}`);
         if (!response.ok) throw new Error('Failed to fetch plays');
 
         const data = await response.json();
@@ -6941,7 +6959,7 @@
 
     async function loadBoxScore(gameId, awayTeam, homeTeam) {
       try {
-        const response = await fetch(`/api/ncaa/summary/${gameId}`);
+        const response = await tvFetch(`/api/ncaa/summary/${gameId}`);
         if (!response.ok) throw new Error('Failed to fetch box score');
 
         const data = await response.json();
@@ -7088,7 +7106,7 @@
         console.log('📊 Loading predictions for game:', gameId, 'Home:', homeTeam, 'Away:', awayTeam);
         
         // Fetch predictor data from ESPN API
-        const response = await fetch(`/api/ncaa/summary/${gameId}`);
+        const response = await tvFetch(`/api/ncaa/summary/${gameId}`);
         
         if (!response.ok) {
           throw new Error('Predictor data not available');
@@ -7239,7 +7257,7 @@
     // Fetch CFP bracket data
     async function fetchCFPBracketData() {
       try {
-        const response = await fetch('/api/ncaa/playoff-bracket');
+        const response = await tvFetch('/api/ncaa/playoff-bracket');
         if (!response.ok) throw new Error('Failed to fetch CFP bracket');
         cfpBracketData = await response.json();
         return cfpBracketData;
@@ -8195,7 +8213,7 @@
       // Start session keep-alive every 2 minutes to prevent session expiration
       sessionKeepAliveInterval = setInterval(async () => {
         try {
-          const response = await fetch('/api/auth/check');
+          const response = await tvFetch('/api/auth/check');
           if (!response.ok) {
             console.log('Session expired during fullscreen, redirecting to login...');
             window.location.href = '/login';
@@ -9016,7 +9034,7 @@
 
         if (isBowlSeason) {
           // Bowl season - fetch postseason games
-          currentWeekResponse = await fetch('/api/ncaa/scoreboard?week=bowl');
+          currentWeekResponse = await tvFetch('/api/ncaa/scoreboard?week=bowl');
           nextWeekResponse = { ok: false };
         } else {
           // Fetch updated game data from BOTH current week AND next week (same as initial fetch)

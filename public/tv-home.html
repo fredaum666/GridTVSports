@@ -1044,6 +1044,11 @@
                         <span class="league-name">NCAA Football</span>
                         <span class="league-status" id="ncaa-status">Loading...</span>
                     </div>
+                    <div class="league-card focusable" data-league="ncaab" data-url="/ncaab.html" tabindex="0">
+                        <img src="/assets/NCAA logo.png" alt="NCAA Basketball">
+                        <span class="league-name">NCAA Basketball</span>
+                        <span class="league-status" id="ncaab-status">Loading...</span>
+                    </div>
                 </div>
             </section>
 
@@ -1630,48 +1635,82 @@
                 { id: 'nba', endpoint: '/api/nba/scoreboard' },
                 { id: 'mlb', endpoint: '/api/mlb/scoreboard' },
                 { id: 'nhl', endpoint: '/api/nhl/scoreboard' },
-                { id: 'ncaa', endpoint: '/api/ncaa/scoreboard' }
+                { id: 'ncaa', endpoint: '/api/ncaa/scoreboard', hasWeekParam: true },
+                { id: 'ncaab', endpoint: '/api/ncaab/scoreboard' }
             ];
 
             for (const league of leagues) {
                 try {
-                    const response = await fetch(league.endpoint);
-                    if (response.ok) {
-                        const data = await response.json();
-                        const events = data.events || [];
+                    let events = [];
 
-                        // Count live games (in progress)
-                        const liveGames = events.filter(e => {
-                            const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
-                            return state === 'in';
-                        }).length;
+                    if (league.hasWeekParam) {
+                        // NCAA Football needs special handling - fetch current week info first
+                        try {
+                            const weekResponse = await fetch('/api/ncaa/current-week');
+                            const weekData = await weekResponse.json();
+                            const isBowlSeason = weekData.isBowlSeason || false;
+                            const currentWeek = weekData.week || 1;
 
-                        // Count upcoming games (not started yet)
-                        const upcomingGames = events.filter(e => {
-                            const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
-                            return state === 'pre';
-                        }).length;
-
-                        const statusEl = document.getElementById(`${league.id}-status`);
-                        const cardEl = statusEl?.closest('.league-card');
-
-                        if (liveGames > 0) {
-                            statusEl.textContent = `${liveGames} live now`;
-                            // Add live badge
-                            if (cardEl && !cardEl.querySelector('.live-badge')) {
-                                const badge = document.createElement('div');
-                                badge.className = 'live-badge';
-                                badge.textContent = 'LIVE';
-                                cardEl.appendChild(badge);
+                            let endpoint;
+                            if (isBowlSeason) {
+                                endpoint = '/api/ncaa/scoreboard?week=bowl';
+                            } else {
+                                endpoint = `/api/ncaa/scoreboard?week=${currentWeek}`;
                             }
-                        } else if (upcomingGames > 0) {
-                            statusEl.textContent = `${upcomingGames} games today`;
-                            // Remove live badge if exists
-                            cardEl?.querySelector('.live-badge')?.remove();
-                        } else {
-                            statusEl.textContent = 'No games today';
-                            cardEl?.querySelector('.live-badge')?.remove();
+
+                            const response = await fetch(endpoint);
+                            if (response.ok) {
+                                const data = await response.json();
+                                events = data.events || [];
+                            }
+                        } catch (weekError) {
+                            console.log('Error fetching NCAA week info:', weekError);
+                            // Fallback to default endpoint
+                            const response = await fetch(league.endpoint);
+                            if (response.ok) {
+                                const data = await response.json();
+                                events = data.events || [];
+                            }
                         }
+                    } else {
+                        const response = await fetch(league.endpoint);
+                        if (response.ok) {
+                            const data = await response.json();
+                            events = data.events || [];
+                        }
+                    }
+
+                    // Count live games (in progress)
+                    const liveGames = events.filter(e => {
+                        const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
+                        return state === 'in';
+                    }).length;
+
+                    // Count upcoming games (not started yet)
+                    const upcomingGames = events.filter(e => {
+                        const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
+                        return state === 'pre';
+                    }).length;
+
+                    const statusEl = document.getElementById(`${league.id}-status`);
+                    const cardEl = statusEl?.closest('.league-card');
+
+                    if (liveGames > 0) {
+                        statusEl.textContent = `${liveGames} live now`;
+                        // Add live badge
+                        if (cardEl && !cardEl.querySelector('.live-badge')) {
+                            const badge = document.createElement('div');
+                            badge.className = 'live-badge';
+                            badge.textContent = 'LIVE';
+                            cardEl.appendChild(badge);
+                        }
+                    } else if (upcomingGames > 0) {
+                        statusEl.textContent = `${upcomingGames} upcoming`;
+                        // Remove live badge if exists
+                        cardEl?.querySelector('.live-badge')?.remove();
+                    } else {
+                        statusEl.textContent = 'No games today';
+                        cardEl?.querySelector('.live-badge')?.remove();
                     }
                 } catch (error) {
                     console.log(`Error fetching ${league.id} status:`, error);

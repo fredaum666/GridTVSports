@@ -3719,6 +3719,10 @@
 <body>
   <script>
     // Detect TV mode from URL parameter or user agent
+    // Also store TV session token for authenticated API calls
+    window.tvSessionToken = null;
+    window.isTVMode = false;
+
     (function() {
       const urlParams = new URLSearchParams(window.location.search);
       const isTV = urlParams.get('tv') === '1' ||
@@ -3730,6 +3734,11 @@
                    navigator.userAgent.includes('Web0S') ||
                    navigator.userAgent.includes('Tizen') ||
                    navigator.userAgent.includes('GridTVSports-AndroidTV');
+
+      // Store TV session token for API authentication
+      window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
+      window.isTVMode = isTV;
+
       if (isTV) {
         document.body.classList.add('tv-mode');
 
@@ -3751,6 +3760,15 @@
         });
       }
     })();
+
+    // TV-aware fetch wrapper - adds authentication header for TV mode
+    window.tvFetch = function(url, options = {}) {
+      if (window.isTVMode && window.tvSessionToken) {
+        options.headers = options.headers || {};
+        options.headers['x-tv-session'] = window.tvSessionToken;
+      }
+      return fetch(url, options);
+    };
   </script>
   <!-- Orientation Lock Overlays -->
   <div class="orientation-overlay portrait-required">
@@ -3836,7 +3854,7 @@
     // Fetch user's favorite teams
     async function fetchFavoriteTeams() {
       try {
-        const response = await fetch('/api/favorites');
+        const response = await tvFetch('/api/favorites');
         if (response.ok) {
           const data = await response.json();
           // Filter for NBA teams and store team IDs
@@ -3953,7 +3971,7 @@
         console.log(`🔍 Fetching NBA games...`);
 
         // Fetch FULL data from our backend which calls ESPN API
-        const response = await fetch(`/api/nba/scoreboard`);
+        const response = await tvFetch(`/api/nba/scoreboard`);
 
         // Check for session expiration (401)
         if (response.status === 401) {
@@ -4586,7 +4604,7 @@
         console.log('📊 Loading game stats for:', gameId);
 
         // Fetch comprehensive game summary (includes leaders, team stats, everything)
-        const summaryResponse = await fetch(`/api/nba/summary/${gameId}`);
+        const summaryResponse = await tvFetch(`/api/nba/summary/${gameId}`);
         const gameSummary = await summaryResponse.json();
 
         console.log('NFL Game Summary:', gameSummary);
@@ -4796,7 +4814,7 @@
     async function loadPlays(gameId) {
       try {
         currentGameId = gameId;
-        const response = await fetch(`/api/nba/summary/${gameId}`);
+        const response = await tvFetch(`/api/nba/summary/${gameId}`);
         if (!response.ok) throw new Error('Failed to fetch plays');
 
         const data = await response.json();
@@ -4956,7 +4974,7 @@
 
     async function loadBoxScore(gameId, awayTeam, homeTeam) {
       try {
-        const response = await fetch(`/api/nba/summary/${gameId}`);
+        const response = await tvFetch(`/api/nba/summary/${gameId}`);
         if (!response.ok) throw new Error('Failed to fetch box score');
 
         const data = await response.json();
@@ -5103,7 +5121,7 @@
         console.log('📊 Loading predictions for game:', gameId, 'Home:', homeTeam, 'Away:', awayTeam);
 
         // Fetch predictor data from ESPN API
-        const response = await fetch(`/api/nba/summary/${gameId}`);
+        const response = await tvFetch(`/api/nba/summary/${gameId}`);
 
         if (!response.ok) {
           throw new Error('Predictor data not available');
@@ -5323,7 +5341,7 @@
     // Fetch subscription access permissions
     async function fetchAccessPermissions() {
       try {
-        const response = await fetch('/api/subscription/access');
+        const response = await tvFetch('/api/subscription/access');
         if (response.ok) {
           const accessData = await response.json();
           allowedGrids = accessData.allowedGrids || [1, 2, 4, 6];
@@ -5580,7 +5598,7 @@
       // Start session keep-alive every 2 minutes to prevent session expiration
       sessionKeepAliveInterval = setInterval(async () => {
         try {
-          const response = await fetch('/api/auth/check');
+          const response = await tvFetch('/api/auth/check');
           if (!response.ok) {
             console.log('Session expired during fullscreen, redirecting to login...');
             window.location.href = '/login';
@@ -6260,7 +6278,7 @@
     async function updateFullScreenScores() {
       try {
         // Fetch updated game data from the same endpoint
-        const response = await fetch(`/api/nba/scoreboard`);
+        const response = await tvFetch(`/api/nba/scoreboard`);
         if (!response.ok) {
           throw new Error(`Failed to fetch scores: ${response.status}`);
         }
