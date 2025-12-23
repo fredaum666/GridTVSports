@@ -1527,8 +1527,14 @@
         }
 
         function openLeaguePage(url) {
-            // Add TV mode parameter and navigate directly (simpler than iframe)
-            const tvUrl = url + (url.includes('?') ? '&' : '?') + 'tv=1';
+            // Add TV mode parameter and session token for authentication
+            let tvUrl = url + (url.includes('?') ? '&' : '?') + 'tv=1';
+
+            // Include session token for server-side authentication
+            if (sessionToken) {
+                tvUrl += '&tvSession=' + encodeURIComponent(sessionToken);
+            }
+
             console.log('Navigating to league page:', tvUrl);
 
             // Store current state so we can return

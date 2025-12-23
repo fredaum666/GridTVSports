@@ -2009,6 +2009,8 @@ app.use((req, res, next) => {
     req.path === '/tv-receiver.html' ||
     req.path === '/tv-auth' ||
     req.path === '/tv-auth.html' ||
+    req.path === '/tv-home' ||
+    req.path === '/tv-home.html' ||
     req.path.startsWith('/assets/') ||
     req.path.startsWith('/css/') ||
     req.path.startsWith('/scripts/') ||
@@ -2029,21 +2031,65 @@ app.use((req, res, next) => {
     return next();
   }
 
-  // Check if authenticated
-  if (!req.session || !req.session.userId) {
-    // Check if it's a page request (clean URL or .html)
-    const cleanPath = req.path.replace(/^\//, '').replace(/\.html$/, '');
-    const isPageRequest = req.path === '/' ||
-      req.path.endsWith('.html') ||
-      pageRoutes.includes(cleanPath);
+  // Check if authenticated via web session
+  if (req.session && req.session.userId) {
+    return next();
+  }
 
-    if (isPageRequest) {
-      return res.redirect('/login');
+  // Check for TV mode authentication via session token
+  const tvSessionToken = req.query.tvSession || req.headers['x-tv-session'];
+  const isTV = req.query.tv === '1' ||
+    (req.headers['user-agent'] && (
+      req.headers['user-agent'].includes('AndroidTV') ||
+      req.headers['user-agent'].includes('FireTV') ||
+      req.headers['user-agent'].includes('GridTVSports-AndroidTV')
+    ));
+
+  if (isTV && tvSessionToken) {
+    // Validate TV session token asynchronously
+    pool.query(
+      'SELECT user_id FROM tv_sessions WHERE session_token = $1 AND is_active = TRUE',
+      [tvSessionToken]
+    ).then(result => {
+      if (result.rows.length > 0) {
+        // Valid TV session - allow access
+        req.tvUserId = result.rows[0].user_id;
+        next();
+      } else {
+        // Invalid TV session - redirect to tv-home for re-auth
+        const cleanPath = req.path.replace(/^\//, '').replace(/\.html$/, '');
+        const isPageRequest = req.path === '/' ||
+          req.path.endsWith('.html') ||
+          pageRoutes.includes(cleanPath);
+
+        if (isPageRequest) {
+          return res.redirect('/tv-home?expired=1');
+        }
+        return res.status(401).json({ error: 'TV session expired' });
+      }
+    }).catch(err => {
+      console.error('TV session validation error:', err);
+      return res.status(500).json({ error: 'Server error' });
+    });
+    return; // Wait for async validation
+  }
+
+  // Not authenticated - redirect or return 401
+  const cleanPath = req.path.replace(/^\//, '').replace(/\.html$/, '');
+  const isPageRequest = req.path === '/' ||
+    req.path.endsWith('.html') ||
+    pageRoutes.includes(cleanPath);
+
+  if (isPageRequest) {
+    // If TV mode, redirect to tv-home instead of login
+    if (isTV) {
+      return res.redirect('/tv-home');
     }
-    // For API requests, return 401
-    if (req.path.startsWith('/api/')) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
+    return res.redirect('/login');
+  }
+  // For API requests, return 401
+  if (req.path.startsWith('/api/')) {
+    return res.status(401).json({ error: 'Authentication required' });
   }
 
   next();
