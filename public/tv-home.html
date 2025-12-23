@@ -932,10 +932,6 @@
             </div>
         </div>
 
-        <div class="nav-hint" style="position: absolute; bottom: 40px;">
-            <span><span class="key">◀ ▶</span> Navigate</span>
-            <span><span class="key">OK</span> Select</span>
-        </div>
     </div>
 
     <!-- ================================ -->
@@ -1501,9 +1497,12 @@
         function startQRCountdown(expiresAt) {
             if (qrCountdownInterval) clearInterval(qrCountdownInterval);
 
+            // Ensure expiresAt is a proper Date object
+            const expiryTime = expiresAt instanceof Date ? expiresAt.getTime() : new Date(expiresAt).getTime();
+
             qrCountdownInterval = setInterval(() => {
-                const now = new Date();
-                const remaining = Math.max(0, expiresAt - now);
+                const now = Date.now();
+                const remaining = Math.max(0, expiryTime - now);
                 const minutes = Math.floor(remaining / 60000);
                 const seconds = Math.floor((remaining % 60000) / 1000);
 
