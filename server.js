@@ -1160,7 +1160,10 @@ app.get('/api/subscription/status', async (req, res) => {
 
 // Get user access permissions based on subscription
 app.get('/api/subscription/access', async (req, res) => {
-  if (!req.session || !req.session.userId) {
+  // Support both web session and TV session authentication
+  const userId = req.session?.userId || req.tvUserId;
+
+  if (!userId) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
@@ -1168,7 +1171,7 @@ app.get('/api/subscription/access', async (req, res) => {
     const result = await pool.query(
       `SELECT subscription_status, subscription_plan, trial_ends_at, subscription_ends_at
        FROM users WHERE id = $1`,
-      [req.session.userId]
+      [userId]
     );
 
     if (result.rows.length === 0) {
@@ -1226,7 +1229,10 @@ app.get('/api/subscription/access', async (req, res) => {
 
 // Validate sports bar mode access
 app.post('/api/subscription/validate-grid', async (req, res) => {
-  if (!req.session || !req.session.userId) {
+  // Support both web session and TV session authentication
+  const userId = req.session?.userId || req.tvUserId;
+
+  if (!userId) {
     return res.status(401).json({ error: 'Not authenticated', allowed: false });
   }
 
@@ -1236,7 +1242,7 @@ app.post('/api/subscription/validate-grid', async (req, res) => {
     const result = await pool.query(
       `SELECT subscription_status, subscription_plan, trial_ends_at, subscription_ends_at
        FROM users WHERE id = $1`,
-      [req.session.userId]
+      [userId]
     );
 
     if (result.rows.length === 0) {
@@ -1267,7 +1273,7 @@ app.post('/api/subscription/validate-grid', async (req, res) => {
     const allowed = allowedGrids.includes(parseInt(gridSize));
 
     if (!allowed) {
-      console.log(`🚫 Grid validation failed: User ${req.session.userId} tried to access ${gridSize}-grid (allowed: ${allowedGrids.join(', ')})`);
+      console.log(`🚫 Grid validation failed: User ${userId} tried to access ${gridSize}-grid (allowed: ${allowedGrids.join(', ')})`);
     }
 
     res.json({
