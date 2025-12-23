@@ -27,4 +27,13 @@ Thumbs.db
 
 # Webpack build output (production obfuscated files)
 # public/dist/
-nul
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+local.properties
+
+# Android build outputs
+tv-apps/android-tv/app/build/
+tv-apps/android-tv/build/
+tv-apps/android-tv/.gradle/
