@@ -3966,10 +3966,10 @@ app.post('/api/tv/approve', requireAuth, async (req, res) => {
       [userId, tokenData.id]
     );
 
-    // Create or update TV session
+    // Create or update TV session - MUST set is_active = TRUE for new sessions
     await pool.query(
-      `INSERT INTO tv_sessions (device_id, user_id, device_name, session_token)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO tv_sessions (device_id, user_id, device_name, session_token, is_active, created_at, last_seen_at)
+       VALUES ($1, $2, $3, $4, TRUE, NOW(), NOW())
        ON CONFLICT (device_id)
        DO UPDATE SET user_id = $2, session_token = $4, is_active = TRUE, last_seen_at = NOW()`,
       [tokenData.device_id, userId, tokenData.device_name, sessionToken]
