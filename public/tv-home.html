@@ -1225,6 +1225,14 @@
             if (qrCountdownInterval) clearInterval(qrCountdownInterval);
             if (authCheckInterval) clearInterval(authCheckInterval);
 
+            // Ensure session token is synced from localStorage (safety check)
+            const storedToken = localStorage.getItem('gridtv_session_token');
+            if (storedToken && !sessionToken) {
+                console.log('showHomeScreen: Restoring sessionToken from localStorage');
+                sessionToken = storedToken;
+            }
+            console.log('showHomeScreen: sessionToken is', sessionToken ? sessionToken.substring(0, 8) + '...' : 'null');
+
             initNavigation();
             fetchLeagueStatuses();
             setInterval(fetchLeagueStatuses, 60000);
@@ -1833,8 +1841,18 @@
             let tvUrl = url + (url.includes('?') ? '&' : '?') + 'tv=1';
 
             // Include session token for server-side authentication
-            if (sessionToken) {
-                tvUrl += '&tvSession=' + encodeURIComponent(sessionToken);
+            // Try both in-memory and localStorage to ensure we have the token
+            const storedToken = localStorage.getItem('gridtv_session_token');
+            const activeToken = sessionToken || storedToken;
+
+            console.log('openLeaguePage - sessionToken:', sessionToken ? sessionToken.substring(0, 8) + '...' : 'null');
+            console.log('openLeaguePage - storedToken:', storedToken ? storedToken.substring(0, 8) + '...' : 'null');
+            console.log('openLeaguePage - activeToken:', activeToken ? activeToken.substring(0, 8) + '...' : 'null');
+
+            if (activeToken) {
+                tvUrl += '&tvSession=' + encodeURIComponent(activeToken);
+            } else {
+                console.error('ERROR: No session token available for navigation!');
             }
 
             console.log('Navigating to league page:', tvUrl);

@@ -2051,6 +2051,11 @@ app.use((req, res, next) => {
       req.headers['user-agent'].includes('GridTVSports-AndroidTV')
     ));
 
+  // Debug logging for TV auth
+  if (isTV || tvSessionToken) {
+    console.log(`📺 TV Auth Check: path=${req.path}, isTV=${isTV}, hasToken=${!!tvSessionToken}, tokenPrefix=${tvSessionToken?.substring(0, 8) || 'none'}`);
+  }
+
   // Accept TV session token for authentication (don't require isTV flag for API calls)
   // This allows tvFetch() to work by just adding the x-tv-session header
   if (tvSessionToken) {
@@ -2059,12 +2064,14 @@ app.use((req, res, next) => {
       'SELECT user_id FROM tv_sessions WHERE session_token = $1 AND is_active = TRUE',
       [tvSessionToken]
     ).then(result => {
+      console.log(`📺 TV Session validation: found=${result.rows.length > 0}, path=${req.path}`);
       if (result.rows.length > 0) {
         // Valid TV session - allow access
         req.tvUserId = result.rows[0].user_id;
         next();
       } else {
         // Invalid TV session - redirect to tv-home for re-auth
+        console.log(`📺 TV Session INVALID - token not found or inactive: ${tvSessionToken.substring(0, 8)}...`);
         const cleanPath = req.path.replace(/^\//, '').replace(/\.html$/, '');
         const isPageRequest = req.path === '/' ||
           req.path.endsWith('.html') ||
@@ -4002,25 +4009,45 @@ app.post('/api/tv/approve', requireAuth, async (req, res) => {
 app.post('/api/tv/validate-session', async (req, res) => {
   const { deviceId, sessionToken } = req.body;
 
-  if (!deviceId || !sessionToken) {
-    return res.status(400).json({ error: 'Device ID and session token required' });
+  // Session token is required, device ID is optional for backwards compatibility
+  if (!sessionToken) {
+    return res.status(400).json({ error: 'Session token required' });
   }
 
   try {
-    const result = await pool.query(
-      `SELECT ts.id, ts.user_id, ts.device_name, ts.is_active,
-              u.email, u.display_name, u.subscription_status
-       FROM tv_sessions ts
-       JOIN users u ON ts.user_id = u.id
-       WHERE ts.device_id = $1 AND ts.session_token = $2 AND ts.is_active = TRUE`,
-      [deviceId, sessionToken]
-    );
+    // First try with device_id if provided (stricter validation)
+    let result;
+    if (deviceId) {
+      result = await pool.query(
+        `SELECT ts.id, ts.user_id, ts.device_name, ts.is_active,
+                u.email, u.display_name, u.subscription_status
+         FROM tv_sessions ts
+         JOIN users u ON ts.user_id = u.id
+         WHERE ts.device_id = $1 AND ts.session_token = $2 AND ts.is_active = TRUE`,
+        [deviceId, sessionToken]
+      );
+    }
+
+    // If no device_id or device_id match failed, try with just session_token
+    // This ensures consistency with the auth middleware that only checks session_token
+    if (!result || result.rows.length === 0) {
+      result = await pool.query(
+        `SELECT ts.id, ts.user_id, ts.device_name, ts.is_active,
+                u.email, u.display_name, u.subscription_status
+         FROM tv_sessions ts
+         JOIN users u ON ts.user_id = u.id
+         WHERE ts.session_token = $1 AND ts.is_active = TRUE`,
+        [sessionToken]
+      );
+    }
 
     if (result.rows.length === 0) {
+      console.log(`📺 validate-session: FAILED for token ${sessionToken.substring(0, 8)}...`);
       return res.status(401).json({ error: 'Invalid or expired session' });
     }
 
     const session = result.rows[0];
+    console.log(`📺 validate-session: SUCCESS for user ${session.user_id}, token ${sessionToken.substring(0, 8)}...`);
 
     // Update last seen
     await pool.query(
