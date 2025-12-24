@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NCAA College Football Live Games - GridTV Sports</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏈</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏈</text></svg>">
   <link rel="preload" href="/assets/YFrame.png" as="image">
   <link rel="preload" href="/assets/1stDown1.png" as="image">
   <link rel="preload" href="/assets/1stDown2.png" as="image">
@@ -18,36 +20,52 @@
       /* ========== REGULAR CARD SIZES ========== */
 
       /* Regular Card - Team Logos */
-      --regular-team-logo-large: 80px;           /* Upcoming game logos */
-      --regular-team-logo-live: 48px;            /* Live game logos */
+      --regular-team-logo-large: 80px;
+      /* Upcoming game logos */
+      --regular-team-logo-live: 48px;
+      /* Live game logos */
 
       /* Regular Card - Team Names */
-      --regular-team-name-large: 18px;           /* Upcoming game team names */
-      --regular-team-name-live: 16px;            /* Live game team names */
+      --regular-team-name-large: 18px;
+      /* Upcoming game team names */
+      --regular-team-name-live: 16px;
+      /* Live game team names */
 
       /* Regular Card - Scores */
-      --regular-score-size: 48px;                /* Live/Final game scores */
+      --regular-score-size: 48px;
+      /* Live/Final game scores */
 
       /* Regular Card - Records */
-      --regular-team-record: 11px;               /* Team records (e.g., "10-3") */
+      --regular-team-record: 11px;
+      /* Team records (e.g., "10-3") */
 
       /* Regular Card - Status Text */
-      --regular-status-badge: 9px;               /* LIVE/FINAL badge text */
-      --regular-status-detail: 10px;             /* Quarter/time info */
+      --regular-status-badge: 9px;
+      /* LIVE/FINAL badge text */
+      --regular-status-detail: 10px;
+      /* Quarter/time info */
 
       /* Regular Card - Quarter Grid */
-      --regular-quarter-header: 9px;             /* Quarter numbers (1,2,3,4,T) */
-      --regular-quarter-score: 13px;             /* Quarter scores */
-      --regular-quarter-total: 14px;             /* Total score in grid */
+      --regular-quarter-header: 9px;
+      /* Quarter numbers (1,2,3,4,T) */
+      --regular-quarter-score: 13px;
+      /* Quarter scores */
+      --regular-quarter-total: 14px;
+      /* Total score in grid */
 
       /* Regular Card - Spacing */
-      --regular-card-gap: 12px;                  /* Gap between elements */
-      --regular-page-padding: 16px;              /* Internal padding */
+      --regular-card-gap: 12px;
+      /* Gap between elements */
+      --regular-page-padding: 16px;
+      /* Internal padding */
 
       /* Regular Card - Down/Distance & Ball Position */
-      --regular-down-distance-size: 20px;        /* Down & distance text (e.g., "2nd & 7") */
-      --regular-ball-position-size: 15px;        /* Ball position text (e.g., "at NYG 45") */
-      --regular-possession-arrow-size: 16px;     /* Possession arrow indicator */
+      --regular-down-distance-size: 20px;
+      /* Down & distance text (e.g., "2nd & 7") */
+      --regular-ball-position-size: 15px;
+      /* Ball position text (e.g., "at NYG 45") */
+      --regular-possession-arrow-size: 16px;
+      /* Possession arrow indicator */
 
 
       /* ========== FULLSCREEN CARD SIZES ========== */
@@ -176,13 +194,27 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.8;
+      }
     }
 
     @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
     }
 
     .back-btn {
@@ -293,7 +325,7 @@
       margin-right: 8px;
     }
 
-    .layout-options input[type="radio"]:checked + label,
+    .layout-options input[type="radio"]:checked+label,
     .layout-options label:has(input[type="radio"]:checked) {
       background: var(--nfl-border, #17a2b8);
       border-color: var(--nfl-border, #17a2b8);
@@ -398,8 +430,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .fs-game-selector {
@@ -562,7 +601,7 @@
       pointer-events: auto;
     }
 
-    .fullscreen-hover-trigger:hover ~ .fullscreen-controls {
+    .fullscreen-hover-trigger:hover~.fullscreen-controls {
       transform: translateY(0);
     }
 
@@ -799,8 +838,15 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
     }
 
     .fullscreen-game-card.upcoming-game .fullscreen-score {
@@ -1005,15 +1051,39 @@
     }
 
     @-webkit-keyframes scoreUpdate {
-      0% { -webkit-transform: scale(1); transform: scale(1); }
-      50% { -webkit-transform: scale(1.1); transform: scale(1.1); color: #22c55e; }
-      100% { -webkit-transform: scale(1); transform: scale(1); }
+      0% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
+
+      50% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+        color: #22c55e;
+      }
+
+      100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
     }
 
     @keyframes scoreUpdate {
-      0% { -webkit-transform: scale(1); transform: scale(1); }
-      50% { -webkit-transform: scale(1.1); transform: scale(1.1); color: #22c55e; }
-      100% { -webkit-transform: scale(1); transform: scale(1); }
+      0% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
+
+      50% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+        color: #22c55e;
+      }
+
+      100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+      }
     }
 
     .fullscreen-vs-divider-live {
@@ -1093,13 +1163,27 @@
     }
 
     @-webkit-keyframes possessionBlink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
     }
 
     @keyframes possessionBlink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
     }
 
     /* Down/Distance and Field Position Container */
@@ -1386,13 +1470,23 @@
     }
 
     @keyframes yframeGlow {
-      0% { filter: drop-shadow(0 0 20px #3b82f6) drop-shadow(0 0 40px #3b82f6); }
-      100% { filter: drop-shadow(0 0 30px #60a5fa) drop-shadow(0 0 60px #60a5fa); }
+      0% {
+        filter: drop-shadow(0 0 20px #3b82f6) drop-shadow(0 0 40px #3b82f6);
+      }
+
+      100% {
+        filter: drop-shadow(0 0 30px #60a5fa) drop-shadow(0 0 60px #60a5fa);
+      }
     }
 
     @keyframes footballSpin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     @keyframes footballArc {
@@ -1400,10 +1494,12 @@
         bottom: -50px;
         opacity: 1;
       }
+
       50% {
         bottom: 30%;
         opacity: 1;
       }
+
       100% {
         bottom: 80%;
         opacity: 0;
@@ -1449,13 +1545,16 @@
         transform: translateX(-50%) translateY(0) rotate(0deg) scale(0.8);
         opacity: 0;
       }
+
       20% {
         opacity: 1;
       }
+
       50% {
         transform: translateX(30%) translateY(-80%) rotate(360deg) scale(1);
         opacity: 1;
       }
+
       100% {
         transform: translateX(100%) translateY(-120%) rotate(720deg) scale(0.6);
         opacity: 0;
@@ -1498,10 +1597,13 @@
     }
 
     @keyframes safetyPulse {
-      0%, 100% {
+
+      0%,
+      100% {
         text-shadow: 0 0 20px #f97316, 0 0 40px #dc2626;
         transform: scale(1);
       }
+
       50% {
         text-shadow: 0 0 30px #f97316, 0 0 60px #dc2626;
         transform: scale(1.05);
@@ -1542,9 +1644,11 @@
         transform: translateX(-150%);
         opacity: 0;
       }
+
       30% {
         opacity: 1;
       }
+
       100% {
         transform: translateX(0);
         opacity: 1;
@@ -1601,23 +1705,45 @@
       opacity: 0;
     }
 
-    .sack-stars.star-1 { top: 10%; left: 20%; animation-delay: 0.3s; }
-    .sack-stars.star-2 { top: 5%; right: 25%; animation-delay: 0.4s; }
-    .sack-stars.star-3 { top: 20%; left: 10%; animation-delay: 0.5s; }
-    .sack-stars.star-4 { top: 15%; right: 15%; animation-delay: 0.6s; }
+    .sack-stars.star-1 {
+      top: 10%;
+      left: 20%;
+      animation-delay: 0.3s;
+    }
+
+    .sack-stars.star-2 {
+      top: 5%;
+      right: 25%;
+      animation-delay: 0.4s;
+    }
+
+    .sack-stars.star-3 {
+      top: 20%;
+      left: 10%;
+      animation-delay: 0.5s;
+    }
+
+    .sack-stars.star-4 {
+      top: 15%;
+      right: 15%;
+      animation-delay: 0.6s;
+    }
 
     @keyframes sackImpact {
       0% {
         transform: scale(0) translateY(-100px);
         opacity: 0;
       }
+
       60% {
         transform: scale(1.4) translateY(10px);
         opacity: 1;
       }
+
       80% {
         transform: scale(0.9) translateY(-5px);
       }
+
       100% {
         transform: scale(1) translateY(0);
         opacity: 1;
@@ -1625,11 +1751,27 @@
     }
 
     @keyframes sackShake {
-      0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-10px) rotate(-3deg); }
-      40% { transform: translateX(10px) rotate(3deg); }
-      60% { transform: translateX(-5px) rotate(-1deg); }
-      80% { transform: translateX(5px) rotate(1deg); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-10px) rotate(-3deg);
+      }
+
+      40% {
+        transform: translateX(10px) rotate(3deg);
+      }
+
+      60% {
+        transform: translateX(-5px) rotate(-1deg);
+      }
+
+      80% {
+        transform: translateX(5px) rotate(1deg);
+      }
     }
 
     @keyframes sackStars {
@@ -1637,10 +1779,12 @@
         opacity: 0;
         transform: scale(0) rotate(0deg);
       }
+
       50% {
         opacity: 1;
         transform: scale(1.2) rotate(180deg);
       }
+
       100% {
         opacity: 0;
         transform: scale(0.5) rotate(360deg) translateY(-20px);
@@ -1667,10 +1811,21 @@
     }
 
     @keyframes penaltyPhase1 {
-      0% { opacity: 0; }
-      8% { opacity: 1; }
-      85% { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 0;
+      }
+
+      8% {
+        opacity: 1;
+      }
+
+      85% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     .referee-throwing {
@@ -1686,10 +1841,12 @@
         transform: scale(0.5) translateY(50px);
         opacity: 0;
       }
+
       60% {
         transform: scale(1.1) translateY(-10px);
         opacity: 1;
       }
+
       100% {
         transform: scale(1) translateY(0);
         opacity: 1;
@@ -1722,17 +1879,33 @@
     }
 
     @keyframes penaltyPhase2 {
-      0% { opacity: 0; transform: scale(0.8); }
-      12% { opacity: 1; transform: scale(1); }
-      88% { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+
+      12% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      88% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     @keyframes flagPulse {
-      0%, 100% {
+
+      0%,
+      100% {
         text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
         transform: scale(1);
       }
+
       50% {
         text-shadow: 0 0 40px #fbbf24, 0 0 80px #fbbf24, 0 0 100px #fbbf24;
         transform: scale(1.05);
@@ -1765,6 +1938,7 @@
         transform: scale(0) rotate(-180deg);
         opacity: 0;
       }
+
       100% {
         transform: scale(1) rotate(0deg);
         opacity: 1;
@@ -1806,30 +1980,65 @@
     }
 
     @keyframes firstDownPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
     }
 
     @keyframes fadeOut {
-      0% { opacity: 1; }
-      70% { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 1;
+      }
+
+      70% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     @keyframes playIconBounce {
-      0% { transform: scale(0) rotate(0deg); }
-      50% { transform: scale(1.2) rotate(180deg); }
-      100% { transform: scale(1) rotate(360deg); }
+      0% {
+        transform: scale(0) rotate(0deg);
+      }
+
+      50% {
+        transform: scale(1.2) rotate(180deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(360deg);
+      }
     }
 
     @keyframes playTextSlide {
-      0% { transform: translateY(50px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+      0% {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     @keyframes gradientShift {
-      0% { background-position: 0% center; }
-      100% { background-position: 200% center; }
+      0% {
+        background-position: 0% center;
+      }
+
+      100% {
+        background-position: 200% center;
+      }
     }
 
     /* ════════════════════════════════════════════════════════════════════════════════
@@ -1838,284 +2047,286 @@
        ════════════════════════════════════════════════════════════════════════════════ */
     @media (min-width: 769px) {
 
-    /* Grid-specific responsive sizing */
-    /* 6-Grid Layout - Smaller text to fit 3 columns */
-    .fullscreen-grid.grid-6 .fullscreen-team-logo {
-      width: 45px !important;
-      height: 45px !important;
-    }
+      /* Grid-specific responsive sizing */
+      /* 6-Grid Layout - Smaller text to fit 3 columns */
+      .fullscreen-grid.grid-6 .fullscreen-team-logo {
+        width: 45px !important;
+        height: 45px !important;
+      }
 
-    .fullscreen-grid.grid-6 .fullscreen-team-header {
-      gap: 6px !important;
-      margin-bottom: 6px !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-team-name {
-      font-size: 1.6rem !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-score {
-      font-size: 3rem !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-quarter {
-      font-size: 1.2rem !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-vs {
-      font-size: 1rem !important;
-      margin: 3px 0 !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-team-record {
-      font-size: 0.9rem !important;
-      min-width: 45px !important;
-      padding-right: 8px !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-down-distance {
-      font-size: 1.4rem !important;
-      margin-top: 5px !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-field-position {
-      font-size: 1rem !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-possession {
-      width: 16px !important;
-      height: 16px !important;
-      margin-left: 4px !important;
-    }
-
-    .fullscreen-grid.grid-6 .timeout-bar {
-      width: 16px !important;
-      height: 5px !important;
-      border-width: 1.5px !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-timeouts {
-      gap: 4px !important;
-      margin-top: 4px !important;
-    }
-
-    .fullscreen-grid.grid-6 .sport-logo-indicator {
-      width: 70px !important;
-      height: 70px !important;
-      top: 10px !important;
-      left: 10px !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-game-card {
-      padding: 15px !important;
-    }
-
-    /* 4-Grid Layout - Medium text */
-    .fullscreen-grid.grid-4 .fullscreen-team-logo {
-      width: 55px !important;
-      height: 55px !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-team-header {
-      gap: 8px !important;
-      margin-bottom: 8px !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-team-name {
-      font-size: 1.8rem !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-score {
-      font-size: 3.5rem !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-quarter {
-      font-size: 1.3rem !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-vs {
-      font-size: 1.1rem !important;
-      margin: 3px 0 !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-down-distance {
-      font-size: 1.6rem !important;
-      margin-top: 6px !important;
-    }
-
-    .fullscreen-grid.grid-4 .timeout-bar {
-      width: 18px !important;
-      height: 6px !important;
-      border-width: 1.5px !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-timeouts {
-      gap: 5px !important;
-      margin-top: 6px !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-field-position {
-      font-size: 1.1rem !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-possession {
-      width: 18px !important;
-      height: 18px !important;
-      margin-left: 5px !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-team-record {
-      font-size: 1.1rem !important;
-      min-width: 52px !important;
-      padding-right: 9px !important;
-    }
-
-    .fullscreen-grid.grid-4 .sport-logo-indicator {
-      width: 85px !important;
-      height: 85px !important;
-      top: 12px !important;
-      left: 12px !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-game-card {
-      padding: 18px !important;
-    }
-
-    /* 2-Grid Layout - Keep large text (default) */
-    .fullscreen-grid.grid-2 .fullscreen-team-name {
-      font-size: 3.5rem !important;
-    }
-
-    .fullscreen-grid.grid-2 .fullscreen-score {
-      font-size: 6rem !important;
-    }
-
-    .fullscreen-grid.grid-2 .fullscreen-team-record {
-      font-size: 1.3rem !important;
-      min-width: 58px !important;
-      padding-right: 10px !important;
-    }
-
-    /* 4-Grid Layout - Smaller text to fit 2x2 grid */
-    .fullscreen-grid.grid-4 .fullscreen-team-name {
-      font-size: 2rem !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-score {
-      font-size: 4rem !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-team-logo {
-      width: 60px !important;
-      height: 60px !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-quarter {
-      font-size: 1.4rem !important;
-      margin-bottom: 12px !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-team {
-      margin-bottom: 8px !important;
-    }
-
-    /* Note: .fullscreen-team-record size defined above at 1.1rem - do not duplicate */
-
-    .fullscreen-grid.grid-4 .sport-logo-indicator {
-      width: 80px !important;
-      height: 80px !important;
-      top: 10px !important;
-      left: 10px !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-vs {
-      font-size: 1rem !important;
-      margin: 5px 0 !important;
-    }
-
-    .fullscreen-grid.grid-4 .fullscreen-down-distance {
-      font-size: 1rem !important;
-    }
-
-    /* 6-Grid Layout - Very compact text to fit 3x2 grid */
-    .fullscreen-grid.grid-6 .fullscreen-team-name {
-      font-size: 1.6rem !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-score {
-      font-size: 3.5rem !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-team-logo {
-      width: 50px !important;
-      height: 50px !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-quarter {
-      font-size: 1.2rem !important;
-      margin-bottom: 10px !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-team {
-      margin-bottom: 6px !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-team-record {
-      font-size: 0.8rem !important;
-    }
-
-    .fullscreen-grid.grid-6 .sport-logo-indicator {
-      width: 60px !important;
-      height: 60px !important;
-      top: 8px !important;
-      left: 8px !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-vs {
-      font-size: 0.9rem !important;
-      margin: 4px 0 !important;
-    }
-
-    .fullscreen-grid.grid-6 .fullscreen-down-distance {
-      font-size: 0.9rem !important;
-    }
-
-    /* Responsive - Tablets and smaller */
-    @media (max-width: 1200px) {
-      .fullscreen-grid.grid-6 {
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(3, 1fr);
+      .fullscreen-grid.grid-6 .fullscreen-team-header {
+        gap: 6px !important;
+        margin-bottom: 6px !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-team-name {
-        font-size: 2.5rem !important;
+        font-size: 1.6rem !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-score {
-        font-size: 4.5rem !important;
+        font-size: 3rem !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-quarter {
+        font-size: 1.2rem !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-vs {
+        font-size: 1rem !important;
+        margin: 3px 0 !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-team-record {
+        font-size: 0.9rem !important;
+        min-width: 45px !important;
+        padding-right: 8px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-down-distance {
+        font-size: 1.4rem !important;
+        margin-top: 5px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-field-position {
+        font-size: 1rem !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-possession {
+        width: 16px !important;
+        height: 16px !important;
+        margin-left: 4px !important;
+      }
+
+      .fullscreen-grid.grid-6 .timeout-bar {
+        width: 16px !important;
+        height: 5px !important;
+        border-width: 1.5px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-timeouts {
+        gap: 4px !important;
+        margin-top: 4px !important;
+      }
+
+      .fullscreen-grid.grid-6 .sport-logo-indicator {
+        width: 70px !important;
+        height: 70px !important;
+        top: 10px !important;
+        left: 10px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-game-card {
+        padding: 15px !important;
+      }
+
+      /* 4-Grid Layout - Medium text */
+      .fullscreen-grid.grid-4 .fullscreen-team-logo {
+        width: 55px !important;
+        height: 55px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-header {
+        gap: 8px !important;
+        margin-bottom: 8px !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-team-name {
-        font-size: 2.5rem !important;
+        font-size: 1.8rem !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-score {
+        font-size: 3.5rem !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-quarter {
+        font-size: 1.3rem !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-vs {
+        font-size: 1.1rem !important;
+        margin: 3px 0 !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-down-distance {
+        font-size: 1.6rem !important;
+        margin-top: 6px !important;
+      }
+
+      .fullscreen-grid.grid-4 .timeout-bar {
+        width: 18px !important;
+        height: 6px !important;
+        border-width: 1.5px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-timeouts {
+        gap: 5px !important;
+        margin-top: 6px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-field-position {
+        font-size: 1.1rem !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-possession {
+        width: 18px !important;
+        height: 18px !important;
+        margin-left: 5px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-team-record {
+        font-size: 1.1rem !important;
+        min-width: 52px !important;
+        padding-right: 9px !important;
+      }
+
+      .fullscreen-grid.grid-4 .sport-logo-indicator {
+        width: 85px !important;
+        height: 85px !important;
+        top: 12px !important;
+        left: 12px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-game-card {
+        padding: 18px !important;
+      }
+
+      /* 2-Grid Layout - Keep large text (default) */
+      .fullscreen-grid.grid-2 .fullscreen-team-name {
+        font-size: 3.5rem !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-score {
+        font-size: 6rem !important;
+      }
+
+      .fullscreen-grid.grid-2 .fullscreen-team-record {
+        font-size: 1.3rem !important;
+        min-width: 58px !important;
+        padding-right: 10px !important;
+      }
+
+      /* 4-Grid Layout - Smaller text to fit 2x2 grid */
+      .fullscreen-grid.grid-4 .fullscreen-team-name {
+        font-size: 2rem !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-score {
         font-size: 4rem !important;
       }
 
-      /* TV Mode Override - Force 3x2 horizontal layout */
-      body.tv-mode .fullscreen-grid.grid-6 {
-        grid-template-columns: repeat(3, 1fr) !important;
-        grid-template-rows: repeat(2, 1fr) !important;
+      .fullscreen-grid.grid-4 .fullscreen-team-logo {
+        width: 60px !important;
+        height: 60px !important;
       }
 
-      body.tv-mode .fullscreen-grid.grid-8 {
-        grid-template-columns: repeat(4, 1fr) !important;
-        grid-template-rows: repeat(2, 1fr) !important;
+      .fullscreen-grid.grid-4 .fullscreen-quarter {
+        font-size: 1.4rem !important;
+        margin-bottom: 12px !important;
       }
+
+      .fullscreen-grid.grid-4 .fullscreen-team {
+        margin-bottom: 8px !important;
+      }
+
+      /* Note: .fullscreen-team-record size defined above at 1.1rem - do not duplicate */
+
+      .fullscreen-grid.grid-4 .sport-logo-indicator {
+        width: 80px !important;
+        height: 80px !important;
+        top: 10px !important;
+        left: 10px !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-vs {
+        font-size: 1rem !important;
+        margin: 5px 0 !important;
+      }
+
+      .fullscreen-grid.grid-4 .fullscreen-down-distance {
+        font-size: 1rem !important;
+      }
+
+      /* 6-Grid Layout - Very compact text to fit 3x2 grid */
+      .fullscreen-grid.grid-6 .fullscreen-team-name {
+        font-size: 1.6rem !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-score {
+        font-size: 3.5rem !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-team-logo {
+        width: 50px !important;
+        height: 50px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-quarter {
+        font-size: 1.2rem !important;
+        margin-bottom: 10px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-team {
+        margin-bottom: 6px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-team-record {
+        font-size: 0.8rem !important;
+      }
+
+      .fullscreen-grid.grid-6 .sport-logo-indicator {
+        width: 60px !important;
+        height: 60px !important;
+        top: 8px !important;
+        left: 8px !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-vs {
+        font-size: 0.9rem !important;
+        margin: 4px 0 !important;
+      }
+
+      .fullscreen-grid.grid-6 .fullscreen-down-distance {
+        font-size: 0.9rem !important;
+      }
+
+      /* Responsive - Tablets and smaller */
+      @media (max-width: 1200px) {
+        .fullscreen-grid.grid-6 {
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: repeat(3, 1fr);
+        }
+
+        .fullscreen-grid.grid-6 .fullscreen-team-name {
+          font-size: 2.5rem !important;
+        }
+
+        .fullscreen-grid.grid-6 .fullscreen-score {
+          font-size: 4.5rem !important;
+        }
+
+        .fullscreen-grid.grid-4 .fullscreen-team-name {
+          font-size: 2.5rem !important;
+        }
+
+        .fullscreen-grid.grid-4 .fullscreen-score {
+          font-size: 4rem !important;
+        }
+
+        /* TV Mode Override - Force 3x2 horizontal layout */
+        body.tv-mode .fullscreen-grid.grid-6 {
+          grid-template-columns: repeat(3, 1fr) !important;
+          grid-template-rows: repeat(2, 1fr) !important;
+        }
+
+        body.tv-mode .fullscreen-grid.grid-8 {
+          grid-template-columns: repeat(4, 1fr) !important;
+          grid-template-rows: repeat(2, 1fr) !important;
+        }
+      }
+
     }
 
-    } /* ◄ End @media (min-width: 769px) - Desktop/Tablet grid rules */
+    /* ◄ End @media (min-width: 769px) - Desktop/Tablet grid rules */
 
     /* ╔══════════════════════════════════════════════════════════════════════════════╗
        ║          FULLSCREEN CARD SIZING CONFIGURATION - NCAA FOOTBALL PAGE           ║
@@ -2137,6 +2348,7 @@
        ███ MOBILE SCREENS (max-width: 768px) ███
        ════════════════════════════════════════════════════════════════════════════════ */
     @media (max-width: 768px) {
+
       /* Grid preview in modal */
       .grid-preview.grid-4,
       .grid-preview.grid-6 {
@@ -2157,6 +2369,7 @@
         gap: 0 !important;
         overflow: hidden !important;
       }
+
       .fullscreen-grid.grid-1 .fullscreen-game-card {
         max-width: 100% !important;
         height: calc(100dvh - 20px) !important;
@@ -2167,6 +2380,7 @@
         align-items: center !important;
         overflow: hidden !important;
       }
+
       .fullscreen-grid.grid-1 .fullscreen-card-content {
         display: flex !important;
         flex-direction: column !important;
@@ -2184,9 +2398,11 @@
         text-align: center !important;
         margin-bottom: 2vh !important;
       }
+
       .fullscreen-grid.grid-1 .fullscreen-status-text {
         font-size: clamp(1.8rem, 7vw, 3rem) !important;
       }
+
       .fullscreen-grid.grid-1 .fullscreen-upcoming-status-text {
         font-size: clamp(1.8rem, 7vw, 3rem) !important;
       }
@@ -2195,7 +2411,8 @@
       .fullscreen-grid.grid-1 .fullscreen-live-score-header {
         display: grid !important;
         grid-template-columns: 1fr auto !important;
-        grid-template-rows: auto auto auto !important; /* 3 rows: away, VS, home */
+        grid-template-rows: auto auto auto !important;
+        /* 3 rows: away, VS, home */
         gap: 2vh 20px !important;
         width: 100% !important;
         padding: 0 20px !important;
@@ -2223,27 +2440,31 @@
 
       /* --- Grid 1: Position elements by DOM order using nth-child --- */
       /* Child 1: Away Team Stack → Row 1, Col 1 */
-      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(1) {
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header> :nth-child(1) {
         grid-row: 1 !important;
         grid-column: 1 !important;
       }
+
       /* Child 2: Away Score → Row 1, Col 2 */
-      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(2) {
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header> :nth-child(2) {
         grid-row: 1 !important;
         grid-column: 2 !important;
       }
+
       /* Child 3: VS Divider → Row 2, span both cols */
-      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(3) {
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header> :nth-child(3) {
         grid-row: 2 !important;
         grid-column: 1 / -1 !important;
       }
+
       /* Child 4: Home Score → Row 3, Col 2 */
-      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(4) {
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header> :nth-child(4) {
         grid-row: 3 !important;
         grid-column: 2 !important;
       }
+
       /* Child 5: Home Team Stack → Row 3, Col 1 */
-      .fullscreen-grid.grid-1 .fullscreen-live-score-header > :nth-child(5) {
+      .fullscreen-grid.grid-1 .fullscreen-live-score-header> :nth-child(5) {
         grid-row: 3 !important;
         grid-column: 1 !important;
       }
@@ -2288,6 +2509,7 @@
         margin-top: 6px !important;
         justify-content: center !important;
       }
+
       .fullscreen-grid.grid-1 .timeout-bar {
         width: clamp(24px, 7vw, 40px) !important;
         height: clamp(7px, 1.8vh, 12px) !important;
@@ -2316,6 +2538,7 @@
         width: 100% !important;
         margin-top: 1vh !important;
       }
+
       .fullscreen-grid.grid-1 .field-container {
         height: 45px !important;
       }
@@ -2334,14 +2557,17 @@
         grid-template-columns: 1fr !important;
         grid-template-rows: repeat(2, 1fr) !important;
         height: 100dvh !important;
-        padding: 8px !important;                  /* ◄ Grid padding */
-        gap: 8px !important;                      /* ◄ Gap between cards */
+        padding: 8px !important;
+        /* ◄ Grid padding */
+        gap: 8px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-2 .fullscreen-game-card {
         height: calc((100dvh - 24px) / 2) !important;
-        padding: 8px !important;                  /* ◄ Card inner padding */
+        padding: 8px !important;
+        /* ◄ Card inner padding */
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -2356,12 +2582,14 @@
         justify-content: center !important;
         height: 100% !important;
         width: 100% !important;
-        gap: 0.5vh !important;                    /* ◄ Content gap */
+        gap: 0.5vh !important;
+        /* ◄ Content gap */
       }
 
       .fullscreen-grid.grid-2 .fullscreen-live-score-header {
         flex-direction: row !important;
-        gap: 2vw !important;                      /* ◄ Header gap */
+        gap: 2vw !important;
+        /* ◄ Header gap */
         width: 100% !important;
         align-items: center !important;
         justify-content: center !important;
@@ -2371,49 +2599,64 @@
       .fullscreen-grid.grid-2 .fullscreen-team-stack {
         flex-direction: column !important;
         align-items: center !important;
-        gap: 0.3vh !important;                    /* ◄ Team stack gap */
+        gap: 0.3vh !important;
+        /* ◄ Team stack gap */
         flex: 0 0 auto !important;
         min-width: 0 !important;
       }
 
       /* --- Grid 2: TEAM LOGO --- */
       .fullscreen-grid.grid-2 .fullscreen-team-logo {
-        width: 16vw !important;                   /* ◄ Logo width */
-        height: 16vw !important;                  /* ◄ Logo height */
-        max-width: 80px !important;               /* ◄ Logo max width */
-        max-height: 80px !important;              /* ◄ Logo max height */
+        width: 16vw !important;
+        /* ◄ Logo width */
+        height: 16vw !important;
+        /* ◄ Logo height */
+        max-width: 80px !important;
+        /* ◄ Logo max width */
+        max-height: 80px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 2: TEAM NAME --- */
       .fullscreen-grid.grid-2 .fullscreen-live-team-name {
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important; /* ◄ Team name size */
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        /* ◄ Team name size */
         white-space: nowrap !important;
       }
 
       /* --- Grid 2: TEAM RECORD --- */
       .fullscreen-grid.grid-2 .fullscreen-team-record {
-        font-size: clamp(0.85rem, 3vw, 1.2rem) !important; /* ◄ Record size */
+        font-size: clamp(0.85rem, 3vw, 1.2rem) !important;
+        /* ◄ Record size */
       }
 
       /* --- Grid 2: SCORE --- */
       .fullscreen-grid.grid-2 .fullscreen-team-score {
-        font-size: clamp(3rem, 14vw, 5.5rem) !important;  /* ◄ Score size */
+        font-size: clamp(3rem, 14vw, 5.5rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 2: LEAGUE LOGO --- */
       .fullscreen-grid.grid-2 .sport-logo-indicator {
-        width: 14vw !important;                   /* ◄ League logo width */
-        height: 14vw !important;                  /* ◄ League logo height */
-        max-width: 70px !important;               /* ◄ League logo max width */
-        max-height: 70px !important;              /* ◄ League logo max height */
-        top: 8px !important;                      /* ◄ Position from top */
-        left: 8px !important;                     /* ◄ Position from left */
+        width: 14vw !important;
+        /* ◄ League logo width */
+        height: 14vw !important;
+        /* ◄ League logo height */
+        max-width: 70px !important;
+        /* ◄ League logo max width */
+        max-height: 70px !important;
+        /* ◄ League logo max height */
+        top: 8px !important;
+        /* ◄ Position from top */
+        left: 8px !important;
+        /* ◄ Position from left */
       }
 
       /* --- Grid 2: CLOCK & QUARTER --- */
       .fullscreen-grid.grid-2 .fullscreen-status-text {
-        font-size: clamp(1.2rem, 5vw, 1.9rem) !important; /* ◄ Clock/quarter size */
+        font-size: clamp(1.2rem, 5vw, 1.9rem) !important;
+        /* ◄ Clock/quarter size */
       }
 
       .fullscreen-grid.grid-2 .fullscreen-status-container {
@@ -2421,18 +2664,21 @@
       }
 
       .fullscreen-grid.grid-2 .fullscreen-upcoming-status-text {
-        font-size: clamp(1.2rem, 5vw, 1.9rem) !important; /* ◄ Upcoming status size */
+        font-size: clamp(1.2rem, 5vw, 1.9rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 2: VS TEXT --- */
       .fullscreen-grid.grid-2 .fullscreen-vs-divider-live {
-        font-size: clamp(1rem, 4vw, 1.8rem) !important;   /* ◄ VS text size */
+        font-size: clamp(1rem, 4vw, 1.8rem) !important;
+        /* ◄ VS text size */
         flex-shrink: 0 !important;
       }
 
       /* --- Grid 2: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-2 .fullscreen-situation-info {
-        font-size: clamp(1.2rem, 5vw, 1.8rem) !important; /* ◄ Down/distance size */
+        font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
+        /* ◄ Down/distance size */
         margin-top: 0.8vh !important;
       }
 
@@ -2441,32 +2687,38 @@
       }
 
       .fullscreen-grid.grid-2 .fullscreen-down-distance {
-        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important; /* ◄ Down distance alt */
+        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important;
+        /* ◄ Down distance alt */
       }
 
       /* --- Grid 2: BALL POSITION --- */
       .fullscreen-grid.grid-2 .fullscreen-field-position {
-        font-size: clamp(0.85rem, 3vw, 1.2rem) !important; /* ◄ Ball position text */
+        font-size: clamp(0.85rem, 3vw, 1.2rem) !important;
+        /* ◄ Ball position text */
       }
 
       /* --- Grid 2: FIELD VISUALIZATION --- */
       .fullscreen-grid.grid-2 .field-container {
-        height: 32px !important;                  /* ◄ Field height */
+        height: 32px !important;
+        /* ◄ Field height */
       }
 
       .fullscreen-grid.grid-2 .field-visualizer {
         margin-top: 0.5vh !important;
-        max-width: 95% !important;                /* ◄ Field max width */
+        max-width: 95% !important;
+        /* ◄ Field max width */
         width: 95% !important;
       }
 
       .fullscreen-grid.grid-2 .field-visualizer .ball-marker {
-        width: 12px !important;                   /* ◄ Ball marker size */
+        width: 12px !important;
+        /* ◄ Ball marker size */
         height: 12px !important;
       }
 
       .fullscreen-grid.grid-2 .field-visualizer .yard-line {
-        font-size: 0.7rem !important;             /* ◄ Yard line text size */
+        font-size: 0.7rem !important;
+        /* ◄ Yard line text size */
       }
 
       /* --- Grid 2: TIMEOUTS --- */
@@ -2475,6 +2727,7 @@
         gap: 5px !important;
         margin-top: 6px !important;
       }
+
       .fullscreen-grid.grid-2 .timeout-bar {
         width: clamp(16px, 4vw, 28px) !important;
         height: clamp(5px, 1.2vh, 8px) !important;
@@ -2489,14 +2742,17 @@
         grid-template-columns: 1fr !important;
         grid-template-rows: repeat(3, 1fr) !important;
         height: 100dvh !important;
-        padding: 6px !important;                  /* ◄ Grid padding */
-        gap: 6px !important;                      /* ◄ Gap between cards */
+        padding: 6px !important;
+        /* ◄ Grid padding */
+        gap: 6px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-3 .fullscreen-game-card {
         height: calc((100dvh - 24px) / 3) !important;
-        padding: 6px !important;                  /* ◄ Card inner padding */
+        padding: 6px !important;
+        /* ◄ Card inner padding */
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -2511,12 +2767,14 @@
         justify-content: center !important;
         height: 100% !important;
         width: 100% !important;
-        gap: 0.3vh !important;                    /* ◄ Content gap */
+        gap: 0.3vh !important;
+        /* ◄ Content gap */
       }
 
       .fullscreen-grid.grid-3 .fullscreen-live-score-header {
         flex-direction: row !important;
-        gap: 2vw !important;                      /* ◄ Header gap */
+        gap: 2vw !important;
+        /* ◄ Header gap */
         width: 100% !important;
         align-items: center !important;
         justify-content: center !important;
@@ -2526,49 +2784,64 @@
       .fullscreen-grid.grid-3 .fullscreen-team-stack {
         flex-direction: column !important;
         align-items: center !important;
-        gap: 0.2vh !important;                    /* ◄ Team stack gap */
+        gap: 0.2vh !important;
+        /* ◄ Team stack gap */
         flex: 0 0 auto !important;
         min-width: 0 !important;
       }
 
       /* --- Grid 3: TEAM LOGO --- */
       .fullscreen-grid.grid-3 .fullscreen-team-logo {
-        width: 12vw !important;                   /* ◄ Logo width */
-        height: 12vw !important;                  /* ◄ Logo height */
-        max-width: 60px !important;               /* ◄ Logo max width */
-        max-height: 60px !important;              /* ◄ Logo max height */
+        width: 12vw !important;
+        /* ◄ Logo width */
+        height: 12vw !important;
+        /* ◄ Logo height */
+        max-width: 60px !important;
+        /* ◄ Logo max width */
+        max-height: 60px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 3: TEAM NAME --- */
       .fullscreen-grid.grid-3 .fullscreen-live-team-name {
-        font-size: clamp(1.1rem, 5vw, 1.8rem) !important; /* ◄ Team name size */
+        font-size: clamp(1.1rem, 5vw, 1.8rem) !important;
+        /* ◄ Team name size */
         white-space: nowrap !important;
       }
 
       /* --- Grid 3: TEAM RECORD --- */
       .fullscreen-grid.grid-3 .fullscreen-team-record {
-        font-size: clamp(0.65rem, 2.5vw, 1rem) !important; /* ◄ Record size */
+        font-size: clamp(0.65rem, 2.5vw, 1rem) !important;
+        /* ◄ Record size */
       }
 
       /* --- Grid 3: SCORE --- */
       .fullscreen-grid.grid-3 .fullscreen-team-score {
-        font-size: clamp(2.2rem, 11vw, 4.2rem) !important; /* ◄ Score size */
+        font-size: clamp(2.2rem, 11vw, 4.2rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 3: LEAGUE LOGO --- */
       .fullscreen-grid.grid-3 .sport-logo-indicator {
-        width: 12vw !important;                   /* ◄ League logo width */
-        height: 12vw !important;                  /* ◄ League logo height */
-        max-width: 55px !important;               /* ◄ League logo max width */
-        max-height: 55px !important;              /* ◄ League logo max height */
-        top: 6px !important;                      /* ◄ Position from top */
-        left: 6px !important;                     /* ◄ Position from left */
+        width: 12vw !important;
+        /* ◄ League logo width */
+        height: 12vw !important;
+        /* ◄ League logo height */
+        max-width: 55px !important;
+        /* ◄ League logo max width */
+        max-height: 55px !important;
+        /* ◄ League logo max height */
+        top: 6px !important;
+        /* ◄ Position from top */
+        left: 6px !important;
+        /* ◄ Position from left */
       }
 
       /* --- Grid 3: CLOCK & QUARTER --- */
       .fullscreen-grid.grid-3 .fullscreen-status-text {
-        font-size: clamp(1rem, 4.5vw, 1.5rem) !important; /* ◄ Clock/quarter size */
+        font-size: clamp(1rem, 4.5vw, 1.5rem) !important;
+        /* ◄ Clock/quarter size */
       }
 
       .fullscreen-grid.grid-3 .fullscreen-status-container {
@@ -2576,34 +2849,40 @@
       }
 
       .fullscreen-grid.grid-3 .fullscreen-upcoming-status-text {
-        font-size: clamp(1rem, 4.5vw, 1.5rem) !important; /* ◄ Upcoming status size */
+        font-size: clamp(1rem, 4.5vw, 1.5rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 3: VS TEXT --- */
       .fullscreen-grid.grid-3 .fullscreen-vs-divider-live {
-        font-size: clamp(0.8rem, 3vw, 1.4rem) !important; /* ◄ VS text size */
+        font-size: clamp(0.8rem, 3vw, 1.4rem) !important;
+        /* ◄ VS text size */
         flex-shrink: 0 !important;
       }
 
       /* --- Grid 3: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-3 .fullscreen-situation-info {
-        font-size: clamp(0.9rem, 3.5vw, 1.3rem) !important; /* ◄ Down/distance size */
+        font-size: clamp(0.9rem, 3.5vw, 1.3rem) !important;
+        /* ◄ Down/distance size */
         margin-top: 0.3vh !important;
       }
 
       /* --- Grid 3: BALL POSITION --- */
       .fullscreen-grid.grid-3 .fullscreen-field-position {
-        font-size: clamp(0.75rem, 2.5vw, 1.1rem) !important; /* ◄ Ball position text */
+        font-size: clamp(0.75rem, 2.5vw, 1.1rem) !important;
+        /* ◄ Ball position text */
       }
 
       /* --- Grid 3: FIELD VISUALIZATION --- */
       .fullscreen-grid.grid-3 .field-container {
-        height: 22px !important;                  /* ◄ Field height */
+        height: 22px !important;
+        /* ◄ Field height */
       }
 
       .fullscreen-grid.grid-3 .field-visualizer {
         margin-top: 0.3vh !important;
-        max-width: 90% !important;                /* ◄ Field max width */
+        max-width: 90% !important;
+        /* ◄ Field max width */
       }
 
       /* --- Grid 3: TIMEOUTS --- */
@@ -2612,6 +2891,7 @@
         gap: 4px !important;
         margin-top: 5px !important;
       }
+
       .fullscreen-grid.grid-3 .timeout-bar {
         width: clamp(14px, 3.5vw, 24px) !important;
         height: clamp(4px, 1vh, 7px) !important;
@@ -2626,13 +2906,16 @@
         grid-template-columns: 1fr !important;
         grid-template-rows: repeat(4, 1fr) !important;
         height: 100dvh !important;
-        padding: 4px !important;                  /* ◄ Grid padding */
-        gap: 4px !important;                      /* ◄ Gap between cards */
+        padding: 4px !important;
+        /* ◄ Grid padding */
+        gap: 4px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-4 .fullscreen-game-card {
-        padding: 3px !important;                  /* ◄ Card inner padding */
+        padding: 3px !important;
+        /* ◄ Card inner padding */
         overflow: hidden !important;
       }
 
@@ -2641,7 +2924,8 @@
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 2px !important;                      /* ◄ Team stack gap */
+        gap: 2px !important;
+        /* ◄ Team stack gap */
         padding: 3px !important;
       }
 
@@ -2653,82 +2937,103 @@
 
       /* --- Grid 4: TEAM LOGO --- */
       .fullscreen-grid.grid-4 .fullscreen-team-logo {
-        width: 22vw !important;                   /* ◄ Logo width (2x) */
-        height: 22vw !important;                  /* ◄ Logo height (2x) */
-        max-width: 110px !important;              /* ◄ Logo max width (2x) */
-        max-height: 110px !important;             /* ◄ Logo max height (2x) */
+        width: 22vw !important;
+        /* ◄ Logo width (2x) */
+        height: 22vw !important;
+        /* ◄ Logo height (2x) */
+        max-width: 110px !important;
+        /* ◄ Logo max width (2x) */
+        max-height: 110px !important;
+        /* ◄ Logo max height (2x) */
       }
 
       /* --- Grid 4: TEAM NAME --- */
       .fullscreen-grid.grid-4 .fullscreen-live-team-name {
-        font-size: clamp(1rem, 5vw, 1.6rem) !important;   /* ◄ Team name size */
+        font-size: clamp(1rem, 5vw, 1.6rem) !important;
+        /* ◄ Team name size */
         text-align: center !important;
       }
 
       /* --- Grid 4: TEAM RECORD --- */
       .fullscreen-grid.grid-4 .fullscreen-team-record {
-        font-size: clamp(0.65rem, 2.5vw, 1rem) !important; /* ◄ Record size */
+        font-size: clamp(0.65rem, 2.5vw, 1rem) !important;
+        /* ◄ Record size */
         text-align: center !important;
       }
 
       /* --- Grid 4: SCORE --- */
       .fullscreen-grid.grid-4 .fullscreen-team-score {
-        font-size: clamp(2rem, 10vw, 3.5rem) !important;  /* ◄ Score size */
+        font-size: clamp(2rem, 10vw, 3.5rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 4: LEAGUE LOGO --- */
       .fullscreen-grid.grid-4 .sport-logo-indicator {
-        width: 10vw !important;                   /* ◄ League logo width */
-        height: 10vw !important;                  /* ◄ League logo height */
-        max-width: 45px !important;               /* ◄ League logo max width */
-        max-height: 45px !important;              /* ◄ League logo max height */
-        top: 3px !important;                      /* ◄ Position from top */
-        left: 3px !important;                     /* ◄ Position from left */
+        width: 10vw !important;
+        /* ◄ League logo width */
+        height: 10vw !important;
+        /* ◄ League logo height */
+        max-width: 45px !important;
+        /* ◄ League logo max width */
+        max-height: 45px !important;
+        /* ◄ League logo max height */
+        top: 3px !important;
+        /* ◄ Position from top */
+        left: 3px !important;
+        /* ◄ Position from left */
       }
 
       /* --- Grid 4: CLOCK & QUARTER --- */
       .fullscreen-grid.grid-4 .fullscreen-status-text {
-        font-size: clamp(1.8rem, 8vw, 2.6rem) !important; /* ◄ Clock/quarter size (2x) */
+        font-size: clamp(1.8rem, 8vw, 2.6rem) !important;
+        /* ◄ Clock/quarter size (2x) */
       }
 
       .fullscreen-grid.grid-4 .fullscreen-upcoming-status-text {
-        font-size: clamp(1.8rem, 8vw, 2.6rem) !important; /* ◄ Upcoming status size (2x) */
+        font-size: clamp(1.8rem, 8vw, 2.6rem) !important;
+        /* ◄ Upcoming status size (2x) */
       }
 
       /* --- Grid 4: VS TEXT --- */
       .fullscreen-grid.grid-4 .fullscreen-vs-divider,
       .fullscreen-grid.grid-4 .fullscreen-vs-divider-live {
-        font-size: clamp(0.8rem, 3vw, 1.1rem) !important; /* ◄ VS text size */
+        font-size: clamp(0.8rem, 3vw, 1.1rem) !important;
+        /* ◄ VS text size */
         padding: 0 3px !important;
       }
 
       /* --- Grid 4: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-4 .situation-info,
       .fullscreen-grid.grid-4 .fullscreen-situation-info {
-        font-size: clamp(1.7rem, 7vw, 2.4rem) !important; /* ◄ Down/distance size (2x) */
+        font-size: clamp(1.7rem, 7vw, 2.4rem) !important;
+        /* ◄ Down/distance size (2x) */
         padding: 4px 8px !important;
         margin-top: 4px !important;
       }
 
       .fullscreen-grid.grid-4 .down-distance {
-        font-size: clamp(1.7rem, 7vw, 2.4rem) !important; /* ◄ Down distance alt (2x) */
+        font-size: clamp(1.7rem, 7vw, 2.4rem) !important;
+        /* ◄ Down distance alt (2x) */
       }
 
       /* --- Grid 4: BALL POSITION --- */
       .fullscreen-grid.grid-4 .fullscreen-field-position {
-        font-size: clamp(1.4rem, 5vw, 2rem) !important; /* ◄ Ball position text (2x) */
+        font-size: clamp(1.4rem, 5vw, 2rem) !important;
+        /* ◄ Ball position text (2x) */
       }
 
       /* --- Grid 4: FIELD VISUALIZATION --- */
       .fullscreen-grid.grid-4 .field-container {
-        height: 24px !important;                  /* ◄ Field height */
+        height: 24px !important;
+        /* ◄ Field height */
         margin-top: 2px !important;
       }
 
       .fullscreen-grid.grid-4 .field-visualizer {
         margin-top: 2px !important;
-        max-width: 90% !important;                /* ◄ Field max width */
+        max-width: 90% !important;
+        /* ◄ Field max width */
       }
 
       /* --- Grid 4: TIMEOUTS --- */
@@ -2737,6 +3042,7 @@
         gap: 3px !important;
         margin-top: 4px !important;
       }
+
       .fullscreen-grid.grid-4 .timeout-bar {
         width: clamp(12px, 3vw, 20px) !important;
         height: clamp(3px, 0.8vh, 6px) !important;
@@ -2746,24 +3052,30 @@
       .fullscreen-grid.grid-4 .play-animation {
         padding: 5px !important;
       }
+
       .fullscreen-grid.grid-4 .play-animation-icon {
         font-size: clamp(1.5rem, 4vh, 3rem) !important;
         margin-bottom: 5px !important;
       }
+
       .fullscreen-grid.grid-4 .play-animation-text {
         font-size: clamp(0.9rem, 2.5vh, 1.8rem) !important;
         letter-spacing: 1px !important;
       }
+
       .fullscreen-grid.grid-4 .play-animation-subtext {
         font-size: clamp(0.7rem, 1.8vh, 1.2rem) !important;
         margin-top: 3px !important;
       }
+
       .fullscreen-grid.grid-4 .touchdown-container {
         margin-bottom: 5px !important;
       }
+
       .fullscreen-grid.grid-4 .two-point-container {
         margin-bottom: 5px !important;
       }
+
       .fullscreen-grid.grid-4 .two-point-team-logo {
         width: clamp(30px, 8vmin, 60px) !important;
         height: clamp(30px, 8vmin, 60px) !important;
@@ -2773,25 +3085,31 @@
       .fullscreen-grid.grid-4 .referee-throwing {
         width: clamp(60px, 15vmin, 120px) !important;
       }
+
       .fullscreen-grid.grid-4 .penalty-phase-1-text {
         font-size: clamp(1.2rem, 4vmin, 2rem) !important;
         margin-top: 8px !important;
       }
+
       .fullscreen-grid.grid-4 .penalty-info-box {
         padding: 10px 15px !important;
         gap: 6px !important;
         max-width: 90% !important;
       }
+
       .fullscreen-grid.grid-4 .penalty-team-logo {
         width: clamp(40px, 10vmin, 70px) !important;
         height: clamp(40px, 10vmin, 70px) !important;
       }
+
       .fullscreen-grid.grid-4 .penalty-type {
         font-size: clamp(0.8rem, 2vmin, 1.2rem) !important;
       }
+
       .fullscreen-grid.grid-4 .penalty-on {
         font-size: clamp(0.6rem, 1.5vmin, 0.9rem) !important;
       }
+
       .fullscreen-grid.grid-4 .penalty-player {
         font-size: clamp(0.65rem, 1.6vmin, 1rem) !important;
       }
@@ -2805,75 +3123,95 @@
         grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: repeat(3, 1fr) !important;
         height: 100dvh !important;
-        padding: 6px !important;                  /* ◄ Grid padding */
-        gap: 6px !important;                      /* ◄ Gap between cards */
+        padding: 6px !important;
+        /* ◄ Grid padding */
+        gap: 6px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-6 .fullscreen-game-card {
-        padding: 6px !important;                  /* ◄ Card inner padding */
+        padding: 6px !important;
+        /* ◄ Card inner padding */
         overflow: hidden !important;
       }
 
       /* --- Grid 6: TEAM LOGO --- */
       .fullscreen-grid.grid-6 .fullscreen-team-logo {
-        width: 9vw !important;                    /* ◄ Logo width */
-        height: 9vw !important;                   /* ◄ Logo height */
-        max-width: 42px !important;               /* ◄ Logo max width */
-        max-height: 42px !important;              /* ◄ Logo max height */
+        width: 9vw !important;
+        /* ◄ Logo width */
+        height: 9vw !important;
+        /* ◄ Logo height */
+        max-width: 42px !important;
+        /* ◄ Logo max width */
+        max-height: 42px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 6: TEAM NAME --- */
       .fullscreen-grid.grid-6 .fullscreen-live-team-name {
-        font-size: clamp(0.85rem, 4vw, 1.3rem) !important; /* ◄ Team name size */
+        font-size: clamp(0.85rem, 4vw, 1.3rem) !important;
+        /* ◄ Team name size */
       }
 
       /* --- Grid 6: TEAM RECORD --- */
       .fullscreen-grid.grid-6 .fullscreen-team-record {
-        font-size: clamp(0.55rem, 2vw, 0.9rem) !important; /* ◄ Record size */
+        font-size: clamp(0.55rem, 2vw, 0.9rem) !important;
+        /* ◄ Record size */
       }
 
       /* --- Grid 6: SCORE --- */
       .fullscreen-grid.grid-6 .fullscreen-team-score {
-        font-size: clamp(1.6rem, 8vw, 2.8rem) !important; /* ◄ Score size */
+        font-size: clamp(1.6rem, 8vw, 2.8rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 6: LEAGUE LOGO --- */
       .fullscreen-grid.grid-6 .sport-logo-indicator {
-        width: 8vw !important;                    /* ◄ League logo width */
-        height: 8vw !important;                   /* ◄ League logo height */
-        max-width: 36px !important;               /* ◄ League logo max width */
-        max-height: 36px !important;              /* ◄ League logo max height */
+        width: 8vw !important;
+        /* ◄ League logo width */
+        height: 8vw !important;
+        /* ◄ League logo height */
+        max-width: 36px !important;
+        /* ◄ League logo max width */
+        max-height: 36px !important;
+        /* ◄ League logo max height */
       }
 
       /* --- Grid 6: CLOCK & QUARTER --- */
       .fullscreen-grid.grid-6 .fullscreen-status-text {
-        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important; /* ◄ Clock/quarter size */
+        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important;
+        /* ◄ Clock/quarter size */
       }
 
       .fullscreen-grid.grid-6 .fullscreen-upcoming-status-text {
-        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important; /* ◄ Upcoming status size */
+        font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 6: VS TEXT --- */
       .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
-        font-size: clamp(0.7rem, 2.5vw, 0.95rem) !important; /* ◄ VS text size */
+        font-size: clamp(0.7rem, 2.5vw, 0.95rem) !important;
+        /* ◄ VS text size */
       }
 
       /* --- Grid 6: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-6 .fullscreen-situation-info {
-        font-size: clamp(0.7rem, 3vw, 1rem) !important;   /* ◄ Down/distance size */
+        font-size: clamp(0.7rem, 3vw, 1rem) !important;
+        /* ◄ Down/distance size */
       }
 
       /* --- Grid 6: BALL POSITION --- */
       .fullscreen-grid.grid-6 .fullscreen-field-position {
-        font-size: clamp(0.6rem, 2vw, 0.85rem) !important; /* ◄ Ball position text */
+        font-size: clamp(0.6rem, 2vw, 0.85rem) !important;
+        /* ◄ Ball position text */
       }
 
       /* --- Grid 6: FIELD VISUALIZATION --- */
       .fullscreen-grid.grid-6 .field-container {
-        height: 20px !important;                  /* ◄ Field height */
+        height: 20px !important;
+        /* ◄ Field height */
       }
 
       /* --- Grid 6: TIMEOUTS --- */
@@ -2882,6 +3220,7 @@
         gap: 2px !important;
         margin-top: 3px !important;
       }
+
       .fullscreen-grid.grid-6 .timeout-bar {
         width: clamp(10px, 2.5vw, 16px) !important;
         height: clamp(2px, 0.6vh, 5px) !important;
@@ -2897,75 +3236,95 @@
         grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: repeat(4, 1fr) !important;
         height: 100dvh !important;
-        padding: 6px !important;                  /* ◄ Grid padding */
-        gap: 6px !important;                      /* ◄ Gap between cards */
+        padding: 6px !important;
+        /* ◄ Grid padding */
+        gap: 6px !important;
+        /* ◄ Gap between cards */
         overflow: hidden !important;
       }
 
       .fullscreen-grid.grid-8 .fullscreen-game-card {
-        padding: 6px !important;                  /* ◄ Card inner padding */
+        padding: 6px !important;
+        /* ◄ Card inner padding */
         overflow: hidden !important;
       }
 
       /* --- Grid 8: TEAM LOGO --- */
       .fullscreen-grid.grid-8 .fullscreen-team-logo {
-        width: 7vw !important;                    /* ◄ Logo width */
-        height: 7vw !important;                   /* ◄ Logo height */
-        max-width: 32px !important;               /* ◄ Logo max width */
-        max-height: 32px !important;              /* ◄ Logo max height */
+        width: 7vw !important;
+        /* ◄ Logo width */
+        height: 7vw !important;
+        /* ◄ Logo height */
+        max-width: 32px !important;
+        /* ◄ Logo max width */
+        max-height: 32px !important;
+        /* ◄ Logo max height */
       }
 
       /* --- Grid 8: TEAM NAME --- */
       .fullscreen-grid.grid-8 .fullscreen-live-team-name {
-        font-size: clamp(0.7rem, 3.5vw, 1.1rem) !important; /* ◄ Team name size */
+        font-size: clamp(0.7rem, 3.5vw, 1.1rem) !important;
+        /* ◄ Team name size */
       }
 
       /* --- Grid 8: TEAM RECORD --- */
       .fullscreen-grid.grid-8 .fullscreen-team-record {
-        font-size: clamp(0.5rem, 1.8vw, 0.75rem) !important; /* ◄ Record size */
+        font-size: clamp(0.5rem, 1.8vw, 0.75rem) !important;
+        /* ◄ Record size */
       }
 
       /* --- Grid 8: SCORE --- */
       .fullscreen-grid.grid-8 .fullscreen-team-score {
-        font-size: clamp(1.3rem, 6.5vw, 2.2rem) !important; /* ◄ Score size */
+        font-size: clamp(1.3rem, 6.5vw, 2.2rem) !important;
+        /* ◄ Score size */
         min-width: auto !important;
       }
 
       /* --- Grid 8: LEAGUE LOGO --- */
       .fullscreen-grid.grid-8 .sport-logo-indicator {
-        width: 7vw !important;                    /* ◄ League logo width */
-        height: 7vw !important;                   /* ◄ League logo height */
-        max-width: 30px !important;               /* ◄ League logo max width */
-        max-height: 30px !important;              /* ◄ League logo max height */
+        width: 7vw !important;
+        /* ◄ League logo width */
+        height: 7vw !important;
+        /* ◄ League logo height */
+        max-width: 30px !important;
+        /* ◄ League logo max width */
+        max-height: 30px !important;
+        /* ◄ League logo max height */
       }
 
       /* --- Grid 8: CLOCK & QUARTER --- */
       .fullscreen-grid.grid-8 .fullscreen-status-text {
-        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important; /* ◄ Clock/quarter size */
+        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important;
+        /* ◄ Clock/quarter size */
       }
 
       .fullscreen-grid.grid-8 .fullscreen-upcoming-status-text {
-        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important; /* ◄ Upcoming status size */
+        font-size: clamp(0.65rem, 2.8vw, 0.95rem) !important;
+        /* ◄ Upcoming status size */
       }
 
       /* --- Grid 8: VS TEXT --- */
       .fullscreen-grid.grid-8 .fullscreen-vs-divider-live {
-        font-size: clamp(0.55rem, 2vw, 0.8rem) !important; /* ◄ VS text size */
+        font-size: clamp(0.55rem, 2vw, 0.8rem) !important;
+        /* ◄ VS text size */
       }
 
       /* --- Grid 8: DOWN & DISTANCE --- */
       .fullscreen-grid.grid-8 .fullscreen-situation-info {
-        font-size: clamp(0.6rem, 2.5vw, 0.85rem) !important; /* ◄ Down/distance size */
+        font-size: clamp(0.6rem, 2.5vw, 0.85rem) !important;
+        /* ◄ Down/distance size */
       }
 
       /* --- Grid 8: BALL POSITION --- */
       .fullscreen-grid.grid-8 .fullscreen-field-position {
-        font-size: clamp(0.5rem, 1.8vw, 0.7rem) !important; /* ◄ Ball position text */
+        font-size: clamp(0.5rem, 1.8vw, 0.7rem) !important;
+        /* ◄ Ball position text */
       }
 
       /* --- Grid 8: FIELD VISUALIZATION --- */
       .fullscreen-grid.grid-8 .field-container {
-        height: 16px !important;                  /* ◄ Field height */
+        height: 16px !important;
+        /* ◄ Field height */
       }
 
       /* --- Grid 8: TIMEOUTS --- */
@@ -2974,6 +3333,7 @@
         gap: 2px !important;
         margin-top: 2px !important;
       }
+
       .fullscreen-grid.grid-8 .timeout-bar {
         width: clamp(8px, 2vw, 14px) !important;
         height: clamp(2px, 0.5vh, 4px) !important;
@@ -2989,11 +3349,13 @@
         padding: 4px !important;
         margin-bottom: 4px !important;
       }
+
       .fs-game-selector {
         padding: 4px 8px !important;
         font-size: clamp(10px, 2.5vw, 14px) !important;
         border-radius: 6px !important;
       }
+
       /* Always show selector on empty slots */
       .fullscreen-game-card.empty-slot .fs-game-selector-container {
         display: block !important;
@@ -3022,8 +3384,10 @@
        ════════════════════════════════════════════════════════════════════════════════ */
     @media (max-width: 480px) {
       .fullscreen-grid {
-        gap: 6px !important;                      /* ◄ Grid gap */
-        padding: 6px !important;                  /* ◄ Grid padding */
+        gap: 6px !important;
+        /* ◄ Grid gap */
+        padding: 6px !important;
+        /* ◄ Grid padding */
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -3032,12 +3396,14 @@
 
       /* --- Grid 1: TEAM NAME (XS) --- */
       .fullscreen-grid.grid-1 .fullscreen-live-team-name {
-        font-size: clamp(1.4rem, 7vw, 2.5rem) !important; /* ◄ Team name size */
+        font-size: clamp(1.4rem, 7vw, 2.5rem) !important;
+        /* ◄ Team name size */
       }
 
       /* --- Grid 1: SCORE (XS) --- */
       .fullscreen-grid.grid-1 .fullscreen-team-score {
-        font-size: clamp(2.5rem, 12vw, 5rem) !important;  /* ◄ Score size */
+        font-size: clamp(2.5rem, 12vw, 5rem) !important;
+        /* ◄ Score size */
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -3046,12 +3412,14 @@
 
       /* --- Grid 2: TEAM NAME (XS) --- */
       .fullscreen-grid.grid-2 .fullscreen-live-team-name {
-        font-size: clamp(0.8rem, 3.5vw, 1.3rem) !important; /* ◄ Team name size */
+        font-size: clamp(0.8rem, 3.5vw, 1.3rem) !important;
+        /* ◄ Team name size */
       }
 
       /* --- Grid 2: SCORE (XS) --- */
       .fullscreen-grid.grid-2 .fullscreen-team-score {
-        font-size: clamp(1.5rem, 7vw, 3rem) !important;   /* ◄ Score size */
+        font-size: clamp(1.5rem, 7vw, 3rem) !important;
+        /* ◄ Score size */
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -3060,12 +3428,14 @@
 
       /* --- Grid 4: TEAM NAME (XS) --- */
       .fullscreen-grid.grid-4 .fullscreen-live-team-name {
-        font-size: clamp(0.45rem, 2vw, 0.75rem) !important; /* ◄ Team name size */
+        font-size: clamp(0.45rem, 2vw, 0.75rem) !important;
+        /* ◄ Team name size */
       }
 
       /* --- Grid 4: SCORE (XS) --- */
       .fullscreen-grid.grid-4 .fullscreen-team-score {
-        font-size: clamp(0.9rem, 4.5vw, 1.4rem) !important; /* ◄ Score size */
+        font-size: clamp(0.9rem, 4.5vw, 1.4rem) !important;
+        /* ◄ Score size */
       }
 
       /* ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -3075,18 +3445,21 @@
       /* --- Grid 6/8: TEAM NAME (XS) --- */
       .fullscreen-grid.grid-6 .fullscreen-live-team-name,
       .fullscreen-grid.grid-8 .fullscreen-live-team-name {
-        font-size: clamp(0.5rem, 2.5vw, 0.9rem) !important; /* ◄ Team name size */
+        font-size: clamp(0.5rem, 2.5vw, 0.9rem) !important;
+        /* ◄ Team name size */
       }
 
       /* --- Grid 6/8: SCORE (XS) --- */
       .fullscreen-grid.grid-6 .fullscreen-team-score,
       .fullscreen-grid.grid-8 .fullscreen-team-score {
-        font-size: clamp(1rem, 5vw, 1.8rem) !important;   /* ◄ Score size */
+        font-size: clamp(1rem, 5vw, 1.8rem) !important;
+        /* ◄ Score size */
       }
 
       /* --- LEAGUE LOGO OPACITY (XS) --- */
       .sport-logo-indicator {
-        opacity: 0.6 !important;                  /* ◄ Reduced opacity on small screens */
+        opacity: 0.6 !important;
+        /* ◄ Reduced opacity on small screens */
       }
 
       /* TV Mode Override - Force 3x2 horizontal layout even on extra small viewport */
@@ -3165,7 +3538,7 @@
       transform: translateY(0);
     }
 
-    
+
     /* Sort Filter Buttons */
     .sort-filters {
       display: flex;
@@ -3521,8 +3894,13 @@
     }
 
     @keyframes refreshSpin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .refresh-indicator.active {
@@ -3598,6 +3976,7 @@
         opacity: 0;
         transform: translateY(-20px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -3923,7 +4302,7 @@
       /* Handle broken images - hide alt text overflow */
       overflow: hidden;
       text-indent: -9999px;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 8px;
     }
 
@@ -3980,7 +4359,7 @@
       /* Handle broken images - hide alt text overflow */
       overflow: hidden;
       text-indent: -9999px;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 8px;
     }
 
@@ -4136,20 +4515,20 @@
     /* Responsive Design */
     @media (max-width: 1200px) {
       /* Grid layout handled by main .games-grid rules above */
-      
+
       .quarter-scores {
         gap: 12px;
       }
-      
+
       .quarter-score {
         font-size: 13px;
         min-width: 20px;
       }
-      
+
       .quarter-score.total-score {
         font-size: 22px;
       }
-      
+
       .team-name {
         font-size: 14px;
         min-width: 120px;
@@ -4181,7 +4560,7 @@
         padding: 3px 8px;
       }
 
-      .header-content > div {
+      .header-content>div {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
@@ -4207,7 +4586,7 @@
         flex: 1;
         min-width: 140px;
       }
-      
+
       .panel-header {
         font-size: 16px;
         flex-direction: column;
@@ -4219,12 +4598,12 @@
         font-size: 12px;
         padding: 6px 12px;
       }
-      
+
       .games-grid {
         /* Grid layout handled by main .games-grid rules above */
         max-height: none;
       }
-      
+
       .game-card {
         padding: 0;
         border-radius: 12px;
@@ -4234,7 +4613,7 @@
         box-sizing: border-box;
         overflow: hidden;
       }
-      
+
       .team-row {
         padding: 16px 12px;
         flex-wrap: nowrap;
@@ -4255,7 +4634,7 @@
         height: 28px;
         flex-shrink: 0;
       }
-      
+
       .team-name {
         font-size: 12px;
         min-width: 0;
@@ -4265,21 +4644,21 @@
         text-overflow: ellipsis;
         max-width: 100%;
       }
-      
+
       .quarter-scores {
         gap: 8px;
         flex-shrink: 0;
         display: flex;
         align-items: center;
       }
-      
+
       .quarter-score {
         font-size: 11px;
         min-width: 18px;
         max-width: 24px;
         text-align: center;
       }
-      
+
       .quarter-score.total-score {
         font-size: 20px;
         min-width: 32px;
@@ -4287,24 +4666,24 @@
         font-weight: 700;
         margin-left: 4px;
       }
-      
+
       .quarter-header {
         padding: 10px 12px;
         width: 100%;
         box-sizing: border-box;
       }
-      
+
       .scores-header {
         gap: 8px;
       }
-      
+
       .quarter-label {
         font-size: 9px;
         min-width: 18px;
         max-width: 24px;
         text-align: center;
       }
-      
+
       .quarter-label:last-child {
         min-width: 32px;
         max-width: 40px;
@@ -4324,7 +4703,7 @@
         font-size: 9px;
         padding: 4px 8px;
       }
-      
+
       .game-situation {
         flex-direction: row;
         align-items: center;
@@ -4332,12 +4711,12 @@
         flex-wrap: wrap;
         font-size: 10px;
       }
-      
+
       .quarter-clock {
         font-size: 10px;
         font-weight: 600;
       }
-      
+
       .down-distance,
       .yard-line {
         /*font-size: 9px;*/
@@ -4495,6 +4874,7 @@
     }
 
     @media (max-width: 400px) {
+
       /* Modal fixes for mobile */
       .modal-overlay {
         padding: 10px;
@@ -4627,12 +5007,16 @@
     }
 
     @keyframes rotateHint {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: rotate(0deg);
       }
+
       25% {
         transform: rotate(-15deg);
       }
+
       75% {
         transform: rotate(15deg);
       }
@@ -4833,31 +5217,135 @@
         padding: 8px 12px !important;
         overflow: hidden !important;
       }
-      .game-card { border-radius: 8px !important; overflow: hidden !important; }
-      .team-row { padding: 8px 10px !important; }
-      .team-logo { width: 32px !important; height: 32px !important; min-width: 32px !important; }
-      .team-name { font-size: 12px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; max-width: 80px !important; }
-      .team-record { display: none !important; }
-      .team-score { font-size: 20px !important; }
-      .game-status-bar { padding: 5px 10px !important; }
-      .game-status-bar .status-text { font-size: 10px !important; }
-      .scoring-breakdown, .quarter-scores { display: none !important; }
-      .games-header { padding: 8px 12px !important; }
-      .games-header h1 { font-size: 16px !important; }
-      .week-nav button { font-size: 11px !important; padding: 5px 10px !important; }
-      .tv-back-btn { font-size: 11px !important; padding: 6px 12px !important; }
-      .fullscreen-container { padding: 0 !important; overflow: hidden !important; }
-      .fullscreen-game-card { border-radius: 6px !important; padding: 8px !important; overflow: hidden !important; }
-      .fullscreen-teams { gap: 5px !important; overflow: hidden !important; }
-      .fullscreen-team { gap: 3px !important; overflow: hidden !important; }
-      .fullscreen-team-logo { width: 28px !important; height: 28px !important; min-width: 28px !important; }
-      .fullscreen-live-team-name, .fullscreen-team-name { font-size: 0.75rem !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; max-width: 60px !important; }
-      .fullscreen-team-score, .fullscreen-score { font-size: 1.8rem !important; }
-      .fullscreen-team-record { display: none !important; }
-      .fullscreen-status-text, .fullscreen-quarter { font-size: 0.7rem !important; padding: 3px 8px !important; }
-      .fullscreen-vs { font-size: 0.7rem !important; margin: 2px 0 !important; }
-      .sport-logo-indicator { width: 24px !important; height: 24px !important; top: 4px !important; left: 4px !important; }
-      .fullscreen-timeouts { display: none !important; }
+
+      .game-card {
+        border-radius: 8px !important;
+        overflow: hidden !important;
+      }
+
+      .team-row {
+        padding: 8px 10px !important;
+      }
+
+      .team-logo {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+      }
+
+      .team-name {
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 80px !important;
+      }
+
+      .team-record {
+        display: none !important;
+      }
+
+      .team-score {
+        font-size: 20px !important;
+      }
+
+      .game-status-bar {
+        padding: 5px 10px !important;
+      }
+
+      .game-status-bar .status-text {
+        font-size: 10px !important;
+      }
+
+      .scoring-breakdown,
+      .quarter-scores {
+        display: none !important;
+      }
+
+      .games-header {
+        padding: 8px 12px !important;
+      }
+
+      .games-header h1 {
+        font-size: 16px !important;
+      }
+
+      .week-nav button {
+        font-size: 11px !important;
+        padding: 5px 10px !important;
+      }
+
+      .tv-back-btn {
+        font-size: 11px !important;
+        padding: 6px 12px !important;
+      }
+
+      .fullscreen-container {
+        padding: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-game-card {
+        border-radius: 6px !important;
+        padding: 8px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-teams {
+        gap: 5px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-team {
+        gap: 3px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-team-logo {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+      }
+
+      .fullscreen-live-team-name,
+      .fullscreen-team-name {
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 60px !important;
+      }
+
+      .fullscreen-team-score,
+      .fullscreen-score {
+        font-size: 1.8rem !important;
+      }
+
+      .fullscreen-team-record {
+        display: none !important;
+      }
+
+      .fullscreen-status-text,
+      .fullscreen-quarter {
+        font-size: 0.7rem !important;
+        padding: 3px 8px !important;
+      }
+
+      .fullscreen-vs {
+        font-size: 0.7rem !important;
+        margin: 2px 0 !important;
+      }
+
+      .sport-logo-indicator {
+        width: 24px !important;
+        height: 24px !important;
+        top: 4px !important;
+        left: 4px !important;
+      }
+
+      .fullscreen-timeouts {
+        display: none !important;
+      }
     }
 
     /* Mobile phones in landscape - show "rotate to portrait" overlay */
@@ -5436,7 +5924,8 @@
   <!-- <script src="/scripts/theme-manager.js"></script> -->
   <link rel="stylesheet" href="/styles/responsive-grid.css?v=1761528533781">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  </head>
+</head>
+
 <body>
   <script>
     // Detect TV mode from URL parameter or user agent
@@ -5444,17 +5933,17 @@
     window.tvSessionToken = null;
     window.isTVMode = false;
 
-    (function() {
+    (function () {
       const urlParams = new URLSearchParams(window.location.search);
       const isTV = urlParams.get('tv') === '1' ||
-                   navigator.userAgent.includes('AndroidTV') ||
-                   navigator.userAgent.includes('GoogleTV') ||
-                   navigator.userAgent.includes('FireTV') ||
-                   navigator.userAgent.includes('BRAVIA') ||
-                   navigator.userAgent.includes('SmartTV') ||
-                   navigator.userAgent.includes('Web0S') ||
-                   navigator.userAgent.includes('Tizen') ||
-                   navigator.userAgent.includes('GridTVSports-AndroidTV');
+        navigator.userAgent.includes('AndroidTV') ||
+        navigator.userAgent.includes('GoogleTV') ||
+        navigator.userAgent.includes('FireTV') ||
+        navigator.userAgent.includes('BRAVIA') ||
+        navigator.userAgent.includes('SmartTV') ||
+        navigator.userAgent.includes('Web0S') ||
+        navigator.userAgent.includes('Tizen') ||
+        navigator.userAgent.includes('GridTVSports-AndroidTV');
 
       // Store TV session token for API authentication
       window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
@@ -5483,7 +5972,7 @@
     })();
 
     // TV-aware fetch wrapper - adds authentication header for TV mode
-    window.tvFetch = function(url, options = {}) {
+    window.tvFetch = function (url, options = {}) {
       if (window.isTVMode && window.tvSessionToken) {
         options.headers = options.headers || {};
         options.headers['x-tv-session'] = window.tvSessionToken;
@@ -5538,19 +6027,20 @@
             <span>Auto-refreshing every 5 seconds</span>
           </div>
         </div>
-        
+
         <div style="display: flex; gap: 12px; align-items: center;">
           <div class="sort-filters">
             <button class="sort-filter-btn" id="sort-favorites" title="Sort by Favorites First">
               <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
               <span>Favorites</span>
             </button>
             <button class="sort-filter-btn active" id="sort-time" title="Sort by Game Time">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
               </svg>
               <span>Time</span>
             </button>
@@ -5754,16 +6244,16 @@
         if (!currentWeekResponse.ok && !nextWeekResponse.ok) {
           throw new Error(`Failed to fetch games from both weeks`);
         }
-        
+
         // Combine games from both weeks
         const currentWeekData = currentWeekResponse.ok ? await currentWeekResponse.json() : { events: [] };
         const nextWeekData = nextWeekResponse.ok ? await nextWeekResponse.json() : { events: [] };
-        
+
         const allEvents = [
           ...(currentWeekData.events || []),
           ...(nextWeekData.events || [])
         ];
-        
+
         console.log('📊 ESPN API Response:', {
           currentWeekGames: currentWeekData.events?.length || 0,
           nextWeekGames: nextWeekData.events?.length || 0,
@@ -5777,7 +6267,7 @@
             const comp = event.competitions[0];
             const home = comp.competitors.find(c => c.homeAway === 'home');
             const away = comp.competitors.find(c => c.homeAway === 'away');
-            
+
             return {
               id: event.id,
               date: event.date,
@@ -5800,7 +6290,7 @@
             const isFinal = statusName.includes('Final') || statusState === 'post';
             const home = comp.competitors.find(c => c.homeAway === 'home');
             const away = comp.competitors.find(c => c.homeAway === 'away');
-            
+
             // Check if this game is completed and save it to database
             if (isFinal || isCompleted) {
               fetch('/api/final-games/save', {
@@ -5814,15 +6304,15 @@
                 })
               }).catch(err => console.error('Error saving final game:', err));
             }
-            
+
             // Game is live if status state is 'in' OR if not completed/final and has started playing (period > 0)
             // Enhanced to catch halftime, quarters, etc.
             const isLive = statusState === 'in' ||
-                           (comp.status.period > 0 && !isCompleted && !isFinal) ||
-                           statusName.toLowerCase().includes('progress') ||
-                           statusName.toLowerCase().includes('halftime') ||
-                           statusName.toLowerCase().includes('quarter');
-            
+              (comp.status.period > 0 && !isCompleted && !isFinal) ||
+              statusName.toLowerCase().includes('progress') ||
+              statusName.toLowerCase().includes('halftime') ||
+              statusName.toLowerCase().includes('quarter');
+
             // Game is upcoming if it's scheduled (pre)
             const isUpcoming = statusState === 'pre';
             const gameTime = new Date(game.date);
@@ -5930,10 +6420,10 @@
         const isFinal = isCompleted || statusType === 'post';
         // Enhanced live detection to catch halftime, quarters, etc.
         const isLive = statusType === 'in' ||
-                       (comp.status.period && comp.status.period > 0 && !isCompleted) ||
-                       statusName.toLowerCase().includes('progress') ||
-                       statusName.toLowerCase().includes('halftime') ||
-                       statusName.toLowerCase().includes('quarter');
+          (comp.status.period && comp.status.period > 0 && !isCompleted) ||
+          statusName.toLowerCase().includes('progress') ||
+          statusName.toLowerCase().includes('halftime') ||
+          statusName.toLowerCase().includes('quarter');
         const isPregame = statusType === 'pre';
 
         // Check for games about to start (time passed but not live yet)
@@ -5980,10 +6470,10 @@
         const isFinal = isCompleted || statusType === 'post';
         // Enhanced live detection to catch halftime, quarters, etc.
         const isLive = statusType === 'in' ||
-                       (comp.status.period && comp.status.period > 0 && !isCompleted) ||
-                       statusName.toLowerCase().includes('progress') ||
-                       statusName.toLowerCase().includes('halftime') ||
-                       statusName.toLowerCase().includes('quarter');
+          (comp.status.period && comp.status.period > 0 && !isCompleted) ||
+          statusName.toLowerCase().includes('progress') ||
+          statusName.toLowerCase().includes('halftime') ||
+          statusName.toLowerCase().includes('quarter');
 
         const existingCard = existingCards.get(gameId);
         const existingStatus = existingCard?.dataset?.status;
@@ -6133,71 +6623,71 @@
       const home = comp.competitors.find(c => c.homeAway === 'home');
       const away = comp.competitors.find(c => c.homeAway === 'away');
 
-        const homeScore = parseInt(home.score) || 0;
-        const awayScore = parseInt(away.score) || 0;
+      const homeScore = parseInt(home.score) || 0;
+      const awayScore = parseInt(away.score) || 0;
 
-        const statusType = comp.status.type.state;
-        const statusName = comp.status.type.name;
-        const isCompleted = comp.status.type.completed;
+      const statusType = comp.status.type.state;
+      const statusName = comp.status.type.name;
+      const isCompleted = comp.status.type.completed;
 
-        // Enhanced live detection
-        const isLive = statusType === 'in' ||
-                       (comp.status.period && comp.status.period > 0 && !isCompleted) ||
-                       statusName.toLowerCase().includes('progress') ||
-                       statusName.toLowerCase().includes('halftime') ||
-                       statusName.toLowerCase().includes('quarter');
+      // Enhanced live detection
+      const isLive = statusType === 'in' ||
+        (comp.status.period && comp.status.period > 0 && !isCompleted) ||
+        statusName.toLowerCase().includes('progress') ||
+        statusName.toLowerCase().includes('halftime') ||
+        statusName.toLowerCase().includes('quarter');
 
-        const isFinal = isCompleted || statusType === 'post';
-        const isPregame = statusType === 'pre';
+      const isFinal = isCompleted || statusType === 'post';
+      const isPregame = statusType === 'pre';
 
-        // Get team standings
-        const awayRecord = away.records?.[0]?.summary || '';
-        const homeRecord = home.records?.[0]?.summary || '';
+      // Get team standings
+      const awayRecord = away.records?.[0]?.summary || '';
+      const homeRecord = home.records?.[0]?.summary || '';
 
-        // Get line scores (quarter by quarter)
-        const awayLineScores = away.linescores || [];
-        const homeLineScores = home.linescores || [];
+      // Get line scores (quarter by quarter)
+      const awayLineScores = away.linescores || [];
+      const homeLineScores = home.linescores || [];
 
-        // Get current period and clock
-        const quarter = comp.status.period || 1;
-        const clock = comp.status.displayClock || '15:00';
+      // Get current period and clock
+      const quarter = comp.status.period || 1;
+      const clock = comp.status.displayClock || '15:00';
 
-        // Get last play for play-by-play
-        const lastPlay = comp.situation?.lastPlay?.text || '';
+      // Get last play for play-by-play
+      const lastPlay = comp.situation?.lastPlay?.text || '';
 
-        let statusText = '';
-        if (isLive) {
-          statusText = `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}`;
-        } else if (isFinal) {
-          statusText = ''; // Badge already shows FINAL, no need for duplicate text
-        } else {
-          const gameDate = new Date(game.date);
-          const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-          const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-          statusText = `${dateStr} • ${timeStr}`;
-        }
+      let statusText = '';
+      if (isLive) {
+        statusText = `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}`;
+      } else if (isFinal) {
+        statusText = ''; // Badge already shows FINAL, no need for duplicate text
+      } else {
+        const gameDate = new Date(game.date);
+        const dateStr = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        statusText = `${dateStr} • ${timeStr}`;
+      }
 
-        // Determine number of pages
-        // Upcoming: 1 page
-        // Live: 2 pages (live score + quarter history)
-        // Final: 1 page (final score with quarter history combined)
-        const numPages = isLive ? 2 : 1;
+      // Determine number of pages
+      // Upcoming: 1 page
+      // Live: 2 pages (live score + quarter history)
+      // Final: 1 page (final score with quarter history combined)
+      const numPages = isLive ? 2 : 1;
 
-        // Build the card HTML - include data-status to track state transitions
-        const cardStatus = isPregame ? 'pre' : (isLive ? 'in' : 'post');
-        let cardHtml = `
+      // Build the card HTML - include data-status to track state transitions
+      const cardStatus = isPregame ? 'pre' : (isLive ? 'in' : 'post');
+      let cardHtml = `
           <div class="game-card" data-game-id="${game.id}" data-status="${cardStatus}">
             <div class="card-slider-container">
               <div class="card-pages" data-current-page="0">
         `;
 
-        // Get bowl/postseason game name
-        const bowlGameNameSmall = isBowlSeason && comp?.notes?.[0]?.headline ? comp.notes[0].headline : '';
+      // Get bowl/postseason game name
+      const bowlGameNameSmall = isBowlSeason && comp?.notes?.[0]?.headline ? comp.notes[0].headline : '';
 
-        // PAGE 1
-        if (isPregame) {
-          // Upcoming Game - Page 1 Only
-          cardHtml += `
+      // PAGE 1
+      if (isPregame) {
+        // Upcoming Game - Page 1 Only
+        cardHtml += `
             <div class="card-page">
               <div class="page-1-upcoming">
                 ${bowlGameNameSmall ? `<div class="postseason-game-name-small">${bowlGameNameSmall}</div>` : ''}
@@ -6220,18 +6710,18 @@
               </div>
             </div>
           `;
-        } else if (isLive || isFinal) {
-          // Get down, distance and ball position
-          const downDistanceText = comp.situation?.downDistanceText || '';
-          const ballPosition = comp.situation?.possessionText || '';
+      } else if (isLive || isFinal) {
+        // Get down, distance and ball position
+        const downDistanceText = comp.situation?.downDistanceText || '';
+        const ballPosition = comp.situation?.possessionText || '';
 
-          // Get possession
-          const possession = comp.situation?.possession || null;
-          const awayHasPossession = possession === away.id;
-          const homeHasPossession = possession === home.id;
+        // Get possession
+        const possession = comp.situation?.possession || null;
+        const awayHasPossession = possession === away.id;
+        const homeHasPossession = possession === home.id;
 
-          // Live or Final Game - Page 1
-          cardHtml += `
+        // Live or Final Game - Page 1
+        cardHtml += `
             <div class="card-page">
               <div class="page-1-live">
                 <div style="text-align: center; margin-bottom: 8px;">
@@ -6301,9 +6791,9 @@
             </div>
           `;
 
-          // PAGE 2 - Scoring History (ONLY FOR LIVE GAMES)
-          if (isLive) {
-            cardHtml += `
+        // PAGE 2 - Scoring History (ONLY FOR LIVE GAMES)
+        if (isLive) {
+          cardHtml += `
               <div class="card-page">
                 <div class="page-2-content">
                   <div class="scoring-history-header">
@@ -6338,11 +6828,11 @@
                 </div>
               </div>
             `;
-          }
         }
+      }
 
-        // Close pages container
-        cardHtml += `
+      // Close pages container
+      cardHtml += `
               </div>
 
               ${numPages > 1 ? `
@@ -6355,9 +6845,9 @@
           </div>
         `;
 
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = cardHtml;
-        return tempDiv.firstElementChild;
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = cardHtml;
+      return tempDiv.firstElementChild;
     }
 
     function initializeCardSliders() {
@@ -6459,7 +6949,7 @@
         console.log('📊 Loading win probability for game:', gameId);
         // Use comprehensive game summary with win probability for every play
         const response = await tvFetch(`/api/ncaa/summary/${gameId}`);
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch game summary: ${response.status}`);
         }
@@ -6469,7 +6959,7 @@
 
         // Get win probability data
         const winProbData = gameSummary.winprobability;
-        
+
         if (!winProbData || winProbData.length === 0) {
           document.getElementById('tab-probability').innerHTML = `
             <div style="text-align: center; padding: 40px; color: #9ca3af;">
@@ -6501,23 +6991,23 @@
             </div>
           </div>
         `;
-        
+
         // Draw win probability chart
         const canvas = document.getElementById('winProbChart');
         if (!canvas) return;
-        
+
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
-        
+
         // Clear canvas
         ctx.clearRect(0, 0, width, height);
-        
+
         // Chart styling
         const padding = 40;
         const chartWidth = width - 2 * padding;
         const chartHeight = height - 2 * padding;
-        
+
         // Draw grid lines
         ctx.strokeStyle = '#2a3142';
         ctx.lineWidth = 1;
@@ -6528,7 +7018,7 @@
           ctx.lineTo(padding + chartWidth, y);
           ctx.stroke();
         }
-        
+
         // Draw 50% line
         ctx.strokeStyle = '#4a5568';
         ctx.lineWidth = 2;
@@ -6538,27 +7028,27 @@
         ctx.lineTo(padding + chartWidth, padding + chartHeight / 2);
         ctx.stroke();
         ctx.setLineDash([]);
-        
+
         // Draw probability line
         ctx.strokeStyle = '#10b981';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        
+
         const step = chartWidth / (winProbData.length - 1);
-        
+
         winProbData.forEach((point, index) => {
           const x = padding + (index * step);
           const y = padding + chartHeight - (point.homeWinPercentage * chartHeight);
-          
+
           if (index === 0) {
             ctx.moveTo(x, y);
           } else {
             ctx.lineTo(x, y);
           }
         });
-        
+
         ctx.stroke();
-        
+
         // Draw labels
         ctx.fillStyle = '#9ca3af';
         ctx.font = '12px Arial';
@@ -6566,17 +7056,17 @@
         ctx.fillText('100%', padding - 5, padding + 5);
         ctx.fillText('50%', padding - 5, padding + chartHeight / 2 + 5);
         ctx.fillText('0%', padding - 5, padding + chartHeight + 5);
-        
+
         ctx.textAlign = 'center';
         ctx.fillText('Game Progress →', width / 2, height - 10);
-        
+
         ctx.save();
         ctx.translate(15, height / 2);
         ctx.rotate(-Math.PI / 2);
         ctx.textAlign = 'center';
         ctx.fillText(`${homeTeam} Win %`, 0, 0);
         ctx.restore();
-        
+
       } catch (error) {
         console.error('Error loading win probability:', error);
         document.getElementById('tab-probability').innerHTML = `
@@ -6590,16 +7080,16 @@
     async function loadGameStats(gameId, awayTeam, homeTeam) {
       try {
         console.log('📊 Loading game stats for:', gameId);
-        
+
         // Fetch comprehensive game summary (includes leaders, team stats, everything)
         const summaryResponse = await tvFetch(`/api/ncaa/summary/${gameId}`);
         const gameSummary = await summaryResponse.json();
-        
+
         console.log('NCAA Game Summary:', gameSummary);
 
         // Build stats HTML starting with Team Statistics
         let statsHtml = '';
-        
+
         // Add Team Statistics first
         if (gameSummary.boxscore?.teams && gameSummary.boxscore.teams.length >= 2) {
           const teams = gameSummary.boxscore.teams;
@@ -6682,21 +7172,21 @@
             </div>
           `;
         }
-        
+
         // Add Player Leaders section from game summary
         statsHtml += `<h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700;">Player Leaders</h3>`;
 
         // Use leaders from game summary (gameSummary.leaders)
         // The structure is: [ { team: {...}, leaders: [...] }, { team: {...}, leaders: [...] } ]
         const leadersData = gameSummary.leaders || [];
-        
+
         console.log('🏈 Player Leaders RAW data:', JSON.stringify(leadersData, null, 2));
         console.log('🏈 Leaders array length:', leadersData.length);
         console.log('🏈 Full game summary keys:', Object.keys(gameSummary));
 
         // Check if we have leaders data and it's not empty
         let hasValidLeaders = false;
-        
+
         if (leadersData && leadersData.length > 0) {
           // Each entry in leadersData is a team with their leaders
           leadersData.forEach((teamData, teamIdx) => {
@@ -6704,9 +7194,9 @@
             const teamName = team.displayName || team.abbreviation || 'Team';
             const teamColor = team.color || '3b82f6';
             const teamLeaders = teamData.leaders || [];
-            
+
             console.log(`Team ${teamIdx}: ${teamName}, Categories: ${teamLeaders.length}`);
-            
+
             if (teamLeaders.length > 0) {
               // Add team header
               statsHtml += `
@@ -6714,17 +7204,17 @@
                   <h3 style="font-size: 16px; font-weight: 700; color: #e0e0e0; margin: 0;">${teamName}</h3>
                 </div>
               `;
-              
+
               // Process each category (passing, rushing, receiving, etc.)
               teamLeaders.forEach((category, catIdx) => {
                 const categoryName = category.displayName || category.name || 'Statistics';
                 const leaders = category.leaders || [];
-                
+
                 console.log(`  Category: ${categoryName}, Leaders: ${leaders.length}`);
 
                 if (leaders.length > 0) {
                   hasValidLeaders = true;
-                  
+
                   statsHtml += `
                     <div style="background: #242b3d; border-radius: ${catIdx === 0 ? '0' : '0'} ${catIdx === teamLeaders.length - 1 ? '0 0 10px 10px' : '0'}; padding: 16px 20px; ${catIdx < teamLeaders.length - 1 ? 'border-bottom: 1px solid #1a1f2e;' : ''}">
                       <h4 style="font-size: 13px; font-weight: 600; margin-bottom: 10px; color: #9ca3af; text-transform: uppercase;">${categoryName}</h4>
@@ -6732,7 +7222,7 @@
 
                   leaders.forEach((leader, leaderIdx) => {
                     console.log(`    Leader ${leaderIdx}:`, leader);
-                    
+
                     // Extract athlete data
                     const athlete = leader.athlete || {};
                     const athleteName = athlete.displayName || athlete.fullName || athlete.shortName || 'Unknown Player';
@@ -6769,7 +7259,7 @@
             }
           });
         }
-        
+
         if (!hasValidLeaders) {
           console.log('⚠️ No valid leaders data available');
           statsHtml += `
@@ -6807,7 +7297,7 @@
 
         const data = await response.json();
         console.log('📊 Plays API response:', data);
-        
+
         // Handle different API response structures
         let plays = [];
         if (data.items && Array.isArray(data.items)) {
@@ -7107,10 +7597,10 @@
     async function loadPredictions(gameId, awayTeam, homeTeam) {
       try {
         console.log('📊 Loading predictions for game:', gameId, 'Home:', homeTeam, 'Away:', awayTeam);
-        
+
         // Fetch predictor data from ESPN API
         const response = await tvFetch(`/api/ncaa/summary/${gameId}`);
-        
+
         if (!response.ok) {
           throw new Error('Predictor data not available');
         }
@@ -7131,7 +7621,7 @@
         const homePointDiff = getStat(data.homeTeam, 'teamPredPtDiff') || 'N/A';
         const awayPointDiff = getStat(data.awayTeam, 'teamPredPtDiff') || 'N/A';
         const matchupQuality = getStat(data.homeTeam, 'matchupQuality') || getStat(data.awayTeam, 'matchupQuality') || 'N/A';
-        
+
         // Additional stats
         const homeChanceLoss = getStat(data.homeTeam, 'teamChanceLoss') || 'N/A';
         const awayChanceLoss = getStat(data.awayTeam, 'teamChanceLoss') || 'N/A';
@@ -7201,14 +7691,14 @@
     function manualRefresh() {
       console.log('🔄 Manual refresh triggered');
       fetchLiveGames();
-      
+
       // Visual feedback
       const btn = event.target.closest('.refresh-btn');
       const originalBg = btn.style.background;
       btn.style.background = '#059669';
       btn.style.transform = 'rotate(360deg)';
       btn.style.transition = 'transform 0.5s ease';
-      
+
       setTimeout(() => {
         btn.style.background = originalBg;
         btn.style.transform = 'rotate(0deg)';
@@ -7221,7 +7711,7 @@
       fetchLiveGames();
 
       // Sort filter button event listeners
-      document.getElementById('sort-favorites').addEventListener('click', function() {
+      document.getElementById('sort-favorites').addEventListener('click', function () {
         if (currentSortMode !== 'favorites') {
           currentSortMode = 'favorites';
           document.getElementById('sort-favorites').classList.add('active');
@@ -7230,7 +7720,7 @@
         }
       });
 
-      document.getElementById('sort-time').addEventListener('click', function() {
+      document.getElementById('sort-time').addEventListener('click', function () {
         if (currentSortMode !== 'time') {
           currentSortMode = 'time';
           document.getElementById('sort-time').classList.add('active');
@@ -7544,7 +8034,7 @@
   <div id="game-selection-modal" class="modal">
     <div class="modal-content">
       <h2>📺 Sports Bar Mode - Select Grid Layout</h2>
-      
+
       <!-- Layout Selection -->
       <div class="layout-options">
         <label>
@@ -7567,12 +8057,12 @@
       <p style="text-align: center; color: #94a3b8; margin: 20px 0;">
         Select your grid layout, then choose games for each position
       </p>
-      
+
       <!-- Grid Preview with Game Selectors -->
       <div id="grid-preview" class="grid-preview">
         <!-- Dynamically populated with grid slots -->
       </div>
-      
+
       <div class="modal-buttons">
         <button id="enter-fullscreen">Enter Sports Bar Mode</button>
         <button id="cancel-modal">Cancel</button>
@@ -7616,7 +8106,7 @@
     // ============================================
     // DYNAMIC RESPONSIVE SCALING SYSTEM
     // ============================================
-    
+
     /**
      * Calculate optimal card dimensions and font sizes based on:
      * - Screen resolution (viewport width/height)
@@ -7628,7 +8118,7 @@
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const layout = currentLayout;
-      
+
       console.log('🎨 Dynamic Scaling Calculation:', {
         viewport: `${vw}x${vh}`,
         layout: `grid-${layout}`,
@@ -7642,8 +8132,8 @@
 
       // Grid configurations
       let cols, rows, padding, gap;
-      
-      switch(layout) {
+
+      switch (layout) {
         case 1:
           cols = 1; rows = 1;
           padding = Math.min(40, vh * 0.03);
@@ -7673,7 +8163,7 @@
       // Calculate card dimensions
       const cardWidth = (availableWidth - (padding * 2) - (gap * (cols - 1))) / cols;
       const cardHeight = (availableHeight - (padding * 2) - (gap * (rows - 1))) / rows;
-      
+
       console.log('📐 Card Dimensions:', {
         cardWidth: cardWidth.toFixed(0),
         cardHeight: cardHeight.toFixed(0),
@@ -7685,67 +8175,67 @@
       // Use card height as the primary scaling factor
       const baseScale = cardHeight / 500; // 500px is reference height
       const heightScale = Math.max(0.4, Math.min(1.5, baseScale)); // Limit scale range
-      
+
       // Calculate element sizes based on available card space
       const sizes = {
         // Quarter/Status text
         quarterFontSize: Math.max(12, Math.min(28, cardHeight * 0.038)),
         quarterMargin: Math.max(6, Math.min(20, cardHeight * 0.025)),
-        
+
         // Clock text
         clockFontSize: Math.max(14, Math.min(32, cardHeight * 0.048)),
-        
+
         // Game status container
         statusMargin: Math.max(8, Math.min(20, cardHeight * 0.028)),
         statusGap: Math.max(4, Math.min(8, cardHeight * 0.012)),
-        
+
         // Team logo
         logoSize: Math.max(35, Math.min(90, cardHeight * 0.15)),
-        
+
         // Team name
         teamNameFontSize: Math.max(14, Math.min(56, cardHeight * 0.075)),
-        
+
         // Score
-        scoreFontSize: Math.max(64, Math.min(96, cardHeight * 0.14)),
-        scoreMinWidth: Math.max(90, Math.min(150, cardWidth * 0.15)),
-        
+        scoreFontSize: Math.max(45, Math.min(96, cardHeight * 0.14)),
+        scoreMinWidth: Math.max(60, Math.min(150, cardWidth * 0.15)),
+
         // Team record
         recordFontSize: Math.max(20, Math.min(18, cardHeight * 0.022)),
-        
+
         // VS text
         vsFontSize: Math.max(12, Math.min(32, cardHeight * 0.04)),
         vsMargin: Math.max(3, Math.min(12, cardHeight * 0.015)),
-        
+
         // Team spacing
         teamMargin: Math.max(6, Math.min(20, cardHeight * 0.025)),
         teamGap: Math.max(8, Math.min(25, cardWidth * 0.025)),
         teamInfoGap: Math.max(6, Math.min(15, cardWidth * 0.015)),
-        
+
         // Down/Distance
         downDistanceFontSize: Math.max(12, Math.min(32, cardHeight * 0.042)),
         downDistanceMargin: Math.max(8, Math.min(15, cardHeight * 0.022)),
         downDistanceGap: Math.max(4, Math.min(8, cardHeight * 0.012)),
         fieldPositionFontSize: Math.max(10, Math.min(20, cardHeight * 0.028)),
-        
+
         // Sport logo indicator
         sportLogoSize: Math.max(40, Math.min(120, cardHeight * 0.18)),
         sportLogoTop: Math.max(8, Math.min(15, cardHeight * 0.025)),
         sportLogoLeft: Math.max(8, Math.min(15, cardWidth * 0.015)),
-        
+
         // Card padding and border
         cardPadding: Math.max(10, Math.min(30, cardHeight * 0.04)),
         cardBorderRadius: Math.max(6, Math.min(16, cardHeight * 0.025)),
         cardBorderWidth: cardHeight < 300 ? 2 : 3,
-        
+
         // Timeouts
         timeoutWidth: Math.max(12, Math.min(24, cardWidth * 0.025)),
         timeoutHeight: Math.max(4, Math.min(8, cardHeight * 0.012)),
         timeoutGap: Math.max(3, Math.min(6, cardWidth * 0.006)),
         timeoutMargin: Math.max(3, Math.min(8, cardHeight * 0.012)),
-        
+
         // Possession indicator
         possessionSize: Math.max(16, Math.min(30, cardHeight * 0.05)),
-        
+
         // Field visualizer
         fieldVisualizerHeight: Math.max(30, Math.min(50, cardHeight * 0.08)),
         fieldVisualizerMargin: Math.max(8, Math.min(15, cardHeight * 0.022)),
@@ -7930,7 +8420,7 @@
           overflow: hidden !important;
         }
       `;
-      
+
       document.head.appendChild(dynamicStyles);
 
       console.log('✅ Dynamic styles applied for grid-' + layout);
@@ -8031,17 +8521,17 @@
       const container = document.getElementById('grid-preview');
       const layout = parseInt(document.querySelector('input[name="layout"]:checked').value);
       currentLayout = layout;
-      
+
       container.innerHTML = '';
       container.className = `grid-preview grid-${layout}`;
 
       const liveGames = window.liveGamesData || [];
-      
+
       console.log('🎮 Sports Bar Mode - Live games check:', {
         windowData: window.liveGamesData?.length || 0,
         totalGames: liveGames.length
       });
-      
+
       if (liveGames.length === 0) {
         container.innerHTML = `
           <p style="text-align: center; color: #ef4444; padding: 40px; grid-column: 1/-1;">
@@ -8067,7 +8557,7 @@
       }
 
       updateAllGameSelectors();
-      
+
       // Enable/disable enter button based on selections
       checkAllSlotsSelected();
     }
@@ -8081,7 +8571,7 @@
       selectors.forEach(selector => {
         const slotIndex = parseInt(selector.dataset.slot);
         const currentSelection = gridGames[slotIndex]; // Game ID
-        
+
         // Clear existing options except first
         selector.innerHTML = '<option value="">-- Select Game --</option>';
 
@@ -8105,7 +8595,7 @@
             const homeTeam = comp?.competitors?.[0]?.team?.shortDisplayName || 'Home';
             const awayScore = comp?.competitors?.[1]?.score || '0';
             const homeScore = comp?.competitors?.[0]?.score || '0';
-            
+
             // Determine status - LIVE, UPCOMING, or FINAL
             const statusState = comp?.status?.type?.state;
             const isCompleted = comp?.status?.type?.completed;
@@ -8132,11 +8622,11 @@
             const option = document.createElement('option');
             option.value = gameId; // Store game ID instead of index
             option.textContent = `${awayTeam} (${awayScore}) @ ${homeTeam} (${homeScore}) - ${statusLabel}`;
-            
+
             if (currentSelection === gameId) {
               option.selected = true;
             }
-            
+
             selector.appendChild(option);
           }
         });
@@ -8191,23 +8681,23 @@
 
       modal.classList.remove('show');
       container.classList.add('active');
-      
+
       // Show controls briefly when entering full screen
       controls.classList.add('visible');
       setTimeout(() => {
         controls.classList.remove('visible');
       }, 3000); // Hide after 3 seconds
-      
+
       renderFullScreenGames();
-      
+
       // Apply dynamic scaling based on screen size IMMEDIATELY
       applyDynamicScaling();
-      
+
       // Apply again after a small delay to ensure everything is rendered
       setTimeout(() => {
         applyDynamicScaling();
       }, 100);
-      
+
       // Start auto-refresh (10 seconds to avoid ESPN rate limits)
       fullscreenRefreshInterval = setInterval(() => {
         updateFullScreenScores();
@@ -8503,11 +8993,11 @@
       const div = document.createElement('div');
       div.className = 'fullscreen-game-card empty-slot';
       div.dataset.slotIndex = slotIndex;
-      
+
       // Determine logo and text size based on current grid layout
       const logoSize = currentLayout === 6 ? '50%' : currentLayout === 4 ? '55%' : '60%';
       const textSize = currentLayout === 6 ? '1.2rem' : currentLayout === 4 ? '1.4rem' : '1.5rem';
-      
+
       div.innerHTML = `
         <!-- Game Selector Dropdown -->
         <div class="fs-game-selector-container" style="display: block;">
@@ -8534,24 +9024,24 @@
     // Create full screen game card with game selector
     function createFullScreenGameCard(game, slotIndex) {
       const div = document.createElement('div');
-      
+
       const comp = game.competitions?.[0];
       const awayTeam = comp?.competitors?.[1];
       const homeTeam = comp?.competitors?.[0];
       const awayScore = parseInt(awayTeam?.score || 0);
       const homeScore = parseInt(homeTeam?.score || 0);
-      
+
       // Get team records
       const awayRecord = awayTeam?.records?.[0]?.summary || awayTeam?.record?.displayValue || '';
       const homeRecord = homeTeam?.records?.[0]?.summary || homeTeam?.record?.displayValue || '';
-      
+
       // Determine if game is live or upcoming
       const statusState = comp?.status?.type?.state;
       const isFinal = statusState === 'post';
       const isUpcoming = statusState === 'pre';
       // isLive: game is in progress (not final, not upcoming)
       const isLive = (statusState === 'in' || comp?.status?.period > 0) && !isFinal;
-      
+
       console.log('🎮 Creating game card:', {
         gameName: game.name,
         statusState: statusState,
@@ -8562,9 +9052,9 @@
         isFinal: isFinal,
         gameDate: game.date
       });
-      
+
       let cardClass = 'fullscreen-game-card';
-      
+
       // Add status-specific class for styling
       if (isUpcoming) {
         cardClass += ' upcoming-game';
@@ -8583,26 +9073,26 @@
 
       // Get status display text
       let statusDisplay = comp?.status?.type?.shortDetail || 'Live';
-      
+
       // Get game clock and quarter information
       const gameClock = comp?.status?.displayClock || '';
       const quarter = comp?.status?.period || 0;
       const quarterText = comp?.status?.type?.shortDetail || '';
-      
+
       // For upcoming games, show scheduled time
       if (isUpcoming) {
         const gameDate = new Date(game.date);
         const now = new Date();
         const hoursUntil = Math.round((gameDate - now) / (1000 * 60 * 60));
         const minutesUntil = Math.round((gameDate - now) / (1000 * 60));
-        
+
         console.log('⏰ Upcoming game countdown:', {
           gameDate: gameDate.toLocaleString(),
           now: now.toLocaleString(),
           minutesUntil: minutesUntil,
           hoursUntil: hoursUntil
         });
-        
+
         if (minutesUntil < 60) {
           statusDisplay = `STARTS IN ${minutesUntil} MIN`;
         } else if (hoursUntil < 24) {
@@ -8610,10 +9100,10 @@
         } else {
           statusDisplay = `${gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
         }
-        
+
         console.log('⏰ Status display:', statusDisplay);
       }
-      
+
       const possession = comp?.situation?.possession;
       const downDistance = comp?.situation?.downDistanceText || '';
       const fieldPosition = comp?.situation?.possessionText || '';
@@ -8785,11 +9275,11 @@
           const option = document.createElement('option');
           option.value = gameId; // Store game ID
           option.textContent = `${awayTeam} @ ${homeTeam} - ${statusLabel}`;
-          
+
           if (currentSelection === gameId) {
             option.selected = true;
           }
-          
+
           selector.appendChild(option);
         }
       });
@@ -8851,7 +9341,7 @@
         // Check if it's a 2-point conversion or a safety
         const lowerPlay = lastPlayText.toLowerCase();
         if (lowerPlay.includes('two-point') || lowerPlay.includes('2-pt') ||
-            lowerPlay.includes('two point') || lowerPlay.includes('conversion')) {
+          lowerPlay.includes('two point') || lowerPlay.includes('conversion')) {
           playType = 'two-point';
           playText = '2-POINT CONVERSION!';
         } else {
@@ -8888,7 +9378,7 @@
 
       // Choose icon based on play type
       let icon;
-      switch(playType) {
+      switch (playType) {
         case 'touchdown':
           icon = '🏈';
           break;
@@ -9199,12 +9689,12 @@
 
                 // Check if away team recovered
                 if (afterRecovered.toLowerCase().includes(awayTeam?.team?.abbreviation?.toLowerCase()) ||
-                    afterRecovered.toLowerCase().includes(awayTeam?.team?.shortDisplayName?.toLowerCase())) {
+                  afterRecovered.toLowerCase().includes(awayTeam?.team?.shortDisplayName?.toLowerCase())) {
                   recoveryLogo = awayTeam?.team?.logo || '';
                 }
                 // Check if home team recovered
                 else if (afterRecovered.toLowerCase().includes(homeTeam?.team?.abbreviation?.toLowerCase()) ||
-                         afterRecovered.toLowerCase().includes(homeTeam?.team?.shortDisplayName?.toLowerCase())) {
+                  afterRecovered.toLowerCase().includes(homeTeam?.team?.shortDisplayName?.toLowerCase())) {
                   recoveryLogo = homeTeam?.team?.logo || '';
                 }
               } else if (lowerPlay.includes(awayTeam?.team?.abbreviation?.toLowerCase())) {
@@ -9243,10 +9733,10 @@
 
           // Missed Field Goal detection
           if ((lowerPlay.includes('field goal') &&
-               (lowerPlay.includes('missed') || lowerPlay.includes('no good') ||
-                lowerPlay.includes('wide') || lowerPlay.includes('short') || lowerPlay.includes('blocked'))) ||
-              (lowerPlay.includes('fg') &&
-               (lowerPlay.includes('missed') || lowerPlay.includes('no good') || lowerPlay.includes('blocked')))) {
+            (lowerPlay.includes('missed') || lowerPlay.includes('no good') ||
+              lowerPlay.includes('wide') || lowerPlay.includes('short') || lowerPlay.includes('blocked'))) ||
+            (lowerPlay.includes('fg') &&
+              (lowerPlay.includes('missed') || lowerPlay.includes('no good') || lowerPlay.includes('blocked')))) {
             if (!card.dataset.lastMissedFG || card.dataset.lastMissedFG !== lastPlay) {
               console.log('🚫 MISSED FIELD GOAL detected:', lastPlay);
               showPlayAnimation(card, 'missed-kick', 'MISSED FIELD GOAL!');
@@ -9255,8 +9745,8 @@
           }
           // Missed Extra Point detection
           else if ((lowerPlay.includes('extra point') || lowerPlay.includes('pat') || lowerPlay.includes('xp')) &&
-                   (lowerPlay.includes('missed') || lowerPlay.includes('no good') ||
-                    lowerPlay.includes('failed') || lowerPlay.includes('blocked'))) {
+            (lowerPlay.includes('missed') || lowerPlay.includes('no good') ||
+              lowerPlay.includes('failed') || lowerPlay.includes('blocked'))) {
             if (!card.dataset.lastMissedXP || card.dataset.lastMissedXP !== lastPlay) {
               console.log('🚫 MISSED EXTRA POINT detected:', lastPlay);
               showPlayAnimation(card, 'missed-kick', 'MISSED EXTRA POINT!');
@@ -9274,10 +9764,10 @@
           // - No score change (to avoid showing after touchdowns)
           // - Not showing other animations (interception/fumble)
           if (currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
-              awayScoreChange === 0 && homeScoreChange === 0 &&
-              !lastPlay.toLowerCase().includes('interception') &&
-              !lastPlay.toLowerCase().includes('intercepted') &&
-              !lastPlay.toLowerCase().includes('fumble')) {
+            awayScoreChange === 0 && homeScoreChange === 0 &&
+            !lastPlay.toLowerCase().includes('interception') &&
+            !lastPlay.toLowerCase().includes('intercepted') &&
+            !lastPlay.toLowerCase().includes('fumble')) {
             // Check if we already showed this 1st down
             const downDistanceText = comp?.situation?.downDistanceText || '';
             if (card.dataset.lastFirstDown !== downDistanceText) {
@@ -9297,7 +9787,7 @@
           const scores = card.querySelectorAll('.fullscreen-team-score');
           const awayScoreEl = scores[0];
           const homeScoreEl = scores[1];
-          
+
           if (awayScoreEl && awayScoreEl.textContent !== awayScore.toString()) {
             awayScoreEl.textContent = awayScore;
             awayScoreEl.style.animation = 'none';
@@ -9307,7 +9797,7 @@
               awayScoreEl.style.webkitAnimation = 'scoreUpdate 0.5s ease-out';
             }, 10);
           }
-          
+
           if (homeScoreEl && homeScoreEl.textContent !== homeScore.toString()) {
             homeScoreEl.textContent = homeScore;
             homeScoreEl.style.animation = 'none';
@@ -9455,13 +9945,13 @@
     function exitFullScreenMode() {
       const container = document.getElementById('fullscreen-container');
       container.classList.remove('active');
-      
+
       // Remove dynamic styles
       if (dynamicStyles) {
         dynamicStyles.remove();
         dynamicStyles = null;
       }
-      
+
       if (fullscreenRefreshInterval) {
         clearInterval(fullscreenRefreshInterval);
         fullscreenRefreshInterval = null;
@@ -9481,14 +9971,14 @@
 
     // Event Listeners
     document.getElementById('sports-bar-btn').addEventListener('click', openGameSelectionModal);
-    
+
     document.getElementById('cancel-modal').addEventListener('click', () => {
       document.getElementById('game-selection-modal').classList.remove('show');
     });
-    
+
     document.getElementById('enter-fullscreen').addEventListener('click', enterFullScreenMode);
     document.getElementById('exit-fullscreen').addEventListener('click', exitFullScreenMode);
-    
+
     document.getElementById('change-layout-fs').addEventListener('click', () => {
       exitFullScreenMode();
       gridGames = {}; // Reset selections
@@ -9541,5 +10031,5 @@
   </script>
 
 </body>
-</html>
 
+</html>
