@@ -3383,7 +3383,15 @@
                    navigator.userAgent.includes('GridTVSports-AndroidTV');
 
       // Store TV session token for API authentication
-      window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
+      // Get from URL first, fallback to localStorage
+      const urlToken = urlParams.get('tvSession');
+      if (urlToken) {
+        // Save URL token to localStorage for persistence across page loads
+        localStorage.setItem('gridtv_session_token', urlToken);
+        window.tvSessionToken = urlToken;
+      } else {
+        window.tvSessionToken = localStorage.getItem('gridtv_session_token');
+      }
       window.isTVMode = isTV;
 
       if (isTV) {
@@ -3396,7 +3404,7 @@
           const gameModal = document.getElementById('game-selection-modal');
 
           const isFullscreenActive = fullscreenContainer && fullscreenContainer.classList.contains('active');
-          const isGameModalOpen = gameModal && gameModal.classList.contains('show');
+          const isGameModalOpen = gameModal && (gameModal.classList.contains('show') || gameModal.classList.contains('active'));
 
           if (!isFullscreenActive && !isGameModalOpen) {
             if (e.key === 'Escape' || e.key === 'Backspace' || e.keyCode === 27 || e.keyCode === 8) {

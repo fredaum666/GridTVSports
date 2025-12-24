@@ -1819,6 +1819,12 @@
                 openLeaguePage('/tv-receiver.html');
             } else if (url) {
                 openLeaguePage(url);
+            } else if (el.id === 'sign-out-btn') {
+                // Handle sign out button
+                signOut();
+            } else {
+                // Fallback: trigger click on element
+                el.click();
             }
         }
 

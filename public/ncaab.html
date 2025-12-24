@@ -3636,7 +3636,15 @@
         window.self !== window.top; // iframe detection for TV home
 
       // Store TV session token for API authentication
-      window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
+      // Get from URL first, fallback to localStorage
+      const urlToken = urlParams.get('tvSession');
+      if (urlToken) {
+        // Save URL token to localStorage for persistence across page loads
+        localStorage.setItem('gridtv_session_token', urlToken);
+        window.tvSessionToken = urlToken;
+      } else {
+        window.tvSessionToken = localStorage.getItem('gridtv_session_token');
+      }
       window.isTVMode = isTV;
 
       if (isTV) {
@@ -3649,7 +3657,7 @@
           const gameModal = document.getElementById('game-selection-modal');
 
           const isFullscreenActive = fullscreenContainer && fullscreenContainer.classList.contains('active');
-          const isGameModalOpen = gameModal && gameModal.classList.contains('show');
+          const isGameModalOpen = gameModal && (gameModal.classList.contains('show') || gameModal.classList.contains('active'));
 
           if (!isFullscreenActive && !isGameModalOpen) {
             if (e.key === 'Escape' || e.key === 'Backspace' || e.keyCode === 27 || e.keyCode === 8) {
@@ -6403,6 +6411,102 @@
         document.getElementById('game-selection-modal').classList.remove('active');
       }
     });
+
+    // ============================================
+    // TV REMOTE NAVIGATION FOR MODAL
+    // ============================================
+    (function() {
+      if (!window.isTVMode) return;
+
+      let modalFocusableElements = [];
+      let modalFocusIndex = 0;
+
+      function getModalFocusableElements() {
+        const modal = document.getElementById('game-selection-modal');
+        if (!modal || (!modal.classList.contains('active') && !modal.classList.contains('show'))) return [];
+
+        const elements = [];
+        modal.querySelectorAll('input[name="layout"]:not(:disabled)').forEach(el => elements.push(el));
+        modal.querySelectorAll('.game-selector').forEach(el => elements.push(el));
+
+        const enterBtn = document.getElementById('enter-fullscreen');
+        const cancelBtn = document.getElementById('cancel-modal');
+        if (enterBtn && !enterBtn.disabled) elements.push(enterBtn);
+        if (cancelBtn) elements.push(cancelBtn);
+
+        return elements;
+      }
+
+      function updateModalFocus() {
+        modalFocusableElements.forEach((el, i) => {
+          if (i === modalFocusIndex) {
+            el.focus();
+            el.classList.add('tv-focused');
+          } else {
+            el.classList.remove('tv-focused');
+          }
+        });
+      }
+
+      function handleModalKeyDown(e) {
+        const modal = document.getElementById('game-selection-modal');
+        if (!modal || (!modal.classList.contains('active') && !modal.classList.contains('show'))) return;
+
+        modalFocusableElements = getModalFocusableElements();
+        if (modalFocusableElements.length === 0) return;
+
+        if (modalFocusIndex >= modalFocusableElements.length) modalFocusIndex = 0;
+
+        switch (e.key) {
+          case 'ArrowDown':
+          case 'ArrowRight':
+            e.preventDefault();
+            modalFocusIndex = (modalFocusIndex + 1) % modalFocusableElements.length;
+            updateModalFocus();
+            break;
+          case 'ArrowUp':
+          case 'ArrowLeft':
+            e.preventDefault();
+            modalFocusIndex = (modalFocusIndex - 1 + modalFocusableElements.length) % modalFocusableElements.length;
+            updateModalFocus();
+            break;
+          case 'Enter':
+          case ' ':
+            e.preventDefault();
+            const focused = modalFocusableElements[modalFocusIndex];
+            if (focused) {
+              if (focused.tagName === 'INPUT' && focused.type === 'radio') {
+                focused.checked = true;
+                focused.dispatchEvent(new Event('change', { bubbles: true }));
+              } else if (focused.tagName === 'SELECT') {
+                focused.focus();
+                focused.click();
+              } else {
+                focused.click();
+              }
+            }
+            break;
+          case 'Escape':
+          case 'Backspace':
+            e.preventDefault();
+            modal.classList.remove('active');
+            modal.classList.remove('show');
+            break;
+        }
+      }
+
+      document.addEventListener('keydown', handleModalKeyDown);
+
+      const style = document.createElement('style');
+      style.textContent = `
+        .tv-focused {
+          outline: 3px solid #6366f1 !important;
+          outline-offset: 2px !important;
+          box-shadow: 0 0 20px rgba(99, 102, 241, 0.5) !important;
+        }
+      `;
+      document.head.appendChild(style);
+    })();
 
   </script>
 

@@ -6412,7 +6412,15 @@
         navigator.userAgent.includes('GridTVSports-AndroidTV');
 
       // Store TV session token for API authentication
-      window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
+      // Get from URL first, fallback to localStorage
+      const urlToken = urlParams.get('tvSession');
+      if (urlToken) {
+        // Save URL token to localStorage for persistence across page loads
+        localStorage.setItem('gridtv_session_token', urlToken);
+        window.tvSessionToken = urlToken;
+      } else {
+        window.tvSessionToken = localStorage.getItem('gridtv_session_token');
+      }
       window.isTVMode = isTV;
 
       // Debug: Log viewport info
