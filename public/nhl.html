@@ -1036,7 +1036,7 @@
 
 
     .fullscreen-grid.grid-6 .fullscreen-live-score-header {
-      gap: clamp(8px, 1.5vw, 15px) !important;
+      gap: clamp(2px, 0.5vw, 5px) !important;
     }
 
     .fullscreen-grid.grid-6 .fullscreen-status-text {
@@ -3644,29 +3644,126 @@
         padding: 8px 12px !important;
         overflow: hidden !important;
       }
-      .game-card { border-radius: 8px !important; overflow: hidden !important; }
-      .team-row { padding: 8px 10px !important; }
-      .team-logo { width: 32px !important; height: 32px !important; min-width: 32px !important; }
-      .team-name { font-size: 12px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; max-width: 80px !important; }
-      .team-record { display: none !important; }
-      .team-score { font-size: 20px !important; }
-      .game-status-bar { padding: 5px 10px !important; }
-      .game-status-bar .status-text { font-size: 10px !important; }
-      .scoring-breakdown, .period-scores { display: none !important; }
-      .games-header { padding: 8px 12px !important; }
-      .games-header h1 { font-size: 16px !important; }
-      .tv-back-btn { font-size: 11px !important; padding: 6px 12px !important; }
-      .fullscreen-container { padding: 0 !important; overflow: hidden !important; }
-      .fullscreen-game-card { border-radius: 6px !important; padding: 8px !important; overflow: hidden !important; }
-      .fullscreen-teams { gap: 5px !important; overflow: hidden !important; }
-      .fullscreen-team { gap: 3px !important; overflow: hidden !important; }
-      .fullscreen-team-logo { width: 28px !important; height: 28px !important; min-width: 28px !important; }
-      .fullscreen-live-team-name, .fullscreen-team-name { font-size: 0.75rem !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; max-width: 60px !important; }
-      .fullscreen-team-score, .fullscreen-score { font-size: 1.8rem !important; }
-      .fullscreen-team-record { display: none !important; }
-      .fullscreen-status-text, .fullscreen-period { font-size: 0.7rem !important; padding: 3px 8px !important; }
-      .fullscreen-vs { font-size: 0.7rem !important; margin: 2px 0 !important; }
-      .sport-logo-indicator { width: 24px !important; height: 24px !important; top: 4px !important; left: 4px !important; }
+
+      .game-card {
+        border-radius: 8px !important;
+        overflow: hidden !important;
+      }
+
+      .team-row {
+        padding: 8px 10px !important;
+      }
+
+      .team-logo {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+      }
+
+      .team-name {
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 80px !important;
+      }
+
+      .team-record {
+        display: none !important;
+      }
+
+      .team-score {
+        font-size: 20px !important;
+      }
+
+      .game-status-bar {
+        padding: 5px 10px !important;
+      }
+
+      .game-status-bar .status-text {
+        font-size: 10px !important;
+      }
+
+      .scoring-breakdown,
+      .period-scores {
+        display: none !important;
+      }
+
+      .games-header {
+        padding: 8px 12px !important;
+      }
+
+      .games-header h1 {
+        font-size: 16px !important;
+      }
+
+      .tv-back-btn {
+        font-size: 11px !important;
+        padding: 6px 12px !important;
+      }
+
+      .fullscreen-container {
+        padding: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-game-card {
+        border-radius: 6px !important;
+        padding: 8px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-teams {
+        gap: 5px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-team {
+        gap: 3px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-team-logo {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+      }
+
+      .fullscreen-live-team-name,
+      .fullscreen-team-name {
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 60px !important;
+      }
+
+      .fullscreen-team-score,
+      .fullscreen-score {
+        font-size: 2.8rem !important;
+      }
+
+      .fullscreen-team-record {
+        display: none !important;
+      }
+
+      .fullscreen-status-text,
+      .fullscreen-period {
+        font-size: 0.7rem !important;
+        padding: 3px 8px !important;
+      }
+
+      .fullscreen-vs {
+        font-size: 0.7rem !important;
+        margin: 2px 0 !important;
+      }
+
+      .sport-logo-indicator {
+        width: 24px !important;
+        height: 24px !important;
+        top: 4px !important;
+        left: 4px !important;
+      }
     }
 
     /* Mobile phones in landscape - show "rotate to portrait" overlay */
@@ -3751,17 +3848,17 @@
     window.tvSessionToken = null;
     window.isTVMode = false;
 
-    (function() {
+    (function () {
       const urlParams = new URLSearchParams(window.location.search);
       const isTV = urlParams.get('tv') === '1' ||
-                   navigator.userAgent.includes('AndroidTV') ||
-                   navigator.userAgent.includes('GoogleTV') ||
-                   navigator.userAgent.includes('FireTV') ||
-                   navigator.userAgent.includes('BRAVIA') ||
-                   navigator.userAgent.includes('SmartTV') ||
-                   navigator.userAgent.includes('Web0S') ||
-                   navigator.userAgent.includes('Tizen') ||
-                   navigator.userAgent.includes('GridTVSports-AndroidTV');
+        navigator.userAgent.includes('AndroidTV') ||
+        navigator.userAgent.includes('GoogleTV') ||
+        navigator.userAgent.includes('FireTV') ||
+        navigator.userAgent.includes('BRAVIA') ||
+        navigator.userAgent.includes('SmartTV') ||
+        navigator.userAgent.includes('Web0S') ||
+        navigator.userAgent.includes('Tizen') ||
+        navigator.userAgent.includes('GridTVSports-AndroidTV');
 
       // Store TV session token for API authentication
       window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
@@ -3790,7 +3887,7 @@
     })();
 
     // TV-aware fetch wrapper - adds authentication header for TV mode
-    window.tvFetch = function(url, options = {}) {
+    window.tvFetch = function (url, options = {}) {
       if (window.isTVMode && window.tvSessionToken) {
         options.headers = options.headers || {};
         options.headers['x-tv-session'] = window.tvSessionToken;
