@@ -4084,7 +4084,7 @@
         // Check for session expiration (401)
         if (response.status === 401) {
           console.log('Session expired, redirecting to login...');
-          window.location.href = '/login';
+          window.location.href = window.isTVMode ? '/tv-home' : '/login';
           return;
         }
 
@@ -5709,7 +5709,7 @@
           const response = await tvFetch('/api/auth/check');
           if (!response.ok) {
             console.log('Session expired during fullscreen, redirecting to login...');
-            window.location.href = '/login';
+            window.location.href = window.isTVMode ? '/tv-home' : '/login';
           }
         } catch (error) {
           console.error('Session keep-alive failed:', error);

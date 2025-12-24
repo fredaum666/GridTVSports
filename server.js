@@ -2051,7 +2051,9 @@ app.use((req, res, next) => {
       req.headers['user-agent'].includes('GridTVSports-AndroidTV')
     ));
 
-  if (isTV && tvSessionToken) {
+  // Accept TV session token for authentication (don't require isTV flag for API calls)
+  // This allows tvFetch() to work by just adding the x-tv-session header
+  if (tvSessionToken) {
     // Validate TV session token asynchronously
     pool.query(
       'SELECT user_id FROM tv_sessions WHERE session_token = $1 AND is_active = TRUE',
