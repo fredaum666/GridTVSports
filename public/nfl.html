@@ -5421,6 +5421,7 @@
     /* Applies directly without tv-mode class for immediate effect */
     /* ================================ */
     @media screen and (min-width: 900px) and (max-width: 1100px) and (min-height: 480px) and (max-height: 600px) {
+
       /* Regular game cards grid - optimized for 960x540 */
       .games-grid {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
@@ -5454,7 +5455,8 @@
 
       .team-record {
         font-size: 9px !important;
-        display: none !important; /* Hide record to save space */
+        display: none !important;
+        /* Hide record to save space */
       }
 
       .team-score {
@@ -5549,11 +5551,12 @@
 
       .fullscreen-team-score,
       .fullscreen-score {
-        font-size: 1.8rem !important;
+        font-size: 2.8rem !important;
       }
 
       .fullscreen-team-record {
-        display: none !important; /* Hide record to save space */
+        display: none !important;
+        /* Hide record to save space */
       }
 
       .fullscreen-status-text,
@@ -6396,17 +6399,17 @@
     window.tvSessionToken = null;
     window.isTVMode = false;
 
-    (function() {
+    (function () {
       const urlParams = new URLSearchParams(window.location.search);
       const isTV = urlParams.get('tv') === '1' ||
-                   navigator.userAgent.includes('AndroidTV') ||
-                   navigator.userAgent.includes('GoogleTV') ||
-                   navigator.userAgent.includes('FireTV') ||
-                   navigator.userAgent.includes('BRAVIA') ||
-                   navigator.userAgent.includes('SmartTV') ||
-                   navigator.userAgent.includes('Web0S') ||
-                   navigator.userAgent.includes('Tizen') ||
-                   navigator.userAgent.includes('GridTVSports-AndroidTV');
+        navigator.userAgent.includes('AndroidTV') ||
+        navigator.userAgent.includes('GoogleTV') ||
+        navigator.userAgent.includes('FireTV') ||
+        navigator.userAgent.includes('BRAVIA') ||
+        navigator.userAgent.includes('SmartTV') ||
+        navigator.userAgent.includes('Web0S') ||
+        navigator.userAgent.includes('Tizen') ||
+        navigator.userAgent.includes('GridTVSports-AndroidTV');
 
       // Store TV session token for API authentication
       window.tvSessionToken = urlParams.get('tvSession') || localStorage.getItem('gridtv_session_token');
@@ -6465,7 +6468,7 @@
     })();
 
     // TV-aware fetch wrapper - adds authentication header for TV mode
-    window.tvFetch = function(url, options = {}) {
+    window.tvFetch = function (url, options = {}) {
       if (window.isTVMode && window.tvSessionToken) {
         options.headers = options.headers || {};
         options.headers['x-tv-session'] = window.tvSessionToken;
@@ -8910,8 +8913,8 @@
         teamNameFontSize: Math.max(14, Math.min(56, cardHeight * 0.075)),
 
         // Score
-        scoreFontSize: Math.max(64, Math.min(96, cardHeight * 0.14)),
-        scoreMinWidth: Math.max(90, Math.min(150, cardWidth * 0.15)),
+        scoreFontSize: Math.max(45, Math.min(96, cardHeight * 0.14)),
+        scoreMinWidth: Math.max(60, Math.min(150, cardWidth * 0.15)),
 
         // Team record
         recordFontSize: Math.max(20, Math.min(18, cardHeight * 0.022)),
