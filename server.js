@@ -4303,7 +4303,7 @@ io.on('connection', (socket) => {
       }
 
       const result = await pool.query(
-        `SELECT status, user_id FROM tv_auth_tokens WHERE token = $1`,
+        `SELECT status, user_id, device_id FROM tv_auth_tokens WHERE token = $1`,
         [token]
       );
 
@@ -4314,10 +4314,12 @@ io.on('connection', (socket) => {
       const tokenData = result.rows[0];
 
       if (tokenData.status === 'approved') {
-        // Get session token
+        // Get session token - must match device_id AND be active
         const sessionResult = await pool.query(
-          `SELECT session_token FROM tv_sessions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
-          [tokenData.user_id]
+          `SELECT session_token FROM tv_sessions
+           WHERE user_id = $1 AND device_id = $2 AND is_active = TRUE
+           ORDER BY created_at DESC LIMIT 1`,
+          [tokenData.user_id, tokenData.device_id]
         );
 
         // Get user info
@@ -4327,10 +4329,29 @@ io.on('connection', (socket) => {
         );
         const user = userResult.rows[0];
 
+        let sessionToken = sessionResult.rows[0]?.session_token;
+        console.log(`📺 check-auth-status: user=${tokenData.user_id}, device=${tokenData.device_id?.substring(0, 8)}, hasSession=${!!sessionToken}`);
+
+        // If no active session found, the approval created a session without is_active=TRUE
+        // This can happen with old approvals. Create a fresh session now.
+        if (!sessionToken) {
+          console.log(`📺 check-auth-status: No active session found, creating new one...`);
+          const crypto = require('crypto');
+          sessionToken = crypto.randomBytes(32).toString('hex');
+          await pool.query(
+            `INSERT INTO tv_sessions (device_id, user_id, device_name, session_token, is_active, created_at, last_seen_at)
+             VALUES ($1, $2, 'GridTV', $3, TRUE, NOW(), NOW())
+             ON CONFLICT (device_id)
+             DO UPDATE SET user_id = $2, session_token = $3, is_active = TRUE, last_seen_at = NOW()`,
+            [tokenData.device_id, tokenData.user_id, sessionToken]
+          );
+          console.log(`📺 check-auth-status: Created new session with token ${sessionToken.substring(0, 8)}...`);
+        }
+
         callback({
           success: true,
           status: 'approved',
-          sessionToken: sessionResult.rows[0]?.session_token,
+          sessionToken: sessionToken,
           userEmail: user?.email,
           displayName: user?.display_name
         });
