@@ -3849,9 +3849,17 @@ app.post('/api/tv/generate-qr-token', tvAuthLimiter, async (req, res) => {
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-    // Invalidate any existing pending tokens for this device
+    // Invalidate ALL existing tokens for this device (pending AND approved)
+    // This forces a fresh authentication flow
     await pool.query(
-      "UPDATE tv_auth_tokens SET status = 'expired' WHERE device_id = $1 AND status = 'pending'",
+      "UPDATE tv_auth_tokens SET status = 'expired' WHERE device_id = $1 AND status IN ('pending', 'approved')",
+      [deviceId]
+    );
+
+    // Also deactivate any existing sessions for this device
+    // This ensures the new QR flow creates a completely fresh session
+    await pool.query(
+      "UPDATE tv_sessions SET is_active = FALSE WHERE device_id = $1",
       [deviceId]
     );
 
