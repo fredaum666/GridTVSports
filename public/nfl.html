@@ -9969,13 +9969,15 @@
         updateBallPosition(div, fieldPosition, yardsToGo, possession, awayTeam, homeTeam);
       }
 
-      // Show selector on card hover
-      div.addEventListener('mouseenter', () => {
-        div.querySelector('.fs-game-selector-container').style.display = 'block';
-      });
-      div.addEventListener('mouseleave', () => {
-        div.querySelector('.fs-game-selector-container').style.display = 'none';
-      });
+      // Show selector on card hover (only for non-TV mode)
+      if (!window.isTVMode) {
+        div.addEventListener('mouseenter', () => {
+          div.querySelector('.fs-game-selector-container').style.display = 'block';
+        });
+        div.addEventListener('mouseleave', () => {
+          div.querySelector('.fs-game-selector-container').style.display = 'none';
+        });
+      }
 
       return div;
     }
