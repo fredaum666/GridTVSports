@@ -1740,7 +1740,12 @@
                 setFocus(0);
             }
 
-            // Keyboard/Remote control
+            // Remove ALL other screen-specific keydown handlers before adding home handler
+            document.removeEventListener('keydown', handleLoginKeyDown);
+            document.removeEventListener('keydown', handlePasswordFormKeyDown);
+            document.removeEventListener('keydown', handleQRKeyDown);
+
+            // Keyboard/Remote control for home screen
             document.addEventListener('keydown', handleKeyDown);
         }
 
