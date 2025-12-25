@@ -1095,6 +1095,13 @@
         let authCheckInterval = null;
 
         // ============================================
+        // GLOBAL KEY EVENT DEBUG - Captures ALL key events
+        // ============================================
+        document.addEventListener('keydown', (e) => {
+            console.log('GLOBAL keydown:', e.key, 'keyCode:', e.keyCode, 'code:', e.code, 'target:', e.target.tagName);
+        }, true); // Use capture phase to see events before they're handled
+
+        // ============================================
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1755,10 +1762,24 @@
         }
 
         function handleKeyDown(e) {
-            console.log('handleKeyDown:', e.key, 'keyCode:', e.keyCode, 'currentScreen:', currentScreen);
+            console.log('handleKeyDown:', e.key, 'keyCode:', e.keyCode, 'code:', e.code, 'currentScreen:', currentScreen);
 
             const cols = 5; // Number of columns in league grid
             let newIndex = currentFocusIndex;
+
+            // Check for Enter/Select key - Android TV can send different codes
+            // keyCode 13 = Enter, keyCode 66 = Android Enter, keyCode 23 = D-pad center
+            const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
+                               e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23 ||
+                               e.code === 'Enter' || e.code === 'NumpadEnter';
+
+            if (isEnterKey) {
+                console.log('Enter/Select key detected!');
+                e.preventDefault();
+                e.stopPropagation();
+                selectCurrentItem();
+                return;
+            }
 
             switch (e.key) {
                 case 'ArrowUp':
@@ -1798,12 +1819,6 @@
                         newIndex = currentFocusIndex + 1;
                     }
                     break;
-
-                case 'Enter':
-                case ' ':
-                    e.preventDefault();
-                    selectCurrentItem();
-                    return;
 
                 case 'Escape':
                 case 'Backspace':
