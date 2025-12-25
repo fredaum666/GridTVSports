@@ -471,8 +471,26 @@ function requireAuth(req, res, next) {
 
 // Check authentication status
 app.get('/api/auth/check', async (req, res) => {
-  // Check for web session OR TV session (set by auth middleware)
-  const userId = req.session?.userId || req.tvUserId;
+  // Check for web session first
+  let userId = req.session?.userId;
+
+  // If no web session, check for TV session token (since this endpoint bypasses auth middleware)
+  if (!userId) {
+    const tvSessionToken = req.query.tvSession || req.headers['x-tv-session'];
+    if (tvSessionToken) {
+      try {
+        const tvResult = await pool.query(
+          'SELECT user_id FROM tv_sessions WHERE session_token = $1 AND is_active = TRUE',
+          [tvSessionToken]
+        );
+        if (tvResult.rows.length > 0) {
+          userId = tvResult.rows[0].user_id;
+        }
+      } catch (err) {
+        console.error('TV session check error in /api/auth/check:', err);
+      }
+    }
+  }
 
   if (userId) {
     try {
