@@ -2136,19 +2136,23 @@ app.get('/*.html', (req, res) => {
 async function checkLeagueAccess(req, res, next) {
   const league = req.params.league;
 
-  if (!req.session || !req.session.userId) {
-    return res.redirect('/login');
+  // Check for web session OR TV session
+  const userId = req.session?.userId || req.tvUserId;
+  const isTV = req.query.tv === '1' || !!req.tvUserId;
+
+  if (!userId) {
+    return res.redirect(isTV ? '/tv-home' : '/login');
   }
 
   try {
     const result = await pool.query(
       `SELECT subscription_status, trial_ends_at, subscription_ends_at
        FROM users WHERE id = $1`,
-      [req.session.userId]
+      [userId]
     );
 
     if (result.rows.length === 0) {
-      return res.redirect('/login');
+      return res.redirect(isTV ? '/tv-home' : '/login');
     }
 
     const user = result.rows[0];
@@ -2175,11 +2179,11 @@ async function checkLeagueAccess(req, res, next) {
     if (allowedLeagues.includes(league)) {
       next();
     } else {
-      res.redirect('/pricing');
+      res.redirect(isTV ? '/tv-home' : '/pricing');
     }
   } catch (error) {
     console.error('Error checking league access:', error);
-    res.redirect('/pricing');
+    res.redirect(isTV ? '/tv-home' : '/pricing');
   }
 }
 
