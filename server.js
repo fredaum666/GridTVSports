@@ -471,12 +471,15 @@ function requireAuth(req, res, next) {
 
 // Check authentication status
 app.get('/api/auth/check', async (req, res) => {
-  if (req.session && req.session.userId) {
+  // Check for web session OR TV session (set by auth middleware)
+  const userId = req.session?.userId || req.tvUserId;
+
+  if (userId) {
     try {
-      // Get subscription status
+      // Get subscription status and user info
       const result = await pool.query(
-        'SELECT subscription_status, subscription_plan, trial_ends_at FROM users WHERE id = $1',
-        [req.session.userId]
+        'SELECT id, email, display_name, subscription_status, subscription_plan, trial_ends_at FROM users WHERE id = $1',
+        [userId]
       );
 
       const user = result.rows[0] || {};
@@ -493,9 +496,9 @@ app.get('/api/auth/check', async (req, res) => {
       return res.json({
         authenticated: true,
         user: {
-          id: req.session.userId,
-          email: req.session.userEmail,
-          displayName: req.session.displayName
+          id: userId,
+          email: req.session?.userEmail || user.email,
+          displayName: req.session?.displayName || user.display_name
         },
         subscription: {
           status: user.subscription_status || 'trial',
@@ -508,9 +511,9 @@ app.get('/api/auth/check', async (req, res) => {
       return res.json({
         authenticated: true,
         user: {
-          id: req.session.userId,
-          email: req.session.userEmail,
-          displayName: req.session.displayName
+          id: userId,
+          email: req.session?.userEmail,
+          displayName: req.session?.displayName
         }
       });
     }
