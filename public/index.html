@@ -12,25 +12,35 @@
       box-sizing: border-box;
     }
 
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: var(--bg-primary, linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%));
       color: var(--text-primary, #e0e0e0);
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 1.5vh 2vw;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(8px, 1.5vh, 20px);
     }
 
     .header h1 {
-      font-size: 48px;
+      font-size: clamp(24px, 4vw, 48px);
       font-weight: 900;
       background: var(--header-gradient, linear-gradient(90deg, #17a2b8, #22c55e, #fbbf24, #ef4444));
       background-size: 200% auto;
@@ -38,7 +48,7 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       animation: gradientShift 3s linear infinite;
-      margin-bottom: 15px;
+      margin-bottom: 0.5vh;
     }
 
     @keyframes gradientShift {
@@ -48,7 +58,7 @@
     }
 
     .header p {
-      font-size: 18px;
+      font-size: clamp(12px, 1.5vw, 18px);
       color: var(--text-secondary, #94a3b8);
       font-weight: 500;
     }
@@ -56,8 +66,8 @@
     .sports-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 30px;
-      margin-bottom: 30px;
+      gap: clamp(10px, 1.5vw, 20px);
+      margin-bottom: clamp(8px, 1vh, 15px);
       max-width: 1400px;
       margin-left: auto;
       margin-right: auto;
@@ -66,8 +76,8 @@
     .sport-card {
       background: var(--card-bg, linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%));
       border: 3px solid var(--card-border, #334155);
-      border-radius: 20px;
-      padding: 40px 30px;
+      border-radius: clamp(12px, 1.5vw, 20px);
+      padding: clamp(10px, 1.5vh, 30px) clamp(10px, 1.5vw, 30px);
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -76,9 +86,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
+      justify-content: center;
+      gap: clamp(5px, 0.8vh, 15px);
       position: relative;
       overflow: hidden;
+      height: clamp(120px, 22vh, 280px);
     }
 
     .sport-card::before {
@@ -157,15 +169,15 @@
     }
 
     .sport-icon {
-      font-size: 80px;
-      margin-bottom: 10px;
+      font-size: clamp(40px, 8vh, 80px);
+      margin-bottom: 0;
     }
 
     .sport-logo {
-      width: 180px;
-      height: 180px;
+      width: clamp(50px, 14vh, 140px);
+      height: clamp(50px, 14vh, 140px);
       object-fit: contain;
-      margin-bottom: 10px;
+      margin-bottom: 0;
       filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
       transition: transform 0.3s ease;
     }
@@ -220,9 +232,9 @@
       align-items: center;
       gap: 6px;
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      padding: 6px 14px;
+      padding: clamp(4px, 0.5vh, 6px) clamp(8px, 1vw, 14px);
       border-radius: 20px;
-      font-size: 11px;
+      font-size: clamp(8px, 1vh, 11px);
       font-weight: 700;
       text-transform: uppercase;
       color: white;
@@ -301,14 +313,14 @@
     .mixed-sports-btn {
       display: inline-flex;
       align-items: center;
-      gap: 20px;
+      gap: clamp(10px, 1.5vw, 20px);
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
-      border: 3px solid #a855f7;
-      border-radius: 16px;
-      padding: 25px 40px;
+      border: 2px solid #a855f7;
+      border-radius: clamp(10px, 1vw, 16px);
+      padding: clamp(12px, 1.5vh, 25px) clamp(20px, 2vw, 40px);
       text-decoration: none;
       color: white;
-      font-size: 18px;
+      font-size: clamp(14px, 1.5vw, 18px);
       font-weight: 700;
       transition: all 0.3s ease;
       box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
@@ -338,7 +350,7 @@
     }
 
     .btn-icon {
-      font-size: 32px;
+      font-size: clamp(20px, 2.5vw, 32px);
       animation: tvPulse 2s infinite;
     }
 
@@ -350,18 +362,18 @@
     .btn-text {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 3px;
       text-align: left;
     }
 
     .btn-text small {
-      font-size: 13px;
+      font-size: clamp(10px, 1vw, 13px);
       font-weight: 400;
       opacity: 0.9;
     }
 
     .btn-arrow {
-      font-size: 24px;
+      font-size: clamp(16px, 1.5vw, 24px);
       transition: transform 0.3s ease;
     }
 
@@ -643,8 +655,9 @@
       position: relative;
       width: 100%;
       max-width: 1200px;
-      margin: 0 auto 60px auto;
+      margin: 0 auto;
       padding: 0 70px;
+      flex-shrink: 0;
     }
 
     .header {
@@ -1103,6 +1116,7 @@
     }
   </style>
   <!-- <link rel="stylesheet" href="/styles/themes.css"> -->
+  <link rel="stylesheet" href="/styles/tutorial.css">
   <script>
     // DEBUG: Clear any corrupted theme data
     console.log('🔍 Checking for theme issues...');
@@ -1179,6 +1193,10 @@
                 <span class="dropdown-item-icon">⭐</span>
                 <span>Favorite Teams</span>
               </a>
+              <button class="dropdown-item" id="restartTutorialBtn">
+                <span class="dropdown-item-icon">📖</span>
+                <span>Restart Tutorial</span>
+              </button>
               <div class="dropdown-divider"></div>
               <button class="dropdown-item logout" id="logoutBtn">
                 <span class="dropdown-item-icon">🚪</span>
@@ -1274,14 +1292,14 @@
     </div>
 
     <!-- Mixed Sports Bar Mode Button -->
-    <div style="text-align: center; margin-bottom: 20px;">
+    <div style="text-align: center; flex-shrink: 0;">
       <a href="/LiveGames" class="mixed-sports-btn">
         <span class="btn-icon">📺</span>
         <span class="btn-text">
           <strong>Mixed Sports Bar Mode</strong>
           <small>Watch All Sports Together</small>
         </span>
-        
+
       </a>
     </div>
 
@@ -1292,7 +1310,8 @@
       </a>
     </div>
 
-    <div class="features" style="margin-top: 40px;">
+    <!-- Features section hidden to fit content in viewport -->
+    <div class="features" style="display: none;">
       <h2>✨ Features</h2>
       <div class="features-list">
         <div class="feature-item">
@@ -1540,7 +1559,29 @@
       } catch (error) {
         console.error('Failed to load access permissions:', error);
       }
+
+      // Restart Tutorial button handler
+      const restartTutorialBtn = document.getElementById('restartTutorialBtn');
+      if (restartTutorialBtn) {
+        restartTutorialBtn.addEventListener('click', () => {
+          userDropdown.classList.remove('show');
+          if (window.GridTVTutorial) {
+            window.GridTVTutorial.reset();
+          }
+          if (window.gridTVTutorial) {
+            window.gridTVTutorial.start();
+          }
+        });
+      }
+
+      // Check for first-time tutorial after everything loads
+      if (typeof checkAndStartTutorial === 'function') {
+        checkAndStartTutorial();
+      }
     })();
   </script>
+
+  <!-- Tutorial Script -->
+  <script src="/scripts/tutorial.js"></script>
 </body>
 </html>

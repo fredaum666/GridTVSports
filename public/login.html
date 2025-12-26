@@ -674,6 +674,8 @@
         if (response.ok) {
           showSuccess('Account created successfully! Please login.');
           clearRegistrationState();
+          // Set flag for first-time tutorial
+          localStorage.setItem('gridtv-first-login', 'true');
           setTimeout(() => {
             backToLoginLink.click();
             document.getElementById('email').value = email;

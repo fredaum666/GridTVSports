@@ -702,7 +702,8 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 15px;  /* Reduced from 80px - thin strip at very top edge */
+      height: 15px;
+      /* Reduced from 80px - thin strip at very top edge */
       z-index: 999;
       pointer-events: auto;
     }
@@ -1725,10 +1726,21 @@
     }
 
     @keyframes penaltyPhase1 {
-      0% { opacity: 0; }
-      8% { opacity: 1; }
-      85% { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 0;
+      }
+
+      8% {
+        opacity: 1;
+      }
+
+      85% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     .referee-throwing {
@@ -1744,10 +1756,12 @@
         transform: scale(0.5) translateY(50px);
         opacity: 0;
       }
+
       60% {
         transform: scale(1.1) translateY(-10px);
         opacity: 1;
       }
+
       100% {
         transform: scale(1) translateY(0);
         opacity: 1;
@@ -1780,17 +1794,33 @@
     }
 
     @keyframes penaltyPhase2 {
-      0% { opacity: 0; transform: scale(0.8); }
-      12% { opacity: 1; transform: scale(1); }
-      88% { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+
+      12% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      88% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
     }
 
     @keyframes flagPulse {
-      0%, 100% {
+
+      0%,
+      100% {
         text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
         transform: scale(1);
       }
+
       50% {
         text-shadow: 0 0 40px #fbbf24, 0 0 80px #fbbf24, 0 0 100px #fbbf24;
         transform: scale(1.05);
@@ -1823,6 +1853,7 @@
         transform: scale(0) rotate(-180deg);
         opacity: 0;
       }
+
       100% {
         transform: scale(1) rotate(0deg);
         opacity: 1;
@@ -3184,14 +3215,17 @@
       .fullscreen-grid.grid-4 .play-animation {
         padding: 5px !important;
       }
+
       .fullscreen-grid.grid-4 .play-animation-icon {
         font-size: clamp(1.5rem, 4vh, 3rem) !important;
         margin-bottom: 5px !important;
       }
+
       .fullscreen-grid.grid-4 .play-animation-text {
         font-size: clamp(0.9rem, 2.5vh, 1.8rem) !important;
         letter-spacing: 1px !important;
       }
+
       .fullscreen-grid.grid-4 .play-animation-subtext {
         font-size: clamp(0.7rem, 1.8vh, 1.2rem) !important;
         margin-top: 3px !important;
@@ -3958,34 +3992,156 @@
         padding: 8px 12px !important;
         overflow: hidden !important;
       }
-      .game-card { border-radius: 8px !important; overflow: hidden !important; }
-      .team-row { padding: 8px 10px !important; }
-      .team-logo { width: 32px !important; height: 32px !important; min-width: 32px !important; }
-      .team-name { font-size: 12px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; max-width: 80px !important; }
-      .team-record { display: none !important; }
-      .team-score { font-size: 20px !important; }
-      .game-status-bar { padding: 5px 10px !important; }
-      .game-status-bar .status-text { font-size: 10px !important; }
-      .scoring-breakdown, .quarter-scores, .period-scores, .inning-scores { display: none !important; }
-      .games-header { padding: 8px 12px !important; }
-      .games-header h1 { font-size: 16px !important; }
-      .tv-back-btn { font-size: 11px !important; padding: 6px 12px !important; }
-      .fullscreen-container { padding: 0 !important; overflow: hidden !important; }
-      .fullscreen-game-card { border-radius: 6px !important; padding: 8px !important; overflow: hidden !important; }
-      .fullscreen-teams { gap: 5px !important; overflow: hidden !important; }
-      .fullscreen-team { gap: 3px !important; overflow: hidden !important; }
-      .fullscreen-team-logo { width: 28px !important; height: 28px !important; min-width: 28px !important; }
-      .fullscreen-live-team-name, .fullscreen-team-name { font-size: 0.75rem !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; max-width: 60px !important; }
-      .fullscreen-team-score, .fullscreen-score { font-size: 1.8rem !important; }
-      .fullscreen-team-record { font-size: 0.55rem !important; }
-      .fullscreen-status-text, .fullscreen-quarter, .fullscreen-period, .fullscreen-inning { font-size: 0.7rem !important; padding: 3px 8px !important; }
-      .fullscreen-vs { font-size: 0.7rem !important; margin: 2px 0 !important; }
-      .sport-logo-indicator { width: 24px !important; height: 24px !important; top: 4px !important; left: 4px !important; }
-      .fullscreen-timeouts { display: flex !important; gap: 4px !important; }
-      .fullscreen-timeouts .timeout-bar { width: 20px !important; height: 5px !important; }
-      .fullscreen-possession { display: block !important; font-size: 14px !important; }
-      .fullscreen-situation-info { display: block !important; font-size: 14px !important; }
-      .field-visualizer { display: block !important; transform: scale(0.7) !important; margin-top: 4px !important; }
+
+      .game-card {
+        border-radius: 8px !important;
+        overflow: hidden !important;
+      }
+
+      .team-row {
+        padding: 8px 10px !important;
+      }
+
+      .team-logo {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+      }
+
+      .team-name {
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 80px !important;
+      }
+
+      .team-record {
+        display: none !important;
+      }
+
+      .team-score {
+        font-size: 20px !important;
+      }
+
+      .game-status-bar {
+        padding: 5px 10px !important;
+      }
+
+      .game-status-bar .status-text {
+        font-size: 10px !important;
+      }
+
+      .scoring-breakdown,
+      .quarter-scores,
+      .period-scores,
+      .inning-scores {
+        display: none !important;
+      }
+
+      .games-header {
+        padding: 8px 12px !important;
+      }
+
+      .games-header h1 {
+        font-size: 16px !important;
+      }
+
+      .tv-back-btn {
+        font-size: 11px !important;
+        padding: 6px 12px !important;
+      }
+
+      .fullscreen-container {
+        padding: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-game-card {
+        border-radius: 6px !important;
+        padding: 8px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-teams {
+        gap: 5px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-team {
+        gap: 3px !important;
+        overflow: hidden !important;
+      }
+
+      .fullscreen-team-logo {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+      }
+
+      .fullscreen-live-team-name,
+      .fullscreen-team-name {
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 60px !important;
+      }
+
+      .fullscreen-team-score,
+      .fullscreen-score {
+        font-size: 1.8rem !important;
+      }
+
+      .fullscreen-team-record {
+        font-size: 0.55rem !important;
+      }
+
+      .fullscreen-status-text,
+      .fullscreen-quarter,
+      .fullscreen-period,
+      .fullscreen-inning {
+        font-size: 0.7rem !important;
+        padding: 3px 8px !important;
+      }
+
+      .fullscreen-vs {
+        font-size: 0.7rem !important;
+        margin: 2px 0 !important;
+      }
+
+      .sport-logo-indicator {
+        width: 24px !important;
+        height: 24px !important;
+        top: 4px !important;
+        left: 4px !important;
+      }
+
+      .fullscreen-timeouts {
+        display: flex !important;
+        gap: 4px !important;
+      }
+
+      .fullscreen-timeouts .timeout-bar {
+        width: 20px !important;
+        height: 5px !important;
+      }
+
+      .fullscreen-possession {
+        display: block !important;
+        font-size: 14px !important;
+      }
+
+      .fullscreen-situation-info {
+        display: block !important;
+        font-size: 14px !important;
+      }
+
+      .field-visualizer {
+        display: block !important;
+        transform: scale(0.7) !important;
+        margin-top: 4px !important;
+      }
     }
 
     /* TV Mode - Optimized layouts matching league pages */
@@ -4433,9 +4589,9 @@
     }
   </style>
   <!-- <link rel="stylesheet" href="/styles/themes.css"> -->
-  <link rel="stylesheet" href="/styles/mobile-fullscreen.css">
+  <!-- <link rel="stylesheet" href="/styles/mobile-fullscreen.css"> -->
   <!-- <script src="/scripts/theme-manager.js"></script> -->
-  <link rel="stylesheet" href="/styles/responsive-cards.css">
+  <!-- <link rel="stylesheet" href="/styles/responsive-cards.css"> -->
 </head>
 
 <body>
@@ -4486,13 +4642,13 @@
       return NFL_TEAM_COLORS[teamAbbr] || '#e5e7eb'; // Default to light gray if not found
     }
 
-    (function() {
+    (function () {
       const urlParams = new URLSearchParams(window.location.search);
       const isTV = urlParams.get('tv') === '1' ||
-                   navigator.userAgent.includes('AndroidTV') ||
-                   navigator.userAgent.includes('FireTV') ||
-                   navigator.userAgent.includes('GridTVSports-AndroidTV') ||
-                   window.self !== window.top; // iframe detection for TV home
+        navigator.userAgent.includes('AndroidTV') ||
+        navigator.userAgent.includes('FireTV') ||
+        navigator.userAgent.includes('GridTVSports-AndroidTV') ||
+        window.self !== window.top; // iframe detection for TV home
 
       // Store TV session token for API authentication
       // Get from URL first, fallback to localStorage
@@ -4581,7 +4737,7 @@
     })();
 
     // TV-aware fetch wrapper - adds authentication header for TV mode
-    window.tvFetch = function(url, options = {}) {
+    window.tvFetch = function (url, options = {}) {
       if (window.isTVMode && window.tvSessionToken) {
         options.headers = options.headers || {};
         options.headers['x-tv-session'] = window.tvSessionToken;
@@ -5202,7 +5358,7 @@
     });
 
     // Auto-hide header controls after 5 seconds
-    (function() {
+    (function () {
       const hoverTrigger = document.querySelector('.fullscreen-hover-trigger');
       const controls = document.querySelector('.fullscreen-controls');
       let headerHideTimeout = null;

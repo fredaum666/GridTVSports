@@ -1,0 +1,455 @@
+/* ============================================
+   GridTV Sports - First-Time Tutorial Styles
+   ============================================ */
+
+/* Tutorial Overlay */
+.tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.tutorial-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Spotlight effect - highlights elements */
+.tutorial-spotlight {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tutorial-spotlight.pulse {
+  animation: spotlightPulse 2s infinite;
+}
+
+@keyframes spotlightPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 0 15px rgba(99, 102, 241, 0.2);
+  }
+}
+
+/* Tooltip/Dialog Box */
+.tutorial-tooltip {
+  --arrow-left: 50%;
+  position: fixed;
+  z-index: 10000;
+  background: linear-gradient(135deg, rgba(20, 20, 45, 0.98) 0%, rgba(35, 35, 70, 0.98) 100%);
+  border: 2px solid rgba(99, 102, 241, 0.5);
+  border-radius: 14px;
+  padding: 20px;
+  max-width: 380px;
+  min-width: 280px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.15);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.tutorial-tooltip.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Arrow pointing to element */
+.tutorial-tooltip::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(135deg, rgba(20, 20, 45, 0.98) 0%, rgba(35, 35, 70, 0.98) 100%);
+  border: 2px solid rgba(99, 102, 241, 0.5);
+  transform: rotate(45deg);
+  z-index: -1;
+}
+
+.tutorial-tooltip.arrow-top::before {
+  top: -8px;
+  left: var(--arrow-left);
+  margin-left: -7px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.tutorial-tooltip.arrow-bottom::before {
+  bottom: -8px;
+  left: var(--arrow-left);
+  margin-left: -7px;
+  border-left: none;
+  border-top: none;
+}
+
+.tutorial-tooltip.arrow-left::before {
+  left: -8px;
+  top: 50%;
+  margin-top: -7px;
+  border-right: none;
+  border-top: none;
+}
+
+.tutorial-tooltip.arrow-right::before {
+  right: -8px;
+  top: 50%;
+  margin-top: -7px;
+  border-left: none;
+  border-bottom: none;
+}
+
+/* Welcome screen - centered (no arrow) */
+.tutorial-tooltip.welcome {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 420px;
+  text-align: center;
+}
+
+.tutorial-tooltip.welcome::before {
+  display: none;
+}
+
+.tutorial-tooltip.welcome.active {
+  transform: translate(-50%, -50%);
+}
+
+/* Tooltip Header */
+.tutorial-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tutorial-icon {
+  font-size: 26px;
+}
+
+.tutorial-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  flex: 1;
+}
+
+.tutorial-step-counter {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(99, 102, 241, 0.2);
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+/* Tooltip Content */
+.tutorial-content {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.tutorial-content p {
+  margin-bottom: 8px;
+}
+
+.tutorial-content p:last-child {
+  margin-bottom: 0;
+}
+
+.tutorial-content strong {
+  color: #a5b4fc;
+  font-weight: 600;
+}
+
+.tutorial-content .highlight {
+  background: rgba(99, 102, 241, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #c7d2fe;
+}
+
+/* Feature list in tooltip */
+.tutorial-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+.tutorial-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tutorial-feature-icon {
+  font-size: 16px;
+}
+
+/* Tooltip Footer/Actions */
+.tutorial-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tutorial-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tutorial-btn-skip {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-right: auto;
+}
+
+.tutorial-btn-skip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tutorial-btn-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tutorial-btn-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tutorial-btn-next {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+}
+
+.tutorial-btn-next:hover {
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.tutorial-btn-start {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #ffffff;
+  padding: 10px 24px;
+  font-size: 14px;
+}
+
+.tutorial-btn-start:hover {
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.tutorial-btn-finish {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #ffffff;
+}
+
+.tutorial-btn-finish:hover {
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+/* Progress dots */
+.tutorial-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.tutorial-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.tutorial-progress-dot.active {
+  background: #6366f1;
+  width: 18px;
+  border-radius: 3px;
+}
+
+.tutorial-progress-dot.completed {
+  background: #22c55e;
+}
+
+/* Highlight ring effect for target elements */
+.tutorial-highlight-ring {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  border: 3px solid #6366f1;
+  border-radius: 16px;
+  animation: highlightRing 1.5s infinite;
+}
+
+@keyframes highlightRing {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+  }
+}
+
+/* Click indicator arrow */
+.tutorial-click-indicator {
+  position: fixed;
+  z-index: 10001;
+  pointer-events: none;
+  font-size: 40px;
+  animation: clickIndicator 1s infinite;
+}
+
+@keyframes clickIndicator {
+  0%, 100% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, 10px) scale(0.9);
+    opacity: 0.7;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .tutorial-tooltip {
+    max-width: calc(100vw - 40px);
+    min-width: auto;
+    padding: 20px;
+    margin: 0 20px;
+  }
+
+  .tutorial-tooltip.welcome {
+    width: calc(100vw - 40px);
+  }
+
+  .tutorial-title {
+    font-size: 18px;
+  }
+
+  .tutorial-content {
+    font-size: 14px;
+  }
+
+  .tutorial-actions {
+    flex-wrap: wrap;
+  }
+
+  .tutorial-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .tutorial-btn-skip {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tutorial-tooltip {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .tutorial-header {
+    flex-wrap: wrap;
+  }
+
+  .tutorial-icon {
+    font-size: 28px;
+  }
+
+  .tutorial-title {
+    font-size: 16px;
+  }
+
+  .tutorial-step-counter {
+    font-size: 11px;
+  }
+
+  .tutorial-content {
+    font-size: 13px;
+  }
+
+  .tutorial-features {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .tutorial-feature {
+    font-size: 13px;
+  }
+}
+
+/* Restart tutorial button in menu */
+.restart-tutorial-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  color: #a5b4fc;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.restart-tutorial-btn:hover {
+  background: rgba(99, 102, 241, 0.3);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+/* Animation for elements becoming interactive */
+.tutorial-interactive {
+  position: relative;
+  z-index: 10000;
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+/* Disable scrolling during tutorial */
+body.tutorial-active {
+  overflow: hidden;
+}

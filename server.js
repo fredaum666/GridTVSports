@@ -2021,7 +2021,13 @@ app.use('/scripts', express.static(path.join(__dirname, 'public', 'scripts'), {
     }
   }
 }));
-app.use('/styles', express.static(path.join(__dirname, 'public', 'styles')));
+app.use('/styles', express.static(path.join(__dirname, 'public', 'styles'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    }
+  }
+}));
 
 // List of valid page routes (without .html)
 const pageRoutes = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab', 'LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin', 'admin-subscriptions'];
