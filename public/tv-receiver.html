@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>📺 TV Receiver - GridTV Sports</title>
     <link rel="icon" type="image/png" href="/assets/logo.png">
     <script src="/socket.io/socket.io.js"></script>
@@ -15,7 +16,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -492,7 +494,7 @@
         }
 
         .fullscreen-team-record {
-            font-size: clamp(0.7rem, 1.8vmin, 1.1rem);
+            font-size: clamp(0.7rem, 2.8vmin, 1.6rem);
             color: #9ca3af;
             font-weight: 600;
             text-align: center;
@@ -520,7 +522,7 @@
         }
 
         .fullscreen-status-text {
-            font-size: clamp(0.9rem, 2.5vmin, 1.5rem);
+            font-size: clamp(0.9rem, 3.5vmin, 2.5rem);
             font-weight: 700;
             color: #17a2b8;
             text-transform: uppercase;
@@ -580,8 +582,15 @@
         }
 
         @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
         }
 
         /* Timeout Indicators - matching NFL page */
@@ -831,7 +840,8 @@
                 <span class="pin-code" id="pin-code">------</span>
             </div>
 
-            <p style="color: #94a3b8; font-size: clamp(0.8rem, 2vmin, 1.3rem); margin-top: clamp(1rem, 2.5vmin, 2.5rem);">
+            <p
+                style="color: #94a3b8; font-size: clamp(0.8rem, 2vmin, 1.3rem); margin-top: clamp(1rem, 2.5vmin, 2.5rem);">
                 On your device: LiveGames → Click "📺 Cast to TV" → Enter code above
             </p>
 
@@ -1594,18 +1604,22 @@
 
 
         function startAutoRefresh() {
-            // Refresh every 15 seconds
+            // Refresh every 15 seconds - continues even if controller disconnects
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
             refreshInterval = setInterval(() => {
-                if (sessionId && socket?.connected) {
-                    // Get current state from the grid
+                // Continue refreshing as long as we have games, regardless of socket connection
+                const games = window.currentGames || {};
+                if (Object.keys(games).length > 0) {
                     const grid = document.getElementById('fullscreen-grid');
                     const layoutMatch = grid.className.match(/grid-(\d+)/);
                     const layout = layoutMatch ? parseInt(layoutMatch[1]) : 2;
 
-                    // Refresh with mock state - in production this would come from controller
+                    // Refresh game data independently - TV fetches from API directly
                     refreshGameData({
                         layout,
-                        games: window.currentGames || {},
+                        games: games,
                         isActive: true
                     });
                 }
@@ -1613,19 +1627,29 @@
         }
 
         function showDisconnectedMessage() {
-            const grid = document.getElementById('fullscreen-grid');
-            grid.innerHTML = `
-        <div class="game-card waiting-for-games">
-          <div style="font-size: 2rem; color: #ef4444; margin-bottom: 1rem;">⚠️</div>
-          <div style="font-size: 1.5rem; color: #ef4444;">Controller Disconnected</div>
-          <div style="margin-top: 1rem; color: #94a3b8;">Waiting for reconnection...</div>
-        </div>
-      `;
+            // Check if we have games to continue showing
+            const games = window.currentGames || {};
+            const hasGames = Object.keys(games).length > 0;
 
-            // Stop auto-refresh
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-                refreshInterval = null;
+            if (hasGames) {
+                // Controller disconnected but we have games - keep showing them!
+                // Just log it and continue - auto-refresh will keep updating scores
+                console.log('Controller disconnected, but continuing to show games independently');
+
+                // Make sure auto-refresh is still running
+                if (!refreshInterval) {
+                    startAutoRefresh();
+                }
+            } else {
+                // No games were selected - show waiting message
+                const grid = document.getElementById('fullscreen-grid');
+                grid.innerHTML = `
+                    <div class="game-card waiting-for-games">
+                        <div style="font-size: 2rem; color: #ef4444; margin-bottom: 1rem;">⚠️</div>
+                        <div style="font-size: 1.5rem; color: #ef4444;">Controller Disconnected</div>
+                        <div style="margin-top: 1rem; color: #94a3b8;">No games selected. Reconnect to choose games.</div>
+                    </div>
+                `;
             }
         }
 
