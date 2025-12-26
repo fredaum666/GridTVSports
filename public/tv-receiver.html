@@ -480,6 +480,11 @@
             align-items: center;
             justify-content: center;
             gap: clamp(6px, 1.2vw, 12px);
+            /* Matching NFL page styling */
+            background: rgba(240, 235, 235, 0.74);
+            padding: clamp(6px, 1.2vmin, 12px) clamp(12px, 2.5vmin, 24px);
+            border-radius: clamp(4px, 0.8vmin, 8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .fullscreen-live-team-name.winning {
@@ -561,6 +566,152 @@
             100% {
                 transform: scale(1);
             }
+        }
+
+        /* Possession Indicator - matching NFL page */
+        .fullscreen-possession {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: clamp(14px, 3vmin, 24px);
+            line-height: 1;
+            animation: blink 1.5s infinite;
+            filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.9));
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Timeout Indicators - matching NFL page */
+        .fullscreen-timeouts {
+            display: flex;
+            justify-content: center;
+            gap: clamp(4px, 0.8vw, 8px);
+            margin-top: clamp(4px, 0.8vh, 8px);
+        }
+
+        .timeout-bar {
+            width: clamp(16px, 3vw, 28px);
+            height: clamp(5px, 1vh, 8px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: background 0.3s ease;
+        }
+
+        .timeout-bar.used {
+            background: transparent;
+        }
+
+        /* Situation Info (Down & Distance) - matching NFL page */
+        .fullscreen-situation-info {
+            font-size: clamp(0.9rem, 2.5vmin, 1.8rem);
+            color: #fbbf24;
+            font-weight: 700;
+            text-align: center;
+            margin-top: clamp(8px, 1.5vh, 16px);
+            background: rgba(240, 235, 235, 0.74);
+            padding: clamp(4px, 0.8vmin, 8px) clamp(12px, 2vmin, 24px);
+            border-radius: clamp(4px, 0.8vmin, 8px);
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Field Position Visualizer - matching NFL page */
+        .field-visualizer {
+            width: 100%;
+            max-width: 90%;
+            margin-top: clamp(8px, 1.5vh, 16px);
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(3px, 0.8vh, 6px);
+        }
+
+        .field-container {
+            width: 100%;
+            max-width: 100%;
+            position: relative;
+            height: clamp(25px, 5vh, 50px);
+            background: linear-gradient(to right, #064e3b 0%, #065f46 50%, #064e3b 100%);
+            border: clamp(1px, 0.3vmin, 3px) solid #10b981;
+            border-radius: clamp(2px, 0.5vmin, 6px);
+            overflow: visible;
+        }
+
+        .yard-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0;
+        }
+
+        .yard-marker {
+            position: relative;
+            width: clamp(1px, 0.2vmin, 2px);
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .yard-marker.endzone {
+            background: rgba(255, 255, 255, 0.6);
+            width: clamp(2px, 0.4vmin, 3px);
+        }
+
+        .yard-label {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: clamp(8px, 1.5vmin, 12px);
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            white-space: nowrap;
+        }
+
+        .ball-indicator {
+            position: absolute;
+            top: clamp(-6px, -1.5vmin, -10px);
+            bottom: clamp(-6px, -1.5vmin, -10px);
+            width: clamp(3px, 0.6vmin, 5px);
+            background: linear-gradient(to bottom, #1e40af, #1e3a8a);
+            box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(30, 64, 175, 0.8);
+            transition: left 0.6s ease-out;
+            z-index: 10;
+            border-radius: clamp(1px, 0.3vmin, 3px);
+        }
+
+        .ball-indicator::before {
+            content: '🏈';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(12px, 2.5vmin, 20px);
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
+        }
+
+        .first-down-line {
+            position: absolute;
+            top: clamp(-6px, -1.5vmin, -10px);
+            bottom: clamp(-6px, -1.5vmin, -10px);
+            width: clamp(3px, 0.6vmin, 5px);
+            background: linear-gradient(to bottom, #fbbf24, #f59e0b);
+            box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(251, 191, 36, 0.8);
+            transition: left 0.6s ease-out;
+            z-index: 9;
+            border-radius: clamp(1px, 0.3vmin, 3px);
         }
 
         /* Responsive adjustments for different TV sizes */
@@ -1031,6 +1182,49 @@
         }
 
         // ============================================
+        // NFL TEAM COLORS
+        // ============================================
+        const NFL_TEAM_COLORS = {
+            'ARI': '#97233F', // Arizona Cardinals - Cardinal Red
+            'ATL': '#A71930', // Atlanta Falcons - Red
+            'BAL': '#241773', // Baltimore Ravens - Purple
+            'BUF': '#00338D', // Buffalo Bills - Royal Blue
+            'CAR': '#0085CA', // Carolina Panthers - Process Blue
+            'CHI': '#0B162A', // Chicago Bears - Navy Blue
+            'CIN': '#FB4F14', // Cincinnati Bengals - Orange
+            'CLE': '#FF3C00', // Cleveland Browns - Orange
+            'DAL': '#002244', // Dallas Cowboys - Navy Blue
+            'DEN': '#FB4F14', // Denver Broncos - Orange
+            'DET': '#0076B6', // Detroit Lions - Honolulu Blue
+            'GB': '#203731',  // Green Bay Packers - Dark Green
+            'HOU': '#03202F', // Houston Texans - Deep Steel Blue
+            'IND': '#002C5F', // Indianapolis Colts - Royal Blue
+            'JAX': '#006778', // Jacksonville Jaguars - Teal
+            'KC': '#E31837',  // Kansas City Chiefs - Red
+            'LV': '#A5ACAF',  // Las Vegas Raiders - Silver
+            'LAC': '#0080C6', // Los Angeles Chargers - Powder Blue
+            'LAR': '#003594', // Los Angeles Rams - Royal Blue
+            'MIA': '#008E97', // Miami Dolphins - Aqua
+            'MIN': '#4F2683', // Minnesota Vikings - Purple
+            'NE': '#002244',  // New England Patriots - Navy Blue
+            'NO': '#D3BC8D',  // New Orleans Saints - Old Gold
+            'NYG': '#0B2265', // New York Giants - Royal Blue
+            'NYJ': '#125740', // New York Jets - Gotham Green
+            'PHI': '#004C54', // Philadelphia Eagles - Midnight Green
+            'PIT': '#FFB612', // Pittsburgh Steelers - Gold
+            'SF': '#AA0000',  // San Francisco 49ers - Scarlet Red
+            'SEA': '#002244', // Seattle Seahawks - College Navy
+            'TB': '#D50A0A',  // Tampa Bay Buccaneers - Red
+            'TEN': '#4B92DB', // Tennessee Titans - Titans Blue
+            'WSH': '#5A1414'  // Washington Commanders - Burgundy
+        };
+
+        // Get team color by abbreviation
+        function getTeamColor(teamAbbr) {
+            return NFL_TEAM_COLORS[teamAbbr] || '#e5e7eb'; // Default to light gray if not found
+        }
+
+        // ============================================
         // UI HELPERS
         // ============================================
         function showError(message) {
@@ -1220,21 +1414,72 @@
 
             // Possession indicators
             const possession = comp.situation?.possession;
-            const awayHasBall = possession === awayTeam.id;
-            const homeHasBall = possession === homeTeam.id;
+            const awayHasBall = possession === awayTeam.team?.id;
+            const homeHasBall = possession === homeTeam.team?.id;
             const possessionIcon = sport === 'nba' ? '🏀' : sport === 'nhl' ? '🏒' : '🏈';
+
+            // Football-specific: Down, distance, field position
+            const isFootball = sport === 'nfl' || sport === 'ncaa';
+            const situation = comp.situation;
+            const fieldPosition = situation?.possessionText || '';
+            // Use full downDistanceText which includes ball position (e.g., "1st & 10 at DEN 25")
+            // Fall back to shortDownDistanceText + fieldPosition if needed
+            let downDistanceText = situation?.downDistanceText || '';
+            if (!downDistanceText && situation?.shortDownDistanceText) {
+                downDistanceText = situation.shortDownDistanceText;
+                if (fieldPosition) {
+                    downDistanceText += ` at ${fieldPosition}`;
+                }
+            }
+
+            // Get timeouts
+            const awayTimeouts = situation?.awayTimeouts ?? 3;
+            const homeTimeouts = situation?.homeTimeouts ?? 3;
+
+            // Get yards to go for first down line
+            const yardsToGo = situation?.distance || 0;
+
+            // Calculate ball position for field visualizer (0-100%)
+            let ballPositionPercent = 50;
+            if (fieldPosition && isFootball) {
+                ballPositionPercent = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
+            }
+
+            // Calculate first down line position
+            // First down line is ahead of scrimmage in the direction of attack
+            let firstDownPosition = 50;
+            if (yardsToGo > 0 && isFootball) {
+                // Determine if away team has possession
+                const awayHasPossession = possession === awayTeam.team?.id;
+                if (awayHasPossession) {
+                    // Away team attacks RIGHT (toward home endzone at 100%)
+                    firstDownPosition = ballPositionPercent + yardsToGo;
+                } else {
+                    // Home team attacks LEFT (toward away endzone at 0%)
+                    firstDownPosition = ballPositionPercent - yardsToGo;
+                }
+                // Clamp to field bounds (0-100%)
+                firstDownPosition = Math.max(0, Math.min(100, firstDownPosition));
+            }
+
+            // Get team colors for NFL/NCAA
+            const awayColor = isFootball ? getTeamColor(awayName) : '#e5e7eb';
+            const homeColor = isFootball ? getTeamColor(homeName) : '#e5e7eb';
+
+            // Get possession team color for ball indicator
+            const possessionTeamColor = awayHasBall ? awayColor : (homeHasBall ? homeColor : '#1e40af');
 
             return `
                 <div class="fullscreen-card-content">
                     <img src="${sportLogo}" alt="${sport.toUpperCase()}" class="sport-logo-indicator">
-                    
+
                     ${isUpcoming ? `
                         <!-- Upcoming Game -->
                         <div class="fullscreen-upcoming-status-text">⏰ ${statusDisplay}</div>
                         <div class="fullscreen-live-score-header">
                             <div class="fullscreen-team-stack">
                                 ${awayLogo ? `<img src="${awayLogo}" alt="${awayName}" class="fullscreen-team-logo">` : ''}
-                                <div class="fullscreen-live-team-name">${awayName}</div>
+                                <div class="fullscreen-live-team-name" style="color: ${awayColor}">${awayName}</div>
                                 ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
                             </div>
                             <div class="fullscreen-team-score">-</div>
@@ -1242,7 +1487,7 @@
                             <div class="fullscreen-team-score">-</div>
                             <div class="fullscreen-team-stack">
                                 ${homeLogo ? `<img src="${homeLogo}" alt="${homeName}" class="fullscreen-team-logo">` : ''}
-                                <div class="fullscreen-live-team-name">${homeName}</div>
+                                <div class="fullscreen-live-team-name" style="color: ${homeColor}">${homeName}</div>
                                 ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
                             </div>
                         </div>
@@ -1251,27 +1496,99 @@
                         <div class="fullscreen-status-container">
                             <div class="fullscreen-status-text">${statusDisplay}</div>
                         </div>
-                        
+
                         <div class="fullscreen-live-score-header">
                             <div class="fullscreen-team-stack">
-                                ${awayLogo ? `<img src="${awayLogo}" alt="${awayName}" class="fullscreen-team-logo"  onerror="this.style.display='none'">` : ''}
-                                <div class="fullscreen-live-team-name ${awayScore > homeScore ? 'winning' : ''}">${awayName}${awayHasBall && (sport === 'nfl' || sport === 'ncaa' || sport === 'nba') ? ` ${possessionIcon}` : ''}</div>
+                                <div style="position: relative;">
+                                    ${awayLogo ? `<img src="${awayLogo}" alt="${awayName}" class="fullscreen-team-logo" onerror="this.style.display='none'">` : ''}
+                                    ${isLive && awayHasBall ? `<span class="fullscreen-possession">${possessionIcon}</span>` : ''}
+                                </div>
+                                <div class="fullscreen-live-team-name ${awayScore > homeScore ? 'winning' : ''}" style="color: ${awayColor}">${awayName}</div>
                                 ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
+                                ${isLive && isFootball ? `
+                                    <div class="fullscreen-timeouts">
+                                        <div class="timeout-bar ${awayTimeouts >= 1 ? '' : 'used'}"></div>
+                                        <div class="timeout-bar ${awayTimeouts >= 2 ? '' : 'used'}"></div>
+                                        <div class="timeout-bar ${awayTimeouts >= 3 ? '' : 'used'}"></div>
+                                    </div>
+                                ` : ''}
                             </div>
                             <div class="fullscreen-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
-                            
+
                             <div class="fullscreen-vs-divider-live">VS</div>
-                            
+
                             <div class="fullscreen-team-score ${homeScore > awayScore ? 'winning' : 'losing'}">${homeScore}</div>
                             <div class="fullscreen-team-stack">
-                                ${homeLogo ? `<img src="${homeLogo}" alt="${homeName}" class="fullscreen-team-logo" onerror="this.style.display='none'">` : ''}
-                                <div class="fullscreen-live-team-name ${homeScore > awayScore ? 'winning' : ''}">${homeName}${homeHasBall && (sport === 'nfl' || sport === 'ncaa' || sport === 'nba') ? ` ${possessionIcon}` : ''}</div>
+                                <div style="position: relative;">
+                                    ${homeLogo ? `<img src="${homeLogo}" alt="${homeName}" class="fullscreen-team-logo" onerror="this.style.display='none'">` : ''}
+                                    ${isLive && homeHasBall ? `<span class="fullscreen-possession">${possessionIcon}</span>` : ''}
+                                </div>
+                                <div class="fullscreen-live-team-name ${homeScore > awayScore ? 'winning' : ''}" style="color: ${homeColor}">${homeName}</div>
                                 ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
+                                ${isLive && isFootball ? `
+                                    <div class="fullscreen-timeouts">
+                                        <div class="timeout-bar ${homeTimeouts >= 1 ? '' : 'used'}"></div>
+                                        <div class="timeout-bar ${homeTimeouts >= 2 ? '' : 'used'}"></div>
+                                        <div class="timeout-bar ${homeTimeouts >= 3 ? '' : 'used'}"></div>
+                                    </div>
+                                ` : ''}
                             </div>
                         </div>
+
+                        ${isLive && isFootball && downDistanceText ? `
+                            <div class="fullscreen-situation-info" style="color: ${possessionTeamColor}">${downDistanceText}</div>
+                        ` : ''}
+
+                        ${isLive && isFootball && downDistanceText && fieldPosition ? `
+                            <div class="field-visualizer">
+                                <div class="field-container">
+                                    <div class="yard-markers">
+                                        <div class="yard-marker endzone"><span class="yard-label">0</span></div>
+                                        <div class="yard-marker"><span class="yard-label">10</span></div>
+                                        <div class="yard-marker"><span class="yard-label">20</span></div>
+                                        <div class="yard-marker"><span class="yard-label">30</span></div>
+                                        <div class="yard-marker"><span class="yard-label">40</span></div>
+                                        <div class="yard-marker"><span class="yard-label">50</span></div>
+                                        <div class="yard-marker"><span class="yard-label">40</span></div>
+                                        <div class="yard-marker"><span class="yard-label">30</span></div>
+                                        <div class="yard-marker"><span class="yard-label">20</span></div>
+                                        <div class="yard-marker"><span class="yard-label">10</span></div>
+                                        <div class="yard-marker endzone"><span class="yard-label">0</span></div>
+                                    </div>
+                                    <div class="ball-indicator" style="left: ${ballPositionPercent}%; background: linear-gradient(to bottom, ${possessionTeamColor}, ${possessionTeamColor}dd); box-shadow: 0 0 10px ${possessionTeamColor}cc;"></div>
+                                    ${yardsToGo > 0 ? `<div class="first-down-line" style="left: ${firstDownPosition}%"></div>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
                     `}
                 </div>
             `;
+        }
+
+        // Calculate ball position as percentage (0-100) for the field visualizer
+        function calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam) {
+            if (!fieldPosition) return 50;
+
+            // Parse field position like "DEN 25" or "KC 40"
+            const match = fieldPosition.match(/([A-Z]+)\s*(\d+)/i);
+            if (!match) return 50;
+
+            const teamAbbr = match[1].toUpperCase();
+            const yardLine = parseInt(match[2]);
+
+            // Determine which side of the field
+            const awayAbbr = (awayTeam.team?.abbreviation || '').toUpperCase();
+            const homeAbbr = (homeTeam.team?.abbreviation || '').toUpperCase();
+
+            // If on away team's side, position is yardLine
+            // If on home team's side, position is 100 - yardLine
+            if (teamAbbr === awayAbbr) {
+                return yardLine; // Away team's territory (0-50)
+            } else if (teamAbbr === homeAbbr) {
+                return 100 - yardLine; // Home team's territory (50-100)
+            }
+
+            return 50; // Default to midfield
         }
 
 

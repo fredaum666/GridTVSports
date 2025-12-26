@@ -444,12 +444,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: clamp(8px, 1.5vh, 20px);
+            justify-content: flex-start;
+            padding-top: clamp(12px, 2vh, 25px);
+            padding-bottom: clamp(35px, 5vh, 55px);
+            gap: clamp(6px, 1vh, 15px);
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            box-sizing: border-box;
         }
 
         .league-card::before {
@@ -485,13 +488,16 @@
             font-size: clamp(16px, 1.6vw, 30px);
             font-weight: 600;
             color: #fff;
+            margin-bottom: clamp(4px, 0.8vh, 10px);
         }
 
         .league-card .league-status {
             font-size: clamp(10px, 1vw, 18px);
             color: #94a3b8;
             position: absolute;
-            bottom: clamp(8px, 1.5vh, 20px);
+            bottom: clamp(6px, 1vh, 15px);
+            line-height: 1.3;
+            text-align: center;
         }
 
         .league-card .live-badge {
@@ -720,9 +726,9 @@
 
             .league-card {
                 width: 140px;
-                height: 100px;
+                height: 110px;
                 border-radius: 10px;
-                padding: 12px;
+                padding: 8px 12px 28px 12px;
                 border-width: 2px;
             }
 
@@ -732,16 +738,17 @@
             }
 
             .league-card img {
-                height: 40px;
+                height: 35px;
             }
 
             .league-card .league-name {
-                font-size: 13px;
+                font-size: 12px;
             }
 
             .league-card .league-status {
-                font-size: 9px;
-                bottom: 6px;
+                font-size: 8px;
+                bottom: 5px;
+                line-height: 1.2;
             }
 
             .league-card .live-badge {
@@ -1709,7 +1716,17 @@
                     const statusEl = document.getElementById(`${league.id}-status`);
                     const cardEl = statusEl?.closest('.league-card');
 
-                    if (liveGames > 0) {
+                    if (liveGames > 0 && upcomingGames > 0) {
+                        // Show both live and upcoming counts
+                        statusEl.innerHTML = `${liveGames} live now<br><span style="font-size: 0.85em; opacity: 0.8;">${upcomingGames} upcoming</span>`;
+                        // Add live badge
+                        if (cardEl && !cardEl.querySelector('.live-badge')) {
+                            const badge = document.createElement('div');
+                            badge.className = 'live-badge';
+                            badge.textContent = 'LIVE';
+                            cardEl.appendChild(badge);
+                        }
+                    } else if (liveGames > 0) {
                         statusEl.textContent = `${liveGames} live now`;
                         // Add live badge
                         if (cardEl && !cardEl.querySelector('.live-badge')) {

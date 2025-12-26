@@ -6326,7 +6326,9 @@
             const gameTime = new Date(game.date);
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
-            const isWithin36Hours = hoursUntilGame <= 36; // Allow negative values (game time passed but not live yet)
+            // During bowl season, show all upcoming bowl games (they span multiple weeks)
+            // During regular season, only show games within 36 hours
+            const isWithinTimeWindow = isBowlSeason || hoursUntilGame <= 36;
 
             // Game is "about to start" - scheduled time passed but not live yet (transitioning state)
             const isAboutToStart = !isLive && !isFinal && !isUpcoming && hoursUntilGame <= 0 && hoursUntilGame >= -2;
@@ -6337,11 +6339,11 @@
             } else if (isAboutToStart) {
               // Games that should have started but API hasn't marked as live yet
               upcomingGamesList.unshift(game);
-            } else if (isUpcoming && isWithin36Hours) {
+            } else if (isUpcoming && isWithinTimeWindow) {
               upcomingGamesList.push(game);
             } else if (isFinal || isCompleted) {
               finalGamesList.push(game);
-            } else if (!isFinal && !isCompleted && isWithin36Hours) {
+            } else if (!isFinal && !isCompleted && isWithinTimeWindow) {
               // Catch-all for games in unknown status but within time window
               upcomingGamesList.push(game);
             }
