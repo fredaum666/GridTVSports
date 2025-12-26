@@ -10588,22 +10588,60 @@
               }
 
               // Determine which team committed the penalty
-              const awayAbbr = awayTeam?.team?.abbreviation?.toLowerCase() || '';
-              const homeAbbr = homeTeam?.team?.abbreviation?.toLowerCase() || '';
-              const awayName = awayTeam?.team?.shortDisplayName?.toLowerCase() || '';
-              const homeName = homeTeam?.team?.shortDisplayName?.toLowerCase() || '';
+              // IMPORTANT: Look specifically in the "PENALTY on [TEAM]" portion of the text
+              // to avoid matching team abbreviations that appear elsewhere (e.g., "to DET 34" for yard line)
+              const awayAbbr = awayTeam?.team?.abbreviation || '';
+              const homeAbbr = homeTeam?.team?.abbreviation || '';
+              const awayName = awayTeam?.team?.shortDisplayName || '';
+              const homeName = homeTeam?.team?.shortDisplayName || '';
 
-              if (lowerLastPlay.includes(awayAbbr) || lowerLastPlay.includes(awayName)) {
-                teamLogo = awayTeam?.team?.logo || '';
-              } else if (lowerLastPlay.includes(homeAbbr) || lowerLastPlay.includes(homeName)) {
-                teamLogo = homeTeam?.team?.logo || '';
-              } else {
-                // If can't determine from play text, use possession
-                const possession = comp?.situation?.possession;
-                if (possession === awayTeam?.id) {
+              // First, try to extract the team from "PENALTY on [TEAM]-" pattern
+              // This is the most reliable way to identify the penalized team
+              const penaltyOnMatch = lastPlay.match(/PENALTY\s+on\s+([A-Z]{2,4})-/i);
+              if (penaltyOnMatch) {
+                const penaltyTeamAbbr = penaltyOnMatch[1].toUpperCase();
+                if (penaltyTeamAbbr === awayAbbr.toUpperCase()) {
                   teamLogo = awayTeam?.team?.logo || '';
-                } else if (possession === homeTeam?.id) {
+                } else if (penaltyTeamAbbr === homeAbbr.toUpperCase()) {
                   teamLogo = homeTeam?.team?.logo || '';
+                }
+              }
+
+              // If we couldn't find team from "PENALTY on" pattern, try other methods
+              if (!teamLogo) {
+                // Look for team name/abbr specifically near the penalty keywords
+                const penaltySection = lastPlay.substring(lastPlay.toLowerCase().indexOf('penalty'));
+                const lowerPenaltySection = penaltySection.toLowerCase();
+
+                if (lowerPenaltySection.includes(awayAbbr.toLowerCase()) || lowerPenaltySection.includes(awayName.toLowerCase())) {
+                  teamLogo = awayTeam?.team?.logo || '';
+                } else if (lowerPenaltySection.includes(homeAbbr.toLowerCase()) || lowerPenaltySection.includes(homeName.toLowerCase())) {
+                  teamLogo = homeTeam?.team?.logo || '';
+                } else {
+                  // If can't determine from penalty text, use possession (team on offense likely committed if offensive penalty)
+                  const possession = comp?.situation?.possession;
+                  if (offenseDefense === 'OFFENSE') {
+                    // Offensive penalty - use team with possession
+                    if (possession === awayTeam?.id) {
+                      teamLogo = awayTeam?.team?.logo || '';
+                    } else if (possession === homeTeam?.id) {
+                      teamLogo = homeTeam?.team?.logo || '';
+                    }
+                  } else if (offenseDefense === 'DEFENSE') {
+                    // Defensive penalty - use team without possession
+                    if (possession === awayTeam?.id) {
+                      teamLogo = homeTeam?.team?.logo || '';
+                    } else if (possession === homeTeam?.id) {
+                      teamLogo = awayTeam?.team?.logo || '';
+                    }
+                  } else {
+                    // Unknown - just use possession team
+                    if (possession === awayTeam?.id) {
+                      teamLogo = awayTeam?.team?.logo || '';
+                    } else if (possession === homeTeam?.id) {
+                      teamLogo = homeTeam?.team?.logo || '';
+                    }
+                  }
                 }
               }
 
