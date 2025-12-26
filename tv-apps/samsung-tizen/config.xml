@@ -1,25 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets"
-    id="http://gridtvsports.com/tv"
-    version="1.0.0"
-    viewmodes="maximized">
-
-    <tizen:application id="gridtvsports.tv" package="gridtvsports" required_version="2.3"/>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://gridtvsports.com/tv" version="1.0.4" viewmodes="maximized">
+    <access origin="*" subdomains="true"></access>
+    <tizen:application id="GridTVSports.gridtvsports" package="GridTVSports" required_version="2.3"/>
     <content src="index.html"/>
-
     <feature name="http://tizen.org/feature/screen.size.all"/>
-
     <icon src="icon.png"/>
-
     <name>GridTV Sports</name>
-    <description>Live Sports Streaming for your TV</description>
-
+    <tizen:metadata key="http://samsung.com/tv/metadata/prelaunch.support" value="true"/>
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
-    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
-
-    <tizen:setting screen-orientation="landscape" context-menu="disable"
-        background-support="enable" encryption="disable" install-location="auto"
-        hwkey-event="enable"/>
-
-    <access origin="*" subdomains="true"/>
+    <tizen:privilege name="http://tizen.org/privilege/websocket"/>
+    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
+    <tizen:profile name="tv-samsung"/>
+    <tizen:setting screen-orientation="landscape" context-menu="enable" background-support="enable" encryption="disable" install-location="auto" hwkey-event="enable"/>
 </widget>

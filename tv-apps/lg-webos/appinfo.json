@@ -1,6 +1,6 @@
 {
     "id": "com.gridtvsports.tv",
-    "version": "1.0.0",
+    "version": "1.0.4",
     "vendor": "GridTV Sports",
     "type": "web",
     "main": "index.html",
@@ -8,8 +8,13 @@
     "icon": "icon.png",
     "largeIcon": "largeIcon.png",
     "bgImage": "bgImage.png",
-    "splashBackground": "splash.png",
+    "splashBackground": "#0a0e1a",
+    "transparent": false,
     "resolution": "1920x1080",
-    "disableBackHistoryAPI": true,
-    "transparent": false
+    "disableBackHistoryAPI": false,
+    "handlesRelaunch": false,
+    "requiredPermissions": [
+        "time.query",
+        "activity.operation"
+    ]
 }

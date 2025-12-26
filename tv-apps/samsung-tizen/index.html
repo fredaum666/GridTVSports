@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GridTV Sports</title>
     <style>
         * {
@@ -10,18 +10,25 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
             background: #0a0e1a;
         }
-        iframe {
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        #app-frame {
             width: 100%;
             height: 100%;
             border: none;
         }
-        .loading {
+
+        #loading-screen {
             position: fixed;
             top: 0;
             left: 0;
@@ -32,134 +39,261 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             z-index: 1000;
         }
-        .loading h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+
+        .app-title {
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 32px;
         }
-        .loading p {
+
+        .progress-container {
+            width: 300px;
+            height: 8px;
+            background: #1e293b;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f97316, #fb923c);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .loading-text {
+            margin-top: 16px;
             color: #94a3b8;
-            font-size: 1.5rem;
+            font-size: 18px;
         }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #334155;
-            border-top-color: #6366f1;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-top: 2rem;
+
+        .error-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0e1a;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
         }
-        .hidden {
-            display: none !important;
-        }
-        .error {
+
+        .error-title {
+            font-size: 32px;
             color: #ef4444;
-            font-size: 1.2rem;
-            margin-top: 1rem;
+            margin-bottom: 16px;
         }
+
+        .error-message {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-bottom: 32px;
+            text-align: center;
+            max-width: 500px;
+        }
+
         .retry-btn {
-            margin-top: 2rem;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            background: #6366f1;
+            padding: 16px 48px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
         }
+
         .retry-btn:focus {
             outline: 3px solid #818cf8;
-            outline-offset: 3px;
+            outline-offset: 2px;
         }
     </style>
 </head>
 <body>
-    <div class="loading" id="loading">
-        <h1>GridTV Sports</h1>
-        <p>Loading...</p>
-        <div class="spinner" id="spinner"></div>
-        <p class="error hidden" id="error">Connection failed</p>
-        <button class="retry-btn hidden" id="retryBtn">Press Enter to Retry</button>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="app-title">GridTV Sports</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="loading-text" id="loading-text">Loading...</div>
     </div>
 
-    <iframe id="tvFrame" src="about:blank"></iframe>
+    <!-- Error Screen -->
+    <div class="error-screen" id="error-screen">
+        <div class="error-icon">!</div>
+        <div class="error-title">Connection Error</div>
+        <div class="error-message" id="error-message">Unable to connect to GridTV Sports. Please check your internet connection.</div>
+        <button class="retry-btn" id="retry-btn">Retry</button>
+    </div>
+
+    <!-- Main App Frame -->
+    <iframe id="app-frame" src="about:blank" allow="autoplay; fullscreen"></iframe>
 
     <script src="$WEBAPIS/webapis/webapis.js"></script>
     <script>
-        const TV_RECEIVER_URL = 'https://gridtvsports.com/tv-receiver.html';
+        (function() {
+            'use strict';
 
-        const frame = document.getElementById('tvFrame');
-        const loading = document.getElementById('loading');
-        const spinner = document.getElementById('spinner');
-        const error = document.getElementById('error');
-        const retryBtn = document.getElementById('retryBtn');
+            var APP_URL = 'https://gridtvsports.com/tv-home';
 
-        let loadTimeout;
+            var appFrame = document.getElementById('app-frame');
+            var loadingScreen = document.getElementById('loading-screen');
+            var errorScreen = document.getElementById('error-screen');
+            var progressBar = document.getElementById('progress-bar');
+            var loadingText = document.getElementById('loading-text');
+            var retryBtn = document.getElementById('retry-btn');
 
-        function loadApp() {
-            // Reset UI
-            spinner.classList.remove('hidden');
-            error.classList.add('hidden');
-            retryBtn.classList.add('hidden');
+            var loadProgress = 0;
+            var progressInterval = null;
 
-            // Set timeout for loading
-            loadTimeout = setTimeout(() => {
-                showError();
-            }, 15000);
+            // Initialize Samsung TV APIs
+            function initTizenAPI() {
+                try {
+                    // Register keys for remote control
+                    if (typeof tizen !== 'undefined') {
+                        var keys = [
+                            'MediaPlayPause', 'MediaPlay', 'MediaPause', 'MediaStop',
+                            'MediaFastForward', 'MediaRewind', 'MediaTrackPrevious', 'MediaTrackNext',
+                            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                            'ColorF0Red', 'ColorF1Green', 'ColorF2Yellow', 'ColorF3Blue'
+                        ];
+                        keys.forEach(function(key) {
+                            try {
+                                tizen.tvinputdevice.registerKey(key);
+                            } catch (e) {
+                                console.log('Could not register key: ' + key);
+                            }
+                        });
+                    }
+                    console.log('Tizen API initialized');
+                } catch (e) {
+                    console.log('Tizen API not available:', e);
+                }
+            }
 
-            frame.src = TV_RECEIVER_URL;
-        }
+            // Simulate loading progress
+            function startProgressSimulation() {
+                loadProgress = 0;
+                progressInterval = setInterval(function() {
+                    if (loadProgress < 90) {
+                        loadProgress += Math.random() * 15;
+                        if (loadProgress > 90) loadProgress = 90;
+                        progressBar.style.width = loadProgress + '%';
+                    }
+                }, 200);
+            }
 
-        function showError() {
-            spinner.classList.add('hidden');
-            error.classList.remove('hidden');
-            retryBtn.classList.remove('hidden');
-            retryBtn.focus();
-        }
+            function stopProgressSimulation() {
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
+                progressBar.style.width = '100%';
+            }
 
-        frame.onload = function() {
-            clearTimeout(loadTimeout);
-            // Small delay to ensure content is rendered
-            setTimeout(() => {
-                loading.classList.add('hidden');
-            }, 500);
-        };
+            // Show loading screen
+            function showLoading() {
+                loadingScreen.style.display = 'flex';
+                errorScreen.style.display = 'none';
+                startProgressSimulation();
+            }
 
-        frame.onerror = function() {
-            clearTimeout(loadTimeout);
-            showError();
-        };
+            // Hide loading screen
+            function hideLoading() {
+                stopProgressSimulation();
+                loadingScreen.style.display = 'none';
+            }
 
-        // Handle remote control
-        document.addEventListener('keydown', function(e) {
-            // Enter/OK button
-            if (e.keyCode === 13) {
-                if (!retryBtn.classList.contains('hidden')) {
+            // Show error screen
+            function showError(message) {
+                stopProgressSimulation();
+                loadingScreen.style.display = 'none';
+                errorScreen.style.display = 'flex';
+                document.getElementById('error-message').textContent = message || 'Unable to connect to GridTV Sports.';
+                retryBtn.focus();
+            }
+
+            // Load the app
+            function loadApp() {
+                showLoading();
+                loadingText.textContent = 'Connecting to GridTV Sports...';
+
+                // Set a timeout for connection
+                var timeout = setTimeout(function() {
+                    if (loadingScreen.style.display !== 'none') {
+                        showError('Connection timed out. Please check your internet connection.');
+                    }
+                }, 30000);
+
+                appFrame.onload = function() {
+                    clearTimeout(timeout);
+                    hideLoading();
+                    appFrame.focus();
+                };
+
+                appFrame.onerror = function() {
+                    clearTimeout(timeout);
+                    showError('Failed to load the application.');
+                };
+
+                appFrame.src = APP_URL;
+            }
+
+            // Handle remote control
+            document.addEventListener('keydown', function(e) {
+                switch (e.keyCode) {
+                    case 10009: // RETURN/BACK key on Samsung TV
+                        if (errorScreen.style.display === 'flex') {
+                            // Exit app if on error screen
+                            try {
+                                tizen.application.getCurrentApplication().exit();
+                            } catch (ex) {
+                                console.log('Could not exit app');
+                            }
+                        }
+                        break;
+                    case 10182: // EXIT key
+                        try {
+                            tizen.application.getCurrentApplication().exit();
+                        } catch (ex) {
+                            console.log('Could not exit app');
+                        }
+                        break;
+                }
+            });
+
+            // Retry button
+            retryBtn.addEventListener('click', loadApp);
+            retryBtn.addEventListener('keydown', function(e) {
+                if (e.keyCode === 13) { // Enter
                     loadApp();
                 }
-            }
-            // Back button - exit app
-            if (e.keyCode === 10009) {
-                try {
-                    tizen.application.getCurrentApplication().exit();
-                } catch (err) {
-                    console.log('Exit error:', err);
-                }
-            }
-        });
+            });
 
-        // Start loading
-        loadApp();
+            // Initialize on load
+            window.onload = function() {
+                initTizenAPI();
+                loadApp();
+            };
+
+            // Handle visibility change (app resume)
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    appFrame.focus();
+                }
+            });
+        })();
     </script>
 </body>
 </html>
