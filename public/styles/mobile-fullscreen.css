@@ -945,6 +945,11 @@ body.tv-mode .fullscreen-grid.grid-8 .sport-logo-indicator {
     overflow: hidden !important;
   }
 
+  /* --- TV WebView: Hide game selector (no hover on TV) --- */
+  body.tv-mode .fs-game-selector-container {
+    display: none !important;
+  }
+
   /* --- TV WebView: Grid 1 = Full screen single game --- */
   body.tv-mode .fullscreen-grid.grid-1 {
     padding: 20px !important;
