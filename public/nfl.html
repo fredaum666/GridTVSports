@@ -3717,16 +3717,6 @@
         gap: 2px !important;
       }
 
-      body.tv-mode .fullscreen-grid.grid-6 .fullscreen-situation-info {
-        font-size: 17px !important;
-        margin-top: 8px !important;
-      }
-
-      body.tv-mode .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
-        font-size: 15px !important;
-        margin: 6px 0 !important;
-      }
-
       body.tv-mode .fullscreen-grid.grid-8 {
         grid-template-columns: repeat(4, 1fr) !important;
         grid-template-rows: repeat(2, 1fr) !important;
@@ -8994,6 +8984,9 @@
       const baseScale = cardHeight / 500; // 500px is reference height
       const heightScale = Math.max(0.4, Math.min(1.5, baseScale)); // Limit scale range
 
+      // Check if TV mode with 6-game grid - use smaller sizes for specific elements
+      const isTVGrid6 = window.isTVMode && currentLayout === 6;
+
       // Calculate element sizes based on available card space
       const sizes = {
         // Quarter/Status text (2x enlarged)
@@ -9020,18 +9013,18 @@
         // Team record
         recordFontSize: Math.max(20, Math.min(18, cardHeight * 0.022)),
 
-        // VS text
-        vsFontSize: Math.max(32, Math.min(32, cardHeight * 0.04)),
-        vsMargin: Math.max(13, Math.min(12, cardHeight * 0.015)),
+        // VS text - smaller for TV grid-6
+        vsFontSize: isTVGrid6 ? 15 : Math.max(32, Math.min(32, cardHeight * 0.04)),
+        vsMargin: isTVGrid6 ? 6 : Math.max(13, Math.min(12, cardHeight * 0.015)),
 
         // Team spacing
         teamMargin: Math.max(6, Math.min(20, cardHeight * 0.025)),
         teamGap: Math.max(8, Math.min(25, cardWidth * 0.025)),
         teamInfoGap: Math.max(6, Math.min(15, cardWidth * 0.015)),
 
-        // Down/Distance (2x enlarged)
-        downDistanceFontSize: Math.max(24, Math.min(64, cardHeight * 0.084)),
-        downDistanceMargin: Math.max(16, Math.min(30, cardHeight * 0.044)),
+        // Down/Distance - smaller for TV grid-6
+        downDistanceFontSize: isTVGrid6 ? 17 : Math.max(24, Math.min(64, cardHeight * 0.084)),
+        downDistanceMargin: isTVGrid6 ? 8 : Math.max(16, Math.min(30, cardHeight * 0.044)),
         downDistanceGap: Math.max(8, Math.min(16, cardHeight * 0.024)),
         fieldPositionFontSize: Math.max(20, Math.min(40, cardHeight * 0.056)),
 
