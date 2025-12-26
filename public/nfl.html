@@ -5341,6 +5341,45 @@
       border-radius: clamp(8px, 0.8vw, 14px);
     }
 
+    /* TV Mode - Hide scoring breakdown (too detailed for TV viewing distance) */
+    body.tv-mode .scoring-breakdown,
+    body.tv-mode .quarter-scores,
+    body.tv-mode .card-page:not(:first-child) {
+      display: none !important;
+    }
+
+    /* TV Mode - Ensure card content doesn't overflow */
+    body.tv-mode .game-card {
+      overflow: hidden !important;
+      max-width: 100% !important;
+    }
+
+    body.tv-mode .card-slider-container,
+    body.tv-mode .card-pages,
+    body.tv-mode .card-page {
+      overflow: hidden !important;
+      max-width: 100% !important;
+    }
+
+    body.tv-mode .team-row {
+      overflow: hidden !important;
+      max-width: 100% !important;
+    }
+
+    body.tv-mode .team-info {
+      overflow: hidden !important;
+      flex-shrink: 1 !important;
+      min-width: 0 !important;
+    }
+
+    body.tv-mode .team-name {
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+      flex-shrink: 1 !important;
+      min-width: 0 !important;
+    }
+
     /* TV Mode - 4K specific overrides */
     @media screen and (min-width: 3000px) {
       body.tv-mode .games-grid {
