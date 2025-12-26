@@ -4312,6 +4312,32 @@
       border-radius: 8px;
     }
 
+    /* TBD team placeholder styling - use !important to override parent styles */
+    .tbd-logo-placeholder {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-radius: 8px !important;
+      font-size: 40px !important;
+      text-indent: 0 !important;
+      color: rgba(255, 255, 255, 0.4) !important;
+      overflow: visible !important;
+    }
+
+    .page-1-upcoming .tbd-logo-placeholder,
+    .team-logo-large.tbd-logo-placeholder {
+      width: var(--regular-team-logo-large) !important;
+      height: var(--regular-team-logo-large) !important;
+    }
+
+    .page-1-live .tbd-logo-placeholder,
+    .live-team-logo.tbd-logo-placeholder {
+      width: var(--regular-team-logo-live) !important;
+      height: var(--regular-team-logo-live) !important;
+      font-size: 28px !important;
+    }
+
     .page-1-upcoming .team-name-large {
       font-size: var(--regular-team-name-large);
       font-weight: 700;
@@ -4367,6 +4393,13 @@
       text-indent: -9999px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 8px;
+    }
+
+    .live-team-logo.tbd-logo-placeholder {
+      width: var(--regular-team-logo-live);
+      height: var(--regular-team-logo-live);
+      font-size: 28px;
+      text-indent: 0;
     }
 
     .possession-icon {
@@ -6563,12 +6596,14 @@
       if (teamNames[0]) teamNames[0].className = `live-team-name ${awayScore > homeScore ? 'winning' : ''}`;
       if (teamNames[1]) teamNames[1].className = `live-team-name ${homeScore > awayScore ? 'winning' : ''}`;
 
-      // Update quarter/clock
+      // Update quarter/clock - target the game clock text element
       const quarter = comp.status.period || 1;
       const clock = comp.status.displayClock || '15:00';
       const statusText = `${quarter === 1 ? '1st' : quarter === 2 ? '2nd' : quarter === 3 ? '3rd' : '4th'} - ${clock}`;
-      const statusTextEl = card.querySelector('.page-1-live > div:nth-child(1) > div:nth-child(2)');
-      if (statusTextEl) statusTextEl.textContent = statusText;
+      const statusTextEl = card.querySelector('.game-clock-text');
+      if (statusTextEl) {
+        statusTextEl.textContent = statusText;
+      }
 
       // Update possession indicators
       const possession = comp.situation?.possession || null;
@@ -6632,6 +6667,16 @@
         if (scoreCells[10]) scoreCells[10].textContent = homeLineScores[3]?.value || 0;
         if (scoreCells[11]) scoreCells[11].textContent = homeScore;
       }
+    }
+
+    // Helper function to get team logo with fallback for TBD teams
+    function getTeamLogoHtml(team, cssClass) {
+      // Check if team has a valid logo URL (not empty, not undefined, not null)
+      if (team?.logo && team.logo.trim() !== '') {
+        return `<img src="${team.logo}" alt="${team.displayName || 'Team'}" class="${cssClass}">`;
+      }
+      // Fallback football icon for TBD teams or teams without logos
+      return `<div class="${cssClass} tbd-logo-placeholder">🏈</div>`;
     }
 
     function createGameCardElement(game, index) {
@@ -6712,14 +6757,14 @@
                 </div>
                 <div class="team-display">
                   <div class="team-block">
-                    <img src="${away.team.logo}" alt="${away.team.displayName}" class="team-logo-large">
-                    <div class="team-name-large">${away.team.shortDisplayName || away.team.displayName}</div>
+                    ${getTeamLogoHtml(away.team, 'team-logo-large')}
+                    <div class="team-name-large">${away.team.shortDisplayName || away.team.displayName || 'TBD'}</div>
                     <div class="team-standing">${awayRecord}</div>
                   </div>
                   <div class="vs-divider">VS</div>
                   <div class="team-block">
-                    <img src="${home.team.logo}" alt="${home.team.displayName}" class="team-logo-large">
-                    <div class="team-name-large">${home.team.shortDisplayName || home.team.displayName}</div>
+                    ${getTeamLogoHtml(home.team, 'team-logo-large')}
+                    <div class="team-name-large">${home.team.shortDisplayName || home.team.displayName || 'TBD'}</div>
                     <div class="team-standing">${homeRecord}</div>
                   </div>
                 </div>
@@ -6745,16 +6790,16 @@
                   <div style="display: inline-block; background: ${isLive ? '#ef4444' : '#6b7280'}; color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase;">
                     ${isLive ? '<span style="display: inline-block; width: 5px; height: 5px; background: white; border-radius: 50%; margin-right: 4px; animation: blink 1.5s infinite;"></span>LIVE' : 'FINAL'}
                   </div>
-                  ${statusText ? `<div style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">${statusText}</div>` : ''}
+                  ${statusText ? `<div class="game-clock-text" style="color: #9ca3af; font-size: 10px; margin-top: 3px; font-weight: 600;">${statusText}</div>` : ''}
                 </div>
 
                 <div class="live-score-header">
                   <div class="team-stack">
                     <div style="position: relative;">
-                      <img src="${away.team.logo}" alt="${away.team.displayName}" class="live-team-logo">
+                      ${getTeamLogoHtml(away.team, 'live-team-logo')}
                       ${isLive && awayHasPossession ? '<span class="possession-icon">🏈</span>' : ''}
                     </div>
-                    <div class="live-team-name ${awayScore > homeScore ? 'winning' : ''}">${away.team.abbreviation}</div>
+                    <div class="live-team-name ${awayScore > homeScore ? 'winning' : ''}">${away.team.abbreviation || 'TBD'}</div>
                     <div class="live-team-standing">${awayRecord}</div>
                   </div>
                   <div class="live-team-score ${awayScore > homeScore ? 'winning' : 'losing'}">${awayScore}</div>
@@ -6762,10 +6807,10 @@
                   <div class="live-team-score ${homeScore > awayScore ? 'winning' : 'losing'}">${homeScore}</div>
                   <div class="team-stack">
                     <div style="position: relative;">
-                      <img src="${home.team.logo}" alt="${home.team.displayName}" class="live-team-logo">
+                      ${getTeamLogoHtml(home.team, 'live-team-logo')}
                       ${isLive && homeHasPossession ? '<span class="possession-icon">🏈</span>' : ''}
                     </div>
-                    <div class="live-team-name ${homeScore > awayScore ? 'winning' : ''}">${home.team.abbreviation}</div>
+                    <div class="live-team-name ${homeScore > awayScore ? 'winning' : ''}">${home.team.abbreviation || 'TBD'}</div>
                     <div class="live-team-standing">${homeRecord}</div>
                   </div>
                 </div>
