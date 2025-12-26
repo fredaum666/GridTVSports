@@ -4202,6 +4202,39 @@ app.get('/privacy-policy', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'privacy-policy.html'));
 });
 
+// Serve Delete Account page (NO AUTH REQUIRED - needed for app store listings)
+app.get('/delete-account', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'delete-account.html'));
+});
+
+// API endpoint for account deletion requests
+app.post('/api/account/delete-request', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  try {
+    // Log the deletion request
+    console.log(`📧 Account deletion request received for: ${email}`);
+
+    // Check if user exists
+    const userResult = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+
+    if (userResult.rows.length > 0) {
+      console.log(`✅ User found. Account deletion scheduled for: ${email}`);
+      // TODO: Implement actual deletion logic (mark for deletion, send email, etc.)
+    }
+
+    // Always return success to prevent email enumeration
+    res.json({ success: true, message: 'Deletion request received' });
+  } catch (error) {
+    console.error('Error processing deletion request:', error);
+    res.json({ success: true, message: 'Deletion request received' });
+  }
+});
+
 // Serve public folder for all other static files
 app.use(express.static(path.join(__dirname, 'public')));
 

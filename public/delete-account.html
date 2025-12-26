@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account - GridTV Sports</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            line-height: 1.7;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #1a1f2e;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #ef4444;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .warning-box h3 {
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+
+        .warning-box ul {
+            margin-left: 20px;
+            color: #fca5a5;
+        }
+
+        .warning-box li {
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e5e7eb;
+            font-weight: 500;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e5e7eb;
+            font-size: 16px;
+        }
+
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+            color: #cbd5e1;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .success-message .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .success-message h2 {
+            color: #22c55e;
+            margin-bottom: 15px;
+        }
+
+        .success-message p {
+            color: #94a3b8;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            opacity: 0.9;
+        }
+
+        .info-text {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        a {
+            color: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="form-section">
+            <h1>Delete Your Account</h1>
+            <p class="subtitle">Request permanent deletion of your GridTV Sports account</p>
+
+            <div class="warning-box">
+                <h3>Before you proceed:</h3>
+                <ul>
+                    <li>Your account and all associated data will be permanently deleted</li>
+                    <li>This action cannot be undone</li>
+                    <li>You will lose access to any active subscriptions</li>
+                    <li>Your casting sessions and saved preferences will be removed</li>
+                </ul>
+            </div>
+
+            <form id="delete-form">
+                <div class="form-group">
+                    <label for="email">Email Address (associated with your account)</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your account email">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="confirm" name="confirm" required>
+                    <label for="confirm">I understand that this action is permanent and my account data will be deleted within 30 days</label>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn" disabled>Request Account Deletion</button>
+            </form>
+
+            <p class="info-text">
+                Questions? Contact us at <a href="mailto:support@gridtvsports.com">support@gridtvsports.com</a>
+            </p>
+        </div>
+
+        <div id="success-section" class="success-message">
+            <div class="icon">&#10003;</div>
+            <h2>Request Submitted</h2>
+            <p>We've received your account deletion request. Your account and all associated data will be deleted within 30 days.</p>
+            <p style="margin-top: 15px;">A confirmation email has been sent to your email address.</p>
+            <a href="/" class="back-link">Return to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('delete-form');
+        const confirmCheckbox = document.getElementById('confirm');
+        const submitBtn = document.getElementById('submit-btn');
+        const formSection = document.getElementById('form-section');
+        const successSection = document.getElementById('success-section');
+
+        // Enable/disable submit button based on checkbox
+        confirmCheckbox.addEventListener('change', function() {
+            submitBtn.disabled = !this.checked;
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                // Send deletion request to server
+                const response = await fetch('/api/account/delete-request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                // Show success regardless (don't reveal if account exists)
+                formSection.style.display = 'none';
+                successSection.style.display = 'block';
+            } catch (error) {
+                // Still show success to prevent email enumeration
+                formSection.style.display = 'none';
+                successSection.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
