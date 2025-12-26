@@ -4197,6 +4197,11 @@ app.get('/tv-home', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'tv-home.html'));
 });
 
+// Serve Privacy Policy page (NO AUTH REQUIRED - needed for app store listings)
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy-policy.html'));
+});
+
 // Serve public folder for all other static files
 app.use(express.static(path.join(__dirname, 'public')));
 
