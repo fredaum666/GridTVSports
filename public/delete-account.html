@@ -288,6 +288,37 @@
         a {
             color: #6366f1;
         }
+
+        .back-to-login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 25px;
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .back-to-login-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .back-to-login-btn svg {
+            transition: transform 0.2s ease;
+        }
+
+        .back-to-login-btn:hover svg {
+            transform: translateX(-3px);
+        }
     </style>
 </head>
 <body>
@@ -384,6 +415,13 @@
             <p class="info-text">
                 Questions or need help? Contact us at <a href="mailto:support@gridtvsports.com">support@gridtvsports.com</a>
             </p>
+
+            <a href="/login" class="back-to-login-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Login
+            </a>
         </div>
 
         <div id="success-section" class="success-message">

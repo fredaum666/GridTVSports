@@ -263,6 +263,66 @@
       color: #ffffff;
     }
 
+    /* Privacy Policy Checkbox */
+    .privacy-checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .privacy-checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      cursor: pointer;
+      accent-color: #6366f1;
+    }
+
+    .privacy-checkbox-group input[type="checkbox"]:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .privacy-checkbox-group label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.4;
+    }
+
+    .privacy-checkbox-group a {
+      color: #6366f1;
+      text-decoration: none;
+    }
+
+    .privacy-checkbox-group a:hover {
+      text-decoration: underline;
+    }
+
+    .privacy-checkbox-group a.clicked {
+      color: #22c55e;
+    }
+
+    /* Footer Links */
+    .footer-links {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      text-decoration: none;
+      margin: 0 10px;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: #6366f1;
+    }
+
     @media (max-width: 480px) {
       .login-container {
         padding: 30px 20px;
@@ -354,10 +414,22 @@
         <label for="regConfirmPassword">Confirm Password</label>
         <input type="password" id="regConfirmPassword" name="confirmPassword" placeholder="Confirm your password" required minlength="8" autocomplete="new-password">
       </div>
-      <button type="submit" class="login-btn" id="registerBtn">
+      <div class="privacy-checkbox-group">
+        <input type="checkbox" id="privacyAgree" name="privacyAgree" disabled required>
+        <label for="privacyAgree">
+          I have read and agree to the <a href="/privacy-policy" target="_blank" id="privacyLink">Privacy Policy</a>
+        </label>
+      </div>
+      <button type="submit" class="login-btn" id="registerBtn" disabled>
         Create Account
       </button>
     </form>
+
+    <!-- Footer Links -->
+    <div class="footer-links">
+      <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+      <a href="/delete-account" target="_blank">Delete Account</a>
+    </div>
   </div>
 
   <script>
@@ -374,6 +446,75 @@
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
     const forgotBtn = document.getElementById('forgotBtn');
+    const privacyLink = document.getElementById('privacyLink');
+    const privacyAgree = document.getElementById('privacyAgree');
+
+    // Save registration form state to localStorage
+    function saveRegistrationState() {
+      const state = {
+        showingRegister: true,
+        regName: document.getElementById('regName').value,
+        regEmail: document.getElementById('regEmail').value,
+        privacyRead: !privacyAgree.disabled
+      };
+      localStorage.setItem('registrationState', JSON.stringify(state));
+    }
+
+    // Restore registration form state from localStorage
+    function restoreRegistrationState() {
+      const savedState = localStorage.getItem('registrationState');
+      if (savedState) {
+        try {
+          const state = JSON.parse(savedState);
+          if (state.showingRegister) {
+            // Show register form
+            loginForm.classList.add('hide');
+            registerSection.style.display = 'none';
+            forgotForm.classList.remove('show');
+            registerForm.classList.add('show');
+
+            // Restore form values
+            if (state.regName) document.getElementById('regName').value = state.regName;
+            if (state.regEmail) document.getElementById('regEmail').value = state.regEmail;
+
+            // Restore privacy link state
+            if (state.privacyRead) {
+              privacyAgree.disabled = false;
+              privacyLink.classList.add('clicked');
+            }
+          }
+        } catch (e) {
+          console.log('Could not restore registration state');
+        }
+      }
+    }
+
+    // Clear registration state
+    function clearRegistrationState() {
+      localStorage.removeItem('registrationState');
+    }
+
+    // Privacy Policy link - must be clicked to enable checkbox
+    privacyLink.addEventListener('click', (e) => {
+      // Save current form state before opening link
+      saveRegistrationState();
+
+      // Enable the checkbox after link is clicked
+      privacyAgree.disabled = false;
+      privacyLink.classList.add('clicked');
+
+      // Update saved state with privacy read
+      saveRegistrationState();
+
+      // Open in new tab (let browser handle it)
+      window.open('/privacy-policy', '_blank');
+      e.preventDefault();
+    });
+
+    // Privacy checkbox - must be checked to enable register button
+    privacyAgree.addEventListener('change', () => {
+      registerBtn.disabled = !privacyAgree.checked;
+    });
 
     // Show register form
     showRegisterLink.addEventListener('click', (e) => {
@@ -383,6 +524,7 @@
       forgotForm.classList.remove('show');
       registerForm.classList.add('show');
       hideMessages();
+      saveRegistrationState();
     });
 
     // Show forgot password form
@@ -403,6 +545,12 @@
       loginForm.classList.remove('hide');
       registerSection.style.display = 'block';
       hideMessages();
+      clearRegistrationState();
+      // Reset privacy checkbox state
+      privacyAgree.disabled = true;
+      privacyAgree.checked = false;
+      privacyLink.classList.remove('clicked');
+      registerBtn.disabled = true;
     });
 
     // Back to login from forgot password
@@ -525,6 +673,7 @@
 
         if (response.ok) {
           showSuccess('Account created successfully! Please login.');
+          clearRegistrationState();
           setTimeout(() => {
             backToLoginLink.click();
             document.getElementById('email').value = email;
@@ -592,6 +741,9 @@
     }
 
     checkAuth();
+
+    // Restore registration state if returning from privacy policy page
+    restoreRegistrationState();
   </script>
 </body>
 </html>
