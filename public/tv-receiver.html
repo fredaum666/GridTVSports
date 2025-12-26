@@ -320,6 +320,35 @@
             font-size: clamp(0.7rem, 1.8vmin, 1.1rem);
         }
 
+        .end-cast-btn {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            border: none;
+            padding: clamp(6px, 1.2vmin, 12px) clamp(12px, 2vmin, 20px);
+            border-radius: clamp(4px, 0.8vmin, 8px);
+            font-size: clamp(0.7rem, 1.6vmin, 1rem);
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: clamp(4px, 0.8vmin, 8px);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+        }
+
+        .end-cast-btn:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            transform: scale(1.05);
+        }
+
+        .end-cast-btn:active {
+            transform: scale(0.98);
+        }
+
+        .end-cast-btn.visible {
+            display: flex;
+        }
+
         .fullscreen-grid {
             flex: 1;
             display: grid;
@@ -487,6 +516,9 @@
             padding: clamp(6px, 1.2vmin, 12px) clamp(12px, 2.5vmin, 24px);
             border-radius: clamp(4px, 0.8vmin, 8px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+            /* Black outline for team color text */
+            -webkit-text-stroke: 0.5px #000;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
         }
 
         .fullscreen-live-team-name.winning {
@@ -626,6 +658,9 @@
             border-radius: clamp(4px, 0.8vmin, 8px);
             display: inline-block;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+            /* Black outline for team color text */
+            -webkit-text-stroke: 0.5px #000;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
         }
 
         /* Field Position Visualizer - matching NFL page */
@@ -858,6 +893,7 @@
                 <span>Connected</span>
             </div>
             <div class="device-name" id="device-name">Control Device</div>
+            <button class="end-cast-btn" id="end-cast-btn" title="End Cast">✕ End Cast</button>
         </div>
 
         <div class="fullscreen-grid grid-2" id="fullscreen-grid">
@@ -1093,6 +1129,39 @@
         }
 
         function initCastingSystem() {
+            // Check if we have saved games from a previous session
+            const savedGames = localStorage.getItem('gridtv_current_games');
+            const savedLayout = localStorage.getItem('gridtv_current_layout');
+
+            if (savedGames) {
+                try {
+                    const games = JSON.parse(savedGames);
+                    if (Object.keys(games).length > 0) {
+                        console.log('Restoring saved games from localStorage:', games);
+                        window.currentGames = games;
+
+                        // Restore the TV display with saved games
+                        document.getElementById('pin-display').classList.add('hidden');
+                        document.getElementById('tv-display').classList.add('active');
+                        document.getElementById('device-name').textContent = 'Restored Session';
+
+                        // Update display with saved state
+                        updateTVDisplay({
+                            layout: parseInt(savedLayout) || 2,
+                            games: games,
+                            isActive: true
+                        });
+
+                        // Start auto-refresh
+                        startAutoRefresh();
+                    }
+                } catch (e) {
+                    console.error('Failed to restore saved games:', e);
+                    localStorage.removeItem('gridtv_current_games');
+                    localStorage.removeItem('gridtv_current_layout');
+                }
+            }
+
             // Initialize Socket.IO if not already connected
             if (!socket) {
                 socket = io();
@@ -1129,16 +1198,33 @@
 
             socket.on('cast:session-ended', () => {
                 console.log('Session ended');
-                window.location.reload();
+                // Don't reload if we have games - keep showing them
+                const games = window.currentGames || {};
+                if (Object.keys(games).length > 0) {
+                    console.log('Session ended but keeping games displayed');
+                    showDisconnectedMessage();
+                } else {
+                    window.location.reload();
+                }
             });
 
             socket.on('cast:session-expired', () => {
-                alert('Casting session expired');
-                window.location.reload();
+                console.log('Casting session expired');
+                // Don't reload if we have games - keep showing them
+                const games = window.currentGames || {};
+                if (Object.keys(games).length > 0) {
+                    console.log('Session expired but keeping games displayed');
+                    showDisconnectedMessage();
+                } else {
+                    alert('Casting session expired');
+                    window.location.reload();
+                }
             });
 
             socket.on('disconnect', () => {
                 console.log('Socket disconnected');
+                // Keep showing games if we have them
+                showDisconnectedMessage();
             });
 
             socket.on('connect_error', (error) => {
@@ -1150,7 +1236,23 @@
         function handleSocketConnect() {
             console.log('WebSocket connected for casting');
 
-            // Create casting session
+            // Check if we already have games being displayed (reconnection scenario)
+            const games = window.currentGames || {};
+            const hasGames = Object.keys(games).length > 0;
+            const tvDisplay = document.getElementById('tv-display');
+            const isShowingGames = tvDisplay && tvDisplay.classList.contains('active');
+
+            if (hasGames && isShowingGames) {
+                // We're reconnecting and already have games - don't create new session
+                console.log('Socket reconnected - continuing to show existing games');
+                // Make sure auto-refresh is running
+                if (!refreshInterval) {
+                    startAutoRefresh();
+                }
+                return;
+            }
+
+            // Create casting session (first time or no games)
             socket.emit('cast:create-session', {
                 deviceName: 'TV Receiver'
             }, (response) => {
@@ -1268,7 +1370,8 @@
             const grid = document.getElementById('fullscreen-grid');
 
             // Update grid layout
-            grid.className = `fullscreen-grid grid-${state.layout || 2}`;
+            const layout = state.layout || 2;
+            grid.className = `fullscreen-grid grid-${layout}`;
 
             // Clear existing content
             grid.innerHTML = '';
@@ -1283,11 +1386,21 @@
           <div>Waiting for games to be selected...</div>
         `;
                 grid.appendChild(waitingCard);
+                window.currentGames = {};
+                updateEndCastButtonVisibility();
                 return;
             }
 
+            // Save games and layout to localStorage for persistence
+            localStorage.setItem('gridtv_current_games', JSON.stringify(state.games));
+            localStorage.setItem('gridtv_current_layout', layout.toString());
+
+            // Update window.currentGames and show End Cast button
+            window.currentGames = state.games;
+            updateEndCastButtonVisibility();
+
             // Render game cards (simplified for now, will be populated by auto-refresh)
-            const slotCount = state.layout || 2;
+            const slotCount = layout;
             for (let i = 1; i <= slotCount; i++) {
                 const gameId = state.games[`slot${i}`];
                 const card = document.createElement('div');
@@ -1653,12 +1766,39 @@
             }
         }
 
+        // End cast and return to PIN screen
+        function endCast() {
+            console.log('Ending cast - clearing saved games and returning to PIN screen');
+
+            // Clear saved games from localStorage
+            localStorage.removeItem('gridtv_current_games');
+            localStorage.removeItem('gridtv_current_layout');
+
+            // Reload the page to show the PIN screen
+            window.location.reload();
+        }
+
+        // Show/hide End Cast button based on whether games are displayed
+        function updateEndCastButtonVisibility() {
+            const endCastBtn = document.getElementById('end-cast-btn');
+            const hasGames = Object.keys(window.currentGames || {}).length > 0;
+
+            if (hasGames) {
+                endCastBtn.classList.add('visible');
+            } else {
+                endCastBtn.classList.remove('visible');
+            }
+        }
+
         // Initialize TV receiver on page load
         window.addEventListener('DOMContentLoaded', () => {
             initTVReceiver();
 
             // Set up sign out button
             document.getElementById('sign-out-btn').addEventListener('click', signOut);
+
+            // Set up End Cast button
+            document.getElementById('end-cast-btn').addEventListener('click', endCast);
         });
 
         // Store current games globally for refresh
