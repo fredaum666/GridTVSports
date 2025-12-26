@@ -21,12 +21,25 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
             background: #1a1f2e;
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .app-name {
+            color: #f97316;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
         h1 {
@@ -42,12 +55,109 @@
             margin-bottom: 30px;
         }
 
+        h2 {
+            color: #6366f1;
+            font-size: 1.3rem;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .steps-section {
+            background: #0f172a;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .steps-section h2 {
+            margin-top: 0;
+            color: #22c55e;
+        }
+
+        .steps-list {
+            counter-reset: steps;
+            list-style: none;
+            padding: 0;
+        }
+
+        .steps-list li {
+            counter-increment: steps;
+            padding: 12px 0 12px 45px;
+            position: relative;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .steps-list li:last-child {
+            border-bottom: none;
+        }
+
+        .steps-list li::before {
+            content: counter(steps);
+            position: absolute;
+            left: 0;
+            top: 12px;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .data-section {
+            margin-bottom: 25px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+
+        .data-table th {
+            background: #0f172a;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            color: #cbd5e1;
+        }
+
+        .deleted {
+            color: #ef4444;
+        }
+
+        .retained {
+            color: #fbbf24;
+        }
+
+        .retention-note {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid #fbbf24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #fcd34d;
+        }
+
         .warning-box {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid #ef4444;
             padding: 20px;
             border-radius: 8px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .warning-box h3 {
@@ -141,6 +251,7 @@
         .success-message .icon {
             font-size: 64px;
             margin-bottom: 20px;
+            color: #22c55e;
         }
 
         .success-message h2 {
@@ -181,45 +292,107 @@
 </head>
 <body>
     <div class="container">
+        <div class="app-header">
+            <div class="app-name">GridTV Sports</div>
+        </div>
+
         <div id="form-section">
             <h1>Delete Your Account</h1>
-            <p class="subtitle">Request permanent deletion of your GridTV Sports account</p>
+            <p class="subtitle">Request permanent deletion of your GridTV Sports account and data</p>
 
+            <!-- Steps Section -->
+            <div class="steps-section">
+                <h2>How to Delete Your Account</h2>
+                <ol class="steps-list">
+                    <li>Enter the email address associated with your GridTV Sports account below</li>
+                    <li>Check the confirmation box to acknowledge that deletion is permanent</li>
+                    <li>Click "Request Account Deletion" to submit your request</li>
+                    <li>You will receive a confirmation email within 24 hours</li>
+                    <li>Your account and data will be permanently deleted within 30 days</li>
+                </ol>
+            </div>
+
+            <!-- Data Deletion Details -->
+            <div class="data-section">
+                <h2>What Data Will Be Deleted</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Email address</td>
+                            <td class="deleted">Permanently deleted</td>
+                        </tr>
+                        <tr>
+                            <td>Password (hashed)</td>
+                            <td class="deleted">Permanently deleted</td>
+                        </tr>
+                        <tr>
+                            <td>Session tokens</td>
+                            <td class="deleted">Permanently deleted</td>
+                        </tr>
+                        <tr>
+                            <td>TV casting sessions</td>
+                            <td class="deleted">Permanently deleted</td>
+                        </tr>
+                        <tr>
+                            <td>Subscription status</td>
+                            <td class="deleted">Permanently deleted</td>
+                        </tr>
+                        <tr>
+                            <td>Account preferences</td>
+                            <td class="deleted">Permanently deleted</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="retention-note">
+                    <strong>Retention Period:</strong> Your account and all associated data will be permanently deleted within 30 days of your request. During this period, you may contact us to cancel your deletion request. After 30 days, deletion is irreversible.
+                </div>
+            </div>
+
+            <!-- Warning Box -->
             <div class="warning-box">
                 <h3>Before you proceed:</h3>
                 <ul>
-                    <li>Your account and all associated data will be permanently deleted</li>
-                    <li>This action cannot be undone</li>
+                    <li>This action is <strong>permanent</strong> and cannot be undone after 30 days</li>
                     <li>You will lose access to any active subscriptions</li>
-                    <li>Your casting sessions and saved preferences will be removed</li>
+                    <li>All your TV casting sessions will be terminated</li>
+                    <li>You will need to create a new account to use GridTV Sports again</li>
                 </ul>
             </div>
 
+            <!-- Deletion Form -->
             <form id="delete-form">
                 <div class="form-group">
-                    <label for="email">Email Address (associated with your account)</label>
+                    <label for="email">Email Address (associated with your GridTV Sports account)</label>
                     <input type="email" id="email" name="email" required placeholder="Enter your account email">
                 </div>
 
                 <div class="checkbox-group">
                     <input type="checkbox" id="confirm" name="confirm" required>
-                    <label for="confirm">I understand that this action is permanent and my account data will be deleted within 30 days</label>
+                    <label for="confirm">I understand that my GridTV Sports account and all associated data will be permanently deleted within 30 days, and this action cannot be undone.</label>
                 </div>
 
                 <button type="submit" class="submit-btn" id="submit-btn" disabled>Request Account Deletion</button>
             </form>
 
             <p class="info-text">
-                Questions? Contact us at <a href="mailto:support@gridtvsports.com">support@gridtvsports.com</a>
+                Questions or need help? Contact us at <a href="mailto:support@gridtvsports.com">support@gridtvsports.com</a>
             </p>
         </div>
 
         <div id="success-section" class="success-message">
             <div class="icon">&#10003;</div>
-            <h2>Request Submitted</h2>
-            <p>We've received your account deletion request. Your account and all associated data will be deleted within 30 days.</p>
-            <p style="margin-top: 15px;">A confirmation email has been sent to your email address.</p>
-            <a href="/" class="back-link">Return to Home</a>
+            <h2>Deletion Request Submitted</h2>
+            <p>We've received your request to delete your GridTV Sports account.</p>
+            <p style="margin-top: 15px;">Your account and all associated data will be permanently deleted within <strong>30 days</strong>.</p>
+            <p style="margin-top: 15px; font-size: 0.9rem;">A confirmation email has been sent to your email address. If you change your mind, contact us within 30 days to cancel the deletion.</p>
+            <a href="/" class="back-link">Return to GridTV Sports</a>
         </div>
     </div>
 
