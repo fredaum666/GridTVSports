@@ -448,7 +448,304 @@
         <p>Loading teams...</p>
       </div>
     </div>
+
+    <!-- Notification Settings Section -->
+    <div class="notification-settings" id="notificationSettings">
+      <div class="section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Game Notifications
+      </div>
+
+      <div class="notification-card">
+        <div class="notification-header">
+          <div class="notification-status" id="pushStatus">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Checking...</span>
+          </div>
+          <button class="notification-toggle-btn" id="pushToggleBtn" disabled>
+            Enable Notifications
+          </button>
+        </div>
+
+        <div class="notification-description">
+          Get notified when your favorite teams' games are about to start.
+        </div>
+
+        <div class="notification-options" id="notificationOptions" style="display: none;">
+          <div class="option-group">
+            <label class="option-label">
+              <input type="checkbox" id="gameStartAlerts" checked>
+              <span class="checkbox-custom"></span>
+              Game start alerts
+            </label>
+          </div>
+
+          <div class="option-group">
+            <label class="option-label">Notify me</label>
+            <select id="minutesBefore" class="option-select">
+              <option value="5">5 minutes before</option>
+              <option value="10">10 minutes before</option>
+              <option value="15" selected>15 minutes before</option>
+              <option value="30">30 minutes before</option>
+            </select>
+          </div>
+
+          <div class="option-group">
+            <label class="option-label">
+              <input type="checkbox" id="favoriteTeamsOnly" checked>
+              <span class="checkbox-custom"></span>
+              Only notify for favorite teams
+            </label>
+          </div>
+
+          <div class="option-group leagues-group">
+            <label class="option-label">Leagues:</label>
+            <div class="league-checkboxes">
+              <label class="league-checkbox"><input type="checkbox" value="NFL" checked> NFL</label>
+              <label class="league-checkbox"><input type="checkbox" value="NBA" checked> NBA</label>
+              <label class="league-checkbox"><input type="checkbox" value="MLB" checked> MLB</label>
+              <label class="league-checkbox"><input type="checkbox" value="NHL" checked> NHL</label>
+              <label class="league-checkbox"><input type="checkbox" value="NCAAF" checked> NCAAF</label>
+              <label class="league-checkbox"><input type="checkbox" value="NCAAB" checked> NCAAB</label>
+            </div>
+          </div>
+
+          <div class="option-actions">
+            <button class="test-notification-btn" id="testNotificationBtn">
+              Send Test Notification
+            </button>
+            <button class="save-preferences-btn" id="savePreferencesBtn">
+              Save Preferences
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Push Notifications Styles -->
+  <style>
+    .notification-settings {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .notification-card {
+      background: rgba(26, 26, 46, 0.95);
+      border-radius: 16px;
+      padding: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .notification-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .notification-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .status-dot.active {
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    }
+
+    .status-dot.inactive {
+      background: #ef4444;
+    }
+
+    .status-dot.unsupported {
+      background: #f59e0b;
+    }
+
+    .notification-toggle-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .notification-toggle-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .notification-toggle-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .notification-toggle-btn.subscribed {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .notification-description {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .notification-options {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 20px;
+    }
+
+    .option-group {
+      margin-bottom: 16px;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .option-label input[type="checkbox"] {
+      display: none;
+    }
+
+    .checkbox-custom {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .option-label input[type="checkbox"]:checked + .checkbox-custom {
+      background: #6366f1;
+      border-color: #6366f1;
+    }
+
+    .option-label input[type="checkbox"]:checked + .checkbox-custom::after {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .option-select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+      font-size: 14px;
+      margin-left: 10px;
+    }
+
+    .leagues-group {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .league-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .league-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .league-checkbox input {
+      accent-color: #6366f1;
+    }
+
+    .option-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .test-notification-btn,
+    .save-preferences-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .test-notification-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .test-notification-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .save-preferences-btn {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      color: white;
+    }
+
+    .save-preferences-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    }
+
+    @media (max-width: 600px) {
+      .notification-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .option-actions {
+        flex-direction: column;
+      }
+
+      .test-notification-btn,
+      .save-preferences-btn {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <!-- Push Notifications Script -->
+  <script src="/scripts/push-notifications.js"></script>
 
   <script>
     // State
@@ -1032,9 +1329,141 @@
           return;
         }
         await fetchFavorites();
+        // Initialize push notifications UI after auth check
+        initPushNotificationsUI();
       } catch (error) {
         window.location.href = '/login.html';
       }
+    }
+
+    // ========================================
+    // PUSH NOTIFICATIONS UI
+    // ========================================
+
+    async function initPushNotificationsUI() {
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const toggleBtn = document.getElementById('pushToggleBtn');
+      const optionsDiv = document.getElementById('notificationOptions');
+
+      // Check if push notifications are supported
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        statusDot.className = 'status-dot unsupported';
+        statusText.textContent = 'Not supported in this browser';
+        toggleBtn.textContent = 'Not Available';
+        return;
+      }
+
+      // Wait for PushNotifications module to initialize
+      await PushNotifications.init();
+
+      // Check current status
+      const status = await PushNotifications.getStatus();
+
+      if (!status.configured) {
+        statusDot.className = 'status-dot unsupported';
+        statusText.textContent = 'Not configured on server';
+        toggleBtn.textContent = 'Not Available';
+        return;
+      }
+
+      // Update UI based on subscription status
+      updatePushUI(status.subscribed);
+      toggleBtn.disabled = false;
+
+      // Load preferences if subscribed
+      if (status.subscribed) {
+        await loadNotificationPreferences();
+      }
+
+      // Toggle button handler
+      toggleBtn.addEventListener('click', async () => {
+        toggleBtn.disabled = true;
+
+        if (PushNotifications.isSubscribed) {
+          const result = await PushNotifications.unsubscribe();
+          if (result.success) {
+            updatePushUI(false);
+            showSuccess('Notifications disabled');
+          } else {
+            showError(result.error || 'Failed to disable notifications');
+          }
+        } else {
+          const result = await PushNotifications.subscribe();
+          if (result.success) {
+            updatePushUI(true);
+            await loadNotificationPreferences();
+            showSuccess('Notifications enabled!');
+          } else {
+            showError(result.error || 'Failed to enable notifications');
+          }
+        }
+
+        toggleBtn.disabled = false;
+      });
+
+      // Test notification button
+      document.getElementById('testNotificationBtn').addEventListener('click', async () => {
+        const result = await PushNotifications.sendTestNotification();
+        if (result.success) {
+          showSuccess('Test notification sent!');
+        } else {
+          showError(result.error || 'Failed to send test notification');
+        }
+      });
+
+      // Save preferences button
+      document.getElementById('savePreferencesBtn').addEventListener('click', async () => {
+        const preferences = {
+          game_start_alerts: document.getElementById('gameStartAlerts').checked,
+          minutes_before_game: parseInt(document.getElementById('minutesBefore').value),
+          notify_favorite_teams_only: document.getElementById('favoriteTeamsOnly').checked,
+          notify_leagues: Array.from(document.querySelectorAll('.league-checkbox input:checked')).map(cb => cb.value)
+        };
+
+        const result = await PushNotifications.updatePreferences(preferences);
+        if (result.success) {
+          showSuccess('Preferences saved!');
+        } else {
+          showError(result.error || 'Failed to save preferences');
+        }
+      });
+    }
+
+    function updatePushUI(isSubscribed) {
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const toggleBtn = document.getElementById('pushToggleBtn');
+      const optionsDiv = document.getElementById('notificationOptions');
+
+      if (isSubscribed) {
+        statusDot.className = 'status-dot active';
+        statusText.textContent = 'Enabled';
+        toggleBtn.textContent = 'Disable Notifications';
+        toggleBtn.classList.add('subscribed');
+        optionsDiv.style.display = 'block';
+      } else {
+        statusDot.className = 'status-dot inactive';
+        statusText.textContent = 'Disabled';
+        toggleBtn.textContent = 'Enable Notifications';
+        toggleBtn.classList.remove('subscribed');
+        optionsDiv.style.display = 'none';
+      }
+    }
+
+    async function loadNotificationPreferences() {
+      const prefs = await PushNotifications.getPreferences();
+      if (!prefs) return;
+
+      document.getElementById('gameStartAlerts').checked = prefs.game_start_alerts !== false;
+      document.getElementById('minutesBefore').value = prefs.minutes_before_game || 15;
+      document.getElementById('favoriteTeamsOnly').checked = prefs.notify_favorite_teams_only !== false;
+
+      // Update league checkboxes
+      const leagues = prefs.notify_leagues || ['NFL', 'NBA', 'MLB', 'NHL', 'NCAAF', 'NCAAB'];
+      document.querySelectorAll('.league-checkbox input').forEach(cb => {
+        cb.checked = leagues.includes(cb.value);
+      });
     }
 
     init();

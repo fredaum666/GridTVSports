@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const webpush = require('web-push');
 const { pool } = require('./db');
 require('dotenv').config();
 
@@ -53,6 +54,21 @@ if (stripeConfigured) {
   console.log('   Reason: Key contains placeholder or KeyVault reference');
 }
 
+// Web Push configuration
+let webPushConfigured = false;
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT || 'mailto:support@gridtvsports.com',
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+  webPushConfigured = true;
+  console.log('✅ Web Push notifications configured');
+} else {
+  console.log('⚠️ Web Push not configured. Generate VAPID keys with: npx web-push generate-vapid-keys');
+  console.log('   Then add VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY to your .env file');
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -63,6 +79,24 @@ process.on('uncaughtException', (error) => {
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// ============================================
+// SERVICE WORKER & JS FILES (MUST BE BEFORE HELMET/SECURITY MIDDLEWARE)
+// ============================================
+app.get('/service-worker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
+});
+
+// Serve JavaScript files with correct MIME type
+app.get('/scripts/*.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  res.sendFile(path.join(__dirname, 'public', req.path));
 });
 
 // ============================================
@@ -1051,6 +1085,255 @@ app.post('/api/favorites/reorder', async (req, res) => {
     res.status(500).json({ error: 'Failed to reorder favorites' });
   } finally {
     client.release();
+  }
+});
+
+// ============================================
+// PUSH NOTIFICATIONS API
+// ============================================
+
+// Get VAPID public key for client subscription
+app.get('/api/push/vapid-public-key', (req, res) => {
+  if (!webPushConfigured) {
+    return res.status(503).json({ error: 'Push notifications not configured' });
+  }
+  res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+});
+
+// Subscribe to push notifications
+app.post('/api/push/subscribe', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  if (!webPushConfigured) {
+    return res.status(503).json({ error: 'Push notifications not configured' });
+  }
+
+  const { subscription } = req.body;
+  if (!subscription || !subscription.endpoint || !subscription.keys) {
+    return res.status(400).json({ error: 'Invalid subscription data' });
+  }
+
+  try {
+    // Upsert subscription (update if endpoint exists, insert if not)
+    await pool.query(`
+      INSERT INTO push_subscriptions (user_id, endpoint, p256dh_key, auth_key, user_agent, updated_at)
+      VALUES ($1, $2, $3, $4, $5, NOW())
+      ON CONFLICT (endpoint) DO UPDATE SET
+        user_id = $1,
+        p256dh_key = $3,
+        auth_key = $4,
+        user_agent = $5,
+        is_active = TRUE,
+        updated_at = NOW()
+    `, [
+      req.session.userId,
+      subscription.endpoint,
+      subscription.keys.p256dh,
+      subscription.keys.auth,
+      req.headers['user-agent'] || null
+    ]);
+
+    // Create default notification preferences if not exists
+    await pool.query(`
+      INSERT INTO notification_preferences (user_id)
+      VALUES ($1)
+      ON CONFLICT (user_id) DO NOTHING
+    `, [req.session.userId]);
+
+    console.log(`[Push] User ${req.session.userId} subscribed to push notifications`);
+    res.json({ success: true, message: 'Subscribed to push notifications' });
+  } catch (error) {
+    console.error('Error saving push subscription:', error);
+    res.status(500).json({ error: 'Failed to save subscription' });
+  }
+});
+
+// Unsubscribe from push notifications
+app.post('/api/push/unsubscribe', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const { endpoint } = req.body;
+  if (!endpoint) {
+    return res.status(400).json({ error: 'Endpoint is required' });
+  }
+
+  try {
+    await pool.query(
+      'UPDATE push_subscriptions SET is_active = FALSE, updated_at = NOW() WHERE endpoint = $1 AND user_id = $2',
+      [endpoint, req.session.userId]
+    );
+    console.log(`[Push] User ${req.session.userId} unsubscribed from push notifications`);
+    res.json({ success: true, message: 'Unsubscribed from push notifications' });
+  } catch (error) {
+    console.error('Error removing push subscription:', error);
+    res.status(500).json({ error: 'Failed to unsubscribe' });
+  }
+});
+
+// Get notification preferences
+app.get('/api/push/preferences', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM notification_preferences WHERE user_id = $1',
+      [req.session.userId]
+    );
+
+    if (result.rows.length === 0) {
+      // Return defaults
+      return res.json({
+        game_start_alerts: true,
+        minutes_before_game: 15,
+        notify_favorite_teams_only: true,
+        notify_leagues: ['NFL', 'NBA', 'MLB', 'NHL', 'NCAAF', 'NCAAB'],
+        quiet_hours_start: null,
+        quiet_hours_end: null
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching notification preferences:', error);
+    res.status(500).json({ error: 'Failed to fetch preferences' });
+  }
+});
+
+// Update notification preferences
+app.put('/api/push/preferences', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const {
+    game_start_alerts,
+    minutes_before_game,
+    notify_favorite_teams_only,
+    notify_leagues,
+    quiet_hours_start,
+    quiet_hours_end
+  } = req.body;
+
+  try {
+    await pool.query(`
+      INSERT INTO notification_preferences (
+        user_id, game_start_alerts, minutes_before_game, notify_favorite_teams_only,
+        notify_leagues, quiet_hours_start, quiet_hours_end, updated_at
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+      ON CONFLICT (user_id) DO UPDATE SET
+        game_start_alerts = COALESCE($2, notification_preferences.game_start_alerts),
+        minutes_before_game = COALESCE($3, notification_preferences.minutes_before_game),
+        notify_favorite_teams_only = COALESCE($4, notification_preferences.notify_favorite_teams_only),
+        notify_leagues = COALESCE($5, notification_preferences.notify_leagues),
+        quiet_hours_start = $6,
+        quiet_hours_end = $7,
+        updated_at = NOW()
+    `, [
+      req.session.userId,
+      game_start_alerts,
+      minutes_before_game,
+      notify_favorite_teams_only,
+      notify_leagues ? JSON.stringify(notify_leagues) : null,
+      quiet_hours_start || null,
+      quiet_hours_end || null
+    ]);
+
+    res.json({ success: true, message: 'Preferences updated' });
+  } catch (error) {
+    console.error('Error updating notification preferences:', error);
+    res.status(500).json({ error: 'Failed to update preferences' });
+  }
+});
+
+// Get push subscription status
+app.get('/api/push/status', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT COUNT(*) as count FROM push_subscriptions WHERE user_id = $1 AND is_active = TRUE',
+      [req.session.userId]
+    );
+
+    res.json({
+      configured: webPushConfigured,
+      subscribed: parseInt(result.rows[0].count) > 0,
+      deviceCount: parseInt(result.rows[0].count)
+    });
+  } catch (error) {
+    console.error('Error checking push status:', error);
+    res.status(500).json({ error: 'Failed to check status' });
+  }
+});
+
+// Send test notification (for debugging)
+app.post('/api/push/test', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  if (!webPushConfigured) {
+    return res.status(503).json({ error: 'Push notifications not configured' });
+  }
+
+  try {
+    const subscriptions = await pool.query(
+      'SELECT * FROM push_subscriptions WHERE user_id = $1 AND is_active = TRUE',
+      [req.session.userId]
+    );
+
+    if (subscriptions.rows.length === 0) {
+      return res.status(400).json({ error: 'No active push subscriptions found' });
+    }
+
+    const payload = JSON.stringify({
+      title: '🏈 GridTV Sports Test',
+      body: 'Push notifications are working!',
+      icon: '/logos/gridtv-icon-192.png',
+      tag: 'test-notification'
+    });
+
+    let sent = 0;
+    let failed = 0;
+
+    for (const sub of subscriptions.rows) {
+      const pushSubscription = {
+        endpoint: sub.endpoint,
+        keys: {
+          p256dh: sub.p256dh_key,
+          auth: sub.auth_key
+        }
+      };
+
+      try {
+        await webpush.sendNotification(pushSubscription, payload);
+        sent++;
+      } catch (error) {
+        console.error('[Push] Failed to send test notification:', error.message);
+        failed++;
+        // If subscription is invalid, mark it as inactive
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          await pool.query(
+            'UPDATE push_subscriptions SET is_active = FALSE WHERE endpoint = $1',
+            [sub.endpoint]
+          );
+        }
+      }
+    }
+
+    res.json({ success: true, sent, failed });
+  } catch (error) {
+    console.error('Error sending test notification:', error);
+    res.status(500).json({ error: 'Failed to send test notification' });
   }
 });
 
@@ -2759,6 +3042,215 @@ app.get('/api/nfl/playoff-bracket', async (req, res) => {
       currentRound: 1
     };
 
+    // If Wild Card games don't have real teams yet, fetch standings to populate playoff teams
+    if (bracket.wildCard.afc.length === 0 && bracket.wildCard.nfc.length === 0) {
+      console.log('[NFL Bracket] No Wild Card teams found, fetching from standings...');
+
+      // 2024-25 NFL Playoff Standings (manually updated)
+      const CURRENT_PLAYOFF_STANDINGS = {
+        afc: [
+          { seed: 1, abbreviation: 'DEN', displayName: 'Denver Broncos', shortDisplayName: 'Broncos', wins: 13, losses: 3, clinched: 'y' },
+          { seed: 2, abbreviation: 'NE', displayName: 'New England Patriots', shortDisplayName: 'Patriots', wins: 12, losses: 3, clinched: 'y' },
+          { seed: 3, abbreviation: 'JAX', displayName: 'Jacksonville Jaguars', shortDisplayName: 'Jaguars', wins: 11, losses: 4, clinched: 'y' },
+          { seed: 4, abbreviation: 'PIT', displayName: 'Pittsburgh Steelers', shortDisplayName: 'Steelers', wins: 9, losses: 6, clinched: 'x' },
+          { seed: 5, abbreviation: 'LAC', displayName: 'Los Angeles Chargers', shortDisplayName: 'Chargers', wins: 11, losses: 4, clinched: 'y' },
+          { seed: 6, abbreviation: 'BUF', displayName: 'Buffalo Bills', shortDisplayName: 'Bills', wins: 11, losses: 4, clinched: 'y' },
+          { seed: 7, abbreviation: 'HOU', displayName: 'Houston Texans', shortDisplayName: 'Texans', wins: 10, losses: 5, clinched: 'x' }
+        ],
+        nfc: [
+          { seed: 1, abbreviation: 'SEA', displayName: 'Seattle Seahawks', shortDisplayName: 'Seahawks', wins: 12, losses: 3, clinched: 'y' },
+          { seed: 2, abbreviation: 'CHI', displayName: 'Chicago Bears', shortDisplayName: 'Bears', wins: 11, losses: 4, clinched: 'y' },
+          { seed: 3, abbreviation: 'PHI', displayName: 'Philadelphia Eagles', shortDisplayName: 'Eagles', wins: 10, losses: 5, clinched: 'z' },
+          { seed: 4, abbreviation: 'CAR', displayName: 'Carolina Panthers', shortDisplayName: 'Panthers', wins: 8, losses: 7, clinched: 'x' },
+          { seed: 5, abbreviation: 'SF', displayName: 'San Francisco 49ers', shortDisplayName: '49ers', wins: 11, losses: 4, clinched: 'y' },
+          { seed: 6, abbreviation: 'LAR', displayName: 'Los Angeles Rams', shortDisplayName: 'Rams', wins: 11, losses: 4, clinched: 'y' },
+          { seed: 7, abbreviation: 'GB', displayName: 'Green Bay Packers', shortDisplayName: 'Packers', wins: 9, losses: 6, clinched: 'y' }
+        ]
+      };
+
+      try {
+        // Fetch NFL standings to get playoff-clinched teams
+        // Note: Standings API uses a different base URL path (v2 instead of site/v2)
+        const standingsUrl = 'https://site.api.espn.com/apis/v2/sports/football/nfl/standings?season=2025&seasontype=2';
+        const standingsData = await fetchESPN(standingsUrl);
+        console.log('[NFL Bracket] Standings response children:', standingsData.children?.length);
+
+        // Parse standings to get playoff seeds
+        let afcTeams = [];
+        let nfcTeams = [];
+
+        if (standingsData.children) {
+          for (const conference of standingsData.children) {
+            const confName = conference.name || conference.abbreviation;
+            const isAFC = confName?.includes('AFC') || confName?.includes('American');
+
+            // Standings entries are directly under each conference
+            if (conference.standings?.entries) {
+              for (const entry of conference.standings.entries) {
+                const team = entry.team;
+                const stats = entry.stats || [];
+                const clincherStat = stats.find(s => s.name === 'clincher');
+                const playoffSeedStat = stats.find(s => s.name === 'playoffSeed');
+                const clincher = clincherStat?.displayValue || clincherStat?.value;
+                const playoffSeed = playoffSeedStat?.value;
+
+                // Check if team has clinched playoffs (x, y, z, * indicators or has a playoff seed 1-7)
+                if (clincher || (playoffSeed && playoffSeed <= 7)) {
+                  const teamData = {
+                    abbreviation: team.abbreviation,
+                    displayName: team.displayName,
+                    shortDisplayName: team.shortDisplayName,
+                    logo: team.logos?.[0]?.href,
+                    seed: playoffSeed || null,
+                    clinched: clincher || 'p'
+                  };
+
+                  if (isAFC) {
+                    afcTeams.push(teamData);
+                  } else {
+                    nfcTeams.push(teamData);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // Sort by seed
+        afcTeams.sort((a, b) => (a.seed || 99) - (b.seed || 99));
+        nfcTeams.sort((a, b) => (a.seed || 99) - (b.seed || 99));
+
+        // If API didn't return enough teams with proper seeds 1-7, use static data
+        const afcHasValidSeeds = afcTeams.slice(0, 7).every((t, i) => t.seed === i + 1);
+        const nfcHasValidSeeds = nfcTeams.slice(0, 7).every((t, i) => t.seed === i + 1);
+
+        if (afcTeams.length < 7 || !afcHasValidSeeds) {
+          console.log('[NFL Bracket] Using static AFC standings data');
+          afcTeams = CURRENT_PLAYOFF_STANDINGS.afc;
+        }
+        if (nfcTeams.length < 7 || !nfcHasValidSeeds) {
+          console.log('[NFL Bracket] Using static NFC standings data');
+          nfcTeams = CURRENT_PLAYOFF_STANDINGS.nfc;
+        }
+
+        console.log(`[NFL Bracket] Found ${afcTeams.length} AFC and ${nfcTeams.length} NFC playoff teams from standings`);
+        if (afcTeams.length > 0) console.log('[NFL Bracket] AFC teams:', afcTeams.map(t => `#${t.seed} ${t.abbreviation}`).join(', '));
+        if (nfcTeams.length > 0) console.log('[NFL Bracket] NFC teams:', nfcTeams.map(t => `#${t.seed} ${t.abbreviation}`).join(', '));
+
+        // Create Wild Card matchups based on seeding
+        // AFC Wild Card: 2 vs 7, 3 vs 6, 4 vs 5 (1 seed gets bye)
+        // NFC Wild Card: 2 vs 7, 3 vs 6, 4 vs 5 (1 seed gets bye)
+        function createWildCardGames(teams) {
+          const games = [];
+          if (teams.length >= 7) {
+            // Game 1: #2 vs #7
+            games.push({
+              id: `wc-${teams[1]?.abbreviation}-${teams[6]?.abbreviation}`,
+              name: `${teams[1]?.displayName || 'TBD'} vs ${teams[6]?.displayName || 'TBD'}`,
+              status: 'pre',
+              isComplete: false,
+              homeTeam: teams[1] ? { ...teams[1], seed: 2 } : { abbreviation: 'TBD' },
+              awayTeam: teams[6] ? { ...teams[6], seed: 7 } : { abbreviation: 'TBD' },
+              winner: null,
+              conference: AFC_TEAMS.includes(teams[1]?.abbreviation) ? 'AFC' : 'NFC'
+            });
+            // Game 2: #3 vs #6
+            games.push({
+              id: `wc-${teams[2]?.abbreviation}-${teams[5]?.abbreviation}`,
+              name: `${teams[2]?.displayName || 'TBD'} vs ${teams[5]?.displayName || 'TBD'}`,
+              status: 'pre',
+              isComplete: false,
+              homeTeam: teams[2] ? { ...teams[2], seed: 3 } : { abbreviation: 'TBD' },
+              awayTeam: teams[5] ? { ...teams[5], seed: 6 } : { abbreviation: 'TBD' },
+              winner: null,
+              conference: AFC_TEAMS.includes(teams[2]?.abbreviation) ? 'AFC' : 'NFC'
+            });
+            // Game 3: #4 vs #5
+            games.push({
+              id: `wc-${teams[3]?.abbreviation}-${teams[4]?.abbreviation}`,
+              name: `${teams[3]?.displayName || 'TBD'} vs ${teams[4]?.displayName || 'TBD'}`,
+              status: 'pre',
+              isComplete: false,
+              homeTeam: teams[3] ? { ...teams[3], seed: 4 } : { abbreviation: 'TBD' },
+              awayTeam: teams[4] ? { ...teams[4], seed: 5 } : { abbreviation: 'TBD' },
+              winner: null,
+              conference: AFC_TEAMS.includes(teams[3]?.abbreviation) ? 'AFC' : 'NFC'
+            });
+          }
+          return games;
+        }
+
+        if (afcTeams.length >= 7) {
+          bracket.wildCard.afc = createWildCardGames(afcTeams);
+        }
+        if (nfcTeams.length >= 7) {
+          bracket.wildCard.nfc = createWildCardGames(nfcTeams);
+        }
+
+        // Store the #1 seeds for bye display
+        bracket.afcBye = afcTeams[0] || null;
+        bracket.nfcBye = nfcTeams[0] || null;
+
+        // Store all playoff teams for reference
+        bracket.playoffTeams = {
+          afc: afcTeams.slice(0, 7),
+          nfc: nfcTeams.slice(0, 7)
+        };
+
+      } catch (standingsError) {
+        console.log('[NFL Bracket] Could not fetch standings for playoff teams:', standingsError.message);
+        console.log('[NFL Bracket] Using static playoff standings as fallback');
+
+        // Use static data as fallback
+        const afcTeams = CURRENT_PLAYOFF_STANDINGS.afc;
+        const nfcTeams = CURRENT_PLAYOFF_STANDINGS.nfc;
+
+        // Create Wild Card matchups using static data
+        function createWildCardGamesFallback(teams, conference) {
+          const games = [];
+          if (teams.length >= 7) {
+            games.push({
+              id: `wc-${teams[1].abbreviation}-${teams[6].abbreviation}`,
+              name: `${teams[1].displayName} vs ${teams[6].displayName}`,
+              status: 'pre',
+              isComplete: false,
+              homeTeam: { ...teams[1], seed: 2 },
+              awayTeam: { ...teams[6], seed: 7 },
+              winner: null,
+              conference
+            });
+            games.push({
+              id: `wc-${teams[2].abbreviation}-${teams[5].abbreviation}`,
+              name: `${teams[2].displayName} vs ${teams[5].displayName}`,
+              status: 'pre',
+              isComplete: false,
+              homeTeam: { ...teams[2], seed: 3 },
+              awayTeam: { ...teams[5], seed: 6 },
+              winner: null,
+              conference
+            });
+            games.push({
+              id: `wc-${teams[3].abbreviation}-${teams[4].abbreviation}`,
+              name: `${teams[3].displayName} vs ${teams[4].displayName}`,
+              status: 'pre',
+              isComplete: false,
+              homeTeam: { ...teams[3], seed: 4 },
+              awayTeam: { ...teams[4], seed: 5 },
+              winner: null,
+              conference
+            });
+          }
+          return games;
+        }
+
+        bracket.wildCard.afc = createWildCardGamesFallback(afcTeams, 'AFC');
+        bracket.wildCard.nfc = createWildCardGamesFallback(nfcTeams, 'NFC');
+        bracket.afcBye = afcTeams[0];
+        bracket.nfcBye = nfcTeams[0];
+        bracket.playoffTeams = { afc: afcTeams, nfc: nfcTeams };
+      }
+    }
+
     // Determine current round based on game states
     if (bracket.superBowl.superBowl?.isComplete) {
       bracket.currentRound = 5;
@@ -3642,6 +4134,218 @@ cron.schedule('*/15 * * * * *', async () => {
     } catch (error) {
       console.error(`[NHL] Failed to update ${date}:`, error.message);
     }
+  }
+});
+
+// ============================================
+// GAME START NOTIFICATION SCHEDULER
+// ============================================
+
+// Track games we've already sent notifications for
+const sentGameNotifications = new Set();
+
+// Check for upcoming games and send notifications every minute
+cron.schedule('* * * * *', async () => {
+  if (!webPushConfigured) return;
+
+  try {
+    // Get all users with active push subscriptions and their preferences
+    const usersResult = await pool.query(`
+      SELECT DISTINCT
+        ps.user_id,
+        np.game_start_alerts,
+        np.minutes_before_game,
+        np.notify_favorite_teams_only,
+        np.notify_leagues,
+        np.quiet_hours_start,
+        np.quiet_hours_end
+      FROM push_subscriptions ps
+      LEFT JOIN notification_preferences np ON ps.user_id = np.user_id
+      WHERE ps.is_active = TRUE
+    `);
+
+    if (usersResult.rows.length === 0) return;
+
+    // Get upcoming games from all caches
+    const upcomingGames = [];
+    const now = Date.now();
+    const maxMinutesBefore = 30; // Look for games starting within 30 minutes
+
+    // Helper to extract games from cache
+    const extractUpcomingGames = (cache, sport) => {
+      for (const [key, cachedData] of cache.data.entries()) {
+        if (!cachedData?.data?.events) continue;
+        for (const event of cachedData.data.events) {
+          const competition = event.competitions?.[0];
+          if (!competition) continue;
+
+          const gameTime = new Date(event.date || competition.date);
+          const minutesUntilStart = (gameTime.getTime() - now) / (1000 * 60);
+
+          // Check if game is starting soon (between 0 and maxMinutesBefore)
+          if (minutesUntilStart > 0 && minutesUntilStart <= maxMinutesBefore) {
+            const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+            const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+
+            if (homeTeam && awayTeam) {
+              upcomingGames.push({
+                gameId: event.id,
+                sport: sport.toUpperCase(),
+                league: sport.toUpperCase(),
+                homeTeam: {
+                  id: homeTeam.team?.id,
+                  name: homeTeam.team?.displayName,
+                  abbreviation: homeTeam.team?.abbreviation,
+                  logo: homeTeam.team?.logo
+                },
+                awayTeam: {
+                  id: awayTeam.team?.id,
+                  name: awayTeam.team?.displayName,
+                  abbreviation: awayTeam.team?.abbreviation,
+                  logo: awayTeam.team?.logo
+                },
+                gameTime,
+                minutesUntilStart: Math.round(minutesUntilStart),
+                shortName: event.shortName || `${awayTeam.team?.abbreviation} @ ${homeTeam.team?.abbreviation}`
+              });
+            }
+          }
+        }
+      }
+    };
+
+    // Extract from all sport caches
+    extractUpcomingGames(sportsCache.nfl, 'NFL');
+    extractUpcomingGames(sportsCache.nba, 'NBA');
+    extractUpcomingGames(sportsCache.mlb, 'MLB');
+    extractUpcomingGames(sportsCache.nhl, 'NHL');
+    extractUpcomingGames(sportsCache.ncaa, 'NCAAF');
+    extractUpcomingGames(sportsCache.ncaab, 'NCAAB');
+
+    if (upcomingGames.length === 0) return;
+
+    // Process each user
+    for (const user of usersResult.rows) {
+      // Skip if user disabled game start alerts
+      if (user.game_start_alerts === false) continue;
+
+      const minutesBefore = user.minutes_before_game || 15;
+      const notifyLeagues = user.notify_leagues || ['NFL', 'NBA', 'MLB', 'NHL', 'NCAAF', 'NCAAB'];
+
+      // Check quiet hours
+      if (user.quiet_hours_start && user.quiet_hours_end) {
+        const currentTime = new Date();
+        const hours = currentTime.getHours();
+        const minutes = currentTime.getMinutes();
+        const currentTimeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+        if (currentTimeStr >= user.quiet_hours_start || currentTimeStr < user.quiet_hours_end) {
+          continue; // Skip during quiet hours
+        }
+      }
+
+      // Get user's favorite teams if needed
+      let favoriteTeamIds = [];
+      if (user.notify_favorite_teams_only !== false) {
+        const favResult = await pool.query(
+          'SELECT team_id, team_abbreviation FROM favorite_teams WHERE user_id = $1',
+          [user.user_id]
+        );
+        favoriteTeamIds = favResult.rows.map(r => r.team_id || r.team_abbreviation);
+      }
+
+      // Get user's push subscriptions
+      const subsResult = await pool.query(
+        'SELECT endpoint, p256dh_key, auth_key FROM push_subscriptions WHERE user_id = $1 AND is_active = TRUE',
+        [user.user_id]
+      );
+
+      if (subsResult.rows.length === 0) continue;
+
+      // Find games to notify about
+      for (const game of upcomingGames) {
+        // Check if we should notify for this league
+        if (!notifyLeagues.includes(game.league)) continue;
+
+        // Check if game is within user's notification window
+        if (game.minutesUntilStart > minutesBefore) continue;
+
+        // Check if this is a favorite team game (if required)
+        if (user.notify_favorite_teams_only !== false && favoriteTeamIds.length > 0) {
+          const homeTeamMatch = favoriteTeamIds.includes(game.homeTeam.id) ||
+            favoriteTeamIds.includes(game.homeTeam.abbreviation);
+          const awayTeamMatch = favoriteTeamIds.includes(game.awayTeam.id) ||
+            favoriteTeamIds.includes(game.awayTeam.abbreviation);
+
+          if (!homeTeamMatch && !awayTeamMatch) continue;
+        }
+
+        // Create unique key for this user/game combo
+        const notificationKey = `${user.user_id}-${game.gameId}`;
+        if (sentGameNotifications.has(notificationKey)) continue;
+
+        // Mark as sent
+        sentGameNotifications.add(notificationKey);
+
+        // Create notification payload
+        const payload = JSON.stringify({
+          title: `${game.league}: ${game.shortName}`,
+          body: `Game starts in ${game.minutesUntilStart} minutes!`,
+          icon: game.homeTeam.logo || '/logos/gridtv-icon-192.png',
+          badge: '/logos/gridtv-badge-72.png',
+          tag: `game-${game.gameId}`,
+          gameId: game.gameId,
+          league: game.league,
+          url: `/${game.league.toLowerCase()}.html`,
+          homeTeam: game.homeTeam.abbreviation,
+          awayTeam: game.awayTeam.abbreviation
+        });
+
+        // Send to all user's devices
+        for (const sub of subsResult.rows) {
+          const pushSubscription = {
+            endpoint: sub.endpoint,
+            keys: {
+              p256dh: sub.p256dh_key,
+              auth: sub.auth_key
+            }
+          };
+
+          try {
+            await webpush.sendNotification(pushSubscription, payload);
+
+            // Log the notification
+            await pool.query(`
+              INSERT INTO notification_log (user_id, game_id, notification_type, title, body, delivered)
+              VALUES ($1, $2, 'game_start', $3, $4, TRUE)
+            `, [user.user_id, game.gameId, `${game.league}: ${game.shortName}`, `Game starts in ${game.minutesUntilStart} minutes!`]);
+
+            console.log(`[Push] Sent game start notification to user ${user.user_id} for ${game.shortName}`);
+          } catch (error) {
+            console.error(`[Push] Failed to send notification:`, error.message);
+            if (error.statusCode === 410 || error.statusCode === 404) {
+              await pool.query(
+                'UPDATE push_subscriptions SET is_active = FALSE WHERE endpoint = $1',
+                [sub.endpoint]
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // Cleanup old notification keys (keep only last hour)
+    const oneHourAgo = now - (60 * 60 * 1000);
+    for (const key of sentGameNotifications) {
+      const gameId = key.split('-').slice(1).join('-');
+      // Simple cleanup - remove entries older than 1 hour based on set size
+      if (sentGameNotifications.size > 10000) {
+        sentGameNotifications.clear();
+      }
+    }
+
+  } catch (error) {
+    console.error('[Push] Error in game notification scheduler:', error);
   }
 });
 

@@ -307,3 +307,70 @@ COMMENT ON TABLE tv_sessions IS 'Stores persistent authenticated TV sessions';
 COMMENT ON COLUMN tv_sessions.device_id IS 'Unique identifier for the TV device (from localStorage)';
 COMMENT ON COLUMN tv_sessions.session_token IS 'Long-lived session token stored in TV localStorage';
 COMMENT ON COLUMN tv_sessions.is_active IS 'Whether the session is currently active';
+
+-- ============================================
+-- PUSH NOTIFICATION SUBSCRIPTIONS TABLE
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  endpoint TEXT UNIQUE NOT NULL,
+  p256dh_key TEXT NOT NULL,
+  auth_key TEXT NOT NULL,
+  user_agent VARCHAR(500),
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create indexes for push_subscriptions
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user ON push_subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_active ON push_subscriptions(is_active);
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint);
+
+-- Notification preferences table
+CREATE TABLE IF NOT EXISTS notification_preferences (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+  game_start_alerts BOOLEAN DEFAULT TRUE,
+  minutes_before_game INT DEFAULT 15,
+  notify_favorite_teams_only BOOLEAN DEFAULT TRUE,
+  notify_leagues JSONB DEFAULT '["NFL", "NBA", "MLB", "NHL", "NCAAF", "NCAAB"]'::jsonb,
+  quiet_hours_start TIME,
+  quiet_hours_end TIME,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create index for notification_preferences
+CREATE INDEX IF NOT EXISTS idx_notification_prefs_user ON notification_preferences(user_id);
+
+-- Notification log table (for tracking sent notifications)
+CREATE TABLE IF NOT EXISTS notification_log (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  game_id VARCHAR(50),
+  notification_type VARCHAR(50) NOT NULL, -- 'game_start', 'score_update', etc.
+  title VARCHAR(255),
+  body TEXT,
+  sent_at TIMESTAMP DEFAULT NOW(),
+  delivered BOOLEAN DEFAULT NULL,
+  clicked BOOLEAN DEFAULT FALSE
+);
+
+-- Create indexes for notification_log
+CREATE INDEX IF NOT EXISTS idx_notification_log_user ON notification_log(user_id);
+CREATE INDEX IF NOT EXISTS idx_notification_log_game ON notification_log(game_id);
+CREATE INDEX IF NOT EXISTS idx_notification_log_sent ON notification_log(sent_at);
+
+COMMENT ON TABLE push_subscriptions IS 'Stores Web Push API subscription data for each user device';
+COMMENT ON COLUMN push_subscriptions.endpoint IS 'Push service endpoint URL';
+COMMENT ON COLUMN push_subscriptions.p256dh_key IS 'Public key for encryption (base64)';
+COMMENT ON COLUMN push_subscriptions.auth_key IS 'Authentication secret (base64)';
+
+COMMENT ON TABLE notification_preferences IS 'Stores user notification preferences';
+COMMENT ON COLUMN notification_preferences.minutes_before_game IS 'How many minutes before game start to send alert';
+COMMENT ON COLUMN notification_preferences.notify_leagues IS 'JSON array of leagues to receive notifications for';
+
+COMMENT ON TABLE notification_log IS 'Tracks sent notifications for analytics and deduplication';

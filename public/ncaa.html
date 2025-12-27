@@ -7970,7 +7970,7 @@
       const logoHtml = team.logo ? `<img class="cfp-bracket-team-logo" src="${team.logo}" alt="${team.abbreviation}" onerror="this.style.display='none'">` : '';
 
       return `
-        <div class="${classes.join(' ')}">
+        <div class="${classes.join(' ')}" data-team="${team.abbreviation}">
           <span class="cfp-bracket-team-seed">${team.seed || '-'}</span>
           ${logoHtml}
           <div class="cfp-bracket-team-info">
@@ -7983,14 +7983,14 @@
     }
 
     // Render CFP bracket game
-    function renderCFPBracketGame(game) {
+    function renderCFPBracketGame(game, roundKey = '', index = 0) {
       if (!game) return '';
 
       const statusClass = game.status || 'pre';
       const statusText = game.isComplete ? 'FINAL' : (game.status === 'in' ? 'LIVE' : game.statusDetail || 'Upcoming');
 
       return `
-        <div class="cfp-bracket-game">
+        <div class="cfp-bracket-game" data-game="${roundKey}-${index}" data-game-id="${game.id || ''}">
           <div class="cfp-bracket-game-header">
             <span class="cfp-bracket-bowl-name">${game.bowlName || game.shortName || ''}</span>
             <span class="cfp-bracket-game-status ${statusClass}">${statusText}</span>
@@ -8004,17 +8004,17 @@
     }
 
     // Render CFP bracket round
-    function renderCFPBracketRound(games, title, isChampionship = false) {
+    function renderCFPBracketRound(games, title, isChampionship = false, roundKey = '') {
       if (!games || (Array.isArray(games) && games.length === 0)) {
         return '';
       }
 
       const gamesHtml = Array.isArray(games)
-        ? games.map(g => renderCFPBracketGame(g)).join('')
-        : renderCFPBracketGame(games);
+        ? games.map((g, i) => renderCFPBracketGame(g, roundKey, i)).join('')
+        : renderCFPBracketGame(games, roundKey, 0);
 
       return `
-        <div class="cfp-bracket-round ${isChampionship ? 'cfp-bracket-championship' : ''}">
+        <div class="cfp-bracket-round ${isChampionship ? 'cfp-bracket-championship' : ''}" data-round="${roundKey}">
           <div class="cfp-bracket-round-title">${title}</div>
           <div class="cfp-bracket-games">
             ${gamesHtml}
@@ -8023,31 +8023,115 @@
       `;
     }
 
+    // Update CFP team element differentially
+    function updateCFPTeamDiff(teamEl, team, isComplete, winner) {
+      if (!team || !team.abbreviation) {
+        if (!teamEl.classList.contains('tbd')) {
+          teamEl.className = 'cfp-bracket-team tbd';
+          teamEl.innerHTML = 'TBD';
+          teamEl.removeAttribute('data-team');
+        }
+        return;
+      }
+
+      const isWinner = isComplete && winner === team.abbreviation;
+      const isLoser = isComplete && winner && winner !== team.abbreviation;
+
+      // Update classes
+      teamEl.className = `cfp-bracket-team ${isWinner ? 'winner' : ''} ${isLoser ? 'loser' : ''}`.trim();
+      teamEl.dataset.team = team.abbreviation;
+
+      // Update score
+      let scoreEl = teamEl.querySelector('.cfp-bracket-team-score');
+      if (isComplete) {
+        if (scoreEl) {
+          if (scoreEl.textContent !== String(team.score || 0)) {
+            scoreEl.textContent = team.score || 0;
+          }
+        } else {
+          scoreEl = document.createElement('span');
+          scoreEl.className = 'cfp-bracket-team-score';
+          scoreEl.textContent = team.score || 0;
+          teamEl.appendChild(scoreEl);
+        }
+      } else if (scoreEl) {
+        scoreEl.remove();
+      }
+    }
+
+    // Update CFP game element differentially
+    function updateCFPGameDiff(gameEl, game) {
+      if (!gameEl || !game) return;
+
+      // Update status
+      const statusEl = gameEl.querySelector('.cfp-bracket-game-status');
+      if (statusEl) {
+        const statusClass = game.status || 'pre';
+        const statusText = game.isComplete ? 'FINAL' : (game.status === 'in' ? 'LIVE' : game.statusDetail || 'Upcoming');
+        statusEl.className = `cfp-bracket-game-status ${statusClass}`;
+        if (statusEl.textContent !== statusText) {
+          statusEl.textContent = statusText;
+        }
+      }
+
+      // Update teams
+      const teamEls = gameEl.querySelectorAll('.cfp-bracket-team');
+      if (teamEls.length >= 2) {
+        updateCFPTeamDiff(teamEls[0], game.awayTeam, game.isComplete, game.winner);
+        updateCFPTeamDiff(teamEls[1], game.homeTeam, game.isComplete, game.winner);
+      }
+    }
+
+    // Differential update for CFP bracket
+    function updateCFPBracketDiff(container, data) {
+      const rounds = [
+        { key: 'firstRound', games: data.firstRound || [] },
+        { key: 'quarterfinal', games: data.quarterfinal || [] },
+        { key: 'semifinal', games: data.semifinal || [] },
+        { key: 'championship', games: data.championship ? [data.championship] : [] }
+      ];
+
+      rounds.forEach(({ key, games }) => {
+        games.forEach((game, index) => {
+          const gameEl = container.querySelector(`[data-game="${key}-${index}"]`);
+          if (gameEl) {
+            updateCFPGameDiff(gameEl, game);
+          }
+        });
+      });
+    }
+
     // Render full CFP bracket
-    function renderCFPBracket(data) {
+    function renderCFPBracket(data, forceRebuild = false) {
       const container = document.getElementById('cfp-bracket-content');
       if (!container) return;
+
+      // Check if bracket structure exists - if so, do differential update
+      if (!forceRebuild && container.querySelector('.cfp-bracket-round')) {
+        updateCFPBracketDiff(container, data);
+        return;
+      }
 
       let html = '';
 
       // First Round (4 games - seeds 5-12)
       if (data.firstRound && data.firstRound.length > 0) {
-        html += renderCFPBracketRound(data.firstRound, 'First Round (Seeds 5-12)');
+        html += renderCFPBracketRound(data.firstRound, 'First Round (Seeds 5-12)', false, 'firstRound');
       }
 
       // Quarterfinals (4 games - includes bye teams 1-4)
       if (data.quarterfinal && data.quarterfinal.length > 0) {
-        html += renderCFPBracketRound(data.quarterfinal, 'Quarterfinals');
+        html += renderCFPBracketRound(data.quarterfinal, 'Quarterfinals', false, 'quarterfinal');
       }
 
       // Semifinals (2 games)
       if (data.semifinal && data.semifinal.length > 0) {
-        html += renderCFPBracketRound(data.semifinal, 'Semifinals');
+        html += renderCFPBracketRound(data.semifinal, 'Semifinals', false, 'semifinal');
       }
 
       // Championship
       if (data.championship) {
-        html += renderCFPBracketRound(data.championship, 'National Championship', true);
+        html += renderCFPBracketRound(data.championship, 'National Championship', true, 'championship');
       }
 
       // Champion display
@@ -8854,9 +8938,15 @@
     }
 
     // Render CFP bracket in fullscreen mode
-    function renderFullScreenCFPBracket(data, slotIndex) {
+    function renderFullScreenCFPBracket(data, slotIndex, forceRebuild = false) {
       const container = document.getElementById(`fullscreen-cfp-bracket-${slotIndex}`);
       if (!container) return;
+
+      // Check if bracket structure exists - if so, do differential update
+      if (!forceRebuild && container.querySelector('.fullscreen-cfp-round')) {
+        updateFullScreenCFPBracketDiff(container, data);
+        return;
+      }
 
       let html = '';
 
@@ -8872,7 +8962,7 @@
         if (isLoser) classes.push('loser');
 
         return `
-          <div class="${classes.join(' ')}">
+          <div class="${classes.join(' ')}" data-team="${team.abbreviation}">
             <span class="fullscreen-cfp-team-seed">${team.seed || '-'}</span>
             ${team.logo ? `<img class="fullscreen-cfp-team-logo" src="${team.logo}" onerror="this.style.display='none'">` : ''}
             <span class="fullscreen-cfp-team-name">${team.abbreviation}</span>
@@ -8882,10 +8972,10 @@
       };
 
       // Helper to render a game
-      const renderGame = (game) => {
+      const renderGame = (game, roundKey, index) => {
         if (!game) return '';
         return `
-          <div class="fullscreen-cfp-game">
+          <div class="fullscreen-cfp-game" data-game="${roundKey}-${index}">
             ${renderTeam(game.awayTeam, game.isComplete, game.winner)}
             ${renderTeam(game.homeTeam, game.isComplete, game.winner)}
           </div>
@@ -8895,10 +8985,10 @@
       // First Round
       if (data.firstRound && data.firstRound.length > 0) {
         html += `
-          <div class="fullscreen-cfp-round">
+          <div class="fullscreen-cfp-round" data-round="firstRound">
             <div class="fullscreen-cfp-round-title">First Round</div>
             <div class="fullscreen-cfp-games">
-              ${data.firstRound.map(g => renderGame(g)).join('')}
+              ${data.firstRound.map((g, i) => renderGame(g, 'firstRound', i)).join('')}
             </div>
           </div>
         `;
@@ -8907,10 +8997,10 @@
       // Quarterfinals
       if (data.quarterfinal && data.quarterfinal.length > 0) {
         html += `
-          <div class="fullscreen-cfp-round">
+          <div class="fullscreen-cfp-round" data-round="quarterfinal">
             <div class="fullscreen-cfp-round-title">Quarterfinals</div>
             <div class="fullscreen-cfp-games">
-              ${data.quarterfinal.map(g => renderGame(g)).join('')}
+              ${data.quarterfinal.map((g, i) => renderGame(g, 'quarterfinal', i)).join('')}
             </div>
           </div>
         `;
@@ -8919,10 +9009,10 @@
       // Semifinals
       if (data.semifinal && data.semifinal.length > 0) {
         html += `
-          <div class="fullscreen-cfp-round">
+          <div class="fullscreen-cfp-round" data-round="semifinal">
             <div class="fullscreen-cfp-round-title">Semifinals</div>
             <div class="fullscreen-cfp-games">
-              ${data.semifinal.map(g => renderGame(g)).join('')}
+              ${data.semifinal.map((g, i) => renderGame(g, 'semifinal', i)).join('')}
             </div>
           </div>
         `;
@@ -8931,10 +9021,10 @@
       // Championship
       if (data.championship) {
         html += `
-          <div class="fullscreen-cfp-round">
+          <div class="fullscreen-cfp-round" data-round="championship">
             <div class="fullscreen-cfp-round-title" style="color: #d4af37;">Championship</div>
             <div class="fullscreen-cfp-games">
-              ${renderGame(data.championship)}
+              ${renderGame(data.championship, 'championship', 0)}
             </div>
           </div>
         `;
@@ -8949,6 +9039,73 @@
       }
 
       container.innerHTML = html;
+    }
+
+    // Update fullscreen CFP team element differentially
+    function updateFullScreenCFPTeamDiff(teamEl, team, isComplete, winner) {
+      if (!team || !team.abbreviation) {
+        if (!teamEl.classList.contains('tbd')) {
+          teamEl.className = 'fullscreen-cfp-team tbd';
+          teamEl.innerHTML = 'TBD';
+          teamEl.removeAttribute('data-team');
+        }
+        return;
+      }
+
+      const isWinner = isComplete && winner === team.abbreviation;
+      const isLoser = isComplete && winner && winner !== team.abbreviation;
+
+      // Update classes
+      teamEl.className = `fullscreen-cfp-team ${isWinner ? 'winner' : ''} ${isLoser ? 'loser' : ''}`.trim();
+      teamEl.dataset.team = team.abbreviation;
+
+      // Update score
+      let scoreEl = teamEl.querySelector('.fullscreen-cfp-team-score');
+      if (isComplete) {
+        if (scoreEl) {
+          if (scoreEl.textContent !== String(team.score || 0)) {
+            scoreEl.textContent = team.score || 0;
+          }
+        } else {
+          scoreEl = document.createElement('span');
+          scoreEl.className = 'fullscreen-cfp-team-score';
+          scoreEl.textContent = team.score || 0;
+          teamEl.appendChild(scoreEl);
+        }
+      } else if (scoreEl) {
+        scoreEl.remove();
+      }
+    }
+
+    // Update fullscreen CFP game element differentially
+    function updateFullScreenCFPGameDiff(gameEl, game) {
+      if (!gameEl || !game) return;
+
+      // Update teams
+      const teamEls = gameEl.querySelectorAll('.fullscreen-cfp-team');
+      if (teamEls.length >= 2) {
+        updateFullScreenCFPTeamDiff(teamEls[0], game.awayTeam, game.isComplete, game.winner);
+        updateFullScreenCFPTeamDiff(teamEls[1], game.homeTeam, game.isComplete, game.winner);
+      }
+    }
+
+    // Differential update for fullscreen CFP bracket
+    function updateFullScreenCFPBracketDiff(container, data) {
+      const rounds = [
+        { key: 'firstRound', games: data.firstRound || [] },
+        { key: 'quarterfinal', games: data.quarterfinal || [] },
+        { key: 'semifinal', games: data.semifinal || [] },
+        { key: 'championship', games: data.championship ? [data.championship] : [] }
+      ];
+
+      rounds.forEach(({ key, games }) => {
+        games.forEach((game, index) => {
+          const gameEl = container.querySelector(`[data-game="${key}-${index}"]`);
+          if (gameEl) {
+            updateFullScreenCFPGameDiff(gameEl, game);
+          }
+        });
+      });
     }
 
     // Calculate ball position percentage on field (0-100%)

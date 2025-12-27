@@ -6030,8 +6030,9 @@
     .bracket-team {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 8px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
@@ -6048,22 +6049,21 @@
     }
 
     .bracket-team-seed {
-      font-size: 10px;
+      font-size: 20px;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.4);
-      min-width: 16px;
+      color: rgba(255, 255, 255, 0.5);
+      min-width: 14px;
+      text-align: center;
     }
 
     .bracket-team-logo {
-      width: 24px;
-      height: 24px;
+      width: 105x;
+      height: 36px;
       object-fit: contain;
     }
 
     .bracket-team-name {
-      font-size: 12px;
-      font-weight: 600;
-      flex: 1;
+      display: none;
     }
 
     .bracket-team-score {
@@ -6082,6 +6082,13 @@
       color: rgba(255, 255, 255, 0.3);
       font-style: italic;
       font-size: 11px;
+    }
+
+    .bracket-team-bye {
+      font-size: 10px;
+      color: #fbbf24;
+      font-weight: 600;
+      margin-left: 4px;
     }
 
     /* Super Bowl center column */
@@ -6126,15 +6133,13 @@
     }
 
     .bracket-superbowl-team img {
-      width: 48px;
-      height: 48px;
+      width: 56px;
+      height: 56px;
       object-fit: contain;
     }
 
     .bracket-superbowl-team span {
-      font-size: 14px;
-      font-weight: 700;
-      color: #1a1a2e;
+      display: none;
     }
 
     .bracket-superbowl-vs {
@@ -6174,15 +6179,13 @@
     }
 
     .bracket-champion-team img {
-      width: 64px;
-      height: 64px;
+      width: 72px;
+      height: 72px;
       object-fit: contain;
     }
 
     .bracket-champion-team span {
-      font-size: 18px;
-      font-weight: 800;
-      color: #1a1a2e;
+      display: none;
     }
 
     .bracket-champion-trophy {
@@ -6321,22 +6324,23 @@
     }
 
     .fullscreen-bracket-content .bracket-team {
-      padding: clamp(3px, 0.6vmin, 8px) clamp(5px, 0.8vmin, 10px);
-      gap: clamp(3px, 0.5vmin, 8px);
+      padding: clamp(4px, 0.8vmin, 10px);
+      gap: clamp(4px, 0.6vmin, 10px);
+      justify-content: center;
     }
 
     .fullscreen-bracket-content .bracket-team-seed {
-      font-size: clamp(7px, 0.9vmin, 10px);
-      min-width: clamp(10px, 1.5vmin, 16px);
+      font-size: clamp(8px, 1vmin, 12px);
+      min-width: clamp(12px, 1.8vmin, 20px);
     }
 
     .fullscreen-bracket-content .bracket-team-logo {
-      width: clamp(14px, 2vmin, 24px);
-      height: clamp(14px, 2vmin, 24px);
+      width: clamp(32px, 5vmin, 60px);
+      height: clamp(32px, 5vmin, 60px);
     }
 
     .fullscreen-bracket-content .bracket-team-name {
-      font-size: clamp(8px, 1.2vmin, 12px);
+      display: none;
     }
 
     .fullscreen-bracket-content .bracket-team-score {
@@ -6372,12 +6376,12 @@
     }
 
     .fullscreen-bracket-content .bracket-superbowl-team img {
-      width: clamp(24px, 4vmin, 48px);
-      height: clamp(24px, 4vmin, 48px);
+      width: clamp(40px, 6vmin, 70px);
+      height: clamp(40px, 6vmin, 70px);
     }
 
     .fullscreen-bracket-content .bracket-superbowl-team span {
-      font-size: clamp(9px, 1.2vmin, 14px);
+      display: none;
     }
 
     .fullscreen-bracket-content .bracket-superbowl-vs {
@@ -6403,12 +6407,12 @@
     }
 
     .fullscreen-bracket-content .bracket-champion-team img {
-      width: clamp(32px, 5vmin, 64px);
-      height: clamp(32px, 5vmin, 64px);
+      width: clamp(48px, 7vmin, 80px);
+      height: clamp(48px, 7vmin, 80px);
     }
 
     .fullscreen-bracket-content .bracket-champion-team span {
-      font-size: clamp(10px, 1.5vmin, 18px);
+      display: none;
     }
 
     .fullscreen-bracket-content .bracket-champion-trophy {
@@ -6871,7 +6875,7 @@
       { name: "Washington Commanders", logo: "https://static.www.nfl.com/t_q-best/league/api/clubs/logos/WAS" }
     ];
 
-    function getTeamLogo(teamName) {
+    function getTeamLogoByName(teamName) {
       const team = teams.find(t => t.name === teamName);
       return team ? team.logo : '';
     }
@@ -8537,8 +8541,8 @@
 
       if (afcTeams.length > 0) {
         afcContainer.innerHTML = afcTeams.map(t => {
-          const localLogo = NFL_TEAM_LOGOS[t.abbreviation];
-          const logoSrc = localLogo || t.logo;
+          // Use ESPN logo for mini preview (smaller), fallback to local
+          const logoSrc = t.logo || NFL_TEAM_LOGOS[t.abbreviation];
           return logoSrc ? `
             <div class="bracket-mini-team">
               <img src="${logoSrc}" alt="${t.abbreviation || ''}" onerror="this.style.display='none'">
@@ -8551,8 +8555,8 @@
 
       if (nfcTeams.length > 0) {
         nfcContainer.innerHTML = nfcTeams.map(t => {
-          const localLogo = NFL_TEAM_LOGOS[t.abbreviation];
-          const logoSrc = localLogo || t.logo;
+          // Use ESPN logo for mini preview (smaller), fallback to local
+          const logoSrc = t.logo || NFL_TEAM_LOGOS[t.abbreviation];
           return logoSrc ? `
             <div class="bracket-mini-team">
               <img src="${logoSrc}" alt="${t.abbreviation || ''}" onerror="this.style.display='none'">
@@ -8607,19 +8611,26 @@
       }
     }
 
-    // Render the full bracket
-    function renderBracket(data) {
+    // Render the full bracket (initial render or full rebuild)
+    function renderBracket(data, forceRebuild = false) {
       const container = document.getElementById('bracket-content');
       if (!container) return;
 
+      // Check if bracket structure exists - if so, do differential update
+      if (!forceRebuild && container.querySelector('.bracket-conference')) {
+        updateBracketDiff(container, data);
+        return;
+      }
+
+      // Initial render - build full structure with data attributes
       container.innerHTML = `
         <!-- AFC Side -->
         <div class="bracket-conference afc">
           <div class="bracket-conference-header">AFC</div>
           <div class="bracket-rounds">
-            ${renderBracketRound('Wild Card', data.wildCard?.afc || [], 3)}
-            ${renderBracketRound('Divisional', data.divisional?.afc || [], 2)}
-            ${renderBracketRound('Conference', data.conference?.afc || [], 1)}
+            ${renderBracketRound('Wild Card', data.wildCard?.afc || [], 3, null, 'afc', 'wildcard')}
+            ${renderBracketRound('Divisional', data.divisional?.afc || [], 2, data.afcBye, 'afc', 'divisional')}
+            ${renderBracketRound('Conference', data.conference?.afc || [], 1, null, 'afc', 'conference')}
           </div>
         </div>
 
@@ -8632,30 +8643,174 @@
         <div class="bracket-conference nfc">
           <div class="bracket-conference-header">NFC</div>
           <div class="bracket-rounds">
-            ${renderBracketRound('Wild Card', data.wildCard?.nfc || [], 3)}
-            ${renderBracketRound('Divisional', data.divisional?.nfc || [], 2)}
-            ${renderBracketRound('Conference', data.conference?.nfc || [], 1)}
+            ${renderBracketRound('Wild Card', data.wildCard?.nfc || [], 3, null, 'nfc', 'wildcard')}
+            ${renderBracketRound('Divisional', data.divisional?.nfc || [], 2, data.nfcBye, 'nfc', 'divisional')}
+            ${renderBracketRound('Conference', data.conference?.nfc || [], 1, null, 'nfc', 'conference')}
           </div>
         </div>
       `;
     }
 
-    // Render a single round with its games
-    function renderBracketRound(roundName, games, expectedGames) {
-      const matchups = [];
+    // Differential update - only update changed elements
+    function updateBracketDiff(container, data) {
+      // Update each round for each conference
+      const rounds = [
+        { conf: 'afc', round: 'wildcard', games: data.wildCard?.afc || [], byeTeam: null },
+        { conf: 'afc', round: 'divisional', games: data.divisional?.afc || [], byeTeam: data.afcBye },
+        { conf: 'afc', round: 'conference', games: data.conference?.afc || [], byeTeam: null },
+        { conf: 'nfc', round: 'wildcard', games: data.wildCard?.nfc || [], byeTeam: null },
+        { conf: 'nfc', round: 'divisional', games: data.divisional?.nfc || [], byeTeam: data.nfcBye },
+        { conf: 'nfc', round: 'conference', games: data.conference?.nfc || [], byeTeam: null }
+      ];
 
-      // Render actual games
-      games.forEach(game => {
-        matchups.push(renderMatchup(game));
+      rounds.forEach(({ conf, round, games, byeTeam }) => {
+        games.forEach((game, index) => {
+          updateMatchupDiff(container, conf, round, index, game);
+        });
+
+        // Update bye team slot if applicable
+        if (round === 'divisional' && byeTeam && games.length === 0) {
+          updateByeTeamDiff(container, conf, byeTeam);
+        }
       });
 
-      // Add empty slots for games not yet determined
-      while (matchups.length < expectedGames) {
-        matchups.push(renderEmptyMatchup());
+      // Update Super Bowl section
+      updateSuperBowlDiff(container, data);
+    }
+
+    // Update a single matchup without rebuilding DOM
+    function updateMatchupDiff(container, conf, round, index, game) {
+      const matchup = container.querySelector(`[data-matchup="${conf}-${round}-${index}"]`);
+      if (!matchup) return;
+
+      const teams = matchup.querySelectorAll('.bracket-team');
+      if (teams.length < 2) return;
+
+      // Update away team (first)
+      updateTeamDiff(teams[0], game.awayTeam, game.isComplete, game.winner);
+      // Update home team (second)
+      updateTeamDiff(teams[1], game.homeTeam, game.isComplete, game.winner);
+    }
+
+    // Update a single team element
+    function updateTeamDiff(teamEl, team, isComplete, winner) {
+      if (!team || !team.abbreviation || team.abbreviation === 'TBD') {
+        // Team is TBD
+        if (!teamEl.querySelector('.bracket-team-empty')) {
+          teamEl.innerHTML = '<span class="bracket-team-empty">TBD</span>';
+          teamEl.className = 'bracket-team';
+        }
+        return;
+      }
+
+      const isWinner = winner === team.abbreviation;
+      const isLoser = isComplete && !isWinner;
+
+      // Update classes
+      teamEl.className = `bracket-team ${isWinner ? 'winner' : ''} ${isLoser ? 'loser' : ''}`.trim();
+
+      // Update score if game is complete
+      let scoreEl = teamEl.querySelector('.bracket-team-score');
+      if (isComplete) {
+        if (scoreEl) {
+          if (scoreEl.textContent !== String(team.score || 0)) {
+            scoreEl.textContent = team.score || 0;
+          }
+        } else {
+          // Add score element
+          scoreEl = document.createElement('span');
+          scoreEl.className = 'bracket-team-score';
+          scoreEl.textContent = team.score || 0;
+          teamEl.appendChild(scoreEl);
+        }
+      } else if (scoreEl) {
+        scoreEl.remove();
+      }
+
+      // Check if team changed (seed element text)
+      const seedEl = teamEl.querySelector('.bracket-team-seed');
+      if (seedEl && seedEl.textContent !== String(team.seed || '')) {
+        // Team changed - need to rebuild this team
+        const teamColor = getTeamColor(team.abbreviation);
+        const localLogo = getTeamLogo(team.abbreviation);
+        const logoSrc = localLogo || team.logo;
+        const logoHtml = logoSrc ? `<img class="bracket-team-logo" src="${logoSrc}" alt="${team.abbreviation}" onerror="this.style.display='none'">` : '';
+
+        teamEl.innerHTML = `
+          <span class="bracket-team-seed">${team.seed || ''}</span>
+          ${logoHtml}
+          <span class="bracket-team-name" style="color: ${teamColor}">${team.abbreviation}</span>
+          ${isComplete ? `<span class="bracket-team-score">${team.score || 0}</span>` : ''}
+        `;
+      }
+    }
+
+    // Update bye team in divisional round
+    function updateByeTeamDiff(container, conf, byeTeam) {
+      const matchup = container.querySelector(`[data-matchup="${conf}-divisional-bye"]`);
+      if (!matchup) return;
+
+      const teamEl = matchup.querySelector('.bracket-team');
+      if (!teamEl) return;
+
+      const nameEl = teamEl.querySelector('.bracket-team-name');
+      if (nameEl && nameEl.textContent !== byeTeam.abbreviation) {
+        const teamColor = getTeamColor(byeTeam.abbreviation);
+        const localLogo = getTeamLogo(byeTeam.abbreviation);
+        const logoSrc = localLogo || byeTeam.logo;
+        const logoHtml = logoSrc ? `<img class="bracket-team-logo" src="${logoSrc}" alt="${byeTeam.abbreviation}" onerror="this.style.display='none'">` : '';
+
+        teamEl.innerHTML = `
+          <span class="bracket-team-seed">1</span>
+          ${logoHtml}
+          <span class="bracket-team-name" style="color: ${teamColor}">${byeTeam.abbreviation}</span>
+        `;
+      }
+    }
+
+    // Update Super Bowl section
+    function updateSuperBowlDiff(container, data) {
+      const centerEl = container.querySelector('.bracket-center');
+      if (!centerEl) return;
+
+      // For now, rebuild Super Bowl section as it has complex state logic
+      // This is less frequent than game updates
+      const newHtml = renderSuperBowl(data);
+      if (centerEl.innerHTML !== newHtml) {
+        centerEl.innerHTML = newHtml;
+      }
+    }
+
+    // Render a single round with its games
+    function renderBracketRound(roundName, games, expectedGames, byeTeam = null, conf = '', roundKey = '') {
+      const matchups = [];
+      let matchupIndex = 0;
+
+      // For Divisional round, show the #1 seed bye team first
+      if (roundName === 'Divisional' && byeTeam && games.length === 0) {
+        // Show bye team waiting for lowest remaining seed winner
+        matchups.push(renderByeTeamMatchup(byeTeam, conf));
+      }
+
+      // Render actual games
+      games.forEach((game, index) => {
+        matchups.push(renderMatchup(game, conf, roundKey, index));
+      });
+
+      // For Divisional with bye team shown, we need 1 more TBD slot
+      if (roundName === 'Divisional' && byeTeam && games.length === 0) {
+        while (matchups.length < expectedGames) {
+          matchups.push(renderEmptyMatchup(conf, roundKey, matchups.length));
+        }
+      } else {
+        // Add empty slots for games not yet determined
+        while (matchups.length < expectedGames) {
+          matchups.push(renderEmptyMatchup(conf, roundKey, matchups.length));
+        }
       }
 
       return `
-        <div class="bracket-round">
+        <div class="bracket-round" data-round="${conf}-${roundKey}">
           <div class="bracket-round-title">${roundName}</div>
           <div class="bracket-games">
             ${matchups.join('')}
@@ -8664,13 +8819,34 @@
       `;
     }
 
+    // Render bye team matchup (1 seed vs TBD)
+    function renderByeTeamMatchup(byeTeam, conf = '') {
+      const teamColor = getTeamColor(byeTeam.abbreviation);
+      const localLogo = getTeamLogo(byeTeam.abbreviation);
+      const logoSrc = localLogo || byeTeam.logo;
+      const logoHtml = logoSrc ? `<img class="bracket-team-logo" src="${logoSrc}" alt="${byeTeam.abbreviation}" onerror="this.style.display='none'">` : '';
+
+      return `
+        <div class="bracket-matchup" data-matchup="${conf}-divisional-bye">
+          <div class="bracket-team">
+            <span class="bracket-team-seed">1</span>
+            ${logoHtml}
+            <span class="bracket-team-name" style="color: ${teamColor}">${byeTeam.abbreviation}</span>
+          </div>
+          <div class="bracket-team">
+            <span class="bracket-team-empty">TBD</span>
+          </div>
+        </div>
+      `;
+    }
+
     // Render a single matchup
-    function renderMatchup(game) {
+    function renderMatchup(game, conf = '', roundKey = '', index = 0) {
       const homeTeam = game.homeTeam;
       const awayTeam = game.awayTeam;
 
       return `
-        <div class="bracket-matchup">
+        <div class="bracket-matchup" data-matchup="${conf}-${roundKey}-${index}">
           ${renderBracketTeam(awayTeam, game.isComplete, game.winner)}
           ${renderBracketTeam(homeTeam, game.isComplete, game.winner)}
         </div>
@@ -8706,9 +8882,9 @@
     }
 
     // Render empty matchup slot
-    function renderEmptyMatchup() {
+    function renderEmptyMatchup(conf = '', roundKey = '', index = 0) {
       return `
-        <div class="bracket-matchup">
+        <div class="bracket-matchup" data-matchup="${conf}-${roundKey}-${index}">
           <div class="bracket-team">
             <span class="bracket-team-empty">TBD</span>
           </div>
@@ -9664,18 +9840,24 @@
     }
 
     // Render bracket in fullscreen format
-    function renderFullScreenBracket(data, slotIndex) {
+    function renderFullScreenBracket(data, slotIndex, forceRebuild = false) {
       const container = document.getElementById(`fullscreen-bracket-content-${slotIndex}`);
       if (!container) return;
+
+      // Check if bracket structure exists - if so, do differential update
+      if (!forceRebuild && container.querySelector('.bracket-conference')) {
+        updateBracketDiff(container, data);
+        return;
+      }
 
       container.innerHTML = `
         <!-- AFC Side -->
         <div class="bracket-conference afc">
           <div class="bracket-conference-header">AFC</div>
           <div class="bracket-rounds">
-            ${renderBracketRound('Wild Card', data.wildCard?.afc || [], 3)}
-            ${renderBracketRound('Divisional', data.divisional?.afc || [], 2)}
-            ${renderBracketRound('Conference', data.conference?.afc || [], 1)}
+            ${renderBracketRound('Wild Card', data.wildCard?.afc || [], 3, null, 'afc', 'wildcard')}
+            ${renderBracketRound('Divisional', data.divisional?.afc || [], 2, data.afcBye, 'afc', 'divisional')}
+            ${renderBracketRound('Conference', data.conference?.afc || [], 1, null, 'afc', 'conference')}
           </div>
         </div>
 
@@ -9688,9 +9870,9 @@
         <div class="bracket-conference nfc">
           <div class="bracket-conference-header">NFC</div>
           <div class="bracket-rounds">
-            ${renderBracketRound('Wild Card', data.wildCard?.nfc || [], 3)}
-            ${renderBracketRound('Divisional', data.divisional?.nfc || [], 2)}
-            ${renderBracketRound('Conference', data.conference?.nfc || [], 1)}
+            ${renderBracketRound('Wild Card', data.wildCard?.nfc || [], 3, null, 'nfc', 'wildcard')}
+            ${renderBracketRound('Divisional', data.divisional?.nfc || [], 2, data.nfcBye, 'nfc', 'divisional')}
+            ${renderBracketRound('Conference', data.conference?.nfc || [], 1, null, 'nfc', 'conference')}
           </div>
         </div>
       `;
