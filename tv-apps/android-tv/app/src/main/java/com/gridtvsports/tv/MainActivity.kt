@@ -1,6 +1,7 @@
 package com.gridtvsports.tv
 
 import android.annotation.SuppressLint
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -69,8 +70,10 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Screen: ${screenWidth}x${screenHeight}, Density: $density, DPI: ${displayMetrics.densityDpi}")
         Log.d("MainActivity", "CSS Viewport will be: ${(screenWidth / density).toInt()}x${(screenHeight / density).toInt()}")
 
-        // Enable WebView debugging
-        WebView.setWebContentsDebuggingEnabled(true)
+        // Enable WebView debugging only for debug builds
+        if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
+            WebView.setWebContentsDebuggingEnabled(true)
+        }
 
         webView.settings.apply {
             // Enable JavaScript (required for the app)
@@ -118,13 +121,15 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 // Log viewport info for debugging
-                view?.evaluateJavascript("""
-                    (function() {
-                        console.log('📺 TV App - Viewport: ' + window.innerWidth + 'x' + window.innerHeight);
-                        console.log('📺 TV App - Screen: ' + screen.width + 'x' + screen.height);
-                        console.log('📺 TV App - DevicePixelRatio: ' + window.devicePixelRatio);
-                    })();
-                """.trimIndent(), null)
+                if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
+                    view?.evaluateJavascript("""
+                        (function() {
+                            console.log('📺 TV App - Viewport: ' + window.innerWidth + 'x' + window.innerHeight);
+                            console.log('📺 TV App - Screen: ' + screen.width + 'x' + screen.height);
+                            console.log('📺 TV App - DevicePixelRatio: ' + window.devicePixelRatio);
+                        })();
+                    """.trimIndent(), null)
+                }
                 hideLoading()
             }
 
