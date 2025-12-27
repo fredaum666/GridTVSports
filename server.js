@@ -56,17 +56,25 @@ if (stripeConfigured) {
 
 // Web Push configuration
 let webPushConfigured = false;
-if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || 'mailto:support@gridtvsports.com',
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  );
-  webPushConfigured = true;
-  console.log('✅ Web Push notifications configured');
+const vapidPublic = process.env.VAPID_PUBLIC_KEY;
+const vapidPrivate = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@gridtvsports.com';
+
+// Debug: Log if VAPID keys are present (not the actual values for security)
+console.log(`[VAPID] Public key present: ${!!vapidPublic}, Private key present: ${!!vapidPrivate}`);
+
+if (vapidPublic && vapidPrivate) {
+  try {
+    webpush.setVapidDetails(vapidSubject, vapidPublic, vapidPrivate);
+    webPushConfigured = true;
+    console.log('✅ Web Push notifications configured');
+  } catch (error) {
+    console.error('❌ Failed to configure Web Push:', error.message);
+  }
 } else {
-  console.log('⚠️ Web Push not configured. Generate VAPID keys with: npx web-push generate-vapid-keys');
-  console.log('   Then add VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY to your .env file');
+  console.log('⚠️ Web Push not configured - VAPID keys missing');
+  if (!vapidPublic) console.log('   Missing: VAPID_PUBLIC_KEY');
+  if (!vapidPrivate) console.log('   Missing: VAPID_PRIVATE_KEY');
 }
 
 const app = express();
@@ -4045,11 +4053,12 @@ cron.schedule('*/15 * * * * *', async () => {
         console.log(`[NFL] ${cacheKey} marked complete - removed from active tracking`);
       }
 
-      // Count live and upcoming games
+      // Count live games - only log if there are live games
       const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
-
-      console.log(`[NFL] ${cacheKey} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
+      if (liveGames > 0) {
+        const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
+        console.log(`[NFL] ${cacheKey} - Live: ${liveGames}, Upcoming: ${upcomingGames}`);
+      }
     } catch (error) {
       console.error(`[NFL] Failed to update ${cacheKey}:`, error.message);
     }
@@ -4074,11 +4083,12 @@ cron.schedule('*/15 * * * * *', async () => {
         sportsCache.nba.activeDates.delete(date);
       }
 
-      // Enhanced logging
+      // Only log if there are live games
       const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
-
-      console.log(`[NBA] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
+      if (liveGames > 0) {
+        const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
+        console.log(`[NBA] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}`);
+      }
     } catch (error) {
       console.error(`[NBA] Failed to update ${date}:`, error.message);
     }
@@ -4107,7 +4117,9 @@ cron.schedule('*/15 * * * * *', async () => {
       const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
       const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
 
-      console.log(`[MLB] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
+      if (liveGames > 0) {
+        console.log(`[MLB] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}`);
+      }
     } catch (error) {
       console.error(`[MLB] Failed to update ${date}:`, error.message);
     }
@@ -4136,7 +4148,9 @@ cron.schedule('*/15 * * * * *', async () => {
       const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
       const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
 
-      console.log(`[NHL] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}, Complete: ${isComplete}`);
+      if (liveGames > 0) {
+        console.log(`[NHL] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}`);
+      }
     } catch (error) {
       console.error(`[NHL] Failed to update ${date}:`, error.message);
     }
