@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - GridTV Sports</title>
   <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GridTV Sports">
   <style>
     * {
       margin: 0;
@@ -323,6 +328,39 @@
       color: #6366f1;
     }
 
+    /* Install App Button */
+    .install-app-btn {
+      display: none;
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #22c55e;
+      border-radius: 12px;
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 15px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .install-app-btn:hover {
+      background: rgba(34, 197, 94, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .install-app-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .install-app-btn.show {
+      display: flex;
+    }
+
     @media (max-width: 480px) {
       .login-container {
         padding: 30px 20px;
@@ -424,6 +462,16 @@
         Create Account
       </button>
     </form>
+
+    <!-- Install App Button (Android/Chrome) -->
+    <button class="install-app-btn" id="installAppBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Install App
+    </button>
 
     <!-- Footer Links -->
     <div class="footer-links">
@@ -746,6 +794,57 @@
 
     // Restore registration state if returning from privacy policy page
     restoreRegistrationState();
+
+    // ============================================
+    // PWA INSTALL FUNCTIONALITY
+    // ============================================
+    let deferredPrompt = null;
+    const installAppBtn = document.getElementById('installAppBtn');
+
+    // Listen for the beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      deferredPrompt = e;
+      // Show the install button
+      installAppBtn.classList.add('show');
+      console.log('[PWA] Install prompt available');
+    });
+
+    // Handle install button click
+    installAppBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) {
+        console.log('[PWA] No install prompt available');
+        return;
+      }
+
+      // Show the install prompt
+      deferredPrompt.prompt();
+
+      // Wait for the user to respond to the prompt
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log('[PWA] User response:', outcome);
+
+      // Clear the deferred prompt
+      deferredPrompt = null;
+
+      // Hide the install button
+      installAppBtn.classList.remove('show');
+    });
+
+    // Hide button if app is already installed
+    window.addEventListener('appinstalled', () => {
+      console.log('[PWA] App installed');
+      deferredPrompt = null;
+      installAppBtn.classList.remove('show');
+    });
+
+    // Check if running in standalone mode (already installed)
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      console.log('[PWA] Running in standalone mode');
+      installAppBtn.classList.remove('show');
+    }
   </script>
 </body>
 </html>

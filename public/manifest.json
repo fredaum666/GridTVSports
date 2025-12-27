@@ -1,0 +1,55 @@
+{
+  "name": "GridTV Sports",
+  "short_name": "GridTV",
+  "description": "Live Sports Streaming Platform - Watch multiple games at once",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#6366f1",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/Icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/Icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["sports", "entertainment"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "NFL Games",
+      "url": "/nfl.html",
+      "description": "Watch NFL games"
+    },
+    {
+      "name": "NBA Games",
+      "url": "/nba.html",
+      "description": "Watch NBA games"
+    },
+    {
+      "name": "Live Games",
+      "url": "/LiveGames.html",
+      "description": "Watch all live games"
+    }
+  ]
+}

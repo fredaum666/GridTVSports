@@ -99,6 +99,12 @@ app.get('/scripts/*.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', req.path));
 });
 
+// Serve manifest.json with correct MIME type for PWA
+app.get('/manifest.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
 // ============================================
 // SECURITY MIDDLEWARE
 // ============================================
