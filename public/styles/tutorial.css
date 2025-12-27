@@ -353,10 +353,33 @@
     min-width: auto;
     padding: 20px;
     margin: 0 20px;
+    /* Ensure tooltip stays within viewport */
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
   }
 
   .tutorial-tooltip.welcome {
     width: calc(100vw - 40px);
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-height: calc(100vh - 80px);
+  }
+
+  /* Force all tooltips to be centered on mobile for better UX */
+  .tutorial-tooltip:not(.welcome) {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 20px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    max-height: 60vh;
+  }
+
+  /* Hide arrows on mobile since tooltips are at bottom */
+  .tutorial-tooltip:not(.welcome)::before {
+    display: none;
   }
 
   .tutorial-title {
@@ -388,6 +411,17 @@
   .tutorial-tooltip {
     padding: 16px;
     border-radius: 12px;
+    max-width: calc(100vw - 24px);
+    margin: 0 12px;
+  }
+
+  .tutorial-tooltip:not(.welcome) {
+    bottom: 12px !important;
+    max-height: 55vh;
+  }
+
+  .tutorial-tooltip.welcome {
+    max-height: calc(100vh - 60px);
   }
 
   .tutorial-header {

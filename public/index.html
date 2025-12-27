@@ -12,35 +12,48 @@
       box-sizing: border-box;
     }
 
-    html, body {
-      height: 100%;
-      overflow: hidden;
-    }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: var(--bg-primary, linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%));
       color: var(--text-primary, #e0e0e0);
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 1.5vh 2vw;
+      padding: 20px;
     }
 
     .container {
       max-width: 1400px;
       width: 100%;
-      height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      gap: clamp(8px, 1.5vh, 20px);
+      gap: 20px;
+    }
+
+    /* Desktop-only: fit content in viewport without scrolling */
+    /* Only apply to large screens with enough height */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      html, body {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      body {
+        height: 100vh;
+        padding: 1.5vh 2vw;
+      }
+
+      .container {
+        height: 100%;
+        justify-content: center;
+        gap: clamp(8px, 1.5vh, 20px);
+      }
     }
 
     .header h1 {
-      font-size: clamp(24px, 4vw, 48px);
+      font-size: 48px;
       font-weight: 900;
       background: var(--header-gradient, linear-gradient(90deg, #17a2b8, #22c55e, #fbbf24, #ef4444));
       background-size: 200% auto;
@@ -48,7 +61,15 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       animation: gradientShift 3s linear infinite;
-      margin-bottom: 0.5vh;
+      margin-bottom: 15px;
+    }
+
+    /* Desktop-only: constrained header */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .header h1 {
+        font-size: clamp(24px, 4vw, 48px);
+        margin-bottom: 0.5vh;
+      }
     }
 
     @keyframes gradientShift {
@@ -58,26 +79,41 @@
     }
 
     .header p {
-      font-size: clamp(12px, 1.5vw, 18px);
+      font-size: 18px;
       color: var(--text-secondary, #94a3b8);
       font-weight: 500;
+    }
+
+    /* Desktop-only: constrained header p */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .header p {
+        font-size: clamp(12px, 1.5vw, 18px);
+      }
     }
 
     .sports-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: clamp(10px, 1.5vw, 20px);
-      margin-bottom: clamp(8px, 1vh, 15px);
+      gap: 30px;
+      margin-bottom: 30px;
       max-width: 1400px;
       margin-left: auto;
       margin-right: auto;
     }
 
+    /* Desktop-only: tighter grid spacing */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .sports-grid {
+        gap: clamp(10px, 1.5vw, 20px);
+        margin-bottom: clamp(8px, 1vh, 15px);
+      }
+    }
+
     .sport-card {
       background: var(--card-bg, linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%));
       border: 3px solid var(--card-border, #334155);
-      border-radius: clamp(12px, 1.5vw, 20px);
-      padding: clamp(10px, 1.5vh, 30px) clamp(10px, 1.5vw, 30px);
+      border-radius: 20px;
+      padding: 40px 30px;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -87,10 +123,19 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: clamp(5px, 0.8vh, 15px);
+      gap: 20px;
       position: relative;
       overflow: hidden;
-      height: clamp(120px, 22vh, 280px);
+    }
+
+    /* Desktop-only: constrained card heights */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .sport-card {
+        border-radius: clamp(12px, 1.5vw, 20px);
+        padding: clamp(10px, 1.5vh, 30px) clamp(10px, 1.5vw, 30px);
+        gap: clamp(5px, 0.8vh, 15px);
+        height: clamp(120px, 22vh, 280px);
+      }
     }
 
     .sport-card::before {
@@ -169,17 +214,31 @@
     }
 
     .sport-icon {
-      font-size: clamp(40px, 8vh, 80px);
-      margin-bottom: 0;
+      font-size: 80px;
+      margin-bottom: 10px;
     }
 
     .sport-logo {
-      width: clamp(50px, 14vh, 140px);
-      height: clamp(50px, 14vh, 140px);
+      width: 180px;
+      height: 180px;
       object-fit: contain;
-      margin-bottom: 0;
+      margin-bottom: 10px;
       filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
       transition: transform 0.3s ease;
+    }
+
+    /* Desktop-only: constrained logo sizes */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .sport-icon {
+        font-size: clamp(40px, 8vh, 80px);
+        margin-bottom: 0;
+      }
+
+      .sport-logo {
+        width: clamp(50px, 14vh, 140px);
+        height: clamp(50px, 14vh, 140px);
+        margin-bottom: 0;
+      }
     }
 
     .sport-card:hover .sport-logo {
@@ -232,12 +291,20 @@
       align-items: center;
       gap: 6px;
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      padding: clamp(4px, 0.5vh, 6px) clamp(8px, 1vw, 14px);
+      padding: 6px 14px;
       border-radius: 20px;
-      font-size: clamp(8px, 1vh, 11px);
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       color: white;
+    }
+
+    /* Desktop-only: constrained badge sizes */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .coming-soon-badge {
+        padding: clamp(4px, 0.5vh, 6px) clamp(8px, 1vw, 14px);
+        font-size: clamp(8px, 1vh, 11px);
+      }
     }
 
     @keyframes pulse {
@@ -313,19 +380,30 @@
     .mixed-sports-btn {
       display: inline-flex;
       align-items: center;
-      gap: clamp(10px, 1.5vw, 20px);
+      gap: 20px;
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
-      border: 2px solid #a855f7;
-      border-radius: clamp(10px, 1vw, 16px);
-      padding: clamp(12px, 1.5vh, 25px) clamp(20px, 2vw, 40px);
+      border: 3px solid #a855f7;
+      border-radius: 16px;
+      padding: 25px 40px;
       text-decoration: none;
       color: white;
-      font-size: clamp(14px, 1.5vw, 18px);
+      font-size: 18px;
       font-weight: 700;
       transition: all 0.3s ease;
       box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
       position: relative;
       overflow: hidden;
+    }
+
+    /* Desktop-only: constrained button sizes */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .mixed-sports-btn {
+        gap: clamp(10px, 1.5vw, 20px);
+        border: 2px solid #a855f7;
+        border-radius: clamp(10px, 1vw, 16px);
+        padding: clamp(12px, 1.5vh, 25px) clamp(20px, 2vw, 40px);
+        font-size: clamp(14px, 1.5vw, 18px);
+      }
     }
 
     .mixed-sports-btn::before {
@@ -350,7 +428,7 @@
     }
 
     .btn-icon {
-      font-size: clamp(20px, 2.5vw, 32px);
+      font-size: 32px;
       animation: tvPulse 2s infinite;
     }
 
@@ -362,29 +440,128 @@
     .btn-text {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 5px;
       text-align: left;
     }
 
     .btn-text small {
-      font-size: clamp(10px, 1vw, 13px);
+      font-size: 13px;
       font-weight: 400;
       opacity: 0.9;
     }
 
     .btn-arrow {
-      font-size: clamp(16px, 1.5vw, 24px);
+      font-size: 24px;
       transition: transform 0.3s ease;
+    }
+
+    /* Desktop-only: constrained btn styles */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .btn-icon {
+        font-size: clamp(20px, 2.5vw, 32px);
+      }
+
+      .btn-text {
+        gap: 3px;
+      }
+
+      .btn-text small {
+        font-size: clamp(10px, 1vw, 13px);
+      }
+
+      .btn-arrow {
+        font-size: clamp(16px, 1.5vw, 24px);
+      }
     }
 
     .mixed-sports-btn:hover .btn-arrow {
       transform: translateX(5px);
     }
 
+    .mixed-sports-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Desktop-only: no margin, use flex-shrink */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .mixed-sports-container {
+        flex-shrink: 0;
+        margin-bottom: 0;
+      }
+    }
+
+    /* Tablet landscape and medium screens */
     @media (max-width: 1200px) {
       .sports-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+      }
+
+      .sport-card {
+        padding: 15px 10px;
+        height: 140px;
+        min-height: 140px;
+        max-height: 140px;
+        gap: 8px;
+      }
+
+      .sport-logo {
+        width: 65px;
+        height: 65px;
+        min-width: 65px;
+        min-height: 65px;
+        max-width: 65px;
+        max-height: 65px;
+        flex-shrink: 0;
+        margin-bottom: 0;
+      }
+
+      .sport-name {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        height: 15px;
+        line-height: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .coming-soon-badge {
+        position: absolute;
+        bottom: 8px;
+      }
+    }
+
+    /* Tablet portrait */
+    @media (max-width: 900px) {
+      .sports-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 25px;
+        gap: 15px;
+      }
+
+      .sport-card {
+        height: 150px;
+        min-height: 150px;
+        max-height: 150px;
+        padding: 18px 15px;
+        gap: 8px;
+      }
+
+      .sport-logo {
+        width: 70px;
+        height: 70px;
+        min-width: 70px;
+        min-height: 70px;
+        max-width: 70px;
+        max-height: 70px;
+      }
+
+      .sport-name {
+        font-size: 12px;
+        height: 16px;
+        line-height: 16px;
       }
     }
 
@@ -396,43 +573,81 @@
       .container {
         width: 100%;
         max-width: 100%;
+        gap: 15px;
+      }
+
+      .header-row {
+        margin-bottom: 20px;
       }
 
       .sports-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 15px;
         max-width: 100%;
       }
 
       .sport-card {
-        padding: 30px 20px;
+        padding: 15px 10px;
         width: 100%;
         max-width: 100%;
+        gap: 6px;
+        border-radius: 12px;
+        border-width: 2px;
+        height: 130px;
+        min-height: 130px;
+        max-height: 130px;
       }
 
       .sport-logo {
-        width: 120px;
-        height: 120px;
+        width: 60px;
+        height: 60px;
+        min-width: 60px;
+        min-height: 60px;
+        max-width: 60px;
+        max-height: 60px;
+        margin-bottom: 0;
+        flex-shrink: 0;
       }
 
       .sport-icon {
-        font-size: 60px;
+        font-size: 40px;
+        margin-bottom: 0;
       }
 
       .sport-name {
-        font-size: 24px;
+        font-size: 10px;
+        display: block;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        height: 14px;
+        line-height: 14px;
       }
 
       .sport-description {
-        font-size: 13px;
+        display: none;
+      }
+
+      .coming-soon-badge {
+        padding: 3px 8px;
+        font-size: 7px;
+        position: absolute;
+        bottom: 8px;
+      }
+
+      .mixed-sports-container {
+        display: flex;
+        justify-content: center;
       }
 
       .mixed-sports-btn {
         flex-direction: column;
         text-align: center;
-        padding: 20px;
-        width: 100%;
-        max-width: 100%;
+        padding: 15px 20px;
+        width: auto;
       }
 
       .btn-text {
@@ -461,51 +676,91 @@
         padding: 10px;
       }
 
-      .sports-grid {
-        gap: 15px;
+      .container {
+        gap: 10px;
       }
 
-      .sport-card {
-        padding: 25px 15px;
-        border-width: 2px;
-        border-radius: 15px;
+      .header-row {
+        margin-bottom: 12px;
+        padding: 0 45px;
       }
 
-      .sport-logo {
-        width: 100px;
-        height: 100px;
+      .header h1 {
+        font-size: 22px;
+        margin-bottom: 4px;
       }
 
-      .sport-description {
-        font-size: 12px;
-        line-height: 1.5;
-      }
-
-      .live-badge {
-        font-size: 10px;
-        padding: 5px 10px;
-      }
-
-      .mixed-sports-btn {
-        padding: 15px;
-        font-size: 16px;
-        border-radius: 12px;
-      }
-
-      .btn-icon {
-        font-size: 28px;
-      }
-
-      .btn-text strong {
-        font-size: 16px;
-      }
-
-      .btn-text small {
+      .header p {
         font-size: 11px;
       }
 
-      .btn-arrow {
+      .sports-grid {
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .sport-card {
+        padding: 12px 8px;
+        border-radius: 10px;
+        gap: 5px;
+        height: 110px;
+        min-height: 110px;
+        max-height: 110px;
+      }
+
+      .sport-logo {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        min-height: 50px;
+        max-width: 50px;
+        max-height: 50px;
+        flex-shrink: 0;
+      }
+
+      .sport-icon {
+        font-size: 32px;
+      }
+
+      .sport-name {
+        font-size: 9px;
+        height: 12px;
+        line-height: 12px;
+      }
+
+      .coming-soon-badge {
+        padding: 2px 6px;
+        font-size: 6px;
+        bottom: 6px;
+      }
+
+      .live-badge {
+        font-size: 7px;
+        padding: 3px 6px;
+      }
+
+      .mixed-sports-btn {
+        padding: 12px 15px;
+        font-size: 14px;
+        border-radius: 10px;
+        gap: 8px;
+        width: auto;
+      }
+
+      .btn-icon {
         font-size: 20px;
+      }
+
+      .btn-text strong {
+        font-size: 13px;
+      }
+
+      .btn-text small {
+        font-size: 9px;
+      }
+
+      .btn-arrow {
+        font-size: 16px;
       }
 
       .features {
@@ -542,30 +797,90 @@
     }
 
     @media (max-width: 360px) {
-      .sport-logo {
-        width: 80px;
-        height: 80px;
+      body {
+        padding: 8px;
+      }
+
+      .container {
+        gap: 8px;
+      }
+
+      .header-row {
+        margin-bottom: 10px;
+        padding: 0 35px;
+      }
+
+      .header h1 {
+        font-size: 18px;
+        margin-bottom: 3px;
+      }
+
+      .header p {
+        font-size: 10px;
+      }
+
+      .sports-grid {
+        gap: 6px;
+        margin-bottom: 8px;
       }
 
       .sport-card {
-        padding: 20px 12px;
+        padding: 10px 6px;
+        border-radius: 8px;
+        gap: 4px;
+        height: 95px;
+        min-height: 95px;
+        max-height: 95px;
       }
 
-      .sport-description {
-        font-size: 11px;
+      .sport-logo {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        min-height: 42px;
+        max-width: 42px;
+        max-height: 42px;
+        flex-shrink: 0;
+      }
+
+      .sport-icon {
+        font-size: 28px;
+      }
+
+      .sport-name {
+        font-size: 8px;
+        height: 11px;
+        line-height: 11px;
+      }
+
+      .coming-soon-badge {
+        padding: 2px 4px;
+        font-size: 5px;
+        bottom: 5px;
       }
 
       .mixed-sports-btn {
-        padding: 12px;
-        font-size: 14px;
+        padding: 10px 12px;
+        font-size: 11px;
+        border-radius: 8px;
+        gap: 6px;
+        width: auto;
+      }
+
+      .btn-icon {
+        font-size: 16px;
       }
 
       .btn-text strong {
-        font-size: 14px;
+        font-size: 11px;
       }
 
       .btn-text small {
-        font-size: 10px;
+        font-size: 8px;
+      }
+
+      .btn-arrow {
+        font-size: 12px;
       }
     }
 
@@ -655,9 +970,16 @@
       position: relative;
       width: 100%;
       max-width: 1200px;
-      margin: 0 auto;
+      margin: 0 auto 60px auto;
       padding: 0 70px;
-      flex-shrink: 0;
+    }
+
+    /* Desktop-only: remove header margin */
+    @media (min-width: 1200px) and (min-height: 800px) {
+      .header-row {
+        margin: 0 auto;
+        flex-shrink: 0;
+      }
     }
 
     .header {
@@ -1208,69 +1530,33 @@
       </div>
     </div>
 
-    <!-- Professional Leagues Row -->
+    <!-- All Leagues Grid -->
     <div class="sports-grid">
+      <!-- Professional Leagues -->
       <a href="/nfl" class="sport-card nfl" data-league="nfl">
         <img src="/assets/NFL-logo.png" alt="NFL Logo" class="sport-logo">
         <div class="sport-name">NFL</div>
-        <!-- <div class="sport-description">
-          Live NFL games with real-time scores, downs, field position, and Sports Bar Mode
-        </div>
-        <div class="live-badge">
-          <div class="live-dot"></div>
-          LIVE UPDATES
-        </div> -->
       </a>
 
       <a href="/nba" class="sport-card nba" data-league="nba">
         <img src="/assets/NBA-Logo.png" alt="NBA Logo" class="sport-logo">
         <div class="sport-name">NBA</div>
-        <!-- <div class="sport-description">
-          Live NBA games with quarter-by-quarter scoring, fouls, and leading scorers
-        </div>
-        <div class="live-badge">
-          <div class="live-dot"></div>
-          LIVE UPDATES
-        </div> -->
       </a>
 
       <a href="/mlb" class="sport-card mlb" data-league="mlb">
         <img src="/assets/MLB-Logo.png" alt="MLB Logo" class="sport-logo">
         <div class="sport-name">MLB</div>
-        <!-- <div class="sport-description">
-          Live MLB games with inning-by-inning scoring, pitch count, and base runners
-        </div>
-        <div class="live-badge">
-          <div class="live-dot"></div>
-          LIVE UPDATES
-        </div> -->
       </a>
 
       <a href="/nhl" class="sport-card nhl" data-league="nhl">
         <img src="/assets/NHL-Logo.png" alt="NHL Logo" class="sport-logo">
         <div class="sport-name">NHL</div>
-        <!-- <div class="sport-description">
-          Live NHL games with period-by-period scoring, shots, and power play tracking
-        </div>
-        <div class="live-badge">
-          <div class="live-dot"></div>
-          LIVE UPDATES
-        </div> -->
       </a>
-    </div>
 
-    <!-- College Leagues Row -->
-    <div class="sports-grid">
+      <!-- College Leagues -->
       <a href="/ncaa" class="sport-card ncaa" data-league="ncaa">
         <img src="/assets/NCAA logo.png" alt="NCAA Logo" class="sport-logo">
         <div class="sport-name">College Football</div>
-        <!-- <div class="sport-description">
-          Live College Football games with real-time scores, downs, rankings, and conference matchups
-        </div>
-        <div class="live-badge">
-          <div class="live-dot"></div>
-          LIVE UPDATES
-        </div> -->
       </a>
 
       <a href="/ncaab" class="sport-card ncaab" data-league="ncaab">
@@ -1292,7 +1578,7 @@
     </div>
 
     <!-- Mixed Sports Bar Mode Button -->
-    <div style="text-align: center; flex-shrink: 0;">
+    <div class="mixed-sports-container">
       <a href="/LiveGames" class="mixed-sports-btn">
         <span class="btn-icon">📺</span>
         <span class="btn-text">
