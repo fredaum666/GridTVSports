@@ -1,0 +1,4586 @@
+{
+  "metadata": {
+    "device": {
+      "emulatorDevice": {
+        "serialNumber": "emulator-5554",
+        "isOnline": true,
+        "release": "16",
+        "apiLevel": {
+          "majorVersion": 36,
+          "minorVersion": 0
+        },
+        "featureLevel": 36,
+        "avdName": "Television (4K)",
+        "avdPath": "C:\\Users\\Fred Magalhaes\\.android\\avd\\Television_4K.avd",
+        "type": "TV"
+      }
+    },
+    "filter": "",
+    "projectApplicationIds": [
+      "com.gridtvsports.tv",
+      "com.gridtvsports.tv.test"
+    ]
+  },
+  "logcatMessages": [
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 813,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "MdnsReplySender",
+        "timestamp": {
+          "seconds": 1766718518,
+          "nanos": 496466100
+        }
+      },
+      "message": "Sending {MdnsReplyInfo: /10.0.2.15:5353 to /224.0.0.251:5353, answers: 1, additionalAnswers: 0, knownAnswers: 0, sendDelayMs 0}"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 813,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "MdnsReplySender",
+        "timestamp": {
+          "seconds": 1766718518,
+          "nanos": 496948800
+        }
+      },
+      "message": "Sending {MdnsReplyInfo: /[fe80::d0fc:93bd:4ad3:fd2c%eth0]:5353 to /[ff02::fb]:5353, answers: 1, additionalAnswers: 0, knownAnswers: 0, sendDelayMs 0}"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 813,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "MdnsReplySender",
+        "timestamp": {
+          "seconds": 1766718518,
+          "nanos": 592793700
+        }
+      },
+      "message": "Sending {MdnsReplyInfo: /10.0.2.15:5353 to /224.0.0.251:5353, answers: 1, additionalAnswers: 4, knownAnswers: 0, sendDelayMs 0}"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 813,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "MdnsReplySender",
+        "timestamp": {
+          "seconds": 1766718518,
+          "nanos": 593219500
+        }
+      },
+      "message": "Sending {MdnsReplyInfo: /[fe80::d0fc:93bd:4ad3:fd2c%eth0]:5353 to /[ff02::fb]:5353, answers: 1, additionalAnswers: 4, knownAnswers: 0, sendDelayMs 0}"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 3657,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "FileUtils",
+        "timestamp": {
+          "seconds": 1766718520,
+          "nanos": 316117400
+        }
+      },
+      "message": "Rounded bytes from 2068742144 to 4000000000"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 664,
+        "tid": 3660,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "GrammaticalInflectionUtils",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 296430000
+        }
+      },
+      "message": "AttributionSource: android.content.AttributionSource@e4aa38 does not have READ_SYSTEM_GRAMMATICAL_GENDER permission."
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 3660,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "OptProp",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 296758600
+        }
+      },
+      "message": "Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 3660,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "OptProp",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 297091400
+        }
+      },
+      "message": "Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 785,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "AS.PlaybackActivityMon",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 297244300
+        }
+      },
+      "message": "No piid assigned for invalid/internal port id 16"
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 664,
+        "tid": 3660,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "CellBroadcastUtils",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 297756000
+        }
+      },
+      "message": "getDefaultCellBroadcastReceiverPackageName: no package found"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 3660,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "OptProp",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 300554000
+        }
+      },
+      "message": "Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 3660,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityTaskManager",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 302504100
+        }
+      },
+      "message": "START u0 {act\u003dandroid.intent.action.MAIN cat\u003d[android.intent.category.LEANBACK_LAUNCHER] flg\u003d0x10000000 xflg\u003d0x4 pkg\u003dcom.gridtvsports.tv cmp\u003dcom.gridtvsports.tv/.MainActivity (has extras)} with LAUNCH_SINGLE_TASK from uid 10054 (sr\u003d167772498) (BAL_ALLOW_VISIBLE_WINDOW) result code\u003d0"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 302606300
+        }
+      },
+      "message": "Transition requested (#46): android.os.BinderProxy@19f0974 TransitionRequestInfo { type \u003d OPEN, triggerTask \u003d TaskInfo{userId\u003d0 taskId\u003d133 effectiveUid\u003d10097 displayId\u003d0 isRunning\u003dtrue baseIntent\u003dIntent { act\u003dandroid.intent.action.MAIN cat\u003d[android.intent.category.LEANBACK_LAUNCHER] flg\u003d0x10000000 pkg\u003dcom.gridtvsports.tv cmp\u003dcom.gridtvsports.tv/.MainActivity } baseActivity\u003dComponentInfo{com.gridtvsports.tv/com.gridtvsports.tv.MainActivity} topActivity\u003dComponentInfo{com.gridtvsports.tv/com.gridtvsports.tv.MainActivity} origActivity\u003dnull realActivity\u003dComponentInfo{com.gridtvsports.tv/com.gridtvsports.tv.MainActivity} numActivities\u003d1 lastActiveTime\u003d6253075 supportsMultiWindow\u003dfalse resizeMode\u003d1 isResizeable\u003dtrue minWidth\u003d-1 minHeight\u003d-1 defaultMinSize\u003d220 token\u003dWCT{android.window.IWindowContainerToken$Stub$Proxy@9508e9d} topActivityType\u003d1 pictureInPictureParams\u003dnull shouldDockBigOverlays\u003dtrue launchIntoPipHostTaskId\u003d-1 lastParentTaskIdBeforePip\u003d-1 displayCutoutSafeInsets\u003dRect(0, 0 - 0, 0) topActivityInfo\u003dActivityInfo{d2ebf12 com.gridtvsports.tv.MainActivity} launchCookies\u003d[] positionInParent\u003dPoint(0, 0) parentTaskId\u003d-1 isFocused\u003dfalse isVisible\u003dfalse isVisibleRequested\u003dfalse isTopActivityNoDisplay\u003dfalse isSleeping\u003dfalse locusId\u003dnull displayAreaFeatureId\u003d1 isTopActivityTransparent\u003dfalse isActivityStackTransparent\u003dfalse lastNonFullscreenBounds\u003dRect(840, 473 - 3000, 1688) capturedLink\u003dnull capturedLinkTimestamp\u003d0 requestedVisibleTypes\u003d-9 topActivityRequestOpenInBrowserEducationTimestamp\u003d0 appCompatTaskInfo\u003dAppCompatTaskInfo { topActivityInSizeCompat\u003dfalse eligibleForLetterboxEducation\u003d false isLetterboxEducationEnabled\u003d false isLetterboxDoubleTapEnabled\u003d false eligibleForUserAspectRatioButton\u003d false topActivityBoundsLetterboxed\u003d false isFromLetterboxDoubleTap\u003d false topActivityLetterboxVerticalPosition\u003d -1 topActivityLetterboxHorizontalPosition\u003d -1 topActivityLetterboxWidth\u003d-1 topActivityLetterboxHeight\u003d-1 topActivityAppBounds\u003dRect(0, 0 - 3840, 2160) isUserFullscreenOverrideEnabled\u003dfalse isSystemFullscreenOverrideEnabled\u003dfalse hasMinAspectRatioOverride\u003dfalse topActivityLetterboxBounds\u003dnull cameraCompatTaskInfo\u003dCameraCompatTaskInfo { freeformCameraCompatMode\u003dinactive}} topActivityMainWindowFrame\u003dnull}, pipChange \u003d null, remoteTransition \u003d null, displayChange \u003d null, flags \u003d 0, debugId \u003d 46 }"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 664,
+        "tid": 688,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "GrammaticalInflectionUtils",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 303829700
+        }
+      },
+      "message": "AttributionSource: android.content.AttributionSource@e4aa38 does not have READ_SYSTEM_GRAMMATICAL_GENDER permission."
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 521,
+        "tid": 521,
+        "applicationId": "surfaceflinger",
+        "processName": "surfaceflinger",
+        "tag": "BpBinder",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 306033900
+        }
+      },
+      "message": "onLastStrongRef automatically unlinking death recipients: "
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 3871,
+        "tid": 9292,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "ActivityThread",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 306949400
+        }
+      },
+      "message": "Failed to find provider info for com.google.android.apps.youtube.tvunplugged.client.provider"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 851,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "BackgroundInstallControlService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 314360400
+        }
+      },
+      "message": "Package event received: 0"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 453,
+        "tid": 453,
+        "applicationId": "zygote",
+        "processName": "zygote",
+        "tag": "Zygote",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 315746500
+        }
+      },
+      "message": "Forked child process 9309"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 695,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityManager",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 317320300
+        }
+      },
+      "message": "Start proc 9309:com.gridtvsports.tv/u0a97 for next-top-activity {com.gridtvsports.tv/com.gridtvsports.tv.MainActivity}"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 695,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityManager",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 323992900
+        }
+      },
+      "message": "ProcessObserver broadcast disabled"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "zygote",
+        "processName": "zygote",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 326584700
+        }
+      },
+      "message": "Late-enabling -Xcheck:jni"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 688,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ProcessStats",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 330481400
+        }
+      },
+      "message": "Tracking association SourceState{c13ed75 com.google.android.apps.mediashell/10051 BTop #6332} whose proc state 2 is better than process ProcessState{237abd6 com.google.android.gms.persistent/10055 pkg\u003dcom.google.android.gms (sub)} proc state 3 (416 skipped)"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 341575200
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 342252900
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 342379100
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 342464900
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 342534700
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 342617000
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 342684100
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 342729100
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 342779200
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 343043200
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 343150300
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 343211500
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 343657100
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 344004000
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 344098700
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 344181700
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 344286400
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 344379000
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 344484000
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 344554500
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 344618100
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 885,
+        "tid": 891,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 344678100
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "zygote",
+        "processName": "zygote",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 345309100
+        }
+      },
+      "message": "Using CollectorTypeCMC GC."
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "zygote",
+        "processName": "zygote",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 345960200
+        }
+      },
+      "message": "Unexpected CPU variant for x86: x86.\nKnown variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 524,
+        "tid": 552,
+        "applicationId": "adbd",
+        "processName": "adbd",
+        "tag": "adbd",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 348117300
+        }
+      },
+      "message": "jdwp connection from 9309"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 0,
+        "tid": 0,
+        "applicationId": "",
+        "processName": "",
+        "tag": "",
+        "timestamp": {
+          "seconds": 0,
+          "nanos": 0
+        }
+      },
+      "message": "---------------------------- PROCESS STARTED (9309) for package com.gridtvsports.tv ----------------------------"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "nativeloader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 353703100
+        }
+      },
+      "message": "Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3871,
+        "tid": 4205,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "cn_CronetUrlRequestContext",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 359148300
+        }
+      },
+      "message": "destroyNativeStreamLocked org.chromium.net.impl.CronetBidirectionalStream@3e54d75"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 851,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "BackgroundInstallControlService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 363255400
+        }
+      },
+      "message": "Package event received: 0"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "nativeloader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 372048100
+        }
+      },
+      "message": "Load /data/user/0/com.gridtvsports.tv/code_cache/startup_agents/69b40b6c-agent.so using system ns (caller\u003d\u003cunknown\u003e): ok"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "studio.deploy",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 373046300
+        }
+      },
+      "message": "Startup agent attached to VM"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "re-initialized\u003e",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 364000000
+        }
+      },
+      "message": "type\u003d1400 audit(0.0:1002): avc:  granted  { execute } for  path\u003d\"/data/data/com.gridtvsports.tv/code_cache/startup_agents/69b40b6c-agent.so\" dev\u003d\"dm-52\" ino\u003d353390 scontext\u003du:r:untrusted_app:s0:c97,c256,c512,c768 tcontext\u003du:object_r:app_data_file:s0:c97,c256,c512,c768 tclass\u003dfile app\u003dcom.gridtvsports.tv"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "studio.deploy",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 373724500
+        }
+      },
+      "message": "No existing instrumentation found. Loading instrumentation from instruments-cbb5ff5f.jar"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 378396500
+        }
+      },
+      "message": "hiddenapi: DexFile /data/data/com.gridtvsports.tv/code_cache/.studio/instruments-cbb5ff5f.jar is in boot class path but is not in a known location"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "studio.deploy",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 380096400
+        }
+      },
+      "message": "Applying transforms with cached classes"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 423535400
+        }
+      },
+      "message": "TvPipController: onTaskStackChanged()"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 478196700
+        }
+      },
+      "message": "Redefining intrinsic method java.lang.Thread java.lang.Thread.currentThread(). This may cause the unexpected use of the original definition of java.lang.Thread java.lang.Thread.currentThread()in methods that have already been compiled."
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 478237500
+        }
+      },
+      "message": "Redefining intrinsic method boolean java.lang.Thread.interrupted(). This may cause the unexpected use of the original definition of boolean java.lang.Thread.interrupted()in methods that have already been compiled."
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "studio.deploy",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 479326500
+        }
+      },
+      "message": "Registering DispatchJNI"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "studio.deploy",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 479443400
+        }
+      },
+      "message": "Found com/android/tools/deploy/interpreter/JNI"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "CompatChangeReporter",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 481297100
+        }
+      },
+      "message": "Compat change id reported: 242716250; UID 10097; state: ENABLED"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "nativeloader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 548379600
+        }
+      },
+      "message": "Configuring clns-7 for other apk /data/app/~~RROCPdUd6G4GB1gYpFpiaQ\u003d\u003d/com.gridtvsports.tv-qpy-aqAK-8BY0Yblnk625Q\u003d\u003d/base.apk. target_sdk_version\u003d34, uses_libraries\u003d, library_path\u003d/data/app/~~RROCPdUd6G4GB1gYpFpiaQ\u003d\u003d/com.gridtvsports.tv-qpy-aqAK-8BY0Yblnk625Q\u003d\u003d/lib/x86, permitted_path\u003d/data:/mnt/expand:/data/user/0/com.gridtvsports.tv"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 550675600
+        }
+      },
+      "message": "AssetManager2(0xea384ed4) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 551870200
+        }
+      },
+      "message": "AssetManager2(0xea382d14) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "GraphicsEnvironment",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 554843600
+        }
+      },
+      "message": "Currently set values for:"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "GraphicsEnvironment",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 554908100
+        }
+      },
+      "message": "  angle_gl_driver_selection_pkgs\u003d[]"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "GraphicsEnvironment",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 554952700
+        }
+      },
+      "message": "  angle_gl_driver_selection_values\u003d[]"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "GraphicsEnvironment",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 554993900
+        }
+      },
+      "message": "com.gridtvsports.tv is not listed in per-application setting"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "GraphicsEnvironment",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 555069000
+        }
+      },
+      "message": "ANGLE allowlist from config: "
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "GraphicsEnvironment",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 555088900
+        }
+      },
+      "message": "com.gridtvsports.tv is not listed in ANGLE allowlist or settings, returning default"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "GraphicsEnvironment",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 555178900
+        }
+      },
+      "message": "Neither updatable production driver nor prerelease driver is supported."
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 3657,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "AppsFilter",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 574441600
+        }
+      },
+      "message": "interaction: PackageSetting{6bfd657 com.gridtvsports.tv/10097} -\u003e PackageSetting{56d1235 com.google.android.apps.tv.launcherx/10054} BLOCKED"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 851,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "BackgroundInstallControlService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 576805800
+        }
+      },
+      "message": "Package event received: 0"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 851,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "BackgroundInstallControlService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 576837100
+        }
+      },
+      "message": "Package event received: 0"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9323,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "DisplayManager",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 577991900
+        }
+      },
+      "message": "Choreographer implicitly registered for the refresh rate."
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 664,
+        "tid": 731,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "DisplayManagerService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 578453300
+        }
+      },
+      "message": "FrozenStateChangeCallback not supported for pid 9309"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 578969300
+        }
+      },
+      "message": "AssetManager2(0xea383cd4) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9323,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "EGL_emulation",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 601063000
+        }
+      },
+      "message": "Opening libGLESv1_CM_emulation.so"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9323,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "EGL_emulation",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 601426300
+        }
+      },
+      "message": "Opening libGLESv2_emulation.so"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9323,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "HWUI",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 639271600
+        }
+      },
+      "message": "Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without..."
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9323,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "HWUI",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 639398200
+        }
+      },
+      "message": "Failed to initialize 101010-2 format, error \u003d EGL_SUCCESS"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "AppCompatDelegate",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 652508700
+        }
+      },
+      "message": "Checking for metadata for AppLocalesMetadataHolderService : Service not found"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 653160900
+        }
+      },
+      "message": "AssetManager2(0xea384a54) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "ashmem",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 658415100
+        }
+      },
+      "message": "Pinning is deprecated since Android Q. Please use trim or other methods."
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "DesktopModeFlags",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 681150500
+        }
+      },
+      "message": "Toggle override initialized to: OVERRIDE_UNSET"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 698660100
+        }
+      },
+      "message": "hiddenapi: Accessing hidden method Landroid/view/View;-\u003ecomputeFitSystemWindows(Landroid/graphics/Rect;Landroid/graphics/Rect;)Z (runtime_flags\u003d0, domain\u003dplatform, api\u003dunsupported) from Landroidx/appcompat/widget/ViewUtils; (domain\u003dapp) using reflection: allowed"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 698757100
+        }
+      },
+      "message": "hiddenapi: Accessing hidden method Landroid/view/ViewGroup;-\u003emakeOptionalFitsSystemWindows()V (runtime_flags\u003d0, domain\u003dplatform, api\u003dunsupported) from Landroidx/appcompat/widget/ViewUtils; (domain\u003dapp) using reflection: allowed"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 703806100
+        }
+      },
+      "message": "AssetManager2(0xea388714) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "WebViewFactory",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 703942500
+        }
+      },
+      "message": "Loading com.google.android.webview version 143.0.7499.146 (code 749914636)"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 704568000
+        }
+      },
+      "message": "AssetManager2(0xea38f9d4) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 704807600
+        }
+      },
+      "message": "AssetManager2(0xea389d94) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 705350100
+        }
+      },
+      "message": "AssetManager2(0xea38c194) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 705497800
+        }
+      },
+      "message": "AssetManager2(0xea38e594) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 705842300
+        }
+      },
+      "message": "AssetManager2(0xea38a214) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "ResourcesManager",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 706029400
+        }
+      },
+      "message": "The following library key has been added: ResourcesKey{ mHash\u003dabbf49e4 mResDir\u003dnull mSplitDirs\u003d[] mOverlayDirs\u003d[] mLibDirs\u003d[/data/app/~~oPG44nmaonaczUItqjWS1g\u003d\u003d/com.google.android.webview-qGUQcmtIcXsE8SshDOU5Og\u003d\u003d/base.apk,/data/app/~~CrnKcusVy4JGlfpUBLyYeQ\u003d\u003d/com.google.android.trichromelibrary_749914636-Lq6ansl_Xt1peGd1h6beuQ\u003d\u003d/base.apk] mDisplayId\u003d0 mOverrideConfig\u003dv36 mCompatInfo\u003d{640dpi always-compat} mLoaders\u003d[]}"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 707563800
+        }
+      },
+      "message": "Failed to find entry \u0027classes.dex\u0027: Entry not found"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "nativeloader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 707845900
+        }
+      },
+      "message": "Configuring clns-8 for other apk /data/app/~~CrnKcusVy4JGlfpUBLyYeQ\u003d\u003d/com.google.android.trichromelibrary_749914636-Lq6ansl_Xt1peGd1h6beuQ\u003d\u003d/base.apk. target_sdk_version\u003d36, uses_libraries\u003dALL, library_path\u003d/data/app/~~oPG44nmaonaczUItqjWS1g\u003d\u003d/com.google.android.webview-qGUQcmtIcXsE8SshDOU5Og\u003d\u003d/lib/x86:/data/app/~~oPG44nmaonaczUItqjWS1g\u003d\u003d/com.google.android.webview-qGUQcmtIcXsE8SshDOU5Og\u003d\u003d/base.apk!/lib/x86:/data/app/~~CrnKcusVy4JGlfpUBLyYeQ\u003d\u003d/com.google.android.trichromelibrary_749914636-Lq6ansl_Xt1peGd1h6beuQ\u003d\u003d/base.apk!/lib/x86, permitted_path\u003d/data:/mnt/expand"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "nativeloader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 709753500
+        }
+      },
+      "message": "Configuring clns-9 for other apk /data/app/~~oPG44nmaonaczUItqjWS1g\u003d\u003d/com.google.android.webview-qGUQcmtIcXsE8SshDOU5Og\u003d\u003d/base.apk. target_sdk_version\u003d36, uses_libraries\u003d, library_path\u003d/data/app/~~oPG44nmaonaczUItqjWS1g\u003d\u003d/com.google.android.webview-qGUQcmtIcXsE8SshDOU5Og\u003d\u003d/lib/x86:/data/app/~~oPG44nmaonaczUItqjWS1g\u003d\u003d/com.google.android.webview-qGUQcmtIcXsE8SshDOU5Og\u003d\u003d/base.apk!/lib/x86:/data/app/~~CrnKcusVy4JGlfpUBLyYeQ\u003d\u003d/com.google.android.trichromelibrary_749914636-Lq6ansl_Xt1peGd1h6beuQ\u003d\u003d/base.apk!/lib/x86, permitted_path\u003d/data:/mnt/expand"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_WVCFactoryProvider",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 729343800
+        }
+      },
+      "message": "version\u003d143.0.7499.146 (749914636) minSdkVersion\u003d29 multiprocess\u003dtrue packageId\u003d2 splits\u003d\u003cnone\u003e"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "nativeloader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 744333900
+        }
+      },
+      "message": "Load /data/app/~~CrnKcusVy4JGlfpUBLyYeQ\u003d\u003d/com.google.android.trichromelibrary_749914636-Lq6ansl_Xt1peGd1h6beuQ\u003d\u003d/base.apk!/lib/x86/libmonochrome.so using class loader ns clns-9 (caller\u003d/data/app/~~oPG44nmaonaczUItqjWS1g\u003d\u003d/com.google.android.webview-qGUQcmtIcXsE8SshDOU5Og\u003d\u003d/base.apk): ok"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "nativeloader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 746342800
+        }
+      },
+      "message": "Load /system/lib/libwebviewchromium_plat_support.so using class loader ns clns-9 (caller\u003d/data/app/~~oPG44nmaonaczUItqjWS1g\u003d\u003d/com.google.android.webview-qGUQcmtIcXsE8SshDOU5Og\u003d\u003d/base.apk): ok"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9329,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "chromium",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 749183200
+        }
+      },
+      "message": "[1225/220841.748921:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_LibraryLoader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 754979300
+        }
+      },
+      "message": "Successfully loaded native library"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_CachingUmaRecorder",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 755326200
+        }
+      },
+      "message": "Flushed 20 samples from 20 histograms, 0 samples were dropped."
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_CombinedPProvider",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 758836700
+        }
+      },
+      "message": "#registerProvider() provider:WV.jk@e25ed4b isPolicyCacheEnabled:false policyProvidersSize:0"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 3657,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "CompatChangeReporter",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 759692500
+        }
+      },
+      "message": "Compat change id reported: 161145287; UID 10097; state: ENABLED"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_PolicyProvider",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 759817700
+        }
+      },
+      "message": "#setManagerAndSource() 0"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_DisplayManager",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 763041600
+        }
+      },
+      "message": "Is Display Topology available: false"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 763873200
+        }
+      },
+      "message": "AssetManager2(0xea38ded4) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "gridtvsports.tv",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 764923400
+        }
+      },
+      "message": "AssetManager2(0xea38bad4) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 664,
+        "tid": 731,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "GrammaticalInflectionUtils",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 765656300
+        }
+      },
+      "message": "AttributionSource: android.content.AttributionSource@b3901c03 does not have READ_SYSTEM_GRAMMATICAL_GENDER permission."
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 4009,
+        "tid": 4009,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "Zygote",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 770210900
+        }
+      },
+      "message": "Forked child process 9333"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_CombinedPProvider",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 773599500
+        }
+      },
+      "message": "#linkNativeInternal() 1"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_AppResProvider",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 774287900
+        }
+      },
+      "message": "#getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_PolicyProvider",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 774422800
+        }
+      },
+      "message": "#notifySettingsAvailable() 0"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_CombinedPProvider",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 774486300
+        }
+      },
+      "message": "#onSettingsAvailable() 0"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_CombinedPProvider",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 774647100
+        }
+      },
+      "message": "#flushPolicies()"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9333,
+        "tid": 9333,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "ocessService0:0",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 776574500
+        }
+      },
+      "message": "Using CollectorTypeCMC GC."
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9333,
+        "tid": 9333,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "ocessService0:0",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 777054900
+        }
+      },
+      "message": "Unexpected CPU variant for x86: x86.\nKnown variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default"
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 9333,
+        "tid": 9333,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "ocessService0:0",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 778380100
+        }
+      },
+      "message": "Not starting debugger since process cannot load the jdwp agent."
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9333,
+        "tid": 9333,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "nativeloader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 779766500
+        }
+      },
+      "message": "Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 3657,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityManager",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 782093600
+        }
+      },
+      "message": "Start proc 9333:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i14 for  {com.gridtvsports.tv/org.chromium.content.app.SandboxedProcessService0:0}"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 3657,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityManager",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 782136900
+        }
+      },
+      "message": "ProcessObserver broadcast disabled"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 731,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "CompatChangeReporter",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 784260600
+        }
+      },
+      "message": "Compat change id reported: 261072174; UID 10097; state: ENABLED"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3709,
+        "tid": 3709,
+        "applicationId": "com.google.android.gms",
+        "processName": "com.google.android.gms",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 785465400
+        }
+      },
+      "message": "onBind: Intent { act\u003dcom.google.android.gms.safetynet.service.START xflg\u003d0x4 pkg\u003dcom.google.android.gms }"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3709,
+        "tid": 3709,
+        "applicationId": "com.google.android.gms",
+        "processName": "com.google.android.gms",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 785995000
+        }
+      },
+      "message": "Loading bound service for intent: Intent { act\u003dcom.google.android.gms.safetynet.service.START xflg\u003d0x4 pkg\u003dcom.google.android.gms }"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 851,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "BackgroundInstallControlService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 786984200
+        }
+      },
+      "message": "Package event received: 0"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9333,
+        "tid": 9333,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "ocessService0:0",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 791678000
+        }
+      },
+      "message": "AssetManager2(0xea3857d4) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9333,
+        "tid": 9333,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "LoadedApk",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 794354400
+        }
+      },
+      "message": "No resource references to update in package com.google.android.trichromelibrary"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9333,
+        "tid": 9333,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "cr_WebViewApkApp",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 795452400
+        }
+      },
+      "message": "version\u003d143.0.7499.146 (749914636) minSdkVersion\u003d29 processName\u003dcom.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0 splits\u003d\u003cnone\u003e"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 851,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "BackgroundInstallControlService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 800023000
+        }
+      },
+      "message": "Package event received: 0"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3709,
+        "tid": 3709,
+        "applicationId": "com.google.android.gms",
+        "processName": "com.google.android.gms",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 801521600
+        }
+      },
+      "message": "onBind: Intent { act\u003dcom.google.android.gms.safebrowsing.SafeBrowsingService.START dat\u003dchimera-action:/... xflg\u003d0x4 cmp\u003dcom.google.android.gms/.chimera.GmsBoundBrokerService }"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3709,
+        "tid": 3709,
+        "applicationId": "com.google.android.gms",
+        "processName": "com.google.android.gms",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 801537000
+        }
+      },
+      "message": "Loading bound service for intent: Intent { act\u003dcom.google.android.gms.safebrowsing.SafeBrowsingService.START dat\u003dchimera-action:/... xflg\u003d0x4 cmp\u003dcom.google.android.gms/.chimera.GmsBoundBrokerService }"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9333,
+        "tid": 9333,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "cr_ChildProcessService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 802582100
+        }
+      },
+      "message": "Creating new ChildProcessService pid\u003d9333"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "chromium",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 844521500
+        }
+      },
+      "message": "[WARNING:android_webview/browser/network_service/net_helpers.cc:143] HTTP Cache size is: 20971520"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 3657,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ConnectivityService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 862638100
+        }
+      },
+      "message": "requestNetwork for uid/pid:10097/9309 activeRequest: null callbackRequest: 252 [NetworkRequest [ REQUEST id\u003d253, [ Capabilities: INTERNET\u0026NOT_RESTRICTED\u0026TRUSTED\u0026NOT_VCN_MANAGED\u0026NOT_BANDWIDTH_CONSTRAINED Uid: 10097 RequestorUid: 10097 RequestorPkg: com.gridtvsports.tv UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|LP"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 809,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ConnectivityService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 863714900
+        }
+      },
+      "message": "NetReassign [253 : null → 100] [c 0] [a 0] [i 0]"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 808,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "EthernetNetworkFactory",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 863757500
+        }
+      },
+      "message": "eth0: onNetworkNeeded for request: NetworkRequest [ REQUEST id\u003d253, [ Capabilities: INTERNET\u0026NOT_RESTRICTED\u0026TRUSTED\u0026NOT_VCN_MANAGED\u0026NOT_BANDWIDTH_CONSTRAINED Uid: 10097 RequestorUid: 10097 RequestorPkg: com.gridtvsports.tv UnderlyingNetworks: Null] ]"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 808,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "EthernetNetworkFactory",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 863776600
+        }
+      },
+      "message": "IpClient already started"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 802,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "UntrustedWifiNetworkFactory",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 864373400
+        }
+      },
+      "message": "got request NetworkRequest [ REQUEST id\u003d253, [ Capabilities: INTERNET\u0026NOT_RESTRICTED\u0026TRUSTED\u0026NOT_VCN_MANAGED\u0026NOT_BANDWIDTH_CONSTRAINED Uid: 10097 RequestorUid: 10097 RequestorPkg: com.gridtvsports.tv UnderlyingNetworks: Null] ]"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 802,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "OemPaidWifiNetworkFactory",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 864419000
+        }
+      },
+      "message": "got request NetworkRequest [ REQUEST id\u003d253, [ Capabilities: INTERNET\u0026NOT_RESTRICTED\u0026TRUSTED\u0026NOT_VCN_MANAGED\u0026NOT_BANDWIDTH_CONSTRAINED Uid: 10097 RequestorUid: 10097 RequestorPkg: com.gridtvsports.tv UnderlyingNetworks: Null] ]"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 802,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "MultiInternetWifiNetworkFactory",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 864449100
+        }
+      },
+      "message": "got request NetworkRequest [ REQUEST id\u003d253, [ Capabilities: INTERNET\u0026NOT_RESTRICTED\u0026TRUSTED\u0026NOT_VCN_MANAGED\u0026NOT_BANDWIDTH_CONSTRAINED Uid: 10097 RequestorUid: 10097 RequestorPkg: com.gridtvsports.tv UnderlyingNetworks: Null] ]"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 809,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ConnectivityService",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 868141500
+        }
+      },
+      "message": "NetReassign [no changes] [c 0] [a 1] [i 0]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 3657,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "AppsFilter",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 887601700
+        }
+      },
+      "message": "interaction: PackageSetting{6bfd657 com.gridtvsports.tv/10097} -\u003e PackageSetting{b21fedb com.google.android.tv.remote.service/10049} BLOCKED"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "HWUI",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 905010500
+        }
+      },
+      "message": "Image decoding logging dropped!"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "HWUI",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 905932200
+        }
+      },
+      "message": "Image decoding logging dropped!"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "HWUI",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 906565900
+        }
+      },
+      "message": "Image decoding logging dropped!"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "MainActivity",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 907843800
+        }
+      },
+      "message": "Screen: 3840x2160, Density: 4.0, DPI: 640"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "MainActivity",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 907911900
+        }
+      },
+      "message": "CSS Viewport will be: 960x540"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "MainActivity",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 908960700
+        }
+      },
+      "message": "WebView configured for TV mode"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "MainActivity",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 911683100
+        }
+      },
+      "message": "Loading URL: https://gridtvsports.com/tv-home"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9333,
+        "tid": 9357,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "cr_LibraryLoader",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 918555300
+        }
+      },
+      "message": "Successfully loaded native library"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9333,
+        "tid": 9357,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "cr_CachingUmaRecorder",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 918840200
+        }
+      },
+      "message": "Flushed 2 samples from 2 histograms, 0 samples were dropped."
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9333,
+        "tid": 9357,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "chromium",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 926156000
+        }
+      },
+      "message": "[WARNING:content/child/runtime_features.cc:561] Fenced frames cannot be enabled in this configuration. Use --enable-features\u003dFencedFrames instead."
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9350,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_media",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 927473900
+        }
+      },
+      "message": "BLUETOOTH_CONNECT permission is missing."
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9333,
+        "tid": 9357,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "chromium",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 927979000
+        }
+      },
+      "message": "[WARNING:content/child/runtime_features.cc:586] Topics cannot be enabled in this configuration. Use --enable-features\u003dBrowsingTopics in addition."
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9333,
+        "tid": 9357,
+        "applicationId": "webview_zygote",
+        "processName": "webview_zygote",
+        "tag": "chromium",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 928351800
+        }
+      },
+      "message": "[WARNING:content/child/runtime_features.cc:607] SharedStorage cannot be enabled in this configuration. Use --enable-features\u003dSharedStorageAPI in addition."
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 677,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "BpBinder",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 929762300
+        }
+      },
+      "message": "onLastStrongRef automatically unlinking death recipients: "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9364,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "libc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 931487700
+        }
+      },
+      "message": "Access denied finding property \"vendor.mesa.log\""
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9364,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "libc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 931622300
+        }
+      },
+      "message": "Access denied finding property \"vendor.mesa.log.file\""
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 9309,
+        "tid": 9364,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "MESA",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 931672800
+        }
+      },
+      "message": "Failed to open rendernode: No such file or directory"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9350,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_media",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 933534800
+        }
+      },
+      "message": "getBluetoothAdapter() requires BLUETOOTH permission"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9350,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_media",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 933557000
+        }
+      },
+      "message": "registerBluetoothIntentsIfNeeded: Requires BLUETOOTH permission"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 678,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 936430800
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9364,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "libc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 941269100
+        }
+      },
+      "message": "Access denied finding property \"vendor.mesa.vk.trace.per.submit\""
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9364,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "libc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 941365800
+        }
+      },
+      "message": "Access denied finding property \"vendor.mesa.gallium.print.optio\""
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9364,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "libc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 941408700
+        }
+      },
+      "message": "Access denied finding property \"vendor.mesa.vk.trace.frame\""
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 678,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "System",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 942115000
+        }
+      },
+      "message": "A resource failed to call release. "
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9364,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "libc",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 945042100
+        }
+      },
+      "message": "Access denied finding property \"vendor.mesa.vk.wsi.headless.swa\""
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4248,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 957819900
+        }
+      },
+      "message": "(REDACTED) Received query %s, URI %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4248,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 958427400
+        }
+      },
+      "message": "(REDACTED) Query [%s] resolved to %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4248,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 959911700
+        }
+      },
+      "message": "(REDACTED) Font PFD returned from cache for %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4248,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 960341400
+        }
+      },
+      "message": "(REDACTED) Fetch %s end status %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4248,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 963533800
+        }
+      },
+      "message": "(REDACTED) Pulling font file for id \u003d %d, cache size \u003d %d"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4248,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 965695800
+        }
+      },
+      "message": "(REDACTED) Received query %s, URI %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4248,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 965814200
+        }
+      },
+      "message": "(REDACTED) Query [%s] resolved to %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4248,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 969435600
+        }
+      },
+      "message": "(REDACTED) Fetch %s end status %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 972755300
+        }
+      },
+      "message": "(REDACTED) Pulling font file for id \u003d %d, cache size \u003d %d"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "HWUI",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 972767700
+        }
+      },
+      "message": "Unknown dataspace 0"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "InsetsController",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 977070200
+        }
+      },
+      "message": "Setting requestedVisibleTypes to -16 (was -9)"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 1496,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "WindowManager",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 977509200
+        }
+      },
+      "message": "Failed looking up window session\u003dSession{834b7a5 9309:u0a10097} callers\u003dcom.android.server.wm.WindowManagerService.windowForClientLocked:6410 com.android.server.wm.Session.updateRequestedVisibleTypes:700 android.view.IWindowSession$Stub.onTransact:1023 "
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 981618600
+        }
+      },
+      "message": "(REDACTED) Received query %s, URI %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 981690900
+        }
+      },
+      "message": "(REDACTED) Query [%s] resolved to %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 981916500
+        }
+      },
+      "message": "(REDACTED) Font PFD returned from cache for %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 981936600
+        }
+      },
+      "message": "(REDACTED) Fetch %s end status %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 992483800
+        }
+      },
+      "message": "(REDACTED) Pulling font file for id \u003d %d, cache size \u003d %d"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 995153600
+        }
+      },
+      "message": "(REDACTED) Received query %s, URI %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 995222700
+        }
+      },
+      "message": "(REDACTED) Query [%s] resolved to %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 996133200
+        }
+      },
+      "message": "(REDACTED) Font PFD returned from cache for %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718521,
+          "nanos": 996789200
+        }
+      },
+      "message": "(REDACTED) Fetch %s end status %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 33355000
+        }
+      },
+      "message": "(REDACTED) Pulling font file for id \u003d %d, cache size \u003d %d"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9384,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "CameraManagerGlobal",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 37434100
+        }
+      },
+      "message": "Connecting to camera service"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 545,
+        "tid": 545,
+        "applicationId": "cameraserver",
+        "processName": "cameraserver",
+        "tag": "AttributionAndPermissionUtils",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 44997700
+        }
+      },
+      "message": "checkPermission (forDataDelivery 0 startDataDelivery 0): Permission hard denied for client attribution [uid 10097, pid 9309, packageName \"\u003cunknown\u003e\"]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 46900300
+        }
+      },
+      "message": "(REDACTED) Received query %s, URI %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 48182600
+        }
+      },
+      "message": "(REDACTED) Query [%s] resolved to %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 49859100
+        }
+      },
+      "message": "(REDACTED) Font PFD returned from cache for %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 50170400
+        }
+      },
+      "message": "(REDACTED) Fetch %s end status %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 52788900
+        }
+      },
+      "message": "(REDACTED) Pulling font file for id \u003d %d, cache size \u003d %d"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9361,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "VideoCapabilities",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 58750700
+        }
+      },
+      "message": "Unrecognized profile/level 0/3 for video/mpeg2"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 731,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "CoreBackPreview",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 67393800
+        }
+      },
+      "message": "Window{6b82b88 u0 com.gridtvsports.tv/com.gridtvsports.tv.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback\u003dandroid.window.IOnBackInvokedCallback$Stub$Proxy@17bd415, mPriority\u003d0, mIsAnimationCallback\u003dfalse, mOverrideBehavior\u003d0}"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9361,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "VideoCapabilities",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 90420600
+        }
+      },
+      "message": "Unrecognized profile/level 0/3 for video/mpeg2"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 9309,
+        "tid": 9361,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "VideoCapabilities",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 91631200
+        }
+      },
+      "message": "Unrecognized profile/level 0/3 for video/mpeg2"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 851,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "BackgroundInstallControlService",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 91796100
+        }
+      },
+      "message": "Package event received: 0"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 8562,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 196403300
+        }
+      },
+      "message": "onTransitionReady(transaction\u003d2851858286013)"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 197792500
+        }
+      },
+      "message": "onTransitionReady (#46) android.os.BinderProxy@19f0974: {id\u003d46 t\u003dOPEN f\u003d0x0 trk\u003d0 r\u003d[0@Point(0, 0)] c\u003d[\n        {m\u003dOPEN f\u003dNONE leash\u003dSurface(name\u003dTask\u003d133)/@0x50b06e3 sb\u003dRect(0, 0 - 3840, 2160) eb\u003dRect(0, 0 - 3840, 2160) epz\u003dPoint(3840, 2160) d\u003d0 taskParent\u003d-1},\n        {m\u003dTO_BACK f\u003dNONE leash\u003dSurface(name\u003dTask\u003d1)/@0x92c7799 sb\u003dRect(0, 0 - 3840, 2160) eb\u003dRect(0, 0 - 3840, 2160) epz\u003dPoint(3840, 2160) d\u003d0 taskParent\u003d-1}\n    ]}"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 685,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityTaskManager",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 197870200
+        }
+      },
+      "message": "Displayed com.gridtvsports.tv/.MainActivity for user 0: +892ms"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 664,
+        "tid": 685,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "WindowManager",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 198772100
+        }
+      },
+      "message": "Sent Transition (#46) createdAt\u003d12-25 22:08:41.297 via request\u003dTransitionRequestInfo { type \u003d OPEN, triggerTask \u003d TaskInfo{userId\u003d0 taskId\u003d133 effectiveUid\u003d10097 displayId\u003d0 isRunning\u003dtrue baseIntent\u003dIntent { act\u003dandroid.intent.action.MAIN cat\u003d[android.intent.category.LEANBACK_LAUNCHER] flg\u003d0x10000000 pkg\u003dcom.gridtvsports.tv cmp\u003dcom.gridtvsports.tv/.MainActivity } baseActivity\u003dComponentInfo{com.gridtvsports.tv/com.gridtvsports.tv.MainActivity} topActivity\u003dComponentInfo{com.gridtvsports.tv/com.gridtvsports.tv.MainActivity} origActivity\u003dnull realActivity\u003dComponentInfo{com.gridtvsports.tv/com.gridtvsports.tv.MainActivity} numActivities\u003d1 lastActiveTime\u003d6253075 supportsMultiWindow\u003dfalse resizeMode\u003d1 isResizeable\u003dtrue minWidth\u003d-1 minHeight\u003d-1 defaultMinSize\u003d220 token\u003dWCT{RemoteToken{bbaec85 Task{81ffb8b #133 type\u003dstandard A\u003d10097:com.gridtvsports.tv}}} topActivityType\u003d1 pictureInPictureParams\u003dnull shouldDockBigOverlays\u003dtrue launchIntoPipHostTaskId\u003d-1 lastParentTaskIdBeforePip\u003d-1 displayCutoutSafeInsets\u003dRect(0, 0 - 0, 0) topActivityInfo\u003dActivityInfo{6856ada com.gridtvsports.tv.MainActivity} launchCookies\u003d[] positionInParent\u003dPoint(0, 0) parentTaskId\u003d-1 isFocused\u003dfalse isVisible\u003dfalse isVisibleRequested\u003dfalse isTopActivityNoDisplay\u003dfalse isSleeping\u003dfalse locusId\u003dnull displayAreaFeatureId\u003d1 isTopActivityTransparent\u003dfalse isActivityStackTransparent\u003dfalse lastNonFullscreenBounds\u003dRect(840, 473 - 3000, 1688) capturedLink\u003dnull capturedLinkTimestamp\u003d0 requestedVisibleTypes\u003d-9 topActivityRequestOpenInBrowserEducationTimestamp\u003d0 appCompatTaskInfo\u003dAppCompatTaskInfo { topActivityInSizeCompat\u003dfalse eligibleForLetterboxEducation\u003d false isLetterboxEducationEnabled\u003d false isLetterboxDoubleTapEnabled\u003d false eligibleForUserAspectRatioButton\u003d false topActivityBoundsLetterboxed\u003d false isFromLetterboxDoubleTap\u003d false topActivityLetterboxVerticalPosition\u003d -1 topActivityLetterboxHorizontalPosition\u003d -1 topActivityLetterboxWidth\u003d-1 topActivityLetterboxHeight\u003d-1 topActivityAppBounds\u003dRect(0, 0 - 3840, 2160) isUserFullscreenOverrideEnabled\u003dfalse isSystemFullscreenOverrideEnabled\u003dfalse hasMinAspectRatioOverride\u003dfalse topActivityLetterboxBounds\u003dnull cameraCompatTaskInfo\u003dCameraCompatTaskInfo { freeformCameraCompatMode\u003dinactive}} topActivityMainWindowFrame\u003dnull}, pipChange \u003d null, remoteTransition \u003d null, displayChange \u003d null, flags \u003d 0, debugId \u003d 46 }"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 664,
+        "tid": 685,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "WindowManager",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 198823600
+        }
+      },
+      "message": "    startWCT\u003dWindowContainerTransaction { changes\u003d {} hops\u003d [] errorCallbackToken\u003dnull taskFragmentOrganizer\u003dnull }"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 664,
+        "tid": 685,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "WindowManager",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 198921400
+        }
+      },
+      "message": "    info\u003d{id\u003d46 t\u003dOPEN f\u003d0x0 trk\u003d0 r\u003d[0@Point(0, 0)] c\u003d[\n        {WCT{RemoteToken{bbaec85 Task{81ffb8b #133 type\u003dstandard A\u003d10097:com.gridtvsports.tv}}} m\u003dOPEN f\u003dNONE leash\u003dSurface(name\u003dTask\u003d133)/@0xb531fce sb\u003dRect(0, 0 - 3840, 2160) eb\u003dRect(0, 0 - 3840, 2160) epz\u003dPoint(3840, 2160) d\u003d0 taskParent\u003d-1},\n        {WCT{RemoteToken{5e7860c Task{e166a91 #1 type\u003dhome}}} m\u003dTO_BACK f\u003dNONE leash\u003dSurface(name\u003dTask\u003d1)/@0x8f01068 sb\u003dRect(0, 0 - 3840, 2160) eb\u003dRect(0, 0 - 3840, 2160) epz\u003dPoint(3840, 2160) d\u003d0 taskParent\u003d-1}\n    ]}"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 199250300
+        }
+      },
+      "message": "Playing animation for (#46) android.os.BinderProxy@19f0974@0"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 199721000
+        }
+      },
+      "message": "Transition doesn\u0027t have explicit remote, search filters for match for {id\u003d46 t\u003dOPEN f\u003d0x0 trk\u003d0 r\u003d[0@Point(0, 0)] c\u003d[{m\u003dOPEN f\u003dNONE leash\u003dSurface(name\u003dTask\u003d133)/@0x50b06e3 sb\u003dRect(0, 0 - 3840, 2160) eb\u003dRect(0, 0 - 3840, 2160) epz\u003dPoint(3840, 2160) d\u003d0 taskParent\u003d-1},{m\u003dTO_BACK f\u003dNONE leash\u003dSurface(name\u003dTask\u003d1)/@0x92c7799 sb\u003dRect(0, 0 - 3840, 2160) eb\u003dRect(0, 0 - 3840, 2160) epz\u003dPoint(3840, 2160) d\u003d0 taskParent\u003d-1}]}"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 199855400
+        }
+      },
+      "message": " Delegate animation for (#46) to null"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 201610500
+        }
+      },
+      "message": "start default transition animation, info \u003d {id\u003d46 t\u003dOPEN f\u003d0x0 trk\u003d0 r\u003d[0@Point(0, 0)] c\u003d[{m\u003dOPEN f\u003dNONE leash\u003dSurface(name\u003dTask\u003d133)/@0x50b06e3 sb\u003dRect(0, 0 - 3840, 2160) eb\u003dRect(0, 0 - 3840, 2160) epz\u003dPoint(3840, 2160) d\u003d0 taskParent\u003d-1},{m\u003dTO_BACK f\u003dNONE leash\u003dSurface(name\u003dTask\u003d1)/@0x92c7799 sb\u003dRect(0, 0 - 3840, 2160) eb\u003dRect(0, 0 - 3840, 2160) epz\u003dPoint(3840, 2160) d\u003d0 taskParent\u003d-1}]}"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 203702700
+        }
+      },
+      "message": "loadAnimation: anim\u003dandroid.view.animation.AlphaAnimation@d43f455 animAttr\u003d0x9 type\u003dOPEN isEntrance\u003dfalse"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "ndroid.systemui",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 204742900
+        }
+      },
+      "message": "AssetManager2(0xea38dc94) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "ndroid.systemui",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 207302200
+        }
+      },
+      "message": "AssetManager2(0xea38ca94) locale list changing from [] to [en-US]"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 209875500
+        }
+      },
+      "message": "loadAnimation: anim\u003dandroid.view.animation.AlphaAnimation@94ca637 animAttr\u003d0x8 type\u003dOPEN isEntrance\u003dtrue"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 210816600
+        }
+      },
+      "message": " animated by com.android.wm.shell.transition.DefaultTransitionHandler@b33742c"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9346,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_X509Util",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 222800800
+        }
+      },
+      "message": "Failed to validate the certificate chain, error: Chain validation failed"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9346,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "cr_X509Util",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 240144200
+        }
+      },
+      "message": "Failed to validate the certificate chain, error: Unacceptable certificate: CN\u003dDigiCert Global Root CA, OU\u003dwww.digicert.com, O\u003dDigiCert Inc, C\u003dUS"
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 9309,
+        "tid": 9358,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "chromium",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 241583900
+        }
+      },
+      "message": "[ERROR:net/socket/ssl_client_socket_impl.cc:916] handshake failed; returned -1, SSL error code 1, net_error -202"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "chromium",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 258258400
+        }
+      },
+      "message": "[INFO:CONSOLE:2] \"📺 TV App - Viewport: 980x551\", source:  (2)"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "chromium",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 263552200
+        }
+      },
+      "message": "[INFO:CONSOLE:3] \"📺 TV App - Screen: 960x540\", source:  (3)"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "chromium",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 263680500
+        }
+      },
+      "message": "[INFO:CONSOLE:4] \"📺 TV App - DevicePixelRatio: 4\", source:  (4)"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 770,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ImeTracker",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 263815700
+        }
+      },
+      "message": "com.gridtvsports.tv:d755477a: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "InsetsController",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 265363300
+        }
+      },
+      "message": "hide(ime(), fromIme\u003dfalse)"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 9309,
+        "tid": 9309,
+        "applicationId": "com.gridtvsports.tv",
+        "processName": "com.gridtvsports.tv",
+        "tag": "ImeTracker",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 265501400
+        }
+      },
+      "message": "com.gridtvsports.tv:d755477a: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 5279,
+        "tid": 5279,
+        "applicationId": "com.google.android.inputmethod.latin",
+        "processName": "com.google.android.inputmethod.latin",
+        "tag": "GoogleInputMethodService",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 268394200
+        }
+      },
+      "message": "GoogleInputMethodService.onFinishInput():2084 "
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 731,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ImeTracker",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 268827200
+        }
+      },
+      "message": "system_server:e967f1f3: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 5279,
+        "tid": 5279,
+        "applicationId": "com.google.android.inputmethod.latin",
+        "processName": "com.google.android.inputmethod.latin",
+        "tag": "Module",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 269450000
+        }
+      },
+      "message": "DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():101 repeatCheckTimes \u003d 0, locked \u003d false"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 688,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ImeTracker",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 269517500
+        }
+      },
+      "message": "system_server:e967f1f3: onCancelled at PHASE_SERVER_SHOULD_HIDE"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 5279,
+        "tid": 5279,
+        "applicationId": "com.google.android.inputmethod.latin",
+        "processName": "com.google.android.inputmethod.latin",
+        "tag": "GoogleInputMethodService",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 269998900
+        }
+      },
+      "message": "GoogleInputMethodService.onStartInput():1345 onStartInput(EditorInfo{EditorInfo{packageName\u003dcom.gridtvsports.tv, inputType\u003d0, inputTypeString\u003dNULL, enableLearning\u003dfalse, autoCorrection\u003dfalse, autoComplete\u003dfalse, imeOptions\u003d12000000, privateImeOptions\u003dnull, actionName\u003dUNSPECIFIED, actionLabel\u003dnull, initialSelStart\u003d-1, initialSelEnd\u003d-1, initialCapsMode\u003d0, label\u003dnull, fieldId\u003d0, fieldName\u003dnull, extras\u003dnull, hintText\u003dnull, hintLocales\u003d[]}}, false)"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 1040,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "PackageConfigPersister",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 270791100
+        }
+      },
+      "message": "App-specific configuration not found for packageName: com.gridtvsports.tv and userId: 0"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 5279,
+        "tid": 5279,
+        "applicationId": "com.google.android.inputmethod.latin",
+        "processName": "com.google.android.inputmethod.latin",
+        "tag": "Module",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 271553000
+        }
+      },
+      "message": "DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():101 repeatCheckTimes \u003d 1, locked \u003d false"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 471189200
+        }
+      },
+      "message": "(REDACTED) Received query %s, URI %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 471296700
+        }
+      },
+      "message": "(REDACTED) Query [%s] resolved to %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 472662100
+        }
+      },
+      "message": "(REDACTED) Fetch %s end status %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 477451600
+        }
+      },
+      "message": "(REDACTED) Pulling font file for id \u003d %d, cache size \u003d %d"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 3682,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "FontLog",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 481250700
+        }
+      },
+      "message": "(REDACTED) Pulling font file for id \u003d %d, cache size \u003d %d"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 625361500
+        }
+      },
+      "message": "Transition animation finished (aborted\u003dfalse), notifying core (#46) android.os.BinderProxy@19f0974@0"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 664,
+        "tid": 685,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "WindowManager",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 626968800
+        }
+      },
+      "message": "Finish Transition (#46): created at 12-25 22:08:41.297 collect-started\u003d0.139ms request-sent\u003d4.854ms started\u003d6.05ms ready\u003d278.197ms sent\u003d895.448ms commit\u003d30.992ms finished\u003d1329.038ms"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "VRI[HomeActivity]",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 627983700
+        }
+      },
+      "message": "visibilityChanged oldVisibility\u003dtrue newVisibility\u003dfalse"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 633022700
+        }
+      },
+      "message": "Track 0 became idle"
+    },
+    {
+      "header": {
+        "logLevel": "VERBOSE",
+        "pid": 885,
+        "tid": 935,
+        "applicationId": "com.android.systemui",
+        "processName": "com.android.systemui",
+        "tag": "WindowManagerShell",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 633064400
+        }
+      },
+      "message": "All active transition animations finished"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 664,
+        "tid": 847,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "MR2ServiceImpl",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 636571900
+        }
+      },
+      "message": "Updating composite discovery preference | preference: RouteDiscoveryRequest{ preferredFeatures\u003d{}, activeScan\u003dfalse }, active routers: []"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "BitmapDrawable",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 655406000
+        }
+      },
+      "message": "BitmapDrawable created with null Bitmap"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "BitmapDrawable",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 659770200
+        }
+      },
+      "message": "BitmapDrawable created with null Bitmap"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "BitmapDrawable",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 660013500
+        }
+      },
+      "message": "BitmapDrawable created with null Bitmap"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "BitmapDrawable",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 660088600
+        }
+      },
+      "message": "BitmapDrawable created with null Bitmap"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "BitmapDrawable",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 661016800
+        }
+      },
+      "message": "BitmapDrawable created with null Bitmap"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "BitmapDrawable",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 661245100
+        }
+      },
+      "message": "BitmapDrawable created with null Bitmap"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "BitmapDrawable",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 661324800
+        }
+      },
+      "message": "BitmapDrawable created with null Bitmap"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "BitmapDrawable",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 661461400
+        }
+      },
+      "message": "BitmapDrawable created with null Bitmap"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "WindowOnBackDispatcher",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 669183000
+        }
+      },
+      "message": "sendCancelIfRunning: isInProgress\u003dfalse callback\u003dcgk@1cab073"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3915,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "TifLauncherHelper",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 669696800
+        }
+      },
+      "message": "Allow remove LastInput? com.gridtvsports.tv in foreground"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 1496,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "CoreBackPreview",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 669805200
+        }
+      },
+      "message": "Window{86801b4 u0 com.google.android.apps.tv.launcherx/com.google.android.apps.tv.launcherx.home.HomeActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback\u003dandroid.window.IOnBackInvokedCallback$Stub$Proxy@154b200, mPriority\u003d-1, mIsAnimationCallback\u003dfalse, mOverrideBehavior\u003d0}"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 731,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "FileUtils",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 670170100
+        }
+      },
+      "message": "Rounded bytes from 2068742144 to 4000000000"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3915,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "LastUsedInputProtoDataS",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 672103700
+        }
+      },
+      "message": "Sending last used input update broadcast"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3871,
+        "tid": 3871,
+        "applicationId": "com.google.android.apps.tv.launcherx",
+        "processName": "com.google.android.apps.tv.launcherx",
+        "tag": "LastUsedInputUpdateRece",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 685274000
+        }
+      },
+      "message": "Notify last used input data change"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 851,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "BackgroundInstallControlService",
+        "timestamp": {
+          "seconds": 1766718522,
+          "nanos": 687341600
+        }
+      },
+      "message": "Package event received: 0"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 8822,
+        "tid": 8824,
+        "applicationId": "artd",
+        "processName": "artd",
+        "tag": "AidlLazyServiceRegistrar",
+        "timestamp": {
+          "seconds": 1766718523,
+          "nanos": 313798300
+        }
+      },
+      "message": "Process has 0 (of 1 available) client(s) in use after notification artd has clients: 0"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 8822,
+        "tid": 8824,
+        "applicationId": "artd",
+        "processName": "artd",
+        "tag": "AidlLazyServiceRegistrar",
+        "timestamp": {
+          "seconds": 1766718523,
+          "nanos": 313850400
+        }
+      },
+      "message": "Trying to shut down the service. No clients in use for any service in process."
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 8822,
+        "tid": 8824,
+        "applicationId": "artd",
+        "processName": "artd",
+        "tag": "AidlLazyServiceRegistrar",
+        "timestamp": {
+          "seconds": 1766718523,
+          "nanos": 315690900
+        }
+      },
+      "message": "Unregistered all clients and exiting"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 461,
+        "tid": 3509,
+        "applicationId": "android.hardware.audio.service",
+        "processName": "android.hardware.audio.service",
+        "tag": "android.hardware.audio@7.1-impl.ranchu",
+        "timestamp": {
+          "seconds": 1766718524,
+          "nanos": 339173100
+        }
+      },
+      "message": "threadLoop: entering standby, frames: 2286976"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 461,
+        "tid": 3509,
+        "applicationId": "android.hardware.audio.service",
+        "processName": "android.hardware.audio.service",
+        "tag": "android.hardware.audio@7.1-impl.ranchu",
+        "timestamp": {
+          "seconds": 1766718524,
+          "nanos": 339238400
+        }
+      },
+      "message": "~TinyalsaSink: joining consumeThread"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 461,
+        "tid": 9308,
+        "applicationId": "android.hardware.audio.service",
+        "processName": "android.hardware.audio.service",
+        "tag": "android.hardware.audio@7.1-impl.ranchu",
+        "timestamp": {
+          "seconds": 1766718524,
+          "nanos": 354022800
+        }
+      },
+      "message": "consumeThread: exiting"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 461,
+        "tid": 3509,
+        "applicationId": "android.hardware.audio.service",
+        "processName": "android.hardware.audio.service",
+        "tag": "android.hardware.audio@7.1-impl.ranchu",
+        "timestamp": {
+          "seconds": 1766718524,
+          "nanos": 354230900
+        }
+      },
+      "message": "~TinyalsaSink: stopping PCM stream"
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 664,
+        "tid": 1307,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "TaskPersister",
+        "timestamp": {
+          "seconds": 1766718525,
+          "nanos": 309513400
+        }
+      },
+      "message": "File error accessing recents directory (directory doesn\u0027t exist?)."
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 757,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityManager",
+        "timestamp": {
+          "seconds": 1766718525,
+          "nanos": 617597200
+        }
+      },
+      "message": "freezing 3974 com.google.android.gms.unstable"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 2220,
+        "tid": 2220,
+        "applicationId": "com.google.android.apps.mediashell",
+        "processName": "com.google.android.apps.mediashell",
+        "tag": "cast_shell",
+        "timestamp": {
+          "seconds": 1766718526,
+          "nanos": 769821000
+        }
+      },
+      "message": "[1225/220846.769753:INFO:service_base.h(78)] Size of the map for type AuthTokenResponse is 0"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 2220,
+        "tid": 2220,
+        "applicationId": "com.google.android.apps.mediashell",
+        "processName": "com.google.android.apps.mediashell",
+        "tag": "cast_shell",
+        "timestamp": {
+          "seconds": 1766718526,
+          "nanos": 847205000
+        }
+      },
+      "message": "[1225/220846.847172:INFO:service_base.h(246)] Container sizes for type CloudSetting are (session_info_map: 0), (topic_info_map: 21), (pending_events: 0)."
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 2220,
+        "tid": 2220,
+        "applicationId": "com.google.android.apps.mediashell",
+        "processName": "com.google.android.apps.mediashell",
+        "tag": "cast_shell",
+        "timestamp": {
+          "seconds": 1766718527,
+          "nanos": 20522900
+        }
+      },
+      "message": "[1225/220847.020476:INFO:metrics_stat_logger.cc(38)] Metrics stat for the past 60 secs : total\u003d4\n[metrics_stat_logger] Cast.CecHdmiInputState.Active\u003d1\n[metrics_stat_logger] Cast.CecStandby.On\u003d1\n[metrics_stat_logger] Cast.ConnectionType.Ethernet\u003d1\n[metrics_stat_logger] Cast.Network.CheckIn\u003d1"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 9277,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "GmsThreadNetwork",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 655887400
+        }
+      },
+      "message": "(REDACTED) [ThreadNetworkAgent] threadEnabled\u003d%b, internetReady\u003d%b"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 9277,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "GmsThreadNetwork",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 657491900
+        }
+      },
+      "message": "[ThreadNetworkAgent] Thread network sync starting [CONTEXT service_id\u003d305 ]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 9277,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "GmsThreadNetwork",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 657554100
+        }
+      },
+      "message": "[ThreadNetworkAgent] Checking cast auth registration status [CONTEXT service_id\u003d305 ]"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3666,
+        "tid": 3666,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 659336200
+        }
+      },
+      "message": "onRebind: Intent { act\u003dcom.google.android.gms.castauth.service.START dat\u003dchimera-action:/... xflg\u003d0x4 cmp\u003dcom.google.android.gms/.chimera.PersistentDirectBootAwareApiService }"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4303,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "CastAuth",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 659817400
+        }
+      },
+      "message": "[CastAuthAllUserChimeraService] CastAuthAllUserChimeraService starts... [CONTEXT service_id\u003d360 ]"
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 3666,
+        "tid": 4303,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "CastAuth",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 659940200
+        }
+      },
+      "message": "[CastAuthAllUserChimeraService] Feature is not available, reason \u003d CastAuth feature is disabled on this 1p device.. [CONTEXT service_id\u003d360 ]"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3666,
+        "tid": 4303,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "GoogleApiManager",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 660188700
+        }
+      },
+      "message": "Not showing notification since connectionResult is not user-facing: mr{statusCode\u003dAPI_UNAVAILABLE, resolution\u003dnull, message\u003dnull, clientMethodKey\u003dnull}"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3666,
+        "tid": 9277,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "GmsThreadNetwork",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 660567700
+        }
+      },
+      "message": "[ThreadNetworkAgent] Failed to do network sync, waiting for CastAuth registration [CONTEXT service_id\u003d305 ]\nm69.of: 17: API: CastAuth.API is not available on this device. Connection failed with: mr{statusCode\u003dAPI_UNAVAILABLE, resolution\u003dnull, message\u003dnull, clientMethodKey\u003dnull}\n\tat m69.sy.a(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):13)\n\tat m69.pq.c(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):3)\n\tat m69.qs.t(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):48)\n\tat m69.qs.f(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):10)\n\tat m69.qs.j(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):162)\n\tat m69.qs.i(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):2)\n\tat m69.tz.a(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):3)\n\tat m69.th.a(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):7)\n\tat m69.ta.c(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):77)\n\tat m69.tb.handleMessage(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):264)\n\tat android.os.Handler.dispatchMessage(Handler.java:110)\n\tat m69.hdl.dispatchMessage(:com.google.android.gms.optional_threadnetwork@254730249@25.47.30 (180000-0):139)\n\tat android.os.Looper.loopOnce(Looper.java:248)\n\tat android.os.Looper.loop(Looper.java:338)\n\tat android.os.HandlerThread.run(HandlerThread.java:85)"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 4303,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "CastAuth",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 660979000
+        }
+      },
+      "message": "[CastAuthAllUserChimeraService] CastAuthAllUserChimeraService starts... [CONTEXT service_id\u003d360 ]"
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 3666,
+        "tid": 4303,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "CastAuth",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 661040300
+        }
+      },
+      "message": "[CastAuthAllUserChimeraService] Feature is not available, reason \u003d CastAuth feature is disabled on this 1p device.. [CONTEXT service_id\u003d360 ]"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 9277,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "GmsThreadNetwork",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 661323600
+        }
+      },
+      "message": "(REDACTED) [ThreadNetworkAgent] Schedule retry network sync on failure in %d ms"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 3666,
+        "tid": 4303,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "GoogleApiManager",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 661440100
+        }
+      },
+      "message": "Not showing notification since connectionResult is not user-facing: mr{statusCode\u003dAPI_UNAVAILABLE, resolution\u003dnull, message\u003dnull, clientMethodKey\u003dnull}"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 3666,
+        "tid": 9277,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "GmsThreadNetwork",
+        "timestamp": {
+          "seconds": 1766718528,
+          "nanos": 661569800
+        }
+      },
+      "message": "(REDACTED) [ThreadNetworkAgent] Network sync completed: %s"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 2220,
+        "tid": 2557,
+        "applicationId": "com.google.android.apps.mediashell",
+        "processName": "com.google.android.apps.mediashell",
+        "tag": "cast_ClientAuthCredsProvisioning",
+        "timestamp": {
+          "seconds": 1766718530,
+          "nanos": 297706000
+        }
+      },
+      "message": "Loading factory credentials for 1P device."
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 2220,
+        "tid": 2557,
+        "applicationId": "com.google.android.apps.mediashell",
+        "processName": "com.google.android.apps.mediashell",
+        "tag": "ActivityThread",
+        "timestamp": {
+          "seconds": 1766718530,
+          "nanos": 298619200
+        }
+      },
+      "message": "Failed to find provider info for com.google.android.tvsetup.app.machine.services.castsetup.castsetupinfo.CastInfoProvider"
+    },
+    {
+      "header": {
+        "logLevel": "ERROR",
+        "pid": 2220,
+        "tid": 2557,
+        "applicationId": "com.google.android.apps.mediashell",
+        "processName": "com.google.android.apps.mediashell",
+        "tag": "cast_ClientAuthCredsFactoryProvisioned",
+        "timestamp": {
+          "seconds": 1766718530,
+          "nanos": 298657900
+        }
+      },
+      "message": "Cannot get device credentials"
+    },
+    {
+      "header": {
+        "logLevel": "INFO",
+        "pid": 2220,
+        "tid": 2557,
+        "applicationId": "com.google.android.apps.mediashell",
+        "processName": "com.google.android.apps.mediashell",
+        "tag": "cast_ClientAuthCredsProvisioning",
+        "timestamp": {
+          "seconds": 1766718530,
+          "nanos": 298669800
+        }
+      },
+      "message": "Retry loading factory credentials"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 680,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "FileUtils",
+        "timestamp": {
+          "seconds": 1766718532,
+          "nanos": 668530600
+        }
+      },
+      "message": "Rounded bytes from 2068742144 to 4000000000"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 757,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityManager",
+        "timestamp": {
+          "seconds": 1766718532,
+          "nanos": 687647100
+        }
+      },
+      "message": "freezing 1016 com.android.tv.settings"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3666,
+        "tid": 3666,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718533,
+          "nanos": 672949300
+        }
+      },
+      "message": "onUnbind: Intent { act\u003dcom.google.android.gms.castauth.service.START dat\u003dchimera-action:/... xflg\u003d0x4 cmp\u003dcom.google.android.gms/.chimera.PersistentDirectBootAwareApiService }"
+    },
+    {
+      "header": {
+        "logLevel": "WARN",
+        "pid": 664,
+        "tid": 680,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ProcessStats",
+        "timestamp": {
+          "seconds": 1766718537,
+          "nanos": 90840000
+        }
+      },
+      "message": "Tracking association SourceState{62fa79b com.google.android.gms/10055 BTop #6363} whose proc state 2 is better than process ProcessState{237abd6 com.google.android.gms.persistent/10055 pkg\u003dcom.google.android.gms (sub)} proc state 3 (211 skipped)"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3709,
+        "tid": 3709,
+        "applicationId": "com.google.android.gms",
+        "processName": "com.google.android.gms",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718537,
+          "nanos": 90859100
+        }
+      },
+      "message": "onUnbind: Intent { act\u003dcom.google.android.gms.safetynet.service.START xflg\u003d0x4 pkg\u003dcom.google.android.gms }"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3709,
+        "tid": 3709,
+        "applicationId": "com.google.android.gms",
+        "processName": "com.google.android.gms",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718537,
+          "nanos": 93199000
+        }
+      },
+      "message": "onUnbind: Intent { act\u003dcom.google.android.gms.safebrowsing.SafeBrowsingService.START dat\u003dchimera-action:/... xflg\u003d0x4 cmp\u003dcom.google.android.gms/.chimera.GmsBoundBrokerService }"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3666,
+        "tid": 3666,
+        "applicationId": "com.google.android.gms.persistent",
+        "processName": "com.google.android.gms.persistent",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718537,
+          "nanos": 729947200
+        }
+      },
+      "message": "onUnbind: Intent { act\u003dcom.google.android.gms.auth.aang.events.services.START dat\u003dchimera-action:/... xflg\u003d0x4 cmp\u003dcom.google.android.gms/.chimera.PersistentApiService }"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 3709,
+        "tid": 3709,
+        "applicationId": "com.google.android.gms",
+        "processName": "com.google.android.gms",
+        "tag": "BoundBrokerSvc",
+        "timestamp": {
+          "seconds": 1766718537,
+          "nanos": 731355700
+        }
+      },
+      "message": "onUnbind: Intent { act\u003dcom.google.android.gms.auth.service.START xflg\u003d0x4 pkg\u003dcom.google.android.gms }"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 757,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityManager",
+        "timestamp": {
+          "seconds": 1766718546,
+          "nanos": 487804800
+        }
+      },
+      "message": "freezing 1616 com.android.providers.tv"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 809,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "InetDiagMessage",
+        "timestamp": {
+          "seconds": 1766718546,
+          "nanos": 489226500
+        }
+      },
+      "message": "Destroyed 0 sockets, proto\u003dIPPROTO_TCP, family\u003dAF_INET, states\u003d14"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 809,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "InetDiagMessage",
+        "timestamp": {
+          "seconds": 1766718546,
+          "nanos": 489668400
+        }
+      },
+      "message": "Destroyed 0 sockets, proto\u003dIPPROTO_TCP, family\u003dAF_INET6, states\u003d14"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 809,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "InetDiagMessage",
+        "timestamp": {
+          "seconds": 1766718546,
+          "nanos": 489719600
+        }
+      },
+      "message": "Destroyed live tcp sockets for uids\u003d{10029} in 0ms"
+    },
+    {
+      "header": {
+        "logLevel": "DEBUG",
+        "pid": 664,
+        "tid": 757,
+        "applicationId": "system_server",
+        "processName": "system_server",
+        "tag": "ActivityManager",
+        "timestamp": {
+          "seconds": 1766718550,
+          "nanos": 489167700
+        }
+      },
+      "message": "freezing 3709 com.google.android.gms"
+    }
+  ]
+}
