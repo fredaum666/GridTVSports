@@ -10,13 +10,13 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching essential assets');
+      // Cache essential app assets (icons only - pages are dynamic)
       return cache.addAll([
-        '/logos/nfl/',
-        '/logos/nba/',
-        '/logos/mlb/',
-        '/logos/nhl/'
+        '/assets/Icon.png',
+        '/assets/icon-192.png'
       ]).catch(err => {
-        console.log('[SW] Some assets failed to cache:', err);
+        // Non-critical - just log and continue
+        console.log('[SW] Some assets failed to cache (non-critical):', err.message);
       });
     })
   );
