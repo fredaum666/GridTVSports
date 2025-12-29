@@ -2956,6 +2956,13 @@ app.get('/api/nfl/current-week', (req, res) => {
   });
 });
 
+// Cache for last successfully fetched playoff standings (used as fallback)
+let lastFetchedPlayoffStandings = {
+  afc: [],
+  nfc: [],
+  lastUpdated: null
+};
+
 // NFL Playoff Bracket endpoint
 app.get('/api/nfl/playoff-bracket', async (req, res) => {
   try {
@@ -3134,17 +3141,38 @@ app.get('/api/nfl/playoff-bracket', async (req, res) => {
         afcTeams.sort((a, b) => (a.seed || 99) - (b.seed || 99));
         nfcTeams.sort((a, b) => (a.seed || 99) - (b.seed || 99));
 
-        // If API didn't return enough teams with proper seeds 1-7, use static data
+        // If API didn't return enough teams with proper seeds 1-7, use cached/static data
         const afcHasValidSeeds = afcTeams.slice(0, 7).every((t, i) => t.seed === i + 1);
         const nfcHasValidSeeds = nfcTeams.slice(0, 7).every((t, i) => t.seed === i + 1);
 
         if (afcTeams.length < 7 || !afcHasValidSeeds) {
-          console.log('[NFL Bracket] Using static AFC standings data');
-          afcTeams = CURRENT_PLAYOFF_STANDINGS.afc;
+          // Use last fetched data if available, otherwise use hardcoded fallback
+          if (lastFetchedPlayoffStandings.afc.length >= 7) {
+            console.log('[NFL Bracket] Using last fetched AFC standings (cached)');
+            afcTeams = lastFetchedPlayoffStandings.afc;
+          } else {
+            console.log('[NFL Bracket] Using hardcoded AFC standings fallback');
+            afcTeams = CURRENT_PLAYOFF_STANDINGS.afc;
+          }
+        } else {
+          // Save successful fetch for future fallback
+          lastFetchedPlayoffStandings.afc = afcTeams.slice(0, 7);
+          lastFetchedPlayoffStandings.lastUpdated = new Date().toISOString();
         }
+
         if (nfcTeams.length < 7 || !nfcHasValidSeeds) {
-          console.log('[NFL Bracket] Using static NFC standings data');
-          nfcTeams = CURRENT_PLAYOFF_STANDINGS.nfc;
+          // Use last fetched data if available, otherwise use hardcoded fallback
+          if (lastFetchedPlayoffStandings.nfc.length >= 7) {
+            console.log('[NFL Bracket] Using last fetched NFC standings (cached)');
+            nfcTeams = lastFetchedPlayoffStandings.nfc;
+          } else {
+            console.log('[NFL Bracket] Using hardcoded NFC standings fallback');
+            nfcTeams = CURRENT_PLAYOFF_STANDINGS.nfc;
+          }
+        } else {
+          // Save successful fetch for future fallback
+          lastFetchedPlayoffStandings.nfc = nfcTeams.slice(0, 7);
+          lastFetchedPlayoffStandings.lastUpdated = new Date().toISOString();
         }
 
         console.log(`[NFL Bracket] Found ${afcTeams.length} AFC and ${nfcTeams.length} NFC playoff teams from standings`);
