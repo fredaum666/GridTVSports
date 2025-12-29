@@ -1492,10 +1492,13 @@
     }
 
     @keyframes negatedPulse {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateX(-50%) scale(1);
         box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
       }
+
       50% {
         transform: translateX(-50%) scale(1.05);
         box-shadow: 0 4px 25px rgba(239, 68, 68, 0.8);
@@ -2033,16 +2036,19 @@
       background: rgba(234, 179, 8, 0.15) !important;
       overflow: visible;
       overflow-y: auto;
-      animation: fadeOutPenalty 11s forwards !important; /* 5s phase 1 + 6s phase 2 */
+      animation: fadeOutPenalty 11s forwards !important;
+      /* 5s phase 1 + 6s phase 2 */
     }
 
     @keyframes fadeOutPenalty {
       0% {
         opacity: 1;
       }
+
       95% {
         opacity: 1;
       }
+
       100% {
         opacity: 0;
       }
@@ -2058,9 +2064,11 @@
       0% {
         opacity: 1;
       }
+
       90% {
         opacity: 1;
       }
+
       100% {
         opacity: 0;
       }
@@ -2086,10 +2094,12 @@
         transform: scale(0.3);
         opacity: 0;
       }
+
       70% {
         transform: scale(1.1);
         opacity: 1;
       }
+
       100% {
         transform: scale(1);
         opacity: 1;
@@ -2097,10 +2107,13 @@
     }
 
     @keyframes timeoutLogoPulse {
-      0%, 100% {
+
+      0%,
+      100% {
         filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8));
         transform: scale(1);
       }
+
       50% {
         filter: drop-shadow(0 0 35px rgba(59, 130, 246, 1));
         transform: scale(1.05);
@@ -3366,7 +3379,7 @@
       }
 
       .fullscreen-grid.grid-4 .fullscreen-upcoming-status-text {
-        font-size: clamp(1.8rem, 8vw, 2.6rem) !important;
+        font-size: clamp(1rem, 5vw, 2.6rem) !important;
         /* ◄ Upcoming game time (2x) */
       }
 
@@ -6149,6 +6162,7 @@
       gap: 10px;
       justify-content: center;
       flex: 1;
+      position: relative;
     }
 
     /* Individual matchup */
@@ -6157,6 +6171,7 @@
       border-radius: 8px;
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
     }
 
     .bracket-team {
@@ -10233,7 +10248,9 @@
           hoursUntil: hoursUntil
         });
 
-        if (minutesUntil < 60) {
+        if (minutesUntil <= 0) {
+          statusDisplay = `GAME IS ABOUT TO START`;
+        } else if (minutesUntil < 60) {
           statusDisplay = `STARTS IN ${minutesUntil} MIN`;
         } else if (hoursUntil < 24) {
           statusDisplay = `STARTS IN ${hoursUntil}H`;
@@ -10848,7 +10865,9 @@
               const minutesUntil = Math.round((gameDate - now) / (1000 * 60));
               const hoursUntil = Math.round((gameDate - now) / (1000 * 60 * 60));
 
-              if (minutesUntil < 60) {
+              if (minutesUntil <= 0) {
+                upcomingStatus.textContent = `⏰ GAME IS ABOUT TO START`;
+              } else if (minutesUntil < 60) {
                 upcomingStatus.textContent = `⏰ STARTS IN ${minutesUntil} MIN`;
               } else if (hoursUntil < 24) {
                 upcomingStatus.textContent = `⏰ STARTS IN ${hoursUntil}H`;
@@ -10906,7 +10925,7 @@
 
             // Detect if play was negated by penalty ("No Play" at the end)
             const isNegated = lowerLastPlay.includes('no play') ||
-                              (lowerLastPlay.includes('penalty') && lowerLastPlay.includes('enforced'));
+              (lowerLastPlay.includes('penalty') && lowerLastPlay.includes('enforced'));
 
             // Helper to get team info
             const awayAbbr = awayTeam?.team?.abbreviation || '';
@@ -10997,7 +11016,7 @@
 
             // 3. TOUCHDOWN detection (if not already caught by turnover)
             else if ((lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) &&
-                     !events.some(e => e.type === 'touchdown')) {
+              !events.some(e => e.type === 'touchdown')) {
               // Determine scoring team from score change or play text
               let scoringTeam = '';
               if (awayScoreChange >= 6) {
@@ -11040,7 +11059,7 @@
 
             // 5. FIELD GOAL detection (successful)
             if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
-                lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good')) {
+              lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good')) {
               let fgTeam = '';
               if (awayScoreChange === 3) fgTeam = awayName;
               else if (homeScoreChange === 3) fgTeam = homeName;
@@ -11055,9 +11074,9 @@
 
             // 6. MISSED FIELD GOAL detection
             if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
-                (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
-                 lowerLastPlay.includes('wide') || lowerLastPlay.includes('short') ||
-                 lowerLastPlay.includes('blocked'))) {
+              (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
+                lowerLastPlay.includes('wide') || lowerLastPlay.includes('short') ||
+                lowerLastPlay.includes('blocked'))) {
               events.push({
                 type: 'missed-kick',
                 text: 'MISSED FIELD GOAL!',
@@ -11068,8 +11087,8 @@
 
             // 7. EXTRA POINT detection (successful)
             if ((lowerLastPlay.includes('extra point') || lowerLastPlay.includes('pat ') ||
-                 lowerLastPlay.includes(' xp ')) &&
-                lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good')) {
+              lowerLastPlay.includes(' xp ')) &&
+              lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good')) {
               events.push({
                 type: 'field-goal',
                 text: 'EXTRA POINT!',
@@ -11080,9 +11099,9 @@
 
             // 8. MISSED EXTRA POINT detection
             if ((lowerLastPlay.includes('extra point') || lowerLastPlay.includes('pat ') ||
-                 lowerLastPlay.includes(' xp ')) &&
-                (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
-                 lowerLastPlay.includes('failed') || lowerLastPlay.includes('blocked'))) {
+              lowerLastPlay.includes(' xp ')) &&
+              (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
+                lowerLastPlay.includes('failed') || lowerLastPlay.includes('blocked'))) {
               events.push({
                 type: 'missed-kick',
                 text: 'MISSED EXTRA POINT!',
@@ -11093,8 +11112,8 @@
 
             // 9. TWO-POINT CONVERSION detection
             if ((lowerLastPlay.includes('two-point') || lowerLastPlay.includes('2-pt') ||
-                 lowerLastPlay.includes('two point') || lowerLastPlay.includes('2 point')) &&
-                lowerLastPlay.includes('conversion')) {
+              lowerLastPlay.includes('two point') || lowerLastPlay.includes('2 point')) &&
+              lowerLastPlay.includes('conversion')) {
               let twoPointTeam = '';
               if (awayScoreChange === 2) twoPointTeam = awayName;
               else if (homeScoreChange === 2) twoPointTeam = homeName;
@@ -11130,11 +11149,11 @@
 
             // 11. PUNT detection
             if (lowerLastPlay.includes('punt') && !lowerLastPlay.includes('fake') &&
-                !events.some(e => e.type === 'touchdown')) {
+              !events.some(e => e.type === 'touchdown')) {
 
               // Check for punt return touchdown
               if (lowerLastPlay.includes('return') &&
-                  (lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td'))) {
+                (lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td'))) {
                 // Already handled in touchdown section
               } else if (!lowerLastPlay.includes('touchdown')) {
                 events.push({
@@ -11151,7 +11170,7 @@
 
             // 13. PENALTY detection (always show last so action is seen first)
             if ((lowerLastPlay.includes('penalty') || lowerLastPlay.includes('flag')) &&
-                !lowerLastPlay.includes('no flags') && !lowerLastPlay.includes('declined')) {
+              !lowerLastPlay.includes('no flags') && !lowerLastPlay.includes('declined')) {
 
               // Parse penalty information
               let penaltyName = 'PENALTY';

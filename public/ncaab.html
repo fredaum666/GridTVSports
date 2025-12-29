@@ -5870,7 +5870,9 @@
           hoursUntil: hoursUntil
         });
 
-        if (minutesUntil < 60) {
+        if (minutesUntil <= 0) {
+          statusDisplay = `⏰ GAME IS ABOUT TO START`;
+        } else if (minutesUntil < 60) {
           statusDisplay = `⏰ STARTS IN ${minutesUntil} MIN`;
         } else if (hoursUntil < 24) {
           statusDisplay = `⏰ STARTS IN ${hoursUntil}H`;
@@ -6193,7 +6195,9 @@
               const minutesUntil = Math.round((gameDate - now) / (1000 * 60));
               const hoursUntil = Math.round((gameDate - now) / (1000 * 60 * 60));
 
-              if (minutesUntil < 60) {
+              if (minutesUntil <= 0) {
+                quarterEl.textContent = `⏰ GAME IS ABOUT TO START`;
+              } else if (minutesUntil < 60) {
                 quarterEl.textContent = `⏰ STARTS IN ${minutesUntil} MIN`;
               } else if (hoursUntil < 24) {
                 quarterEl.textContent = `⏰ STARTS IN ${hoursUntil}H`;

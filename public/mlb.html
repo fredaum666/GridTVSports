@@ -6297,7 +6297,9 @@
               const minutesUntil = Math.round((gameDate - now) / (1000 * 60));
               const hoursUntil = Math.round((gameDate - now) / (1000 * 60 * 60));
 
-              if (minutesUntil < 60) {
+              if (minutesUntil <= 0) {
+                inningEl.textContent = `⏰ GAME IS ABOUT TO START`;
+              } else if (minutesUntil < 60) {
                 inningEl.textContent = `⏰ STARTS IN ${minutesUntil} MIN`;
               } else if (hoursUntil < 24) {
                 inningEl.textContent = `⏰ STARTS IN ${hoursUntil}H`;
