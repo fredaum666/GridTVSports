@@ -176,19 +176,20 @@ class MainActivity : AppCompatActivity() {
         val screenHeight: Int
         val density: Float
 
+        val displayMetrics = resources.displayMetrics
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics: WindowMetrics = windowManager.currentWindowMetrics
+            val windowMetrics = windowManager.currentWindowMetrics
             screenWidth = windowMetrics.bounds.width()
             screenHeight = windowMetrics.bounds.height()
-            density = resources.displayMetrics.density
+            density = displayMetrics.density
         } else {
             @Suppress("DEPRECATION")
-            val displayMetrics = android.util.DisplayMetrics()
+            val metrics = android.util.DisplayMetrics()
             @Suppress("DEPRECATION")
-            windowManager.defaultDisplay.getRealMetrics(displayMetrics)
-            screenWidth = displayMetrics.widthPixels
-            screenHeight = displayMetrics.heightPixels
-            density = displayMetrics.density
+            windowManager.defaultDisplay.getRealMetrics(metrics)
+            screenWidth = metrics.widthPixels
+            screenHeight = metrics.heightPixels
+            density = metrics.density
         }
 
         Log.d("MainActivity", "Screen: ${screenWidth}x${screenHeight}, Density: $density")
