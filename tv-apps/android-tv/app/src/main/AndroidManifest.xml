@@ -9,14 +9,22 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Feature declarations for TV + Phone/Tablet compatibility -->
-    <!-- Leanback declares TV support, required=false allows phones too -->
+    <!-- Leanback library adds this as required, we override to make it optional -->
     <uses-feature
         android:name="android.software.leanback"
-        android:required="false" />
-    <!-- Explicitly declare touchscreen NOT required so TVs are included -->
+        android:required="false"
+        tools:replace="android:required" />
+    <!-- Touchscreen NOT required - allows TVs (no touchscreen) to install -->
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
+    <!-- Explicitly support all screen sizes -->
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:anyDensity="true" />
 
     <application
         android:isGame="false"
