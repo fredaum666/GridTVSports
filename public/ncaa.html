@@ -1469,62 +1469,6 @@
       }
     }
 
-    /* Timeout Animation - Blue/White with team logo */
-    .play-animation.timeout {
-      background: rgba(59, 130, 246, 0.2) !important;
-      animation: fadeOutTimeout 5s forwards !important;
-    }
-
-    @keyframes fadeOutTimeout {
-      0% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-
-    .timeout-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: clamp(10px, 2vh, 20px);
-    }
-
-    .timeout-team-logo {
-      width: clamp(80px, 20vmin, 200px);
-      height: clamp(80px, 20vmin, 200px);
-      object-fit: contain;
-      filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8));
-      animation: timeoutLogoEntry 0.6s ease-out, timeoutLogoPulse 1.5s ease-in-out infinite 0.6s;
-    }
-
-    @keyframes timeoutLogoEntry {
-      0% { transform: scale(0.3); opacity: 0; }
-      70% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @keyframes timeoutLogoPulse {
-      0%, 100% { filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8)); transform: scale(1); }
-      50% { filter: drop-shadow(0 0 35px rgba(59, 130, 246, 1)); transform: scale(1.05); }
-    }
-
-    .play-animation.timeout .play-animation-text {
-      color: #3b82f6;
-      font-size: clamp(1.8rem, 5vh, 4rem);
-      font-weight: 900;
-      text-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.5);
-      letter-spacing: clamp(2px, 0.8vh, 6px);
-      animation: playTextSlide 0.6s ease-out;
-    }
-
-    .timeout-team-name {
-      color: #e5e7eb;
-      font-size: clamp(1rem, 2.5vh, 2rem);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-top: clamp(5px, 1vh, 10px);
-    }
-
     /* Touchdown Animation - Green/Gold */
     .play-animation.touchdown .play-animation-icon {
       color: #fbbf24;

@@ -6001,6 +6001,17 @@
           </div>
           <div class="play-animation-text">${playText}</div>
         `;
+      } else if (playType === 'timeout') {
+        // Special HTML for timeout with team logo
+        // recoveryLogo contains the team logo URL
+        const timeoutLogoUrl = recoveryLogo || '';
+        animationDiv.innerHTML = `
+          <div class="timeout-container">
+            ${timeoutLogoUrl ? `<img src="${timeoutLogoUrl}" alt="Team" class="timeout-team-logo">` : ''}
+            <div class="play-animation-text">${playText}</div>
+            ${teamName ? `<div class="timeout-team-name">${teamName}</div>` : ''}
+          </div>
+        `;
       } else if (playType === 'penalty') {
         // Special HTML for penalty with two-phase animation (NFL/NCAA only)
         // Phase 1: Referee throwing (3 seconds)
@@ -6201,7 +6212,9 @@
             lastInterception: card.dataset.lastInterception || '',
             lastFumble: card.dataset.lastFumble || '',
             lastSack: card.dataset.lastSack || '',
-            prevDown: card.dataset.prevDown || '0'
+            prevDown: card.dataset.prevDown || '0',
+            prevAwayTimeouts: card.dataset.prevAwayTimeouts || '3',
+            prevHomeTimeouts: card.dataset.prevHomeTimeouts || '3'
           };
         }
       });
@@ -6228,6 +6241,8 @@
             card.dataset.lastFumble = previousPlays[gameId].lastFumble;
             card.dataset.lastSack = previousPlays[gameId].lastSack;
             card.dataset.prevDown = previousPlays[gameId].prevDown || '0';
+            card.dataset.prevAwayTimeouts = previousPlays[gameId].prevAwayTimeouts || '3';
+            card.dataset.prevHomeTimeouts = previousPlays[gameId].prevHomeTimeouts || '3';
           }
 
           // For NFL and NCAA games, also check for turnovers and first downs from play description
@@ -6286,6 +6301,29 @@
                 showPlayAnimation(card, 'ncaa', 'first-down', '1ST DOWN!');
               }
               card.dataset.prevDown = currentDown || 0;
+            }
+
+            // Timeout detection for NFL only (ESPN only provides timeout data for NFL)
+            if (game.sport === 'nfl') {
+              const awayTimeouts = comp?.situation?.awayTimeouts ?? 3;
+              const homeTimeouts = comp?.situation?.homeTimeouts ?? 3;
+              const prevAwayTimeouts = parseInt(card.dataset.prevAwayTimeouts || 3);
+              const prevHomeTimeouts = parseInt(card.dataset.prevHomeTimeouts || 3);
+
+              // Detect if a timeout was just used (timeout count decreased)
+              if (awayTimeouts < prevAwayTimeouts) {
+                const awayTeamName = awayTeam?.team?.displayName || 'Away';
+                const awayTeamLogo = awayTeam?.team?.logo || '';
+                showPlayAnimation(card, 'nfl', 'timeout', 'TIMEOUT', awayTeamName, '', awayTeamLogo);
+              } else if (homeTimeouts < prevHomeTimeouts) {
+                const homeTeamName = homeTeam?.team?.displayName || 'Home';
+                const homeTeamLogo = homeTeam?.team?.logo || '';
+                showPlayAnimation(card, 'nfl', 'timeout', 'TIMEOUT', homeTeamName, '', homeTeamLogo);
+              }
+
+              // Store current timeout counts for next update
+              card.dataset.prevAwayTimeouts = awayTimeouts;
+              card.dataset.prevHomeTimeouts = homeTimeouts;
             }
           }
         }
