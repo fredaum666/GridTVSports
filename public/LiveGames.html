@@ -987,9 +987,13 @@
       padding: clamp(6px, 1.2vmin, 12px) clamp(12px, 2.5vmin, 24px);
       border-radius: clamp(4px, 0.8vmin, 8px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
-      /* Black outline for team color text */
-      -webkit-text-stroke: 0.5px #000;
-      text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+      /* Black outline for team color text - outside only using text-shadow */
+      text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 0 3px rgba(0, 0, 0, 0.5);
     }
 
     .fullscreen-live-team-name.winning {
@@ -1124,9 +1128,13 @@
       border-radius: clamp(4px, 0.8vmin, 8px);
       display: inline-block;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
-      /* Black outline for team color text */
-      -webkit-text-stroke: 0.5px #000;
-      text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+      /* Black outline for team color text - outside only using text-shadow */
+      text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 0 3px rgba(0, 0, 0, 0.5);
     }
 
     .fullscreen-possession {

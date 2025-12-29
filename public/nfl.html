@@ -1024,12 +1024,16 @@
       gap: clamp(6px, 1.2vw, 12px);
       /* Neutral background for better readability with team colors */
       background: rgba(240, 235, 235, 0.74);
-      padding: clamp(6px, 1.2vmin, 12px) clamp(12px, 2.5vmin, 24px);
+      padding: clamp(5px, 1.2vmin, 12px) clamp(12px, 2.5vmin, 24px);
       border-radius: clamp(4px, 0.8vmin, 8px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
-      /* Black outline for team color text */
-      -webkit-text-stroke: 0.5px #000;
-      text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+      /* Black outline for team color text - outside only using text-shadow */
+      text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 0 3px rgba(0, 0, 0, 0.5);
     }
 
     .fullscreen-live-team-name.winning {
@@ -1165,9 +1169,13 @@
       display: inline-block;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      /* Black outline for team color text */
-      -webkit-text-stroke: 0.5px #000;
-      text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+      /* Black outline for team color text - outside only using text-shadow */
+      text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 0 3px rgba(0, 0, 0, 0.5);
     }
 
     .fullscreen-situation-info.updating {
@@ -3183,9 +3191,9 @@
 
       /* --- Grid 4: TEAM LOGO --- */
       .fullscreen-grid.grid-4 .fullscreen-team-logo {
-        /*width: 11vw !important; */
+        width: 10vw !important;
         /* ◄ Logo width */
-        /*height: 11vw !important;  */
+        height: 10vw !important;
         /* ◄ Logo height */
         max-width: 80px !important;
         /* ◄ Logo max width (2x) */
@@ -3229,7 +3237,7 @@
 
       /* --- Grid 4: CLOCK & QUARTER --- */
       .fullscreen-grid.grid-4 .fullscreen-status-text {
-        font-size: clamp(1.8rem, 8vw, 2.6rem) !important;
+        font-size: clamp(1rem, 5vw, 2.6rem) !important;
         /* ◄ Clock/quarter size (2x) */
       }
 
@@ -3249,7 +3257,7 @@
       /* --- Grid 4: DOWN & DISTANCE (NFL/NCAA Only) --- */
       .fullscreen-grid.grid-4 .situation-info,
       .fullscreen-grid.grid-4 .fullscreen-situation-info {
-        font-size: clamp(1.7rem, 7vw, 2.4rem) !important;
+        font-size: clamp(1rem, 4vw, 2.4rem) !important;
         /* ◄ Down & distance (2x) */
         padding: 4px 8px !important;
         margin-top: 4px !important;
@@ -3649,7 +3657,7 @@
       }
 
       .fullscreen-grid.grid-4 .fullscreen-team-score {
-        font-size: clamp(0.9rem, 4.5vw, 1.4rem) !important;
+        font-size: clamp(0.9rem, 7.5vw, 2.4rem) !important;
       }
 
       /* --- Grid 6 & 8: Extra Small Adjustments --- */
