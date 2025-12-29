@@ -11146,32 +11146,8 @@
               }
             }
 
-            // 12. TIMEOUT detection
-            if (lowerLastPlay.includes('timeout')) {
-              // Determine which team called the timeout
-              let timeoutTeam = '';
-              let timeoutLogo = '';
-
-              // Check for team abbreviation in timeout text
-              // Pattern: "Timeout #X by [TEAM]" or "[TEAM] Timeout"
-              if (lowerLastPlay.includes(awayAbbr.toLowerCase()) ||
-                  lowerLastPlay.includes(awayTeam?.team?.shortDisplayName?.toLowerCase() || '')) {
-                timeoutTeam = awayName;
-                timeoutLogo = awayLogo;
-              } else if (lowerLastPlay.includes(homeAbbr.toLowerCase()) ||
-                         lowerLastPlay.includes(homeTeam?.team?.shortDisplayName?.toLowerCase() || '')) {
-                timeoutTeam = homeName;
-                timeoutLogo = homeLogo;
-              }
-
-              events.push({
-                type: 'timeout',
-                text: 'TIMEOUT',
-                teamName: timeoutTeam,
-                recoveryInfo: timeoutLogo,
-                isNegated: false
-              });
-            }
+            // 12. TIMEOUT detection - handled separately by timeout count change detection
+            // (see timeout bars update section below to avoid duplicate animations)
 
             // 13. PENALTY detection (always show last so action is seen first)
             if ((lowerLastPlay.includes('penalty') || lowerLastPlay.includes('flag')) &&
