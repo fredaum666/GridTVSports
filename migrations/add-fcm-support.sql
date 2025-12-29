@@ -14,6 +14,10 @@ ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
 ALTER TABLE push_subscriptions
 ADD COLUMN IF NOT EXISTS device_info JSONB;
 
+-- Add updated_at if not exists
+ALTER TABLE push_subscriptions
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+
 -- Make endpoint nullable (FCM subscriptions don't have web push endpoints)
 ALTER TABLE push_subscriptions
 ALTER COLUMN endpoint DROP NOT NULL;

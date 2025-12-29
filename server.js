@@ -1241,13 +1241,14 @@ app.post('/api/push/fcm/register', async (req, res) => {
 
   try {
     // Upsert FCM subscription (update if token exists, insert if not)
+    // For JSONB column, pass the object directly (pg driver handles serialization)
     await pool.query(`
       INSERT INTO push_subscriptions (user_id, subscription_type, fcm_token, device_id, device_info, user_agent, updated_at)
-      VALUES ($1, 'fcm', $2, $3, $4, $5, NOW())
+      VALUES ($1, 'fcm', $2, $3, $4::jsonb, $5, NOW())
       ON CONFLICT (fcm_token) DO UPDATE SET
         user_id = $1,
         device_id = $3,
-        device_info = $4,
+        device_info = $4::jsonb,
         user_agent = $5,
         is_active = TRUE,
         updated_at = NOW()
@@ -1269,8 +1270,8 @@ app.post('/api/push/fcm/register', async (req, res) => {
     console.log(`[FCM] User ${req.session.userId} registered FCM token (device: ${device_id || 'unknown'})`);
     res.json({ success: true, message: 'FCM token registered successfully' });
   } catch (error) {
-    console.error('Error saving FCM subscription:', error);
-    res.status(500).json({ error: 'Failed to register FCM token' });
+    console.error('Error saving FCM subscription:', error.message, error.stack);
+    res.status(500).json({ error: 'Failed to register FCM token', details: error.message });
   }
 });
 
