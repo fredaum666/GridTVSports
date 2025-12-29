@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.UiModeManager
-import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -114,7 +113,7 @@ class MainActivity : AppCompatActivity() {
             enableLights(true)
             enableVibration(true)
         }
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(channel)
         Log.d("MainActivity", "Notification channel created")
     }
@@ -155,14 +154,14 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "FCM Token: $fcmToken")
 
             // Store token locally using KTX extension
-            getSharedPreferences("fcm_prefs", Context.MODE_PRIVATE).edit {
+            getSharedPreferences("fcm_prefs", MODE_PRIVATE).edit {
                 putString("fcm_token", fcmToken)
             }
         }
     }
 
     private fun detectTVDevice(): Boolean {
-        val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+        val uiModeManager = getSystemService(UiModeManager::class.java)
         return uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
@@ -268,14 +267,14 @@ class MainActivity : AppCompatActivity() {
                 hideLoading()
             }
 
-            @Deprecated("Deprecated in Java")
+            @Deprecated("Deprecated in Java", ReplaceWith("onReceivedError(view, request, error)"))
+            @Suppress("DEPRECATION")
             override fun onReceivedError(
                 view: WebView?,
                 errorCode: Int,
                 description: String?,
                 failingUrl: String?
             ) {
-                @Suppress("DEPRECATION")
                 super.onReceivedError(view, errorCode, description, failingUrl)
                 showError("Connection error: $description")
             }
@@ -302,11 +301,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     // JavaScript interface for web page communication
+    // Functions are called from JavaScript, suppress "unused" warnings
+    @Suppress("unused")
     inner class WebAppInterface {
 
         @JavascriptInterface
         fun getFCMToken(): String {
-            return fcmToken ?: getSharedPreferences("fcm_prefs", Context.MODE_PRIVATE)
+            return fcmToken ?: getSharedPreferences("fcm_prefs", MODE_PRIVATE)
                 .getString("fcm_token", "") ?: ""
         }
 
