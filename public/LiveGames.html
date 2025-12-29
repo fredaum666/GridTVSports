@@ -1543,6 +1543,40 @@
       margin-top: clamp(5px, 1vh, 10px);
     }
 
+    /* Negated play indicator (No Play - Penalty) */
+    .play-animation.negated {
+      border: 4px solid #ef4444;
+    }
+
+    .negated-banner {
+      position: absolute;
+      bottom: clamp(10px, 3vh, 30px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      font-size: clamp(0.8rem, 2vh, 1.5rem);
+      font-weight: 900;
+      padding: clamp(6px, 1vh, 12px) clamp(15px, 3vw, 30px);
+      border-radius: clamp(4px, 0.8vh, 8px);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+      animation: negatedPulse 1s ease-in-out infinite;
+      z-index: 101;
+    }
+
+    @keyframes negatedPulse {
+      0%, 100% {
+        transform: translateX(-50%) scale(1);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+      }
+      50% {
+        transform: translateX(-50%) scale(1.05);
+        box-shadow: 0 4px 25px rgba(239, 68, 68, 0.8);
+      }
+    }
+
     /* Touchdown Animation - Green/Gold */
     .play-animation.nfl-touchdown .play-animation-icon {
       color: #fbbf24;
@@ -1798,7 +1832,7 @@
       align-items: center;
       justify-content: center;
       opacity: 0;
-      animation: penaltyPhase2 6s ease-out 5s forwards;
+      animation: penaltyPhase2 12s ease-out 5s forwards;
     }
 
     @keyframes penaltyPhase2 {

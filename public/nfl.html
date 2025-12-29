@@ -1468,6 +1468,40 @@
       line-height: 1.2;
     }
 
+    /* Negated play indicator (No Play - Penalty) */
+    .play-animation.negated {
+      border: 4px solid #ef4444;
+    }
+
+    .negated-banner {
+      position: absolute;
+      bottom: clamp(10px, 3vh, 30px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      font-size: clamp(0.8rem, 2vh, 1.5rem);
+      font-weight: 900;
+      padding: clamp(6px, 1vh, 12px) clamp(15px, 3vw, 30px);
+      border-radius: clamp(4px, 0.8vh, 8px);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+      animation: negatedPulse 1s ease-in-out infinite;
+      z-index: 101;
+    }
+
+    @keyframes negatedPulse {
+      0%, 100% {
+        transform: translateX(-50%) scale(1);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+      }
+      50% {
+        transform: translateX(-50%) scale(1.05);
+        box-shadow: 0 4px 25px rgba(239, 68, 68, 0.8);
+      }
+    }
+
     /* Touchdown Animation - Green/Gold */
     .play-animation.touchdown {
       animation: fadeOutTouchdown 12s forwards;
@@ -2092,7 +2126,7 @@
       align-items: center;
       justify-content: center;
       opacity: 0;
-      animation: penaltyPhase2 6s ease-out 5s forwards;
+      animation: penaltyPhase2 12s ease-out 5s forwards;
     }
 
     @keyframes penaltyPhase2 {
@@ -10378,12 +10412,57 @@
       showPlayAnimation(card, playType, playText, teamName);
     }
 
-    // Show play animation overlay
-    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '') {
+    // Animation queue system - stores pending animations per card
+    const animationQueues = new Map();
+
+    // Queue an animation to play after current one finishes
+    function queueAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', isNegated = false) {
+      const cardId = card.dataset.gameId || card.id || 'default';
+
+      if (!animationQueues.has(cardId)) {
+        animationQueues.set(cardId, []);
+      }
+
+      const queue = animationQueues.get(cardId);
+      queue.push({ playType, playText, teamName, recoveryInfo, recoveryLogo, isNegated });
+
+      // If this is the only animation in queue, start it
+      if (queue.length === 1) {
+        processNextAnimation(card, cardId);
+      }
+    }
+
+    // Process the next animation in the queue
+    function processNextAnimation(card, cardId) {
+      const queue = animationQueues.get(cardId);
+      if (!queue || queue.length === 0) return;
+
+      const anim = queue[0];
+      showPlayAnimationDirect(card, anim.playType, anim.playText, anim.teamName, anim.recoveryInfo, anim.recoveryLogo, anim.isNegated, () => {
+        // Animation finished, remove from queue and process next
+        queue.shift();
+        if (queue.length > 0) {
+          processNextAnimation(card, cardId);
+        }
+      });
+    }
+
+    // Show play animation overlay (wrapper for queue system)
+    function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', isNegated = false) {
+      // Skip animations during the first update cycle after entering fullscreen mode
+      if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 6000) {
+        return;
+      }
+      queueAnimation(card, playType, playText, teamName, recoveryInfo, recoveryLogo, isNegated);
+    }
+
+    // Direct animation display (called by queue processor)
+    function showPlayAnimationDirect(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', isNegated = false, onComplete = null) {
       // Skip animations during the first update cycle after entering fullscreen mode
       // This prevents showing animations for past plays that already happened
       if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 6000) {
-        return; // Don't show animations for the first 6 seconds (first update cycle + buffer)
+        if (onComplete) onComplete();
+        return;
       }
 
       // Remove any existing animation
@@ -10535,19 +10614,29 @@
         `;
       }
 
+      // Add negated indicator if play was called back
+      if (isNegated) {
+        animationDiv.classList.add('negated');
+        const negatedBanner = document.createElement('div');
+        negatedBanner.className = 'negated-banner';
+        negatedBanner.textContent = 'NO PLAY - PENALTY';
+        animationDiv.appendChild(negatedBanner);
+      }
+
       card.style.position = 'relative';
       card.appendChild(animationDiv);
 
       // Remove after animation completes
-      // Touchdown gets 12 seconds, Penalty gets 11 seconds (3.5s phase 1 + 8s phase 2), others get 8 seconds
+      // Touchdown gets 12 seconds, Penalty gets 17 seconds (5s phase 1 + 12s phase 2), others get 8 seconds
       let animationDuration = 8000;
       if (playType === 'touchdown') {
         animationDuration = 12000;
       } else if (playType === 'penalty') {
-        animationDuration = 11000;
+        animationDuration = 17000;
       }
       setTimeout(() => {
         animationDiv.remove();
+        if (onComplete) onComplete();
       }, animationDuration);
     }
 
@@ -10701,118 +10790,262 @@
 
           // Get last play text for player info extraction
           const lastPlay = comp?.situation?.lastPlay?.text || '';
+          const lowerLastPlay = lastPlay.toLowerCase();
 
-          // Detect score changes and determine play type
+          // Detect score changes
           const awayScoreChange = awayScore - prevAwayScore;
           const homeScoreChange = homeScore - prevHomeScore;
 
-          if (awayScoreChange > 0) {
-            detectAndAnimatePlay(card, awayScoreChange, awayTeam?.team?.displayName || 'Away', lastPlay);
-          } else if (homeScoreChange > 0) {
-            detectAndAnimatePlay(card, homeScoreChange, homeTeam?.team?.displayName || 'Home', lastPlay);
-          }
+          // Smart play detection - analyze the play text for ALL events
+          // Only process if this is a new play
+          if (lastPlay && card.dataset.lastProcessedPlay !== lastPlay) {
+            card.dataset.lastProcessedPlay = lastPlay;
 
-          // Check for turnovers (interceptions/fumbles) from play description
-          if (lastPlay.toLowerCase().includes('interception') || lastPlay.toLowerCase().includes('intercepted')) {
-            if (!card.dataset.lastInterception || card.dataset.lastInterception !== lastPlay) {
-              showPlayAnimation(card, 'interception', 'INTERCEPTION!');
-              card.dataset.lastInterception = lastPlay;
-            }
-          } else if (lastPlay.toLowerCase().includes('fumble')) {
-            if (!card.dataset.lastFumble || card.dataset.lastFumble !== lastPlay) {
-              // Extract recovery information and team logo from play text
-              let recoveryInfo = '';
-              let recoveryLogo = '';
-              const lowerPlay = lastPlay.toLowerCase();
+            // Detect if play was negated by penalty ("No Play" at the end)
+            const isNegated = lowerLastPlay.includes('no play') ||
+                              (lowerLastPlay.includes('penalty') && lowerLastPlay.includes('enforced'));
 
-              // Try to find who recovered and get their logo
-              if (lowerPlay.includes('recovered by')) {
-                const recoveredIndex = lowerPlay.indexOf('recovered by');
-                const afterRecovered = lastPlay.substring(recoveredIndex + 13); // Skip 'recovered by '
+            // Helper to get team info
+            const awayAbbr = awayTeam?.team?.abbreviation || '';
+            const homeAbbr = homeTeam?.team?.abbreviation || '';
+            const awayName = awayTeam?.team?.displayName || 'Away';
+            const homeName = homeTeam?.team?.displayName || 'Home';
+            const awayLogo = awayTeam?.team?.logo || '';
+            const homeLogo = homeTeam?.team?.logo || '';
 
-                // Check if away team recovered
-                if (afterRecovered.toLowerCase().includes(awayTeam?.team?.abbreviation?.toLowerCase()) ||
-                  afterRecovered.toLowerCase().includes(awayTeam?.team?.shortDisplayName?.toLowerCase())) {
-                  recoveryLogo = awayTeam?.team?.logo || '';
+            // Detect events in order of priority/occurrence
+            const events = [];
+
+            // 1. INTERCEPTION detection (Pick-6, regular INT)
+            if (lowerLastPlay.includes('intercept')) {
+              // Find who intercepted - look for team after "INTERCEPTED by"
+              let interceptingTeam = '';
+              let interceptingTeamLogo = '';
+
+              // Pattern: "INTERCEPTED by [Team]-[Player]" or just check which team abbr appears after "intercepted"
+              const interceptMatch = lastPlay.match(/intercept(?:ed|ion)?\s+by\s+([A-Z]{2,4})-/i);
+              if (interceptMatch) {
+                const intTeamAbbr = interceptMatch[1].toUpperCase();
+                if (intTeamAbbr === awayAbbr.toUpperCase()) {
+                  interceptingTeam = awayName;
+                  interceptingTeamLogo = awayLogo;
+                } else if (intTeamAbbr === homeAbbr.toUpperCase()) {
+                  interceptingTeam = homeName;
+                  interceptingTeamLogo = homeLogo;
                 }
-                // Check if home team recovered
-                else if (afterRecovered.toLowerCase().includes(homeTeam?.team?.abbreviation?.toLowerCase()) ||
-                  afterRecovered.toLowerCase().includes(homeTeam?.team?.shortDisplayName?.toLowerCase())) {
-                  recoveryLogo = homeTeam?.team?.logo || '';
-                }
-              } else if (lowerPlay.includes(awayTeam?.team?.abbreviation?.toLowerCase())) {
-                recoveryLogo = awayTeam?.team?.logo || '';
-              } else if (lowerPlay.includes(homeTeam?.team?.abbreviation?.toLowerCase())) {
-                recoveryLogo = homeTeam?.team?.logo || '';
               }
 
-              showPlayAnimation(card, 'fumble', 'FUMBLE!', '', recoveryInfo, recoveryLogo);
-              card.dataset.lastFumble = lastPlay;
-            }
-          }
+              events.push({
+                type: 'interception',
+                text: 'INTERCEPTION!',
+                teamName: interceptingTeam,
+                logo: interceptingTeamLogo,
+                isNegated: isNegated
+              });
 
-          // Check for missed field goals and extra points from play description
-          const lowerLastPlay = lastPlay.toLowerCase();
-
-          // Missed Field Goal detection
-          if ((lowerLastPlay.includes('field goal') &&
-            (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
-              lowerLastPlay.includes('wide') || lowerLastPlay.includes('short') || lowerLastPlay.includes('blocked'))) ||
-            (lowerLastPlay.includes('fg') &&
-              (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') || lowerLastPlay.includes('blocked')))) {
-            if (!card.dataset.lastMissedFG || card.dataset.lastMissedFG !== lastPlay) {
-              console.log('🚫 MISSED FIELD GOAL detected:', lastPlay);
-              showPlayAnimation(card, 'missed-kick', 'MISSED FIELD GOAL!');
-              card.dataset.lastMissedFG = lastPlay;
+              // Check if the interception was returned for a touchdown (Pick-6)
+              if (lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) {
+                events.push({
+                  type: 'touchdown',
+                  text: 'PICK SIX!',
+                  teamName: interceptingTeam,
+                  isNegated: isNegated
+                });
+              }
             }
-          }
-          // Missed Extra Point detection
-          else if ((lowerLastPlay.includes('extra point') || lowerLastPlay.includes('pat') || lowerLastPlay.includes('xp')) &&
-            (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
-              lowerLastPlay.includes('failed') || lowerLastPlay.includes('blocked'))) {
-            if (!card.dataset.lastMissedXP || card.dataset.lastMissedXP !== lastPlay) {
-              console.log('🚫 MISSED EXTRA POINT detected:', lastPlay);
-              showPlayAnimation(card, 'missed-kick', 'MISSED EXTRA POINT!');
-              card.dataset.lastMissedXP = lastPlay;
-            }
-          }
-          // Punt detection
-          else if (lowerLastPlay.includes('punt') && !lowerLastPlay.includes('fake')) {
-            if (!card.dataset.lastPunt || card.dataset.lastPunt !== lastPlay) {
-              console.log('🦶 PUNT detected:', lastPlay);
-              showPlayAnimation(card, 'punt', 'PUNT!');
-              card.dataset.lastPunt = lastPlay;
-            }
-          }
 
-          // Sack detection
-          if (lowerLastPlay.includes('sack') || lowerLastPlay.includes('sacked')) {
-            if (!card.dataset.lastSack || card.dataset.lastSack !== lastPlay) {
-              console.log('💥 SACK detected:', lastPlay);
+            // 2. FUMBLE detection (Scoop and Score)
+            else if (lowerLastPlay.includes('fumble')) {
+              let recoveryTeam = '';
+              let recoveryLogo = '';
 
-              // Extract the defender who made the sack
+              // Find who recovered
+              if (lowerLastPlay.includes('recovered by')) {
+                const recoveredIndex = lowerLastPlay.indexOf('recovered by');
+                const afterRecovered = lastPlay.substring(recoveredIndex);
+
+                if (afterRecovered.toLowerCase().includes(awayAbbr.toLowerCase())) {
+                  recoveryTeam = awayName;
+                  recoveryLogo = awayLogo;
+                } else if (afterRecovered.toLowerCase().includes(homeAbbr.toLowerCase())) {
+                  recoveryTeam = homeName;
+                  recoveryLogo = homeLogo;
+                }
+              }
+
+              events.push({
+                type: 'fumble',
+                text: 'FUMBLE!',
+                teamName: '',
+                logo: recoveryLogo,
+                isNegated: isNegated
+              });
+
+              // Check if fumble was returned for touchdown (Scoop and Score)
+              if (lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) {
+                events.push({
+                  type: 'touchdown',
+                  text: 'SCOOP & SCORE!',
+                  teamName: recoveryTeam,
+                  isNegated: isNegated
+                });
+              }
+            }
+
+            // 3. TOUCHDOWN detection (if not already caught by turnover)
+            else if ((lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) &&
+                     !events.some(e => e.type === 'touchdown')) {
+              // Determine scoring team from score change or play text
+              let scoringTeam = '';
+              if (awayScoreChange >= 6) {
+                scoringTeam = awayName;
+              } else if (homeScoreChange >= 6) {
+                scoringTeam = homeName;
+              }
+
+              // Check for special touchdown types
+              let tdText = 'TOUCHDOWN!';
+              if (lowerLastPlay.includes('punt') && lowerLastPlay.includes('return')) {
+                tdText = 'PUNT RETURN TD!';
+              } else if (lowerLastPlay.includes('kick') && lowerLastPlay.includes('return')) {
+                tdText = 'KICK RETURN TD!';
+              } else if (lowerLastPlay.includes('blocked') && lowerLastPlay.includes('return')) {
+                tdText = 'BLOCKED KICK TD!';
+              }
+
+              events.push({
+                type: 'touchdown',
+                text: tdText,
+                teamName: scoringTeam,
+                isNegated: isNegated
+              });
+            }
+
+            // 4. SAFETY detection
+            if (lowerLastPlay.includes('safety') && !lowerLastPlay.includes('free kick')) {
+              let safetyTeam = '';
+              if (awayScoreChange === 2) safetyTeam = awayName;
+              else if (homeScoreChange === 2) safetyTeam = homeName;
+
+              events.push({
+                type: 'safety',
+                text: 'SAFETY!',
+                teamName: safetyTeam,
+                isNegated: isNegated
+              });
+            }
+
+            // 5. FIELD GOAL detection (successful)
+            if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
+                lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good')) {
+              let fgTeam = '';
+              if (awayScoreChange === 3) fgTeam = awayName;
+              else if (homeScoreChange === 3) fgTeam = homeName;
+
+              events.push({
+                type: 'field-goal',
+                text: 'FIELD GOAL!',
+                teamName: fgTeam,
+                isNegated: isNegated
+              });
+            }
+
+            // 6. MISSED FIELD GOAL detection
+            if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
+                (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
+                 lowerLastPlay.includes('wide') || lowerLastPlay.includes('short') ||
+                 lowerLastPlay.includes('blocked'))) {
+              events.push({
+                type: 'missed-kick',
+                text: 'MISSED FIELD GOAL!',
+                teamName: '',
+                isNegated: isNegated
+              });
+            }
+
+            // 7. EXTRA POINT detection (successful)
+            if ((lowerLastPlay.includes('extra point') || lowerLastPlay.includes('pat ') ||
+                 lowerLastPlay.includes(' xp ')) &&
+                lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good')) {
+              events.push({
+                type: 'field-goal',
+                text: 'EXTRA POINT!',
+                teamName: '',
+                isNegated: isNegated
+              });
+            }
+
+            // 8. MISSED EXTRA POINT detection
+            if ((lowerLastPlay.includes('extra point') || lowerLastPlay.includes('pat ') ||
+                 lowerLastPlay.includes(' xp ')) &&
+                (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
+                 lowerLastPlay.includes('failed') || lowerLastPlay.includes('blocked'))) {
+              events.push({
+                type: 'missed-kick',
+                text: 'MISSED EXTRA POINT!',
+                teamName: '',
+                isNegated: isNegated
+              });
+            }
+
+            // 9. TWO-POINT CONVERSION detection
+            if ((lowerLastPlay.includes('two-point') || lowerLastPlay.includes('2-pt') ||
+                 lowerLastPlay.includes('two point') || lowerLastPlay.includes('2 point')) &&
+                lowerLastPlay.includes('conversion')) {
+              let twoPointTeam = '';
+              if (awayScoreChange === 2) twoPointTeam = awayName;
+              else if (homeScoreChange === 2) twoPointTeam = homeName;
+
+              if (lowerLastPlay.includes('good') || lowerLastPlay.includes('success')) {
+                events.push({
+                  type: 'two-point',
+                  text: '2-POINT CONVERSION!',
+                  teamName: twoPointTeam,
+                  isNegated: isNegated
+                });
+              }
+            }
+
+            // 10. SACK detection
+            if (lowerLastPlay.includes('sack') || lowerLastPlay.includes('sacked')) {
               let sackerName = '';
-              // Pattern: "sacked by [Player Name]" or "[Player Name] sacks"
               let sackMatch = lastPlay.match(/sacked\s+by\s+([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)/i);
               if (sackMatch) {
                 sackerName = sackMatch[1].trim();
               } else {
                 sackMatch = lastPlay.match(/([A-Z][a-z]*\.?\s*[A-Z][A-Za-z'-]+)\s+sack/i);
-                if (sackMatch) {
-                  sackerName = sackMatch[1].trim();
-                }
+                if (sackMatch) sackerName = sackMatch[1].trim();
               }
 
-              showPlayAnimation(card, 'sack', 'SACK!', '', '', '', sackerName);
-              card.dataset.lastSack = lastPlay;
+              events.push({
+                type: 'sack',
+                text: 'SACK!',
+                teamName: sackerName,
+                isNegated: isNegated
+              });
             }
-          }
 
-          // Penalty detection
-          if ((lowerLastPlay.includes('penalty') || lowerLastPlay.includes('flag')) &&
-            !lowerLastPlay.includes('no flags') && !lowerLastPlay.includes('declined')) {
-            if (!card.dataset.lastPenalty || card.dataset.lastPenalty !== lastPlay) {
-              console.log('🚩 PENALTY detected:', lastPlay);
+            // 11. PUNT detection
+            if (lowerLastPlay.includes('punt') && !lowerLastPlay.includes('fake') &&
+                !events.some(e => e.type === 'touchdown')) {
+
+              // Check for punt return touchdown
+              if (lowerLastPlay.includes('return') &&
+                  (lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td'))) {
+                // Already handled in touchdown section
+              } else if (!lowerLastPlay.includes('touchdown')) {
+                events.push({
+                  type: 'punt',
+                  text: 'PUNT!',
+                  teamName: '',
+                  isNegated: isNegated
+                });
+              }
+            }
+
+            // 12. PENALTY detection (always show last so action is seen first)
+            if ((lowerLastPlay.includes('penalty') || lowerLastPlay.includes('flag')) &&
+                !lowerLastPlay.includes('no flags') && !lowerLastPlay.includes('declined')) {
 
               // Parse penalty information
               let penaltyName = 'PENALTY';
@@ -10833,12 +11066,9 @@
                 'illegal touching', 'ineligible receiver', 'illegal forward pass'
               ];
 
-              // Find penalty name
               for (const penalty of penaltyPatterns) {
                 if (lowerLastPlay.includes(penalty)) {
-                  penaltyName = penalty.split(' ').map(w =>
-                    w.charAt(0).toUpperCase() + w.slice(1)
-                  ).join(' ');
+                  penaltyName = penalty.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
                   break;
                 }
               }
@@ -10849,12 +11079,11 @@
               } else if (lowerLastPlay.includes('defense') || lowerLastPlay.includes('defensive')) {
                 offenseDefense = 'DEFENSE';
               } else {
-                // Try to infer from penalty type
                 const offensivePenalties = ['false start', 'illegal motion', 'illegal shift',
                   'offensive holding', 'illegal formation', 'delay of game',
                   'intentional grounding', 'ineligible receiver'];
                 const defensivePenalties = ['offsides', 'encroachment', 'neutral zone infraction',
-                  'defensive holding', 'pass interference', 'roughing'];
+                  'defensive holding', 'pass interference', 'roughing', 'illegal use of hands'];
 
                 if (offensivePenalties.some(p => lowerLastPlay.includes(p))) {
                   offenseDefense = 'OFFENSE';
@@ -10863,76 +11092,55 @@
                 }
               }
 
-              // Extract player name (usually after "on" or "by")
-              const onMatch = lastPlay.match(/(?:on|by)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/);
-              if (onMatch && onMatch[1]) {
-                playerName = onMatch[1];
+              // Extract player name
+              const playerMatch = lastPlay.match(/PENALTY\s+on\s+[A-Z]{2,4}-([A-Z]\.[A-Za-z'-]+)/i);
+              if (playerMatch) {
+                playerName = playerMatch[1];
               }
 
-              // Determine which team committed the penalty
-              // IMPORTANT: Look specifically in the "PENALTY on [TEAM]" portion of the text
-              // to avoid matching team abbreviations that appear elsewhere (e.g., "to DET 34" for yard line)
-              const awayAbbr = awayTeam?.team?.abbreviation || '';
-              const homeAbbr = homeTeam?.team?.abbreviation || '';
-              const awayName = awayTeam?.team?.shortDisplayName || '';
-              const homeName = homeTeam?.team?.shortDisplayName || '';
-
-              // First, try to extract the team from "PENALTY on [TEAM]-" pattern
-              // This is the most reliable way to identify the penalized team
+              // Get team logo from "PENALTY on [TEAM]-" pattern
               const penaltyOnMatch = lastPlay.match(/PENALTY\s+on\s+([A-Z]{2,4})-/i);
               if (penaltyOnMatch) {
                 const penaltyTeamAbbr = penaltyOnMatch[1].toUpperCase();
                 if (penaltyTeamAbbr === awayAbbr.toUpperCase()) {
-                  teamLogo = awayTeam?.team?.logo || '';
+                  teamLogo = awayLogo;
                 } else if (penaltyTeamAbbr === homeAbbr.toUpperCase()) {
-                  teamLogo = homeTeam?.team?.logo || '';
+                  teamLogo = homeLogo;
                 }
               }
 
-              // If we couldn't find team from "PENALTY on" pattern, try other methods
-              if (!teamLogo) {
-                // Look for team name/abbr specifically near the penalty keywords
-                const penaltySection = lastPlay.substring(lastPlay.toLowerCase().indexOf('penalty'));
-                const lowerPenaltySection = penaltySection.toLowerCase();
-
-                if (lowerPenaltySection.includes(awayAbbr.toLowerCase()) || lowerPenaltySection.includes(awayName.toLowerCase())) {
-                  teamLogo = awayTeam?.team?.logo || '';
-                } else if (lowerPenaltySection.includes(homeAbbr.toLowerCase()) || lowerPenaltySection.includes(homeName.toLowerCase())) {
-                  teamLogo = homeTeam?.team?.logo || '';
-                } else {
-                  // If can't determine from penalty text, use possession (team on offense likely committed if offensive penalty)
-                  const possession = comp?.situation?.possession;
-                  if (offenseDefense === 'OFFENSE') {
-                    // Offensive penalty - use team with possession
-                    if (possession === awayTeam?.id) {
-                      teamLogo = awayTeam?.team?.logo || '';
-                    } else if (possession === homeTeam?.id) {
-                      teamLogo = homeTeam?.team?.logo || '';
-                    }
-                  } else if (offenseDefense === 'DEFENSE') {
-                    // Defensive penalty - use team without possession
-                    if (possession === awayTeam?.id) {
-                      teamLogo = homeTeam?.team?.logo || '';
-                    } else if (possession === homeTeam?.id) {
-                      teamLogo = awayTeam?.team?.logo || '';
-                    }
-                  } else {
-                    // Unknown - just use possession team
-                    if (possession === awayTeam?.id) {
-                      teamLogo = awayTeam?.team?.logo || '';
-                    } else if (possession === homeTeam?.id) {
-                      teamLogo = homeTeam?.team?.logo || '';
-                    }
-                  }
-                }
-              }
-
-              // Format penalty info as pipe-delimited string
               const penaltyInfo = `${penaltyName}|${offenseDefense}|${playerName}|${teamLogo}`;
-
-              showPlayAnimation(card, 'penalty', 'FLAG!', '', penaltyInfo);
-              card.dataset.lastPenalty = lastPlay;
+              events.push({
+                type: 'penalty',
+                text: 'FLAG!',
+                teamName: '',
+                recoveryInfo: penaltyInfo,
+                isNegated: false // Penalty itself is not negated
+              });
             }
+
+            // Queue all detected events for animation
+            // If play was negated, mark the action events (but not the penalty)
+            for (const event of events) {
+              if (event.type === 'penalty') {
+                showPlayAnimation(card, event.type, event.text, event.teamName, event.recoveryInfo, event.logo || '', false);
+              } else {
+                showPlayAnimation(card, event.type, event.text, event.teamName, event.recoveryInfo || '', event.logo || '', isNegated && event.type !== 'penalty');
+              }
+            }
+
+            // Log detected events for debugging
+            if (events.length > 0) {
+              console.log('🎬 Play events detected:', events.map(e => e.type + (e.isNegated ? ' (NEGATED)' : '')).join(', '));
+            }
+          }
+
+          // Score-based detection fallback (for when play text doesn't match)
+          // Only trigger if no events were detected from play text
+          if (awayScoreChange > 0 && !card.dataset.lastProcessedPlay?.includes(lastPlay)) {
+            detectAndAnimatePlay(card, awayScoreChange, awayName, lastPlay);
+          } else if (homeScoreChange > 0 && !card.dataset.lastProcessedPlay?.includes(lastPlay)) {
+            detectAndAnimatePlay(card, homeScoreChange, homeName, lastPlay);
           }
 
           // Check for 1st down - detect when a new first down is achieved
@@ -10941,15 +11149,10 @@
           const downDistanceText = comp?.situation?.downDistanceText || '';
           const prevDownDistance = card.dataset.prevDownDistance || '';
 
-          // Trigger 1st down animation if:
-          // - Current down is 1
-          // - Either: previous down was 2, 3, or 4 (normal progression)
-          //   OR: previous down was 1 but the down/distance text changed (big play on 1st down)
-          // - No score change (to avoid showing after touchdowns)
-          // - Not showing other animations (interception/fumble/missed kicks/punt/penalty)
+          // Trigger 1st down animation if conditions met and no major events
           const isNewFirstDown = currentDown === 1 && (
-            (prevDown >= 2 && prevDown <= 4) ||  // Normal: got 1st down from 2nd/3rd/4th
-            (prevDown === 1 && downDistanceText !== prevDownDistance && prevDownDistance !== '')  // Big play on 1st down
+            (prevDown >= 2 && prevDown <= 4) ||
+            (prevDown === 1 && downDistanceText !== prevDownDistance && prevDownDistance !== '')
           );
 
           if (isNewFirstDown &&
@@ -10959,10 +11162,7 @@
             !lowerLastPlay.includes('fumble') &&
             !lowerLastPlay.includes('punt') &&
             !lowerLastPlay.includes('penalty') &&
-            !lowerLastPlay.includes('flag') &&
-            !(lowerLastPlay.includes('field goal') && (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good'))) &&
-            !(lowerLastPlay.includes('extra point') && (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good')))) {
-            // Check if we already showed this 1st down
+            !lowerLastPlay.includes('touchdown')) {
             if (card.dataset.lastFirstDown !== downDistanceText) {
               showPlayAnimation(card, 'first-down', '1ST DOWN!');
               card.dataset.lastFirstDown = downDistanceText;
