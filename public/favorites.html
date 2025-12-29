@@ -1498,7 +1498,9 @@
 
       // Check FCM status from server
       try {
-        const response = await fetch('/api/push/fcm/status');
+        const response = await fetch('/api/push/fcm/status', {
+          credentials: 'include'
+        });
         if (!response.ok) throw new Error('Not authenticated');
 
         const status = await response.json();
@@ -1573,6 +1575,7 @@
           const response = await fetch('/api/push/preferences', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(preferences)
           });
 
@@ -1592,6 +1595,7 @@
         const response = await fetch('/api/push/fcm/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             fcm_token: fcmToken,
             device_id: deviceInfo.model || 'android-device',
@@ -1615,6 +1619,7 @@
         const response = await fetch('/api/push/fcm/unregister', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ fcm_token: fcmToken })
         });
 
@@ -1647,7 +1652,9 @@
 
     async function loadNotificationPreferencesForFCM() {
       try {
-        const response = await fetch('/api/push/preferences');
+        const response = await fetch('/api/push/preferences', {
+          credentials: 'include'
+        });
         if (!response.ok) return;
 
         const prefs = await response.json();
