@@ -15,7 +15,6 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
-import android.view.WindowMetrics
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
@@ -26,6 +25,7 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -39,16 +39,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var loadingOverlay: View
 
     // Production URLs
-    private val TV_HOME_URL = "https://gridtvsports.com/tv-home"
-    private val MOBILE_LOGIN_URL = "https://gridtvsports.com/login"
+    private val tvHomeUrl = "https://gridtvsports.com/tv-home"
+    private val mobileLoginUrl = "https://gridtvsports.com/login"
 
     // For Android Emulator: use 10.0.2.2 to reach host machine's localhost
-    //private val TV_HOME_URL = "http://10.0.2.2:3001/tv-home"
-    //private val MOBILE_LOGIN_URL = "http://10.0.2.2:3001/login"
+    //private val tvHomeUrl = "http://10.0.2.2:3001/tv-home"
+    //private val mobileLoginUrl = "http://10.0.2.2:3001/login"
 
     // For physical device on same network, use your computer's IP:
-    // private val TV_HOME_URL = "http://192.168.1.100:3001/tv-home"
-    // private val MOBILE_LOGIN_URL = "http://192.168.1.100:3001/login"
+    // private val tvHomeUrl = "http://192.168.1.100:3001/tv-home"
+    // private val mobileLoginUrl = "http://192.168.1.100:3001/login"
 
     private var isTV = false
     private var fcmToken: String? = null
@@ -100,25 +100,23 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e("MainActivity", "Error setting up WebView: ${e.message}", e)
             // Show error message
-            loadingText.text = "Error loading app. Please restart."
+            loadingText.text = getString(R.string.error_loading)
         }
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                GridTVFirebaseService.CHANNEL_ID,
-                GridTVFirebaseService.CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notifications for game start alerts"
-                enableLights(true)
-                enableVibration(true)
-            }
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-            Log.d("MainActivity", "Notification channel created")
+        val channel = NotificationChannel(
+            GridTVFirebaseService.CHANNEL_ID,
+            GridTVFirebaseService.CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Notifications for game start alerts"
+            enableLights(true)
+            enableVibration(true)
         }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+        Log.d("MainActivity", "Notification channel created")
     }
 
     private fun requestNotificationPermission() {
@@ -156,11 +154,10 @@ class MainActivity : AppCompatActivity() {
             fcmToken = task.result
             Log.d("MainActivity", "FCM Token: $fcmToken")
 
-            // Store token locally
-            getSharedPreferences("fcm_prefs", Context.MODE_PRIVATE)
-                .edit()
-                .putString("fcm_token", fcmToken)
-                .apply()
+            // Store token locally using KTX extension
+            getSharedPreferences("fcm_prefs", Context.MODE_PRIVATE).edit {
+                putString("fcm_token", fcmToken)
+            }
         }
     }
 
@@ -245,6 +242,7 @@ class MainActivity : AppCompatActivity() {
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
             // Database storage
+            @Suppress("DEPRECATION")
             databaseEnabled = true
         }
 
@@ -270,12 +268,14 @@ class MainActivity : AppCompatActivity() {
                 hideLoading()
             }
 
+            @Deprecated("Deprecated in Java")
             override fun onReceivedError(
                 view: WebView?,
                 errorCode: Int,
                 description: String?,
                 failingUrl: String?
             ) {
+                @Suppress("DEPRECATION")
                 super.onReceivedError(view, errorCode, description, failingUrl)
                 showError("Connection error: $description")
             }
@@ -298,11 +298,11 @@ class MainActivity : AppCompatActivity() {
         webView.requestFocus()
 
         // Add JavaScript interface for FCM communication
-        webView.addJavascriptInterface(WebAppInterface(this), "AndroidApp")
+        webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
     }
 
     // JavaScript interface for web page communication
-    inner class WebAppInterface(private val context: Context) {
+    inner class WebAppInterface {
 
         @JavascriptInterface
         fun getFCMToken(): String {
@@ -328,7 +328,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadAppropriateUrl() {
         showLoading()
-        val url = if (isTV) TV_HOME_URL else MOBILE_LOGIN_URL
+        val url = if (isTV) tvHomeUrl else mobileLoginUrl
         Log.d("MainActivity", "Loading URL: $url (isTV: $isTV)")
         webView.loadUrl(url)
     }
