@@ -185,7 +185,8 @@ const PushNotifications = {
     try {
       const response = await fetch('/api/push/test', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
       });
 
       const result = await response.json();

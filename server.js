@@ -1428,7 +1428,8 @@ app.post('/api/push/test', async (req, res) => {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  if (!webPushConfigured) {
+  // Check if at least one notification system is configured
+  if (!webPushConfigured && !fcmConfigured) {
     return res.status(503).json({ error: 'Push notifications not configured' });
   }
 
@@ -1442,37 +1443,74 @@ app.post('/api/push/test', async (req, res) => {
       return res.status(400).json({ error: 'No active push subscriptions found' });
     }
 
-    const payload = JSON.stringify({
-      title: '🏈 GridTV Sports Test',
-      body: 'Push notifications are working!',
-      icon: '/logos/gridtv-icon-192.png',
-      tag: 'test-notification'
-    });
-
     let sent = 0;
     let failed = 0;
 
     for (const sub of subscriptions.rows) {
-      const pushSubscription = {
-        endpoint: sub.endpoint,
-        keys: {
-          p256dh: sub.p256dh_key,
-          auth: sub.auth_key
-        }
-      };
-
       try {
-        await webpush.sendNotification(pushSubscription, payload);
-        sent++;
+        if (sub.subscription_type === 'fcm' && sub.fcm_token && fcmConfigured) {
+          // Send via Firebase Cloud Messaging
+          const admin = require('firebase-admin');
+          const fcmMessage = {
+            token: sub.fcm_token,
+            notification: {
+              title: '🏈 GridTV Sports Test',
+              body: 'Push notifications are working!'
+            },
+            android: {
+              notification: {
+                icon: 'ic_notification',
+                color: '#FF6B00',
+                channelId: 'gridtv_game_alerts'
+              }
+            },
+            data: {
+              type: 'test',
+              url: 'https://gridtvsports.com'
+            }
+          };
+
+          await admin.messaging().send(fcmMessage);
+          console.log(`[FCM] Test notification sent to user ${req.session.userId}`);
+          sent++;
+        } else if (sub.subscription_type === 'web' && sub.endpoint && webPushConfigured) {
+          // Send via Web Push
+          const payload = JSON.stringify({
+            title: '🏈 GridTV Sports Test',
+            body: 'Push notifications are working!',
+            icon: '/logos/gridtv-icon-192.png',
+            tag: 'test-notification'
+          });
+
+          const pushSubscription = {
+            endpoint: sub.endpoint,
+            keys: {
+              p256dh: sub.p256dh_key,
+              auth: sub.auth_key
+            }
+          };
+
+          await webpush.sendNotification(pushSubscription, payload);
+          console.log(`[WebPush] Test notification sent to user ${req.session.userId}`);
+          sent++;
+        }
       } catch (error) {
         console.error('[Push] Failed to send test notification:', error.message);
         failed++;
         // If subscription is invalid, mark it as inactive
-        if (error.statusCode === 410 || error.statusCode === 404) {
-          await pool.query(
-            'UPDATE push_subscriptions SET is_active = FALSE WHERE endpoint = $1',
-            [sub.endpoint]
-          );
+        if (error.statusCode === 410 || error.statusCode === 404 ||
+            (error.code === 'messaging/registration-token-not-registered')) {
+          if (sub.subscription_type === 'fcm') {
+            await pool.query(
+              'UPDATE push_subscriptions SET is_active = FALSE WHERE fcm_token = $1',
+              [sub.fcm_token]
+            );
+          } else {
+            await pool.query(
+              'UPDATE push_subscriptions SET is_active = FALSE WHERE endpoint = $1',
+              [sub.endpoint]
+            );
+          }
         }
       }
     }
