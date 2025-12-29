@@ -8,16 +8,34 @@
     <!-- Required for push notifications on Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Feature declarations for TV + Phone/Tablet compatibility -->
-    <!-- Leanback library adds this as required, we override to make it optional -->
+    <!--
+        Feature declarations for TV + Phone/Tablet compatibility
+        All features marked required="false" to support BOTH TV and phones
+        tools:replace overrides any library that sets required="true"
+    -->
+
+    <!-- Leanback (TV interface) - optional so phones can install -->
     <uses-feature
         android:name="android.software.leanback"
         android:required="false"
         tools:replace="android:required" />
-    <!-- Touchscreen NOT required - allows TVs (no touchscreen) to install -->
+
+    <!-- Touchscreen - NOT required so TVs (no touchscreen) can install -->
     <uses-feature
         android:name="android.hardware.touchscreen"
+        android:required="false"
+        tools:replace="android:required" />
+
+    <!-- Faketouch - for devices that emulate touch (like TVs with remotes) -->
+    <uses-feature
+        android:name="android.hardware.faketouch"
         android:required="false" />
+
+    <!-- Screen landscape - optional -->
+    <uses-feature
+        android:name="android.hardware.screen.landscape"
+        android:required="false" />
+
     <!-- Explicitly support all screen sizes -->
     <supports-screens
         android:smallScreens="true"
