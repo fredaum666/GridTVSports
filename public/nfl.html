@@ -2033,6 +2033,96 @@
       background: rgba(234, 179, 8, 0.15) !important;
       overflow: visible;
       overflow-y: auto;
+      animation: fadeOutPenalty 11s forwards !important; /* 5s phase 1 + 6s phase 2 */
+    }
+
+    @keyframes fadeOutPenalty {
+      0% {
+        opacity: 1;
+      }
+      95% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* Timeout Animation - Blue/White with team logo */
+    .play-animation.timeout {
+      background: rgba(59, 130, 246, 0.2) !important;
+      animation: fadeOutTimeout 5s forwards !important;
+    }
+
+    @keyframes fadeOutTimeout {
+      0% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .timeout-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(10px, 2vh, 20px);
+    }
+
+    .timeout-team-logo {
+      width: clamp(80px, 20vmin, 200px);
+      height: clamp(80px, 20vmin, 200px);
+      object-fit: contain;
+      filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8));
+      animation: timeoutLogoEntry 0.6s ease-out, timeoutLogoPulse 1.5s ease-in-out infinite 0.6s;
+    }
+
+    @keyframes timeoutLogoEntry {
+      0% {
+        transform: scale(0.3);
+        opacity: 0;
+      }
+      70% {
+        transform: scale(1.1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes timeoutLogoPulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8));
+        transform: scale(1);
+      }
+      50% {
+        filter: drop-shadow(0 0 35px rgba(59, 130, 246, 1));
+        transform: scale(1.05);
+      }
+    }
+
+    .play-animation.timeout .play-animation-text {
+      color: #3b82f6;
+      font-size: clamp(1.8rem, 5vh, 4rem);
+      font-weight: 900;
+      text-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.5);
+      letter-spacing: clamp(2px, 0.8vh, 6px);
+      animation: playTextSlide 0.6s ease-out;
+    }
+
+    .timeout-team-name {
+      color: #e5e7eb;
+      font-size: clamp(1rem, 2.5vh, 2rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: clamp(5px, 1vh, 10px);
     }
 
     .play-animation.penalty .play-animation-text {
@@ -2126,7 +2216,7 @@
       align-items: center;
       justify-content: center;
       opacity: 0;
-      animation: penaltyPhase2 12s ease-out 5s forwards;
+      animation: penaltyPhase2 6s ease-out 5s forwards;
     }
 
     @keyframes penaltyPhase2 {
@@ -10578,6 +10668,17 @@
           </div>
           <div class="play-animation-text">${playText}</div>
         `;
+      } else if (playType === 'timeout') {
+        // Special HTML for timeout with team logo
+        // recoveryInfo contains the team logo URL
+        const timeoutLogoUrl = recoveryInfo || '';
+        animationDiv.innerHTML = `
+          <div class="timeout-container">
+            ${timeoutLogoUrl ? `<img src="${timeoutLogoUrl}" alt="Team" class="timeout-team-logo">` : ''}
+            <div class="play-animation-text">${playText}</div>
+            ${teamName ? `<div class="timeout-team-name">${teamName}</div>` : ''}
+          </div>
+        `;
       } else if (playType === 'penalty') {
         // Special HTML for penalty with two-phase animation
         // Phase 1: Referee throwing (3 seconds)
@@ -10627,12 +10728,14 @@
       card.appendChild(animationDiv);
 
       // Remove after animation completes
-      // Touchdown gets 12 seconds, Penalty gets 17 seconds (5s phase 1 + 12s phase 2), others get 8 seconds
+      // Touchdown gets 12 seconds, Penalty gets 11 seconds (5s phase 1 + 6s phase 2), Timeout gets 5 seconds, others get 8 seconds
       let animationDuration = 8000;
       if (playType === 'touchdown') {
         animationDuration = 12000;
       } else if (playType === 'penalty') {
-        animationDuration = 17000;
+        animationDuration = 11000;
+      } else if (playType === 'timeout') {
+        animationDuration = 5000;
       }
       setTimeout(() => {
         animationDiv.remove();
@@ -11043,7 +11146,34 @@
               }
             }
 
-            // 12. PENALTY detection (always show last so action is seen first)
+            // 12. TIMEOUT detection
+            if (lowerLastPlay.includes('timeout')) {
+              // Determine which team called the timeout
+              let timeoutTeam = '';
+              let timeoutLogo = '';
+
+              // Check for team abbreviation in timeout text
+              // Pattern: "Timeout #X by [TEAM]" or "[TEAM] Timeout"
+              if (lowerLastPlay.includes(awayAbbr.toLowerCase()) ||
+                  lowerLastPlay.includes(awayTeam?.team?.shortDisplayName?.toLowerCase() || '')) {
+                timeoutTeam = awayName;
+                timeoutLogo = awayLogo;
+              } else if (lowerLastPlay.includes(homeAbbr.toLowerCase()) ||
+                         lowerLastPlay.includes(homeTeam?.team?.shortDisplayName?.toLowerCase() || '')) {
+                timeoutTeam = homeName;
+                timeoutLogo = homeLogo;
+              }
+
+              events.push({
+                type: 'timeout',
+                text: 'TIMEOUT',
+                teamName: timeoutTeam,
+                recoveryInfo: timeoutLogo,
+                isNegated: false
+              });
+            }
+
+            // 13. PENALTY detection (always show last so action is seen first)
             if ((lowerLastPlay.includes('penalty') || lowerLastPlay.includes('flag')) &&
                 !lowerLastPlay.includes('no flags') && !lowerLastPlay.includes('declined')) {
 
@@ -11334,9 +11464,28 @@
             fieldVisualizer.style.display = 'none';
           }
 
-          // Update timeout bars
+          // Update timeout bars and detect timeout usage
           const awayTimeouts = comp?.situation?.awayTimeouts ?? 3;
           const homeTimeouts = comp?.situation?.homeTimeouts ?? 3;
+          const prevAwayTimeouts = parseInt(card.dataset.prevAwayTimeouts ?? 3);
+          const prevHomeTimeouts = parseInt(card.dataset.prevHomeTimeouts ?? 3);
+
+          // Detect if a timeout was just used (timeout count decreased)
+          if (awayTimeouts < prevAwayTimeouts) {
+            // Away team used a timeout
+            const awayTeamName = awayTeam?.team?.displayName || 'Away';
+            const awayTeamLogo = awayTeam?.team?.logo || '';
+            showPlayAnimation(card, 'timeout', 'TIMEOUT', awayTeamName, awayTeamLogo);
+          } else if (homeTimeouts < prevHomeTimeouts) {
+            // Home team used a timeout
+            const homeTeamName = homeTeam?.team?.displayName || 'Home';
+            const homeTeamLogo = homeTeam?.team?.logo || '';
+            showPlayAnimation(card, 'timeout', 'TIMEOUT', homeTeamName, homeTeamLogo);
+          }
+
+          // Store current timeout counts for next update
+          card.dataset.prevAwayTimeouts = awayTimeouts;
+          card.dataset.prevHomeTimeouts = homeTimeouts;
 
           const timeoutContainers = card.querySelectorAll('.fullscreen-timeouts');
           if (timeoutContainers.length >= 2) {
