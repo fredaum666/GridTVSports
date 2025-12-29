@@ -5,20 +5,21 @@
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Required for push notifications on Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- TV Feature declarations -->
-    <!-- Set leanback to required="false" for compatibility with both Android TV and Google TV -->
+    <!-- Feature declarations for TV + Phone/Tablet compatibility -->
+    <!-- Leanback declares TV support, required=false allows phones too -->
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
+    <!-- Explicitly declare touchscreen NOT required so TVs are included -->
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
-    <uses-feature 
-        android:name="android.hardware.faketouch" 
-        android:required="false"/>
 
     <application
+        android:isGame="false"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:banner="@drawable/banner"
@@ -32,14 +33,39 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="landscape"
+            android:screenOrientation="user"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Firebase Cloud Messaging Service -->
+        <service
+            android:name=".GridTVFirebaseService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Default notification channel metadata -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="gridtv_game_alerts" />
+
+        <!-- Default notification icon (used when app is in background) -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+
+        <!-- Default notification color -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/orange_primary" />
 
     </application>
 

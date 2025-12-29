@@ -3,6 +3,7 @@
     <!-- Brand Colors -->
     <color name="accent_orange">#FF6B00</color>
     <color name="accent_orange_dark">#CC5500</color>
+    <color name="orange_primary">#FF6B00</color>
 
     <!-- Background Colors -->
     <color name="background_dark">#1A1A2E</color>

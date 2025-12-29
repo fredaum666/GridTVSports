@@ -1,23 +1,35 @@
 package com.gridtvsports.tv
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.UiModeManager
+import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.WindowMetrics
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,26 +38,50 @@ class MainActivity : AppCompatActivity() {
     private lateinit var loadingText: TextView
     private lateinit var loadingOverlay: View
 
-    // Production URL - TV Home with league navigation
+    // Production URLs
     private val TV_HOME_URL = "https://gridtvsports.com/tv-home"
+    private val MOBILE_LOGIN_URL = "https://gridtvsports.com/login"
 
     // For Android Emulator: use 10.0.2.2 to reach host machine's localhost
     //private val TV_HOME_URL = "http://10.0.2.2:3001/tv-home"
+    //private val MOBILE_LOGIN_URL = "http://10.0.2.2:3001/login"
 
-    // For physical Android TV device on same network, use your computer's IP:
+    // For physical device on same network, use your computer's IP:
     // private val TV_HOME_URL = "http://192.168.1.100:3001/tv-home"
+    // private val MOBILE_LOGIN_URL = "http://192.168.1.100:3001/login"
+
+    private var isTV = false
+    private var fcmToken: String? = null
+
+    // Permission request launcher for Android 13+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Log.d("MainActivity", "Notification permission granted")
+            initializeFCM()
+        } else {
+            Log.d("MainActivity", "Notification permission denied")
+        }
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Make fullscreen and keep screen on
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowInsetsControllerCompat(window, window.decorView).let { controller ->
-            controller.hide(WindowInsetsCompat.Type.systemBars())
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        // Detect if running on TV
+        isTV = detectTVDevice()
+        Log.d("MainActivity", "Device type: ${if (isTV) "TV" else "Phone/Tablet"}")
+
+        // Make fullscreen and keep screen on (for TV)
+        if (isTV) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+                controller.hide(WindowInsetsCompat.Type.systemBars())
+                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         setContentView(R.layout.activity_main)
 
@@ -54,20 +90,108 @@ class MainActivity : AppCompatActivity() {
         loadingText = findViewById(R.id.loadingText)
         loadingOverlay = findViewById(R.id.loadingOverlay)
 
-        setupWebView()
-        loadTVHome()
+        try {
+            setupWebView()
+            loadAppropriateUrl()
+
+            // Initialize FCM for push notifications
+            createNotificationChannel()
+            requestNotificationPermission()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error setting up WebView: ${e.message}", e)
+            // Show error message
+            loadingText.text = "Error loading app. Please restart."
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                GridTVFirebaseService.CHANNEL_ID,
+                GridTVFirebaseService.CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications for game start alerts"
+                enableLights(true)
+                enableVibration(true)
+            }
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+            Log.d("MainActivity", "Notification channel created")
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    Log.d("MainActivity", "Notification permission already granted")
+                    initializeFCM()
+                }
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    // User previously denied, but we can ask again
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                else -> {
+                    // First time asking
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            // Below Android 13, no runtime permission needed
+            initializeFCM()
+        }
+    }
+
+    private fun initializeFCM() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("MainActivity", "FCM token fetch failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            fcmToken = task.result
+            Log.d("MainActivity", "FCM Token: $fcmToken")
+
+            // Store token locally
+            getSharedPreferences("fcm_prefs", Context.MODE_PRIVATE)
+                .edit()
+                .putString("fcm_token", fcmToken)
+                .apply()
+        }
+    }
+
+    private fun detectTVDevice(): Boolean {
+        val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+        return uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
-        // Get actual screen metrics
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getRealMetrics(displayMetrics)
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
-        val density = displayMetrics.density
+        // Get actual screen metrics (compatible with all Android versions)
+        val screenWidth: Int
+        val screenHeight: Int
+        val density: Float
 
-        Log.d("MainActivity", "Screen: ${screenWidth}x${screenHeight}, Density: $density, DPI: ${displayMetrics.densityDpi}")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowMetrics: WindowMetrics = windowManager.currentWindowMetrics
+            screenWidth = windowMetrics.bounds.width()
+            screenHeight = windowMetrics.bounds.height()
+            density = resources.displayMetrics.density
+        } else {
+            @Suppress("DEPRECATION")
+            val displayMetrics = android.util.DisplayMetrics()
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.getRealMetrics(displayMetrics)
+            screenWidth = displayMetrics.widthPixels
+            screenHeight = displayMetrics.heightPixels
+            density = displayMetrics.density
+        }
+
+        Log.d("MainActivity", "Screen: ${screenWidth}x${screenHeight}, Density: $density")
         Log.d("MainActivity", "CSS Viewport will be: ${(screenWidth / density).toInt()}x${(screenHeight / density).toInt()}")
 
         // Enable WebView debugging only for debug builds
@@ -96,13 +220,25 @@ class MainActivity : AppCompatActivity() {
             // Disable text auto-sizing
             textZoom = 100
 
-            // Disable zoom for TV
-            setSupportZoom(false)
-            builtInZoomControls = false
-            displayZoomControls = false
+            // Configure zoom based on device type
+            if (isTV) {
+                // Disable zoom for TV (D-pad navigation)
+                setSupportZoom(false)
+                builtInZoomControls = false
+                displayZoomControls = false
+            } else {
+                // Enable zoom for mobile/tablet (pinch to zoom)
+                setSupportZoom(true)
+                builtInZoomControls = true
+                displayZoomControls = false // Hide zoom buttons, allow pinch
+            }
 
-            // Set user agent to identify as TV app with actual screen resolution
-            userAgentString = "$userAgentString GridTVSports-AndroidTV/1.0 TVScreen/${screenWidth}x${screenHeight}"
+            // Set user agent to identify device type with actual screen resolution
+            userAgentString = if (isTV) {
+                "$userAgentString GridTVSports-AndroidTV/1.0 TVScreen/${screenWidth}x${screenHeight}"
+            } else {
+                "$userAgentString GridTVSports-Mobile/1.0 Screen/${screenWidth}x${screenHeight}"
+            }
 
             // Allow mixed content (http resources on https page)
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
@@ -111,10 +247,10 @@ class MainActivity : AppCompatActivity() {
             databaseEnabled = true
         }
 
-        // Set initial scale to 100% (no zoom)
-        webView.setInitialScale(100)
+        // Set initial scale to 0 (auto) for mobile, 100 for TV
+        webView.setInitialScale(if (isTV) 100 else 0)
 
-        Log.d("MainActivity", "WebView configured for TV mode")
+        Log.d("MainActivity", "WebView configured for ${if (isTV) "TV" else "Mobile"} mode")
 
         // Handle page loading
         webView.webViewClient = object : WebViewClient() {
@@ -159,14 +295,41 @@ class MainActivity : AppCompatActivity() {
         webView.isFocusable = true
         webView.isFocusableInTouchMode = true
         webView.requestFocus()
+
+        // Add JavaScript interface for FCM communication
+        webView.addJavascriptInterface(WebAppInterface(this), "AndroidApp")
     }
 
-    private fun loadTVHome() {
-        showLoading()
-        Log.d("MainActivity", "Loading URL: $TV_HOME_URL")
+    // JavaScript interface for web page communication
+    inner class WebAppInterface(private val context: Context) {
 
-        // Simply load the URL directly - the web page handles TV detection
-        webView.loadUrl(TV_HOME_URL)
+        @JavascriptInterface
+        fun getFCMToken(): String {
+            return fcmToken ?: getSharedPreferences("fcm_prefs", Context.MODE_PRIVATE)
+                .getString("fcm_token", "") ?: ""
+        }
+
+        @JavascriptInterface
+        fun isAndroidApp(): Boolean {
+            return true
+        }
+
+        @JavascriptInterface
+        fun isTV(): Boolean {
+            return isTV
+        }
+
+        @JavascriptInterface
+        fun getDeviceInfo(): String {
+            return """{"model":"${Build.MODEL}","manufacturer":"${Build.MANUFACTURER}","sdk":${Build.VERSION.SDK_INT},"isTV":$isTV}"""
+        }
+    }
+
+    private fun loadAppropriateUrl() {
+        showLoading()
+        val url = if (isTV) TV_HOME_URL else MOBILE_LOGIN_URL
+        Log.d("MainActivity", "Loading URL: $url (isTV: $isTV)")
+        webView.loadUrl(url)
     }
 
     private fun showLoading() {
@@ -183,7 +346,7 @@ class MainActivity : AppCompatActivity() {
         loadingText.text = message
         // Retry after 5 seconds
         loadingOverlay.postDelayed({
-            loadTVHome()
+            loadAppropriateUrl()
         }, 5000)
     }
 

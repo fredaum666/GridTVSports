@@ -1,6 +1,10 @@
 # Environment variables (contains sensitive database credentials)
 .env
 
+# Firebase Admin SDK key (contains sensitive credentials)
+*-firebase-adminsdk-*.json
+firebase-admin-key.json
+
 # Node modules
 node_modules/
 

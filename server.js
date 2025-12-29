@@ -14,6 +14,42 @@ const webpush = require('web-push');
 const { pool } = require('./db');
 require('dotenv').config();
 
+// Firebase Admin SDK for FCM (Firebase Cloud Messaging)
+let firebaseAdmin = null;
+let fcmConfigured = false;
+const firebaseServiceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+const firebaseServiceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+
+if (firebaseServiceAccountPath || firebaseServiceAccountJson) {
+  try {
+    const admin = require('firebase-admin');
+    let serviceAccount;
+
+    if (firebaseServiceAccountJson) {
+      // Parse JSON from environment variable (recommended for cloud deployments)
+      serviceAccount = JSON.parse(firebaseServiceAccountJson);
+      console.log('   Using FIREBASE_SERVICE_ACCOUNT_JSON environment variable');
+    } else {
+      // Load from file path (good for local development)
+      serviceAccount = require(firebaseServiceAccountPath);
+      console.log('   Using file:', firebaseServiceAccountPath);
+    }
+
+    firebaseAdmin = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    fcmConfigured = true;
+    console.log('✅ Firebase Admin SDK initialized for FCM');
+  } catch (error) {
+    console.error('❌ Failed to initialize Firebase Admin SDK:', error.message);
+    console.log('   Make sure Firebase credentials are valid');
+  }
+} else {
+  console.log('⚠️ Firebase Cloud Messaging not configured');
+  console.log('   Set FIREBASE_SERVICE_ACCOUNT_PATH (file) or FIREBASE_SERVICE_ACCOUNT_JSON (JSON string)');
+  console.log('   Android push notifications will not work without FCM');
+}
+
 // Email transporter configuration
 let emailTransporter = null;
 const emailConfigured = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS;
@@ -1185,6 +1221,102 @@ app.post('/api/push/unsubscribe', async (req, res) => {
   } catch (error) {
     console.error('Error removing push subscription:', error);
     res.status(500).json({ error: 'Failed to unsubscribe' });
+  }
+});
+
+// ============================================
+// FCM (Firebase Cloud Messaging) ENDPOINTS
+// ============================================
+
+// Register FCM token (for Android app)
+app.post('/api/push/fcm/register', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const { fcm_token, device_id, device_info } = req.body;
+  if (!fcm_token) {
+    return res.status(400).json({ error: 'FCM token is required' });
+  }
+
+  try {
+    // Upsert FCM subscription (update if token exists, insert if not)
+    await pool.query(`
+      INSERT INTO push_subscriptions (user_id, subscription_type, fcm_token, device_id, device_info, user_agent, updated_at)
+      VALUES ($1, 'fcm', $2, $3, $4, $5, NOW())
+      ON CONFLICT (fcm_token) DO UPDATE SET
+        user_id = $1,
+        device_id = $3,
+        device_info = $4,
+        user_agent = $5,
+        is_active = TRUE,
+        updated_at = NOW()
+    `, [
+      req.session.userId,
+      fcm_token,
+      device_id || null,
+      device_info ? JSON.stringify(device_info) : null,
+      req.headers['user-agent'] || null
+    ]);
+
+    // Create default notification preferences if not exists
+    await pool.query(`
+      INSERT INTO notification_preferences (user_id)
+      VALUES ($1)
+      ON CONFLICT (user_id) DO NOTHING
+    `, [req.session.userId]);
+
+    console.log(`[FCM] User ${req.session.userId} registered FCM token (device: ${device_id || 'unknown'})`);
+    res.json({ success: true, message: 'FCM token registered successfully' });
+  } catch (error) {
+    console.error('Error saving FCM subscription:', error);
+    res.status(500).json({ error: 'Failed to register FCM token' });
+  }
+});
+
+// Unregister FCM token
+app.post('/api/push/fcm/unregister', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  const { fcm_token } = req.body;
+  if (!fcm_token) {
+    return res.status(400).json({ error: 'FCM token is required' });
+  }
+
+  try {
+    await pool.query(
+      'UPDATE push_subscriptions SET is_active = FALSE, updated_at = NOW() WHERE fcm_token = $1 AND user_id = $2',
+      [fcm_token, req.session.userId]
+    );
+    console.log(`[FCM] User ${req.session.userId} unregistered FCM token`);
+    res.json({ success: true, message: 'FCM token unregistered' });
+  } catch (error) {
+    console.error('Error removing FCM subscription:', error);
+    res.status(500).json({ error: 'Failed to unregister FCM token' });
+  }
+});
+
+// Get FCM status for current user
+app.get('/api/push/fcm/status', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT COUNT(*) as count FROM push_subscriptions WHERE user_id = $1 AND subscription_type = $2 AND is_active = TRUE',
+      [req.session.userId, 'fcm']
+    );
+    const hasActiveToken = parseInt(result.rows[0].count) > 0;
+    res.json({
+      fcmConfigured: fcmConfigured,
+      hasActiveToken: hasActiveToken
+    });
+  } catch (error) {
+    console.error('Error checking FCM status:', error);
+    res.status(500).json({ error: 'Failed to check FCM status' });
   }
 });
 
@@ -4302,9 +4434,9 @@ cron.schedule('* * * * *', async () => {
         favoriteTeamIds = favResult.rows.map(r => r.team_id || r.team_abbreviation);
       }
 
-      // Get user's push subscriptions
+      // Get user's push subscriptions (both web push and FCM)
       const subsResult = await pool.query(
-        'SELECT endpoint, p256dh_key, auth_key FROM push_subscriptions WHERE user_id = $1 AND is_active = TRUE',
+        'SELECT subscription_type, endpoint, p256dh_key, auth_key, fcm_token FROM push_subscriptions WHERE user_id = $1 AND is_active = TRUE',
         [user.user_id]
       );
 
@@ -4335,10 +4467,14 @@ cron.schedule('* * * * *', async () => {
         // Mark as sent
         sentGameNotifications.add(notificationKey);
 
-        // Create notification payload
-        const payload = JSON.stringify({
-          title: `${game.league}: ${game.shortName}`,
-          body: `Game starts in ${game.minutesUntilStart} minutes!`,
+        // Create notification title and body
+        const notificationTitle = `${game.league}: ${game.shortName}`;
+        const notificationBody = `Game starts in ${game.minutesUntilStart} minutes!`;
+
+        // Create web push payload
+        const webPushPayload = JSON.stringify({
+          title: notificationTitle,
+          body: notificationBody,
           icon: game.homeTeam.logo || '/logos/gridtv-icon-192.png',
           badge: '/logos/gridtv-badge-72.png',
           tag: `game-${game.gameId}`,
@@ -4349,32 +4485,79 @@ cron.schedule('* * * * *', async () => {
           awayTeam: game.awayTeam.abbreviation
         });
 
-        // Send to all user's devices
+        // Send to all user's devices (both web push and FCM)
         for (const sub of subsResult.rows) {
-          const pushSubscription = {
-            endpoint: sub.endpoint,
-            keys: {
-              p256dh: sub.p256dh_key,
-              auth: sub.auth_key
-            }
-          };
-
           try {
-            await webpush.sendNotification(pushSubscription, payload);
+            if (sub.subscription_type === 'fcm' && sub.fcm_token && fcmConfigured) {
+              // Send via Firebase Cloud Messaging
+              const admin = require('firebase-admin');
+              const fcmMessage = {
+                token: sub.fcm_token,
+                notification: {
+                  title: notificationTitle,
+                  body: notificationBody
+                },
+                data: {
+                  gameId: game.gameId,
+                  league: game.league,
+                  url: `/${game.league.toLowerCase()}.html`,
+                  homeTeam: game.homeTeam.abbreviation,
+                  awayTeam: game.awayTeam.abbreviation
+                },
+                android: {
+                  priority: 'high',
+                  notification: {
+                    channelId: 'gridtv_game_alerts',
+                    icon: 'ic_notification',
+                    color: '#FF6B00'
+                  }
+                }
+              };
 
-            // Log the notification
-            await pool.query(`
-              INSERT INTO notification_log (user_id, game_id, notification_type, title, body, delivered)
-              VALUES ($1, $2, 'game_start', $3, $4, TRUE)
-            `, [user.user_id, game.gameId, `${game.league}: ${game.shortName}`, `Game starts in ${game.minutesUntilStart} minutes!`]);
+              await admin.messaging().send(fcmMessage);
 
-            console.log(`[Push] Sent game start notification to user ${user.user_id} for ${game.shortName}`);
+              // Log the notification
+              await pool.query(`
+                INSERT INTO notification_log (user_id, game_id, notification_type, title, body, delivered)
+                VALUES ($1, $2, 'game_start_fcm', $3, $4, TRUE)
+              `, [user.user_id, game.gameId, notificationTitle, notificationBody]);
+
+              console.log(`[FCM] Sent game start notification to user ${user.user_id} for ${game.shortName}`);
+
+            } else if (sub.subscription_type === 'web' || (!sub.subscription_type && sub.endpoint)) {
+              // Send via Web Push
+              const pushSubscription = {
+                endpoint: sub.endpoint,
+                keys: {
+                  p256dh: sub.p256dh_key,
+                  auth: sub.auth_key
+                }
+              };
+
+              await webpush.sendNotification(pushSubscription, webPushPayload);
+
+              // Log the notification
+              await pool.query(`
+                INSERT INTO notification_log (user_id, game_id, notification_type, title, body, delivered)
+                VALUES ($1, $2, 'game_start', $3, $4, TRUE)
+              `, [user.user_id, game.gameId, notificationTitle, notificationBody]);
+
+              console.log(`[Push] Sent game start notification to user ${user.user_id} for ${game.shortName}`);
+            }
           } catch (error) {
-            console.error(`[Push] Failed to send notification:`, error.message);
+            console.error(`[Push/FCM] Failed to send notification:`, error.message);
             if (error.statusCode === 410 || error.statusCode === 404) {
+              // Web Push subscription expired
               await pool.query(
                 'UPDATE push_subscriptions SET is_active = FALSE WHERE endpoint = $1',
                 [sub.endpoint]
+              );
+            } else if (error.code === 'messaging/registration-token-not-registered' ||
+                       error.code === 'messaging/invalid-registration-token') {
+              // FCM token invalid
+              await pool.query(
+                'UPDATE push_subscriptions SET is_active = FALSE WHERE fcm_token = $1',
+                [sub.fcm_token]
               );
             }
           }

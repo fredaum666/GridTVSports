@@ -1346,7 +1346,16 @@
       const toggleBtn = document.getElementById('pushToggleBtn');
       const optionsDiv = document.getElementById('notificationOptions');
 
-      // Check if push notifications are supported
+      // Check if running inside Android app (via JavascriptInterface)
+      const isAndroidApp = typeof AndroidApp !== 'undefined' && AndroidApp.isAndroidApp && AndroidApp.isAndroidApp();
+
+      if (isAndroidApp) {
+        // Running in Android app - use FCM instead of Web Push
+        await initAndroidFCMNotifications(statusDot, statusText, toggleBtn, optionsDiv);
+        return;
+      }
+
+      // Check if push notifications are supported (web browser)
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
         statusDot.className = 'status-dot unsupported';
         statusText.textContent = 'Not supported in this browser';
@@ -1464,6 +1473,196 @@
       document.querySelectorAll('.league-checkbox input').forEach(cb => {
         cb.checked = leagues.includes(cb.value);
       });
+    }
+
+    // ========================================
+    // ANDROID FCM NOTIFICATIONS
+    // ========================================
+
+    let fcmRegistered = false;
+
+    async function initAndroidFCMNotifications(statusDot, statusText, toggleBtn, optionsDiv) {
+      console.log('[FCM] Initializing Android FCM notifications');
+
+      // Get FCM token from Android app
+      const fcmToken = AndroidApp.getFCMToken ? AndroidApp.getFCMToken() : '';
+      const deviceInfo = AndroidApp.getDeviceInfo ? JSON.parse(AndroidApp.getDeviceInfo()) : {};
+
+      if (!fcmToken) {
+        statusDot.className = 'status-dot unsupported';
+        statusText.textContent = 'Waiting for notification permission...';
+        toggleBtn.textContent = 'Grant Permission in App Settings';
+        toggleBtn.disabled = true;
+        return;
+      }
+
+      // Check FCM status from server
+      try {
+        const response = await fetch('/api/push/fcm/status');
+        if (!response.ok) throw new Error('Not authenticated');
+
+        const status = await response.json();
+
+        if (status.hasActiveToken) {
+          fcmRegistered = true;
+          updateFCMUI(true, statusDot, statusText, toggleBtn, optionsDiv);
+          await loadNotificationPreferencesForFCM();
+        } else {
+          // Auto-register FCM token
+          await registerFCMToken(fcmToken, deviceInfo);
+          updateFCMUI(true, statusDot, statusText, toggleBtn, optionsDiv);
+          await loadNotificationPreferencesForFCM();
+        }
+
+        toggleBtn.disabled = false;
+
+      } catch (error) {
+        console.error('[FCM] Error checking status:', error);
+        statusDot.className = 'status-dot unsupported';
+        statusText.textContent = 'Login required for notifications';
+        toggleBtn.textContent = 'Login to Enable';
+        toggleBtn.disabled = true;
+        return;
+      }
+
+      // Toggle button handler
+      toggleBtn.addEventListener('click', async () => {
+        toggleBtn.disabled = true;
+
+        if (fcmRegistered) {
+          // Unregister FCM token
+          const result = await unregisterFCMToken(fcmToken);
+          if (result.success) {
+            fcmRegistered = false;
+            updateFCMUI(false, statusDot, statusText, toggleBtn, optionsDiv);
+            showSuccess('Notifications disabled');
+          } else {
+            showError(result.error || 'Failed to disable notifications');
+          }
+        } else {
+          // Register FCM token
+          const result = await registerFCMToken(fcmToken, deviceInfo);
+          if (result.success) {
+            fcmRegistered = true;
+            updateFCMUI(true, statusDot, statusText, toggleBtn, optionsDiv);
+            await loadNotificationPreferencesForFCM();
+            showSuccess('Notifications enabled!');
+          } else {
+            showError(result.error || 'Failed to enable notifications');
+          }
+        }
+
+        toggleBtn.disabled = false;
+      });
+
+      // Test notification button (may not work for FCM without server support)
+      document.getElementById('testNotificationBtn').addEventListener('click', async () => {
+        showSuccess('Test notifications coming soon for Android app!');
+      });
+
+      // Save preferences button
+      document.getElementById('savePreferencesBtn').addEventListener('click', async () => {
+        const preferences = {
+          game_start_alerts: document.getElementById('gameStartAlerts').checked,
+          minutes_before_game: parseInt(document.getElementById('minutesBefore').value),
+          notify_favorite_teams_only: document.getElementById('favoriteTeamsOnly').checked,
+          notify_leagues: Array.from(document.querySelectorAll('.league-checkbox input:checked')).map(cb => cb.value)
+        };
+
+        try {
+          const response = await fetch('/api/push/preferences', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(preferences)
+          });
+
+          if (response.ok) {
+            showSuccess('Preferences saved!');
+          } else {
+            showError('Failed to save preferences');
+          }
+        } catch (error) {
+          showError('Failed to save preferences');
+        }
+      });
+    }
+
+    async function registerFCMToken(fcmToken, deviceInfo) {
+      try {
+        const response = await fetch('/api/push/fcm/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fcm_token: fcmToken,
+            device_id: deviceInfo.model || 'android-device',
+            device_info: deviceInfo
+          })
+        });
+
+        if (response.ok) {
+          return { success: true };
+        } else {
+          const data = await response.json();
+          return { success: false, error: data.error };
+        }
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    }
+
+    async function unregisterFCMToken(fcmToken) {
+      try {
+        const response = await fetch('/api/push/fcm/unregister', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fcm_token: fcmToken })
+        });
+
+        if (response.ok) {
+          return { success: true };
+        } else {
+          const data = await response.json();
+          return { success: false, error: data.error };
+        }
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    }
+
+    function updateFCMUI(enabled, statusDot, statusText, toggleBtn, optionsDiv) {
+      if (enabled) {
+        statusDot.className = 'status-dot subscribed';
+        statusText.textContent = 'Enabled (Android App)';
+        toggleBtn.textContent = 'Disable Notifications';
+        toggleBtn.classList.add('subscribed');
+        optionsDiv.style.display = 'block';
+      } else {
+        statusDot.className = 'status-dot not-subscribed';
+        statusText.textContent = 'Disabled';
+        toggleBtn.textContent = 'Enable Notifications';
+        toggleBtn.classList.remove('subscribed');
+        optionsDiv.style.display = 'none';
+      }
+    }
+
+    async function loadNotificationPreferencesForFCM() {
+      try {
+        const response = await fetch('/api/push/preferences');
+        if (!response.ok) return;
+
+        const prefs = await response.json();
+
+        document.getElementById('gameStartAlerts').checked = prefs.game_start_alerts !== false;
+        document.getElementById('minutesBefore').value = prefs.minutes_before_game || 15;
+        document.getElementById('favoriteTeamsOnly').checked = prefs.notify_favorite_teams_only !== false;
+
+        const leagues = prefs.notify_leagues || ['NFL', 'NBA', 'MLB', 'NHL', 'NCAAF', 'NCAAB'];
+        document.querySelectorAll('.league-checkbox input').forEach(cb => {
+          cb.checked = leagues.includes(cb.value);
+        });
+      } catch (error) {
+        console.error('[FCM] Error loading preferences:', error);
+      }
     }
 
     init();

@@ -315,19 +315,27 @@ COMMENT ON COLUMN tv_sessions.is_active IS 'Whether the session is currently act
 CREATE TABLE IF NOT EXISTS push_subscriptions (
   id SERIAL PRIMARY KEY,
   user_id INT REFERENCES users(id) ON DELETE CASCADE,
-  endpoint TEXT UNIQUE NOT NULL,
-  p256dh_key TEXT NOT NULL,
-  auth_key TEXT NOT NULL,
+  subscription_type VARCHAR(20) DEFAULT 'web', -- 'web' for Web Push, 'fcm' for Firebase Cloud Messaging
+  endpoint TEXT, -- For web push (NULL for FCM)
+  p256dh_key TEXT, -- For web push (NULL for FCM)
+  auth_key TEXT, -- For web push (NULL for FCM)
+  fcm_token TEXT, -- For FCM (NULL for web push)
+  device_id VARCHAR(100), -- Unique device identifier
+  device_info JSONB, -- Device metadata (model, manufacturer, etc.)
   user_agent VARCHAR(500),
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(endpoint),
+  UNIQUE(fcm_token)
 );
 
 -- Create indexes for push_subscriptions
 CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user ON push_subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_push_subscriptions_active ON push_subscriptions(is_active);
 CREATE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint);
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_fcm_token ON push_subscriptions(fcm_token);
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_type ON push_subscriptions(subscription_type);
 
 -- Notification preferences table
 CREATE TABLE IF NOT EXISTS notification_preferences (
@@ -364,10 +372,14 @@ CREATE INDEX IF NOT EXISTS idx_notification_log_user ON notification_log(user_id
 CREATE INDEX IF NOT EXISTS idx_notification_log_game ON notification_log(game_id);
 CREATE INDEX IF NOT EXISTS idx_notification_log_sent ON notification_log(sent_at);
 
-COMMENT ON TABLE push_subscriptions IS 'Stores Web Push API subscription data for each user device';
-COMMENT ON COLUMN push_subscriptions.endpoint IS 'Push service endpoint URL';
-COMMENT ON COLUMN push_subscriptions.p256dh_key IS 'Public key for encryption (base64)';
-COMMENT ON COLUMN push_subscriptions.auth_key IS 'Authentication secret (base64)';
+COMMENT ON TABLE push_subscriptions IS 'Stores push subscription data for Web Push and FCM';
+COMMENT ON COLUMN push_subscriptions.subscription_type IS 'Type of subscription: web (Web Push API) or fcm (Firebase Cloud Messaging)';
+COMMENT ON COLUMN push_subscriptions.endpoint IS 'Push service endpoint URL (Web Push only)';
+COMMENT ON COLUMN push_subscriptions.p256dh_key IS 'Public key for encryption - base64 (Web Push only)';
+COMMENT ON COLUMN push_subscriptions.auth_key IS 'Authentication secret - base64 (Web Push only)';
+COMMENT ON COLUMN push_subscriptions.fcm_token IS 'Firebase Cloud Messaging token (FCM only)';
+COMMENT ON COLUMN push_subscriptions.device_id IS 'Unique device identifier';
+COMMENT ON COLUMN push_subscriptions.device_info IS 'Device metadata JSON (model, manufacturer, sdk version, etc.)';
 
 COMMENT ON TABLE notification_preferences IS 'Stores user notification preferences';
 COMMENT ON COLUMN notification_preferences.minutes_before_game IS 'How many minutes before game start to send alert';

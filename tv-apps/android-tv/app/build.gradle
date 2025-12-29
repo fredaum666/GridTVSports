@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -11,7 +12,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace 'com.gridtvsports.tv'
-    compileSdk 34
+    compileSdk 35
 
     signingConfigs {
         release {
@@ -27,9 +28,9 @@ android {
     defaultConfig {
         applicationId "com.gridtvsports.tv"
         minSdk 26
-        targetSdk 34
-        versionCode 7
-        versionName "1.1.1"
+        targetSdk 35
+        versionCode 14
+        versionName "1.2.1"
     }
 
     buildTypes {
@@ -63,4 +64,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.leanback:leanback:1.0.0'
     implementation 'androidx.webkit:webkit:1.9.0'
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:33.7.0')
+    implementation 'com.google.firebase:firebase-messaging-ktx'
 }
