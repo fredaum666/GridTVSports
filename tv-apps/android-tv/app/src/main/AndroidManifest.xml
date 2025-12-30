@@ -9,40 +9,23 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!--
-        Feature declarations for TV + Phone/Tablet compatibility
-        All features marked required="false" to support BOTH TV and phones
-        tools:node="replace" completely overrides library declarations
+        Feature declarations are in flavor-specific manifests:
+        - src/tv/AndroidManifest.xml (TV only: leanback=required, touchscreen=false)
+        - src/mobile/AndroidManifest.xml (Mobile only: leanback=false, touchscreen=required)
     -->
 
-    <!-- Leanback (TV interface) - optional so phones can install -->
-    <uses-feature
-        android:name="android.software.leanback"
-        android:required="false"
-        tools:node="replace" />
-
-    <!-- Touchscreen - NOT required so TVs (no touchscreen) can install -->
-    <uses-feature
-        android:name="android.hardware.touchscreen"
-        android:required="false"
-        tools:node="replace" />
-
-    <!-- Faketouch - for devices that emulate touch (like TVs with remotes) -->
+    <!-- Faketouch - optional for both -->
     <uses-feature
         android:name="android.hardware.faketouch"
-        android:required="false"
-        tools:node="replace" />
+        android:required="false" />
 
-    <!-- Screen landscape - optional -->
+    <!-- Screen orientation - optional for both -->
     <uses-feature
         android:name="android.hardware.screen.landscape"
-        android:required="false"
-        tools:node="replace" />
-
-    <!-- Screen portrait - optional -->
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.screen.portrait"
-        android:required="false"
-        tools:node="replace" />
+        android:required="false" />
 
     <!-- Explicitly support all screen sizes -->
     <supports-screens

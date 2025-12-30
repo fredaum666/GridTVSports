@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        MOBILE-ONLY Manifest
+        This makes the app ONLY available on phones/tablets (NOT TV)
+    -->
+
+    <!-- Leanback NOT available on phones - this excludes TVs -->
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false"
+        tools:node="replace" />
+
+    <!-- Touchscreen REQUIRED - excludes TVs that don't have touchscreens -->
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="true"
+        tools:node="replace" />
+
+</manifest>
