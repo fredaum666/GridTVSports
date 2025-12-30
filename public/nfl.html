@@ -11267,19 +11267,19 @@
             if (events.length > 0) {
               console.log('🎬 Play events detected:', events.map(e => e.type + (e.isNegated ? ' (NEGATED)' : '')).join(', '));
             }
-          }
 
-          // Score-based detection fallback (for when play text doesn't match)
-          // Only trigger if NO scoring events were detected from play text analysis
-          const hasScoringEvent = events.some(e =>
-            e.type === 'touchdown' || e.type === 'field-goal' || e.type === 'safety' || e.type === 'two-point'
-          );
+            // Score-based detection fallback (for when play text doesn't match)
+            // Only trigger if NO scoring events were detected from play text analysis
+            const hasScoringEvent = events.some(e =>
+              e.type === 'touchdown' || e.type === 'field-goal' || e.type === 'safety' || e.type === 'two-point'
+            );
 
-          if (!hasScoringEvent) {
-            if (awayScoreChange > 0 && !card.dataset.lastProcessedPlay?.includes(lastPlay)) {
-              detectAndAnimatePlay(card, awayScoreChange, awayName, lastPlay);
-            } else if (homeScoreChange > 0 && !card.dataset.lastProcessedPlay?.includes(lastPlay)) {
-              detectAndAnimatePlay(card, homeScoreChange, homeName, lastPlay);
+            if (!hasScoringEvent) {
+              if (awayScoreChange > 0) {
+                detectAndAnimatePlay(card, awayScoreChange, awayName, lastPlay);
+              } else if (homeScoreChange > 0) {
+                detectAndAnimatePlay(card, homeScoreChange, homeName, lastPlay);
+              }
             }
           }
 
