@@ -28,9 +28,26 @@ android {
     defaultConfig {
         applicationId "com.gridtvsports.tv"
         minSdk 26
-        targetSdk 35
-        versionCode 23
-        versionName "1.4.5"
+        // targetSdk is set per flavor
+        versionCode 26
+        versionName "1.5.0"
+    }
+
+    // Product flavors for TV (SDK 34) and Mobile (SDK 35)
+    flavorDimensions += "device"
+    productFlavors {
+        tv {
+            dimension "device"
+            targetSdk 34
+            // TV gets lower version code so mobile takes priority on phones
+            versionCode 26
+        }
+        mobile {
+            dimension "device"
+            targetSdk 35
+            // Mobile gets higher version code for priority on phones
+            versionCode 1026
+        }
     }
 
     buildTypes {
