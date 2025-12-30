@@ -1505,9 +1505,9 @@
       }
     }
 
-    /* Touchdown Animation - Green/Gold */
+    /* Touchdown Animation - Green/Gold (7 seconds) */
     .play-animation.touchdown {
-      animation: fadeOutTouchdown 12s forwards;
+      animation: fadeOutTouchdown 7s forwards;
     }
 
     .play-animation.touchdown .play-animation-icon {
@@ -10276,6 +10276,9 @@
       div.dataset.isLive = isLive ? 'true' : 'false';
       div.dataset.isFinal = isFinal ? 'true' : 'false';
       div.dataset.gameId = game.id;
+      // Initialize previous scores to prevent false animation triggers on first update
+      div.dataset.prevAwayScore = awayScore;
+      div.dataset.prevHomeScore = homeScore;
 
       // Get postseason game name
       const postseasonName = isPostseason ? (comp?.notes?.[0]?.headline || '') : '';
@@ -10745,10 +10748,10 @@
       card.appendChild(animationDiv);
 
       // Remove after animation completes
-      // Touchdown gets 12 seconds, Penalty gets 11 seconds (5s phase 1 + 6s phase 2), Timeout gets 5 seconds, others get 8 seconds
+      // Touchdown gets 7 seconds, Penalty gets 11 seconds (5s phase 1 + 6s phase 2), Timeout gets 5 seconds, others get 8 seconds
       let animationDuration = 8000;
       if (playType === 'touchdown') {
-        animationDuration = 12000;
+        animationDuration = 7000;
       } else if (playType === 'penalty') {
         animationDuration = 11000;
       } else if (playType === 'timeout') {
@@ -11015,7 +11018,8 @@
             }
 
             // 3. TOUCHDOWN detection (if not already caught by turnover)
-            else if ((lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) &&
+            // Use 'if' instead of 'else if' so touchdowns are always detected even after other plays
+            if ((lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) &&
               !events.some(e => e.type === 'touchdown')) {
               // Determine scoring team from score change or play text
               let scoringTeam = '';
@@ -11031,8 +11035,11 @@
                 tdText = 'PUNT RETURN TD!';
               } else if (lowerLastPlay.includes('kick') && lowerLastPlay.includes('return')) {
                 tdText = 'KICK RETURN TD!';
-              } else if (lowerLastPlay.includes('blocked') && lowerLastPlay.includes('return')) {
+              } else if (lowerLastPlay.includes('blocked') && (lowerLastPlay.includes('return') || lowerLastPlay.includes('recovered'))) {
+                // Blocked kicks can be "returned" or "recovered" for a TD
                 tdText = 'BLOCKED KICK TD!';
+              } else if (lowerLastPlay.includes('fumble') && (lowerLastPlay.includes('return') || lowerLastPlay.includes('recovered'))) {
+                tdText = 'FUMBLE RECOVERY TD!';
               }
 
               events.push({
@@ -11073,13 +11080,15 @@
             }
 
             // 6. MISSED FIELD GOAL detection
+            // Don't show missed FG if there was a touchdown on the play (blocked kick returned for TD)
             if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
               (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
                 lowerLastPlay.includes('wide') || lowerLastPlay.includes('short') ||
-                lowerLastPlay.includes('blocked'))) {
+                lowerLastPlay.includes('blocked')) &&
+              !lowerLastPlay.includes('touchdown')) {
               events.push({
                 type: 'missed-kick',
-                text: 'MISSED FIELD GOAL!',
+                text: lowerLastPlay.includes('blocked') ? 'BLOCKED FIELD GOAL!' : 'MISSED FIELD GOAL!',
                 teamName: '',
                 isNegated: isNegated
               });
@@ -11261,11 +11270,17 @@
           }
 
           // Score-based detection fallback (for when play text doesn't match)
-          // Only trigger if no events were detected from play text
-          if (awayScoreChange > 0 && !card.dataset.lastProcessedPlay?.includes(lastPlay)) {
-            detectAndAnimatePlay(card, awayScoreChange, awayName, lastPlay);
-          } else if (homeScoreChange > 0 && !card.dataset.lastProcessedPlay?.includes(lastPlay)) {
-            detectAndAnimatePlay(card, homeScoreChange, homeName, lastPlay);
+          // Only trigger if NO scoring events were detected from play text analysis
+          const hasScoringEvent = events.some(e =>
+            e.type === 'touchdown' || e.type === 'field-goal' || e.type === 'safety' || e.type === 'two-point'
+          );
+
+          if (!hasScoringEvent) {
+            if (awayScoreChange > 0 && !card.dataset.lastProcessedPlay?.includes(lastPlay)) {
+              detectAndAnimatePlay(card, awayScoreChange, awayName, lastPlay);
+            } else if (homeScoreChange > 0 && !card.dataset.lastProcessedPlay?.includes(lastPlay)) {
+              detectAndAnimatePlay(card, homeScoreChange, homeName, lastPlay);
+            }
           }
 
           // Check for 1st down - detect when a new first down is achieved

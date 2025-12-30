@@ -5,15 +5,18 @@
     <!--
         MOBILE-ONLY Manifest
         This makes the app ONLY available on phones/tablets (NOT TV)
+
+        Key settings:
+        - leanback NOT required (and removed) = phones don't have leanback
+        - touchscreen REQUIRED = excludes TVs (they don't have touchscreens)
     -->
 
-    <!-- Leanback NOT available on phones - this excludes TVs -->
+    <!-- REMOVE leanback feature entirely - phones don't support it -->
     <uses-feature
         android:name="android.software.leanback"
-        android:required="false"
-        tools:node="replace" />
+        tools:node="remove" />
 
-    <!-- Touchscreen REQUIRED - excludes TVs that don't have touchscreens -->
+    <!-- Touchscreen REQUIRED - this EXCLUDES all TVs (they don't have touchscreens) -->
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="true"

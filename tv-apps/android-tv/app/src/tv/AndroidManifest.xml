@@ -5,18 +5,33 @@
     <!--
         TV-ONLY Manifest
         This makes the app ONLY available on Android TV devices
+
+        Key settings:
+        - leanback REQUIRED = only TVs can install (phones don't have leanback)
+        - touchscreen REMOVED = TVs don't have touchscreens, don't require it
     -->
 
-    <!-- Leanback REQUIRED - excludes phones that don't have TV interface -->
+    <!-- Leanback REQUIRED - this EXCLUDES all phones (they don't have leanback) -->
     <uses-feature
         android:name="android.software.leanback"
         android:required="true"
         tools:node="replace" />
 
-    <!-- Touchscreen NOT required - TVs don't have touchscreens -->
+    <!-- REMOVE touchscreen feature - TVs don't have touchscreens -->
     <uses-feature
         android:name="android.hardware.touchscreen"
-        android:required="false"
-        tools:node="replace" />
+        tools:node="remove" />
+
+    <application>
+        <!-- Add LEANBACK_LAUNCHER for TV home screen -->
+        <activity
+            android:name=".MainActivity"
+            tools:node="merge">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 
 </manifest>

@@ -29,8 +29,8 @@ android {
         applicationId "com.gridtvsports.tv"
         minSdk 26
         // targetSdk is set per flavor
-        versionCode 27
-        versionName "1.5.1"
+        versionCode 29
+        versionName "1.5.3"
     }
 
     // Product flavors for TV (SDK 34) and Mobile (SDK 35)
@@ -40,15 +40,15 @@ android {
         tv {
             dimension "device"
             targetSdk 34
-            versionCode 27
-            // TV manifest: leanback=required, touchscreen=false
+            versionCode 29
+            // TV manifest: leanback=required, touchscreen REMOVED
             // This EXCLUDES phones (they don't have leanback)
         }
         mobile {
             dimension "device"
             targetSdk 35
-            versionCode 1027
-            // Mobile manifest: leanback=false, touchscreen=required
+            versionCode 1029
+            // Mobile manifest: leanback REMOVED, touchscreen=required
             // This EXCLUDES TVs (they don't have touchscreen)
         }
     }
@@ -82,8 +82,10 @@ android {
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.leanback:leanback:1.0.0'
     implementation 'androidx.webkit:webkit:1.9.0'
+
+    // Leanback library ONLY for TV flavor (adds leanback feature requirement)
+    tvImplementation 'androidx.leanback:leanback:1.0.0'
 
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:33.7.0')
