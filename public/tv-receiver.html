@@ -256,6 +256,37 @@
             display: none !important;
         }
 
+        /* Back to TV Home button */
+        .back-to-home-btn {
+            margin-bottom: clamp(1rem, 2.5vmin, 2rem);
+            padding: clamp(10px, 2vmin, 16px) clamp(20px, 4vmin, 32px);
+            font-size: clamp(0.9rem, 2vmin, 1.2rem);
+            font-weight: 600;
+            background: transparent;
+            color: #94a3b8;
+            border: 2px solid #334155;
+            border-radius: clamp(8px, 1.5vmin, 12px);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: clamp(6px, 1vmin, 10px);
+        }
+
+        .back-to-home-btn:hover,
+        .back-to-home-btn:focus {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+            color: #e0e0e0;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .back-to-home-btn:focus {
+            outline: 3px solid #6366f1;
+            outline-offset: 2px;
+        }
+
         /* Connected State */
         .tv-display {
             display: none;
@@ -841,6 +872,10 @@
 <body>
     <!-- QR Code Authentication Screen (shown first if not authenticated) -->
     <div id="qr-auth-display" class="container">
+        <button class="back-to-home-btn" id="back-btn-qr" onclick="goToTVHome()">
+            ← Back to TV Home
+        </button>
+
         <h1>📺</h1>
         <div class="subtitle">GridTV Sports - TV Receiver</div>
 
@@ -865,6 +900,10 @@
 
     <!-- PIN Display Screen (shown after authentication) -->
     <div id="pin-display" class="container hidden">
+        <button class="back-to-home-btn" id="back-btn-pin" onclick="goToTVHome()">
+            ← Back to TV Home
+        </button>
+
         <h1>📺</h1>
         <div class="subtitle">GridTV Sports - TV Receiver</div>
 
@@ -957,6 +996,12 @@
             // No valid session, show QR auth
             await generateQRCode();
             initSocketForAuth();
+
+            // Auto-focus the back button for easy navigation (after QR code is generated)
+            setTimeout(() => {
+                const backBtn = document.getElementById('back-btn-qr');
+                if (backBtn) backBtn.focus();
+            }, 200);
         }
 
         // ============================================
@@ -1131,6 +1176,12 @@
             // Hide QR screen, show PIN screen
             document.getElementById('qr-auth-display').classList.add('hidden');
             document.getElementById('pin-display').classList.remove('hidden');
+
+            // Auto-focus the back button for easy navigation
+            setTimeout(() => {
+                const backBtn = document.getElementById('back-btn-pin');
+                if (backBtn) backBtn.focus();
+            }, 100);
 
             // Initialize casting system
             initCastingSystem();
@@ -1811,6 +1862,11 @@
 
         // Store current games globally for refresh
         window.currentGames = {};
+
+        // Navigate back to TV Home
+        function goToTVHome() {
+            window.location.href = '/tv-home';
+        }
     </script>
 </body>
 

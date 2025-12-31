@@ -9,6 +9,42 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="/scripts/qrcode.min.js"></script>
     <style>
+        /* ================================ */
+        /* TV DESIGN SYSTEM                 */
+        /* Based on Android TV Guidelines   */
+        /* ================================ */
+        :root {
+            /* Colors */
+            --tv-bg-primary: #0a0e1a;
+            --tv-bg-secondary: #111827;
+            --tv-bg-card: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
+            --tv-bg-card-hover: linear-gradient(135deg, #252b3d 0%, #2f3649 100%);
+            --tv-accent: #6366f1;
+            --tv-accent-light: #818cf8;
+            --tv-accent-glow: rgba(99, 102, 241, 0.4);
+            --tv-text-primary: #ffffff;
+            --tv-text-secondary: #94a3b8;
+            --tv-text-muted: #64748b;
+            --tv-live-red: #ef4444;
+            --tv-success: #22c55e;
+            --tv-border: #334155;
+
+            /* Spacing (5% overscan margins for 960x540) */
+            --tv-margin-h: 48px;
+            --tv-margin-v: 27px;
+            --tv-gutter: 20px;
+            --tv-row-gap: 24px;
+
+            /* Cards */
+            --tv-card-radius: 16px;
+            --tv-focus-outline: 3px;
+            --tv-focus-scale: 1.05;
+            --tv-focus-glow: 0 0 30px var(--tv-accent-glow);
+
+            /* Typography - System fonts for Android TV compatibility */
+            --tv-font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -20,9 +56,9 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #0a0e1a;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: #fff;
+            background: var(--tv-bg-primary);
+            font-family: var(--tv-font-family);
+            color: var(--tv-text-primary);
         }
 
         .hidden {
@@ -348,37 +384,16 @@
             color: #6366f1;
         }
 
-        /* User info in header */
-        .tv-user-info {
-            display: flex;
-            align-items: center;
-            gap: clamp(12px, 1.5vw, 25px);
-            color: #94a3b8;
-            font-size: clamp(12px, 1.2vw, 20px);
-        }
-
-        .tv-user-info .sign-out-link {
-            color: #6366f1;
-            cursor: pointer;
-            padding: clamp(6px, 0.8vh, 12px) clamp(10px, 1.2vw, 20px);
-            border: 2px solid transparent;
-            border-radius: clamp(5px, 0.6vw, 10px);
-            transition: all 0.3s;
-        }
-
-        .tv-user-info .sign-out-link:hover,
-        .tv-user-info .sign-out-link.focused {
-            border-color: #6366f1;
-            background: rgba(99, 102, 241, 0.1);
-        }
-
-        /* TV Home Container */
+        /* ================================ */
+        /* MAIN TV HOME - STREAMING LAYOUT  */
+        /* ================================ */
         .tv-home {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            padding: clamp(20px, 4vh, 60px) clamp(30px, 4vw, 80px);
+            padding: var(--tv-margin-v) var(--tv-margin-h);
+            overflow: hidden;
         }
 
         /* Header */
@@ -386,204 +401,362 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: clamp(20px, 4vh, 50px);
+            margin-bottom: 20px;
+            flex-shrink: 0;
         }
 
         .tv-logo {
             display: flex;
             align-items: center;
-            gap: clamp(12px, 1.5vw, 25px);
+            gap: 12px;
         }
 
         .tv-logo img {
-            height: clamp(40px, 5vh, 80px);
+            height: 40px;
             width: auto;
         }
 
         .tv-logo h1 {
-            font-size: clamp(24px, 2.5vw, 48px);
+            font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, var(--tv-accent) 0%, #8b5cf6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .tv-time {
-            font-size: clamp(16px, 1.8vw, 32px);
-            color: #94a3b8;
+        .tv-header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
         }
 
-        /* Main Content */
+        .tv-time {
+            font-size: 18px;
+            color: var(--tv-text-secondary);
+            font-weight: 500;
+        }
+
+        .tv-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--tv-text-secondary);
+            font-size: 14px;
+        }
+
+        .sign-out-link {
+            color: var(--tv-accent);
+            cursor: pointer;
+            padding: 8px 16px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .sign-out-link.focused {
+            border-color: var(--tv-accent);
+            background: rgba(99, 102, 241, 0.1);
+            transform: scale(1.05);
+        }
+
+        /* Main Content - Scrollable Rows */
         .tv-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: clamp(20px, 3vh, 40px);
+            gap: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
 
-        .section-title {
-            font-size: clamp(16px, 1.8vw, 32px);
-            color: #94a3b8;
-            margin-bottom: clamp(6px, 1vh, 15px);
+        .tv-content::-webkit-scrollbar {
+            display: none;
         }
 
-        /* League Grid */
-        .league-grid {
+        /* Row Container */
+        .tv-row {
+            flex-shrink: 0;
+        }
+
+        .tv-row-header {
             display: flex;
-            gap: clamp(15px, 2vw, 40px);
-            flex-wrap: wrap;
-        }
-
-        .league-card {
-            width: clamp(180px, 15vw, 350px);
-            height: clamp(130px, 18vh, 250px);
-            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            border: 3px solid transparent;
-            border-radius: clamp(12px, 1.3vw, 25px);
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding-top: clamp(12px, 2vh, 25px);
-            padding-bottom: clamp(35px, 5vh, 55px);
-            gap: clamp(6px, 1vh, 15px);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            box-sizing: border-box;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-left: 4px;
         }
 
-        .league-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .league-card:hover::before,
-        .league-card.focused::before {
-            opacity: 1;
-        }
-
-        .league-card.focused {
-            border-color: #6366f1;
-            transform: scale(1.05);
-            box-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
-        }
-
-        .league-card img {
-            height: clamp(50px, 8vh, 100px);
-            width: auto;
-            object-fit: contain;
-        }
-
-        .league-card .league-name {
-            font-size: clamp(16px, 1.6vw, 30px);
+        .tv-row-title {
+            font-size: 18px;
             font-weight: 600;
-            color: #fff;
-            margin-bottom: clamp(4px, 0.8vh, 10px);
+            color: var(--tv-text-primary);
         }
 
-        .league-card .league-status {
-            font-size: clamp(10px, 1vw, 18px);
-            color: #94a3b8;
-            position: absolute;
-            bottom: clamp(6px, 1vh, 15px);
-            line-height: 1.3;
-            text-align: center;
+        .tv-row-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .league-card .live-badge {
-            position: absolute;
-            top: clamp(8px, 1.2vh, 18px);
-            right: clamp(8px, 1vw, 18px);
-            background: #ef4444;
+        .tv-row-badge.live {
+            background: var(--tv-live-red);
             color: white;
-            font-size: clamp(9px, 0.9vw, 15px);
-            font-weight: 600;
-            padding: clamp(3px, 0.4vh, 6px) clamp(6px, 0.7vw, 12px);
-            border-radius: clamp(8px, 1vw, 15px);
-            display: flex;
-            align-items: center;
-            gap: clamp(3px, 0.4vw, 6px);
         }
 
-        .league-card .live-badge::before {
+        .tv-row-badge.live::before {
             content: '';
-            width: clamp(4px, 0.5vw, 8px);
-            height: clamp(4px, 0.5vw, 8px);
+            width: 6px;
+            height: 6px;
             background: white;
             border-radius: 50%;
             animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
-        /* Special Cards */
-        .special-grid {
+        .tv-row-count {
+            font-size: 14px;
+            color: var(--tv-text-muted);
+            margin-left: 8px;
+        }
+
+        /* Horizontal Scroll Container */
+        .tv-row-scroll {
             display: flex;
-            gap: clamp(15px, 2vw, 40px);
-            margin-top: clamp(12px, 2vh, 25px);
+            gap: 16px;
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 8px 4px 16px 4px;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
 
-        .special-card {
-            flex: 1;
-            max-width: clamp(280px, 25vw, 500px);
-            height: clamp(80px, 12vh, 150px);
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        .tv-row-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* League Cards (2:3 aspect ratio) */
+        .league-card {
+            flex-shrink: 0;
+            width: 120px;
+            height: 160px;
+            background: var(--tv-bg-card);
             border: 3px solid transparent;
-            border-radius: clamp(10px, 1.2vw, 20px);
+            border-radius: var(--tv-card-radius);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            padding: 0 clamp(18px, 2vw, 40px);
-            gap: clamp(12px, 1.5vw, 25px);
+            justify-content: center;
+            gap: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
         }
 
-        .special-card.focused {
-            border-color: #6366f1;
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+        .league-card.focused {
+            border-color: var(--tv-accent);
+            transform: scale(var(--tv-focus-scale));
+            box-shadow: var(--tv-focus-glow);
+            z-index: 10;
         }
 
-        .special-card .icon {
-            font-size: clamp(30px, 3.5vw, 60px);
+        .league-card img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
         }
 
-        .special-card .info h3 {
-            font-size: clamp(14px, 1.5vw, 28px);
-            margin-bottom: clamp(3px, 0.5vh, 8px);
+        .league-card .league-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--tv-text-primary);
         }
 
-        .special-card .info p {
-            font-size: clamp(10px, 1vw, 18px);
-            color: #94a3b8;
+        .league-card .league-status {
+            font-size: 10px;
+            color: var(--tv-text-secondary);
+            text-align: center;
+            line-height: 1.3;
         }
 
-        /* Phone Connection Card */
-        .special-card.phone-connect {
-            background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 100%);
+        .league-card .phone-icon {
+            font-size: 40px;
+            line-height: 1;
         }
 
-        /* Loading indicator */
+        .league-card .live-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--tv-live-red);
+            color: white;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .league-card .live-badge::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Selected league filter */
+        .league-card.selected {
+            border-color: var(--tv-accent);
+            background: linear-gradient(135deg, #2d1f5e 0%, #3d2b7a 100%);
+        }
+
+        .league-card.selected::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: var(--tv-accent);
+            border-radius: 2px;
+        }
+
+        /* Game Cards (16:9 aspect ratio) */
+        .game-card {
+            flex-shrink: 0;
+            width: 280px;
+            height: 158px;
+            background: var(--tv-bg-card);
+            border: 3px solid transparent;
+            border-radius: var(--tv-card-radius);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card.focused {
+            border-color: var(--tv-accent);
+            transform: scale(var(--tv-focus-scale));
+            box-shadow: var(--tv-focus-glow);
+            z-index: 10;
+        }
+
+        .game-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .game-card-league {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--tv-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .game-card-status {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .game-card-status.live {
+            background: var(--tv-live-red);
+            color: white;
+        }
+
+        .game-card-status.upcoming {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--tv-accent-light);
+        }
+
+        .game-card-status.final {
+            background: rgba(100, 116, 139, 0.2);
+            color: var(--tv-text-secondary);
+        }
+
+        .game-card-teams {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .game-card-team {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .game-card-team img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .game-card-team-name {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--tv-text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .game-card-team-score {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--tv-text-primary);
+            min-width: 36px;
+            text-align: right;
+        }
+
+        .game-card-team.winner .game-card-team-name,
+        .game-card-team.winner .game-card-team-score {
+            color: var(--tv-success);
+        }
+
+        .game-card-footer {
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--tv-text-muted);
+        }
+
+        /* Empty State */
+        .empty-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: var(--tv-text-muted);
+            font-size: 14px;
+        }
+
+        /* Loading Overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -607,138 +780,225 @@
         }
 
         .loading-spinner {
-            width: clamp(40px, 5vw, 80px);
-            height: clamp(40px, 5vw, 80px);
-            border: 4px solid #334155;
-            border-top-color: #6366f1;
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--tv-border);
+            border-top-color: var(--tv-accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         .loading-text {
-            margin-top: clamp(12px, 2vh, 25px);
-            font-size: clamp(14px, 1.5vw, 26px);
-            color: #94a3b8;
+            margin-top: 16px;
+            font-size: 16px;
+            color: var(--tv-text-secondary);
         }
 
         /* ================================ */
-        /* TV-SPECIFIC MEDIA QUERIES        */
+        /* FULLSCREEN GAME VIEW             */
         /* ================================ */
-
-        /* 720p TV (1280x720) */
-        @media screen and (min-width: 1200px) and (max-width: 1400px) {
-            .league-grid {
-                gap: 20px;
-            }
-
-            .league-card {
-                width: 200px;
-                height: 150px;
-            }
+        .fullscreen-game-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--tv-bg-primary);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            padding: var(--tv-margin-v) var(--tv-margin-h);
         }
 
-        /* 1080p TV (1920x1080) */
-        @media screen and (min-width: 1800px) and (max-width: 2000px) {
-            .league-card {
-                width: 280px;
-                height: 200px;
-            }
-
-            .league-card img {
-                height: 80px;
-            }
+        .fullscreen-game-overlay.active {
+            display: flex;
         }
 
-        /* 4K TV (3840x2160) */
-        @media screen and (min-width: 3000px) {
-            .tv-home {
-                padding: 80px 120px;
-            }
+        .fullscreen-game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
 
-            .league-grid {
-                gap: 50px;
-            }
+        .fullscreen-game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 2px solid var(--tv-border);
+            margin-bottom: 24px;
+        }
 
-            .league-card {
-                width: 400px;
-                height: 280px;
-                border-radius: 30px;
-            }
+        .fullscreen-league-badge {
+            background: var(--tv-accent);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
 
-            .league-card img {
-                height: 120px;
-            }
+        .fullscreen-game-status {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--tv-text-primary);
+        }
 
-            .league-card .league-name {
-                font-size: 36px;
-            }
+        .fullscreen-game-status.live {
+            color: var(--tv-live-red);
+        }
 
-            .special-card {
-                height: 180px;
-                max-width: 600px;
-            }
+        .fullscreen-close-btn {
+            background: transparent;
+            border: 2px solid var(--tv-border);
+            color: var(--tv-text-secondary);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fullscreen-close-btn:hover,
+        .fullscreen-close-btn:focus {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--tv-accent);
+            color: var(--tv-text-primary);
+            outline: 3px solid var(--tv-accent);
+            transform: scale(1.05);
+        }
+
+        .fullscreen-game-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 60px;
+        }
+
+        .fullscreen-team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            min-width: 200px;
+        }
+
+        .fullscreen-team-logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+        }
+
+        .fullscreen-team-name {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--tv-text-primary);
+            text-align: center;
+        }
+
+        .fullscreen-team-score {
+            font-size: 80px;
+            font-weight: 700;
+            color: var(--tv-text-primary);
+            line-height: 1;
+        }
+
+        .fullscreen-team.winner .fullscreen-team-score {
+            color: var(--tv-success);
+        }
+
+        .fullscreen-vs {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--tv-text-muted);
+        }
+
+        .fullscreen-game-footer {
+            text-align: center;
+            padding: 24px 0;
+            border-top: 2px solid var(--tv-border);
+        }
+
+        .fullscreen-game-name {
+            font-size: 20px;
+            color: var(--tv-text-secondary);
         }
 
         /* ================================ */
         /* ANDROID TV WEBVIEW VIEWPORT      */
-        /* WebView uses CSS pixels (~960x540 for 4K) */
         /* ================================ */
         @media screen and (min-width: 900px) and (max-width: 1100px) and (min-height: 480px) and (max-height: 600px) {
-            .tv-home {
-                padding: 15px 25px;
+            :root {
+                --tv-margin-h: 24px;
+                --tv-margin-v: 15px;
             }
 
             .tv-header {
-                margin-bottom: 15px;
+                margin-bottom: 12px;
             }
 
             .tv-logo img {
-                height: 35px;
+                height: 32px;
             }
 
             .tv-logo h1 {
-                font-size: 22px;
+                font-size: 20px;
             }
 
             .tv-time {
-                font-size: 16px;
+                font-size: 14px;
             }
 
             .tv-user-info {
-                font-size: 12px;
-                gap: 10px;
+                font-size: 11px;
+                gap: 8px;
             }
 
-            .section-title {
-                font-size: 14px;
+            .sign-out-link {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            .tv-content {
+                gap: 14px;
+            }
+
+            .tv-row-header {
                 margin-bottom: 8px;
             }
 
-            .league-grid {
+            .tv-row-title {
+                font-size: 14px;
+            }
+
+            .tv-row-badge {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+
+            .tv-row-scroll {
                 gap: 12px;
+                padding: 6px 4px 12px 4px;
             }
 
             .league-card {
-                width: 140px;
-                height: 110px;
-                border-radius: 10px;
-                padding: 8px 12px 28px 12px;
-                border-width: 2px;
-            }
-
-            .league-card.focused {
-                transform: scale(1.03);
-                box-shadow: 0 0 25px rgba(99, 102, 241, 0.4);
+                width: 100px;
+                height: 130px;
+                border-radius: 12px;
             }
 
             .league-card img {
-                height: 35px;
+                height: 40px;
             }
 
             .league-card .league-name {
@@ -746,46 +1006,54 @@
             }
 
             .league-card .league-status {
-                font-size: 8px;
-                bottom: 5px;
-                line-height: 1.2;
-            }
-
-            .league-card .live-badge {
-                font-size: 8px;
-                padding: 2px 5px;
-                top: 5px;
-                right: 5px;
-            }
-
-            .special-grid {
-                gap: 12px;
-                margin-top: 10px;
-            }
-
-            .special-card {
-                height: 60px;
-                max-width: 200px;
-                border-radius: 8px;
-                padding: 0 15px;
-                border-width: 2px;
-            }
-
-            .special-card .icon {
-                font-size: 24px;
-            }
-
-            .special-card .info h3 {
-                font-size: 12px;
-                margin-bottom: 2px;
-            }
-
-            .special-card .info p {
                 font-size: 9px;
             }
 
-            .tv-content {
-                gap: 12px;
+            .league-card .phone-icon {
+                font-size: 32px;
+            }
+
+            .game-card {
+                width: 220px;
+                height: 124px;
+                padding: 12px;
+                border-radius: 12px;
+            }
+
+            .game-card-header {
+                margin-bottom: 8px;
+            }
+
+            .game-card-league {
+                font-size: 9px;
+            }
+
+            .game-card-status {
+                font-size: 9px;
+            }
+
+            .game-card-team img {
+                width: 24px;
+                height: 24px;
+            }
+
+            .game-card-team-name {
+                font-size: 12px;
+            }
+
+            .game-card-team-score {
+                font-size: 16px;
+            }
+
+            .game-card-footer {
+                font-size: 9px;
+            }
+
+            /* Selected league for WebView */
+            .league-card.selected::after {
+                width: 18px;
+                height: 2px;
+                bottom: 6px;
             }
 
             /* Login screens for WebView viewport */
@@ -834,7 +1102,6 @@
                 height: 50px;
             }
 
-            /* QR Login for WebView viewport */
             .qr-login-box {
                 width: 280px;
                 padding: 25px;
@@ -870,7 +1137,6 @@
                 margin-top: 10px;
             }
 
-            /* Password login for WebView viewport */
             .login-form {
                 width: 280px;
                 padding: 25px;
@@ -912,8 +1178,6 @@
                 padding: 8px 16px;
             }
         }
-
-        /* CSS for iframe/back button removed - now using direct navigation */
     </style>
 </head>
 
@@ -930,7 +1194,7 @@
 
         <div class="login-options">
             <div class="login-option focusable-login" id="option-password" data-action="password-login" tabindex="0">
-                <span class="icon">⌨️</span>
+                <span class="icon">&#9000;</span>
                 <h2>Sign In with Remote</h2>
                 <p>Use your TV remote to enter your email and password</p>
             </div>
@@ -940,12 +1204,11 @@
             </div>
 
             <div class="login-option focusable-login" id="option-qr" data-action="qr-login" tabindex="0">
-                <span class="icon">📱</span>
+                <span class="icon">&#128241;</span>
                 <h2>Scan QR Code</h2>
                 <p>Use your phone to scan a QR code and sign in instantly</p>
             </div>
         </div>
-
     </div>
 
     <!-- ================================ -->
@@ -970,14 +1233,13 @@
 
             <div class="form-group">
                 <label for="login-password">Password</label>
-                <input type="password" id="login-password" class="focusable-form" placeholder="Enter your password"
-                    tabindex="0">
+                <input type="password" id="login-password" class="focusable-form" placeholder="Enter your password" tabindex="0">
             </div>
 
             <button class="login-btn focusable-form" id="login-submit-btn" tabindex="0">Sign In</button>
         </div>
 
-        <div class="back-link focusable-form" id="password-back-btn" tabindex="0">← Back to login options</div>
+        <div class="back-link focusable-form" id="password-back-btn" tabindex="0">&#8592; Back to login options</div>
     </div>
 
     <!-- ================================ -->
@@ -1006,11 +1268,11 @@
             <div class="qr-status info" id="login-qr-status">Waiting for scan...</div>
         </div>
 
-        <div class="back-link focusable-form" id="qr-back-btn" tabindex="0">← Back to login options</div>
+        <div class="back-link focusable-form" id="qr-back-btn" tabindex="0">&#8592; Back to login options</div>
     </div>
 
     <!-- ================================ -->
-    <!-- MAIN TV HOME (after login)       -->
+    <!-- MAIN TV HOME - STREAMING LAYOUT  -->
     <!-- ================================ -->
     <div class="tv-home hidden" id="tv-home">
         <header class="tv-header">
@@ -1018,60 +1280,97 @@
                 <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
                 <h1>GridTV Sports</h1>
             </div>
-            <div class="tv-user-info">
-                <span id="logged-in-user"></span>
-                <span class="sign-out-link focusable" id="sign-out-btn" tabindex="0">Sign Out</span>
+            <div class="tv-header-right">
+                <div class="tv-time" id="current-time"></div>
+                <div class="tv-user-info">
+                    <span id="logged-in-user"></span>
+                    <span class="sign-out-link focusable" id="sign-out-btn" data-row="header" tabindex="0">Sign Out</span>
+                </div>
             </div>
-            <div class="tv-time" id="current-time"></div>
         </header>
 
-        <main class="tv-content">
-            <section>
-                <h2 class="section-title">Select a League</h2>
-                <div class="league-grid" id="league-grid">
-                    <div class="league-card focusable" data-league="nfl" data-url="/nfl.html" tabindex="0">
+        <main class="tv-content" id="tv-content">
+            <!-- Leagues Row -->
+            <section class="tv-row" data-row="leagues">
+                <div class="tv-row-header">
+                    <span class="tv-row-title">Leagues</span>
+                </div>
+                <div class="tv-row-scroll" id="leagues-row">
+                    <div class="league-card focusable selected" data-row="leagues" data-league="all" tabindex="0">
+                        <img src="/assets/logo.png" alt="All">
+                        <span class="league-name">All</span>
+                        <span class="league-status" id="all-status">All leagues</span>
+                    </div>
+                    <div class="league-card focusable" data-row="leagues" data-league="nfl" tabindex="0">
                         <img src="/assets/NFL-logo.png" alt="NFL">
                         <span class="league-name">NFL</span>
                         <span class="league-status" id="nfl-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-league="nba" data-url="/nba.html" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="nba" tabindex="0">
                         <img src="/assets/nba-logo.png" alt="NBA">
                         <span class="league-name">NBA</span>
                         <span class="league-status" id="nba-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-league="mlb" data-url="/mlb.html" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="mlb" tabindex="0">
                         <img src="/assets/mlb-logo.png" alt="MLB">
                         <span class="league-name">MLB</span>
                         <span class="league-status" id="mlb-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-league="nhl" data-url="/nhl.html" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="nhl" tabindex="0">
                         <img src="/assets/nhl-logo.png" alt="NHL">
                         <span class="league-name">NHL</span>
                         <span class="league-status" id="nhl-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-league="ncaa" data-url="/ncaa.html" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="ncaa" tabindex="0">
                         <img src="/assets/NCAA logo.png" alt="NCAA Football">
-                        <span class="league-name">NCAA Football</span>
+                        <span class="league-name">NCAAF</span>
                         <span class="league-status" id="ncaa-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-league="ncaab" data-url="/ncaab.html" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="ncaab" tabindex="0">
                         <img src="/assets/ncaa-basketball.png" alt="NCAA Basketball">
-                        <span class="league-name">NCAA Basketball</span>
+                        <span class="league-name">NCAAB</span>
                         <span class="league-status" id="ncaab-status">Loading...</span>
+                    </div>
+                    <!-- Phone Connect Card -->
+                    <div class="league-card focusable" data-row="leagues" data-action="phone-connect" tabindex="0">
+                        <span class="phone-icon">&#128241;</span>
+                        <span class="league-name">Phone</span>
+                        <span class="league-status">Connect</span>
                     </div>
                 </div>
             </section>
 
-            <section>
-                <h2 class="section-title">More Options</h2>
-                <div class="special-grid">
-                    <div class="special-card phone-connect focusable" data-action="phone-connect" tabindex="0">
-                        <span class="icon">📱</span>
-                        <div class="info">
-                            <h3>Phone Remote</h3>
-                            <p>Connect phone for mixed Sports Bar mode</p>
-                        </div>
-                    </div>
+            <!-- Live Games Row -->
+            <section class="tv-row" data-row="live" id="live-section">
+                <div class="tv-row-header">
+                    <span class="tv-row-title">Live Now</span>
+                    <span class="tv-row-badge live">LIVE</span>
+                    <span class="tv-row-count" id="live-count"></span>
+                </div>
+                <div class="tv-row-scroll" id="live-games-row">
+                    <div class="empty-row" id="live-empty">Loading live games...</div>
+                </div>
+            </section>
+
+            <!-- Upcoming Games Row -->
+            <section class="tv-row" data-row="upcoming" id="upcoming-section">
+                <div class="tv-row-header">
+                    <span class="tv-row-title">Upcoming</span>
+                    <span class="tv-row-count" id="upcoming-count"></span>
+                </div>
+                <div class="tv-row-scroll" id="upcoming-games-row">
+                    <div class="empty-row" id="upcoming-empty">Loading upcoming games...</div>
+                </div>
+            </section>
+
+            <!-- Final Games Row -->
+            <section class="tv-row" data-row="final" id="final-section">
+                <div class="tv-row-header">
+                    <span class="tv-row-title">Final</span>
+                    <span class="tv-row-count" id="final-count"></span>
+                </div>
+                <div class="tv-row-scroll" id="final-games-row">
+                    <div class="empty-row" id="final-empty">Loading final scores...</div>
                 </div>
             </section>
         </main>
@@ -1083,15 +1382,41 @@
         <div class="loading-text">Loading...</div>
     </div>
 
-    <!-- League pages now load via direct navigation for better compatibility -->
+    <!-- Fullscreen Game View -->
+    <div class="fullscreen-game-overlay" id="fullscreen-game-overlay">
+        <div class="fullscreen-game-container">
+            <div class="fullscreen-game-header">
+                <div class="fullscreen-league-badge" id="fullscreen-league-badge">NFL</div>
+                <div class="fullscreen-game-status" id="fullscreen-game-status">4th Quarter</div>
+                <button class="fullscreen-close-btn" id="fullscreen-close-btn">Back</button>
+            </div>
+            <div class="fullscreen-game-content">
+                <div class="fullscreen-team away">
+                    <img class="fullscreen-team-logo" id="fullscreen-away-logo" src="" alt="">
+                    <div class="fullscreen-team-name" id="fullscreen-away-name">Away Team</div>
+                    <div class="fullscreen-team-score" id="fullscreen-away-score">0</div>
+                </div>
+                <div class="fullscreen-vs">VS</div>
+                <div class="fullscreen-team home">
+                    <img class="fullscreen-team-logo" id="fullscreen-home-logo" src="" alt="">
+                    <div class="fullscreen-team-name" id="fullscreen-home-name">Home Team</div>
+                    <div class="fullscreen-team-score" id="fullscreen-home-score">0</div>
+                </div>
+            </div>
+            <div class="fullscreen-game-footer">
+                <div class="fullscreen-game-name" id="fullscreen-game-name">Game Name</div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ============================================
         // STATE MANAGEMENT
         // ============================================
-        let currentScreen = 'login'; // 'login', 'password', 'qr', 'home'
-        let currentFocusIndex = 0;
-        let focusableElements = [];
+        let currentScreen = 'login';
+        let currentRowIndex = 0;
+        let currentColIndex = 0;
+        let rows = []; // Array of { name: string, elements: HTMLElement[] }
 
         // Auth state
         let socket = null;
@@ -1101,59 +1426,45 @@
         let qrCountdownInterval = null;
         let authCheckInterval = null;
 
-        // ============================================
-        // GLOBAL KEY EVENT DEBUG - Captures ALL key events
-        // ============================================
-        document.addEventListener('keydown', (e) => {
-            console.log('GLOBAL keydown:', e.key, 'keyCode:', e.keyCode, 'code:', e.code, 'target:', e.target.tagName);
-        }, true); // Use capture phase to see events before they're handled
+        // Games data
+        let allGames = { live: [], upcoming: [], final: [] };
+        let allGamesUnfiltered = { live: [], upcoming: [], final: [] };
+        let selectedLeague = 'all';
+        let leagueFocusTimer = null; // Timer for auto-filtering on focus
 
         // ============================================
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check for menu=1 parameter (returning from league page)
             const urlParams = new URLSearchParams(window.location.search);
             const returnToMenu = urlParams.get('menu') === '1';
 
-            // Generate or retrieve device ID
             deviceId = localStorage.getItem('gridtv_device_id');
             if (!deviceId) {
                 deviceId = crypto.randomUUID();
                 localStorage.setItem('gridtv_device_id', deviceId);
             }
 
-            // Check for existing session
             sessionToken = localStorage.getItem('gridtv_session_token');
-            console.log('Init - deviceId:', deviceId?.substring(0, 8), 'sessionToken:', sessionToken ? 'exists' : 'none', 'returnToMenu:', returnToMenu);
 
             if (sessionToken) {
-                console.log('Found existing session token, validating...');
                 const valid = await validateExistingSession();
                 if (valid) {
-                    console.log('Session is valid, showing home screen');
-                    // Clean up URL if we had menu=1 parameter
                     if (returnToMenu) {
                         history.replaceState({}, '', '/tv-home');
                     }
                     showHomeScreen();
                     return;
                 } else {
-                    console.log('Session is invalid, clearing token');
                     localStorage.removeItem('gridtv_session_token');
                     sessionToken = null;
                 }
-            } else {
-                console.log('No session token found in localStorage');
             }
 
-            // If returning to menu but no valid session, still show login
-            // Clean up URL
             if (returnToMenu) {
                 history.replaceState({}, '', '/tv-home');
             }
 
-            // Show login screen
             showLoginScreen();
             updateTime();
             setInterval(updateTime, 1000);
@@ -1164,24 +1475,17 @@
         // ============================================
         async function validateExistingSession() {
             try {
-                console.log('Validating session:', { deviceId: deviceId?.substring(0, 8), hasToken: !!sessionToken });
                 const response = await fetch('/api/tv/validate-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ deviceId, sessionToken })
                 });
 
-                console.log('Validation response status:', response.status);
-
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('Session valid for:', data.userEmail || data.displayName);
                     document.getElementById('logged-in-user').textContent = data.userEmail || data.displayName || 'User';
                     return true;
                 }
-
-                const errorData = await response.json().catch(() => ({}));
-                console.log('Session invalid:', errorData.error || response.status);
                 return false;
             } catch (error) {
                 console.error('Session validation error:', error);
@@ -1199,7 +1503,6 @@
             document.getElementById('qr-login-screen').classList.add('hidden');
             document.getElementById('tv-home').classList.add('hidden');
 
-            // Clear any QR intervals
             if (qrCountdownInterval) clearInterval(qrCountdownInterval);
             if (authCheckInterval) clearInterval(authCheckInterval);
 
@@ -1235,48 +1538,41 @@
             document.getElementById('qr-login-screen').classList.add('hidden');
             document.getElementById('tv-home').classList.remove('hidden');
 
-            // Clear any QR intervals
             if (qrCountdownInterval) clearInterval(qrCountdownInterval);
             if (authCheckInterval) clearInterval(authCheckInterval);
 
-            // Ensure session token is synced from localStorage (safety check)
             const storedToken = localStorage.getItem('gridtv_session_token');
             if (storedToken && !sessionToken) {
-                console.log('showHomeScreen: Restoring sessionToken from localStorage');
                 sessionToken = storedToken;
             }
-            console.log('showHomeScreen: sessionToken is', sessionToken ? sessionToken.substring(0, 8) + '...' : 'null');
 
-            initNavigation();
-            fetchLeagueStatuses();
-            setInterval(fetchLeagueStatuses, 60000);
+            initHomeNavigation();
+            fetchAllGames();
+            setInterval(fetchAllGames, 30000);
         }
 
         // ============================================
         // LOGIN SCREEN NAVIGATION
         // ============================================
+        let loginFocusIndex = 0;
+        let loginElements = [];
+
         function initLoginNavigation() {
-            const options = document.querySelectorAll('.focusable-login');
-            focusableElements = Array.from(options);
-            currentFocusIndex = 0;
+            loginElements = Array.from(document.querySelectorAll('.focusable-login'));
+            loginFocusIndex = 0;
+            setLoginFocus(0);
 
-            if (focusableElements.length > 0) {
-                setLoginFocus(0);
-            }
-
-            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keydown', handleHomeKeyDown);
             document.removeEventListener('keydown', handlePasswordFormKeyDown);
             document.removeEventListener('keydown', handleQRKeyDown);
             document.addEventListener('keydown', handleLoginKeyDown);
         }
 
         function setLoginFocus(index) {
-            focusableElements.forEach(el => el.classList.remove('focused'));
-            currentFocusIndex = Math.max(0, Math.min(index, focusableElements.length - 1));
-            const el = focusableElements[currentFocusIndex];
-            if (el) {
-                el.classList.add('focused');
-            }
+            loginElements.forEach(el => el.classList.remove('focused'));
+            loginFocusIndex = Math.max(0, Math.min(index, loginElements.length - 1));
+            const el = loginElements[loginFocusIndex];
+            if (el) el.classList.add('focused');
         }
 
         function handleLoginKeyDown(e) {
@@ -1284,30 +1580,21 @@
                 case 'ArrowLeft':
                 case 'Left':
                     e.preventDefault();
-                    if (currentFocusIndex > 0) {
-                        setLoginFocus(currentFocusIndex - 1);
-                    }
+                    if (loginFocusIndex > 0) setLoginFocus(loginFocusIndex - 1);
                     break;
-
                 case 'ArrowRight':
                 case 'Right':
                     e.preventDefault();
-                    if (currentFocusIndex < focusableElements.length - 1) {
-                        setLoginFocus(currentFocusIndex + 1);
-                    }
+                    if (loginFocusIndex < loginElements.length - 1) setLoginFocus(loginFocusIndex + 1);
                     break;
-
                 case 'Enter':
                 case ' ':
                     e.preventDefault();
-                    const el = focusableElements[currentFocusIndex];
+                    const el = loginElements[loginFocusIndex];
                     if (el) {
                         const action = el.dataset.action;
-                        if (action === 'password-login') {
-                            showPasswordLoginScreen();
-                        } else if (action === 'qr-login') {
-                            showQRLoginScreen();
-                        }
+                        if (action === 'password-login') showPasswordLoginScreen();
+                        else if (action === 'qr-login') showQRLoginScreen();
                     }
                     break;
             }
@@ -1316,30 +1603,27 @@
         // ============================================
         // PASSWORD FORM NAVIGATION
         // ============================================
+        let formFocusIndex = 0;
+        let formElements = [];
+
         function initPasswordFormNavigation() {
-            const formElements = document.querySelectorAll('#password-login-screen .focusable-form');
-            focusableElements = Array.from(formElements);
-            currentFocusIndex = 0;
+            formElements = Array.from(document.querySelectorAll('#password-login-screen .focusable-form'));
+            formFocusIndex = 0;
+            setFormFocus(0);
 
-            if (focusableElements.length > 0) {
-                setPasswordFormFocus(0);
-            }
-
-            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keydown', handleHomeKeyDown);
             document.removeEventListener('keydown', handleLoginKeyDown);
             document.removeEventListener('keydown', handleQRKeyDown);
             document.addEventListener('keydown', handlePasswordFormKeyDown);
         }
 
-        function setPasswordFormFocus(index) {
-            focusableElements.forEach(el => el.classList.remove('focused'));
-            currentFocusIndex = Math.max(0, Math.min(index, focusableElements.length - 1));
-            const el = focusableElements[currentFocusIndex];
+        function setFormFocus(index) {
+            formElements.forEach(el => el.classList.remove('focused'));
+            formFocusIndex = Math.max(0, Math.min(index, formElements.length - 1));
+            const el = formElements[formFocusIndex];
             if (el) {
                 el.classList.add('focused');
-                if (el.tagName === 'INPUT') {
-                    el.focus();
-                }
+                if (el.tagName === 'INPUT') el.focus();
             }
         }
 
@@ -1348,21 +1632,15 @@
                 case 'ArrowUp':
                 case 'Up':
                     e.preventDefault();
-                    if (currentFocusIndex > 0) {
-                        setPasswordFormFocus(currentFocusIndex - 1);
-                    }
+                    if (formFocusIndex > 0) setFormFocus(formFocusIndex - 1);
                     break;
-
                 case 'ArrowDown':
                 case 'Down':
                     e.preventDefault();
-                    if (currentFocusIndex < focusableElements.length - 1) {
-                        setPasswordFormFocus(currentFocusIndex + 1);
-                    }
+                    if (formFocusIndex < formElements.length - 1) setFormFocus(formFocusIndex + 1);
                     break;
-
                 case 'Enter':
-                    const el = focusableElements[currentFocusIndex];
+                    const el = formElements[formFocusIndex];
                     if (el.id === 'login-submit-btn') {
                         e.preventDefault();
                         handlePasswordLogin();
@@ -1370,17 +1648,12 @@
                         e.preventDefault();
                         showLoginScreen();
                     } else if (el.tagName === 'INPUT') {
-                        // Move to next field on Enter
                         e.preventDefault();
-                        if (currentFocusIndex < focusableElements.length - 1) {
-                            setPasswordFormFocus(currentFocusIndex + 1);
-                        }
+                        if (formFocusIndex < formElements.length - 1) setFormFocus(formFocusIndex + 1);
                     }
                     break;
-
                 case 'Escape':
                 case 'Backspace':
-                    // Only go back if not typing in input
                     const activeEl = document.activeElement;
                     if (activeEl.tagName !== 'INPUT' || activeEl.value === '') {
                         e.preventDefault();
@@ -1438,11 +1711,9 @@
         // ============================================
         function initQRNavigation() {
             const backBtn = document.getElementById('qr-back-btn');
-            focusableElements = [backBtn];
-            currentFocusIndex = 0;
             backBtn.classList.add('focused');
 
-            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keydown', handleHomeKeyDown);
             document.removeEventListener('keydown', handleLoginKeyDown);
             document.removeEventListener('keydown', handlePasswordFormKeyDown);
             document.addEventListener('keydown', handleQRKeyDown);
@@ -1474,26 +1745,19 @@
                 const response = await fetch('/api/tv/generate-qr-token', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        deviceId,
-                        deviceName: 'GridTV Android TV'
-                    })
+                    body: JSON.stringify({ deviceId, deviceName: 'GridTV Android TV' })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
                     qrToken = data.token;
-
-                    // Clear previous QR code
                     qrContainer.innerHTML = '';
 
-                    // Generate QR code
-                    const qrSize = 200;
                     new QRCode(qrContainer, {
                         text: data.authUrl,
-                        width: qrSize,
-                        height: qrSize,
+                        width: 200,
+                        height: 200,
                         colorDark: '#6366f1',
                         colorLight: '#ffffff',
                         correctLevel: QRCode.CorrectLevel.M
@@ -1501,14 +1765,10 @@
 
                     qrLoading.style.display = 'none';
                     qrContainer.style.display = 'block';
-
                     statusDiv.textContent = 'Scan with your phone to sign in';
                     statusDiv.className = 'qr-status info';
 
-                    // Start countdown
                     startQRCountdown(new Date(data.expiresAt));
-
-                    // Start polling
                     startAuthPolling();
                 } else {
                     statusDiv.textContent = 'Failed to generate QR code. Try again.';
@@ -1525,8 +1785,6 @@
 
         function startQRCountdown(expiresAt) {
             if (qrCountdownInterval) clearInterval(qrCountdownInterval);
-
-            // Ensure expiresAt is a proper Date object
             const expiryTime = expiresAt instanceof Date ? expiresAt.getTime() : new Date(expiresAt).getTime();
 
             qrCountdownInterval = setInterval(() => {
@@ -1540,50 +1798,30 @@
 
                 if (remaining <= 0) {
                     clearInterval(qrCountdownInterval);
-                    if (currentScreen === 'qr') {
-                        generateQRCode();
-                    }
+                    if (currentScreen === 'qr') generateQRCode();
                 }
             }, 1000);
         }
 
         function initSocketForAuth() {
-            if (!socket) {
-                socket = io();
-            }
+            if (!socket) socket = io();
 
             socket.on('connect', () => {
-                console.log('WebSocket connected for auth');
                 if (qrToken) {
-                    socket.emit('tv:register-for-auth', { token: qrToken }, (response) => {
-                        if (response.success) {
-                            console.log('Registered for auth notifications');
-                        }
-                    });
+                    socket.emit('tv:register-for-auth', { token: qrToken }, (response) => {});
                 }
             });
 
             socket.on('tv:auth-approved', (data) => {
-                console.log('TV authenticated via socket!', data);
-                console.log('Received sessionToken:', data.sessionToken ? 'yes' : 'NO TOKEN!');
-
                 if (data.sessionToken) {
                     sessionToken = data.sessionToken;
                     localStorage.setItem('gridtv_session_token', sessionToken);
-                    console.log('Session token saved to localStorage');
-                } else {
-                    console.error('ERROR: No sessionToken received from auth-approved event!');
                 }
-
                 document.getElementById('logged-in-user').textContent = data.userEmail || data.displayName || 'User';
-
                 const statusDiv = document.getElementById('login-qr-status');
                 statusDiv.textContent = 'Signed in successfully!';
                 statusDiv.className = 'qr-status success';
-
-                setTimeout(() => {
-                    showHomeScreen();
-                }, 1000);
+                setTimeout(() => showHomeScreen(), 1000);
             });
         }
 
@@ -1595,26 +1833,15 @@
 
                 socket.emit('tv:check-auth-status', { token: qrToken }, (response) => {
                     if (response.success && response.status === 'approved') {
-                        console.log('TV authenticated via polling!', response);
-                        console.log('Received sessionToken from poll:', response.sessionToken ? 'yes' : 'NO TOKEN!');
-
                         if (response.sessionToken) {
                             sessionToken = response.sessionToken;
                             localStorage.setItem('gridtv_session_token', sessionToken);
-                            console.log('Session token saved to localStorage (via polling)');
-                        } else {
-                            console.error('ERROR: No sessionToken received from polling!');
                         }
-
                         document.getElementById('logged-in-user').textContent = response.userEmail || response.displayName || 'User';
-
                         const statusDiv = document.getElementById('login-qr-status');
                         statusDiv.textContent = 'Signed in successfully!';
                         statusDiv.className = 'qr-status success';
-
-                        setTimeout(() => {
-                            showHomeScreen();
-                        }, 1000);
+                        setTimeout(() => showHomeScreen(), 1000);
                     }
                 });
             }, 3000);
@@ -1639,7 +1866,503 @@
             showLoginScreen();
         }
 
-        // Update clock
+        // ============================================
+        // HOME SCREEN NAVIGATION (ROW-BASED)
+        // ============================================
+        function initHomeNavigation() {
+            updateRows();
+            currentRowIndex = 0;
+            currentColIndex = 0;
+            setHomeFocus();
+
+            document.removeEventListener('keydown', handleLoginKeyDown);
+            document.removeEventListener('keydown', handlePasswordFormKeyDown);
+            document.removeEventListener('keydown', handleQRKeyDown);
+            document.addEventListener('keydown', handleHomeKeyDown);
+        }
+
+        function updateRows() {
+            rows = [];
+
+            // Leagues row
+            const leaguesRow = document.querySelectorAll('#leagues-row .focusable');
+            if (leaguesRow.length > 0) {
+                rows.push({ name: 'leagues', elements: Array.from(leaguesRow) });
+            }
+
+            // Live games row
+            const liveRow = document.querySelectorAll('#live-games-row .focusable');
+            if (liveRow.length > 0) {
+                rows.push({ name: 'live', elements: Array.from(liveRow) });
+            }
+
+            // Upcoming games row
+            const upcomingRow = document.querySelectorAll('#upcoming-games-row .focusable');
+            if (upcomingRow.length > 0) {
+                rows.push({ name: 'upcoming', elements: Array.from(upcomingRow) });
+            }
+
+            // Final games row
+            const finalRow = document.querySelectorAll('#final-games-row .focusable');
+            if (finalRow.length > 0) {
+                rows.push({ name: 'final', elements: Array.from(finalRow) });
+            }
+        }
+
+        function setHomeFocus() {
+            // Remove all focus
+            document.querySelectorAll('.focusable').forEach(el => el.classList.remove('focused'));
+
+            // Clear any existing league focus timer
+            if (leagueFocusTimer) {
+                clearTimeout(leagueFocusTimer);
+                leagueFocusTimer = null;
+            }
+
+            if (rows.length === 0) return;
+
+            // Clamp indices
+            currentRowIndex = Math.max(0, Math.min(currentRowIndex, rows.length - 1));
+            const row = rows[currentRowIndex];
+            currentColIndex = Math.max(0, Math.min(currentColIndex, row.elements.length - 1));
+
+            // Set focus
+            const el = row.elements[currentColIndex];
+            if (el) {
+                el.classList.add('focused');
+                el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+                // Auto-filter: If focused on a league card, start timer to auto-select after 1s
+                const league = el.dataset.league;
+                if (league && league !== selectedLeague) {
+                    leagueFocusTimer = setTimeout(() => {
+                        selectLeague(league);
+                    }, 1000);
+                }
+            }
+        }
+
+        function handleHomeKeyDown(e) {
+            const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
+                               e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
+
+            if (isEnterKey) {
+                e.preventDefault();
+                selectCurrentHomeItem();
+                return;
+            }
+
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'Up':
+                    e.preventDefault();
+                    if (currentRowIndex > 0) {
+                        currentRowIndex--;
+                        // Try to keep similar column position
+                        const newRow = rows[currentRowIndex];
+                        currentColIndex = Math.min(currentColIndex, newRow.elements.length - 1);
+                        setHomeFocus();
+                    }
+                    break;
+
+                case 'ArrowDown':
+                case 'Down':
+                    e.preventDefault();
+                    if (currentRowIndex < rows.length - 1) {
+                        currentRowIndex++;
+                        const newRow = rows[currentRowIndex];
+                        currentColIndex = Math.min(currentColIndex, newRow.elements.length - 1);
+                        setHomeFocus();
+                    }
+                    break;
+
+                case 'ArrowLeft':
+                case 'Left':
+                    e.preventDefault();
+                    if (currentColIndex > 0) {
+                        currentColIndex--;
+                        setHomeFocus();
+                    }
+                    break;
+
+                case 'ArrowRight':
+                case 'Right':
+                    e.preventDefault();
+                    const row = rows[currentRowIndex];
+                    if (currentColIndex < row.elements.length - 1) {
+                        currentColIndex++;
+                        setHomeFocus();
+                    }
+                    break;
+            }
+        }
+
+        function selectCurrentHomeItem() {
+            if (rows.length === 0) return;
+            const row = rows[currentRowIndex];
+            const el = row.elements[currentColIndex];
+            if (!el) return;
+
+            const league = el.dataset.league;
+            const action = el.dataset.action;
+            const gameData = el.dataset.game;
+
+            if (el.id === 'sign-out-btn') {
+                signOut();
+            } else if (action === 'phone-connect') {
+                // Navigate to phone connect page
+                openPage('/tv-receiver.html');
+            } else if (league) {
+                // League card - filter games
+                selectLeague(league);
+            } else if (gameData) {
+                // Game card - show fullscreen view
+                const game = JSON.parse(gameData);
+                showGameFullscreen(game);
+            }
+        }
+
+        // ============================================
+        // LEAGUE FILTERING
+        // ============================================
+        function selectLeague(league) {
+            selectedLeague = league;
+
+            // Update selected state on league cards
+            document.querySelectorAll('.league-card').forEach(card => {
+                card.classList.remove('selected');
+                if (card.dataset.league === league) {
+                    card.classList.add('selected');
+                }
+            });
+
+            // Filter and re-render games
+            filterAndRenderGames();
+        }
+
+        function filterAndRenderGames() {
+            if (selectedLeague === 'all') {
+                allGames = {
+                    live: [...allGamesUnfiltered.live],
+                    upcoming: [...allGamesUnfiltered.upcoming],
+                    final: [...allGamesUnfiltered.final]
+                };
+            } else {
+                allGames = {
+                    live: allGamesUnfiltered.live.filter(g => g.league === selectedLeague),
+                    upcoming: allGamesUnfiltered.upcoming.filter(g => g.league === selectedLeague),
+                    final: allGamesUnfiltered.final.filter(g => g.league === selectedLeague)
+                };
+            }
+
+            renderGameRows();
+        }
+
+        // ============================================
+        // PAGE NAVIGATION
+        // ============================================
+        function openPage(url) {
+            let tvUrl = url + (url.includes('?') ? '&' : '?') + 'tv=1';
+            const storedToken = localStorage.getItem('gridtv_session_token');
+            const activeToken = sessionToken || storedToken;
+
+            if (activeToken) {
+                tvUrl += '&tvSession=' + encodeURIComponent(activeToken);
+            }
+
+            sessionStorage.setItem('gridtv_return_to_home', 'true');
+            window.location.href = tvUrl;
+        }
+
+        // ============================================
+        // FULLSCREEN GAME VIEW
+        // ============================================
+        let currentFullscreenGame = null;
+
+        function showGameFullscreen(game) {
+            currentFullscreenGame = game;
+            const overlay = document.getElementById('fullscreen-game-overlay');
+
+            // Update league badge
+            const leagueBadge = document.getElementById('fullscreen-league-badge');
+            leagueBadge.textContent = game.league.toUpperCase();
+
+            // Update status
+            const statusEl = document.getElementById('fullscreen-game-status');
+            statusEl.textContent = game.status;
+            statusEl.classList.toggle('live', game.state === 'in');
+
+            // Update away team
+            document.getElementById('fullscreen-away-logo').src = game.away.logo;
+            document.getElementById('fullscreen-away-name').textContent = game.away.name || game.away.abbr;
+            document.getElementById('fullscreen-away-score').textContent = game.state === 'pre' ? '-' : game.away.score;
+
+            // Update home team
+            document.getElementById('fullscreen-home-logo').src = game.home.logo;
+            document.getElementById('fullscreen-home-name').textContent = game.home.name || game.home.abbr;
+            document.getElementById('fullscreen-home-score').textContent = game.state === 'pre' ? '-' : game.home.score;
+
+            // Update winner styling
+            const awayTeamEl = document.querySelector('.fullscreen-team.away');
+            const homeTeamEl = document.querySelector('.fullscreen-team.home');
+            awayTeamEl.classList.toggle('winner', game.away.winner);
+            homeTeamEl.classList.toggle('winner', game.home.winner);
+
+            // Update game name
+            document.getElementById('fullscreen-game-name').textContent = game.name;
+
+            // Show overlay
+            overlay.classList.add('active');
+
+            // Focus the close button
+            setTimeout(() => {
+                document.getElementById('fullscreen-close-btn').focus();
+            }, 100);
+
+            // Set up keyboard handler for fullscreen
+            document.addEventListener('keydown', handleFullscreenKeyDown);
+        }
+
+        function hideGameFullscreen() {
+            const overlay = document.getElementById('fullscreen-game-overlay');
+            overlay.classList.remove('active');
+            currentFullscreenGame = null;
+
+            // Remove keyboard handler
+            document.removeEventListener('keydown', handleFullscreenKeyDown);
+
+            // Restore focus to the game card
+            setHomeFocus();
+        }
+
+        function handleFullscreenKeyDown(e) {
+            // Handle Back button or Escape to close
+            if (e.key === 'Escape' || e.key === 'GoBack' || e.keyCode === 27 || e.keyCode === 4) {
+                e.preventDefault();
+                e.stopPropagation();
+                hideGameFullscreen();
+                return;
+            }
+
+            // Handle Enter to close (since close button is focused)
+            const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
+                               e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
+            if (isEnterKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                hideGameFullscreen();
+            }
+        }
+
+        // Set up close button click handler
+        document.addEventListener('DOMContentLoaded', () => {
+            const closeBtn = document.getElementById('fullscreen-close-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', hideGameFullscreen);
+            }
+        });
+
+        // ============================================
+        // FETCH ALL GAMES
+        // ============================================
+        async function fetchAllGames() {
+            const leagues = [
+                { id: 'nfl', endpoint: '/api/nfl/scoreboard' },
+                { id: 'nba', endpoint: '/api/nba/scoreboard' },
+                { id: 'mlb', endpoint: '/api/mlb/scoreboard' },
+                { id: 'nhl', endpoint: '/api/nhl/scoreboard' },
+                { id: 'ncaa', endpoint: '/api/ncaa/scoreboard' },
+                { id: 'ncaab', endpoint: '/api/ncaab/scoreboard' }
+            ];
+
+            allGamesUnfiltered = { live: [], upcoming: [], final: [] };
+
+            for (const league of leagues) {
+                try {
+                    let endpoint = league.endpoint;
+
+                    // NCAA Football special handling
+                    if (league.id === 'ncaa') {
+                        try {
+                            const weekResponse = await fetch('/api/ncaa/current-week');
+                            const weekData = await weekResponse.json();
+                            if (weekData.isBowlSeason) {
+                                endpoint = '/api/ncaa/scoreboard?week=bowl';
+                            } else {
+                                endpoint = `/api/ncaa/scoreboard?week=${weekData.week || 1}`;
+                            }
+                        } catch (e) {}
+                    }
+
+                    const response = await fetch(endpoint);
+                    if (!response.ok) continue;
+
+                    const data = await response.json();
+                    const events = data.events || [];
+
+                    // Process each event
+                    events.forEach(event => {
+                        const comp = event.competitions?.[0];
+                        if (!comp) return;
+
+                        const state = comp.status?.type?.state || event.status?.type?.state;
+                        const gameInfo = {
+                            id: event.id,
+                            league: league.id,
+                            name: event.name || event.shortName,
+                            status: comp.status?.type?.shortDetail || '',
+                            state: state,
+                            home: {
+                                name: comp.competitors?.[0]?.team?.displayName || comp.competitors?.[0]?.team?.shortDisplayName || '',
+                                abbr: comp.competitors?.[0]?.team?.abbreviation || '',
+                                logo: comp.competitors?.[0]?.team?.logo || '',
+                                score: parseInt(comp.competitors?.[0]?.score || 0),
+                                winner: comp.competitors?.[0]?.winner || false
+                            },
+                            away: {
+                                name: comp.competitors?.[1]?.team?.displayName || comp.competitors?.[1]?.team?.shortDisplayName || '',
+                                abbr: comp.competitors?.[1]?.team?.abbreviation || '',
+                                logo: comp.competitors?.[1]?.team?.logo || '',
+                                score: parseInt(comp.competitors?.[1]?.score || 0),
+                                winner: comp.competitors?.[1]?.winner || false
+                            },
+                            startTime: event.date
+                        };
+
+                        if (state === 'in') {
+                            allGamesUnfiltered.live.push(gameInfo);
+                        } else if (state === 'pre') {
+                            allGamesUnfiltered.upcoming.push(gameInfo);
+                        } else if (state === 'post') {
+                            allGamesUnfiltered.final.push(gameInfo);
+                        }
+                    });
+
+                    // Update league status card
+                    updateLeagueStatus(league.id, events);
+
+                } catch (error) {
+                    console.error(`Error fetching ${league.id}:`, error);
+                }
+            }
+
+            // Sort unfiltered games
+            allGamesUnfiltered.upcoming.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+            // Update "All" league status
+            const allStatusEl = document.getElementById('all-status');
+            const totalLive = allGamesUnfiltered.live.length;
+            const totalUpcoming = allGamesUnfiltered.upcoming.length;
+            if (totalLive > 0) {
+                allStatusEl.textContent = `${totalLive} live`;
+            } else if (totalUpcoming > 0) {
+                allStatusEl.textContent = `${totalUpcoming} upcoming`;
+            } else {
+                allStatusEl.textContent = 'All leagues';
+            }
+
+            // Apply current filter and render
+            filterAndRenderGames();
+        }
+
+        function updateLeagueStatus(leagueId, events) {
+            const liveCount = events.filter(e => {
+                const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
+                return state === 'in';
+            }).length;
+
+            const upcomingCount = events.filter(e => {
+                const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
+                return state === 'pre';
+            }).length;
+
+            const statusEl = document.getElementById(`${leagueId}-status`);
+            const cardEl = statusEl?.closest('.league-card');
+
+            if (liveCount > 0) {
+                statusEl.textContent = `${liveCount} live`;
+                if (cardEl && !cardEl.querySelector('.live-badge')) {
+                    const badge = document.createElement('div');
+                    badge.className = 'live-badge';
+                    badge.textContent = 'LIVE';
+                    cardEl.appendChild(badge);
+                }
+            } else if (upcomingCount > 0) {
+                statusEl.textContent = `${upcomingCount} upcoming`;
+                cardEl?.querySelector('.live-badge')?.remove();
+            } else {
+                statusEl.textContent = 'No games';
+                cardEl?.querySelector('.live-badge')?.remove();
+            }
+        }
+
+        function renderGameRows() {
+            renderGameRow('live-games-row', allGames.live, 'live', 'live-empty', 'live-count');
+            renderGameRow('upcoming-games-row', allGames.upcoming, 'upcoming', 'upcoming-empty', 'upcoming-count');
+            renderGameRow('final-games-row', allGames.final, 'final', 'final-empty', 'final-count');
+
+            // Update navigation
+            updateRows();
+            setHomeFocus();
+        }
+
+        function renderGameRow(containerId, games, rowName, emptyId, countId) {
+            const container = document.getElementById(containerId);
+            const emptyEl = document.getElementById(emptyId);
+            const countEl = document.getElementById(countId);
+
+            if (games.length === 0) {
+                container.innerHTML = `<div class="empty-row">No ${rowName} games</div>`;
+                if (countEl) countEl.textContent = '';
+                return;
+            }
+
+            if (countEl) countEl.textContent = `${games.length} games`;
+
+            container.innerHTML = games.map(game => createGameCard(game, rowName)).join('');
+        }
+
+        function createGameCard(game, rowName) {
+            const statusClass = game.state === 'in' ? 'live' : game.state === 'pre' ? 'upcoming' : 'final';
+            const statusText = game.state === 'in' ? game.status : game.state === 'pre' ? formatStartTime(game.startTime) : 'Final';
+
+            return `
+                <div class="game-card focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card-header">
+                        <span class="game-card-league">${game.league.toUpperCase()}</span>
+                        <span class="game-card-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="game-card-teams">
+                        <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                            <span class="game-card-team-name">${game.away.name}</span>
+                            <span class="game-card-team-score">${game.state !== 'pre' ? game.away.score : ''}</span>
+                        </div>
+                        <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                            <span class="game-card-team-name">${game.home.name}</span>
+                            <span class="game-card-team-score">${game.state !== 'pre' ? game.home.score : ''}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatStartTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffMs = date - now;
+            const diffMins = Math.round(diffMs / 60000);
+
+            if (diffMins <= 0) return 'Starting';
+            if (diffMins < 60) return `${diffMins}m`;
+            if (diffMins < 1440) return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            return date.toLocaleDateString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true });
+        }
+
+        // ============================================
+        // UTILITIES
+        // ============================================
         function updateTime() {
             const now = new Date();
             document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', {
@@ -1649,299 +2372,12 @@
             });
         }
 
-        // Fetch live game counts for each league
-        async function fetchLeagueStatuses() {
-            const leagues = [
-                { id: 'nfl', endpoint: '/api/nfl/scoreboard' },
-                { id: 'nba', endpoint: '/api/nba/scoreboard' },
-                { id: 'mlb', endpoint: '/api/mlb/scoreboard' },
-                { id: 'nhl', endpoint: '/api/nhl/scoreboard' },
-                { id: 'ncaa', endpoint: '/api/ncaa/scoreboard', hasWeekParam: true },
-                { id: 'ncaab', endpoint: '/api/ncaab/scoreboard' }
-            ];
-
-            for (const league of leagues) {
-                try {
-                    let events = [];
-
-                    if (league.hasWeekParam) {
-                        // NCAA Football needs special handling - fetch current week info first
-                        try {
-                            const weekResponse = await fetch('/api/ncaa/current-week');
-                            const weekData = await weekResponse.json();
-                            const isBowlSeason = weekData.isBowlSeason || false;
-                            const currentWeek = weekData.week || 1;
-
-                            let endpoint;
-                            if (isBowlSeason) {
-                                endpoint = '/api/ncaa/scoreboard?week=bowl';
-                            } else {
-                                endpoint = `/api/ncaa/scoreboard?week=${currentWeek}`;
-                            }
-
-                            const response = await fetch(endpoint);
-                            if (response.ok) {
-                                const data = await response.json();
-                                events = data.events || [];
-                            }
-                        } catch (weekError) {
-                            console.log('Error fetching NCAA week info:', weekError);
-                            // Fallback to default endpoint
-                            const response = await fetch(league.endpoint);
-                            if (response.ok) {
-                                const data = await response.json();
-                                events = data.events || [];
-                            }
-                        }
-                    } else {
-                        const response = await fetch(league.endpoint);
-                        if (response.ok) {
-                            const data = await response.json();
-                            events = data.events || [];
-                        }
-                    }
-
-                    // Count live games (in progress)
-                    const liveGames = events.filter(e => {
-                        const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
-                        return state === 'in';
-                    }).length;
-
-                    // Count upcoming games (not started yet)
-                    const upcomingGames = events.filter(e => {
-                        const state = e.status?.type?.state || e.competitions?.[0]?.status?.type?.state;
-                        return state === 'pre';
-                    }).length;
-
-                    const statusEl = document.getElementById(`${league.id}-status`);
-                    const cardEl = statusEl?.closest('.league-card');
-
-                    if (liveGames > 0 && upcomingGames > 0) {
-                        // Show both live and upcoming counts
-                        statusEl.innerHTML = `${liveGames} live now<br><span style="font-size: 0.85em; opacity: 0.8;">${upcomingGames} upcoming</span>`;
-                        // Add live badge
-                        if (cardEl && !cardEl.querySelector('.live-badge')) {
-                            const badge = document.createElement('div');
-                            badge.className = 'live-badge';
-                            badge.textContent = 'LIVE';
-                            cardEl.appendChild(badge);
-                        }
-                    } else if (liveGames > 0) {
-                        statusEl.textContent = `${liveGames} live now`;
-                        // Add live badge
-                        if (cardEl && !cardEl.querySelector('.live-badge')) {
-                            const badge = document.createElement('div');
-                            badge.className = 'live-badge';
-                            badge.textContent = 'LIVE';
-                            cardEl.appendChild(badge);
-                        }
-                    } else if (upcomingGames > 0) {
-                        statusEl.textContent = `${upcomingGames} upcoming`;
-                        // Remove live badge if exists
-                        cardEl?.querySelector('.live-badge')?.remove();
-                    } else {
-                        statusEl.textContent = 'No games today';
-                        cardEl?.querySelector('.live-badge')?.remove();
-                    }
-                } catch (error) {
-                    console.log(`Error fetching ${league.id} status:`, error);
-                    document.getElementById(`${league.id}-status`).textContent = 'View games';
-                }
-            }
-        }
-
-        // Initialize D-pad navigation
-        function initNavigation() {
-            updateFocusableElements();
-            if (focusableElements.length > 0) {
-                setFocus(0);
-            }
-
-            // Remove ALL other screen-specific keydown handlers before adding home handler
-            document.removeEventListener('keydown', handleLoginKeyDown);
-            document.removeEventListener('keydown', handlePasswordFormKeyDown);
-            document.removeEventListener('keydown', handleQRKeyDown);
-
-            // Keyboard/Remote control for home screen
-            document.addEventListener('keydown', handleKeyDown);
-        }
-
-        function updateFocusableElements() {
-            focusableElements = Array.from(document.querySelectorAll('.focusable:not([style*="display: none"])'));
-        }
-
-        function setFocus(index) {
-            // Remove focus from all
-            focusableElements.forEach(el => el.classList.remove('focused'));
-
-            // Set new focus
-            currentFocusIndex = Math.max(0, Math.min(index, focusableElements.length - 1));
-            const el = focusableElements[currentFocusIndex];
-            if (el) {
-                el.classList.add('focused');
-                el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-
-        function handleKeyDown(e) {
-            console.log('handleKeyDown:', e.key, 'keyCode:', e.keyCode, 'code:', e.code, 'currentScreen:', currentScreen);
-
-            const cols = 5; // Number of columns in league grid
-            let newIndex = currentFocusIndex;
-
-            // Check for Enter/Select key - Android TV can send different codes
-            // keyCode 13 = Enter, keyCode 66 = Android Enter, keyCode 23 = D-pad center
-            const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
-                               e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23 ||
-                               e.code === 'Enter' || e.code === 'NumpadEnter';
-
-            if (isEnterKey) {
-                console.log('Enter/Select key detected!');
-                e.preventDefault();
-                e.stopPropagation();
-                selectCurrentItem();
-                return;
-            }
-
-            switch (e.key) {
-                case 'ArrowUp':
-                case 'Up':
-                    e.preventDefault();
-                    // Move up a row
-                    if (currentFocusIndex >= cols) {
-                        newIndex = currentFocusIndex - cols;
-                    } else if (currentFocusIndex >= 5) {
-                        // From special cards to league cards
-                        newIndex = Math.min(currentFocusIndex - 2, 4);
-                    }
-                    break;
-
-                case 'ArrowDown':
-                case 'Down':
-                    e.preventDefault();
-                    // Move down
-                    if (currentFocusIndex < 5) {
-                        // From league cards to special cards
-                        newIndex = 5;
-                    }
-                    break;
-
-                case 'ArrowLeft':
-                case 'Left':
-                    e.preventDefault();
-                    if (currentFocusIndex > 0) {
-                        newIndex = currentFocusIndex - 1;
-                    }
-                    break;
-
-                case 'ArrowRight':
-                case 'Right':
-                    e.preventDefault();
-                    if (currentFocusIndex < focusableElements.length - 1) {
-                        newIndex = currentFocusIndex + 1;
-                    }
-                    break;
-
-                case 'Escape':
-                case 'Backspace':
-                    e.preventDefault();
-                    // Already on home, do nothing
-                    return;
-            }
-
-            if (newIndex !== currentFocusIndex) {
-                setFocus(newIndex);
-            }
-        }
-
-        function selectCurrentItem() {
-            const el = focusableElements[currentFocusIndex];
-            console.log('selectCurrentItem called, currentFocusIndex:', currentFocusIndex, 'element:', el);
-            if (!el) {
-                console.log('selectCurrentItem: No element at index', currentFocusIndex);
-                return;
-            }
-
-            const url = el.dataset.url;
-            const action = el.dataset.action;
-            console.log('selectCurrentItem: url=', url, 'action=', action, 'id=', el.id);
-
-            if (action === 'phone-connect') {
-                // Go to phone connection page
-                console.log('selectCurrentItem: Opening phone-connect page');
-                openLeaguePage('/tv-receiver.html');
-            } else if (url) {
-                console.log('selectCurrentItem: Opening league page:', url);
-                openLeaguePage(url);
-            } else if (el.id === 'sign-out-btn') {
-                // Handle sign out button
-                console.log('selectCurrentItem: Signing out');
-                signOut();
-            } else {
-                // Fallback: trigger click on element
-                console.log('selectCurrentItem: Fallback - triggering click on element');
-                el.click();
-            }
-        }
-
-        function openLeaguePage(url) {
-            // Add TV mode parameter and session token for authentication
-            let tvUrl = url + (url.includes('?') ? '&' : '?') + 'tv=1';
-
-            // Include session token for server-side authentication
-            // Try both in-memory and localStorage to ensure we have the token
-            const storedToken = localStorage.getItem('gridtv_session_token');
-            const activeToken = sessionToken || storedToken;
-
-            console.log('openLeaguePage - sessionToken:', sessionToken ? sessionToken.substring(0, 8) + '...' : 'null');
-            console.log('openLeaguePage - storedToken:', storedToken ? storedToken.substring(0, 8) + '...' : 'null');
-            console.log('openLeaguePage - activeToken:', activeToken ? activeToken.substring(0, 8) + '...' : 'null');
-
-            if (activeToken) {
-                tvUrl += '&tvSession=' + encodeURIComponent(activeToken);
-            } else {
-                console.error('ERROR: No session token available for navigation!');
-            }
-
-            console.log('Navigating to league page:', tvUrl);
-
-            // Store current state so we can return
-            sessionStorage.setItem('gridtv_return_to_home', 'true');
-
-            // Navigate to the league page
-            window.location.href = tvUrl;
-        }
-
-        // Iframe navigation code removed - now using direct navigation
-        // League pages handle their own TV mode and back button via ?tv=1 parameter
-
-        // Click handlers for focusable elements
-        document.querySelectorAll('.focusable').forEach((el, index) => {
-            el.addEventListener('click', () => {
-                setFocus(index);
-                selectCurrentItem();
-            });
-
-            el.addEventListener('focus', () => {
-                currentFocusIndex = index;
-                setFocus(index);
-            });
-        });
-
-        // Sign out button click
+        // Click handlers
         document.getElementById('sign-out-btn').addEventListener('click', signOut);
-
-        // Login option click handlers
         document.getElementById('option-password').addEventListener('click', showPasswordLoginScreen);
         document.getElementById('option-qr').addEventListener('click', showQRLoginScreen);
-
-        // Password form back button
         document.getElementById('password-back-btn').addEventListener('click', showLoginScreen);
-
-        // QR back button
         document.getElementById('qr-back-btn').addEventListener('click', showLoginScreen);
-
-        // Login submit button
         document.getElementById('login-submit-btn').addEventListener('click', handlePasswordLogin);
     </script>
 </body>
