@@ -558,7 +558,7 @@
             gap: 16px;
             overflow-x: auto;
             overflow-y: visible;
-            padding: 8px 4px 16px 4px;
+            padding: 8px 16px 16px 16px;
             scroll-behavior: smooth;
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -957,6 +957,97 @@
         }
 
         /* ================================ */
+        /* SPORTS BAR MODE SELECTION        */
+        /* ================================ */
+
+        /* Selection overlay on game cards */
+        .game-card.selected-for-sports-bar {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+
+        .game-card.selected-for-sports-bar.focused {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.7), var(--tv-focus-glow);
+        }
+
+        .game-card .selection-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 72px;
+            font-weight: 900;
+            color: rgba(34, 197, 94, 0.9);
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Sports Mode Button Container */
+        .sports-mode-container {
+            display: none;
+            padding: 0 4px;
+            margin-top: -8px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .sports-mode-container.visible {
+            display: flex;
+        }
+
+        /* Enter Sports Mode button */
+        .sports-mode-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border: 3px solid transparent;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sports-mode-btn.focused {
+            border-color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+        }
+
+        .sports-mode-btn .selection-count {
+            opacity: 0.9;
+        }
+
+        /* Clear Selections button */
+        .clear-selections-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 20px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 3px solid #ef4444;
+            border-radius: 12px;
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clear-selections-btn.focused {
+            background: rgba(239, 68, 68, 0.4);
+            border-color: #fff;
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+        }
+
+        /* ================================ */
         /* ANDROID TV WEBVIEW VIEWPORT      */
         /* ================================ */
         @media screen and (min-width: 900px) and (max-width: 1100px) and (min-height: 480px) and (max-height: 600px) {
@@ -1199,6 +1290,23 @@
                 margin-top: 15px;
                 padding: 8px 16px;
             }
+
+            /* Sports Bar Mode for WebView */
+            .game-card .selection-number {
+                font-size: 48px;
+            }
+
+            .sports-mode-btn {
+                padding: 10px 18px;
+                font-size: 13px;
+                border-radius: 10px;
+            }
+
+            .clear-selections-btn {
+                padding: 10px 14px;
+                font-size: 12px;
+                border-radius: 10px;
+            }
         }
     </style>
 </head>
@@ -1365,6 +1473,17 @@
                 </div>
             </section>
 
+            <!-- Sports Mode Button (appears after selecting games) -->
+            <div class="sports-mode-container" id="sports-mode-container">
+                <button class="sports-mode-btn focusable" id="sports-mode-btn" data-row="sports-mode" tabindex="0">
+                    <span>🏟️ Enter Sports Bar Mode</span>
+                    <span class="selection-count" id="selection-count">(0 games)</span>
+                </button>
+                <button class="clear-selections-btn focusable" id="clear-selections-btn" data-row="sports-mode" tabindex="0">
+                    <span>Clear</span>
+                </button>
+            </div>
+
             <!-- Dynamic Game Rows Container (for "All" view - live games per league) -->
             <div id="league-rows-container"></div>
 
@@ -1463,12 +1582,17 @@
         let selectedLeague = 'all';
         let leagueFocusTimer = null; // Timer for auto-filtering on focus
 
+        // Sports Bar Mode - Multi-select state
+        let selectedGamesForSportsBar = [];
+        const MAX_SPORTS_BAR_SELECTIONS = 8;
+
         // ============================================
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const returnToMenu = urlParams.get('menu') === '1';
+            const restoreSelections = urlParams.get('restoreSelections') === '1';
 
             deviceId = localStorage.getItem('gridtv_device_id');
             if (!deviceId) {
@@ -1481,10 +1605,10 @@
             if (sessionToken) {
                 const valid = await validateExistingSession();
                 if (valid) {
-                    if (returnToMenu) {
+                    if (returnToMenu || restoreSelections) {
                         history.replaceState({}, '', '/tv-home');
                     }
-                    showHomeScreen();
+                    showHomeScreen(restoreSelections);
                     return;
                 } else {
                     localStorage.removeItem('gridtv_session_token');
@@ -1492,7 +1616,7 @@
                 }
             }
 
-            if (returnToMenu) {
+            if (returnToMenu || restoreSelections) {
                 history.replaceState({}, '', '/tv-home');
             }
 
@@ -1562,7 +1686,7 @@
             initQRNavigation();
         }
 
-        function showHomeScreen() {
+        function showHomeScreen(restoreSelections = false) {
             currentScreen = 'home';
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('password-login-screen').classList.add('hidden');
@@ -1578,7 +1702,12 @@
             }
 
             initHomeNavigation();
-            fetchAllGames();
+            fetchAllGames().then(() => {
+                // After games are loaded, restore selections if returning from Sports Bar
+                if (restoreSelections) {
+                    restoreGameSelections();
+                }
+            });
             setInterval(fetchAllGames, 30000);
         }
 
@@ -1921,6 +2050,15 @@
                 rows.push({ name: 'leagues', elements: Array.from(leaguesRow) });
             }
 
+            // Sports Mode button row (if visible) - includes Enter and Clear buttons
+            const sportsModeContainer = document.getElementById('sports-mode-container');
+            if (sportsModeContainer && sportsModeContainer.classList.contains('visible')) {
+                const sportsModeButtons = sportsModeContainer.querySelectorAll('.focusable');
+                if (sportsModeButtons.length > 0) {
+                    rows.push({ name: 'sports-mode', elements: Array.from(sportsModeButtons) });
+                }
+            }
+
             if (selectedLeague === 'all') {
                 // "All" view: Add dynamic league rows
                 leagueOrder.forEach(leagueId => {
@@ -2049,6 +2187,12 @@
 
             if (el.id === 'sign-out-btn') {
                 signOut();
+            } else if (el.id === 'sports-mode-btn') {
+                // Enter Sports Bar Mode
+                enterSportsBarMode();
+            } else if (el.id === 'clear-selections-btn') {
+                // Clear all selections
+                clearSportsBarSelections();
             } else if (action === 'phone-connect') {
                 // Navigate to phone connect page
                 openPage('/tv-receiver.html');
@@ -2056,10 +2200,186 @@
                 // League card - filter games
                 selectLeague(league);
             } else if (gameData) {
-                // Game card - show fullscreen view
+                // Game card - toggle selection for Sports Bar Mode
                 const game = JSON.parse(gameData);
-                showGameFullscreen(game);
+                toggleGameSelection(el, game);
             }
+        }
+
+        // ============================================
+        // SPORTS BAR MODE - MULTI-SELECT
+        // ============================================
+        function toggleGameSelection(cardElement, game) {
+            const existingIndex = selectedGamesForSportsBar.findIndex(g => g.id === game.id);
+
+            if (existingIndex > -1) {
+                // Deselect - remove from array
+                selectedGamesForSportsBar.splice(existingIndex, 1);
+                cardElement.classList.remove('selected-for-sports-bar');
+                const numEl = cardElement.querySelector('.selection-number');
+                if (numEl) numEl.remove();
+
+                // Re-number remaining selections
+                updateSelectionNumbers();
+            } else if (selectedGamesForSportsBar.length < MAX_SPORTS_BAR_SELECTIONS) {
+                // Select - add to array
+                selectedGamesForSportsBar.push(game);
+                cardElement.classList.add('selected-for-sports-bar');
+
+                // Add selection number overlay
+                const numEl = document.createElement('div');
+                numEl.className = 'selection-number';
+                numEl.textContent = selectedGamesForSportsBar.length;
+                cardElement.appendChild(numEl);
+            }
+
+            // Update sports mode button visibility
+            updateSportsModeButton();
+        }
+
+        function updateSelectionNumbers() {
+            // Update all selection numbers after reordering
+            selectedGamesForSportsBar.forEach((game, index) => {
+                // Find the card with this game - need to escape special characters in JSON
+                const cards = document.querySelectorAll('.game-card.selected-for-sports-bar');
+                cards.forEach(card => {
+                    try {
+                        const cardGame = JSON.parse(card.dataset.game);
+                        if (cardGame.id === game.id) {
+                            const numEl = card.querySelector('.selection-number');
+                            if (numEl) numEl.textContent = index + 1;
+                        }
+                    } catch (e) {}
+                });
+            });
+        }
+
+        function updateSportsModeButton() {
+            const container = document.getElementById('sports-mode-container');
+            const countEl = document.getElementById('selection-count');
+
+            if (selectedGamesForSportsBar.length > 0) {
+                container.classList.add('visible');
+                const plural = selectedGamesForSportsBar.length === 1 ? 'game' : 'games';
+                countEl.textContent = `(${selectedGamesForSportsBar.length} ${plural})`;
+            } else {
+                container.classList.remove('visible');
+            }
+
+            // Update navigation rows to include/exclude the button
+            updateRows();
+        }
+
+        // Re-apply selection highlighting to newly rendered game cards
+        function reapplyGameSelections() {
+            if (selectedGamesForSportsBar.length === 0) return;
+
+            // Get all game cards
+            const allCards = document.querySelectorAll('.game-card');
+
+            allCards.forEach(card => {
+                try {
+                    const cardGame = JSON.parse(card.dataset.game);
+                    // Find if this game is in the selected list
+                    const selectionIndex = selectedGamesForSportsBar.findIndex(g => g.id === cardGame.id);
+
+                    if (selectionIndex !== -1) {
+                        // This game is selected - add highlighting
+                        card.classList.add('selected-for-sports-bar');
+
+                        // Add selection number overlay if not already present
+                        if (!card.querySelector('.selection-number')) {
+                            const numEl = document.createElement('div');
+                            numEl.className = 'selection-number';
+                            numEl.textContent = selectionIndex + 1;
+                            card.appendChild(numEl);
+                        }
+                    }
+                } catch (e) {
+                    // Invalid JSON, skip this card
+                }
+            });
+        }
+
+        function enterSportsBarMode() {
+            if (selectedGamesForSportsBar.length === 0) return;
+
+            // Save selections to localStorage for sports-bar page
+            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(selectedGamesForSportsBar));
+
+            // Navigate to sports bar page
+            window.location.href = '/tv-sports-bar';
+        }
+
+        function restoreGameSelections() {
+            const saved = localStorage.getItem('gridtv_sports_bar_games');
+            if (!saved) return;
+
+            try {
+                let savedSelections = JSON.parse(saved);
+
+                // Wait a bit for games to render, then apply selection styling
+                setTimeout(() => {
+                    // Get all available game IDs on the page
+                    const availableGameIds = new Set();
+                    const cards = document.querySelectorAll('.game-card');
+                    cards.forEach(card => {
+                        try {
+                            const cardGame = JSON.parse(card.dataset.game);
+                            availableGameIds.add(cardGame.id);
+                        } catch (e) {}
+                    });
+
+                    // Filter out games that no longer exist (finished games)
+                    const validSelections = savedSelections.filter(game => availableGameIds.has(game.id));
+
+                    // If some games were removed, update the stored selections
+                    if (validSelections.length !== savedSelections.length) {
+                        console.log(`Cleaned up ${savedSelections.length - validSelections.length} finished game(s) from selections`);
+                        if (validSelections.length > 0) {
+                            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(validSelections));
+                        } else {
+                            localStorage.removeItem('gridtv_sports_bar_games');
+                        }
+                    }
+
+                    // Update the active selections
+                    selectedGamesForSportsBar = validSelections;
+
+                    // Apply selection styling to valid games
+                    validSelections.forEach((game, index) => {
+                        cards.forEach(card => {
+                            try {
+                                const cardGame = JSON.parse(card.dataset.game);
+                                if (cardGame.id === game.id) {
+                                    card.classList.add('selected-for-sports-bar');
+
+                                    // Add selection number overlay
+                                    const numEl = document.createElement('div');
+                                    numEl.className = 'selection-number';
+                                    numEl.textContent = index + 1;
+                                    card.appendChild(numEl);
+                                }
+                            } catch (e) {}
+                        });
+                    });
+
+                    updateSportsModeButton();
+                }, 500);
+            } catch (e) {
+                console.error('Failed to restore game selections:', e);
+            }
+        }
+
+        function clearSportsBarSelections() {
+            selectedGamesForSportsBar = [];
+            document.querySelectorAll('.game-card.selected-for-sports-bar').forEach(card => {
+                card.classList.remove('selected-for-sports-bar');
+                const numEl = card.querySelector('.selection-number');
+                if (numEl) numEl.remove();
+            });
+            updateSportsModeButton();
+            localStorage.removeItem('gridtv_sports_bar_games');
         }
 
         // ============================================
@@ -2276,6 +2596,9 @@
                         if (!comp) return;
 
                         const state = comp.status?.type?.state || event.status?.type?.state;
+                        const homeTeam = comp.competitors?.find(c => c.homeAway === 'home') || comp.competitors?.[0];
+                        const awayTeam = comp.competitors?.find(c => c.homeAway === 'away') || comp.competitors?.[1];
+
                         const gameInfo = {
                             id: event.id,
                             league: league.id,
@@ -2283,21 +2606,69 @@
                             status: comp.status?.type?.shortDetail || '',
                             state: state,
                             home: {
-                                name: comp.competitors?.[0]?.team?.displayName || comp.competitors?.[0]?.team?.shortDisplayName || '',
-                                abbr: comp.competitors?.[0]?.team?.abbreviation || '',
-                                logo: comp.competitors?.[0]?.team?.logo || '',
-                                score: parseInt(comp.competitors?.[0]?.score || 0),
-                                winner: comp.competitors?.[0]?.winner || false
+                                id: homeTeam?.id || homeTeam?.team?.id,
+                                name: homeTeam?.team?.displayName || homeTeam?.team?.shortDisplayName || '',
+                                abbr: homeTeam?.team?.abbreviation || '',
+                                logo: homeTeam?.team?.logo || '',
+                                score: parseInt(homeTeam?.score || 0),
+                                winner: homeTeam?.winner || false,
+                                timeouts: 3
                             },
                             away: {
-                                name: comp.competitors?.[1]?.team?.displayName || comp.competitors?.[1]?.team?.shortDisplayName || '',
-                                abbr: comp.competitors?.[1]?.team?.abbreviation || '',
-                                logo: comp.competitors?.[1]?.team?.logo || '',
-                                score: parseInt(comp.competitors?.[1]?.score || 0),
-                                winner: comp.competitors?.[1]?.winner || false
+                                id: awayTeam?.id || awayTeam?.team?.id,
+                                name: awayTeam?.team?.displayName || awayTeam?.team?.shortDisplayName || '',
+                                abbr: awayTeam?.team?.abbreviation || '',
+                                logo: awayTeam?.team?.logo || '',
+                                score: parseInt(awayTeam?.score || 0),
+                                winner: awayTeam?.winner || false,
+                                timeouts: 3
                             },
                             startTime: event.date
                         };
+
+                        // Add football-specific data for NFL and NCAA
+                        if ((league.id === 'nfl' || league.id === 'ncaa') && state === 'in') {
+                            const situation = comp.situation;
+                            if (situation) {
+                                // Possession
+                                const possessionTeamId = situation.possession;
+                                if (possessionTeamId) {
+                                    if (possessionTeamId === gameInfo.home.id) {
+                                        gameInfo.possession = 'home';
+                                    } else if (possessionTeamId === gameInfo.away.id) {
+                                        gameInfo.possession = 'away';
+                                    }
+                                }
+
+                                // Down and distance - use full text from API which includes field position
+                                // Validate that down is 1-4 and distance is positive
+                                const isValidDown = situation.down >= 1 && situation.down <= 4;
+                                const isValidDistance = situation.distance > 0;
+
+                                if (situation.downDistanceText && !situation.downDistanceText.includes('-1') && isValidDown) {
+                                    gameInfo.downDistance = situation.downDistanceText;
+                                } else if (situation.shortDownDistanceText && !situation.shortDownDistanceText.includes('-1') && isValidDown) {
+                                    gameInfo.downDistance = situation.shortDownDistanceText;
+                                } else if (isValidDown && isValidDistance) {
+                                    const suffix = situation.down === 1 ? 'st' : situation.down === 2 ? 'nd' : situation.down === 3 ? 'rd' : 'th';
+                                    gameInfo.downDistance = `${situation.down}${suffix} & ${situation.distance}`;
+                                }
+
+                                // Yard line and field position
+                                gameInfo.yardLine = situation.yardLine;
+                                gameInfo.yardsToGo = situation.distance;
+                                gameInfo.fieldPosition = situation.possessionText;
+                                gameInfo.possessionOnOwn = situation.isRedZone === false;
+
+                                // Timeouts
+                                if (situation.homeTimeouts !== undefined) {
+                                    gameInfo.home.timeouts = situation.homeTimeouts;
+                                }
+                                if (situation.awayTimeouts !== undefined) {
+                                    gameInfo.away.timeouts = situation.awayTimeouts;
+                                }
+                            }
+                        }
 
                         if (state === 'in') {
                             allGamesUnfiltered.live.push(gameInfo);
@@ -2401,6 +2772,9 @@
             // Update navigation
             updateRows();
             setHomeFocus();
+
+            // Re-apply any existing game selections after rendering
+            reapplyGameSelections();
         }
 
         function renderLeagueRows() {

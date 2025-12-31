@@ -2512,6 +2512,8 @@ app.use((req, res, next) => {
     req.path === '/tv-auth.html' ||
     req.path === '/tv-home' ||
     req.path === '/tv-home.html' ||
+    req.path === '/tv-sports-bar' ||
+    req.path === '/tv-sports-bar.html' ||
     req.path.startsWith('/assets/') ||
     req.path.startsWith('/css/') ||
     req.path.startsWith('/scripts/') ||
@@ -5175,6 +5177,11 @@ app.get('/tv-receiver', (req, res) => {
 // Serve TV Home page without .html extension (NO AUTH REQUIRED for TVs)
 app.get('/tv-home', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'tv-home.html'));
+});
+
+// Serve TV Sports Bar page without .html extension (NO AUTH REQUIRED for TVs)
+app.get('/tv-sports-bar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'tv-sports-bar.html'));
 });
 
 // Serve Privacy Policy page (NO AUTH REQUIRED - needed for app store listings)

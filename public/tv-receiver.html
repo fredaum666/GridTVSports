@@ -1392,7 +1392,7 @@
 
         // Get team color by abbreviation
         function getTeamColor(teamAbbr) {
-            return NFL_TEAM_COLORS[teamAbbr] || '#e5e7eb'; // Default to light gray if not found
+            return NFL_TEAM_COLORS[teamAbbr] || '#fbbf24'; // Default to yellow if not found
         }
 
         // ============================================
@@ -1604,10 +1604,18 @@
             const isFootball = sport === 'nfl' || sport === 'ncaa';
             const situation = comp.situation;
             const fieldPosition = situation?.possessionText || '';
+
+            // Validate that down is 1-4 and distance is positive
+            const isValidDown = situation?.down >= 1 && situation?.down <= 4;
+            const isValidDistance = situation?.distance > 0;
+
             // Use full downDistanceText which includes ball position (e.g., "1st & 10 at DEN 25")
             // Fall back to shortDownDistanceText + fieldPosition if needed
-            let downDistanceText = situation?.downDistanceText || '';
-            if (!downDistanceText && situation?.shortDownDistanceText) {
+            // Skip invalid data containing "-1"
+            let downDistanceText = '';
+            if (situation?.downDistanceText && !situation.downDistanceText.includes('-1') && isValidDown) {
+                downDistanceText = situation.downDistanceText;
+            } else if (situation?.shortDownDistanceText && !situation.shortDownDistanceText.includes('-1') && isValidDown) {
                 downDistanceText = situation.shortDownDistanceText;
                 if (fieldPosition) {
                     downDistanceText += ` at ${fieldPosition}`;
@@ -1687,7 +1695,7 @@
                                 </div>
                                 <div class="fullscreen-live-team-name ${awayScore > homeScore ? 'winning' : ''}" style="color: ${awayColor}">${awayName}</div>
                                 ${awayRecord ? `<div class="fullscreen-team-record">${awayRecord}</div>` : ''}
-                                ${isLive && isFootball ? `
+                                ${isLive && sport === 'nfl' ? `
                                     <div class="fullscreen-timeouts">
                                         <div class="timeout-bar ${awayTimeouts >= 1 ? '' : 'used'}"></div>
                                         <div class="timeout-bar ${awayTimeouts >= 2 ? '' : 'used'}"></div>
@@ -1707,7 +1715,7 @@
                                 </div>
                                 <div class="fullscreen-live-team-name ${homeScore > awayScore ? 'winning' : ''}" style="color: ${homeColor}">${homeName}</div>
                                 ${homeRecord ? `<div class="fullscreen-team-record">${homeRecord}</div>` : ''}
-                                ${isLive && isFootball ? `
+                                ${isLive && sport === 'nfl' ? `
                                     <div class="fullscreen-timeouts">
                                         <div class="timeout-bar ${homeTimeouts >= 1 ? '' : 'used'}"></div>
                                         <div class="timeout-bar ${homeTimeouts >= 2 ? '' : 'used'}"></div>
