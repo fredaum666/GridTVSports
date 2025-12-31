@@ -394,6 +394,28 @@
             flex-direction: column;
             padding: var(--tv-margin-v) var(--tv-margin-h);
             overflow: hidden;
+            position: relative;
+        }
+
+        /* League Watermark Background */
+        .league-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            height: 60%;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
+            transition: background-image 0.5s ease-in-out, opacity 0.3s ease;
+        }
+
+        .league-watermark.changing {
+            opacity: 0;
         }
 
         /* Header */
@@ -1275,6 +1297,9 @@
     <!-- MAIN TV HOME - STREAMING LAYOUT  -->
     <!-- ================================ -->
     <div class="tv-home hidden" id="tv-home">
+        <!-- League Watermark Background -->
+        <div class="league-watermark" id="league-watermark" style="background-image: url('/assets/logo.png');"></div>
+
         <header class="tv-header">
             <div class="tv-logo">
                 <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
@@ -2025,6 +2050,33 @@
         // ============================================
         // LEAGUE FILTERING
         // ============================================
+        // League logo mapping
+        const leagueLogos = {
+            'all': '/assets/logo.png',
+            'nfl': '/assets/NFL-logo.png',
+            'nba': '/assets/NBA-Logo.png',
+            'mlb': '/assets/MLB-Logo.png',
+            'nhl': '/assets/NHL-Logo.png',
+            'ncaaf': '/assets/NCAA logo.png',
+            'ncaab': '/assets/ncaa-basketball.png'
+        };
+
+        function updateLeagueWatermark(league) {
+            const watermark = document.getElementById('league-watermark');
+            if (!watermark) return;
+
+            const logoUrl = leagueLogos[league] || leagueLogos['all'];
+
+            // Add changing class for fade out
+            watermark.classList.add('changing');
+
+            // After fade out, change image and fade back in
+            setTimeout(() => {
+                watermark.style.backgroundImage = `url('${logoUrl}')`;
+                watermark.classList.remove('changing');
+            }, 300);
+        }
+
         function selectLeague(league) {
             selectedLeague = league;
 
@@ -2035,6 +2087,9 @@
                     card.classList.add('selected');
                 }
             });
+
+            // Update watermark background
+            updateLeagueWatermark(league);
 
             // Filter and re-render games
             filterAndRenderGames();
