@@ -1365,39 +1365,45 @@
                 </div>
             </section>
 
-            <!-- Live Games Row -->
-            <section class="tv-row" data-row="live" id="live-section">
-                <div class="tv-row-header">
-                    <span class="tv-row-title">Live Now</span>
-                    <span class="tv-row-badge live">LIVE</span>
-                    <span class="tv-row-count" id="live-count"></span>
-                </div>
-                <div class="tv-row-scroll" id="live-games-row">
-                    <div class="empty-row" id="live-empty">Loading live games...</div>
-                </div>
-            </section>
+            <!-- Dynamic Game Rows Container (for "All" view - live games per league) -->
+            <div id="league-rows-container"></div>
 
-            <!-- Upcoming Games Row -->
-            <section class="tv-row" data-row="upcoming" id="upcoming-section">
-                <div class="tv-row-header">
-                    <span class="tv-row-title">Upcoming</span>
-                    <span class="tv-row-count" id="upcoming-count"></span>
-                </div>
-                <div class="tv-row-scroll" id="upcoming-games-row">
-                    <div class="empty-row" id="upcoming-empty">Loading upcoming games...</div>
-                </div>
-            </section>
+            <!-- Status-based Game Rows (for single league view) -->
+            <div id="status-rows-container">
+                <!-- Live Games Row -->
+                <section class="tv-row" data-row="live" id="live-section">
+                    <div class="tv-row-header">
+                        <span class="tv-row-title">Live Now</span>
+                        <span class="tv-row-badge live">LIVE</span>
+                        <span class="tv-row-count" id="live-count"></span>
+                    </div>
+                    <div class="tv-row-scroll" id="live-games-row">
+                        <div class="empty-row" id="live-empty">Loading live games...</div>
+                    </div>
+                </section>
 
-            <!-- Final Games Row -->
-            <section class="tv-row" data-row="final" id="final-section">
-                <div class="tv-row-header">
-                    <span class="tv-row-title">Final</span>
-                    <span class="tv-row-count" id="final-count"></span>
-                </div>
-                <div class="tv-row-scroll" id="final-games-row">
-                    <div class="empty-row" id="final-empty">Loading final scores...</div>
-                </div>
-            </section>
+                <!-- Upcoming Games Row -->
+                <section class="tv-row" data-row="upcoming" id="upcoming-section">
+                    <div class="tv-row-header">
+                        <span class="tv-row-title">Upcoming</span>
+                        <span class="tv-row-count" id="upcoming-count"></span>
+                    </div>
+                    <div class="tv-row-scroll" id="upcoming-games-row">
+                        <div class="empty-row" id="upcoming-empty">Loading upcoming games...</div>
+                    </div>
+                </section>
+
+                <!-- Final Games Row -->
+                <section class="tv-row" data-row="final" id="final-section">
+                    <div class="tv-row-header">
+                        <span class="tv-row-title">Final</span>
+                        <span class="tv-row-count" id="final-count"></span>
+                    </div>
+                    <div class="tv-row-scroll" id="final-games-row">
+                        <div class="empty-row" id="final-empty">Loading final scores...</div>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
@@ -1909,28 +1915,37 @@
         function updateRows() {
             rows = [];
 
-            // Leagues row
+            // Leagues row (always first)
             const leaguesRow = document.querySelectorAll('#leagues-row .focusable');
             if (leaguesRow.length > 0) {
                 rows.push({ name: 'leagues', elements: Array.from(leaguesRow) });
             }
 
-            // Live games row
-            const liveRow = document.querySelectorAll('#live-games-row .focusable');
-            if (liveRow.length > 0) {
-                rows.push({ name: 'live', elements: Array.from(liveRow) });
-            }
+            if (selectedLeague === 'all') {
+                // "All" view: Add dynamic league rows
+                leagueOrder.forEach(leagueId => {
+                    const rowId = `league-row-${leagueId}`;
+                    const leagueRow = document.querySelectorAll(`#${rowId} .focusable`);
+                    if (leagueRow.length > 0) {
+                        rows.push({ name: rowId, elements: Array.from(leagueRow) });
+                    }
+                });
+            } else {
+                // Single league view: Add status-based rows
+                const liveRow = document.querySelectorAll('#live-games-row .focusable');
+                if (liveRow.length > 0) {
+                    rows.push({ name: 'live', elements: Array.from(liveRow) });
+                }
 
-            // Upcoming games row
-            const upcomingRow = document.querySelectorAll('#upcoming-games-row .focusable');
-            if (upcomingRow.length > 0) {
-                rows.push({ name: 'upcoming', elements: Array.from(upcomingRow) });
-            }
+                const upcomingRow = document.querySelectorAll('#upcoming-games-row .focusable');
+                if (upcomingRow.length > 0) {
+                    rows.push({ name: 'upcoming', elements: Array.from(upcomingRow) });
+                }
 
-            // Final games row
-            const finalRow = document.querySelectorAll('#final-games-row .focusable');
-            if (finalRow.length > 0) {
-                rows.push({ name: 'final', elements: Array.from(finalRow) });
+                const finalRow = document.querySelectorAll('#final-games-row .focusable');
+                if (finalRow.length > 0) {
+                    rows.push({ name: 'final', elements: Array.from(finalRow) });
+                }
             }
         }
 
@@ -2351,14 +2366,97 @@
             }
         }
 
+        // League display names and order
+        const leagueDisplayNames = {
+            'nfl': 'NFL',
+            'nba': 'NBA',
+            'mlb': 'MLB',
+            'nhl': 'NHL',
+            'ncaa': 'NCAA Football',
+            'ncaab': 'NCAA Basketball'
+        };
+
+        const leagueOrder = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab'];
+
         function renderGameRows() {
-            renderGameRow('live-games-row', allGames.live, 'live', 'live-empty', 'live-count');
-            renderGameRow('upcoming-games-row', allGames.upcoming, 'upcoming', 'upcoming-empty', 'upcoming-count');
-            renderGameRow('final-games-row', allGames.final, 'final', 'final-empty', 'final-count');
+            const leagueRowsContainer = document.getElementById('league-rows-container');
+            const statusRowsContainer = document.getElementById('status-rows-container');
+
+            if (selectedLeague === 'all') {
+                // "All" view: Show live games separated by league
+                leagueRowsContainer.style.display = 'block';
+                statusRowsContainer.style.display = 'none';
+
+                renderLeagueRows();
+            } else {
+                // Single league view: Show games by status
+                leagueRowsContainer.style.display = 'none';
+                statusRowsContainer.style.display = 'block';
+
+                renderGameRow('live-games-row', allGames.live, 'live', 'live-empty', 'live-count');
+                renderGameRow('upcoming-games-row', allGames.upcoming, 'upcoming', 'upcoming-empty', 'upcoming-count');
+                renderGameRow('final-games-row', allGames.final, 'final', 'final-empty', 'final-count');
+            }
 
             // Update navigation
             updateRows();
             setHomeFocus();
+        }
+
+        function renderLeagueRows() {
+            const container = document.getElementById('league-rows-container');
+            container.innerHTML = '';
+
+            // Group live games by league
+            const liveGamesByLeague = {};
+            allGamesUnfiltered.live.forEach(game => {
+                if (!liveGamesByLeague[game.league]) {
+                    liveGamesByLeague[game.league] = [];
+                }
+                liveGamesByLeague[game.league].push(game);
+            });
+
+            // Check if there are any live games at all
+            const hasAnyLiveGames = Object.keys(liveGamesByLeague).length > 0;
+
+            if (!hasAnyLiveGames) {
+                container.innerHTML = `
+                    <section class="tv-row">
+                        <div class="tv-row-header">
+                            <span class="tv-row-title">Live Now</span>
+                            <span class="tv-row-badge live">LIVE</span>
+                        </div>
+                        <div class="tv-row-scroll">
+                            <div class="empty-row">No live games at the moment</div>
+                        </div>
+                    </section>
+                `;
+                return;
+            }
+
+            // Render rows for each league that has live games (in order)
+            leagueOrder.forEach(leagueId => {
+                const games = liveGamesByLeague[leagueId];
+                if (!games || games.length === 0) return;
+
+                const leagueName = leagueDisplayNames[leagueId] || leagueId.toUpperCase();
+                const rowId = `league-row-${leagueId}`;
+
+                const sectionHtml = `
+                    <section class="tv-row" data-row="${rowId}" id="${rowId}-section">
+                        <div class="tv-row-header">
+                            <span class="tv-row-title">${leagueName}</span>
+                            <span class="tv-row-badge live">LIVE</span>
+                            <span class="tv-row-count">${games.length} game${games.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="tv-row-scroll" id="${rowId}">
+                            ${games.map(game => createGameCard(game, rowId)).join('')}
+                        </div>
+                    </section>
+                `;
+
+                container.insertAdjacentHTML('beforeend', sectionHtml);
+            });
         }
 
         function renderGameRow(containerId, games, rowName, emptyId, countId) {
