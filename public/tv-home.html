@@ -659,7 +659,7 @@
             width: 120px;
             height: 160px;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
-            border: 2px solid #333a4a;
+            border: 3px solid #000;
             border-radius: var(--tv-card-radius);
             display: flex;
             flex-direction: column;
@@ -676,13 +676,11 @@
         }
 
         .league-card.focused {
-            border-color: var(--tv-accent);
+            border: 3px solid var(--tv-accent);
             transform: scale(var(--tv-focus-scale));
             box-shadow:
-                0 8px 24px rgba(99, 102, 241, 0.25),
-                0 0 20px rgba(99, 102, 241, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+                0 0 0 2px rgba(99, 102, 241, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.5);
             z-index: 10;
         }
 
@@ -762,7 +760,7 @@
             width: 280px;
             height: 158px;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
-            border: 2px solid #333a4a;
+            border: 3px solid #000;
             border-radius: var(--tv-card-radius);
             padding: 16px;
             cursor: pointer;
@@ -777,13 +775,11 @@
         }
 
         .game-card.focused {
-            border-color: var(--tv-accent);
+            border: 3px solid var(--tv-accent);
             transform: scale(var(--tv-focus-scale));
             box-shadow:
-                0 8px 24px rgba(99, 102, 241, 0.25),
-                0 0 20px rgba(99, 102, 241, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+                0 0 0 2px rgba(99, 102, 241, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.5);
             z-index: 10;
         }
 
@@ -872,7 +868,7 @@
             padding: 0;
             overflow: hidden;
             background: transparent;
-            border: 2px solid #333a4a;
+            border: 3px solid #000;
         }
 
         .nba-upcoming-inner {
@@ -962,10 +958,10 @@
         }
 
         .game-card.nba-upcoming.focused {
-            border-color: var(--tv-accent);
+            border: 3px solid var(--tv-accent);
             box-shadow:
-                0 8px 24px rgba(99, 102, 241, 0.35),
-                0 0 30px rgba(99, 102, 241, 0.2);
+                0 0 0 2px rgba(99, 102, 241, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         .nba-upcoming-footer {
@@ -1015,7 +1011,7 @@
             padding: 0;
             overflow: hidden;
             background: transparent;
-            border: 2px solid #333a4a;
+            border: 3px solid #000;
         }
 
         .nfl-upcoming-inner {
@@ -1100,10 +1096,10 @@
         }
 
         .game-card.nfl-upcoming.focused {
-            border-color: var(--tv-accent);
+            border: 3px solid var(--tv-accent);
             box-shadow:
-                0 8px 24px rgba(99, 102, 241, 0.35),
-                0 0 30px rgba(99, 102, 241, 0.2);
+                0 0 0 2px rgba(99, 102, 241, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         /* NFL Final Card with Winner Watermark */
@@ -1136,7 +1132,7 @@
             padding: 0;
             overflow: hidden;
             background: transparent;
-            border: 2px solid #333a4a;
+            border: 3px solid #000;
         }
 
         .nhl-upcoming-inner {
@@ -1221,10 +1217,10 @@
         }
 
         .game-card.nhl-upcoming.focused {
-            border-color: var(--tv-accent);
+            border: 3px solid var(--tv-accent);
             box-shadow:
-                0 8px 24px rgba(99, 102, 241, 0.35),
-                0 0 30px rgba(99, 102, 241, 0.2);
+                0 0 0 2px rgba(99, 102, 241, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         /* NHL Final Card with Winner Watermark */
@@ -1257,7 +1253,7 @@
             padding: 0;
             overflow: hidden;
             background: transparent;
-            border: 2px solid #333a4a;
+            border: 3px solid #000;
         }
 
         .mlb-upcoming-inner {
@@ -1342,10 +1338,10 @@
         }
 
         .game-card.mlb-upcoming.focused {
-            border-color: var(--tv-accent);
+            border: 3px solid var(--tv-accent);
             box-shadow:
-                0 8px 24px rgba(99, 102, 241, 0.35),
-                0 0 30px rgba(99, 102, 241, 0.2);
+                0 0 0 2px rgba(99, 102, 241, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         /* MLB Final Card with Winner Watermark */
@@ -1378,7 +1374,7 @@
             padding: 0;
             overflow: hidden;
             background: transparent;
-            border: 2px solid #333a4a;
+            border: 3px solid #000;
         }
 
         .ncaa-upcoming-inner {
@@ -1463,10 +1459,10 @@
         }
 
         .game-card.ncaa-upcoming.focused {
-            border-color: var(--tv-accent);
+            border: 3px solid var(--tv-accent);
             box-shadow:
-                0 8px 24px rgba(99, 102, 241, 0.35),
-                0 0 30px rgba(99, 102, 241, 0.2);
+                0 0 0 2px rgba(99, 102, 241, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         /* NCAA Football Final Card with Winner Watermark */
@@ -1499,7 +1495,7 @@
             padding: 0;
             overflow: hidden;
             background: transparent;
-            border: 2px solid #333a4a;
+            border: 3px solid #000;
         }
 
         .ncaab-upcoming-inner {
@@ -1584,10 +1580,10 @@
         }
 
         .game-card.ncaab-upcoming.focused {
-            border-color: var(--tv-accent);
+            border: 3px solid var(--tv-accent);
             box-shadow:
-                0 8px 24px rgba(99, 102, 241, 0.35),
-                0 0 30px rgba(99, 102, 241, 0.2);
+                0 0 0 2px rgba(99, 102, 241, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         /* NCAAB Final Card with Winner Watermark */
@@ -3001,7 +2997,8 @@
         // ============================================
         function initHomeNavigation() {
             updateRows();
-            currentRowIndex = 0;
+            // Start on leagues row (row 1), first item is "All"
+            currentRowIndex = 1;
             currentColIndex = 0;
             setHomeFocus();
 

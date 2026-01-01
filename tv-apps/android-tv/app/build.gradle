@@ -29,8 +29,8 @@ android {
         applicationId "com.gridtvsports.tv"
         minSdk 26
         // targetSdk is set per flavor
-        versionCode 29
-        versionName "1.5.3"
+        versionCode 32
+        versionName "1.5.6"
     }
 
     // Product flavors for TV (SDK 34) and Mobile (SDK 35)
@@ -40,14 +40,14 @@ android {
         tv {
             dimension "device"
             targetSdk 34
-            versionCode 29
+            versionCode 32
             // TV manifest: leanback=required, touchscreen REMOVED
             // This EXCLUDES phones (they don't have leanback)
         }
         mobile {
             dimension "device"
             targetSdk 35
-            versionCode 1029
+            versionCode 1032
             // Mobile manifest: leanback REMOVED, touchscreen=required
             // This EXCLUDES TVs (they don't have touchscreen)
         }
