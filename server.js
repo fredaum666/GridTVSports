@@ -2921,8 +2921,9 @@ function getNFLSeasonInfo() {
   }
 
   // Regular season calculation
-  // 2024 NFL Season started September 5, 2024 (Thursday Night Football)
-  const seasonStart = new Date(`${seasonYear}-09-05`);
+  // NFL Season typically starts first Thursday of September
+  // 2024: September 5, 2025: September 4
+  const seasonStart = new Date(`${seasonYear}-09-04`);
   const diffDays = Math.floor((now - seasonStart) / (1000 * 60 * 60 * 24));
   const week = Math.floor(diffDays / 7) + 1;
 
@@ -3080,8 +3081,8 @@ app.get('/api/nfl/scoreboard', async (req, res) => {
     }
 
     console.log(`[NFL] Fetching: ${url}`);
-    const data = await fetchESPN(url);
-    const isComplete = areAllGamesComplete(data);
+    let data = await fetchESPN(url);
+    let isComplete = areAllGamesComplete(data);
 
     // Count game statuses for better logging
     const statusCount = data.events?.reduce((acc, e) => {
@@ -3092,6 +3093,43 @@ app.get('/api/nfl/scoreboard', async (req, res) => {
 
     const roundName = seasonType === 3 ? getPostseasonRoundName(week) : `Week ${week}`;
     console.log(`[NFL] ${roundName} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
+
+    // If current week is complete and no specific week requested, fetch next week for upcoming games
+    if (isComplete && !requestedWeek) {
+      let nextUrl;
+      let nextLabel;
+
+      if (seasonType === 2 && week < 18) {
+        // Regular season: fetch next regular week
+        const nextWeek = week + 1;
+        nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=2&week=${nextWeek}`;
+        nextLabel = `Week ${nextWeek}`;
+      } else if (seasonType === 2 && week === 18) {
+        // End of regular season: fetch Wild Card (postseason week 1)
+        nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=1`;
+        nextLabel = 'Wild Card';
+      } else if (seasonType === 3 && week < 5) {
+        // Postseason: fetch next postseason round
+        const nextWeek = week + 1;
+        nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${nextWeek}`;
+        nextLabel = getPostseasonRoundName(nextWeek);
+      }
+
+      if (nextUrl) {
+        console.log(`[NFL] Current week complete, also fetching ${nextLabel}`);
+        try {
+          const nextData = await fetchESPN(nextUrl);
+          // Merge next week's events into current data
+          if (nextData.events && nextData.events.length > 0) {
+            data.events = [...(data.events || []), ...nextData.events];
+            isComplete = false; // Not complete since next week has games
+            console.log(`[NFL] Added ${nextData.events.length} games from ${nextLabel}`);
+          }
+        } catch (e) {
+          console.error(`[NFL] Failed to fetch ${nextLabel}:`, e.message);
+        }
+      }
+    }
 
     sportsCache.nfl.data.set(cacheKey, { data, timestamp: now, isComplete });
 
