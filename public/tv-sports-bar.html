@@ -970,6 +970,9 @@
                 'ncaab': '/api/ncaab/scoreboard'
             };
 
+            // Queue for animations to apply after render
+            const pendingAnimations = [];
+
             // Group games by league to minimize API calls
             const gamesByLeague = {};
             games.forEach(game => {
@@ -1007,12 +1010,9 @@
                                 down: comp?.situation?.down || 0
                             });
 
-                            // Detect and show play animations (only for NFL/NCAA football)
+                            // Queue animation detection for after render (only for NFL/NCAA football)
                             if (league === 'nfl' || league === 'ncaa') {
-                                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${game.id}"]`);
-                                if (card) {
-                                    detectPlayEvents(card, game, comp, prevData);
-                                }
+                                pendingAnimations.push({ gameId: game.id, game, comp, prevData });
                             }
                         }
                     });
@@ -1023,6 +1023,14 @@
 
             // Re-render grid with updated data
             renderGrid();
+
+            // Apply pending animations AFTER render so cards exist in DOM
+            pendingAnimations.forEach(({ gameId, game, comp, prevData }) => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+                if (card) {
+                    detectPlayEvents(card, game, comp, prevData);
+                }
+            });
 
             // Update localStorage so TV Home has latest data
             localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));

@@ -4022,7 +4022,8 @@
             const gameTime = new Date(game.date);
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
-            const isWithin36Hours = hoursUntilGame <= 36; // Allow negative values (game time passed but not live yet)
+            // Show all upcoming games within the next 3 days
+            const isWithinWindow = hoursUntilGame <= 72;
 
             // Game is "about to start" - scheduled time passed but not live yet (transitioning state)
             const isAboutToStart = !isLive && !isFinal && !isUpcoming && hoursUntilGame <= 0 && hoursUntilGame >= -2;
@@ -4033,11 +4034,11 @@
             } else if (isAboutToStart) {
               // Games that should have started but API hasn't marked as live yet
               upcomingGamesList.unshift(game);
-            } else if (isUpcoming && isWithin36Hours) {
+            } else if (isUpcoming && isWithinWindow) {
               upcomingGamesList.push(game);
             } else if (isFinal || isCompleted) {
               finalGamesList.push(game);
-            } else if (!isFinal && !isCompleted && isWithin36Hours) {
+            } else if (!isFinal && !isCompleted && isWithinWindow) {
               // Catch-all for games in unknown status but within time window
               upcomingGamesList.push(game);
             }

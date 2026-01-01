@@ -863,6 +863,141 @@
             color: var(--tv-success);
         }
 
+        /* ===== LIVE GAME CARD - VS Layout ===== */
+        .game-card.live-card {
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(180deg, #1a2235 0%, #0f1525 100%);
+            border: 3px solid #000;
+            position: relative;
+        }
+
+        /* League-specific watermark backgrounds */
+        .game-card.live-card.live-nfl {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                        url('/assets/NFL-Field.jpg') center center / cover no-repeat;
+        }
+
+        .game-card.live-card.live-ncaa {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                        url('/assets/NCAAF-Field.jpg') center center / cover no-repeat;
+        }
+
+        .game-card.live-card.live-nba {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                        url('/assets/NBACourt.png') center center / cover no-repeat;
+        }
+
+        .game-card.live-card.live-ncaab {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                        url('/assets/NCAABCourt.png') center center / cover no-repeat;
+        }
+
+        .game-card.live-card.live-nhl {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                        url('/assets/NHLIceRink.png') center center / cover no-repeat;
+        }
+
+        .game-card.live-card.live-mlb {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                        url('/assets/MLBFiled.png') center center / cover no-repeat;
+        }
+
+        .live-card-inner {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .live-card-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 8px 12px 24px 12px;
+        }
+
+        .live-card-team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            width: 80px;
+        }
+
+        .live-card-team-logo {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+        }
+
+        .live-card-team-abbr {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--tv-text-primary);
+        }
+
+        .live-card-team-record {
+            font-size: 9px;
+            color: var(--tv-text-secondary);
+        }
+
+        .live-card-scores {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-card-score {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--tv-text-primary);
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .live-card-score.winning {
+            color: var(--tv-success);
+        }
+
+        .live-card-score.losing {
+            color: var(--tv-text-secondary);
+        }
+
+        .live-card-vs {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--tv-text-secondary);
+        }
+
+        .live-card-footer {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--tv-accent-light);
+            background: rgba(99, 102, 241, 0.15);
+            padding: 4px 12px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        .game-card.live-card.focused {
+            border: 3px solid var(--tv-accent);
+            transform: scale(var(--tv-focus-scale));
+            box-shadow:
+                0 0 0 2px rgba(99, 102, 241, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
         /* NBA Upcoming Card - Special VS Design */
         .game-card.nba-upcoming {
             padding: 0;
@@ -3825,6 +3960,40 @@
         function createGameCard(game, rowName) {
             const statusClass = game.state === 'in' ? 'live' : game.state === 'pre' ? 'upcoming' : 'final';
             const statusText = game.state === 'in' ? game.status : game.state === 'pre' ? formatStartTime(game.startTime) : 'Final';
+
+            // ===== LIVE GAME CARD - VS Layout for all leagues =====
+            if (game.state === 'in') {
+                const awayScore = parseInt(game.away.score) || 0;
+                const homeScore = parseInt(game.home.score) || 0;
+                const awayScoreClass = awayScore > homeScore ? 'winning' : awayScore < homeScore ? 'losing' : '';
+                const homeScoreClass = homeScore > awayScore ? 'winning' : homeScore < awayScore ? 'losing' : '';
+                const leagueClass = `live-${game.league}`;
+
+                return `
+                    <div class="game-card live-card ${leagueClass} focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        <div class="live-card-inner">
+                            <div class="live-card-content">
+                                <div class="live-card-team">
+                                    <img class="live-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                    <span class="live-card-team-abbr">${game.away.abbr}</span>
+                                    ${game.away.record ? `<span class="live-card-team-record">${game.away.record}</span>` : ''}
+                                </div>
+                                <div class="live-card-scores">
+                                    <span class="live-card-score ${awayScoreClass}">${awayScore}</span>
+                                    <span class="live-card-vs">VS</span>
+                                    <span class="live-card-score ${homeScoreClass}">${homeScore}</span>
+                                </div>
+                                <div class="live-card-team">
+                                    <img class="live-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                    <span class="live-card-team-abbr">${game.home.abbr}</span>
+                                    ${game.home.record ? `<span class="live-card-team-record">${game.home.record}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="live-card-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
 
             // Special NBA upcoming card with VS lightning design
             if (game.league === 'nba' && game.state === 'pre') {

@@ -7163,7 +7163,8 @@
             const gameTime = new Date(game.date);
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
-            const isWithin36Hours = hoursUntilGame <= 36; // Allow negative values (game time passed but not live yet)
+            // For NFL, show all upcoming games from the current and next week (up to 7 days out)
+            const isWithinWeek = hoursUntilGame <= 168; // 7 days = 168 hours
 
             // Game is "about to start" - scheduled time passed but not live yet (transitioning state)
             const isAboutToStart = !isLive && !isFinal && !isUpcoming && hoursUntilGame <= 0 && hoursUntilGame >= -2;
@@ -7175,11 +7176,11 @@
               // Games that should have started but API hasn't marked as live yet
               // Show them at the top of upcoming (they'll transition to live soon)
               upcomingGamesList.unshift(game);
-            } else if (isUpcoming && isWithin36Hours) {
+            } else if (isUpcoming && isWithinWeek) {
               upcomingGamesList.push(game);
             } else if (isFinal || isCompleted) {
               finalGamesList.push(game);
-            } else if (!isFinal && !isCompleted && isWithin36Hours) {
+            } else if (!isFinal && !isCompleted && isWithinWeek) {
               // Catch-all for games in unknown status but within time window
               upcomingGamesList.push(game);
             }

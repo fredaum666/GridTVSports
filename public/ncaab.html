@@ -3950,12 +3950,13 @@
             const gameTime = new Date(game.date);
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
-            const isWithin36Hours = hoursUntilGame >= 0 && hoursUntilGame <= 36;
+            // Show all upcoming games within the next 3 days
+            const isWithinWindow = hoursUntilGame >= 0 && hoursUntilGame <= 72;
 
             // Categorize the game
             if (isLive) {
               liveGamesList.push(game);
-            } else if (isUpcoming && isWithin36Hours) {
+            } else if (isUpcoming && isWithinWindow) {
               upcomingGamesList.push(game);
             } else if (isFinal || isCompleted) {
               finalGamesList.push(game);

@@ -53,9 +53,9 @@
   --fs-vs-max: 2rem;
 
   /* Fullscreen - Status Text (min, preferred, max) */
-  --fs-status-min: 0.7rem;
-  --fs-status-preferred: 1.8vmin;
-  --fs-status-max: 1.2rem;
+  --fs-status-min: 1.8rem;
+  --fs-status-preferred: 2.3vmin;
+  --fs-status-max: 2.5rem;
 
   /* Fullscreen - Down/Distance (min, preferred, max) */
   --fs-down-distance-min: 0.8rem;
@@ -113,7 +113,7 @@
   pointer-events: auto;
 }
 
-.fullscreen-hover-trigger:hover ~ .fullscreen-controls {
+.fullscreen-hover-trigger:hover~.fullscreen-controls {
   transform: translateY(0);
 }
 
@@ -509,8 +509,15 @@
 }
 
 @keyframes possessionBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* ============================================
@@ -612,7 +619,7 @@
   width: clamp(3px, 0.6vmin, 5px);
   background: linear-gradient(to bottom, #1e40af, #1e3a8a);
   box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(30, 64, 175, 0.8),
-              0 0 clamp(2px, 0.8vmin, 6px) rgba(30, 64, 175, 0.6);
+    0 0 clamp(2px, 0.8vmin, 6px) rgba(30, 64, 175, 0.6);
   transition: left 0.6s ease-out;
   z-index: 10;
   border-radius: clamp(1px, 0.3vmin, 3px);
@@ -637,7 +644,7 @@
   width: clamp(3px, 0.6vmin, 5px);
   background: linear-gradient(to bottom, #fbbf24, #f59e0b);
   box-shadow: 0 0 clamp(4px, 1.5vmin, 10px) rgba(251, 191, 36, 0.8),
-              0 0 clamp(2px, 0.8vmin, 6px) rgba(251, 191, 36, 0.6);
+    0 0 clamp(2px, 0.8vmin, 6px) rgba(251, 191, 36, 0.6);
   transition: left 0.6s ease-out;
   z-index: 9;
   border-radius: clamp(1px, 0.3vmin, 3px);
@@ -1180,7 +1187,7 @@
   .fullscreen-grid.grid-1 .fullscreen-vs-divider-live {
     display: block;
     font-size: clamp(1.5rem, 6vw, 2.5rem);
-    color: rgba(255,255,255,0.7);
+    color: rgba(255, 255, 255, 0.7);
     margin: 0.5vh 0;
   }
 
@@ -1614,6 +1621,13 @@
 }
 
 @keyframes refreshPulse {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(2); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }

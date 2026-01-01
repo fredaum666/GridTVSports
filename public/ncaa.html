@@ -6421,8 +6421,8 @@
             const now = new Date();
             const hoursUntilGame = (gameTime - now) / (1000 * 60 * 60);
             // During bowl season, show all upcoming bowl games (they span multiple weeks)
-            // During regular season, only show games within 36 hours
-            const isWithinTimeWindow = isBowlSeason || hoursUntilGame <= 36;
+            // During regular season, show games within 3 days (72 hours)
+            const isWithinTimeWindow = isBowlSeason || hoursUntilGame <= 72;
 
             // Game is "about to start" - scheduled time passed but not live yet (transitioning state)
             const isAboutToStart = !isLive && !isFinal && !isUpcoming && hoursUntilGame <= 0 && hoursUntilGame >= -2;
