@@ -2891,7 +2891,20 @@ function getNFLSeasonInfo() {
   const seasonYear = (month >= 9) ? year : year - 1;
 
   // Check if we're in postseason (January through early February)
+  // Week 18 is typically first weekend of January (Jan 4-5)
+  // Wild Card starts second weekend (Jan 11-12)
   if (month === 1 || (month === 2 && day <= 15)) {
+    // First week of January is still Week 18 regular season
+    if (month === 1 && day <= 7) {
+      return {
+        seasonType: 2,
+        week: 18,
+        seasonYear: seasonYear,
+        isPostseason: false,
+        postseasonRound: null
+      };
+    }
+
     // Postseason period
     // Wild Card Weekend: ~Jan 11-13
     // Divisional Round: ~Jan 18-19
@@ -3555,8 +3568,15 @@ function getCurrentNCAAWeek() {
 
   // College football regular season starts late August
   // Week 1 is typically the last week of August / first week of September
-  const seasonStart = new Date('2024-08-24'); // 2024 season start (Week 0/1)
   const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
+
+  // Determine season year (season starts in August)
+  const seasonYear = (month >= 8) ? year : year - 1;
+
+  // Season typically starts around August 24 (Week 0/1)
+  const seasonStart = new Date(`${seasonYear}-08-24`);
   const diffDays = Math.floor((now - seasonStart) / (1000 * 60 * 60 * 24));
   const week = Math.floor(diffDays / 7) + 1;
 
