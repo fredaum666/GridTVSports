@@ -171,10 +171,49 @@
             width: 100%;
             height: 100%;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
+            gap: clamp(60px, 8vw, 150px);
             padding: clamp(20px, 4vh, 60px);
+        }
+
+        .password-login-screen .login-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .password-login-screen .login-content .back-link,
+        .qr-login-screen .login-content .back-link {
+            margin-top: clamp(20px, 3vh, 40px);
+            color: #6366f1;
+            font-size: clamp(14px, 1.3vw, 22px);
+            cursor: pointer;
+            padding: clamp(10px, 1.5vh, 20px) clamp(20px, 2vw, 40px);
+            border: 2px solid #334155;
+            border-radius: clamp(6px, 0.8vw, 12px);
+            transition: all 0.3s;
+            text-align: center;
+            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
+        }
+
+        .password-login-screen .login-logo {
+            text-align: center;
+        }
+
+        .password-login-screen .login-logo img {
+            height: clamp(80px, 15vh, 180px);
+            margin-bottom: clamp(15px, 2vh, 30px);
+        }
+
+        .password-login-screen .login-logo h1 {
+            font-size: clamp(32px, 4vw, 70px);
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .login-form {
@@ -294,10 +333,35 @@
             width: 100%;
             height: 100%;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
+            gap: clamp(60px, 8vw, 150px);
             padding: clamp(20px, 4vh, 60px);
+        }
+
+        .qr-login-screen .login-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .qr-login-screen .login-logo {
+            text-align: center;
+        }
+
+        .qr-login-screen .login-logo img {
+            height: clamp(80px, 15vh, 180px);
+            margin-bottom: clamp(15px, 2vh, 30px);
+        }
+
+        .qr-login-screen .login-logo h1 {
+            font-size: clamp(32px, 4vw, 70px);
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .qr-login-box {
@@ -467,6 +531,20 @@
             font-size: 14px;
         }
 
+        .user-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
         .sign-out-link {
             color: var(--tv-accent);
             cursor: pointer;
@@ -542,8 +620,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         .tv-row-count {
@@ -573,8 +658,8 @@
             flex-shrink: 0;
             width: 120px;
             height: 160px;
-            background: var(--tv-bg-card);
-            border: 3px solid transparent;
+            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
+            border: 2px solid #333a4a;
             border-radius: var(--tv-card-radius);
             display: flex;
             flex-direction: column;
@@ -584,12 +669,20 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
         }
 
         .league-card.focused {
             border-color: var(--tv-accent);
             transform: scale(var(--tv-focus-scale));
-            box-shadow: var(--tv-focus-glow);
+            box-shadow:
+                0 8px 24px rgba(99, 102, 241, 0.25),
+                0 0 20px rgba(99, 102, 241, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
             z-index: 10;
         }
 
@@ -644,7 +737,11 @@
         /* Selected league filter */
         .league-card.selected {
             border-color: var(--tv-accent);
-            background: linear-gradient(135deg, #2d1f5e 0%, #3d2b7a 100%);
+            background: linear-gradient(180deg, #2d2050 0%, #1f1540 50%, #150f30 100%);
+            box-shadow:
+                0 4px 16px rgba(99, 102, 241, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .league-card.selected::after {
@@ -664,8 +761,8 @@
             flex-shrink: 0;
             width: 280px;
             height: 158px;
-            background: var(--tv-bg-card);
-            border: 3px solid transparent;
+            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
+            border: 2px solid #333a4a;
             border-radius: var(--tv-card-radius);
             padding: 16px;
             cursor: pointer;
@@ -673,12 +770,20 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
         }
 
         .game-card.focused {
             border-color: var(--tv-accent);
             transform: scale(var(--tv-focus-scale));
-            box-shadow: var(--tv-focus-glow);
+            box-shadow:
+                0 8px 24px rgba(99, 102, 241, 0.25),
+                0 0 20px rgba(99, 102, 241, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
             z-index: 10;
         }
 
@@ -762,10 +867,767 @@
             color: var(--tv-success);
         }
 
+        /* NBA Upcoming Card - Special VS Design */
+        .game-card.nba-upcoming {
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+            border: 2px solid #333a4a;
+        }
+
+        .nba-upcoming-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .nba-upcoming-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nba-upcoming-half.away {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .nba-upcoming-half.home {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .nba-upcoming-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+
+        .nba-upcoming-abbr {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+            margin-top: 6px;
+            z-index: 2;
+        }
+
+        .nba-upcoming-vs-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 100%;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .nba-upcoming-vs-img {
+            width: 70px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .nba-upcoming-header {
+            position: absolute;
+            top: 8px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            z-index: 4;
+        }
+
+        .nba-upcoming-header .game-card-league {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .nba-upcoming-header .game-card-status {
+            background: rgba(99, 102, 241, 0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        .game-card.nba-upcoming.focused {
+            border-color: var(--tv-accent);
+            box-shadow:
+                0 8px 24px rgba(99, 102, 241, 0.35),
+                0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .nba-upcoming-footer {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--tv-accent-light);
+            z-index: 4;
+            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #333a4a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* NBA Final Card with Winner Watermark */
+        .game-card.nba-final {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nba-final-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-card.nba-final .game-card-header,
+        .game-card.nba-final .game-card-teams {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* NFL Upcoming Card - Special VS Design */
+        .game-card.nfl-upcoming {
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+            border: 2px solid #333a4a;
+        }
+
+        .nfl-upcoming-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .nfl-upcoming-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nfl-upcoming-half.away {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .nfl-upcoming-half.home {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .nfl-upcoming-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+
+        .nfl-upcoming-abbr {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+            margin-top: 6px;
+            z-index: 2;
+        }
+
+        .nfl-upcoming-vs-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 100%;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .nfl-upcoming-vs-img {
+            width: 70px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .nfl-upcoming-footer {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--tv-accent-light);
+            z-index: 4;
+            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #333a4a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-card.nfl-upcoming.focused {
+            border-color: var(--tv-accent);
+            box-shadow:
+                0 8px 24px rgba(99, 102, 241, 0.35),
+                0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        /* NFL Final Card with Winner Watermark */
+        .game-card.nfl-final {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nfl-final-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-card.nfl-final .game-card-header,
+        .game-card.nfl-final .game-card-teams {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* NHL Upcoming Card - Special VS Design */
+        .game-card.nhl-upcoming {
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+            border: 2px solid #333a4a;
+        }
+
+        .nhl-upcoming-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .nhl-upcoming-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nhl-upcoming-half.away {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .nhl-upcoming-half.home {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .nhl-upcoming-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+
+        .nhl-upcoming-abbr {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+            margin-top: 6px;
+            z-index: 2;
+        }
+
+        .nhl-upcoming-vs-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 100%;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .nhl-upcoming-vs-img {
+            width: 70px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .nhl-upcoming-footer {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--tv-accent-light);
+            z-index: 4;
+            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #333a4a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-card.nhl-upcoming.focused {
+            border-color: var(--tv-accent);
+            box-shadow:
+                0 8px 24px rgba(99, 102, 241, 0.35),
+                0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        /* NHL Final Card with Winner Watermark */
+        .game-card.nhl-final {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nhl-final-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-card.nhl-final .game-card-header,
+        .game-card.nhl-final .game-card-teams {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* MLB Upcoming Card with Team Colors */
+        .game-card.mlb-upcoming {
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+            border: 2px solid #333a4a;
+        }
+
+        .mlb-upcoming-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .mlb-upcoming-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mlb-upcoming-half.away {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .mlb-upcoming-half.home {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .mlb-upcoming-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+
+        .mlb-upcoming-abbr {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+            margin-top: 6px;
+            z-index: 2;
+        }
+
+        .mlb-upcoming-vs-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 100%;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .mlb-upcoming-vs-img {
+            width: 70px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .mlb-upcoming-footer {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--tv-accent-light);
+            z-index: 4;
+            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #333a4a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-card.mlb-upcoming.focused {
+            border-color: var(--tv-accent);
+            box-shadow:
+                0 8px 24px rgba(99, 102, 241, 0.35),
+                0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        /* MLB Final Card with Winner Watermark */
+        .game-card.mlb-final {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mlb-final-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-card.mlb-final .game-card-header,
+        .game-card.mlb-final .game-card-teams {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* NCAA Football Upcoming Card with VS Divider */
+        .game-card.ncaa-upcoming {
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+            border: 2px solid #333a4a;
+        }
+
+        .ncaa-upcoming-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .ncaa-upcoming-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ncaa-upcoming-half.away {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .ncaa-upcoming-half.home {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .ncaa-upcoming-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+
+        .ncaa-upcoming-abbr {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+            margin-top: 6px;
+            z-index: 2;
+        }
+
+        .ncaa-upcoming-vs-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 100%;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .ncaa-upcoming-vs-img {
+            width: 70px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .ncaa-upcoming-footer {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--tv-accent-light);
+            z-index: 4;
+            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #333a4a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-card.ncaa-upcoming.focused {
+            border-color: var(--tv-accent);
+            box-shadow:
+                0 8px 24px rgba(99, 102, 241, 0.35),
+                0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        /* NCAA Football Final Card with Winner Watermark */
+        .game-card.ncaa-final {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ncaa-final-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-card.ncaa-final .game-card-header,
+        .game-card.ncaa-final .game-card-teams {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* NCAAB Upcoming Card with VS Divider */
+        .game-card.ncaab-upcoming {
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+            border: 2px solid #333a4a;
+        }
+
+        .ncaab-upcoming-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .ncaab-upcoming-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ncaab-upcoming-half.away {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .ncaab-upcoming-half.home {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .ncaab-upcoming-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+
+        .ncaab-upcoming-abbr {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+            margin-top: 6px;
+            z-index: 2;
+        }
+
+        .ncaab-upcoming-vs-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 100%;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .ncaab-upcoming-vs-img {
+            width: 70px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .ncaab-upcoming-footer {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--tv-accent-light);
+            z-index: 4;
+            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #333a4a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-card.ncaab-upcoming.focused {
+            border-color: var(--tv-accent);
+            box-shadow:
+                0 8px 24px rgba(99, 102, 241, 0.35),
+                0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        /* NCAAB Final Card with Winner Watermark */
+        .game-card.ncaab-final {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ncaab-final-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-card.ncaab-final .game-card-header,
+        .game-card.ncaab-final .game-card-teams {
+            position: relative;
+            z-index: 1;
+        }
+
         .game-card-footer {
             margin-top: 8px;
             font-size: 11px;
             color: var(--tv-text-muted);
+        }
+
+        .game-card-footer-time {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--tv-accent-light);
+            padding-top: 8px;
+            margin-top: auto;
         }
 
         /* Empty State */
@@ -811,7 +1673,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -962,13 +1826,20 @@
 
         /* Selection overlay on game cards */
         .game-card.selected-for-sports-bar {
-            border-color: #22c55e !important;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+            border-color: #2a7a4a !important;
+            box-shadow:
+                0 4px 16px rgba(34, 197, 94, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .game-card.selected-for-sports-bar.focused {
-            border-color: #22c55e !important;
-            box-shadow: 0 0 30px rgba(34, 197, 94, 0.7), var(--tv-focus-glow);
+            border-color: #4fdf7a !important;
+            box-shadow:
+                0 8px 24px rgba(34, 197, 94, 0.3),
+                0 0 20px rgba(34, 197, 94, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .game-card .selection-number {
@@ -1001,26 +1872,36 @@
         .sports-mode-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-            border: 3px solid transparent;
-            border-radius: 12px;
-            color: white;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(180deg, #1a5c35 0%, #0f3d23 50%, #0a2a18 100%);
+            border: 2px solid #2a7a4a;
+            border-radius: 14px;
+            color: #7fdf9a;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .sports-mode-btn.focused {
-            border-color: #fff;
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+            border-color: #5fdf8a;
+            transform: scale(1.03);
+            box-shadow:
+                0 6px 20px rgba(34, 197, 94, 0.3),
+                0 0 20px rgba(34, 197, 94, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            color: #a0f0b8;
         }
 
         .sports-mode-btn .selection-count {
-            opacity: 0.9;
+            opacity: 0.85;
         }
 
         /* Clear Selections button */
@@ -1028,23 +1909,32 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 12px 20px;
-            background: rgba(239, 68, 68, 0.2);
-            border: 3px solid #ef4444;
-            border-radius: 12px;
-            color: #ef4444;
+            padding: 14px 24px;
+            background: linear-gradient(180deg, #4a1a1a 0%, #3a1212 50%, #2a0a0a 100%);
+            border: 2px solid #6a3030;
+            border-radius: 14px;
+            color: #df7f7f;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .clear-selections-btn.focused {
-            background: rgba(239, 68, 68, 0.4);
-            border-color: #fff;
-            color: #fff;
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+            background: linear-gradient(180deg, #5a2020 0%, #4a1515 50%, #3a0a0a 100%);
+            border-color: #df6060;
+            color: #f0a0a0;
+            transform: scale(1.03);
+            box-shadow:
+                0 6px 20px rgba(239, 68, 68, 0.25),
+                0 0 20px rgba(239, 68, 68, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
         }
 
         /* ================================ */
@@ -1345,60 +2235,67 @@
     <!-- PASSWORD LOGIN SCREEN            -->
     <!-- ================================ -->
     <div class="password-login-screen hidden" id="password-login-screen">
-        <div class="login-header">
+        <div class="login-logo">
             <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
             <h1>GridTV Sports</h1>
         </div>
 
-        <div class="login-form">
-            <h2>Sign In</h2>
-            <p class="subtitle">Use your remote to enter your credentials</p>
+        <div class="login-content">
+            <div class="login-form">
+                <h2>Sign In</h2>
+                <p class="subtitle">Use your remote to enter your credentials</p>
 
-            <div class="login-error" id="password-login-error"></div>
+                <div class="login-error" id="password-login-error"></div>
 
-            <div class="form-group">
-                <label for="login-email">Email</label>
-                <input type="email" id="login-email" class="focusable-form" placeholder="Enter your email" tabindex="0">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" class="focusable-form" placeholder="Enter your email"
+                        tabindex="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="focusable-form" placeholder="Enter your password"
+                        tabindex="0">
+                </div>
+
+                <button class="login-btn focusable-form" id="login-submit-btn" tabindex="0">Sign In</button>
             </div>
 
-            <div class="form-group">
-                <label for="login-password">Password</label>
-                <input type="password" id="login-password" class="focusable-form" placeholder="Enter your password" tabindex="0">
+            <div class="back-link focusable-form" id="password-back-btn" tabindex="0">&#8592; Back to login options
             </div>
-
-            <button class="login-btn focusable-form" id="login-submit-btn" tabindex="0">Sign In</button>
         </div>
-
-        <div class="back-link focusable-form" id="password-back-btn" tabindex="0">&#8592; Back to login options</div>
     </div>
 
     <!-- ================================ -->
     <!-- QR CODE LOGIN SCREEN             -->
     <!-- ================================ -->
     <div class="qr-login-screen hidden" id="qr-login-screen">
-        <div class="login-header">
+        <div class="login-logo">
             <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
             <h1>GridTV Sports</h1>
         </div>
 
-        <div class="qr-login-box">
-            <h2>Scan to Sign In</h2>
-            <p class="subtitle">Open your phone camera and scan this QR code</p>
+        <div class="login-content">
+            <div class="qr-login-box">
+                <h2>Scan to Sign In</h2>
+                <p class="subtitle">Open your phone camera and scan this QR code</p>
 
-            <div class="qr-container">
-                <div id="login-qr-code"></div>
-                <div id="login-qr-loading" class="qr-loading">Generating QR code...</div>
+                <div class="qr-container">
+                    <div id="login-qr-code"></div>
+                    <div id="login-qr-loading" class="qr-loading">Generating QR code...</div>
+                </div>
+
+                <div class="qr-timer">
+                    <span>Code expires in: </span>
+                    <span id="login-qr-countdown">5:00</span>
+                </div>
+
+                <div class="qr-status info" id="login-qr-status">Waiting for scan...</div>
             </div>
 
-            <div class="qr-timer">
-                <span>Code expires in: </span>
-                <span id="login-qr-countdown">5:00</span>
-            </div>
-
-            <div class="qr-status info" id="login-qr-status">Waiting for scan...</div>
+            <div class="back-link focusable-form" id="qr-back-btn" tabindex="0">&#8592; Back to login options</div>
         </div>
-
-        <div class="back-link focusable-form" id="qr-back-btn" tabindex="0">&#8592; Back to login options</div>
     </div>
 
     <!-- ================================ -->
@@ -1416,8 +2313,9 @@
             <div class="tv-header-right">
                 <div class="tv-time" id="current-time"></div>
                 <div class="tv-user-info">
-                    <span id="logged-in-user"></span>
-                    <span class="sign-out-link focusable" id="sign-out-btn" data-row="header" tabindex="0">Sign Out</span>
+                    <div class="user-badge" id="user-badge"></div>
+                    <span class="sign-out-link focusable" id="sign-out-btn" data-row="header" tabindex="0">Sign
+                        Out</span>
                 </div>
             </div>
         </header>
@@ -1425,9 +2323,7 @@
         <main class="tv-content" id="tv-content">
             <!-- Leagues Row -->
             <section class="tv-row" data-row="leagues">
-                <div class="tv-row-header">
-                    <span class="tv-row-title">Leagues</span>
-                </div>
+
                 <div class="tv-row-scroll" id="leagues-row">
                     <div class="league-card focusable selected" data-row="leagues" data-league="all" tabindex="0">
                         <img src="/assets/logo.png" alt="All">
@@ -1476,10 +2372,11 @@
             <!-- Sports Mode Button (appears after selecting games) -->
             <div class="sports-mode-container" id="sports-mode-container">
                 <button class="sports-mode-btn focusable" id="sports-mode-btn" data-row="sports-mode" tabindex="0">
-                    <span>🏟️ Enter Sports Bar Mode</span>
+                    <span>Enter Sports Bar Mode</span>
                     <span class="selection-count" id="selection-count">(0 games)</span>
                 </button>
-                <button class="clear-selections-btn focusable" id="clear-selections-btn" data-row="sports-mode" tabindex="0">
+                <button class="clear-selections-btn focusable" id="clear-selections-btn" data-row="sports-mode"
+                    tabindex="0">
                     <span>Clear</span>
                 </button>
             </div>
@@ -1492,7 +2389,6 @@
                 <!-- Live Games Row -->
                 <section class="tv-row" data-row="live" id="live-section">
                     <div class="tv-row-header">
-                        <span class="tv-row-title">Live Now</span>
                         <span class="tv-row-badge live">LIVE</span>
                         <span class="tv-row-count" id="live-count"></span>
                     </div>
@@ -1587,6 +2483,80 @@
         const MAX_SPORTS_BAR_SELECTIONS = 8;
 
         // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function setUserBadge(email) {
+            const badge = document.getElementById('user-badge');
+            if (badge && email) {
+                badge.textContent = email.charAt(0).toUpperCase();
+            }
+        }
+
+        // NBA Team Colors
+        const nbaTeamColors = {
+            'ATL': '#E03A3E', 'BOS': '#007A33', 'BKN': '#000000', 'CHA': '#1D1160',
+            'CHI': '#CE1141', 'CLE': '#6F263D', 'DAL': '#00538C', 'DEN': '#0E2240',
+            'DET': '#C8102E', 'GSW': '#1D428A', 'HOU': '#CE1141', 'IND': '#002D62',
+            'LAC': '#C8102E', 'LAL': '#552583', 'MEM': '#5D76A9', 'MIA': '#98002E',
+            'MIL': '#00471B', 'MIN': '#0C2340', 'NOP': '#0C2340', 'NYK': '#006BB6',
+            'OKC': '#007AC1', 'ORL': '#0077C0', 'PHI': '#006BB6', 'PHX': '#1D1160',
+            'POR': '#E03A3E', 'SAC': '#5A2D81', 'SAS': '#C4CED4', 'TOR': '#CE1141',
+            'UTA': '#002B5C', 'WAS': '#002B5C'
+        };
+
+        function getNbaTeamColor(abbr) {
+            return nbaTeamColors[abbr] || '#6366f1';
+        }
+
+        // NFL Team Colors
+        const nflTeamColors = {
+            'ARI': '#97233F', 'ATL': '#A71930', 'BAL': '#241773', 'BUF': '#00338D',
+            'CAR': '#0085CA', 'CHI': '#C83803', 'CIN': '#FB4F14', 'CLE': '#311D00',
+            'DAL': '#003594', 'DEN': '#FB4F14', 'DET': '#0076B6', 'GB': '#203731',
+            'HOU': '#03202F', 'IND': '#002C5F', 'JAX': '#006778', 'KC': '#E31837',
+            'LAC': '#0080C6', 'LAR': '#003594', 'LV': '#000000', 'MIA': '#008E97',
+            'MIN': '#4F2683', 'NE': '#002244', 'NO': '#D3BC8D', 'NYG': '#0B2265',
+            'NYJ': '#125740', 'PHI': '#004C54', 'PIT': '#FFB612', 'SF': '#AA0000',
+            'SEA': '#002244', 'TB': '#D50A0A', 'TEN': '#0C2340', 'WAS': '#5A1414'
+        };
+
+        function getNflTeamColor(abbr) {
+            return nflTeamColors[abbr] || '#6366f1';
+        }
+
+        // NHL Team Colors
+        const nhlTeamColors = {
+            'ANA': '#CF4520', 'ARI': '#8C2633', 'BOS': '#FFB81C', 'BUF': '#002654',
+            'CGY': '#C8102E', 'CAR': '#CC0000', 'CHI': '#CF0A2C', 'COL': '#6F263D',
+            'CBJ': '#002654', 'DAL': '#006847', 'DET': '#CE1126', 'EDM': '#FF4C00',
+            'FLA': '#C8102E', 'LAK': '#A2AAAD', 'MIN': '#154734', 'MTL': '#AF1E2D',
+            'NSH': '#FFB81C', 'NJD': '#CE1126', 'NYI': '#00539B', 'NYR': '#0038A8',
+            'OTT': '#C8102E', 'PHI': '#F74902', 'PIT': '#FCB514', 'SJS': '#006D75',
+            'SEA': '#001628', 'STL': '#002F87', 'TBL': '#002868', 'TOR': '#00205B',
+            'VAN': '#00205B', 'VGK': '#B4975A', 'WSH': '#C8102E', 'WPG': '#041E42'
+        };
+
+        function getNhlTeamColor(abbr) {
+            return nhlTeamColors[abbr] || '#6366f1';
+        }
+
+        // MLB Team Colors
+        const mlbTeamColors = {
+            'ARI': '#A71930', 'ATL': '#CE1141', 'BAL': '#DF4601', 'BOS': '#BD3039',
+            'CHC': '#0E3386', 'CWS': '#27251F', 'CIN': '#C6011F', 'CLE': '#00385D',
+            'COL': '#333366', 'DET': '#0C2340', 'HOU': '#002D62', 'KC': '#004687',
+            'LAA': '#BA0021', 'LAD': '#005A9C', 'MIA': '#00A3E0', 'MIL': '#12284B',
+            'MIN': '#002B5C', 'NYM': '#002D72', 'NYY': '#003087', 'OAK': '#003831',
+            'PHI': '#E81828', 'PIT': '#27251F', 'SD': '#2F241D', 'SF': '#FD5A1E',
+            'SEA': '#0C2C56', 'STL': '#C41E3A', 'TB': '#092C5C', 'TEX': '#003278',
+            'TOR': '#134A8E', 'WSH': '#AB0003'
+        };
+
+        function getMlbTeamColor(abbr) {
+            return mlbTeamColors[abbr] || '#6366f1';
+        }
+
+        // ============================================
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1638,7 +2608,7 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    document.getElementById('logged-in-user').textContent = data.userEmail || data.displayName || 'User';
+                    setUserBadge(data.userEmail || data.displayName || 'User');
                     return true;
                 }
                 return false;
@@ -1850,7 +2820,7 @@
                 if (data.success) {
                     sessionToken = data.sessionToken;
                     localStorage.setItem('gridtv_session_token', sessionToken);
-                    document.getElementById('logged-in-user').textContent = data.userEmail || email;
+                    setUserBadge(data.userEmail || email);
                     showHomeScreen();
                 } else {
                     errorDiv.textContent = data.message || 'Invalid email or password';
@@ -1968,7 +2938,7 @@
 
             socket.on('connect', () => {
                 if (qrToken) {
-                    socket.emit('tv:register-for-auth', { token: qrToken }, (response) => {});
+                    socket.emit('tv:register-for-auth', { token: qrToken }, (response) => { });
                 }
             });
 
@@ -1977,7 +2947,7 @@
                     sessionToken = data.sessionToken;
                     localStorage.setItem('gridtv_session_token', sessionToken);
                 }
-                document.getElementById('logged-in-user').textContent = data.userEmail || data.displayName || 'User';
+                setUserBadge(data.userEmail || data.displayName || 'User');
                 const statusDiv = document.getElementById('login-qr-status');
                 statusDiv.textContent = 'Signed in successfully!';
                 statusDiv.className = 'qr-status success';
@@ -1997,7 +2967,7 @@
                             sessionToken = response.sessionToken;
                             localStorage.setItem('gridtv_session_token', sessionToken);
                         }
-                        document.getElementById('logged-in-user').textContent = response.userEmail || response.displayName || 'User';
+                        setUserBadge(response.userEmail || response.displayName || 'User');
                         const statusDiv = document.getElementById('login-qr-status');
                         statusDiv.textContent = 'Signed in successfully!';
                         statusDiv.className = 'qr-status success';
@@ -2044,7 +3014,13 @@
         function updateRows() {
             rows = [];
 
-            // Leagues row (always first)
+            // Header row (Sign Out button)
+            const headerRow = document.querySelectorAll('.tv-header .focusable');
+            if (headerRow.length > 0) {
+                rows.push({ name: 'header', elements: Array.from(headerRow) });
+            }
+
+            // Leagues row
             const leaguesRow = document.querySelectorAll('#leagues-row .focusable');
             if (leaguesRow.length > 0) {
                 rows.push({ name: 'leagues', elements: Array.from(leaguesRow) });
@@ -2122,7 +3098,7 @@
 
         function handleHomeKeyDown(e) {
             const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
-                               e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
+                e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
 
             if (isEnterKey) {
                 e.preventDefault();
@@ -2249,7 +3225,7 @@
                             const numEl = card.querySelector('.selection-number');
                             if (numEl) numEl.textContent = index + 1;
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 });
             });
         }
@@ -2327,7 +3303,7 @@
                         try {
                             const cardGame = JSON.parse(card.dataset.game);
                             availableGameIds.add(cardGame.id);
-                        } catch (e) {}
+                        } catch (e) { }
                     });
 
                     // Filter out games that no longer exist (finished games)
@@ -2360,7 +3336,7 @@
                                     numEl.textContent = index + 1;
                                     card.appendChild(numEl);
                                 }
-                            } catch (e) {}
+                            } catch (e) { }
                         });
                     });
 
@@ -2536,7 +3512,7 @@
 
             // Handle Enter to close (since close button is focused)
             const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
-                               e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
+                e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
             if (isEnterKey) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2581,7 +3557,7 @@
                             } else {
                                 endpoint = `/api/ncaa/scoreboard?week=${weekData.week || 1}`;
                             }
-                        } catch (e) {}
+                        } catch (e) { }
                     }
 
                     const response = await fetch(endpoint);
@@ -2853,11 +3829,318 @@
             const statusClass = game.state === 'in' ? 'live' : game.state === 'pre' ? 'upcoming' : 'final';
             const statusText = game.state === 'in' ? game.status : game.state === 'pre' ? formatStartTime(game.startTime) : 'Final';
 
+            // Special NBA upcoming card with VS lightning design
+            if (game.league === 'nba' && game.state === 'pre') {
+                const awayColor = getNbaTeamColor(game.away.abbr);
+                const homeColor = getNbaTeamColor(game.home.abbr);
+
+                return `
+                    <div class="game-card nba-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        <div class="nba-upcoming-inner">
+                            <div class="nba-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
+                                <img class="nba-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="nba-upcoming-abbr">${game.away.abbr}</span>
+                            </div>
+                            <div class="nba-upcoming-vs-container">
+                                <img class="nba-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                            </div>
+                            <div class="nba-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
+                                <img class="nba-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="nba-upcoming-abbr">${game.home.abbr}</span>
+                            </div>
+                            <div class="nba-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special NBA final card with winner logo watermark
+            if (game.league === 'nba' && game.state === 'post') {
+                const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
+
+                return `
+                    <div class="game-card nba-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        ${winnerLogo ? `<img class="nba-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
+                        <div class="game-card-header">
+                            <span class="game-card-status final">${statusText}</span>
+                        </div>
+                        <div class="game-card-teams">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                                <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.away.name}</span>
+                                <span class="game-card-team-score">${game.away.score}</span>
+                            </div>
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                                <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.home.name}</span>
+                                <span class="game-card-team-score">${game.home.score}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special NFL upcoming card with VS lightning design
+            if (game.league === 'nfl' && game.state === 'pre') {
+                const awayColor = getNflTeamColor(game.away.abbr);
+                const homeColor = getNflTeamColor(game.home.abbr);
+
+                return `
+                    <div class="game-card nfl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        <div class="nfl-upcoming-inner">
+                            <div class="nfl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
+                                <img class="nfl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="nfl-upcoming-abbr">${game.away.abbr}</span>
+                            </div>
+                            <div class="nfl-upcoming-vs-container">
+                                <img class="nfl-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                            </div>
+                            <div class="nfl-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
+                                <img class="nfl-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="nfl-upcoming-abbr">${game.home.abbr}</span>
+                            </div>
+                            <div class="nfl-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special NFL final card with winner logo watermark
+            if (game.league === 'nfl' && game.state === 'post') {
+                const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
+
+                return `
+                    <div class="game-card nfl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        ${winnerLogo ? `<img class="nfl-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
+                        <div class="game-card-header">
+                            <span class="game-card-status final">${statusText}</span>
+                        </div>
+                        <div class="game-card-teams">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                                <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.away.name}</span>
+                                <span class="game-card-team-score">${game.away.score}</span>
+                            </div>
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                                <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.home.name}</span>
+                                <span class="game-card-team-score">${game.home.score}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special NHL upcoming card with VS lightning design
+            if (game.league === 'nhl' && game.state === 'pre') {
+                const awayColor = getNhlTeamColor(game.away.abbr);
+                const homeColor = getNhlTeamColor(game.home.abbr);
+
+                return `
+                    <div class="game-card nhl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        <div class="nhl-upcoming-inner">
+                            <div class="nhl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
+                                <img class="nhl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="nhl-upcoming-abbr">${game.away.abbr}</span>
+                            </div>
+                            <div class="nhl-upcoming-vs-container">
+                                <img class="nhl-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                            </div>
+                            <div class="nhl-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
+                                <img class="nhl-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="nhl-upcoming-abbr">${game.home.abbr}</span>
+                            </div>
+                            <div class="nhl-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special NHL final card with winner logo watermark
+            if (game.league === 'nhl' && game.state === 'post') {
+                const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
+
+                return `
+                    <div class="game-card nhl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        ${winnerLogo ? `<img class="nhl-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
+                        <div class="game-card-header">
+                            <span class="game-card-status final">${statusText}</span>
+                        </div>
+                        <div class="game-card-teams">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                                <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.away.name}</span>
+                                <span class="game-card-team-score">${game.away.score}</span>
+                            </div>
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                                <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.home.name}</span>
+                                <span class="game-card-team-score">${game.home.score}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special MLB upcoming card with team colors and VS divider
+            if (game.league === 'mlb' && game.state === 'pre') {
+                const awayColor = getMlbTeamColor(game.away.abbr);
+                const homeColor = getMlbTeamColor(game.home.abbr);
+
+                return `
+                    <div class="game-card mlb-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        <div class="mlb-upcoming-inner">
+                            <div class="mlb-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
+                                <img class="mlb-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="mlb-upcoming-abbr">${game.away.abbr}</span>
+                            </div>
+                            <div class="mlb-upcoming-vs-container">
+                                <img class="mlb-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                            </div>
+                            <div class="mlb-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
+                                <img class="mlb-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="mlb-upcoming-abbr">${game.home.abbr}</span>
+                            </div>
+                            <div class="mlb-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special MLB final card with winner logo watermark
+            if (game.league === 'mlb' && game.state === 'post') {
+                const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
+
+                return `
+                    <div class="game-card mlb-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        ${winnerLogo ? `<img class="mlb-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
+                        <div class="game-card-header">
+                            <span class="game-card-status final">${statusText}</span>
+                        </div>
+                        <div class="game-card-teams">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                                <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.away.name}</span>
+                                <span class="game-card-team-score">${game.away.score}</span>
+                            </div>
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                                <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.home.name}</span>
+                                <span class="game-card-team-score">${game.home.score}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special NCAA Football upcoming card with VS divider (default color)
+            if (game.league === 'ncaa' && game.state === 'pre') {
+                const defaultColor = '#6366f1';
+
+                return `
+                    <div class="game-card ncaa-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        <div class="ncaa-upcoming-inner">
+                            <div class="ncaa-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
+                                <img class="ncaa-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="ncaa-upcoming-abbr">${game.away.abbr}</span>
+                            </div>
+                            <div class="ncaa-upcoming-vs-container">
+                                <img class="ncaa-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                            </div>
+                            <div class="ncaa-upcoming-half home" style="background: linear-gradient(270deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
+                                <img class="ncaa-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="ncaa-upcoming-abbr">${game.home.abbr}</span>
+                            </div>
+                            <div class="ncaa-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special NCAA Football final card with winner logo watermark
+            if (game.league === 'ncaa' && game.state === 'post') {
+                const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
+
+                return `
+                    <div class="game-card ncaa-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        ${winnerLogo ? `<img class="ncaa-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
+                        <div class="game-card-header">
+                            <span class="game-card-status final">${statusText}</span>
+                        </div>
+                        <div class="game-card-teams">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                                <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.away.name}</span>
+                                <span class="game-card-team-score">${game.away.score}</span>
+                            </div>
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                                <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.home.name}</span>
+                                <span class="game-card-team-score">${game.home.score}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special NCAAB upcoming card with VS divider (default color)
+            if (game.league === 'ncaab' && game.state === 'pre') {
+                const defaultColor = '#6366f1';
+
+                return `
+                    <div class="game-card ncaab-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        <div class="ncaab-upcoming-inner">
+                            <div class="ncaab-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
+                                <img class="ncaab-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="ncaab-upcoming-abbr">${game.away.abbr}</span>
+                            </div>
+                            <div class="ncaab-upcoming-vs-container">
+                                <img class="ncaab-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                            </div>
+                            <div class="ncaab-upcoming-half home" style="background: linear-gradient(270deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
+                                <img class="ncaab-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="ncaab-upcoming-abbr">${game.home.abbr}</span>
+                            </div>
+                            <div class="ncaab-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special NCAAB final card with winner logo watermark
+            if (game.league === 'ncaab' && game.state === 'post') {
+                const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
+
+                return `
+                    <div class="game-card ncaab-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                        ${winnerLogo ? `<img class="ncaab-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
+                        <div class="game-card-header">
+                            <span class="game-card-status final">${statusText}</span>
+                        </div>
+                        <div class="game-card-teams">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                                <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.away.name}</span>
+                                <span class="game-card-team-score">${game.away.score}</span>
+                            </div>
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                                <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="game-card-team-name">${game.home.name}</span>
+                                <span class="game-card-team-score">${game.home.score}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Standard card for other games
+            const isUpcoming = game.state === 'pre';
+            const footerHtml = isUpcoming ? `<div class="game-card-footer-time">${statusText}</div>` : '';
+
             return `
                 <div class="game-card focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
                     <div class="game-card-header">
-                        <span class="game-card-league">${game.league.toUpperCase()}</span>
-                        <span class="game-card-status ${statusClass}">${statusText}</span>
+                        <span class="game-card-status ${statusClass}">${isUpcoming ? '' : statusText}</span>
                     </div>
                     <div class="game-card-teams">
                         <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
@@ -2871,6 +4154,7 @@
                             <span class="game-card-team-score">${game.state !== 'pre' ? game.home.score : ''}</span>
                         </div>
                     </div>
+                    ${footerHtml}
                 </div>
             `;
         }
@@ -2881,9 +4165,15 @@
             const diffMs = date - now;
             const diffMins = Math.round(diffMs / 60000);
 
-            if (diffMins <= 0) return 'Starting';
+            if (diffMins <= 0) return 'About to Start';
             if (diffMins < 60) return `${diffMins}m`;
-            if (diffMins < 1440) return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+            // If game is today, just show time
+            if (date.toDateString() === now.toDateString()) {
+                return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            }
+
+            // Otherwise show day and time
             return date.toLocaleDateString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true });
         }
 

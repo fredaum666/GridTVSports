@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +26,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -212,6 +214,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Back Button -->
     <button class="back-btn focused" id="back-btn">Back to TV Home</button>
@@ -227,7 +230,6 @@
     <div class="exit-modal" id="exit-modal">
         <div class="exit-modal-content">
             <h2>Exit Sports Bar Mode?</h2>
-            <p>Your game selections will be preserved.</p>
             <div class="exit-modal-buttons">
                 <button class="exit-modal-btn confirm focused" id="confirm-exit">Yes, Exit</button>
                 <button class="exit-modal-btn cancel" id="cancel-exit">Stay</button>
@@ -264,7 +266,16 @@
             'LAC': '#0080C6', 'LAR': '#003594', 'LV': '#000000', 'MIA': '#008E97',
             'MIN': '#4F2683', 'NE': '#002244', 'NO': '#D3BC8D', 'NYG': '#0B2265',
             'NYJ': '#125740', 'PHI': '#004C54', 'PIT': '#FFB612', 'SF': '#AA0000',
-            'SEA': '#002244', 'TB': '#D50A0A', 'TEN': '#0C2340', 'WSH': '#5A1414'
+            'SEA': '#002244', 'TB': '#D50A0A', 'TEN': '#0C2340', 'WSH': '#5A1414',
+            // NBA Teams
+            'ATL': '#E03A3E', 'BOS': '#007A33', 'BKN': '#000000', 'CHA': '#1D1160',
+            'CHI': '#CE1141', 'CLE': '#6F263D', 'DAL': '#00538C', 'DEN': '#0E2240',
+            'DET': '#C8102E', 'GSW': '#1D428A', 'HOU': '#CE1141', 'IND': '#002D62',
+            'LAC': '#C8102E', 'LAL': '#552583', 'MEM': '#5D76A9', 'MIA': '#98002E',
+            'MIL': '#00471B', 'MIN': '#0C2340', 'NOP': '#0C2340', 'NYK': '#006BB6',
+            'OKC': '#007AC1', 'ORL': '#0077C0', 'PHI': '#006BB6', 'PHX': '#1D1160',
+            'POR': '#E03A3E', 'SAC': '#5A2D81', 'SAS': '#C4CED4', 'TOR': '#CE1141',
+            'UTA': '#002B5C', 'WAS': '#002B5C'
         };
 
         function getTeamColor(abbr) {
@@ -363,9 +374,11 @@
             // Get league logo
             const leagueLogo = leagueLogos[game.league] || '/assets/logo.png';
 
-            // Get team colors for football
-            const awayColor = isFootball ? getTeamColor(game.away.abbr) : '#e5e7eb';
-            const homeColor = isFootball ? getTeamColor(game.home.abbr) : '#e5e7eb';
+            // Get team colors for football and basketball
+            const isBasketball = game.league === 'nba' || game.league === 'ncaab';
+            const useTeamColors = isFootball || isBasketball;
+            const awayColor = useTeamColors ? getTeamColor(game.away.abbr) : '#e5e7eb';
+            const homeColor = useTeamColors ? getTeamColor(game.home.abbr) : '#e5e7eb';
 
             // Build possession indicators (for football only)
             let awayPossessionHtml = '';
@@ -418,7 +431,12 @@
 
             // Build status text
             const statusClass = isUpcoming ? 'fullscreen-upcoming-status-text' : 'fullscreen-status-text';
-            const statusPrefix = isUpcoming ? '⏰ ' : '';
+            const statusPrefix = isUpcoming ? ' ' : '';
+            let displayStatus = game.status;
+            if (isUpcoming && game.startTime) {
+                const formatted = formatStartTime(game.startTime);
+                if (formatted) displayStatus = formatted;
+            }
 
             // Team records
             const awayRecordHtml = game.away.record ? `<div class="fullscreen-team-record">${game.away.record}</div>` : '';
@@ -435,7 +453,7 @@
 
                     <div class="fullscreen-card-content">
                         <div class="fullscreen-status-container">
-                            <div class="${statusClass}">${statusPrefix}${game.status}</div>
+                            <div class="${statusClass}">${statusPrefix}${displayStatus}</div>
                         </div>
 
                         <div class="fullscreen-live-score-header">
@@ -478,6 +496,40 @@
                 bars += `<div class="timeout-bar ${usedClass}"></div>`;
             }
             return `<div class="fullscreen-timeouts">${bars}</div>`;
+        }
+
+        function formatStartTime(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '';
+
+            const now = new Date();
+            const diffMs = date - now;
+            const diffMins = Math.round(diffMs / 60000);
+
+            if (diffMins <= 0) return 'Starting';
+            if (diffMins < 60) return `${diffMins}m`;
+
+            // Format time in user's local timezone
+            const timeStr = date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            // If game is today, just show time
+            const today = new Date();
+            if (date.toDateString() === today.toDateString()) {
+                return timeStr;
+            }
+
+            // Otherwise show day and time
+            return date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
         }
 
         // ============================================
@@ -789,9 +841,9 @@
 
         function handleMainKeyDown(e) {
             const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
-                               e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
+                e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
             const isBackKey = e.key === 'Escape' || e.key === 'GoBack' ||
-                              e.keyCode === 27 || e.keyCode === 4;
+                e.keyCode === 27 || e.keyCode === 4;
 
             if (isEnterKey || isBackKey) {
                 e.preventDefault();
@@ -801,9 +853,9 @@
 
         function handleModalKeyDown(e) {
             const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
-                               e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
+                e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
             const isBackKey = e.key === 'Escape' || e.key === 'GoBack' ||
-                              e.keyCode === 27 || e.keyCode === 4;
+                e.keyCode === 27 || e.keyCode === 4;
 
             switch (e.key) {
                 case 'ArrowLeft':
@@ -835,4 +887,5 @@
         }
     </script>
 </body>
+
 </html>
