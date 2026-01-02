@@ -2702,7 +2702,7 @@ openLeagues.forEach(league => {
 });
 
 // Other pages (no access control)
-const otherPages = ['LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin', 'favorites', 'reset-password'];
+const otherPages = ['LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin', 'favorites', 'reset-password', 'scoreboard-demo'];
 otherPages.forEach(page => {
   app.get(`/${page}`, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', `${page}.html`));

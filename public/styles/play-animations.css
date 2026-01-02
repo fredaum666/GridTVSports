@@ -696,3 +696,81 @@
 .fullscreen-grid.grid-8 .first-down-arrow {
   width: clamp(15px, 4vmin, 35px);
 }
+
+/* ============================================
+   NHL ANIMATIONS
+   ============================================ */
+
+/* Goal Animation - Red/White (NHL Standard) */
+.play-animation.goal .play-animation-icon {
+  color: #dc2626;
+  text-shadow: 0 0 30px #dc2626, 0 0 60px #dc2626;
+}
+
+.play-animation.goal .play-animation-text {
+  background: linear-gradient(90deg, #dc2626, #ffffff, #dc2626);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+}
+
+/* Save Animation - Blue */
+.play-animation.save .play-animation-icon {
+  color: #3b82f6;
+  text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
+}
+
+.play-animation.save .play-animation-text {
+  color: #3b82f6;
+  text-shadow: 0 0 20px #3b82f6;
+}
+
+/* Power Play Goal Animation - Yellow/Gold */
+.play-animation.powerplay .play-animation-icon {
+  color: #fbbf24;
+  text-shadow: 0 0 30px #fbbf24, 0 0 60px #fbbf24;
+}
+
+.play-animation.powerplay .play-animation-text {
+  color: #fbbf24;
+  text-shadow: 0 0 20px #fbbf24;
+}
+
+/* Hat Trick Animation - Purple/Gold */
+.play-animation.hattrick .play-animation-icon {
+  color: #a855f7;
+  text-shadow: 0 0 30px #a855f7, 0 0 60px #a855f7;
+}
+
+.play-animation.hattrick .play-animation-text {
+  background: linear-gradient(90deg, #a855f7, #fbbf24, #a855f7);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+}
+
+/* Penalty Animation - Orange/Red (NHL) */
+.play-animation.nhl-penalty .play-animation-icon {
+  color: #f97316;
+  text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+}
+
+.play-animation.nhl-penalty .play-animation-text {
+  color: #f97316;
+  text-shadow: 0 0 20px #f97316;
+}
+
+/* Shootout Animation - Cyan/White */
+.play-animation.shootout .play-animation-icon {
+  color: #06b6d4;
+  text-shadow: 0 0 30px #06b6d4, 0 0 60px #06b6d4;
+}
+
+.play-animation.shootout .play-animation-text {
+  color: #06b6d4;
+  text-shadow: 0 0 20px #06b6d4;
+}

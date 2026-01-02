@@ -213,6 +213,472 @@
                 font-size: 14px;
             }
         }
+
+        /* ============================================
+           SCOREBOARD COMPONENT STYLES (Fullscreen Cards)
+           ============================================ */
+
+        /* Wrapper for entire fullscreen card content with scoreboard */
+        .fs-card-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            gap: 8px;
+        }
+
+        /* Team logos row - outside scoreboard */
+        .fs-card-logos-row {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            width: 90%;
+            gap: 80px;
+        }
+
+        .fs-card-team-logo-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fs-card-team-logo {
+            width: clamp(50px, 8vmin, 90px);
+            height: clamp(50px, 8vmin, 90px);
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+        }
+
+        /* Possession indicator - football emoji near team logo */
+        .fs-possession-indicator {
+            position: absolute;
+            font-size: clamp(14px, 2.0vmin, 24px);
+            line-height: 1;
+            animation: possessionBlink 1.5s infinite;
+            filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.9));
+            z-index: 5;
+        }
+
+        /* Away team: top-right */
+        .fs-possession-indicator.away {
+            top: -8px;
+            right: -8px;
+        }
+
+        /* Home team: top-left */
+        .fs-possession-indicator.home {
+            top: -8px;
+            left: -8px;
+        }
+
+        @keyframes possessionBlink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* Grid-specific possession indicator sizing */
+        .fullscreen-grid.grid-1 .fs-possession-indicator {
+            font-size: clamp(20px, 3.5vmin, 32px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-possession-indicator.away {
+            top: -12px;
+            right: -12px;
+        }
+
+        .fullscreen-grid.grid-1 .fs-possession-indicator.home {
+            top: -12px;
+            left: -12px;
+        }
+
+        .fullscreen-grid.grid-2 .fs-possession-indicator {
+            font-size: clamp(18px, 3vmin, 28px);
+        }
+
+        .fullscreen-grid.grid-2 .fs-possession-indicator.away {
+            top: -10px;
+            right: -10px;
+        }
+
+        .fullscreen-grid.grid-2 .fs-possession-indicator.home {
+            top: -10px;
+            left: -10px;
+        }
+
+        .fullscreen-grid.grid-5 .fs-possession-indicator,
+        .fullscreen-grid.grid-6 .fs-possession-indicator {
+            font-size: clamp(12px, 2vmin, 18px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-possession-indicator.away,
+        .fullscreen-grid.grid-6 .fs-possession-indicator.away {
+            top: -6px;
+            right: -6px;
+        }
+
+        .fullscreen-grid.grid-5 .fs-possession-indicator.home,
+        .fullscreen-grid.grid-6 .fs-possession-indicator.home {
+            top: -6px;
+            left: -6px;
+        }
+
+        .fullscreen-grid.grid-7 .fs-possession-indicator,
+        .fullscreen-grid.grid-8 .fs-possession-indicator {
+            font-size: clamp(10px, 1.5vmin, 14px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-possession-indicator.away,
+        .fullscreen-grid.grid-8 .fs-possession-indicator.away {
+            top: -4px;
+            right: -4px;
+        }
+
+        .fullscreen-grid.grid-7 .fs-possession-indicator.home,
+        .fullscreen-grid.grid-8 .fs-possession-indicator.home {
+            top: -4px;
+            left: -4px;
+        }
+
+        /* The scoreboard itself */
+        .fs-scoreboard {
+            /* Default fallback colors */
+            --sb-away-primary: #4b5563;
+            --sb-away-secondary: #374151;
+            --sb-home-primary: #6b7280;
+            --sb-home-secondary: #4b5563;
+            --sb-center-bg: #1f2937;
+            --sb-text-color: #ffffff;
+            --sb-subtext-color: rgba(255, 255, 255, 0.7);
+
+            position: relative;
+            width: 90%;
+            height: clamp(50px, 8vmin, 70px);
+            display: flex;
+            align-items: stretch;
+            filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5));
+            border-radius: 6px;
+            overflow: visible;
+        }
+
+        /* Score boxes on sides */
+        .fs-sb-score-box {
+            position: relative;
+            width: clamp(50px, 8vmin, 70px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .fs-sb-score-box.away {
+            background: linear-gradient(135deg, var(--sb-away-primary) 0%, var(--sb-away-primary) 60%, var(--sb-away-secondary) 100%);
+            clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%);
+            padding-right: 6px;
+            border-radius: 6px 0 0 6px;
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.2),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .fs-sb-score-box.home {
+            background: linear-gradient(135deg, var(--sb-home-secondary) 0%, var(--sb-home-primary) 40%, var(--sb-home-primary) 100%);
+            clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
+            padding-left: 6px;
+            border-radius: 0 6px 6px 0;
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.2),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .fs-sb-score {
+            font-size: clamp(1.5rem, 4vmin, 2.5rem);
+            font-weight: 900;
+            color: var(--sb-text-color);
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.3),
+                0 2px 2px rgba(0, 0, 0, 0.3),
+                0 3px 4px rgba(0, 0, 0, 0.2),
+                0 0 12px rgba(255, 255, 255, 0.1);
+            letter-spacing: 1px;
+        }
+
+        /* Team info sections inside scoreboard */
+        .fs-sb-team-section {
+            flex: 1;
+            background: var(--sb-center-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            position: relative;
+        }
+
+        .fs-sb-team-section.away {
+            padding-right: 50px;
+        }
+
+        .fs-sb-team-section.home {
+            padding-left: 50px;
+        }
+
+        .fs-sb-team-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .fs-sb-team-name {
+            font-size: clamp(0.8rem, 2vmin, 1.1rem);
+            font-weight: 700;
+            color: var(--sb-text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .fs-sb-team-record {
+            font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
+            color: var(--sb-subtext-color);
+            font-weight: 500;
+        }
+
+        /* Center time/status section */
+        .fs-sb-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fs-sb-time-box {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            padding: 4px 14px;
+            clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
+            min-width: 80px;
+            text-align: center;
+            border: 1px solid #4b5563;
+        }
+
+        .fs-sb-time-label {
+            font-size: clamp(0.45rem, 1.2vmin, 0.6rem);
+            color: var(--sb-subtext-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .fs-sb-time {
+            font-size: clamp(0.7rem, 2vmin, 1rem);
+            font-weight: 900;
+            color: var(--sb-text-color);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ============================================
+           GAME SITUATION BOX (NFL/NCAA Football)
+           ============================================ */
+        .fs-sb-situation {
+            --sb-possession-primary: #4b5563;
+            --sb-possession-secondary: #374151;
+
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--sb-possession-primary) 0%, var(--sb-possession-primary) 50%, var(--sb-possession-secondary) 100%);
+            padding: 3px 12px;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 140px;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+            z-index: 5;
+        }
+
+        .fs-sb-situation.possession-away {
+            --sb-possession-primary: var(--sb-away-primary);
+            --sb-possession-secondary: var(--sb-away-secondary);
+        }
+
+        .fs-sb-situation.possession-home {
+            --sb-possession-primary: var(--sb-home-primary);
+            --sb-possession-secondary: var(--sb-home-secondary);
+        }
+
+        .fs-sb-down-distance {
+            font-size: clamp(0.55rem, 1.5vmin, 0.75rem);
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        .fs-sb-situation-divider {
+            width: 1px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .fs-sb-ball-position {
+            font-size: clamp(0.5rem, 1.3vmin, 0.65rem);
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .fs-sb-situation.redzone {
+            border-color: #ef4444;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+
+        .fs-sb-situation:empty,
+        .fs-sb-situation.hidden {
+            display: none;
+        }
+
+        /* Status text above scoreboard */
+        .fs-status-container {
+            margin-bottom: 4px;
+        }
+
+        .fs-status-text {
+            font-size: clamp(0.7rem, 1.8vmin, 1rem);
+            font-weight: 600;
+            color: var(--tv-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .fs-status-text.upcoming {
+            color: #60a5fa;
+        }
+
+        .fs-status-text.final {
+            color: #9ca3af;
+        }
+
+        /* League logo position adjustment for scoreboard layout */
+        .fullscreen-game-card.has-scoreboard .sport-logo-indicator {
+            top: 15px;
+            right: 15px;
+            width: clamp(50px, 8vmin, 70px);
+            height: clamp(50px, 8vmin, 70px);
+        }
+
+        /* Hide default content when using scoreboard */
+        .fullscreen-game-card.has-scoreboard .fullscreen-card-content {
+            display: none;
+        }
+
+        /* Grid-specific scoreboard adjustments */
+        .fullscreen-grid.grid-1 .fs-card-logos-row {
+            gap: 120px;
+        }
+
+        .fullscreen-grid.grid-1 .fs-card-team-logo {
+            width: clamp(80px, 12vmin, 140px);
+            height: clamp(80px, 12vmin, 140px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-scoreboard {
+            height: clamp(70px, 10vmin, 100px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-score-box {
+            width: clamp(70px, 10vmin, 100px);
+        }
+
+        .fullscreen-grid.grid-2 .fs-card-logos-row {
+            gap: 100px;
+        }
+
+        .fullscreen-grid.grid-2 .fs-card-team-logo {
+            width: clamp(60px, 10vmin, 100px);
+            height: clamp(60px, 10vmin, 100px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-card-logos-row,
+        .fullscreen-grid.grid-6 .fs-card-logos-row {
+            gap: 50px;
+        }
+
+        .fullscreen-grid.grid-5 .fs-card-team-logo,
+        .fullscreen-grid.grid-6 .fs-card-team-logo {
+            width: clamp(35px, 6vmin, 60px);
+            height: clamp(35px, 6vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-card-logos-row,
+        .fullscreen-grid.grid-8 .fs-card-logos-row {
+            gap: 40px;
+        }
+
+        .fullscreen-grid.grid-7 .fs-card-team-logo,
+        .fullscreen-grid.grid-8 .fs-card-team-logo {
+            width: clamp(30px, 5vmin, 50px);
+            height: clamp(30px, 5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-scoreboard,
+        .fullscreen-grid.grid-8 .fs-scoreboard {
+            height: clamp(40px, 6vmin, 55px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-score-box,
+        .fullscreen-grid.grid-8 .fs-sb-score-box {
+            width: clamp(40px, 6vmin, 55px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-situation,
+        .fullscreen-grid.grid-8 .fs-sb-situation {
+            bottom: -16px;
+            min-width: 100px;
+            padding: 2px 8px;
+        }
+
+        /* Field visualizer spacing - push down from scoreboard */
+        .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(24px, 4vmin, 40px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(32px, 5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-2 .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(28px, 4.5vmin, 45px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-card-wrapper .field-visualizer,
+        .fullscreen-grid.grid-6 .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(20px, 3vmin, 32px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-card-wrapper .field-visualizer,
+        .fullscreen-grid.grid-8 .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(16px, 2.5vmin, 26px);
+        }
     </style>
 </head>
 
@@ -281,6 +747,186 @@
 
         function getTeamColor(abbr) {
             return teamColors[abbr] || '#fbbf24';
+        }
+
+        // Team colors with primary and secondary for scoreboard
+        const NFL_TEAM_COLORS = {
+            'ARI': { primary: '#97233F', secondary: '#000000' },
+            'ATL': { primary: '#A71930', secondary: '#000000' },
+            'BAL': { primary: '#241773', secondary: '#000000' },
+            'BUF': { primary: '#00338D', secondary: '#C60C30' },
+            'CAR': { primary: '#0085CA', secondary: '#101820' },
+            'CHI': { primary: '#C83803', secondary: '#0B162A' },
+            'CIN': { primary: '#FB4F14', secondary: '#000000' },
+            'CLE': { primary: '#311D00', secondary: '#FF3C00' },
+            'DAL': { primary: '#003594', secondary: '#041E42' },
+            'DEN': { primary: '#FB4F14', secondary: '#002244' },
+            'DET': { primary: '#0076B6', secondary: '#B0B7BC' },
+            'GB': { primary: '#203731', secondary: '#FFB612' },
+            'HOU': { primary: '#03202F', secondary: '#A71930' },
+            'IND': { primary: '#002C5F', secondary: '#A2AAAD' },
+            'JAX': { primary: '#006778', secondary: '#9F792C' },
+            'KC': { primary: '#E31837', secondary: '#FFB81C' },
+            'LAC': { primary: '#0080C6', secondary: '#FFC20E' },
+            'LAR': { primary: '#003594', secondary: '#FFA300' },
+            'LV': { primary: '#000000', secondary: '#A5ACAF' },
+            'MIA': { primary: '#008E97', secondary: '#FC4C02' },
+            'MIN': { primary: '#4F2683', secondary: '#FFC62F' },
+            'NE': { primary: '#002244', secondary: '#C60C30' },
+            'NO': { primary: '#D3BC8D', secondary: '#101820' },
+            'NYG': { primary: '#0B2265', secondary: '#A71930' },
+            'NYJ': { primary: '#125740', secondary: '#000000' },
+            'PHI': { primary: '#004C54', secondary: '#A5ACAF' },
+            'PIT': { primary: '#FFB612', secondary: '#101820' },
+            'SF': { primary: '#AA0000', secondary: '#B3995D' },
+            'SEA': { primary: '#002244', secondary: '#69BE28' },
+            'TB': { primary: '#D50A0A', secondary: '#FF7900' },
+            'TEN': { primary: '#0C2340', secondary: '#4B92DB' },
+            'WSH': { primary: '#5A1414', secondary: '#FFB612' }
+        };
+
+        const NBA_TEAM_COLORS = {
+            'ATL': { primary: '#E03A3E', secondary: '#C1D32F' },
+            'BOS': { primary: '#007A33', secondary: '#BA9653' },
+            'BKN': { primary: '#000000', secondary: '#FFFFFF' },
+            'CHA': { primary: '#1D1160', secondary: '#00788C' },
+            'CHI': { primary: '#CE1141', secondary: '#000000' },
+            'CLE': { primary: '#6F263D', secondary: '#FFB81C' },
+            'DAL': { primary: '#00538C', secondary: '#002B5E' },
+            'DEN': { primary: '#0E2240', secondary: '#FEC524' },
+            'DET': { primary: '#C8102E', secondary: '#1D42BA' },
+            'GSW': { primary: '#1D428A', secondary: '#FFC72C' },
+            'HOU': { primary: '#CE1141', secondary: '#000000' },
+            'IND': { primary: '#002D62', secondary: '#FDBB30' },
+            'LAC': { primary: '#C8102E', secondary: '#1D428A' },
+            'LAL': { primary: '#552583', secondary: '#FDB927' },
+            'MEM': { primary: '#5D76A9', secondary: '#12173F' },
+            'MIA': { primary: '#98002E', secondary: '#F9A01B' },
+            'MIL': { primary: '#00471B', secondary: '#EEE1C6' },
+            'MIN': { primary: '#0C2340', secondary: '#236192' },
+            'NOP': { primary: '#0C2340', secondary: '#C8102E' },
+            'NYK': { primary: '#006BB6', secondary: '#F58426' },
+            'OKC': { primary: '#007AC1', secondary: '#EF3B24' },
+            'ORL': { primary: '#0077C0', secondary: '#C4CED4' },
+            'PHI': { primary: '#006BB6', secondary: '#ED174C' },
+            'PHX': { primary: '#1D1160', secondary: '#E56020' },
+            'POR': { primary: '#E03A3E', secondary: '#000000' },
+            'SAC': { primary: '#5A2D81', secondary: '#63727A' },
+            'SAS': { primary: '#C4CED4', secondary: '#000000' },
+            'TOR': { primary: '#CE1141', secondary: '#000000' },
+            'UTA': { primary: '#002B5C', secondary: '#00471B' },
+            'WAS': { primary: '#002B5C', secondary: '#E31837' }
+        };
+
+        const NHL_TEAM_COLORS = {
+            'ANA': { primary: '#F47A38', secondary: '#B9975B' },
+            'ARI': { primary: '#8C2633', secondary: '#E2D6B5' },
+            'BOS': { primary: '#FFB81C', secondary: '#000000' },
+            'BUF': { primary: '#002654', secondary: '#FCB514' },
+            'CGY': { primary: '#C8102E', secondary: '#F1BE48' },
+            'CAR': { primary: '#CC0000', secondary: '#000000' },
+            'CHI': { primary: '#CF0A2C', secondary: '#000000' },
+            'COL': { primary: '#6F263D', secondary: '#236192' },
+            'CBJ': { primary: '#002654', secondary: '#CE1141' },
+            'DAL': { primary: '#006847', secondary: '#8F8F8C' },
+            'DET': { primary: '#CE1126', secondary: '#FFFFFF' },
+            'EDM': { primary: '#041E42', secondary: '#FF4C00' },
+            'FLA': { primary: '#041E42', secondary: '#C8102E' },
+            'LAK': { primary: '#111111', secondary: '#A2AAAD' },
+            'MIN': { primary: '#154734', secondary: '#A6192E' },
+            'MTL': { primary: '#AF1E2D', secondary: '#192168' },
+            'NSH': { primary: '#FFB81C', secondary: '#041E42' },
+            'NJD': { primary: '#CE1126', secondary: '#000000' },
+            'NYI': { primary: '#00539B', secondary: '#F47D30' },
+            'NYR': { primary: '#0038A8', secondary: '#CE1126' },
+            'OTT': { primary: '#C52032', secondary: '#C2912C' },
+            'PHI': { primary: '#F74902', secondary: '#000000' },
+            'PIT': { primary: '#FCB514', secondary: '#000000' },
+            'SJS': { primary: '#006D75', secondary: '#EA7200' },
+            'SEA': { primary: '#001628', secondary: '#99D9D9' },
+            'STL': { primary: '#002F87', secondary: '#FCB514' },
+            'TBL': { primary: '#002868', secondary: '#FFFFFF' },
+            'TOR': { primary: '#00205B', secondary: '#FFFFFF' },
+            'UTA': { primary: '#71AFE5', secondary: '#010101' },
+            'VAN': { primary: '#00205B', secondary: '#00843D' },
+            'VGK': { primary: '#B4975A', secondary: '#333F42' },
+            'WSH': { primary: '#C8102E', secondary: '#041E42' },
+            'WPG': { primary: '#041E42', secondary: '#004C97' }
+        };
+
+        const MLB_TEAM_COLORS = {
+            'ARI': { primary: '#A71930', secondary: '#E3D4AD' },
+            'ATL': { primary: '#CE1141', secondary: '#13274F' },
+            'BAL': { primary: '#DF4601', secondary: '#000000' },
+            'BOS': { primary: '#BD3039', secondary: '#0C2340' },
+            'CHC': { primary: '#0E3386', secondary: '#CC3433' },
+            'CWS': { primary: '#27251F', secondary: '#C4CED4' },
+            'CIN': { primary: '#C6011F', secondary: '#000000' },
+            'CLE': { primary: '#00385D', secondary: '#E50022' },
+            'COL': { primary: '#33006F', secondary: '#C4CED4' },
+            'DET': { primary: '#0C2340', secondary: '#FA4616' },
+            'HOU': { primary: '#002D62', secondary: '#EB6E1F' },
+            'KC': { primary: '#004687', secondary: '#BD9B60' },
+            'LAA': { primary: '#BA0021', secondary: '#003263' },
+            'LAD': { primary: '#005A9C', secondary: '#EF3E42' },
+            'MIA': { primary: '#00A3E0', secondary: '#EF3340' },
+            'MIL': { primary: '#12284B', secondary: '#B6922E' },
+            'MIN': { primary: '#002B5C', secondary: '#D31145' },
+            'NYM': { primary: '#002D72', secondary: '#FF5910' },
+            'NYY': { primary: '#003087', secondary: '#E4002C' },
+            'OAK': { primary: '#003831', secondary: '#EFB21E' },
+            'PHI': { primary: '#E81828', secondary: '#002D72' },
+            'PIT': { primary: '#27251F', secondary: '#FDB827' },
+            'SD': { primary: '#2F241D', secondary: '#FFC425' },
+            'SF': { primary: '#FD5A1E', secondary: '#27251F' },
+            'SEA': { primary: '#0C2C56', secondary: '#005C5C' },
+            'STL': { primary: '#C41E3A', secondary: '#0C2340' },
+            'TB': { primary: '#092C5C', secondary: '#8FBCE6' },
+            'TEX': { primary: '#003278', secondary: '#C0111F' },
+            'TOR': { primary: '#134A8E', secondary: '#E8291C' },
+            'WSH': { primary: '#AB0003', secondary: '#14225A' }
+        };
+
+        // Get team colors for scoreboard
+        function getScoreboardColors(league, abbr) {
+            const defaultColors = { primary: '#4b5563', secondary: '#374151' };
+
+            if (league === 'nfl' || league === 'ncaa') {
+                return NFL_TEAM_COLORS[abbr] || defaultColors;
+            } else if (league === 'nba' || league === 'ncaab') {
+                return NBA_TEAM_COLORS[abbr] || defaultColors;
+            } else if (league === 'nhl') {
+                return NHL_TEAM_COLORS[abbr] || defaultColors;
+            } else if (league === 'mlb') {
+                return MLB_TEAM_COLORS[abbr] || defaultColors;
+            }
+            return defaultColors;
+        }
+
+        // Parse game status for period/quarter and time
+        function parseGameStatus(status, league) {
+            if (!status) return { period: '', time: '' };
+
+            // Handle common status formats
+            const parts = status.split(' - ');
+            if (parts.length === 2) {
+                return { period: parts[0], time: parts[1] };
+            }
+
+            // Try to extract period and time
+            const match = status.match(/^(\d+(?:st|nd|rd|th)|OT\d*|[A-Z]+)\s+(.+)$/i);
+            if (match) {
+                return { period: match[1], time: match[2] };
+            }
+
+            // NFL/NCAA format: "3rd 5:42"
+            const nflMatch = status.match(/^(\d+(?:st|nd|rd|th))\s+(\d+:\d+)$/i);
+            if (nflMatch) {
+                return { period: nflMatch[1], time: nflMatch[2] };
+            }
+
+            // Just return the full status as time if can't parse
+            return { period: '', time: status };
         }
 
         // ============================================
@@ -358,7 +1004,7 @@
             const isUpcoming = game.state === 'pre';
 
             // Determine card state class
-            let cardClass = 'fullscreen-game-card';
+            let cardClass = 'fullscreen-game-card has-scoreboard';
             if (isUpcoming) {
                 cardClass += ' upcoming-game';
             } else if (isFinal) {
@@ -375,114 +1021,121 @@
             // Get league logo
             const leagueLogo = leagueLogos[game.league] || '/assets/logo.png';
 
-            // Get team colors for football and basketball
-            const isBasketball = game.league === 'nba' || game.league === 'ncaab';
-            const useTeamColors = isFootball || isBasketball;
-            const awayColor = useTeamColors ? getTeamColor(game.away.abbr) : '#e5e7eb';
-            const homeColor = useTeamColors ? getTeamColor(game.home.abbr) : '#e5e7eb';
+            // Get team colors for scoreboard
+            const awayColors = getScoreboardColors(game.league, game.away.abbr);
+            const homeColors = getScoreboardColors(game.league, game.home.abbr);
 
-            // Build possession indicators (for football only)
-            let awayPossessionHtml = '';
-            let homePossessionHtml = '';
-            if (isFootball && isLive && game.possession) {
-                if (game.possession === 'away') {
-                    awayPossessionHtml = '<span class="fullscreen-possession">🏈</span>';
-                } else if (game.possession === 'home') {
-                    homePossessionHtml = '<span class="fullscreen-possession">🏈</span>';
-                }
-            }
+            // Parse game status for period and time
+            const statusParts = parseGameStatus(game.status, game.league);
 
-            // Build timeout bars (for NFL only - NCAA doesn't have live timeout data)
-            let awayTimeoutsHtml = '';
-            let homeTimeoutsHtml = '';
-            if (game.league === 'nfl' && isLive) {
-                awayTimeoutsHtml = createTimeoutBars(game.away.timeouts);
-                homeTimeoutsHtml = createTimeoutBars(game.home.timeouts);
-            }
+            // Determine display values
+            const awayScore = isUpcoming ? '-' : game.away.score;
+            const homeScore = isUpcoming ? '-' : game.home.score;
 
-            // Build situation info and field visualizer (for football only)
-            let situationHtml = '';
-            let fieldVisualizerHtml = '';
-            if (isFootball && isLive && game.downDistance) {
-                situationHtml = `<div class="fullscreen-situation-info">${game.downDistance}</div>`;
-
-                if (game.fieldPosition) {
-                    fieldVisualizerHtml = `
-                        <div class="field-visualizer">
-                            <div class="field-container">
-                                <div class="yard-markers">
-                                    <div class="yard-marker endzone"><span class="yard-label">0</span></div>
-                                    <div class="yard-marker"><span class="yard-label">10</span></div>
-                                    <div class="yard-marker"><span class="yard-label">20</span></div>
-                                    <div class="yard-marker"><span class="yard-label">30</span></div>
-                                    <div class="yard-marker"><span class="yard-label">40</span></div>
-                                    <div class="yard-marker"><span class="yard-label">50</span></div>
-                                    <div class="yard-marker"><span class="yard-label">40</span></div>
-                                    <div class="yard-marker"><span class="yard-label">30</span></div>
-                                    <div class="yard-marker"><span class="yard-label">20</span></div>
-                                    <div class="yard-marker"><span class="yard-label">10</span></div>
-                                    <div class="yard-marker endzone"><span class="yard-label">0</span></div>
-                                </div>
-                                <div class="ball-indicator" data-field-position="${game.fieldPosition}"></div>
-                                <div class="first-down-line" data-yards-to-go="${game.yardsToGo || 0}"></div>
-                            </div>
-                        </div>`;
-                }
-            }
-
-            // Build status text
-            const statusClass = isUpcoming ? 'fullscreen-upcoming-status-text' : 'fullscreen-status-text';
-            const statusPrefix = isUpcoming ? ' ' : '';
+            // Format status for display
             let displayStatus = game.status;
             if (isUpcoming && game.startTime) {
                 const formatted = formatStartTime(game.startTime);
                 if (formatted) displayStatus = formatted;
             }
 
-            // Team records
-            const awayRecordHtml = game.away.record ? `<div class="fullscreen-team-record">${game.away.record}</div>` : '';
-            const homeRecordHtml = game.home.record ? `<div class="fullscreen-team-record">${game.home.record}</div>` : '';
+            // Build game situation box for NFL/NCAA
+            let situationHTML = '';
+            if (isFootball && isLive && game.downDistance) {
+                const possession = game.possession === 'away' ? 'possession-away' :
+                    game.possession === 'home' ? 'possession-home' : '';
+                const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
+                const redzone = isRedZone ? 'redzone' : '';
+                situationHTML = `
+                    <div class="fs-sb-situation ${possession} ${redzone}">
+                        <span class="fs-sb-down-distance">${game.downDistance || ''}</span>
+                        <div class="fs-sb-situation-divider"></div>
+                        <span class="fs-sb-ball-position">${game.fieldPosition || ''}</span>
+                    </div>
+                `;
+            }
 
-            // Get score classes
-            const awayScoreClass = getScoreClass(game, 'away');
-            const homeScoreClass = getScoreClass(game, 'home');
+            // Build field visualizer for NFL/NCAA (only show when situation box is showing)
+            let fieldVisualizerHTML = '';
+            if (isFootball && isLive && game.downDistance && game.fieldPosition) {
+                fieldVisualizerHTML = `
+                    <div class="field-visualizer">
+                        <div class="field-container">
+                            <div class="yard-markers">
+                                <div class="yard-marker endzone"><span class="yard-label">0</span></div>
+                                <div class="yard-marker"><span class="yard-label">10</span></div>
+                                <div class="yard-marker"><span class="yard-label">20</span></div>
+                                <div class="yard-marker"><span class="yard-label">30</span></div>
+                                <div class="yard-marker"><span class="yard-label">40</span></div>
+                                <div class="yard-marker"><span class="yard-label">50</span></div>
+                                <div class="yard-marker"><span class="yard-label">40</span></div>
+                                <div class="yard-marker"><span class="yard-label">30</span></div>
+                                <div class="yard-marker"><span class="yard-label">20</span></div>
+                                <div class="yard-marker"><span class="yard-label">10</span></div>
+                                <div class="yard-marker endzone"><span class="yard-label">0</span></div>
+                            </div>
+                            <div class="ball-indicator"></div>
+                            <div class="first-down-line"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Status class
+            const statusClass = isUpcoming ? 'upcoming' : isFinal ? 'final' : '';
+
+            // Possession indicator for NFL/NCAA (show football emoji next to team with ball)
+            const awayHasPossession = isFootball && isLive && game.possession === 'away';
+            const homeHasPossession = isFootball && isLive && game.possession === 'home';
 
             return `
                 <div class="${cardClass}" data-game-id="${game.id}" data-league="${game.league}">
                     <img class="sport-logo-indicator" src="${leagueLogo}" alt="${game.league.toUpperCase()}">
                     <div class="fullscreen-refresh-indicator"></div>
 
-                    <div class="fullscreen-card-content">
-                        <div class="fullscreen-status-container">
-                            <div class="${statusClass}">${statusPrefix}${displayStatus}</div>
-                        </div>
-
-                        <div class="fullscreen-live-score-header">
-                            <div class="fullscreen-team-stack">
-                                <div style="position: relative;">
-                                    <img class="fullscreen-team-logo" src="${game.away.logo}" alt="${game.away.abbr}">
-                                    ${awayPossessionHtml}
-                                </div>
-                                <div class="fullscreen-live-team-name ${game.away.score > game.home.score && !isUpcoming ? 'winning' : ''}" style="color: ${awayColor}">${game.away.abbr}</div>
-                                ${awayRecordHtml}
-                                ${awayTimeoutsHtml}
+                    <div class="fs-card-wrapper">
+                        <!-- Team logos row - outside scoreboard -->
+                        <div class="fs-card-logos-row">
+                            <div class="fs-card-team-logo-wrapper">
+                                <img class="fs-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                ${awayHasPossession ? '<span class="fs-possession-indicator away">🏈</span>' : ''}
                             </div>
-                            <div class="fullscreen-team-score ${awayScoreClass}">${isUpcoming ? '-' : game.away.score}</div>
-                            <div class="fullscreen-vs-divider-live">VS</div>
-                            <div class="fullscreen-team-score ${homeScoreClass}">${isUpcoming ? '-' : game.home.score}</div>
-                            <div class="fullscreen-team-stack">
-                                <div style="position: relative;">
-                                    <img class="fullscreen-team-logo" src="${game.home.logo}" alt="${game.home.abbr}">
-                                    ${homePossessionHtml}
-                                </div>
-                                <div class="fullscreen-live-team-name ${game.home.score > game.away.score && !isUpcoming ? 'winning' : ''}" style="color: ${homeColor}">${game.home.abbr}</div>
-                                ${homeRecordHtml}
-                                ${homeTimeoutsHtml}
+                            <div class="fs-card-team-logo-wrapper">
+                                <img class="fs-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                ${homeHasPossession ? '<span class="fs-possession-indicator home">🏈</span>' : ''}
                             </div>
                         </div>
 
-                        ${situationHtml}
-                        ${fieldVisualizerHtml}
+                        <!-- Scoreboard -->
+                        <div class="fs-scoreboard" style="--sb-away-primary: ${awayColors.primary}; --sb-away-secondary: ${awayColors.secondary}; --sb-home-primary: ${homeColors.primary}; --sb-home-secondary: ${homeColors.secondary};">
+                            <div class="fs-sb-score-box away">
+                                <span class="fs-sb-score">${awayScore}</span>
+                            </div>
+                            <div class="fs-sb-team-section away">
+                                <div class="fs-sb-team-info">
+                                    <span class="fs-sb-team-name">${game.away.abbr}</span>
+                                    ${game.away.record ? `<span class="fs-sb-team-record">${game.away.record}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="fs-sb-center">
+                                <div class="fs-sb-time-box">
+                                    <div class="fs-sb-time-label">${statusParts.period || (isUpcoming ? 'STARTS' : isFinal ? 'FINAL' : '')}</div>
+                                    <div class="fs-sb-time">${statusParts.time || displayStatus}</div>
+                                </div>
+                            </div>
+                            <div class="fs-sb-team-section home">
+                                <div class="fs-sb-team-info">
+                                    <span class="fs-sb-team-name">${game.home.abbr}</span>
+                                    ${game.home.record ? `<span class="fs-sb-team-record">${game.home.record}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="fs-sb-score-box home">
+                                <span class="fs-sb-score">${homeScore}</span>
+                            </div>
+                            ${situationHTML}
+                        </div>
+
+                        ${fieldVisualizerHTML}
                     </div>
                 </div>
             `;
@@ -740,10 +1393,11 @@
                 else if (playType === 'fumble') icon = '💨';
 
                 let recoveryHTML = '';
-                if (playType === 'fumble' && recoveryLogo) {
+                if (playType === 'fumble' && (recoveryLogo || teamName)) {
                     recoveryHTML = `
                         <div class="play-animation-subtext" style="margin-top: 10px;">Recovered by</div>
-                        <img src="${recoveryLogo}" alt="Team" style="width: 60px; height: 60px; object-fit: contain; margin-top: 10px;">
+                        ${recoveryLogo ? `<img src="${recoveryLogo}" alt="Team" style="width: 60px; height: 60px; object-fit: contain; margin-top: 10px;">` : ''}
+                        ${teamName ? `<div class="play-animation-subtext" style="margin-top: 5px; font-weight: bold;">${teamName}</div>` : ''}
                     `;
                 } else if (recoveryInfo) {
                     recoveryHTML = `<div class="play-animation-subtext">${recoveryInfo}</div>`;
@@ -752,7 +1406,7 @@
                 animationDiv.innerHTML = `
                     <div class="play-animation-icon">${icon}</div>
                     <div class="play-animation-text">${playText}</div>
-                    ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+                    ${playType !== 'fumble' && teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
                     ${recoveryHTML}
                 `;
             }
@@ -780,6 +1434,91 @@
                     animationDiv.remove();
                 }
             }, animationDuration);
+        }
+
+        // NHL-specific play detection
+        function detectNHLPlayEvents(card, game, comp, prevData) {
+            const awayScoreChange = game.away.score - (prevData.awayScore || 0);
+            const homeScoreChange = game.home.score - (prevData.homeScore || 0);
+
+            const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+            const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+            const awayName = awayTeam?.team?.displayName || 'Away';
+            const homeName = homeTeam?.team?.displayName || 'Home';
+
+            // Detect goals
+            if (awayScoreChange > 0 || homeScoreChange > 0) {
+                const scoringTeam = awayScoreChange > 0 ? awayName : homeName;
+                const scoreChange = awayScoreChange > 0 ? awayScoreChange : homeScoreChange;
+
+                let playType, playText;
+                if (scoreChange >= 3) {
+                    playType = 'hattrick';
+                    playText = 'HAT TRICK!';
+                } else {
+                    playType = 'goal';
+                    playText = 'GOAL!';
+                }
+
+                showNHLAnimation(card, playType, playText, scoringTeam);
+                console.log('🏒 Sports Bar - NHL event:', playType, scoringTeam);
+            }
+        }
+
+        function showNHLAnimation(card, playType, playText, teamName = '') {
+            // Skip animations during first 6 seconds after page load
+            if (Date.now() - pageLoadTime < 6000) return;
+
+            // Remove any existing animation
+            const existingAnimation = card.querySelector('.play-animation');
+            if (existingAnimation) {
+                existingAnimation.remove();
+            }
+
+            // Create animation overlay
+            const animationDiv = document.createElement('div');
+            animationDiv.className = `play-animation ${playType}`;
+
+            // Choose icon based on play type
+            let icon;
+            switch (playType) {
+                case 'goal':
+                    icon = '🚨';
+                    break;
+                case 'save':
+                    icon = '🧤';
+                    break;
+                case 'powerplay':
+                    icon = '⚡';
+                    break;
+                case 'hattrick':
+                    icon = '🎩';
+                    break;
+                case 'nhl-penalty':
+                    icon = '⚠️';
+                    break;
+                case 'shootout':
+                    icon = '🥅';
+                    break;
+                default:
+                    icon = '🏒';
+            }
+
+            animationDiv.innerHTML = `
+                <div class="play-animation-icon">${icon}</div>
+                <div class="play-animation-text">${playText}</div>
+                ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+            `;
+
+            card.style.position = 'relative';
+            card.appendChild(animationDiv);
+
+            // Remove after animation completes (5 seconds for NHL - shorter than football)
+            setTimeout(() => {
+                if (animationDiv.parentNode) {
+                    animationDiv.remove();
+                }
+            }, 5000);
         }
 
         function detectPlayEvents(card, game, comp, prevData) {
@@ -824,13 +1563,29 @@
             // FUMBLE
             else if (lowerLastPlay.includes('fumble')) {
                 let recoveryTeam = '', recoveryLogo = '';
-                if (lowerLastPlay.includes('recovered by')) {
-                    const recoveredIndex = lowerLastPlay.indexOf('recovered by');
-                    const afterRecovered = lastPlay.substring(recoveredIndex);
-                    if (afterRecovered.toLowerCase().includes(awayAbbr.toLowerCase())) { recoveryTeam = awayName; recoveryLogo = awayLogo; }
-                    else if (afterRecovered.toLowerCase().includes(homeAbbr.toLowerCase())) { recoveryTeam = homeName; recoveryLogo = homeLogo; }
+                // Try multiple patterns for recovery detection
+                if (lowerLastPlay.includes('recovered by') || lowerLastPlay.includes('recovery by') ||
+                    lowerLastPlay.includes('recovered') || lowerLastPlay.includes('fumble recovery')) {
+                    // Look for team abbreviation anywhere after "fumble" or "recovered"
+                    const fumbleIndex = lowerLastPlay.indexOf('fumble');
+                    const afterFumble = lastPlay.substring(fumbleIndex);
+
+                    // Check which team abbreviation appears in the recovery context
+                    const awayAbbrUpper = awayAbbr.toUpperCase();
+                    const homeAbbrUpper = homeAbbr.toUpperCase();
+
+                    // Look for patterns like "recovered by TEAM" or "TEAM recovery" or just team abbr after fumble
+                    if (afterFumble.includes(awayAbbrUpper) && !afterFumble.includes(homeAbbrUpper)) {
+                        recoveryTeam = awayName; recoveryLogo = awayLogo;
+                    } else if (afterFumble.includes(homeAbbrUpper) && !afterFumble.includes(awayAbbrUpper)) {
+                        recoveryTeam = homeName; recoveryLogo = homeLogo;
+                    } else if (afterFumble.toLowerCase().includes(awayAbbr.toLowerCase())) {
+                        recoveryTeam = awayName; recoveryLogo = awayLogo;
+                    } else if (afterFumble.toLowerCase().includes(homeAbbr.toLowerCase())) {
+                        recoveryTeam = homeName; recoveryLogo = homeLogo;
+                    }
                 }
-                events.push({ type: 'fumble', text: 'FUMBLE!', teamName: '', logo: recoveryLogo, isNegated });
+                events.push({ type: 'fumble', text: 'FUMBLE!', teamName: recoveryTeam, logo: recoveryLogo, isNegated });
 
                 if (lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) {
                     events.push({ type: 'touchdown', text: 'SCOOP & SCORE!', teamName: recoveryTeam, isNegated });
@@ -870,7 +1625,7 @@
             // MISSED FIELD GOAL
             if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
                 (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
-                 lowerLastPlay.includes('wide') || lowerLastPlay.includes('short') || lowerLastPlay.includes('blocked')) &&
+                    lowerLastPlay.includes('wide') || lowerLastPlay.includes('short') || lowerLastPlay.includes('blocked')) &&
                 !lowerLastPlay.includes('touchdown')) {
                 events.push({ type: 'missed-kick', text: lowerLastPlay.includes('blocked') ? 'BLOCKED FG!' : 'MISSED FG!', teamName: '', isNegated });
             }
@@ -1010,9 +1765,9 @@
                                 down: comp?.situation?.down || 0
                             });
 
-                            // Queue animation detection for after render (only for NFL/NCAA football)
-                            if (league === 'nfl' || league === 'ncaa') {
-                                pendingAnimations.push({ gameId: game.id, game, comp, prevData });
+                            // Queue animation detection for after render (NFL, NCAA football, and NHL)
+                            if (league === 'nfl' || league === 'ncaa' || league === 'nhl') {
+                                pendingAnimations.push({ gameId: game.id, game, comp, prevData, league });
                             }
                         }
                     });
@@ -1025,10 +1780,14 @@
             renderGrid();
 
             // Apply pending animations AFTER render so cards exist in DOM
-            pendingAnimations.forEach(({ gameId, game, comp, prevData }) => {
+            pendingAnimations.forEach(({ gameId, game, comp, prevData, league }) => {
                 const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
                 if (card) {
-                    detectPlayEvents(card, game, comp, prevData);
+                    if (league === 'nhl') {
+                        detectNHLPlayEvents(card, game, comp, prevData);
+                    } else {
+                        detectPlayEvents(card, game, comp, prevData);
+                    }
                 }
             });
 
