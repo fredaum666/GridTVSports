@@ -2346,18 +2346,39 @@
             gap: 6px;
         }
 
-        /* Team logos row - outside scoreboard, aligned with team sections inside */
-        .live-card-logos-row {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
+        /* Scoreboard top section - mirrors scoreboard layout below */
+        .live-scoreboard-top {
             width: 95%;
-            gap: 60px;
+            display: flex;
+            align-items: flex-end;
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        /* Spacer to match score box width (42px) */
+        .live-sb-logo-spacer {
+            width: 42px;
+            flex-shrink: 0;
+        }
+
+        /* Logo box - matches team section width with flex: 1 */
+        .live-sb-logo-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        /* Center spacer - matches time box width (60px) */
+        .live-sb-logo-center-spacer {
+            width: 60px;
+            flex-shrink: 0;
         }
 
         .live-card-team-logo {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             object-fit: contain;
             filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6));
         }
@@ -2378,9 +2399,13 @@
             height: 42px;
             display: flex;
             align-items: stretch;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+            filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.5));
             border-radius: 4px;
             overflow: visible;
+            box-shadow:
+                0 3px 12px rgba(0, 0, 0, 0.4),
+                0 1px 4px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         /* Score boxes on sides */
@@ -2445,14 +2470,24 @@
             }
         }
 
-        /* Team info sections inside scoreboard */
+        /* Team info sections inside scoreboard - metallic grey area */
         .live-sb-team-section {
             flex: 1;
-            background: var(--sb-center-bg);
+            background: linear-gradient(180deg,
+                    #3d4654 0%,
+                    #2d3544 15%,
+                    #1f2937 50%,
+                    #1a202c 85%,
+                    #151a23 100%);
             display: flex;
             align-items: center;
             padding: 4px 8px;
             position: relative;
+            box-shadow:
+                inset 0 2px 3px rgba(255, 255, 255, 0.12),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.35),
+                inset 1px 0 2px rgba(255, 255, 255, 0.05),
+                inset -1px 0 2px rgba(0, 0, 0, 0.2);
         }
 
         .live-sb-team-section.away {
@@ -2507,12 +2542,23 @@
         }
 
         .live-sb-time-box {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            background: linear-gradient(180deg,
+                    #252a31 0%,
+                    #000000 10%,
+                    #393c47 40%,
+                    #000000 60%,
+                    #000000 90%,
+                    #000000 100%);
             padding: 3px 10px;
             clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
             min-width: 60px;
             text-align: center;
-            border: 1px solid #4b5563;
+            border: 1px solid #5a6577;
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.4),
+                0 1px 2px rgba(0, 0, 0, 0.3),
+                inset 0 1px 2px rgba(255, 255, 255, 0.15),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.25);
         }
 
         .live-sb-time-label {
@@ -2593,18 +2639,23 @@
             justify-content: center;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
             z-index: 5;
+            transition: left 0.3s ease, transform 0.3s ease;
         }
 
-        /* Away team has possession */
+        /* Away team has possession - move to left side */
         .live-sb-situation.possession-away {
             --sb-possession-primary: var(--sb-away-primary);
             --sb-possession-secondary: var(--sb-away-secondary);
+            left: 25%;
+            transform: translateX(-50%);
         }
 
-        /* Home team has possession */
+        /* Home team has possession - move to right side */
         .live-sb-situation.possession-home {
             --sb-possession-primary: var(--sb-home-primary);
             --sb-possession-secondary: var(--sb-home-secondary);
+            left: 75%;
+            transform: translateX(-50%);
         }
 
         .live-sb-down-distance {
@@ -4454,10 +4505,17 @@
                 return `
                     <div class="game-card live-card ${leagueClass} focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
                         <div class="live-card-wrapper">
-                            <!-- Team logos row - outside scoreboard -->
-                            <div class="live-card-logos-row">
-                                <img class="live-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                <img class="live-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                            <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
+                            <div class="live-scoreboard-top">
+                                <div class="live-sb-logo-spacer"></div>
+                                <div class="live-sb-logo-box">
+                                    <img class="live-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                </div>
+                                <div class="live-sb-logo-center-spacer"></div>
+                                <div class="live-sb-logo-box">
+                                    <img class="live-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                </div>
+                                <div class="live-sb-logo-spacer"></div>
                             </div>
                             <!-- Scoreboard -->
                             <div class="live-scoreboard" style="--sb-away-primary: ${awayColors.primary}; --sb-away-secondary: ${awayColors.secondary}; --sb-home-primary: ${homeColors.primary}; --sb-home-secondary: ${homeColors.secondary};">

@@ -230,13 +230,36 @@
             gap: 8px;
         }
 
-        /* Team logos row - outside scoreboard */
-        .fs-card-logos-row {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
+        /* Scoreboard top section - mirrors scoreboard layout below */
+        .fs-scoreboard-top {
             width: 90%;
-            gap: 80px;
+            display: flex;
+            align-items: flex-end;
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        /* Spacer to match score box width */
+        .fs-sb-logo-spacer {
+            width: clamp(50px, 8vmin, 70px);
+            flex-shrink: 0;
+        }
+
+        /* Logo box - matches team section width */
+        .fs-sb-logo-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(8px, 2vmin, 16px);
+            /* border: 1px solid red; */
+            /* Debug */
+        }
+
+        /* Center spacer - matches time box width */
+        .fs-sb-logo-center-spacer {
+            width: clamp(60px, 10vmin, 100px);
+            flex-shrink: 0;
         }
 
         .fs-card-team-logo-wrapper {
@@ -366,9 +389,13 @@
             height: clamp(50px, 8vmin, 70px);
             display: flex;
             align-items: stretch;
-            filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5));
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
             border-radius: 6px;
             overflow: visible;
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                0 2px 6px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         /* Score boxes on sides */
@@ -413,15 +440,25 @@
             letter-spacing: 1px;
         }
 
-        /* Team info sections inside scoreboard */
+        /* Team info sections inside scoreboard - metallic grey area */
         .fs-sb-team-section {
             flex: 1;
-            background: var(--sb-center-bg);
+            background: linear-gradient(180deg,
+                    #3d4654 0%,
+                    #2d3544 15%,
+                    #1f2937 50%,
+                    #1a202c 85%,
+                    #151a23 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 4px 10px;
             position: relative;
+            box-shadow:
+                inset 0 2px 3px rgba(255, 255, 255, 0.15),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+                inset 1px 0 2px rgba(255, 255, 255, 0.05),
+                inset -1px 0 2px rgba(0, 0, 0, 0.2);
         }
 
         .fs-sb-team-section.away {
@@ -453,6 +490,41 @@
             font-weight: 500;
         }
 
+        /* Timeout bars container - positioned absolutely between team name and center */
+        .fs-sb-timeouts {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .fs-sb-timeouts.away {
+            right: 100px;
+        }
+
+        .fs-sb-timeouts.home {
+            left: 100px;
+        }
+
+        .fs-sb-timeout-bar {
+            width: clamp(8px, 1vmin, 10px);
+            height: clamp(15px, 1vmin, 10px);
+            background: linear-gradient(135deg, #414541 0%, #f5e3c4 100%);
+            border-radius: 1px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            transition: opacity 0.3s ease;
+        }
+
+        .fs-sb-timeout-bar.used {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            opacity: 0.4;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
         /* Center time/status section */
         .fs-sb-center {
             position: absolute;
@@ -466,16 +538,27 @@
         }
 
         .fs-sb-time-box {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            background: linear-gradient(180deg,
+                    #252a31 0%,
+                    #000000 10%,
+                    #393c47 40%,
+                    #000000 60%,
+                    #000000 90%,
+                    #000000 100%);
             padding: 4px 14px;
             clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
             min-width: 80px;
             text-align: center;
-            border: 1px solid #4b5563;
+            border: 1px solid #5a6577;
+            box-shadow:
+                0 3px 8px rgba(0, 0, 0, 0.5),
+                0 1px 2px rgba(0, 0, 0, 0.3),
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .fs-sb-time-label {
-            font-size: clamp(0.45rem, 1.2vmin, 0.6rem);
+            font-size: clamp(1.45rem, 2.2vmin, 1.6rem);
             color: var(--sb-subtext-color);
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -511,16 +594,21 @@
             justify-content: center;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
             z-index: 5;
+            transition: left 0.3s ease, transform 0.3s ease;
         }
 
         .fs-sb-situation.possession-away {
             --sb-possession-primary: var(--sb-away-primary);
             --sb-possession-secondary: var(--sb-away-secondary);
+            left: 25%;
+            transform: translateX(-50%);
         }
 
         .fs-sb-situation.possession-home {
             --sb-possession-primary: var(--sb-home-primary);
             --sb-possession-secondary: var(--sb-home-secondary);
+            left: 75%;
+            transform: translateX(-50%);
         }
 
         .fs-sb-down-distance {
@@ -586,14 +674,50 @@
             height: clamp(50px, 8vmin, 70px);
         }
 
+        /* League-specific background images */
+        .fullscreen-game-card.fs-nfl {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NFL-Field.jpg') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-ncaa {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NCAAF-Field.jpg') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-nba {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NBACourt.png') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-ncaab {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NCAABCourt.png') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-nhl {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NHLIceRink.png') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-mlb {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/MLBFiled.png') center center / cover no-repeat;
+        }
+
         /* Hide default content when using scoreboard */
         .fullscreen-game-card.has-scoreboard .fullscreen-card-content {
             display: none;
         }
 
         /* Grid-specific scoreboard adjustments */
-        .fullscreen-grid.grid-1 .fs-card-logos-row {
-            gap: 120px;
+        /* Grid 1 - largest cards */
+        .fullscreen-grid.grid-1 .fs-sb-logo-spacer {
+            width: clamp(70px, 10vmin, 100px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-logo-center-spacer {
+            width: clamp(80px, 12vmin, 120px);
         }
 
         .fullscreen-grid.grid-1 .fs-card-team-logo {
@@ -609,8 +733,13 @@
             width: clamp(70px, 10vmin, 100px);
         }
 
-        .fullscreen-grid.grid-2 .fs-card-logos-row {
-            gap: 100px;
+        /* Grid 2 */
+        .fullscreen-grid.grid-2 .fs-sb-logo-spacer {
+            width: clamp(50px, 8vmin, 70px);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-logo-center-spacer {
+            width: clamp(70px, 10vmin, 100px);
         }
 
         .fullscreen-grid.grid-2 .fs-card-team-logo {
@@ -618,9 +747,15 @@
             height: clamp(60px, 10vmin, 100px);
         }
 
-        .fullscreen-grid.grid-5 .fs-card-logos-row,
-        .fullscreen-grid.grid-6 .fs-card-logos-row {
-            gap: 50px;
+        /* Grid 5-6 */
+        .fullscreen-grid.grid-5 .fs-sb-logo-spacer,
+        .fullscreen-grid.grid-6 .fs-sb-logo-spacer {
+            width: clamp(45px, 7vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-logo-center-spacer,
+        .fullscreen-grid.grid-6 .fs-sb-logo-center-spacer {
+            width: clamp(50px, 8vmin, 80px);
         }
 
         .fullscreen-grid.grid-5 .fs-card-team-logo,
@@ -629,9 +764,37 @@
             height: clamp(35px, 6vmin, 60px);
         }
 
-        .fullscreen-grid.grid-7 .fs-card-logos-row,
-        .fullscreen-grid.grid-8 .fs-card-logos-row {
-            gap: 40px;
+        .fullscreen-grid.grid-5 .fs-sb-score-box,
+        .fullscreen-grid.grid-6 .fs-sb-score-box {
+            width: clamp(45px, 7vmin, 60px);
+        }
+
+        /* Grid 5-6 timeout bars */
+        .fullscreen-grid.grid-5 .fs-sb-timeout-bar,
+        .fullscreen-grid.grid-6 .fs-sb-timeout-bar {
+            width: clamp(5px, 0.8vmin, 8px);
+            height: clamp(5px, 0.8vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-timeouts.away,
+        .fullscreen-grid.grid-6 .fs-sb-timeouts.away {
+            right: 45px;
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-timeouts.home,
+        .fullscreen-grid.grid-6 .fs-sb-timeouts.home {
+            left: 45px;
+        }
+
+        /* Grid 7-8 - smallest cards */
+        .fullscreen-grid.grid-7 .fs-sb-logo-spacer,
+        .fullscreen-grid.grid-8 .fs-sb-logo-spacer {
+            width: clamp(40px, 6vmin, 55px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-logo-center-spacer,
+        .fullscreen-grid.grid-8 .fs-sb-logo-center-spacer {
+            width: clamp(40px, 6vmin, 60px);
         }
 
         .fullscreen-grid.grid-7 .fs-card-team-logo,
@@ -648,6 +811,27 @@
         .fullscreen-grid.grid-7 .fs-sb-score-box,
         .fullscreen-grid.grid-8 .fs-sb-score-box {
             width: clamp(40px, 6vmin, 55px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-timeout-bar,
+        .fullscreen-grid.grid-8 .fs-sb-timeout-bar {
+            width: clamp(4px, 0.6vmin, 6px);
+            height: clamp(4px, 0.6vmin, 6px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-timeouts,
+        .fullscreen-grid.grid-8 .fs-sb-timeouts {
+            gap: 1px;
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-timeouts.away,
+        .fullscreen-grid.grid-8 .fs-sb-timeouts.away {
+            right: 40px;
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-timeouts.home,
+        .fullscreen-grid.grid-8 .fs-sb-timeouts.home {
+            left: 40px;
         }
 
         .fullscreen-grid.grid-7 .fs-sb-situation,
@@ -678,6 +862,186 @@
         .fullscreen-grid.grid-7 .fs-card-wrapper .field-visualizer,
         .fullscreen-grid.grid-8 .fs-card-wrapper .field-visualizer {
             margin-top: clamp(16px, 2.5vmin, 26px);
+        }
+
+        /* ================================ */
+        /* NFL STATS MODAL (Between Plays)  */
+        /* ================================ */
+        .nfl-stats-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 14, 26, 0.95) 0%, rgba(20, 30, 50, 0.95) 100%);
+            display: flex;
+            flex-direction: column;
+            padding: clamp(8px, 2vmin, 16px);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            overflow: hidden;
+        }
+
+        .nfl-stats-modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .nfl-stats-modal-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(8px, 2vmin, 16px);
+            margin-bottom: clamp(6px, 1.5vmin, 12px);
+            padding-bottom: clamp(4px, 1vmin, 8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nfl-stats-modal-title {
+            font-size: clamp(0.7rem, 1.8vmin, 1rem);
+            font-weight: 700;
+            color: #4ade80;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nfl-stats-content {
+            display: flex;
+            flex: 1;
+            gap: clamp(8px, 2vmin, 16px);
+            overflow: hidden;
+        }
+
+        .nfl-stats-team {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: clamp(6px, 1.5vmin, 12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nfl-stats-team-header {
+            display: flex;
+            align-items: center;
+            gap: clamp(6px, 1.5vmin, 10px);
+            margin-bottom: clamp(6px, 1.5vmin, 10px);
+            padding-bottom: clamp(4px, 1vmin, 8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nfl-stats-team-logo {
+            width: clamp(24px, 4vmin, 40px);
+            height: clamp(24px, 4vmin, 40px);
+            object-fit: contain;
+        }
+
+        .nfl-stats-team-name {
+            font-size: clamp(0.65rem, 1.6vmin, 0.9rem);
+            font-weight: 700;
+            color: white;
+        }
+
+        .nfl-stats-category {
+            margin-bottom: clamp(4px, 1vmin, 8px);
+        }
+
+        .nfl-stats-category-title {
+            font-size: clamp(0.55rem, 1.3vmin, 0.75rem);
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: clamp(2px, 0.5vmin, 4px);
+        }
+
+        .nfl-stats-player {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: clamp(2px, 0.5vmin, 4px) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nfl-stats-player:last-child {
+            border-bottom: none;
+        }
+
+        .nfl-stats-player-name {
+            font-size: clamp(0.5rem, 1.2vmin, 0.7rem);
+            color: white;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 60%;
+        }
+
+        .nfl-stats-player-value {
+            font-size: clamp(0.5rem, 1.2vmin, 0.7rem);
+            color: #4ade80;
+            font-weight: 700;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .nfl-stats-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            color: #94a3b8;
+            font-size: clamp(0.6rem, 1.4vmin, 0.8rem);
+        }
+
+        .nfl-stats-loading::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            border: 2px solid #4ade80;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Smaller grids - compact stats */
+        .fullscreen-grid.grid-5 .nfl-stats-category-title,
+        .fullscreen-grid.grid-6 .nfl-stats-category-title,
+        .fullscreen-grid.grid-7 .nfl-stats-category-title,
+        .fullscreen-grid.grid-8 .nfl-stats-category-title {
+            font-size: clamp(0.45rem, 1vmin, 0.6rem);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-player-name,
+        .fullscreen-grid.grid-6 .nfl-stats-player-name,
+        .fullscreen-grid.grid-7 .nfl-stats-player-name,
+        .fullscreen-grid.grid-8 .nfl-stats-player-name {
+            font-size: clamp(0.4rem, 0.9vmin, 0.55rem);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-player-value,
+        .fullscreen-grid.grid-6 .nfl-stats-player-value,
+        .fullscreen-grid.grid-7 .nfl-stats-player-value,
+        .fullscreen-grid.grid-8 .nfl-stats-player-value {
+            font-size: clamp(0.4rem, 0.9vmin, 0.55rem);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team,
+        .fullscreen-grid.grid-8 .nfl-stats-team {
+            padding: clamp(4px, 1vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team-logo,
+        .fullscreen-grid.grid-8 .nfl-stats-team-logo {
+            width: clamp(18px, 3vmin, 28px);
+            height: clamp(18px, 3vmin, 28px);
         }
     </style>
 </head>
@@ -944,6 +1308,9 @@
             setupKeyboardNavigation();
             startAutoRefresh();
 
+            // Update stats modals for NFL games
+            updateStatsModals();
+
             // Focus back button
             document.getElementById('back-btn').focus();
         });
@@ -1004,7 +1371,7 @@
             const isUpcoming = game.state === 'pre';
 
             // Determine card state class
-            let cardClass = 'fullscreen-game-card has-scoreboard';
+            let cardClass = `fullscreen-game-card has-scoreboard fs-${game.league}`;
             if (isUpcoming) {
                 cardClass += ' upcoming-game';
             } else if (isFinal) {
@@ -1094,16 +1461,21 @@
                     <div class="fullscreen-refresh-indicator"></div>
 
                     <div class="fs-card-wrapper">
-                        <!-- Team logos row - outside scoreboard -->
-                        <div class="fs-card-logos-row">
-                            <div class="fs-card-team-logo-wrapper">
-                                <img class="fs-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                ${awayHasPossession ? '<span class="fs-possession-indicator away">🏈</span>' : ''}
+                        <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
+                        <div class="fs-scoreboard-top">
+                            <div class="fs-sb-logo-spacer"></div>
+                            <div class="fs-sb-logo-box">
+                                <div class="fs-card-team-logo-wrapper">
+                                    <img class="fs-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                </div>
                             </div>
-                            <div class="fs-card-team-logo-wrapper">
-                                <img class="fs-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                ${homeHasPossession ? '<span class="fs-possession-indicator home">🏈</span>' : ''}
+                            <div class="fs-sb-logo-center-spacer"></div>
+                            <div class="fs-sb-logo-box">
+                                <div class="fs-card-team-logo-wrapper">
+                                    <img class="fs-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                </div>
                             </div>
+                            <div class="fs-sb-logo-spacer"></div>
                         </div>
 
                         <!-- Scoreboard -->
@@ -1116,14 +1488,20 @@
                                     <span class="fs-sb-team-name">${game.away.abbr}</span>
                                     ${game.away.record ? `<span class="fs-sb-team-record">${game.away.record}</span>` : ''}
                                 </div>
+                                ${(isFootball && game.away.timeouts !== undefined) ? `<div class="fs-sb-timeouts away">${createTimeoutBars(game.away.timeouts)}</div>` : ''}
                             </div>
                             <div class="fs-sb-center">
                                 <div class="fs-sb-time-box">
-                                    <div class="fs-sb-time-label">${statusParts.period || (isUpcoming ? 'STARTS' : isFinal ? 'FINAL' : '')}</div>
-                                    <div class="fs-sb-time">${statusParts.time || displayStatus}</div>
+                                    ${isFinal ? `
+                                        <div class="fs-sb-time" style="font-size: clamp(0.8rem, 2.2vmin, 1.1rem);">FINAL</div>
+                                    ` : `
+                                        <div class="fs-sb-time-label">${statusParts.period || (isUpcoming ? 'STARTS' : '')}</div>
+                                        <div class="fs-sb-time">${statusParts.time || displayStatus}</div>
+                                    `}
                                 </div>
                             </div>
                             <div class="fs-sb-team-section home">
+                                ${(isFootball && game.home.timeouts !== undefined) ? `<div class="fs-sb-timeouts home">${createTimeoutBars(game.home.timeouts)}</div>` : ''}
                                 <div class="fs-sb-team-info">
                                     <span class="fs-sb-team-name">${game.home.abbr}</span>
                                     ${game.home.record ? `<span class="fs-sb-team-record">${game.home.record}</span>` : ''}
@@ -1137,6 +1515,18 @@
 
                         ${fieldVisualizerHTML}
                     </div>
+
+                    ${(game.league === 'nfl' && isLive) ? `
+                    <!-- NFL Stats Modal (shows between plays) -->
+                    <div class="nfl-stats-modal" data-game-stats-id="${game.id}">
+                        <div class="nfl-stats-modal-header">
+                            <span class="nfl-stats-modal-title">Game Stats</span>
+                        </div>
+                        <div class="nfl-stats-content">
+                            <div class="nfl-stats-loading">Loading stats...</div>
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -1147,9 +1537,9 @@
             let bars = '';
             for (let i = 0; i < 3; i++) {
                 const usedClass = i >= remaining ? 'used' : '';
-                bars += `<div class="timeout-bar ${usedClass}"></div>`;
+                bars += `<div class="fs-sb-timeout-bar ${usedClass}"></div>`;
             }
-            return `<div class="fullscreen-timeouts">${bars}</div>`;
+            return bars;
         }
 
         function formatStartTime(dateStr) {
@@ -1689,10 +2079,16 @@
             }
 
             // 1ST DOWN detection
+            // Only trigger if down goes from 2-4 to 1, no score change, no other events,
+            // AND possession hasn't changed (to avoid false triggers after turnovers/fumbles)
             const currentDown = comp?.situation?.down;
             const prevDown = prevData.down || 0;
+            const currentPossession = game.possession;
+            const prevPossession = prevData.possession;
+            const possessionChanged = prevPossession && currentPossession && prevPossession !== currentPossession;
+
             if (currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
-                awayScoreChange === 0 && homeScoreChange === 0 && events.length === 0) {
+                awayScoreChange === 0 && homeScoreChange === 0 && events.length === 0 && !possessionChanged) {
                 events.push({ type: 'first-down', text: '1ST DOWN!', teamName: '', isNegated: false });
             }
 
@@ -1707,12 +2103,198 @@
         }
 
         // ============================================
+        // NFL STATS MODAL (Between Plays)
+        // ============================================
+        const gameStatsCache = new Map(); // gameId -> { stats, lastFetch }
+        const STATS_CACHE_TTL = 20000; // 20 seconds cache
+
+        async function fetchGameStats(gameId) {
+            const cached = gameStatsCache.get(gameId);
+            const now = Date.now();
+
+            // Return cached stats if still valid
+            if (cached && (now - cached.lastFetch) < STATS_CACHE_TTL) {
+                return cached.stats;
+            }
+
+            try {
+                const response = await fetch(`/api/nfl/summary/${gameId}`);
+                if (!response.ok) throw new Error('Failed to fetch stats');
+
+                const data = await response.json();
+                const stats = parseGameStats(data);
+
+                // Cache the stats
+                gameStatsCache.set(gameId, { stats, lastFetch: now });
+
+                return stats;
+            } catch (err) {
+                console.error(`Failed to fetch stats for game ${gameId}:`, err);
+                return null;
+            }
+        }
+
+        function parseGameStats(data) {
+            const boxscore = data.boxscore;
+            if (!boxscore || !boxscore.players) return null;
+
+            const stats = { away: null, home: null };
+
+            boxscore.players.forEach(teamData => {
+                const homeAway = teamData.team?.homeAway || 'away';
+                const teamInfo = {
+                    name: teamData.team?.displayName || teamData.team?.abbreviation || '',
+                    abbreviation: teamData.team?.abbreviation || '',
+                    logo: teamData.team?.logo || '',
+                    categories: {}
+                };
+
+                // Parse statistics by category
+                if (teamData.statistics) {
+                    teamData.statistics.forEach(stat => {
+                        const category = stat.name?.toLowerCase();
+                        if (!category) return;
+
+                        const leaders = [];
+                        if (stat.athletes) {
+                            stat.athletes.slice(0, 2).forEach(athlete => {
+                                if (athlete.athlete && athlete.stats && athlete.stats.length > 0) {
+                                    leaders.push({
+                                        name: athlete.athlete.shortName || athlete.athlete.displayName || '',
+                                        value: formatStatValue(category, athlete.stats)
+                                    });
+                                }
+                            });
+                        }
+
+                        if (leaders.length > 0) {
+                            teamInfo.categories[category] = leaders;
+                        }
+                    });
+                }
+
+                stats[homeAway] = teamInfo;
+            });
+
+            return stats;
+        }
+
+        function formatStatValue(category, statsArray) {
+            if (!statsArray || statsArray.length === 0) return '';
+
+            // For different categories, format the display value
+            switch (category) {
+                case 'passing':
+                    // C/ATT, YDS, TD-INT format: e.g., "18/25, 245 YDS, 2 TD"
+                    if (statsArray.length >= 4) {
+                        const cmp = statsArray[0], att = statsArray[1], yds = statsArray[2], td = statsArray[4] || 0;
+                        return `${cmp}/${att}, ${yds} YDS, ${td} TD`;
+                    }
+                    return statsArray[0] || '';
+                case 'rushing':
+                    // CAR, YDS, TD format: e.g., "15 CAR, 87 YDS, 1 TD"
+                    if (statsArray.length >= 3) {
+                        return `${statsArray[0]} CAR, ${statsArray[1]} YDS, ${statsArray[3] || 0} TD`;
+                    }
+                    return statsArray[0] || '';
+                case 'receiving':
+                    // REC, YDS, TD format: e.g., "5 REC, 78 YDS, 1 TD"
+                    if (statsArray.length >= 3) {
+                        return `${statsArray[0]} REC, ${statsArray[1]} YDS, ${statsArray[3] || 0} TD`;
+                    }
+                    return statsArray[0] || '';
+                case 'defensive':
+                    // TCKL, SACK, INT format
+                    if (statsArray.length >= 2) {
+                        return `${statsArray[0]} TCKL, ${statsArray[1]} SACK`;
+                    }
+                    return statsArray[0] || '';
+                default:
+                    return statsArray[0] || '';
+            }
+        }
+
+        function renderStatsModal(modal, stats, game) {
+            if (!stats || !stats.away || !stats.home) {
+                modal.querySelector('.nfl-stats-content').innerHTML = `
+                    <div class="nfl-stats-loading">Stats unavailable</div>
+                `;
+                return;
+            }
+
+            const priorityCategories = ['passing', 'rushing', 'receiving'];
+
+            const renderTeamStats = (teamStats, teamData) => {
+                const categoriesHTML = priorityCategories.map(cat => {
+                    const players = teamStats.categories[cat];
+                    if (!players || players.length === 0) return '';
+
+                    const categoryTitle = cat.charAt(0).toUpperCase() + cat.slice(1);
+                    const playersHTML = players.map(p => `
+                        <div class="nfl-stats-player">
+                            <span class="nfl-stats-player-name">${p.name}</span>
+                            <span class="nfl-stats-player-value">${p.value}</span>
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div class="nfl-stats-category">
+                            <div class="nfl-stats-category-title">${categoryTitle}</div>
+                            ${playersHTML}
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="nfl-stats-team">
+                        <div class="nfl-stats-team-header">
+                            <img class="nfl-stats-team-logo" src="${teamData.logo}" alt="${teamData.abbr}" onerror="this.style.display='none'">
+                            <span class="nfl-stats-team-name">${teamData.abbr}</span>
+                        </div>
+                        ${categoriesHTML || '<div class="nfl-stats-loading">No stats yet</div>'}
+                    </div>
+                `;
+            };
+
+            modal.querySelector('.nfl-stats-content').innerHTML = `
+                ${renderTeamStats(stats.away, game.away)}
+                ${renderTeamStats(stats.home, game.home)}
+            `;
+        }
+
+        async function updateStatsModals() {
+            // Find all NFL live games that should show stats (no downDistance = between plays)
+            for (const game of games) {
+                if (game.league !== 'nfl' || game.state !== 'in') continue;
+
+                const modal = document.querySelector(`.nfl-stats-modal[data-game-stats-id="${game.id}"]`);
+                if (!modal) continue;
+
+                const hasActivePlays = !!game.downDistance;
+
+                if (hasActivePlays) {
+                    // Play is active - hide the modal
+                    modal.classList.remove('visible');
+                } else {
+                    // Between plays - show stats modal
+                    modal.classList.add('visible');
+
+                    // Fetch and render stats
+                    const stats = await fetchGameStats(game.id);
+                    if (stats) {
+                        renderStatsModal(modal, stats, game);
+                    }
+                }
+            }
+        }
+
+        // ============================================
         // AUTO-REFRESH
         // ============================================
         let prevGameData = new Map(); // Store previous game state for animation detection
 
         function startAutoRefresh() {
-            refreshInterval = setInterval(refreshGameData, 30000);
+            refreshInterval = setInterval(refreshGameData, 20000);
         }
 
         async function refreshGameData() {
@@ -1762,7 +2344,8 @@
                                 awayScore: game.away.score,
                                 homeScore: game.home.score,
                                 lastPlay: comp?.situation?.lastPlay?.text || '',
-                                down: comp?.situation?.down || 0
+                                down: comp?.situation?.down || 0,
+                                possession: game.possession || null
                             });
 
                             // Queue animation detection for after render (NFL, NCAA football, and NHL)
@@ -1790,6 +2373,9 @@
                     }
                 }
             });
+
+            // Update stats modals for NFL games (show/hide based on play state)
+            updateStatsModals();
 
             // Update localStorage so TV Home has latest data
             localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));

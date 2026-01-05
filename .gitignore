@@ -43,3 +43,6 @@ local.properties
 tv-apps/android-tv/app/build/
 tv-apps/android-tv/build/
 tv-apps/android-tv/.gradle/
+
+# Android TV App (in development)
+AndroidTVApp/
