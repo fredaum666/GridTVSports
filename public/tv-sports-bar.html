@@ -401,7 +401,7 @@
         /* Score boxes on sides */
         .fs-sb-score-box {
             position: relative;
-            width: clamp(50px, 8vmin, 70px);
+            width: clamp(65px, 10vmin, 90px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -410,7 +410,7 @@
 
         .fs-sb-score-box.away {
             background: linear-gradient(135deg, var(--sb-away-primary) 0%, var(--sb-away-primary) 60%, var(--sb-away-secondary) 100%);
-            clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%);
+            /*clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%);*/
             padding-right: 6px;
             border-radius: 6px 0 0 6px;
             box-shadow:
@@ -420,7 +420,7 @@
 
         .fs-sb-score-box.home {
             background: linear-gradient(135deg, var(--sb-home-secondary) 0%, var(--sb-home-primary) 40%, var(--sb-home-primary) 100%);
-            clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
+            /*clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);*/
             padding-left: 6px;
             border-radius: 0 6px 6px 0;
             box-shadow:
@@ -454,6 +454,7 @@
             justify-content: center;
             padding: 4px 10px;
             position: relative;
+
             box-shadow:
                 inset 0 2px 3px rgba(255, 255, 255, 0.15),
                 inset 0 -2px 4px rgba(0, 0, 0, 0.4),
@@ -900,17 +901,18 @@
         }
 
         .nfl-stats-modal-title {
-            font-size: clamp(0.7rem, 1.8vmin, 1rem);
+            font-size: clamp(1.2rem, 3vmin, 2rem);
             font-weight: 700;
             color: #4ade80;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .nfl-stats-content {
             display: flex;
             flex: 1;
-            gap: clamp(8px, 2vmin, 16px);
+            gap: clamp(12px, 3vmin, 24px);
             overflow: hidden;
         }
 
@@ -919,51 +921,64 @@
             display: flex;
             flex-direction: column;
             background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            padding: clamp(6px, 1.5vmin, 12px);
+            border-radius: 12px;
+            padding: clamp(10px, 2.5vmin, 20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .nfl-stats-team-header {
             display: flex;
             align-items: center;
-            gap: clamp(6px, 1.5vmin, 10px);
-            margin-bottom: clamp(6px, 1.5vmin, 10px);
-            padding-bottom: clamp(4px, 1vmin, 8px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: clamp(10px, 2.5vmin, 16px);
+            margin-bottom: clamp(10px, 2.5vmin, 16px);
+            padding-bottom: clamp(8px, 2vmin, 12px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .nfl-stats-team-score {
+            font-size: clamp(2rem, 5vmin, 4rem);
+            font-weight: 900;
+            color: #4ade80;
+            text-shadow: 0 2px 8px rgba(74, 222, 128, 0.4), 0 2px 4px rgba(0, 0, 0, 0.5);
+            min-width: clamp(50px, 8vmin, 90px);
+            text-align: center;
         }
 
         .nfl-stats-team-logo {
-            width: clamp(24px, 4vmin, 40px);
-            height: clamp(24px, 4vmin, 40px);
+            width: clamp(40px, 7vmin, 70px);
+            height: clamp(40px, 7vmin, 70px);
             object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
 
         .nfl-stats-team-name {
-            font-size: clamp(0.65rem, 1.6vmin, 0.9rem);
+            font-size: clamp(1rem, 2.5vmin, 1.6rem);
             font-weight: 700;
             color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            flex: 1;
         }
 
         .nfl-stats-category {
-            margin-bottom: clamp(4px, 1vmin, 8px);
+            margin-bottom: clamp(8px, 2vmin, 14px);
         }
 
         .nfl-stats-category-title {
-            font-size: clamp(0.55rem, 1.3vmin, 0.75rem);
+            font-size: clamp(0.9rem, 2.2vmin, 1.3rem);
             font-weight: 600;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: clamp(2px, 0.5vmin, 4px);
+            letter-spacing: 1px;
+            margin-bottom: clamp(4px, 1vmin, 8px);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .nfl-stats-player {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: clamp(2px, 0.5vmin, 4px) 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: clamp(4px, 1vmin, 8px) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .nfl-stats-player:last-child {
@@ -971,20 +986,22 @@
         }
 
         .nfl-stats-player-name {
-            font-size: clamp(0.5rem, 1.2vmin, 0.7rem);
+            font-size: clamp(0.85rem, 2vmin, 1.2rem);
             color: white;
             font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 60%;
+            max-width: 45%;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .nfl-stats-player-value {
-            font-size: clamp(0.5rem, 1.2vmin, 0.7rem);
+            font-size: clamp(0.8rem, 1.8vmin, 1.1rem);
             color: #4ade80;
             font-weight: 700;
             font-family: 'Roboto Mono', monospace;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .nfl-stats-loading {
@@ -993,7 +1010,7 @@
             align-items: center;
             flex: 1;
             color: #94a3b8;
-            font-size: clamp(0.6rem, 1.4vmin, 0.8rem);
+            font-size: clamp(1rem, 2.5vmin, 1.5rem);
         }
 
         .nfl-stats-loading::after {
@@ -1008,40 +1025,199 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        /* Smaller grids - compact stats */
+        /* Grid 3-4 - slightly smaller */
+        .fullscreen-grid.grid-3 .nfl-stats-modal-title,
+        .fullscreen-grid.grid-4 .nfl-stats-modal-title {
+            font-size: clamp(1rem, 2.5vmin, 1.6rem);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-team-score,
+        .fullscreen-grid.grid-4 .nfl-stats-team-score {
+            font-size: clamp(1.6rem, 4vmin, 3rem);
+            min-width: clamp(40px, 6vmin, 70px);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-team-name,
+        .fullscreen-grid.grid-4 .nfl-stats-team-name {
+            font-size: clamp(0.85rem, 2vmin, 1.3rem);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-category-title,
+        .fullscreen-grid.grid-4 .nfl-stats-category-title {
+            font-size: clamp(0.75rem, 1.8vmin, 1.1rem);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-player-name,
+        .fullscreen-grid.grid-4 .nfl-stats-player-name {
+            font-size: clamp(0.7rem, 1.6vmin, 1rem);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-player-value,
+        .fullscreen-grid.grid-4 .nfl-stats-player-value {
+            font-size: clamp(0.65rem, 1.5vmin, 0.95rem);
+        }
+
+        /* Grid 5-6 - compact but readable */
+        .fullscreen-grid.grid-5 .nfl-stats-modal-title,
+        .fullscreen-grid.grid-6 .nfl-stats-modal-title {
+            font-size: clamp(0.85rem, 2vmin, 1.3rem);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-team-score,
+        .fullscreen-grid.grid-6 .nfl-stats-team-score {
+            font-size: clamp(1.3rem, 3.5vmin, 2.5rem);
+            min-width: clamp(35px, 5vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-team-logo,
+        .fullscreen-grid.grid-6 .nfl-stats-team-logo {
+            width: clamp(30px, 5vmin, 50px);
+            height: clamp(30px, 5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-team-name,
+        .fullscreen-grid.grid-6 .nfl-stats-team-name {
+            font-size: clamp(0.7rem, 1.6vmin, 1rem);
+        }
+
         .fullscreen-grid.grid-5 .nfl-stats-category-title,
-        .fullscreen-grid.grid-6 .nfl-stats-category-title,
-        .fullscreen-grid.grid-7 .nfl-stats-category-title,
-        .fullscreen-grid.grid-8 .nfl-stats-category-title {
-            font-size: clamp(0.45rem, 1vmin, 0.6rem);
+        .fullscreen-grid.grid-6 .nfl-stats-category-title {
+            font-size: clamp(0.65rem, 1.5vmin, 0.9rem);
         }
 
         .fullscreen-grid.grid-5 .nfl-stats-player-name,
-        .fullscreen-grid.grid-6 .nfl-stats-player-name,
-        .fullscreen-grid.grid-7 .nfl-stats-player-name,
-        .fullscreen-grid.grid-8 .nfl-stats-player-name {
-            font-size: clamp(0.4rem, 0.9vmin, 0.55rem);
+        .fullscreen-grid.grid-6 .nfl-stats-player-name {
+            font-size: clamp(0.6rem, 1.3vmin, 0.85rem);
         }
 
         .fullscreen-grid.grid-5 .nfl-stats-player-value,
-        .fullscreen-grid.grid-6 .nfl-stats-player-value,
-        .fullscreen-grid.grid-7 .nfl-stats-player-value,
-        .fullscreen-grid.grid-8 .nfl-stats-player-value {
-            font-size: clamp(0.4rem, 0.9vmin, 0.55rem);
+        .fullscreen-grid.grid-6 .nfl-stats-player-value {
+            font-size: clamp(0.55rem, 1.2vmin, 0.8rem);
+        }
+
+        /* Grid 7-8 - smallest but still readable */
+        .fullscreen-grid.grid-7 .nfl-stats-modal-title,
+        .fullscreen-grid.grid-8 .nfl-stats-modal-title {
+            font-size: clamp(0.7rem, 1.6vmin, 1rem);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team-score,
+        .fullscreen-grid.grid-8 .nfl-stats-team-score {
+            font-size: clamp(1rem, 2.8vmin, 2rem);
+            min-width: clamp(28px, 4vmin, 50px);
         }
 
         .fullscreen-grid.grid-7 .nfl-stats-team,
         .fullscreen-grid.grid-8 .nfl-stats-team {
-            padding: clamp(4px, 1vmin, 8px);
+            padding: clamp(6px, 1.5vmin, 12px);
         }
 
         .fullscreen-grid.grid-7 .nfl-stats-team-logo,
         .fullscreen-grid.grid-8 .nfl-stats-team-logo {
-            width: clamp(18px, 3vmin, 28px);
-            height: clamp(18px, 3vmin, 28px);
+            width: clamp(24px, 4vmin, 40px);
+            height: clamp(24px, 4vmin, 40px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team-name,
+        .fullscreen-grid.grid-8 .nfl-stats-team-name {
+            font-size: clamp(0.6rem, 1.4vmin, 0.85rem);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-category-title,
+        .fullscreen-grid.grid-8 .nfl-stats-category-title {
+            font-size: clamp(0.55rem, 1.2vmin, 0.75rem);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-player-name,
+        .fullscreen-grid.grid-8 .nfl-stats-player-name {
+            font-size: clamp(0.5rem, 1.1vmin, 0.7rem);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-player-value,
+        .fullscreen-grid.grid-8 .nfl-stats-player-value {
+            font-size: clamp(0.45rem, 1vmin, 0.65rem);
+        }
+
+        /* Grid 5-6: Hide receiving category and show only 1 player per category */
+        .fullscreen-grid.grid-5 .nfl-stats-category:nth-child(3),
+        .fullscreen-grid.grid-6 .nfl-stats-category:nth-child(3) {
+            display: none;
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-player:nth-child(n+2),
+        .fullscreen-grid.grid-6 .nfl-stats-player:nth-child(n+2) {
+            display: none;
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-category,
+        .fullscreen-grid.grid-6 .nfl-stats-category {
+            margin-bottom: clamp(4px, 1vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-team-header,
+        .fullscreen-grid.grid-6 .nfl-stats-team-header {
+            margin-bottom: clamp(6px, 1.5vmin, 10px);
+            padding-bottom: clamp(4px, 1vmin, 6px);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-modal-header,
+        .fullscreen-grid.grid-6 .nfl-stats-modal-header {
+            margin-bottom: clamp(4px, 1vmin, 8px);
+            padding-bottom: clamp(2px, 0.5vmin, 4px);
+        }
+
+        /* Grid 7-8: Hide receiving category, show only 1 player, minimal spacing */
+        .fullscreen-grid.grid-7 .nfl-stats-category:nth-child(3),
+        .fullscreen-grid.grid-8 .nfl-stats-category:nth-child(3) {
+            display: none;
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-player:nth-child(n+2),
+        .fullscreen-grid.grid-8 .nfl-stats-player:nth-child(n+2) {
+            display: none;
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-category,
+        .fullscreen-grid.grid-8 .nfl-stats-category {
+            margin-bottom: clamp(2px, 0.5vmin, 4px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-category-title,
+        .fullscreen-grid.grid-8 .nfl-stats-category-title {
+            margin-bottom: clamp(2px, 0.5vmin, 4px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team-header,
+        .fullscreen-grid.grid-8 .nfl-stats-team-header {
+            margin-bottom: clamp(4px, 1vmin, 8px);
+            padding-bottom: clamp(2px, 0.5vmin, 4px);
+            gap: clamp(6px, 1.5vmin, 10px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-modal-header,
+        .fullscreen-grid.grid-8 .nfl-stats-modal-header {
+            margin-bottom: clamp(2px, 0.5vmin, 4px);
+            padding-bottom: clamp(1px, 0.3vmin, 2px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-modal,
+        .fullscreen-grid.grid-8 .nfl-stats-modal {
+            padding: clamp(4px, 1vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-content,
+        .fullscreen-grid.grid-8 .nfl-stats-content {
+            gap: clamp(6px, 1.5vmin, 12px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-player,
+        .fullscreen-grid.grid-8 .nfl-stats-player {
+            padding: clamp(2px, 0.5vmin, 4px) 0;
         }
     </style>
 </head>
@@ -1406,9 +1582,18 @@
                 if (formatted) displayStatus = formatted;
             }
 
-            // Build game situation box for NFL/NCAA
+            // Check if game is in intermission (halftime, end of quarter, etc.)
+            const statusLower = (game.status || '').toLowerCase();
+            const isIntermission = statusLower.includes('halftime') ||
+                statusLower.includes('half') ||
+                statusLower.includes('end of') ||
+                statusLower.includes('intermission') ||
+                statusLower.includes('2nd') && statusLower.includes('0:00') ||
+                statusLower.includes('4th') && statusLower.includes('0:00');
+
+            // Build game situation box for NFL/NCAA (hide during intermissions)
             let situationHTML = '';
-            if (isFootball && isLive && game.downDistance) {
+            if (isFootball && isLive && game.downDistance && !isIntermission) {
                 const possession = game.possession === 'away' ? 'possession-away' :
                     game.possession === 'home' ? 'possession-home' : '';
                 const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
@@ -1422,9 +1607,9 @@
                 `;
             }
 
-            // Build field visualizer for NFL/NCAA (only show when situation box is showing)
+            // Build field visualizer for NFL/NCAA (only show when situation box is showing, hide during intermissions)
             let fieldVisualizerHTML = '';
-            if (isFootball && isLive && game.downDistance && game.fieldPosition) {
+            if (isFootball && isLive && game.downDistance && game.fieldPosition && !isIntermission) {
                 fieldVisualizerHTML = `
                     <div class="field-visualizer">
                         <div class="field-container">
@@ -2057,8 +2242,16 @@
             if ((lowerLastPlay.includes('penalty') || lowerLastPlay.includes('flag')) &&
                 !lowerLastPlay.includes('no flags') && !lowerLastPlay.includes('declined')) {
                 let penaltyName = 'PENALTY';
-                const penaltyPatterns = ['holding', 'false start', 'offsides', 'pass interference', 'roughing the passer',
-                    'facemask', 'unnecessary roughness', 'delay of game', 'illegal formation', 'encroachment'];
+                const penaltyPatterns = [
+                    'holding', 'false start', 'offsides', 'pass interference', 'roughing the passer',
+                    'facemask', 'unnecessary roughness', 'delay of game', 'illegal formation', 'encroachment',
+                    'illegal contact', 'illegal use of hands', 'illegal block', 'illegal shift', 'illegal motion',
+                    'intentional grounding', 'neutral zone infraction', 'defensive holding', 'offensive holding',
+                    'unsportsmanlike conduct', 'taunting', 'personal foul', 'roughing the kicker', 'running into the kicker',
+                    'illegal substitution', 'too many men', 'ineligible downfield', 'illegal touching', 'horse collar',
+                    'tripping', 'clipping', 'chop block', 'low block', 'defensive pass interference',
+                    'offensive pass interference', 'illegal forward pass', 'illegal bat'
+                ];
                 for (const penalty of penaltyPatterns) {
                     if (lowerLastPlay.includes(penalty)) {
                         penaltyName = penalty.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -2066,15 +2259,62 @@
                     }
                 }
 
+                // Extract team and player from penalty text - try multiple patterns
                 let teamLogo = '';
-                const penaltyOnMatch = lastPlay.match(/PENALTY\s+on\s+([A-Z]{2,4})-/i);
+                let playerName = '';
+                let offenseDefense = '';
+
+                // Pattern 1: "PENALTY on XXX-PlayerName" (e.g., "PENALTY on KC-T.Kelce")
+                const penaltyOnMatch = lastPlay.match(/PENALTY\s+on\s+([A-Z]{2,4})[- ]([A-Z]\.?\s*[A-Za-z'-]+)/i);
                 if (penaltyOnMatch) {
                     const penaltyTeamAbbr = penaltyOnMatch[1].toUpperCase();
-                    if (penaltyTeamAbbr === awayAbbr.toUpperCase()) teamLogo = awayLogo;
-                    else if (penaltyTeamAbbr === homeAbbr.toUpperCase()) teamLogo = homeLogo;
+                    playerName = penaltyOnMatch[2] || '';
+                    if (penaltyTeamAbbr === awayAbbr.toUpperCase()) {
+                        teamLogo = awayLogo;
+                    } else if (penaltyTeamAbbr === homeAbbr.toUpperCase()) {
+                        teamLogo = homeLogo;
+                    }
                 }
 
-                const penaltyInfo = `${penaltyName}|||${teamLogo}`;
+                // Pattern 2: Just team abbreviation after "on" (e.g., "Holding on KC")
+                if (!teamLogo) {
+                    const simpleTeamMatch = lastPlay.match(/(?:on|against)\s+([A-Z]{2,4})(?:\s|,|\.|\)|$)/i);
+                    if (simpleTeamMatch) {
+                        const teamAbbr = simpleTeamMatch[1].toUpperCase();
+                        if (teamAbbr === awayAbbr.toUpperCase()) {
+                            teamLogo = awayLogo;
+                        } else if (teamAbbr === homeAbbr.toUpperCase()) {
+                            teamLogo = homeLogo;
+                        }
+                    }
+                }
+
+                // Pattern 3: Check if team name is mentioned (e.g., "Chiefs" or "Eagles")
+                if (!teamLogo) {
+                    const awayName = awayTeam?.team?.displayName?.toLowerCase() || '';
+                    const homeName = homeTeam?.team?.displayName?.toLowerCase() || '';
+                    const awayShort = awayTeam?.team?.shortDisplayName?.toLowerCase() || '';
+                    const homeShort = homeTeam?.team?.shortDisplayName?.toLowerCase() || '';
+
+                    if (awayName && lowerLastPlay.includes(awayName)) {
+                        teamLogo = awayLogo;
+                    } else if (homeName && lowerLastPlay.includes(homeName)) {
+                        teamLogo = homeLogo;
+                    } else if (awayShort && lowerLastPlay.includes(awayShort)) {
+                        teamLogo = awayLogo;
+                    } else if (homeShort && lowerLastPlay.includes(homeShort)) {
+                        teamLogo = homeLogo;
+                    }
+                }
+
+                // Determine if offense or defense penalty
+                if (lowerLastPlay.includes('offensive') || lowerLastPlay.includes('offense')) {
+                    offenseDefense = 'Offense';
+                } else if (lowerLastPlay.includes('defensive') || lowerLastPlay.includes('defense')) {
+                    offenseDefense = 'Defense';
+                }
+
+                const penaltyInfo = `${penaltyName}|${offenseDefense}|${playerName}|${teamLogo}`;
                 events.push({ type: 'penalty', text: 'FLAG!', teamName: '', recoveryInfo: penaltyInfo, isNegated: false });
             }
 
@@ -2140,8 +2380,21 @@
 
             const stats = { away: null, home: null };
 
+            // Get home/away team IDs from header
+            const competitors = data.header?.competitions?.[0]?.competitors || [];
+            const homeTeamId = competitors.find(c => c.homeAway === 'home')?.id;
+            const awayTeamId = competitors.find(c => c.homeAway === 'away')?.id;
+
             boxscore.players.forEach(teamData => {
-                const homeAway = teamData.team?.homeAway || 'away';
+                // Determine home/away by matching team ID
+                const teamId = teamData.team?.id;
+                let homeAway = 'away'; // default
+                if (teamId === homeTeamId) {
+                    homeAway = 'home';
+                } else if (teamId === awayTeamId) {
+                    homeAway = 'away';
+                }
+
                 const teamInfo = {
                     name: teamData.team?.displayName || teamData.team?.abbreviation || '',
                     abbreviation: teamData.team?.abbreviation || '',
@@ -2159,8 +2412,13 @@
                         if (stat.athletes) {
                             stat.athletes.slice(0, 2).forEach(athlete => {
                                 if (athlete.athlete && athlete.stats && athlete.stats.length > 0) {
+                                    // Build short name: "L. Jackson" format
+                                    let name = athlete.athlete.displayName || '';
+                                    if (athlete.athlete.firstName && athlete.athlete.lastName) {
+                                        name = `${athlete.athlete.firstName.charAt(0)}. ${athlete.athlete.lastName}`;
+                                    }
                                     leaders.push({
-                                        name: athlete.athlete.shortName || athlete.athlete.displayName || '',
+                                        name: name,
                                         value: formatStatValue(category, athlete.stats)
                                     });
                                 }
@@ -2224,7 +2482,7 @@
 
             const priorityCategories = ['passing', 'rushing', 'receiving'];
 
-            const renderTeamStats = (teamStats, teamData) => {
+            const renderTeamStats = (teamStats, teamData, score) => {
                 const categoriesHTML = priorityCategories.map(cat => {
                     const players = teamStats.categories[cat];
                     if (!players || players.length === 0) return '';
@@ -2245,11 +2503,15 @@
                     `;
                 }).join('');
 
+                // Use full team name from stats data, fallback to teamData
+                const fullName = teamStats.name || teamData.name || teamData.abbr;
+
                 return `
                     <div class="nfl-stats-team">
                         <div class="nfl-stats-team-header">
+                            <span class="nfl-stats-team-score">${score}</span>
                             <img class="nfl-stats-team-logo" src="${teamData.logo}" alt="${teamData.abbr}" onerror="this.style.display='none'">
-                            <span class="nfl-stats-team-name">${teamData.abbr}</span>
+                            <span class="nfl-stats-team-name">${fullName}</span>
                         </div>
                         ${categoriesHTML || '<div class="nfl-stats-loading">No stats yet</div>'}
                     </div>
@@ -2257,26 +2519,35 @@
             };
 
             modal.querySelector('.nfl-stats-content').innerHTML = `
-                ${renderTeamStats(stats.away, game.away)}
-                ${renderTeamStats(stats.home, game.home)}
+                ${renderTeamStats(stats.away, game.away, game.away.score)}
+                ${renderTeamStats(stats.home, game.home, game.home.score)}
             `;
         }
 
         async function updateStatsModals() {
-            // Find all NFL live games that should show stats (no downDistance = between plays)
+            // Find all NFL live games that should show stats (no downDistance = between plays, or during intermissions)
             for (const game of games) {
                 if (game.league !== 'nfl' || game.state !== 'in') continue;
 
                 const modal = document.querySelector(`.nfl-stats-modal[data-game-stats-id="${game.id}"]`);
                 if (!modal) continue;
 
-                const hasActivePlays = !!game.downDistance;
+                // Check if game is in intermission (halftime, end of quarter, etc.)
+                const statusLower = (game.status || '').toLowerCase();
+                const isIntermission = statusLower.includes('halftime') ||
+                    statusLower.includes('half') ||
+                    statusLower.includes('end of') ||
+                    statusLower.includes('intermission') ||
+                    statusLower.includes('2nd') && statusLower.includes('0:00') ||
+                    statusLower.includes('4th') && statusLower.includes('0:00');
+
+                const hasActivePlays = !!game.downDistance && !isIntermission;
 
                 if (hasActivePlays) {
                     // Play is active - hide the modal
                     modal.classList.remove('visible');
                 } else {
-                    // Between plays - show stats modal
+                    // Between plays or intermission - show stats modal
                     modal.classList.add('visible');
 
                     // Fetch and render stats
@@ -2310,16 +2581,29 @@
             // Queue for animations to apply after render
             const pendingAnimations = [];
 
-            // Group games by league to minimize API calls
+            // Only refresh games that aren't finished (live or upcoming)
+            const activeGames = games.filter(g => g.state !== 'post');
+
+            // If all games are finished, stop refreshing
+            if (activeGames.length === 0) {
+                console.log('📺 All games finished - stopping auto-refresh');
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                    refreshInterval = null;
+                }
+                return;
+            }
+
+            // Group active games by league to minimize API calls
             const gamesByLeague = {};
-            games.forEach(game => {
+            activeGames.forEach(game => {
                 if (!gamesByLeague[game.league]) {
                     gamesByLeague[game.league] = [];
                 }
                 gamesByLeague[game.league].push(game);
             });
 
-            // Fetch updates for each league
+            // Fetch updates only for leagues with active games
             for (const league of Object.keys(gamesByLeague)) {
                 try {
                     const response = await fetch(apiEndpoints[league]);
@@ -2406,6 +2690,14 @@
                 const situation = comp.situation;
 
                 if (situation) {
+                    // Check if game is in intermission (halftime, end of quarter)
+                    // During intermission, possession and possessionText are not present
+                    const lastPlayType = situation.lastPlay?.type?.text?.toLowerCase() || '';
+                    const isIntermission = !situation.possession ||
+                        lastPlayType.includes('end of half') ||
+                        lastPlayType.includes('end of quarter') ||
+                        lastPlayType.includes('end quarter');
+
                     // Possession
                     const possessionTeamId = situation.possession;
                     if (possessionTeamId) {
@@ -2414,18 +2706,26 @@
                         } else if (awayTeam && possessionTeamId === awayTeam.id) {
                             game.possession = 'away';
                         }
+                    } else {
+                        game.possession = null;
                     }
 
                     // Down and distance - use full text from API which includes field position
                     // Validate that down is 1-4 and distance is positive
+                    // Don't set during intermissions (halftime, end of quarter)
                     const isValidDown = situation.down >= 1 && situation.down <= 4;
                     const isValidDistance = situation.distance > 0;
 
-                    if (situation.downDistanceText && !situation.downDistanceText.includes('-1') && isValidDown) {
+                    if (isIntermission) {
+                        // Clear down/distance during intermissions
+                        game.downDistance = null;
+                        game.fieldPosition = null;
+                    } else if (situation.downDistanceText && !situation.downDistanceText.includes('-1') && isValidDown) {
                         game.downDistance = situation.downDistanceText;
                     } else if (situation.shortDownDistanceText && !situation.shortDownDistanceText.includes('-1') && isValidDown) {
                         game.downDistance = situation.shortDownDistanceText;
-                    } else if (isValidDown && isValidDistance) {
+                    } else if (isValidDown && isValidDistance && situation.possessionText) {
+                        // Only build manual downDistance if we have possessionText (active play)
                         const downSuffix = getDownSuffix(situation.down);
                         game.downDistance = `${situation.down}${downSuffix} & ${situation.distance}`;
                     } else {
@@ -2438,8 +2738,10 @@
                     game.possessionOnOwn = situation.isRedZone === false; // Rough approximation
 
                     // Field position text
-                    if (situation.possessionText) {
+                    if (situation.possessionText && !isIntermission) {
                         game.fieldPosition = situation.possessionText;
+                    } else if (isIntermission) {
+                        game.fieldPosition = null;
                     }
 
                     // Timeouts
