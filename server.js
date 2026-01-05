@@ -3533,6 +3533,97 @@ app.get('/api/nfl/playoff-bracket', async (req, res) => {
     bracket.nfcChampion = bracket.conference.nfc.find(g => g.isComplete)?.winner || null;
     bracket.superBowlWinner = bracket.superBowl.superBowl?.winner || null;
 
+    // If bye teams aren't set but we have Wild Card games from ESPN, fetch standings to get #1 seeds
+    if (!bracket.afcBye && !bracket.nfcBye && (bracket.wildCard.afc.length > 0 || bracket.wildCard.nfc.length > 0)) {
+      console.log('[NFL Bracket] Wild Card games found but no bye teams - fetching #1 seeds from standings...');
+      try {
+        const standingsUrl = 'https://site.api.espn.com/apis/v2/sports/football/nfl/standings?season=2025&seasontype=2';
+        const standingsData = await fetchESPN(standingsUrl);
+
+        let afcTopSeed = null;
+        let nfcTopSeed = null;
+
+        if (standingsData.children) {
+          for (const conference of standingsData.children) {
+            const confName = conference.name || conference.abbreviation;
+            const isAFC = confName?.includes('AFC') || confName?.includes('American');
+
+            if (conference.standings?.entries) {
+              // Find the #1 seed (playoffSeed = 1)
+              for (const entry of conference.standings.entries) {
+                const team = entry.team;
+                const stats = entry.stats || [];
+                const playoffSeedStat = stats.find(s => s.name === 'playoffSeed');
+                const playoffSeed = playoffSeedStat?.value;
+
+                if (playoffSeed === 1) {
+                  const teamData = {
+                    seed: 1,
+                    abbreviation: team.abbreviation,
+                    displayName: team.displayName,
+                    shortDisplayName: team.shortDisplayName,
+                    logo: team.logos?.[0]?.href
+                  };
+
+                  if (isAFC) {
+                    afcTopSeed = teamData;
+                  } else {
+                    nfcTopSeed = teamData;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // Fallback to hardcoded if API didn't return proper seeds
+        if (!afcTopSeed) {
+          afcTopSeed = { seed: 1, abbreviation: 'KC', displayName: 'Kansas City Chiefs', shortDisplayName: 'Chiefs' };
+        }
+        if (!nfcTopSeed) {
+          nfcTopSeed = { seed: 1, abbreviation: 'DET', displayName: 'Detroit Lions', shortDisplayName: 'Lions' };
+        }
+
+        bracket.afcBye = afcTopSeed;
+        bracket.nfcBye = nfcTopSeed;
+        console.log(`[NFL Bracket] Set bye teams: AFC #1 ${afcTopSeed?.abbreviation}, NFC #1 ${nfcTopSeed?.abbreviation}`);
+
+        // Also populate seeds for Wild Card teams if missing
+        // Build a seed map from standings
+        const seedMap = new Map();
+        if (standingsData.children) {
+          for (const conference of standingsData.children) {
+            if (conference.standings?.entries) {
+              for (const entry of conference.standings.entries) {
+                const team = entry.team;
+                const stats = entry.stats || [];
+                const playoffSeedStat = stats.find(s => s.name === 'playoffSeed');
+                if (playoffSeedStat?.value) {
+                  seedMap.set(team.abbreviation, playoffSeedStat.value);
+                }
+              }
+            }
+          }
+        }
+
+        // Apply seeds to Wild Card games
+        for (const game of [...bracket.wildCard.afc, ...bracket.wildCard.nfc]) {
+          if (game.homeTeam && !game.homeTeam.seed) {
+            game.homeTeam.seed = seedMap.get(game.homeTeam.abbreviation) || null;
+          }
+          if (game.awayTeam && !game.awayTeam.seed) {
+            game.awayTeam.seed = seedMap.get(game.awayTeam.abbreviation) || null;
+          }
+        }
+        console.log('[NFL Bracket] Applied seeds to Wild Card teams from standings');
+      } catch (err) {
+        console.log('[NFL Bracket] Could not fetch standings for bye teams:', err.message);
+        // Use fallback
+        bracket.afcBye = { seed: 1, abbreviation: 'KC', displayName: 'Kansas City Chiefs', shortDisplayName: 'Chiefs' };
+        bracket.nfcBye = { seed: 1, abbreviation: 'DET', displayName: 'Detroit Lions', shortDisplayName: 'Lions' };
+      }
+    }
+
     console.log(`[NFL Bracket] Fetched - WC: ${bracket.wildCard.afc.length + bracket.wildCard.nfc.length} games, Div: ${bracket.divisional.afc.length + bracket.divisional.nfc.length} games, Conf: ${bracket.conference.afc.length + bracket.conference.nfc.length} games, SB: ${bracket.superBowl.superBowl ? 1 : 0} games`);
 
     sportsCache.nfl.data.set(cacheKey, { data: bracket, timestamp: now });
@@ -4294,12 +4385,40 @@ cron.schedule('*/15 * * * * *', async () => {
       // Parse cacheKey format: "regular-week-15" or "postseason-week-1"
       const isPostseason = cacheKey.startsWith('postseason-');
       const weekMatch = cacheKey.match(/week-(\d+)/);
-      const weekNum = weekMatch ? weekMatch[1] : '1';
+      const weekNum = parseInt(weekMatch ? weekMatch[1] : '1');
       const seasonType = isPostseason ? 3 : 2;
 
       const url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=${seasonType}&week=${weekNum}`;
-      const data = await fetchESPN(url);
-      const isComplete = areAllGamesComplete(data);
+      let data = await fetchESPN(url);
+      let isComplete = areAllGamesComplete(data);
+
+      // If current week is complete, also fetch next week for upcoming games
+      // This mirrors the logic in the API endpoint to prevent games from disappearing
+      if (isComplete) {
+        let nextUrl;
+        if (seasonType === 2 && weekNum < 18) {
+          // Regular season: fetch next regular week
+          nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=2&week=${weekNum + 1}`;
+        } else if (seasonType === 2 && weekNum === 18) {
+          // End of regular season: fetch Wild Card (postseason week 1)
+          nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=1`;
+        } else if (seasonType === 3 && weekNum < 5) {
+          // Postseason: fetch next postseason round
+          nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${weekNum + 1}`;
+        }
+
+        if (nextUrl) {
+          try {
+            const nextData = await fetchESPN(nextUrl);
+            if (nextData.events && nextData.events.length > 0) {
+              data.events = [...(data.events || []), ...nextData.events];
+              isComplete = false; // Not complete since next week has games
+            }
+          } catch (e) {
+            // Ignore errors fetching next week
+          }
+        }
+      }
 
       sportsCache.nfl.data.set(cacheKey, {
         data,
@@ -5282,6 +5401,20 @@ app.post('/api/account/delete-request', async (req, res) => {
 
 // Serve public folder for all other static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve index.html for root path and /index
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/index', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Serve Desktop-tv-sports-bar.html (without .html extension)
+app.get('/Desktop-tv-sports-bar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'Desktop-tv-sports-bar.html'));
+});
 
 // ============================================
 // START SERVER
