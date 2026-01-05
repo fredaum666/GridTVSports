@@ -512,8 +512,8 @@
         }
 
         .fs-sb-timeout-bar {
-            width: clamp(8px, 1vmin, 10px);
-            height: clamp(15px, 1vmin, 10px);
+            width: clamp(6px, 1vmin, 10px);
+            height: clamp(6px, 1vmin, 10px);
             background: linear-gradient(135deg, #414541 0%, #f5e3c4 100%);
             border-radius: 1px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
@@ -746,6 +746,23 @@
         .fullscreen-grid.grid-2 .fs-card-team-logo {
             width: clamp(60px, 10vmin, 100px);
             height: clamp(60px, 10vmin, 100px);
+        }
+
+        /* Grid 3-4 timeout bars */
+        .fullscreen-grid.grid-3 .fs-sb-timeout-bar,
+        .fullscreen-grid.grid-4 .fs-sb-timeout-bar {
+            width: clamp(5px, 0.9vmin, 8px);
+            height: clamp(5px, 0.9vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-timeouts.away,
+        .fullscreen-grid.grid-4 .fs-sb-timeouts.away {
+            right: 60px;
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-timeouts.home,
+        .fullscreen-grid.grid-4 .fs-sb-timeouts.home {
+            left: 60px;
         }
 
         /* Grid 5-6 */
