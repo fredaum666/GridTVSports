@@ -93,6 +93,306 @@
         .fullscreen-grid {
             height: 100vh;
             padding: 20px;
+            width: 100%;
+        }
+
+        /* ================================ */
+        /* DESKTOP RESPONSIVE GRID LAYOUTS  */
+        /* ================================ */
+
+        /* Desktop (default) - Full grid layouts */
+        .fullscreen-grid.grid-1 {
+            padding: 24px;
+        }
+
+        .fullscreen-grid.grid-2 {
+            gap: 16px;
+            padding: 20px;
+        }
+
+        .fullscreen-grid.grid-3,
+        .fullscreen-grid.grid-4 {
+            gap: 14px;
+            padding: 18px;
+        }
+
+        .fullscreen-grid.grid-5,
+        .fullscreen-grid.grid-6 {
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .fullscreen-grid.grid-7 {
+            gap: 14px;
+            padding: 16px;
+        }
+
+        .fullscreen-grid.grid-8 {
+            gap: 12px;
+            padding: 14px;
+            /* 2 big cards on left (narrower), 6 small cards on right (wider) */
+            grid-template-columns: 0.9fr 0.9fr 1.1fr 1.1fr;
+            grid-template-rows: repeat(6, 1fr);
+        }
+
+        /* Grid 8 - First big card (top-left, spans 2 cols x 3 rows) */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+            grid-column: 1 / 3;
+            grid-row: 1 / 4;
+        }
+
+        /* Grid 8 - Second big card (bottom-left, spans 2 cols x 3 rows) */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+            grid-column: 1 / 3;
+            grid-row: 4 / 7;
+        }
+
+        /* Grid 8 - Small cards 3-8 on the right side (2 columns x 3 rows) */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(3) {
+            grid-column: 3;
+            grid-row: 1 / 3;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(4) {
+            grid-column: 4;
+            grid-row: 1 / 3;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(5) {
+            grid-column: 3;
+            grid-row: 3 / 5;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(6) {
+            grid-column: 4;
+            grid-row: 3 / 5;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(7) {
+            grid-column: 3;
+            grid-row: 5 / 7;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(8) {
+            grid-column: 4;
+            grid-row: 5 / 7;
+        }
+
+        /* Tablet (768px - 1024px) */
+        @media (max-width: 1024px) and (min-width: 768px) {
+            .fullscreen-grid {
+                padding: 16px;
+            }
+
+            .fullscreen-grid.grid-1 {
+                padding: 20px;
+            }
+
+            .fullscreen-grid.grid-2 {
+                gap: 14px;
+            }
+
+            .fullscreen-grid.grid-3,
+            .fullscreen-grid.grid-4 {
+                gap: 12px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6 {
+                gap: 10px;
+            }
+
+            .fullscreen-grid.grid-7 {
+                gap: 12px;
+                padding: 14px;
+            }
+
+            .fullscreen-grid.grid-8 {
+                gap: 10px;
+                padding: 12px;
+            }
+
+            /* Tablet - Adjust grid layouts for better viewing */
+            .fullscreen-grid.grid-7 {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+            }
+
+            .fullscreen-grid.grid-8 {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+            }
+
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+                grid-column: span 2;
+            }
+        }
+
+        /* Mobile Landscape (up to 767px, landscape) */
+        @media (max-width: 767px) and (orientation: landscape) {
+            .fullscreen-grid {
+                padding: 10px;
+            }
+
+            .fullscreen-grid.grid-1 {
+                padding: 12px;
+            }
+
+            .fullscreen-grid.grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: 1fr;
+                gap: 10px;
+            }
+
+            .fullscreen-grid.grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: 1fr;
+                gap: 8px;
+            }
+
+            .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(3) {
+                grid-column: span 1;
+            }
+
+            .fullscreen-grid.grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: 1fr;
+                gap: 8px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6 {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(2),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(3),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(4),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(5) {
+                grid-column: span 1;
+            }
+
+            .fullscreen-grid.grid-7,
+            .fullscreen-grid.grid-8 {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+                grid-column: span 1;
+            }
+        }
+
+        /* Mobile Portrait (up to 767px, portrait) */
+        @media (max-width: 767px) and (orientation: portrait) {
+            .fullscreen-container {
+                flex-direction: column;
+            }
+
+            .fullscreen-grid {
+                padding: 10px;
+                height: 100vh;
+                overflow-y: auto;
+            }
+
+            .fullscreen-grid.grid-1 {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr;
+                padding: 12px;
+            }
+
+            .fullscreen-grid.grid-2 {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .fullscreen-grid.grid-3 {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(3) {
+                grid-column: span 1;
+            }
+
+            .fullscreen-grid.grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6 {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(2),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(3),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(4),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(5) {
+                grid-column: span 1;
+            }
+
+            .fullscreen-grid.grid-7,
+            .fullscreen-grid.grid-8 {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+                grid-column: span 1;
+            }
+        }
+
+        /* Small Mobile (up to 375px) */
+        @media (max-width: 375px) {
+            .fullscreen-grid {
+                padding: 6px;
+            }
+
+            .fullscreen-grid.grid-1 {
+                padding: 8px;
+            }
+
+            .fullscreen-grid.grid-2,
+            .fullscreen-grid.grid-3,
+            .fullscreen-grid.grid-4 {
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6,
+            .fullscreen-grid.grid-7,
+            .fullscreen-grid.grid-8 {
+                gap: 4px;
+            }
         }
 
         /* ================================ */
@@ -850,12 +1150,12 @@
 
         .fullscreen-grid.grid-3 .fs-sb-timeouts.away,
         .fullscreen-grid.grid-4 .fs-sb-timeouts.away {
-            right: 60px;
+            right: clamp(65px, 9vw, 90px);
         }
 
         .fullscreen-grid.grid-3 .fs-sb-timeouts.home,
         .fullscreen-grid.grid-4 .fs-sb-timeouts.home {
-            left: 60px;
+            left: clamp(65px, 9vw, 90px);
         }
 
         /* Grid 5-6 */
@@ -889,67 +1189,297 @@
 
         .fullscreen-grid.grid-5 .fs-sb-timeouts.away,
         .fullscreen-grid.grid-6 .fs-sb-timeouts.away {
-            right: 45px;
+            right: clamp(55px, 8vw, 80px);
         }
 
         .fullscreen-grid.grid-5 .fs-sb-timeouts.home,
         .fullscreen-grid.grid-6 .fs-sb-timeouts.home {
-            left: 45px;
+            left: clamp(55px, 8vw, 80px);
         }
 
-        /* Grid 7-8 - smallest cards */
-        .fullscreen-grid.grid-7 .fs-sb-logo-spacer,
-        .fullscreen-grid.grid-8 .fs-sb-logo-spacer {
+        /* ============================================
+           GRID 7 - FEATURED BIG CARD (first-child, spans 3 rows)
+           ============================================ */
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-logo-spacer {
+            width: clamp(45px, 6vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-logo-center-spacer {
+            width: clamp(50px, 7vmin, 70px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-card-team-logo {
+            width: clamp(50px, 8vmin, 80px);
+            height: clamp(50px, 8vmin, 80px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-scoreboard {
+            height: clamp(45px, 6vmin, 60px);
+            width: 88%;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score-box {
+            width: clamp(45px, 6vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeout-bar {
+            width: clamp(6px, 1.7vmin, 8px);
+            height: clamp(6px, 1.7vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts {
+            gap: 3px;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts.away {
+            right: 28%;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts.home {
+            left: 28%;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score {
+            font-size: clamp(1.2rem, 3vmin, 1.8rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-team-name {
+            font-size: clamp(0.7rem, 1.8vmin, 1rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-team-record {
+            font-size: clamp(0.55rem, 1.2vmin, 0.75rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time-label {
+            font-size: clamp(0.9rem, 2vmin, 1.2rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time {
+            font-size: clamp(0.55rem, 1.3vmin, 0.75rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time-box {
+            min-width: 60px;
+            padding: 2px 8px;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-situation {
+            bottom: -16px;
+            min-width: 100px;
+            padding: 2px 8px;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-down-distance {
+            font-size: clamp(0.5rem, 1.2vmin, 0.7rem);
+        }
+
+        /* ============================================
+           GRID 7 - 6 SMALLER CARDS (nth-child 2-7)
+           ============================================ */
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-logo-spacer {
             width: clamp(40px, 6vmin, 55px);
         }
 
-        .fullscreen-grid.grid-7 .fs-sb-logo-center-spacer,
-        .fullscreen-grid.grid-8 .fs-sb-logo-center-spacer {
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-logo-center-spacer {
             width: clamp(40px, 6vmin, 60px);
         }
 
-        .fullscreen-grid.grid-7 .fs-card-team-logo,
-        .fullscreen-grid.grid-8 .fs-card-team-logo {
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-card-team-logo {
             width: clamp(30px, 5vmin, 50px);
             height: clamp(30px, 5vmin, 50px);
         }
 
-        .fullscreen-grid.grid-7 .fs-scoreboard,
-        .fullscreen-grid.grid-8 .fs-scoreboard {
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
             height: clamp(40px, 6vmin, 55px);
         }
 
-        .fullscreen-grid.grid-7 .fs-sb-score-box,
-        .fullscreen-grid.grid-8 .fs-sb-score-box {
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-score-box {
             width: clamp(40px, 6vmin, 55px);
         }
 
-        .fullscreen-grid.grid-7 .fs-sb-timeout-bar,
-        .fullscreen-grid.grid-8 .fs-sb-timeout-bar {
-            width: clamp(4px, 0.6vmin, 6px);
-            height: clamp(4px, 0.6vmin, 6px);
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeout-bar {
+            width: clamp(6px, 3.6vmin, 8px);
+            height: clamp(6px, 3.6vmin, 8px);
         }
 
-        .fullscreen-grid.grid-7 .fs-sb-timeouts,
-        .fullscreen-grid.grid-8 .fs-sb-timeouts {
-            gap: 1px;
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts {
+            gap: 3px;
         }
 
-        .fullscreen-grid.grid-7 .fs-sb-timeouts.away,
-        .fullscreen-grid.grid-8 .fs-sb-timeouts.away {
-            right: 40px;
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.away {
+            right: clamp(50px, 8vw, 70px);
         }
 
-        .fullscreen-grid.grid-7 .fs-sb-timeouts.home,
-        .fullscreen-grid.grid-8 .fs-sb-timeouts.home {
-            left: 40px;
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.home {
+            left: clamp(50px, 8vw, 70px);
         }
 
-        .fullscreen-grid.grid-7 .fs-sb-situation,
-        .fullscreen-grid.grid-8 .fs-sb-situation {
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-situation {
             bottom: -16px;
             min-width: 100px;
             padding: 2px 8px;
+        }
+
+        /* ============================================
+           GRID 8 - 2 BIG CARDS (first-child and nth-child(2))
+           ============================================ */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-logo-spacer,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-logo-spacer {
+            width: clamp(50px, 8vmin, 70px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-logo-center-spacer,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-logo-center-spacer {
+            width: clamp(55px, 9vmin, 80px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-card-team-logo,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-card-team-logo {
+            width: clamp(55px, 10vmin, 90px);
+            height: clamp(55px, 10vmin, 90px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-scoreboard,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-scoreboard {
+            height: clamp(55px, 8vmin, 75px);
+            width: 90%;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-score-box,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-score-box {
+            width: clamp(55px, 8vmin, 75px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-score,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-score {
+            font-size: clamp(1.4rem, 3.5vmin, 2rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-name,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-team-name {
+            font-size: clamp(0.8rem, 2vmin, 1.1rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-record,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-team-record {
+            font-size: clamp(0.6rem, 1.4vmin, 0.85rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeout-bar,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeout-bar {
+            width: clamp(6px, 0.9vmin, 9px);
+            height: clamp(6px, 0.9vmin, 9px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeouts {
+            gap: 3px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts.away,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeouts.away {
+            right: 25%;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts.home,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeouts.home {
+            left: 25%;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-time-label,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-time-label {
+            font-size: clamp(1rem, 2.5vmin, 1.4rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-time,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-time {
+            font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-time-box,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-time-box {
+            min-width: 70px;
+            padding: 3px 10px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-situation,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-situation {
+            bottom: -18px;
+            min-width: 120px;
+            padding: 3px 10px;
+        }
+
+        /* ============================================
+           GRID 8 - 6 SMALLER CARDS (nth-child 3-8)
+           ============================================ */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-logo-spacer {
+            width: clamp(35px, 5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-logo-center-spacer {
+            width: clamp(35px, 5vmin, 55px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-card-team-logo {
+            width: clamp(28px, 4.5vmin, 45px);
+            height: clamp(28px, 4.5vmin, 45px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-scoreboard {
+            height: clamp(38px, 5.5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score-box {
+            width: clamp(38px, 5.5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score {
+            font-size: clamp(1rem, 2.5vmin, 1.4rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-name {
+            font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-record {
+            font-size: clamp(0.5rem, 1.1vmin, 0.7rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeout-bar {
+            width: clamp(6px, 0.8vmin, 9px);
+            height: clamp(6px, 0.8vmin, 9px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts {
+            gap: 3px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.away {
+            right: clamp(30px, 4vw, 45px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.home {
+            left: clamp(30px, 4vw, 45px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time-label {
+            font-size: clamp(0.8rem, 1.8vmin, 1rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time {
+            font-size: clamp(0.5rem, 1.1vmin, 0.65rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time-box {
+            min-width: 55px;
+            padding: 2px 6px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-situation {
+            bottom: -14px;
+            min-width: 90px;
+            padding: 2px 6px;
         }
 
         /* Field visualizer spacing - push down from scoreboard */
@@ -1329,7 +1859,7 @@
         .fullscreen-grid.grid-8 .nfl-stats-player {
             padding: clamp(2px, 0.5vmin, 4px) 0;
         }
-    
+
         /* Desktop hover states */
         .league-card:hover,
         .league-card.hovered {
@@ -1537,7 +2067,6 @@
                 touch-action: manipulation;
             }
         }
-
     </style>
 </head>
 
@@ -3265,11 +3794,11 @@
                 hideExitModal();
             }
         }
-    
+
         // ============================================
         // DESKTOP MOUSE/TOUCH EVENT HANDLERS
         // ============================================
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             // Handle league card clicks
             const leagueCard = e.target.closest('.league-card');
             if (leagueCard) {
@@ -3311,14 +3840,14 @@
         });
 
         // Add hover effects for desktop
-        document.addEventListener('mouseover', function(e) {
+        document.addEventListener('mouseover', function (e) {
             const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .clear-selections-btn');
             if (card) {
                 card.classList.add('hovered');
             }
         });
 
-        document.addEventListener('mouseout', function(e) {
+        document.addEventListener('mouseout', function (e) {
             const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .clear-selections-btn');
             if (card) {
                 card.classList.remove('hovered');

@@ -50,6 +50,161 @@
         .fullscreen-grid {
             height: 100vh;
             padding: 20px;
+            width: 100%;
+        }
+
+        /* ================================ */
+        /* TV RESPONSIVE GRID LAYOUTS       */
+        /* ================================ */
+
+        /* TV Default - Optimized for 1080p/4K displays */
+        .fullscreen-grid.grid-1 {
+            padding: 30px;
+        }
+
+        .fullscreen-grid.grid-2 {
+            gap: 20px;
+            padding: 25px;
+        }
+
+        .fullscreen-grid.grid-3,
+        .fullscreen-grid.grid-4 {
+            gap: 16px;
+            padding: 22px;
+        }
+
+        .fullscreen-grid.grid-5,
+        .fullscreen-grid.grid-6 {
+            gap: 14px;
+            padding: 20px;
+        }
+
+        .fullscreen-grid.grid-7,
+        .fullscreen-grid.grid-8 {
+            gap: 12px;
+            padding: 18px;
+        }
+
+        /* TV 720p (1280x720) - Webview typical resolution */
+        @media screen and (min-width: 900px) and (max-width: 1400px) and (min-height: 480px) and (max-height: 800px) {
+            .fullscreen-grid {
+                padding: 16px;
+            }
+
+            .fullscreen-grid.grid-1 {
+                padding: 20px;
+            }
+
+            .fullscreen-grid.grid-2 {
+                gap: 14px;
+                padding: 16px;
+            }
+
+            .fullscreen-grid.grid-3,
+            .fullscreen-grid.grid-4 {
+                gap: 12px;
+                padding: 14px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6 {
+                gap: 10px;
+                padding: 12px;
+            }
+
+            .fullscreen-grid.grid-7,
+            .fullscreen-grid.grid-8 {
+                gap: 8px;
+                padding: 10px;
+            }
+        }
+
+        /* TV 540p (960x540) - Low resolution TV webview */
+        @media screen and (min-width: 800px) and (max-width: 1100px) and (min-height: 400px) and (max-height: 600px) {
+            .fullscreen-grid {
+                padding: 12px;
+            }
+
+            .fullscreen-grid.grid-1 {
+                padding: 14px;
+            }
+
+            .fullscreen-grid.grid-2 {
+                gap: 10px;
+                padding: 12px;
+            }
+
+            .fullscreen-grid.grid-3,
+            .fullscreen-grid.grid-4 {
+                gap: 8px;
+                padding: 10px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6 {
+                gap: 6px;
+                padding: 8px;
+            }
+
+            .fullscreen-grid.grid-7,
+            .fullscreen-grid.grid-8 {
+                gap: 5px;
+                padding: 6px;
+            }
+
+            .back-btn {
+                top: 6px;
+                left: 6px;
+                padding: 4px 10px;
+                font-size: 10px;
+            }
+        }
+
+        /* TV 4K/UHD (3840x2160) - Large TV displays */
+        @media screen and (min-width: 2500px) {
+            .fullscreen-grid {
+                padding: 40px;
+            }
+
+            .fullscreen-grid.grid-1 {
+                padding: 50px;
+            }
+
+            .fullscreen-grid.grid-2 {
+                gap: 30px;
+                padding: 40px;
+            }
+
+            .fullscreen-grid.grid-3,
+            .fullscreen-grid.grid-4 {
+                gap: 24px;
+                padding: 35px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6 {
+                gap: 20px;
+                padding: 30px;
+            }
+
+            .fullscreen-grid.grid-7,
+            .fullscreen-grid.grid-8 {
+                gap: 16px;
+                padding: 25px;
+            }
+
+            .back-btn {
+                padding: 12px 24px;
+                font-size: 16px;
+                border-radius: 10px;
+            }
+        }
+
+        /* TV Overscan Safe Area - 5% margins for older TVs */
+        @media tv {
+            .fullscreen-grid {
+                padding: 5vh 5vw;
+            }
         }
 
         /* ================================ */
@@ -1269,6 +1424,10 @@
         let refreshInterval = null;
         let isModalOpen = false;
         let modalFocusIndex = 0; // 0 = confirm, 1 = cancel
+
+        // Stats modal timing state per game
+        // Each game tracks: { noPlayStartTime, isShowingStats, showStartTime }
+        const statsModalState = new Map();
 
         // League logos
         const leagueLogos = {
@@ -2542,36 +2701,85 @@
         }
 
         async function updateStatsModals() {
-            // Find all NFL live games that should show stats (no downDistance = between plays, or during intermissions)
+            const now = Date.now();
+            const WAIT_BEFORE_SHOW = 30000; // 30 seconds of no play before showing stats
+            const SHOW_DURATION = 30000;    // Show stats for 30 seconds
+
             for (const game of games) {
                 if (game.league !== 'nfl' || game.state !== 'in') continue;
 
                 const modal = document.querySelector(`.nfl-stats-modal[data-game-stats-id="${game.id}"]`);
                 if (!modal) continue;
 
-                // Check if game is in intermission (halftime, end of quarter, etc.)
+                // Check if there's an active animation playing - never show stats over animations
+                const card = modal.closest('.fullscreen-card');
+                const hasActiveAnimation = card && card.querySelector('.play-animation');
+                if (hasActiveAnimation) {
+                    modal.classList.remove('visible');
+                    continue;
+                }
+
+                // Initialize state for this game if not exists
+                if (!statsModalState.has(game.id)) {
+                    statsModalState.set(game.id, {
+                        noPlayStartTime: null,
+                        isShowingStats: false,
+                        showStartTime: null
+                    });
+                }
+
+                const state = statsModalState.get(game.id);
+
+                // Check if game is in intermission
                 const statusLower = (game.status || '').toLowerCase();
                 const isIntermission = statusLower.includes('halftime') ||
                     statusLower.includes('half') ||
                     statusLower.includes('end of') ||
                     statusLower.includes('intermission') ||
-                    statusLower.includes('2nd') && statusLower.includes('0:00') ||
-                    statusLower.includes('4th') && statusLower.includes('0:00');
+                    (statusLower.includes('2nd') && statusLower.includes('0:00')) ||
+                    (statusLower.includes('4th') && statusLower.includes('0:00'));
 
                 const hasActivePlays = !!game.downDistance && !isIntermission;
 
+                // If stats are currently showing, check if 30 seconds have passed
+                if (state.isShowingStats) {
+                    const elapsedShowTime = now - state.showStartTime;
+                    if (elapsedShowTime >= SHOW_DURATION) {
+                        // 30 seconds of showing complete - hide and reset
+                        modal.classList.remove('visible');
+                        state.isShowingStats = false;
+                        state.showStartTime = null;
+                        state.noPlayStartTime = hasActivePlays ? null : now; // Reset wait timer
+                    }
+                    // Keep showing (don't change visibility while in show period)
+                    continue;
+                }
+
+                // Stats are not currently showing
                 if (hasActivePlays) {
-                    // Play is active - hide the modal
+                    // Play is active - reset the no-play timer
+                    state.noPlayStartTime = null;
                     modal.classList.remove('visible');
                 } else {
-                    // Between plays or intermission - show stats modal
-                    modal.classList.add('visible');
-
-                    // Fetch and render stats
-                    const stats = await fetchGameStats(game.id);
-                    if (stats) {
-                        renderStatsModal(modal, stats, game);
+                    // No active play - start or continue the wait timer
+                    if (!state.noPlayStartTime) {
+                        state.noPlayStartTime = now;
                     }
+
+                    const waitedTime = now - state.noPlayStartTime;
+                    if (waitedTime >= WAIT_BEFORE_SHOW) {
+                        // 30 seconds of no play - show the stats modal
+                        state.isShowingStats = true;
+                        state.showStartTime = now;
+                        modal.classList.add('visible');
+
+                        // Fetch and render stats
+                        const stats = await fetchGameStats(game.id);
+                        if (stats) {
+                            renderStatsModal(modal, stats, game);
+                        }
+                    }
+                    // Otherwise keep waiting (modal stays hidden)
                 }
             }
         }
