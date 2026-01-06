@@ -1773,6 +1773,39 @@
             opacity: 0.85;
         }
 
+        /* Cast to TV button */
+        .cast-to-tv-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border: 2px solid #818cf8;
+            border-radius: 14px;
+            color: #e0e7ff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow:
+                0 4px 12px rgba(99, 102, 241, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .cast-to-tv-btn.focused,
+        .cast-to-tv-btn:hover {
+            border-color: #a5b4fc;
+            transform: scale(1.03);
+            box-shadow:
+                0 6px 20px rgba(99, 102, 241, 0.5),
+                0 0 20px rgba(139, 92, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+        }
+
         /* Clear Selections button */
         .clear-selections-btn {
             display: inline-flex;
@@ -1845,7 +1878,7 @@
 
             .tv-row-scroll {
                 gap: 12px;
-                padding: 6px 4px 12px 4px;
+                padding: 6px 8px 12px 8px;
             }
 
             .league-card {
@@ -1866,11 +1899,18 @@
                 font-size: 9px;
             }
 
+            /* Game cards - tablet size */
             .game-card {
-                width: 280px;
-                min-height: 160px;
+                width: 300px;
+                height: 170px;
+                min-height: 170px;
                 padding: 14px;
                 border-radius: 10px;
+            }
+
+            .game-card.live-card {
+                width: 310px;
+                height: 175px;
             }
 
             .game-card-team-name {
@@ -1879,6 +1919,36 @@
 
             .game-card-team-score {
                 font-size: 18px;
+            }
+
+            /* Live card scoreboard - tablet */
+            .live-card-team-logo {
+                width: 42px;
+                height: 42px;
+            }
+
+            .live-scoreboard {
+                height: 40px;
+            }
+
+            .live-sb-score-box {
+                width: 40px;
+            }
+
+            .live-sb-score {
+                font-size: 1.2rem;
+            }
+
+            .live-sb-team-name {
+                font-size: 11px;
+            }
+
+            .live-sb-time-box {
+                min-width: 56px;
+            }
+
+            .live-sb-time {
+                font-size: 12px;
             }
 
             .sports-mode-btn {
@@ -1902,16 +1972,22 @@
                 padding: 12px 16px;
             }
 
+            /* Keep header on single row - logo left, user right */
             .tv-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
                 margin-bottom: 16px;
             }
 
             .tv-header-right {
-                width: 100%;
-                justify-content: space-between;
+                gap: 12px;
+            }
+
+            /* Hide time on mobile to save space */
+            .tv-time {
+                display: none;
             }
 
             .tv-logo img {
@@ -1919,11 +1995,7 @@
             }
 
             .tv-logo h1 {
-                font-size: 18px;
-            }
-
-            .tv-time {
-                font-size: 12px;
+                font-size: 16px;
             }
 
             .user-menu-trigger {
@@ -1953,9 +2025,12 @@
                 padding: 3px 6px;
             }
 
+            /* Mobile horizontal scroll - snap scrolling */
             .tv-row-scroll {
-                gap: 10px;
-                padding: 4px 2px 10px 2px;
+                gap: 12px;
+                padding: 8px 16px 16px 16px;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
             }
 
             /* League cards - smaller for mobile */
@@ -1964,7 +2039,7 @@
                 height: 100px;
                 border-radius: 8px;
                 min-height: 44px;
-                /* Touch target */
+                scroll-snap-align: start;
             }
 
             .league-card img {
@@ -1983,12 +2058,21 @@
                 font-size: 28px;
             }
 
-            /* Game cards - full width on mobile */
+            /* Game cards - optimized for mobile horizontal scroll */
             .game-card {
-                width: 240px;
-                min-height: 140px;
+                width: 280px;
+                height: 160px;
+                min-height: 160px;
                 padding: 12px;
-                border-radius: 8px;
+                border-radius: 10px;
+                scroll-snap-align: start;
+                flex-shrink: 0;
+            }
+
+            /* Live cards - slightly larger for better readability */
+            .game-card.live-card {
+                width: 290px;
+                height: 165px;
             }
 
             .game-card-header {
@@ -1996,28 +2080,77 @@
             }
 
             .game-card-league {
-                font-size: 9px;
+                font-size: 10px;
             }
 
             .game-card-status {
                 font-size: 9px;
+                padding: 3px 8px;
             }
 
             .game-card-team img {
-                width: 24px;
-                height: 24px;
+                width: 28px;
+                height: 28px;
             }
 
             .game-card-team-name {
-                font-size: 12px;
+                font-size: 13px;
             }
 
             .game-card-team-score {
-                font-size: 16px;
+                font-size: 18px;
             }
 
             .game-card-footer {
-                font-size: 9px;
+                font-size: 10px;
+            }
+
+            /* Live card scoreboard optimizations */
+            .live-card-wrapper {
+                padding: 6px;
+                gap: 4px;
+            }
+
+            .live-card-team-logo {
+                width: 38px;
+                height: 38px;
+            }
+
+            .live-scoreboard {
+                width: 96%;
+                height: 38px;
+            }
+
+            .live-sb-score-box {
+                width: 38px;
+            }
+
+            .live-sb-score {
+                font-size: 1.1rem;
+            }
+
+            .live-sb-team-name {
+                font-size: 10px;
+            }
+
+            .live-sb-team-record {
+                font-size: 7px;
+            }
+
+            .live-sb-time-box {
+                min-width: 52px;
+            }
+
+            .live-sb-time-label {
+                font-size: 7px;
+            }
+
+            .live-sb-time {
+                font-size: 11px;
+            }
+
+            .live-sb-logo-center-spacer {
+                width: 52px;
             }
 
             /* Sports mode buttons - larger touch targets */
@@ -2041,6 +2174,12 @@
                 font-size: 13px;
                 border-radius: 8px;
                 min-height: 44px;
+            }
+
+            /* Cast to TV button - full width on mobile */
+            .cast-to-tv-btn {
+                width: 100%;
+                min-height: 48px;
             }
 
             /* Selection number on mobile */
@@ -2076,6 +2215,11 @@
                 padding: 16px;
                 min-height: 48px;
             }
+
+            /* Hide scroll handles on mobile - use native touch scroll */
+            .scroll-handle {
+                display: none !important;
+            }
         }
 
         /* ================================ */
@@ -2090,6 +2234,11 @@
                 font-size: 16px;
             }
 
+            .tv-row-scroll {
+                gap: 10px;
+                padding: 6px 12px 12px 12px;
+            }
+
             .league-card {
                 width: 70px;
                 height: 90px;
@@ -2099,10 +2248,22 @@
                 height: 28px;
             }
 
+            /* Game cards - compact for small phones */
             .game-card {
-                width: 220px;
-                min-height: 130px;
+                width: 250px;
+                height: 145px;
+                min-height: 145px;
                 padding: 10px;
+            }
+
+            .game-card.live-card {
+                width: 260px;
+                height: 150px;
+            }
+
+            .game-card-team img {
+                width: 24px;
+                height: 24px;
             }
 
             .game-card-team-name {
@@ -2110,7 +2271,46 @@
             }
 
             .game-card-team-score {
-                font-size: 14px;
+                font-size: 16px;
+            }
+
+            /* Live card adjustments for small screens */
+            .live-card-team-logo {
+                width: 32px;
+                height: 32px;
+            }
+
+            .live-scoreboard {
+                height: 34px;
+            }
+
+            .live-sb-score-box {
+                width: 34px;
+            }
+
+            .live-sb-score {
+                font-size: 1rem;
+            }
+
+            .live-sb-team-name {
+                font-size: 9px;
+            }
+
+            .live-sb-time-box {
+                min-width: 48px;
+            }
+
+            .live-sb-time {
+                font-size: 10px;
+            }
+
+            .live-sb-logo-center-spacer {
+                width: 48px;
+            }
+
+            /* Selection number smaller */
+            .game-card .selection-number {
+                font-size: 36px;
             }
         }
 
@@ -2949,6 +3149,54 @@
         </div>
     </div>
 
+    <!-- Cast to TV Modal -->
+    <div class="modal-overlay" id="castModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">📺 Cast to TV</h2>
+                <button class="modal-close" id="closeCastModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- PIN Entry Section -->
+                <div id="cast-pin-entry-section" style="text-align: center;">
+                    <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 1rem;">
+                        Enter the 6-digit code shown on your TV:
+                    </p>
+                    <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 1.5rem;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin1" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin2" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin3" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin4" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin5" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin6" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                    </div>
+                    <button id="cast-connect-btn" class="modal-btn modal-btn-primary" style="width: 100%; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);" disabled>
+                        Connect to TV
+                    </button>
+                </div>
+
+                <!-- Connection Status (shown after connecting) -->
+                <div id="cast-status-section" style="display: none; text-align: center;">
+                    <div id="cast-status-box" style="padding: 15px; border-radius: 8px; margin-bottom: 1rem; background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308;">
+                        <div style="display: inline-flex; align-items: center; gap: 10px;">
+                            <div class="cast-pulse-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #eab308; animation: pulse 1.5s infinite;"></div>
+                            <span id="cast-status-text">Connecting to TV...</span>
+                        </div>
+                    </div>
+                    <button id="cast-end-btn" class="modal-btn" style="width: 100%; background: #ef4444; color: white; display: none;">
+                        End Casting
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Casting Indicator -->
+    <div id="casting-indicator" style="display: none; position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); z-index: 9999; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s;">
+        <div class="cast-pulse-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite;"></div>
+        <span style="font-weight: 600;">📺 Casting...</span>
+    </div>
+
     <!-- ================================ -->
     <!-- MAIN HOME - STREAMING LAYOUT  -->
     <!-- ================================ -->
@@ -3055,6 +3303,9 @@
                 <button class="sports-mode-btn focusable" id="sports-mode-btn" data-row="sports-mode">
                     <span>Enter Sports Bar Mode</span>
                     <span class="selection-count" id="selection-count">(0 games)</span>
+                </button>
+                <button class="cast-to-tv-btn focusable" id="cast-to-tv-btn" data-row="sports-mode">
+                    <span>📺 Cast to TV</span>
                 </button>
                 <button class="clear-selections-btn focusable" id="clear-selections-btn" data-row="sports-mode">
                     <span>Clear</span>
@@ -3633,6 +3884,9 @@
             } else if (el.id === 'sports-mode-btn') {
                 // Enter Sports Bar Mode
                 enterSportsBarMode();
+            } else if (el.id === 'cast-to-tv-btn') {
+                // Open Cast to TV modal
+                openCastModal();
             } else if (el.id === 'clear-selections-btn') {
                 // Clear all selections
                 clearSportsBarSelections();
@@ -3753,6 +4007,265 @@
             // Navigate to sports bar page
             window.location.href = '/Desktop-tv-sports-bar';
         }
+
+        // ============================================
+        // CAST TO TV FUNCTIONALITY
+        // ============================================
+        let castSocket = null;
+        let castSessionId = null;
+        let castingActive = false;
+
+        function openCastModal() {
+            if (selectedGamesForSportsBar.length === 0) return;
+
+            const modal = document.getElementById('castModal');
+            if (castingActive) {
+                // Already casting, show status
+                document.getElementById('cast-pin-entry-section').style.display = 'none';
+                document.getElementById('cast-status-section').style.display = 'block';
+            } else {
+                // Show PIN entry
+                document.getElementById('cast-pin-entry-section').style.display = 'block';
+                document.getElementById('cast-status-section').style.display = 'none';
+                // Clear PIN inputs
+                for (let i = 1; i <= 6; i++) {
+                    document.getElementById(`cast-pin${i}`).value = '';
+                }
+                document.getElementById('cast-connect-btn').disabled = true;
+            }
+            modal.classList.add('show');
+            setTimeout(() => document.getElementById('cast-pin1').focus(), 100);
+        }
+
+        function closeCastModal() {
+            document.getElementById('castModal').classList.remove('show');
+        }
+
+        function endCastingSession() {
+            castingActive = false;
+            castSessionId = null;
+
+            closeCastModal();
+
+            // Reset PIN inputs
+            for (let i = 1; i <= 6; i++) {
+                const pinInput = document.getElementById(`cast-pin${i}`);
+                if (pinInput) pinInput.value = '';
+            }
+
+            document.getElementById('cast-status-section').style.display = 'none';
+            document.getElementById('cast-pin-entry-section').style.display = 'block';
+            document.getElementById('cast-connect-btn').disabled = true;
+            document.getElementById('cast-end-btn').style.display = 'none';
+
+            // Hide floating indicator
+            document.getElementById('casting-indicator').style.display = 'none';
+
+            if (castSocket) {
+                castSocket.disconnect();
+            }
+        }
+
+        function showCastingIndicator() {
+            const indicator = document.getElementById('casting-indicator');
+            indicator.style.display = 'flex';
+            indicator.onclick = () => openCastModal();
+        }
+
+        function syncCastingState() {
+            if (!castingActive || !castSocket || !castSessionId) return;
+
+            // Format games as slots with sport:gameId format (like LiveGames.html)
+            const games = {};
+            selectedGamesForSportsBar.forEach((game, index) => {
+                // Include sport/league prefix for TV receiver to parse correctly
+                games[`slot${index + 1}`] = `${game.league}:${game.id}`;
+            });
+
+            const state = {
+                games: games,
+                layout: selectedGamesForSportsBar.length,
+                isFullscreen: true,
+                timestamp: Date.now()
+            };
+
+            console.log('Syncing state to TV:', state);
+            castSocket.emit('cast:sync-state', {
+                sessionId: castSessionId,
+                state
+            });
+        }
+
+        // Initialize Cast to TV functionality
+        function initCastToTV() {
+            // Close modal button
+            document.getElementById('closeCastModal').addEventListener('click', closeCastModal);
+
+            // Click outside modal to close
+            document.getElementById('castModal').addEventListener('click', (e) => {
+                if (e.target.id === 'castModal') closeCastModal();
+            });
+
+            // PIN input handling
+            const pinInputs = document.querySelectorAll('.cast-pin-input');
+            pinInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, '');
+                    e.target.value = value;
+
+                    if (value && index < 5) {
+                        pinInputs[index + 1].focus();
+                    }
+
+                    // Check if all 6 digits entered
+                    const fullPin = Array.from(pinInputs).map(inp => inp.value).join('');
+                    document.getElementById('cast-connect-btn').disabled = fullPin.length !== 6;
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        pinInputs[index - 1].focus();
+                    }
+                });
+
+                // Handle paste
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                    pastedData.split('').forEach((char, i) => {
+                        if (pinInputs[i]) pinInputs[i].value = char;
+                    });
+                    const fullPin = Array.from(pinInputs).map(inp => inp.value).join('');
+                    document.getElementById('cast-connect-btn').disabled = fullPin.length !== 6;
+                    if (pastedData.length === 6) {
+                        pinInputs[5].focus();
+                    }
+                });
+            });
+
+            // Connect button
+            document.getElementById('cast-connect-btn').addEventListener('click', async () => {
+                const pin = Array.from(pinInputs).map(inp => inp.value).join('');
+                if (pin.length !== 6) return;
+
+                // Check authentication
+                let authUser = null;
+                try {
+                    const authResponse = await fetch('/api/auth/check', { credentials: 'same-origin' });
+                    const authData = await authResponse.json();
+                    if (!authData.authenticated) {
+                        alert('Please log in to use casting');
+                        return;
+                    }
+                    authUser = authData.user;
+                } catch (err) {
+                    alert('Authentication check failed. Please try again.');
+                    return;
+                }
+
+                // Show connecting status
+                document.getElementById('cast-pin-entry-section').style.display = 'none';
+                document.getElementById('cast-status-section').style.display = 'block';
+                document.getElementById('cast-status-box').style.background = 'rgba(234, 179, 8, 0.1)';
+                document.getElementById('cast-status-box').style.border = '1px solid #eab308';
+                document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#eab308';
+                document.getElementById('cast-status-text').textContent = 'Connecting to TV...';
+
+                // Initialize Socket.IO if not already
+                if (!castSocket) {
+                    castSocket = io({ withCredentials: true });
+
+                    castSocket.on('connect', () => {
+                        console.log('Casting WebSocket connected');
+
+                        castSocket.emit('cast:join-session', {
+                            pin,
+                            userId: authUser ? authUser.id : null,
+                            deviceName: navigator.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop'
+                        }, (response) => {
+                            if (response.success) {
+                                castSessionId = response.sessionId;
+                                castingActive = true;
+
+                                // Update status to connected
+                                document.getElementById('cast-status-box').style.background = 'rgba(34, 197, 94, 0.1)';
+                                document.getElementById('cast-status-box').style.border = '1px solid #22c55e';
+                                document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#22c55e';
+                                document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
+                                document.getElementById('cast-end-btn').style.display = 'block';
+
+                                // Sync current state
+                                syncCastingState();
+
+                                // Auto-close modal and show floating indicator
+                                setTimeout(() => {
+                                    closeCastModal();
+                                    showCastingIndicator();
+                                    pinInputs.forEach(inp => inp.value = '');
+                                    document.getElementById('cast-connect-btn').disabled = true;
+                                }, 1500);
+                            } else {
+                                alert(response.error || 'Failed to connect. Check the PIN and try again.');
+                                document.getElementById('cast-pin-entry-section').style.display = 'block';
+                                document.getElementById('cast-status-section').style.display = 'none';
+                                document.getElementById('cast-pin1').focus();
+                            }
+                        });
+                    });
+
+                    castSocket.on('cast:receiver-connected', ({ sessionId }) => {
+                        console.log('TV receiver connected');
+                        document.getElementById('cast-status-box').style.background = 'rgba(34, 197, 94, 0.1)';
+                        document.getElementById('cast-status-box').style.border = '1px solid #22c55e';
+                        document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#22c55e';
+                        document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
+                        document.getElementById('cast-end-btn').style.display = 'block';
+
+                        syncCastingState();
+
+                        setTimeout(() => {
+                            closeCastModal();
+                            showCastingIndicator();
+                        }, 1500);
+                    });
+
+                    castSocket.on('cast:receiver-disconnected', () => {
+                        console.log('TV receiver disconnected');
+                        document.getElementById('cast-status-box').style.background = 'rgba(234, 179, 8, 0.1)';
+                        document.getElementById('cast-status-box').style.border = '1px solid #eab308';
+                        document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#eab308';
+                        document.getElementById('cast-status-text').textContent = 'TV disconnected. Waiting for reconnection...';
+                    });
+
+                    castSocket.on('cast:session-ended', () => {
+                        endCastingSession();
+                    });
+
+                    castSocket.on('cast:session-expired', () => {
+                        alert('Casting session expired');
+                        endCastingSession();
+                    });
+                } else {
+                    castSocket.connect();
+                }
+            });
+
+            // End casting button
+            document.getElementById('cast-end-btn').addEventListener('click', () => {
+                if (confirm('End casting session?')) {
+                    if (castSocket && castSessionId) {
+                        castSocket.emit('cast:end-session', { sessionId: castSessionId });
+                    }
+                    endCastingSession();
+                }
+            });
+
+            // Floating indicator click to reopen modal
+            document.getElementById('casting-indicator').addEventListener('click', openCastModal);
+        }
+
+        // Initialize casting when DOM is ready
+        document.addEventListener('DOMContentLoaded', initCastToTV);
 
         function restoreGameSelections() {
             const saved = localStorage.getItem('gridtv_sports_bar_games');
@@ -5035,6 +5548,12 @@
                 return;
             }
 
+            // Handle cast to TV button
+            if (e.target.closest('#cast-to-tv-btn')) {
+                openCastModal();
+                return;
+            }
+
             // Handle clear selections button
             if (e.target.closest('#clear-selections-btn')) {
                 clearSportsBarSelections();
@@ -5044,14 +5563,14 @@
 
         // Add hover effects for desktop
         document.addEventListener('mouseover', function (e) {
-            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .clear-selections-btn');
+            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .cast-to-tv-btn, .clear-selections-btn');
             if (card) {
                 card.classList.add('hovered');
             }
         });
 
         document.addEventListener('mouseout', function (e) {
-            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .clear-selections-btn');
+            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .cast-to-tv-btn, .clear-selections-btn');
             if (card) {
                 card.classList.remove('hovered');
             }

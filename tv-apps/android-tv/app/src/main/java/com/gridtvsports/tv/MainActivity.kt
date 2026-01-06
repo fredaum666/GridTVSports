@@ -37,17 +37,27 @@ class MainActivity : AppCompatActivity() {
     private lateinit var loadingText: TextView
     private lateinit var loadingOverlay: View
 
+    // Set to true for local development, false for production
+    private val useLocalServer = true
+
+    // Local server configuration
+    // Use "localhost" with adb reverse tcp:3001 tcp:3001
+    // Or use 10.0.2.2 for Android emulator without adb reverse
+    // Or use your computer's IP (e.g., 192.168.x.x) for physical devices
+    private val localServerIP = "localhost"
+    private val localServerPort = "3001"
+
     // Production URLs
-    private val tvHomeUrl = "https://gridtvsports.com/tv-home"
-    private val mobileLoginUrl = "https://gridtvsports.com/login"
+    private val prodTvHomeUrl = "https://gridtvsports.com/tv-home"
+    private val prodMobileLoginUrl = "https://gridtvsports.com/login"
 
-    // For Android Emulator: use 10.0.2.2 to reach host machine's localhost
-    //private val tvHomeUrl = "http://10.0.2.2:3001/tv-home"
-    //private val mobileLoginUrl = "http://10.0.2.2:3001/login"
+    // Local development URLs
+    private val localTvHomeUrl get() = "http://$localServerIP:$localServerPort/tv-home"
+    private val localMobileLoginUrl get() = "http://$localServerIP:$localServerPort/login"
 
-    // For physical device on same network, use your computer's IP:
-    // private val tvHomeUrl = "http://192.168.1.100:3001/tv-home"
-    // private val mobileLoginUrl = "http://192.168.1.100:3001/login"
+    // Active URLs based on configuration
+    private val tvHomeUrl get() = if (useLocalServer) localTvHomeUrl else prodTvHomeUrl
+    private val mobileLoginUrl get() = if (useLocalServer) localMobileLoginUrl else prodMobileLoginUrl
 
     private var isTV = false
     private var fcmToken: String? = null
@@ -209,6 +219,10 @@ class MainActivity : AppCompatActivity() {
             // Allow media playback
             mediaPlaybackRequiresUserGesture = false
 
+            // Enable image loading
+            loadsImagesAutomatically = true
+            blockNetworkImage = false
+
             // CRITICAL: Enable wide viewport to allow custom viewport width
             // This makes the WebView respect the viewport meta tag width value
             useWideViewPort = true
@@ -281,7 +295,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Handle JavaScript dialogs and progress
-        webView.webChromeClient = object : WebChromeClient() {
+        webView.webChromeClient =   object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
                 super.onProgressChanged(view, newProgress)
                 progressBar.progress = newProgress

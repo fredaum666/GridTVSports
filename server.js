@@ -5420,8 +5420,8 @@ app.get('/Desktop-tv-sports-bar', (req, res) => {
 // START SERVER
 // ============================================
 
-const httpServer = app.listen(PORT, () => {
-  console.log(`✅ GridTV Sports Multi-Sport Server running on port ${PORT}`);
+const httpServer = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ GridTV Sports Multi-Sport Server running on port ${PORT} (bound to 0.0.0.0)`);
   console.log(`🏈 NFL API: http://localhost:${PORT}/api/nfl/scoreboard`);
   console.log(`🏈 NCAA API: http://localhost:${PORT}/api/ncaa/scoreboard`);
   console.log(`🏀 NBA API: http://localhost:${PORT}/api/nba/scoreboard`);

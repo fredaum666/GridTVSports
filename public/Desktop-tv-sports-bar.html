@@ -116,6 +116,24 @@
             padding: 18px;
         }
 
+        /* Grid 3 - Make bottom card same width as top cards, centered */
+        .fullscreen-grid.grid-3 {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+
+        .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(1) {
+            grid-column: 1 / 3;
+        }
+
+        .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(2) {
+            grid-column: 3 / 5;
+        }
+
+        .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(3) {
+            grid-column: 2 / 4;
+        }
+
         .fullscreen-grid.grid-5,
         .fullscreen-grid.grid-6 {
             gap: 12px;
