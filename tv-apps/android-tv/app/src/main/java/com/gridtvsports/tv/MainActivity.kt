@@ -82,14 +82,19 @@ class MainActivity : AppCompatActivity() {
         isTV = detectTVDevice()
         Log.d("MainActivity", "Device type: ${if (isTV) "TV" else "Phone/Tablet"}")
 
-        // Make fullscreen and keep screen on (for TV)
+        // Configure window based on device type
         if (isTV) {
+            // TV: Hide system bars for fullscreen experience and keep screen on
             WindowCompat.setDecorFitsSystemWindows(window, false)
             WindowInsetsControllerCompat(window, window.decorView).let { controller ->
                 controller.hide(WindowInsetsCompat.Type.systemBars())
                 controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            // Mobile: Show status bar, hide navigation bar permanently
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            hideSystemUI()
         }
 
         setContentView(R.layout.activity_main)
@@ -402,5 +407,28 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         webView.destroy()
         super.onDestroy()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        // Re-hide system UI when window regains focus (for mobile devices)
+        if (hasFocus && !isTV) {
+            hideSystemUI()
+        }
+    }
+
+    private fun hideSystemUI() {
+        // For mobile devices: Keep status bar visible, hide navigation bar
+        WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+            // Hide navigation bar
+            controller.hide(WindowInsetsCompat.Type.navigationBars())
+
+            // Use BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE for sticky immersive mode
+            // Navigation bar will auto-hide after user swipes it up
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+            // Make status bar icons light (white) for dark backgrounds
+            controller.isAppearanceLightStatusBars = false
+        }
     }
 }

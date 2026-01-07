@@ -1,16 +1,23 @@
-# GridTV Sports - TV Apps
+# GridTV Sports - Mobile & TV Apps
 
-Simple wrapper apps that load the TV receiver page on various Smart TV platforms.
+Native wrapper apps for GridTV Sports across mobile and TV platforms.
 
 ## How It Works
 
-Each app is essentially a full-screen WebView that:
-1. Opens `https://gridtvsports.com/tv-receiver.html`
-2. Displays the PIN for pairing
-3. Receives game data via WebSocket
-4. Displays live games on the TV
+Each app is a WebView wrapper that loads the GridTV Sports web application:
+- **Mobile apps**: Load login page, provide touch navigation, Sports Bar remote
+- **TV apps**: Load TV receiver page, display PIN for pairing, show live games
 
-## Available Platforms
+## Available Apps
+
+### Mobile Apps
+
+| Platform | Folder | Store | Notes |
+|----------|--------|-------|-------|
+| **iOS Mobile** | `ios-mobile/` | Apple App Store | iPhone & iPad, iOS 13.0+ |
+| **Android Mobile** | `android-tv/` | Google Play | Android 5.0+ phones & tablets |
+
+### TV Apps
 
 | Platform | Folder | Store | Notes |
 |----------|--------|-------|-------|
@@ -23,16 +30,31 @@ Each app is essentially a full-screen WebView that:
 
 ## Quick Start
 
-### Easiest: Android TV (works on Fire TV too)
+### iOS Mobile App (iPhone/iPad)
+
+1. Open Xcode on your Mac:
+   ```bash
+   cd ios-mobile
+   open GridTVSports.xcodeproj
+   ```
+2. Select iPhone simulator and click Run (▶️)
+3. For real device: Connect iPhone, select it, configure signing with Apple ID
+
+📖 **Detailed Guide**: [ios-mobile/QUICKSTART.md](ios-mobile/QUICKSTART.md)
+
+### Android Mobile/TV App
 
 1. Install Android Studio
 2. Open `android-tv/` project
 3. Build APK
 4. Install via ADB:
    ```bash
-   adb connect <TV_IP>
-   adb install app-debug.apk
+   cd android-tv
+   ./gradlew assembleDebug
+   adb install app/build/outputs/apk/debug/app-debug.apk
    ```
+
+📖 **Detailed Guide**: [android-tv/README.md](android-tv/README.md)
 
 ### For Roku
 
@@ -95,10 +117,22 @@ Each platform needs specific image assets:
 
 ## Configuration
 
-Update the TV receiver URL in each app before building:
+Update URLs in each app before building:
 
-- **Android**: `MainActivity.kt` - `TV_RECEIVER_URL`
+### Mobile Apps
+- **iOS Mobile**: `ViewController.swift` - `useLocalServer`, `localServerIP`, `prodMobileLoginUrl`
+- **Android Mobile**: `MainActivity.kt` - `useLocalServer`, `localServerIP`, `prodMobileLoginUrl`
+
+### TV Apps
+- **Android TV**: `MainActivity.kt` - `TV_RECEIVER_URL` or `tvHomeUrl`
 - **Roku**: `MainScene.xml` - `url` attribute
 - **Samsung**: `index.html` - `TV_RECEIVER_URL`
 - **LG**: `index.html` - `TV_RECEIVER_URL`
 - **Apple TV**: `ContentView.swift` - `tvReceiverURL`
+
+## Additional Documentation
+
+- **Platform Comparison**: [PLATFORM_COMPARISON.md](PLATFORM_COMPARISON.md) - Detailed Android vs iOS comparison
+- **iOS Quick Start**: [ios-mobile/QUICKSTART.md](ios-mobile/QUICKSTART.md) - 5-minute iOS setup guide
+- **iOS Full Guide**: [ios-mobile/README.md](ios-mobile/README.md) - Complete iOS documentation
+- **Android Guide**: [android-tv/README.md](android-tv/README.md) - Android mobile & TV documentation
