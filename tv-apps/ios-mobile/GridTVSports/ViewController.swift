@@ -37,6 +37,9 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Set view background to match app theme
+        view.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.15, alpha: 1.0)
+
         setupWebView()
         setupLoadingView()
         setupProgressView()
@@ -75,11 +78,31 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
         let userContentController = configuration.userContentController
         userContentController.add(self, name: "iosApp")
 
+        // Inject viewport meta tag to disable zoom
+        let disableZoomScript = """
+            var meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+        """
+        let disableZoomUserScript = WKUserScript(source: disableZoomScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        userContentController.addUserScript(disableZoomUserScript)
+
         // Create the webview with proper frame
         webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.translatesAutoresizingMaskIntoConstraints = false
+
+        // Set background color to match app background
+        webView.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.15, alpha: 1.0)
+        webView.isOpaque = false
+        webView.scrollView.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.15, alpha: 1.0)
+
+        // Disable zoom
+        webView.scrollView.minimumZoomScale = 1.0
+        webView.scrollView.maximumZoomScale = 1.0
+        webView.scrollView.bouncesZoom = false
 
         // IMPORTANT: Respect safe area insets (status bar, notch, home indicator)
         webView.scrollView.contentInsetAdjustmentBehavior = .automatic

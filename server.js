@@ -143,6 +143,11 @@ app.get('/scripts/*.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', req.path));
 });
 
+app.get('/js/*.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  res.sendFile(path.join(__dirname, 'public', req.path));
+});
+
 // Serve manifest.json with correct MIME type for PWA
 app.get('/manifest.json', (req, res) => {
   res.setHeader('Content-Type', 'application/manifest+json');
@@ -5414,6 +5419,11 @@ app.get('/index', (req, res) => {
 // Serve Desktop-tv-sports-bar.html (without .html extension)
 app.get('/Desktop-tv-sports-bar', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Desktop-tv-sports-bar.html'));
+});
+
+// Serve Phone-sports-bar.html (without .html extension)
+app.get('/Phone-sports-bar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'Phone-sports-bar.html'));
 });
 
 // ============================================
