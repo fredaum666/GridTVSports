@@ -36,7 +36,9 @@ nul
 
 # Android Studio / IntelliJ IDEA
 .idea/
+**/.idea/
 *.iml
+**/*.iml
 local.properties
 
 # Android build outputs
