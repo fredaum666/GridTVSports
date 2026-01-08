@@ -2699,7 +2699,7 @@
     <!-- ================================ -->
     <!-- LOGIN OPTION SELECTION SCREEN    -->
     <!-- ================================ -->
-    <div class="login-screen" id="login-screen">
+    <div class="login-screen hidden" id="login-screen">
         <div class="login-header">
             <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
             <h1>GridTV Sports</h1>
@@ -3180,12 +3180,20 @@
 
             sessionToken = localStorage.getItem('gridtv_session_token');
 
+            // Clean URL params early
+            if (returnToMenu || restoreSelections) {
+                history.replaceState({}, '', '/tv-home');
+            }
+
+            // Start time updates
+            updateTime();
+            setInterval(updateTime, 1000);
+
             if (sessionToken) {
+                // If we have a session token, validate it before showing any screen
+                // This prevents the login screen flash when returning from sports bar
                 const valid = await validateExistingSession();
                 if (valid) {
-                    if (returnToMenu || restoreSelections) {
-                        history.replaceState({}, '', '/tv-home');
-                    }
                     showHomeScreen(restoreSelections);
                     return;
                 } else {
@@ -3194,13 +3202,8 @@
                 }
             }
 
-            if (returnToMenu || restoreSelections) {
-                history.replaceState({}, '', '/tv-home');
-            }
-
+            // Only show login screen if no valid session
             showLoginScreen();
-            updateTime();
-            setInterval(updateTime, 1000);
         });
 
         // ============================================
