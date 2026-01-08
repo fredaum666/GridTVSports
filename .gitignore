@@ -49,5 +49,3 @@ tv-apps/android-tv/.gradle/
 # Android TV App (in development)
 AndroidTVApp/
 
-# Keystore properties (contains passwords)
-tv-apps/android-tv/keystore.properties

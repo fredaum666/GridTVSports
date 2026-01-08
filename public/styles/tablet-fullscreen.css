@@ -1,0 +1,680 @@
+/* ============================================
+   TABLET FULLSCREEN CARDS CSS
+   For Tablet Screens (768px - 1366px)
+   ============================================
+
+   IMPORTANT: This CSS file must be loaded AFTER fullscreen-cards.css
+   It provides tablet-optimized layouts for all grid options (1-8 cards)
+
+   Features:
+   - Optimized card layouts for tablet screens
+   - All grid options from 1 to 8 cards
+   - Portrait and landscape orientation support
+   - Customizable element sizing per grid
+   - Touch-friendly spacing
+
+   Tablet breakpoints:
+   - Small tablets: 768px - 1024px
+   - Large tablets: 1024px - 1366px
+
+   Load order:
+   1. fullscreen-cards.css (Base card styles)
+   2. tablet-fullscreen.css (THIS FILE - Tablet overrides)
+
+   ============================================ */
+
+/* ============================================
+   TABLET DETECTION - Portrait & Landscape
+   ============================================ */
+@media screen and (min-width: 768px) and (max-width: 1366px) {
+
+  /* ============================================
+     CSS VARIABLES FOR TABLET
+     ============================================ */
+  :root {
+    --tablet-card-gap: 12px;
+    --tablet-card-radius: 16px;
+    --tablet-card-padding: 16px;
+  }
+
+  /* ============================================
+     FULLSCREEN CONTAINER - TABLET
+     ============================================ */
+  .fullscreen-container {
+    padding: 16px !important;
+  }
+
+  .fullscreen-container.active {
+    padding: 16px !important;
+  }
+
+  /* ============================================
+     BASE GRID STYLES - TABLET
+     ============================================ */
+  .fullscreen-grid {
+    gap: var(--tablet-card-gap) !important;
+    padding: 8px !important;
+    height: calc(100vh - 32px) !important;
+    height: calc(100dvh - 32px) !important;
+  }
+
+  /* Base card styling for tablets */
+  .fullscreen-game-card,
+  .fullscreen-game-slot {
+    border-radius: var(--tablet-card-radius) !important;
+    padding: var(--tablet-card-padding) !important;
+  }
+
+  /* ============================================
+     GRID-1: Single Card (Full Screen)
+     ============================================ */
+  .fullscreen-grid.grid-1 {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-game-card {
+    max-width: 900px !important;
+    max-height: 600px !important;
+    margin: auto !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-team-logo {
+    width: clamp(80px, 15vw, 150px) !important;
+    height: clamp(80px, 15vw, 150px) !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-team-score {
+    font-size: clamp(3rem, 8vw, 6rem) !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-live-team-name {
+    font-size: clamp(1.2rem, 3vw, 2rem) !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-team-record {
+    font-size: clamp(0.9rem, 2vw, 1.3rem) !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-status-text {
+    font-size: clamp(1.5rem, 3vw, 2.5rem) !important;
+  }
+
+  .fullscreen-grid.grid-1 .sport-logo-indicator {
+    width: clamp(32px, 5vw, 48px) !important;
+    height: clamp(32px, 5vw, 48px) !important;
+  }
+
+  /* ============================================
+     GRID-2: Two Cards Side by Side
+     ============================================ */
+  .fullscreen-grid.grid-2 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-logo {
+    width: clamp(60px, 10vw, 100px) !important;
+    height: clamp(60px, 10vw, 100px) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-score {
+    font-size: clamp(2.5rem, 6vw, 4.5rem) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-live-team-name {
+    font-size: clamp(1rem, 2.5vw, 1.6rem) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-record {
+    font-size: clamp(0.8rem, 1.5vw, 1.1rem) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-status-text {
+    font-size: clamp(1.2rem, 2.5vw, 2rem) !important;
+  }
+
+  .fullscreen-grid.grid-2 .sport-logo-indicator {
+    width: clamp(28px, 4vw, 40px) !important;
+    height: clamp(28px, 4vw, 40px) !important;
+  }
+
+  /* ============================================
+     GRID-3: Three Cards (2 top, 1 bottom centered)
+     ============================================ */
+  .fullscreen-grid.grid-3 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: var(--tablet-card-gap) !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(3) {
+    grid-column: 1 / -1 !important;
+    max-width: 50% !important;
+    justify-self: center !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-team-logo {
+    width: clamp(50px, 8vw, 85px) !important;
+    height: clamp(50px, 8vw, 85px) !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-team-score {
+    font-size: clamp(2rem, 5vw, 3.5rem) !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-live-team-name {
+    font-size: clamp(0.9rem, 2vw, 1.4rem) !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-team-record {
+    font-size: clamp(0.7rem, 1.3vw, 1rem) !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-status-text {
+    font-size: clamp(1rem, 2vw, 1.6rem) !important;
+  }
+
+  .fullscreen-grid.grid-3 .sport-logo-indicator {
+    width: clamp(24px, 3.5vw, 36px) !important;
+    height: clamp(24px, 3.5vw, 36px) !important;
+  }
+
+  /* ============================================
+     GRID-4: Four Cards (2x2 Grid)
+     ============================================ */
+  .fullscreen-grid.grid-4 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-team-logo {
+    width: clamp(45px, 7vw, 75px) !important;
+    height: clamp(45px, 7vw, 75px) !important;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-team-score {
+    font-size: clamp(1.8rem, 4.5vw, 3rem) !important;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-live-team-name {
+    font-size: clamp(0.85rem, 1.8vw, 1.3rem) !important;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-team-record {
+    font-size: clamp(0.65rem, 1.2vw, 0.95rem) !important;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-status-text {
+    font-size: clamp(0.95rem, 1.8vw, 1.4rem) !important;
+  }
+
+  .fullscreen-grid.grid-4 .sport-logo-indicator {
+    width: clamp(22px, 3vw, 32px) !important;
+    height: clamp(22px, 3vw, 32px) !important;
+  }
+
+  .fullscreen-grid.grid-4 .field-container {
+    height: clamp(25px, 5vh, 40px) !important;
+  }
+
+  /* ============================================
+     GRID-5: Five Cards (3 top, 2 bottom)
+     ============================================ */
+  .fullscreen-grid.grid-5 {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    grid-template-rows: 1fr 1fr !important;
+  }
+
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(1),
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(2),
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(3) {
+    grid-column: span 2 !important;
+  }
+
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(4),
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(5) {
+    grid-column: span 3 !important;
+  }
+
+  .fullscreen-grid.grid-5 .fullscreen-team-logo {
+    width: clamp(40px, 6vw, 65px) !important;
+    height: clamp(40px, 6vw, 65px) !important;
+  }
+
+  .fullscreen-grid.grid-5 .fullscreen-team-score {
+    font-size: clamp(1.5rem, 4vw, 2.5rem) !important;
+  }
+
+  .fullscreen-grid.grid-5 .fullscreen-live-team-name {
+    font-size: clamp(0.8rem, 1.6vw, 1.2rem) !important;
+  }
+
+  .fullscreen-grid.grid-5 .fullscreen-team-record {
+    font-size: clamp(0.6rem, 1.1vw, 0.9rem) !important;
+  }
+
+  .fullscreen-grid.grid-5 .fullscreen-status-text {
+    font-size: clamp(0.9rem, 1.6vw, 1.3rem) !important;
+  }
+
+  .fullscreen-grid.grid-5 .sport-logo-indicator {
+    width: clamp(20px, 2.5vw, 28px) !important;
+    height: clamp(20px, 2.5vw, 28px) !important;
+  }
+
+  /* ============================================
+     GRID-6: Six Cards (3x2 Grid)
+     ============================================ */
+  .fullscreen-grid.grid-6 {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: 1fr 1fr !important;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-team-logo {
+    width: clamp(38px, 5.5vw, 60px) !important;
+    height: clamp(38px, 5.5vw, 60px) !important;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-team-score {
+    font-size: clamp(1.4rem, 3.5vw, 2.3rem) !important;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-live-team-name {
+    font-size: clamp(0.75rem, 1.4vw, 1.1rem) !important;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-team-record {
+    font-size: clamp(0.55rem, 1vw, 0.85rem) !important;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-status-text {
+    font-size: clamp(0.85rem, 1.5vw, 1.2rem) !important;
+  }
+
+  .fullscreen-grid.grid-6 .sport-logo-indicator {
+    width: clamp(18px, 2.2vw, 26px) !important;
+    height: clamp(18px, 2.2vw, 26px) !important;
+  }
+
+  .fullscreen-grid.grid-6 .field-container {
+    height: clamp(22px, 4vh, 35px) !important;
+  }
+
+  /* ============================================
+     GRID-7: Seven Cards (1 large left, 6 small right)
+     ============================================ */
+  .fullscreen-grid.grid-7 {
+    display: grid !important;
+    grid-template-columns: 1.5fr 1fr 1fr !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+  }
+
+  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) {
+    grid-row: 1 / -1 !important;
+  }
+
+  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fullscreen-team-logo {
+    width: clamp(55px, 8vw, 90px) !important;
+    height: clamp(55px, 8vw, 90px) !important;
+  }
+
+  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fullscreen-team-score {
+    font-size: clamp(2rem, 5vw, 3.5rem) !important;
+  }
+
+  .fullscreen-grid.grid-7 .fullscreen-team-logo {
+    width: clamp(32px, 4.5vw, 50px) !important;
+    height: clamp(32px, 4.5vw, 50px) !important;
+  }
+
+  .fullscreen-grid.grid-7 .fullscreen-team-score {
+    font-size: clamp(1.2rem, 3vw, 2rem) !important;
+  }
+
+  .fullscreen-grid.grid-7 .fullscreen-live-team-name {
+    font-size: clamp(0.7rem, 1.2vw, 1rem) !important;
+  }
+
+  .fullscreen-grid.grid-7 .fullscreen-team-record {
+    font-size: clamp(0.5rem, 0.9vw, 0.8rem) !important;
+  }
+
+  .fullscreen-grid.grid-7 .fullscreen-status-text {
+    font-size: clamp(0.8rem, 1.3vw, 1.1rem) !important;
+  }
+
+  .fullscreen-grid.grid-7 .sport-logo-indicator {
+    width: clamp(16px, 2vw, 24px) !important;
+    height: clamp(16px, 2vw, 24px) !important;
+  }
+
+  /* ============================================
+     GRID-8: Eight Cards (2 large left, 6 small right)
+     ============================================ */
+  .fullscreen-grid.grid-8 {
+    display: grid !important;
+    grid-template-columns: 1.2fr 1fr 1fr !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+    grid-row: 1 / 2 !important;
+    grid-row: span 2 !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+    grid-row: 3 / 4 !important;
+    grid-column: 1 !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fullscreen-team-logo,
+  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fullscreen-team-logo {
+    width: clamp(45px, 6vw, 70px) !important;
+    height: clamp(45px, 6vw, 70px) !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fullscreen-team-score,
+  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fullscreen-team-score {
+    font-size: clamp(1.6rem, 4vw, 2.8rem) !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-team-logo {
+    width: clamp(30px, 4vw, 45px) !important;
+    height: clamp(30px, 4vw, 45px) !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-team-score {
+    font-size: clamp(1.1rem, 2.5vw, 1.8rem) !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-live-team-name {
+    font-size: clamp(0.65rem, 1.1vw, 0.95rem) !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-team-record {
+    font-size: clamp(0.5rem, 0.85vw, 0.75rem) !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-status-text {
+    font-size: clamp(0.75rem, 1.2vw, 1rem) !important;
+  }
+
+  .fullscreen-grid.grid-8 .sport-logo-indicator {
+    width: clamp(14px, 1.8vw, 22px) !important;
+    height: clamp(14px, 1.8vw, 22px) !important;
+  }
+
+  .fullscreen-grid.grid-8 .field-container {
+    height: clamp(18px, 3vh, 28px) !important;
+  }
+
+  /* ============================================
+     FIELD VISUALIZER - TABLET SIZES
+     ============================================ */
+  .fullscreen-grid.grid-1 .field-container,
+  .fullscreen-grid.grid-2 .field-container {
+    height: clamp(35px, 6vh, 55px) !important;
+  }
+
+  .fullscreen-grid.grid-3 .field-container {
+    height: clamp(28px, 5vh, 45px) !important;
+  }
+
+  .fullscreen-grid.grid-5 .field-container {
+    height: clamp(22px, 4vh, 35px) !important;
+  }
+
+  .fullscreen-grid.grid-7 .field-container {
+    height: clamp(20px, 3.5vh, 30px) !important;
+  }
+
+  /* ============================================
+     TIMEOUT BARS - TABLET POSITIONING
+     ============================================ */
+  .fs-sb-timeouts {
+    gap: 4px !important;
+  }
+
+  .fs-sb-timeout-pip {
+    width: clamp(16px, 2.5vw, 28px) !important;
+    height: clamp(5px, 0.8vh, 8px) !important;
+  }
+
+  /* ============================================
+     SCOREBOARD - TABLET SIZES
+     ============================================ */
+  .fs-scoreboard {
+    width: 92% !important;
+    max-width: none !important;
+  }
+
+  .fullscreen-grid.grid-1 .fs-scoreboard {
+    height: clamp(80px, 15vh, 120px) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fs-scoreboard {
+    height: clamp(65px, 12vh, 100px) !important;
+  }
+
+  .fullscreen-grid.grid-3 .fs-scoreboard,
+  .fullscreen-grid.grid-4 .fs-scoreboard {
+    height: clamp(55px, 10vh, 85px) !important;
+  }
+
+  .fullscreen-grid.grid-5 .fs-scoreboard,
+  .fullscreen-grid.grid-6 .fs-scoreboard {
+    height: clamp(48px, 9vh, 75px) !important;
+  }
+
+  .fullscreen-grid.grid-7 .fs-scoreboard,
+  .fullscreen-grid.grid-8 .fs-scoreboard {
+    height: clamp(42px, 8vh, 65px) !important;
+  }
+
+}
+
+/* ============================================
+   TABLET PORTRAIT SPECIFIC OVERRIDES
+   ============================================ */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+
+  /* Grid-2: Stack vertically in portrait */
+  .fullscreen-grid.grid-2 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-logo {
+    width: clamp(70px, 12vw, 110px) !important;
+    height: clamp(70px, 12vw, 110px) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-score {
+    font-size: clamp(3rem, 8vw, 5rem) !important;
+  }
+
+  /* Grid-3: 1 top, 2 bottom in portrait */
+  .fullscreen-grid.grid-3 {
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1.2fr 1fr !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(1) {
+    grid-column: 1 / -1 !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(2),
+  .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(3) {
+    grid-column: auto !important;
+    max-width: none !important;
+  }
+
+  /* Grid-4: 2x2 remains same */
+
+  /* Grid-5: 2 top, 3 bottom in portrait */
+  .fullscreen-grid.grid-5 {
+    grid-template-columns: repeat(6, 1fr) !important;
+    grid-template-rows: 1fr 1fr !important;
+  }
+
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(1),
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(2) {
+    grid-column: span 3 !important;
+  }
+
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(3),
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(4),
+  .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(5) {
+    grid-column: span 2 !important;
+  }
+
+  /* Grid-6: 2x3 in portrait */
+  .fullscreen-grid.grid-6 {
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+  }
+
+  /* Grid-7: 1 large top, 6 in 3x2 below */
+  .fullscreen-grid.grid-7 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: 1.5fr 1fr 1fr !important;
+  }
+
+  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+  }
+
+  /* Grid-8: 2 large top, 6 in 3x2 below */
+  .fullscreen-grid.grid-8 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: 1.3fr 1fr 1fr !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+    grid-column: span 2 !important;
+    grid-row: 1 !important;
+  }
+
+  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+  }
+
+}
+
+/* ============================================
+   TABLET LANDSCAPE SPECIFIC OVERRIDES
+   ============================================ */
+@media screen and (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
+
+  /* More horizontal space, optimize for width */
+  .fullscreen-grid {
+    padding: 12px !important;
+  }
+
+  /* Grid-3: All 3 in a row */
+  .fullscreen-grid.grid-3 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: 1fr !important;
+  }
+
+  .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(3) {
+    grid-column: auto !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+  }
+
+  /* Grid-4: 4 in a row for landscape */
+  .fullscreen-grid.grid-4 {
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: 1fr !important;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-team-logo {
+    width: clamp(40px, 5vw, 60px) !important;
+    height: clamp(40px, 5vw, 60px) !important;
+  }
+
+  .fullscreen-grid.grid-4 .fullscreen-team-score {
+    font-size: clamp(1.5rem, 3.5vw, 2.5rem) !important;
+  }
+
+  /* Grid-6: 6 in a row for wide landscape */
+  .fullscreen-grid.grid-6 {
+    grid-template-columns: repeat(6, 1fr) !important;
+    grid-template-rows: 1fr !important;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-team-logo {
+    width: clamp(32px, 4vw, 50px) !important;
+    height: clamp(32px, 4vw, 50px) !important;
+  }
+
+  .fullscreen-grid.grid-6 .fullscreen-team-score {
+    font-size: clamp(1.2rem, 2.8vw, 2rem) !important;
+  }
+
+}
+
+/* ============================================
+   LARGE TABLET (iPad Pro, etc.) OVERRIDES
+   ============================================ */
+@media screen and (min-width: 1024px) and (max-width: 1366px) {
+
+  /* More generous sizing for larger tablets */
+  .fullscreen-grid.grid-1 .fullscreen-team-logo {
+    width: clamp(100px, 18vw, 180px) !important;
+    height: clamp(100px, 18vw, 180px) !important;
+  }
+
+  .fullscreen-grid.grid-1 .fullscreen-team-score {
+    font-size: clamp(4rem, 10vw, 7rem) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-logo {
+    width: clamp(75px, 12vw, 120px) !important;
+    height: clamp(75px, 12vw, 120px) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fullscreen-team-score {
+    font-size: clamp(3rem, 7vw, 5rem) !important;
+  }
+
+}
+
+/* ============================================
+   TOUCH-FRIENDLY ENHANCEMENTS
+   ============================================ */
+@media screen and (min-width: 768px) and (max-width: 1366px) and (hover: none) and (pointer: coarse) {
+
+  /* Larger touch targets */
+  .fullscreen-game-card {
+    min-height: 120px !important;
+  }
+
+  /* Ensure tappable elements are large enough */
+  .fullscreen-controls button {
+    min-width: 48px !important;
+    min-height: 48px !important;
+    padding: 12px 24px !important;
+  }
+
+  /* Improve tap feel */
+  .fullscreen-game-card {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(99, 102, 241, 0.3);
+  }
+
+  .fullscreen-game-card:active {
+    transform: scale(0.98);
+  }
+
+}
