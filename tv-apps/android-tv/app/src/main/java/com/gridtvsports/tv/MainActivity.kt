@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var loadingOverlay: View
 
     // Set to true for local development, false for production
-    private val useLocalServer = true
+    private val useLocalServer = false
 
     // Local server configuration
     // Use "localhost" with adb reverse tcp:3001 tcp:3001
