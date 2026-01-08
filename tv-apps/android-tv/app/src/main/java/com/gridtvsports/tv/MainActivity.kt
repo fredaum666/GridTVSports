@@ -221,8 +221,9 @@ class MainActivity : AppCompatActivity() {
             // Enable DOM storage for localStorage
             domStorageEnabled = true
 
-            // Performance: Use aggressive caching for faster loads
-            cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+            // Cache mode: LOAD_DEFAULT respects HTTP cache headers
+            // Use LOAD_NO_CACHE during development to always fetch fresh content
+            cacheMode = WebSettings.LOAD_DEFAULT
 
             // Allow media playback
             mediaPlaybackRequiresUserGesture = false
