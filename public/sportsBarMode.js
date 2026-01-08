@@ -14,6 +14,10 @@ class SportsBarMode {
         this.updateInterval = null;
         this.isTrial = false;
         this.allowedGrids = [1, 2, 4, 6]; // Default: all grids allowed
+
+        // Mobile paging system
+        this.mobilePaging = null;
+        this.MAX_GAMES = 8; // Maximum games allowed for selection
     }
 
     /**
@@ -634,7 +638,10 @@ class SportsBarMode {
         preview.className = `grid-preview layout-${this.gridLayout}`;
         preview.innerHTML = '';
 
-        for (let i = 0; i < this.gridLayout; i++) {
+        // Cap at MAX_GAMES
+        const maxSlots = Math.min(this.gridLayout, this.MAX_GAMES);
+
+        for (let i = 0; i < maxSlots; i++) {
             const slot = document.createElement('div');
             slot.className = 'grid-slot';
 
@@ -726,7 +733,8 @@ class SportsBarMode {
      * Check if all slots have games selected
      */
     checkAllSlotsSelected() {
-        const allSelected = Object.keys(this.gridGames).length === this.gridLayout;
+        const maxSlots = Math.min(this.gridLayout, this.MAX_GAMES);
+        const allSelected = Object.keys(this.gridGames).length === maxSlots;
         document.getElementById('enterFullscreen').disabled = !allSelected;
     }
 
@@ -777,6 +785,26 @@ class SportsBarMode {
         this.fullscreenActive = true;
         this.renderFullscreenGames();
 
+        // Initialize mobile paging if on phone
+        if (window.innerWidth <= 768 && typeof MobileFullscreenPaging !== 'undefined') {
+            this.mobilePaging = new MobileFullscreenPaging();
+
+            // Get selected games in order
+            const selectedGames = [];
+            for (let i = 0; i < Math.min(this.gridLayout, this.MAX_GAMES); i++) {
+                const gameId = this.gridGames[i];
+                const game = this.games.find(g => g.id === gameId);
+                if (game) selectedGames.push(game);
+            }
+
+            // Setup paging
+            const container = fullscreenGrid.closest('.fullscreen-container') ||
+                            document.querySelector('.fullscreen-container') ||
+                            fullscreenGrid.parentElement;
+
+            this.mobilePaging.setup(selectedGames, container);
+        }
+
         // Start auto-update
         this.startAutoUpdate();
     }
@@ -785,6 +813,12 @@ class SportsBarMode {
      * Exit fullscreen mode
      */
     exitFullscreen() {
+        // Destroy mobile paging if active
+        if (this.mobilePaging) {
+            this.mobilePaging.destroy();
+            this.mobilePaging = null;
+        }
+
         document.getElementById('fullscreenGrid').classList.remove('active');
         document.querySelector('.exit-fullscreen').style.display = 'none';
         this.fullscreenActive = false;

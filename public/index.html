@@ -1737,106 +1737,125 @@
             display: flex;
         }
 
-        /* Enter Sports Mode button */
-        .sports-mode-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 28px;
-            background: linear-gradient(180deg, #1a5c35 0%, #0f3d23 50%, #0a2a18 100%);
-            border: 2px solid #2a7a4a;
-            border-radius: 14px;
-            color: #7fdf9a;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
+        /* ================================ */
+        /* STANDARDIZED ACTION BUTTONS     */
+        /* ================================ */
 
-        .sports-mode-btn.focused {
-            border-color: #5fdf8a;
-            transform: scale(1.03);
-            box-shadow:
-                0 6px 20px rgba(34, 197, 94, 0.3),
-                0 0 20px rgba(34, 197, 94, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-            color: #a0f0b8;
-        }
-
-        .sports-mode-btn .selection-count {
-            opacity: 0.85;
-        }
-
-        /* Cast to TV button */
-        .cast-to-tv-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 28px;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            border: 2px solid #818cf8;
-            border-radius: 14px;
-            color: #e0e7ff;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow:
-                0 4px 12px rgba(99, 102, 241, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        .cast-to-tv-btn.focused,
-        .cast-to-tv-btn:hover {
-            border-color: #a5b4fc;
-            transform: scale(1.03);
-            box-shadow:
-                0 6px 20px rgba(99, 102, 241, 0.5),
-                0 0 20px rgba(139, 92, 246, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-            color: #ffffff;
-        }
-
-        /* Clear Selections button */
+        /* Base action button styles */
+        .sports-mode-btn,
+        .cast-to-tv-btn,
         .clear-selections-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 14px 24px;
-            background: linear-gradient(180deg, #4a1a1a 0%, #3a1212 50%, #2a0a0a 100%);
-            border: 2px solid #6a3030;
-            border-radius: 14px;
-            color: #df7f7f;
-            font-size: 14px;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 24px;
+            min-height: 48px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: 600;
+            letter-spacing: 0.3px;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
         }
 
-        .clear-selections-btn.focused {
-            background: linear-gradient(180deg, #5a2020 0%, #4a1515 50%, #3a0a0a 100%);
-            border-color: #df6060;
-            color: #f0a0a0;
-            transform: scale(1.03);
+        /* Subtle shine effect on all buttons */
+        .sports-mode-btn::before,
+        .cast-to-tv-btn::before,
+        .clear-selections-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none;
+        }
+
+        /* Enter Sports Mode button - Green */
+        .sports-mode-btn {
+            background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+            color: #ffffff;
             box-shadow:
-                0 6px 20px rgba(239, 68, 68, 0.25),
-                0 0 20px rgba(239, 68, 68, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+                0 4px 14px rgba(34, 197, 94, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sports-mode-btn:hover,
+        .sports-mode-btn.focused {
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(34, 197, 94, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .sports-mode-btn:active {
+            transform: translateY(0);
+            box-shadow:
+                0 2px 8px rgba(34, 197, 94, 0.4),
+                0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .sports-mode-btn .selection-count {
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        /* Cast to TV button - Blue/Purple */
+        .cast-to-tv-btn {
+            background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+            color: #ffffff;
+            box-shadow:
+                0 4px 14px rgba(99, 102, 241, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .cast-to-tv-btn:hover,
+        .cast-to-tv-btn.focused {
+            background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(99, 102, 241, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .cast-to-tv-btn:active {
+            transform: translateY(0);
+            box-shadow:
+                0 2px 8px rgba(99, 102, 241, 0.4),
+                0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Clear Selections button - Subtle/Secondary */
+        .clear-selections-btn {
+            background: linear-gradient(180deg, #4b5563 0%, #374151 100%);
+            color: #f3f4f6;
+            box-shadow:
+                0 4px 14px rgba(0, 0, 0, 0.3),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .clear-selections-btn:hover,
+        .clear-selections-btn.focused {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(239, 68, 68, 0.4),
+                0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .clear-selections-btn:active {
+            transform: translateY(0);
+            box-shadow:
+                0 2px 8px rgba(239, 68, 68, 0.3),
+                0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         /* ================================ */
@@ -2692,11 +2711,7 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
 
-        .sports-mode-btn:hover,
-        .clear-selections-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
-        }
+        /* Button hover states are defined in the standardized button section above */
 
         /* Cursor pointer for clickable elements */
         .league-card,
@@ -3105,10 +3120,10 @@
                 transform: scale(0.98);
             }
 
-            .sports-mode-btn:active,
             .dropdown-item:active {
                 background: rgba(99, 102, 241, 0.4);
             }
+            /* Button :active states defined in standardized button section */
         }
 
         /* Prevent text selection on interactive elements */
@@ -4004,8 +4019,21 @@
             // Save selections to localStorage for sports-bar page
             localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(selectedGamesForSportsBar));
 
-            // Navigate to sports bar page
-            window.location.href = '/Desktop-tv-sports-bar';
+            // Device detection - route to appropriate sports bar page
+            const screenWidth = window.innerWidth;
+            let sportsBarPage = '/Desktop-tv-sports-bar'; // Default to desktop
+
+            if (screenWidth <= 768) {
+                // Phone (mobile devices)
+                sportsBarPage = '/Phone-sports-bar';
+            } else if (screenWidth > 768 && screenWidth <= 1024) {
+                // Tablet (use desktop for now, can create tablet-specific later)
+                sportsBarPage = '/Desktop-tv-sports-bar';
+            }
+            // else: Desktop (>1024px) - already set to Desktop-tv-sports-bar
+
+            // Navigate to appropriate sports bar page
+            window.location.href = sportsBarPage;
         }
 
         // ============================================

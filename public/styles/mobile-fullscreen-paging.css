@@ -1,0 +1,409 @@
+/* ============================================
+   MOBILE FULLSCREEN PAGING SYSTEM
+   For Phone Screens - Max 2 Cards Per Page
+   ============================================
+
+   IMPORTANT: This CSS file must be loaded AFTER fullscreen-cards.css
+   and mobile-fullscreen.css. It adds paging functionality on top of
+   the existing fullscreen card layouts from Desktop-tv-sports-bar.html
+
+   Features:
+   - Maximum 2 cards per page (portrait & landscape)
+   - Swipeable pages for 3-8 games
+   - Uses existing Desktop-tv-sports-bar.html card layout
+   - Page indicators
+   - Smooth transitions
+   - Works on iOS & Android
+
+   Load order:
+   1. fullscreen-cards.css (Desktop card layout)
+   2. mobile-fullscreen.css (Mobile card sizing)
+   3. mobile-fullscreen-paging.css (THIS FILE - Paging system)
+
+   ============================================ */
+
+/* ============================================
+   MOBILE PHONE DETECTION
+   ============================================ */
+@media screen and (max-width: 768px) {
+
+  /* ============================================
+     FULLSCREEN PAGING CONTAINER
+     ============================================ */
+
+  .fullscreen-container.mobile-paging {
+    overflow: hidden !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+  }
+
+  /* Ensure fullscreen grid doesn't scroll */
+  .fullscreen-container.mobile-paging .fullscreen-grid {
+    overflow: hidden !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100vw !important;
+    display: block !important;
+    position: relative !important;
+  }
+
+  /* Pages wrapper - horizontal scroll container */
+  .fullscreen-pages-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    width: auto !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* Individual page */
+  .fullscreen-page {
+    min-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    display: flex !important;
+    flex-shrink: 0 !important;
+    padding: 8px !important;
+    padding-bottom: 60px !important; /* Space for page indicators */
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    position: relative !important;
+    flex-direction: column !important;
+    justify-content: stretch !important;
+  }
+
+  /* Grid within each page - max 2 cards */
+  .fullscreen-page-grid {
+    width: 100% !important;
+    height: 100% !important;
+    display: grid !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+    place-items: stretch !important;
+    align-content: stretch !important;
+  }
+
+  /* ============================================
+     PORTRAIT MODE - 2 Cards Stacked Vertically
+     ============================================ */
+  @media screen and (orientation: portrait) {
+    .fullscreen-page-grid {
+      grid-template-columns: 1fr !important;
+      grid-template-rows: 1fr 1fr !important;
+      grid-auto-rows: 0 !important;
+    }
+
+    /* Single card per page (when odd number of games) */
+    .fullscreen-page-grid.single-card {
+      grid-template-rows: 1fr !important;
+      place-items: center !important;
+    }
+  }
+
+  /* ============================================
+     LANDSCAPE MODE - 2 Cards Side by Side
+     ============================================ */
+  @media screen and (orientation: landscape) {
+    .fullscreen-page-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      grid-template-rows: 1fr !important;
+    }
+
+    /* Single card per page (when odd number of games) */
+    .fullscreen-page-grid.single-card {
+      grid-template-columns: 1fr !important;
+      place-items: center !important;
+    }
+  }
+
+  /* ============================================
+     PAGE INDICATORS
+     ============================================ */
+
+  .fullscreen-page-indicators {
+    position: fixed !important;
+    bottom: 15px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    gap: 8px !important;
+    z-index: 10001 !important;
+    background: rgba(10, 14, 26, 0.8) !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    backdrop-filter: blur(10px) !important;
+  }
+
+  .page-indicator-dot {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .page-indicator-dot.active {
+    width: 24px !important;
+    border-radius: 4px !important;
+    background: #3b82f6 !important;
+  }
+
+  /* ============================================
+     SWIPE NAVIGATION HINTS
+     ============================================ */
+
+  .swipe-hint {
+    position: fixed !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 24px !important;
+    opacity: 0.3 !important;
+    color: white !important;
+    z-index: 10001 !important;
+    pointer-events: none !important;
+    animation: swipeHintPulse 2s infinite !important;
+  }
+
+  .swipe-hint.left {
+    left: 10px !important;
+  }
+
+  .swipe-hint.right {
+    right: 10px !important;
+  }
+
+  @keyframes swipeHintPulse {
+    0%, 100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  /* Hide hints after first swipe */
+  .fullscreen-container.swiped .swipe-hint {
+    display: none !important;
+  }
+
+  /* ============================================
+     GAME CARD SIZING FOR PAGED MODE
+     ============================================ */
+
+  /* Cards in paging mode get full height - NO SCROLL */
+  .fullscreen-page-grid .fullscreen-game-card {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Smaller team logos for paging mode */
+  .fullscreen-container.mobile-paging .fullscreen-team-logo {
+    width: clamp(60px, 12vw, 80px) !important;
+    height: clamp(60px, 12vw, 80px) !important;
+  }
+
+  /* Move game clock to top of card */
+  .fullscreen-container.mobile-paging .fullscreen-quarter,
+  .fullscreen-container.mobile-paging .fullscreen-status-text,
+  .fullscreen-container.mobile-paging .fullscreen-inning {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    left: auto !important;
+    margin: 0 !important;
+    font-size: clamp(1rem, 3vw, 1.5rem) !important;
+    padding: 6px 12px !important;
+    background: rgba(10, 14, 26, 0.8) !important;
+    border-radius: 8px !important;
+    backdrop-filter: blur(10px) !important;
+    z-index: 10 !important;
+  }
+
+  /* Adjust card content to account for top clock */
+  .fullscreen-container.mobile-paging .fullscreen-card-content {
+    padding-top: 50px !important;
+  }
+
+  /* Smaller team names for paging mode */
+  .fullscreen-container.mobile-paging .fullscreen-team-name,
+  .fullscreen-container.mobile-paging .fullscreen-live-team-name {
+    font-size: clamp(1.8rem, 6vw, 2.8rem) !important;
+  }
+
+  /* Smaller scores for paging mode */
+  .fullscreen-container.mobile-paging .fullscreen-team-score,
+  .fullscreen-container.mobile-paging .fullscreen-score {
+    font-size: clamp(3rem, 10vw, 5rem) !important;
+  }
+
+  /* Smaller records */
+  .fullscreen-container.mobile-paging .fullscreen-team-record {
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem) !important;
+  }
+
+  /* Smaller down/distance */
+  .fullscreen-container.mobile-paging .fullscreen-down-distance {
+    font-size: clamp(1rem, 3vw, 1.4rem) !important;
+    padding: 6px 12px !important;
+  }
+
+  /* Smaller possession indicator */
+  .fullscreen-container.mobile-paging .fullscreen-possession {
+    font-size: clamp(1.5rem, 4vw, 2rem) !important;
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Smaller timeout bars */
+  .fullscreen-container.mobile-paging .timeout-bar {
+    width: clamp(35px, 7vw, 50px) !important;
+    height: 8px !important;
+  }
+
+  /* Portrait - 2 cards stacked */
+  @media screen and (orientation: portrait) {
+    .fullscreen-page-grid .fullscreen-game-card {
+      height: 100% !important;
+      flex: 1 !important;
+    }
+
+    .fullscreen-page-grid.single-card .fullscreen-game-card {
+      height: 100% !important;
+      flex: 1 !important;
+    }
+  }
+
+  /* Landscape - 2 cards side by side */
+  @media screen and (orientation: landscape) {
+    .fullscreen-page-grid .fullscreen-game-card {
+      width: 100% !important;
+      height: 100% !important;
+      flex: 1 !important;
+    }
+
+    .fullscreen-page-grid.single-card .fullscreen-game-card {
+      width: 80vw !important;
+      max-width: 600px !important;
+      height: 100% !important;
+      flex: 1 !important;
+    }
+  }
+
+  /* ============================================
+     TOUCH INTERACTION STYLES
+     ============================================ */
+
+  .fullscreen-pages-wrapper {
+    cursor: grab !important;
+  }
+
+  .fullscreen-pages-wrapper.dragging {
+    cursor: grabbing !important;
+    transition: none !important;
+  }
+
+  /* Prevent text selection during swipe */
+  .fullscreen-pages-wrapper.dragging * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+
+  /* ============================================
+     GAME COUNT INDICATOR
+     ============================================ */
+
+  .fullscreen-game-count {
+    position: fixed !important;
+    top: 15px !important;
+    right: 60px !important;
+    background: rgba(10, 14, 26, 0.8) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    padding: 6px 12px !important;
+    border-radius: 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    z-index: 10001 !important;
+    backdrop-filter: blur(10px) !important;
+  }
+
+  /* ============================================
+     ORIENTATION CHANGE HANDLING
+     ============================================ */
+
+  .fullscreen-container.mobile-paging.transitioning .fullscreen-pages-wrapper {
+    transition: none !important;
+  }
+
+  /* ============================================
+     ACCESSIBILITY
+     ============================================ */
+
+  .page-indicator-dot[aria-label] {
+    position: relative !important;
+  }
+
+  /* Screen reader only text */
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border-width: 0 !important;
+  }
+}
+
+/* ============================================
+   TABLET - NO PAGING (Use Regular Grid)
+   ============================================ */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  /* Tablets use regular grid system, not paging */
+  .fullscreen-pages-wrapper,
+  .fullscreen-page-indicators,
+  .swipe-hint,
+  .fullscreen-game-count {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+@media screen and (max-width: 768px) {
+  /* GPU acceleration for smooth scrolling */
+  .fullscreen-pages-wrapper {
+    will-change: transform !important;
+    transform: translateZ(0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+  }
+
+  .fullscreen-page {
+    will-change: transform !important;
+    transform: translateZ(0) !important;
+  }
+
+  .fullscreen-game-card {
+    will-change: transform !important;
+  }
+}

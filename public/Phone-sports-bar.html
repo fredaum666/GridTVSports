@@ -1,0 +1,4562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GridTV Sports - Phone Sports Bar</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png">
+    <link rel="stylesheet" href="/styles/fullscreen-cards.css">
+    <link rel="stylesheet" href="/styles/mobile-fullscreen.css">
+    <link rel="stylesheet" href="/styles/mobile-fullscreen-paging.css?v=3">
+    <link rel="stylesheet" href="/styles/play-animations.css">
+    <style>
+        /* ================================ */
+        /* SPORTS BAR MODE - RESPONSIVE     */
+        /* ================================ */
+        :root {
+            /* Colors */
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --success: #22c55e;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+
+            /* Desktop defaults */
+            --margin-h: 24px;
+            --margin-v: 16px;
+            --gutter: 12px;
+            --card-radius: 12px;
+            --touch-target: 44px;
+        }
+
+        /* Tablet (768px - 1024px) */
+        @media (max-width: 1024px) {
+            :root {
+                --margin-h: 16px;
+                --margin-v: 12px;
+                --gutter: 10px;
+                --card-radius: 10px;
+            }
+        }
+
+        /* Mobile (up to 767px) */
+        @media (max-width: 767px) {
+            :root {
+                --margin-h: 12px;
+                --margin-v: 8px;
+                --gutter: 8px;
+                --card-radius: 8px;
+            }
+        }
+
+        /* Small mobile (up to 375px) */
+        @media (max-width: 375px) {
+            :root {
+                --margin-h: 8px;
+                --margin-v: 6px;
+                --gutter: 6px;
+                --card-radius: 6px;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* Disable all scrolling for phone sports bar */
+            background: var(--bg-primary);
+            font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Container Overrides for Phone Sports Bar */
+        .fullscreen-container {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            /* Use dvh for iOS address bar handling */
+            overflow: hidden;
+            /* Disable all scrolling */
+        }
+
+        .fullscreen-grid {
+            height: 100vh;
+            height: 100dvh;
+            /* Use dvh for iOS address bar handling */
+            padding: 0;
+            /* Remove padding - handled by paging system */
+            width: 100%;
+            overflow: hidden;
+            /* Disable all scrolling */
+        }
+
+        /* ================================ */
+        /* DESKTOP RESPONSIVE GRID LAYOUTS  */
+        /* ================================ */
+
+        /* Desktop (default) - Full grid layouts */
+        .fullscreen-grid.grid-1 {
+            padding: 24px;
+        }
+
+        .fullscreen-grid.grid-2 {
+            gap: 16px;
+            padding: 20px;
+        }
+
+        .fullscreen-grid.grid-3,
+        .fullscreen-grid.grid-4 {
+            gap: 14px;
+            padding: 18px;
+        }
+
+        /* Grid 3 - Make bottom card same width as top cards, centered */
+        .fullscreen-grid.grid-3 {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+
+        .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(1) {
+            grid-column: 1 / 3;
+        }
+
+        .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(2) {
+            grid-column: 3 / 5;
+        }
+
+        .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(3) {
+            grid-column: 2 / 4;
+        }
+
+        .fullscreen-grid.grid-5,
+        .fullscreen-grid.grid-6 {
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .fullscreen-grid.grid-7 {
+            gap: 14px;
+            padding: 16px;
+        }
+
+        .fullscreen-grid.grid-8 {
+            gap: 12px;
+            padding: 14px;
+            /* 2 big cards on left (narrower), 6 small cards on right (wider) */
+            grid-template-columns: 0.9fr 0.9fr 1.1fr 1.1fr;
+            grid-template-rows: repeat(6, 1fr);
+        }
+
+        /* Grid 8 - First big card (top-left, spans 2 cols x 3 rows) */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+            grid-column: 1 / 3;
+            grid-row: 1 / 4;
+        }
+
+        /* Grid 8 - Second big card (bottom-left, spans 2 cols x 3 rows) */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+            grid-column: 1 / 3;
+            grid-row: 4 / 7;
+        }
+
+        /* Grid 8 - Small cards 3-8 on the right side (2 columns x 3 rows) */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(3) {
+            grid-column: 3;
+            grid-row: 1 / 3;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(4) {
+            grid-column: 4;
+            grid-row: 1 / 3;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(5) {
+            grid-column: 3;
+            grid-row: 3 / 5;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(6) {
+            grid-column: 4;
+            grid-row: 3 / 5;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(7) {
+            grid-column: 3;
+            grid-row: 5 / 7;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(8) {
+            grid-column: 4;
+            grid-row: 5 / 7;
+        }
+
+        /* Tablet (768px - 1024px) */
+        @media (max-width: 1024px) and (min-width: 768px) {
+            .fullscreen-grid {
+                padding: 16px;
+            }
+
+            .fullscreen-grid.grid-1 {
+                padding: 20px;
+            }
+
+            .fullscreen-grid.grid-2 {
+                gap: 14px;
+            }
+
+            .fullscreen-grid.grid-3,
+            .fullscreen-grid.grid-4 {
+                gap: 12px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6 {
+                gap: 10px;
+            }
+
+            .fullscreen-grid.grid-7 {
+                gap: 12px;
+                padding: 14px;
+            }
+
+            .fullscreen-grid.grid-8 {
+                gap: 10px;
+                padding: 12px;
+            }
+
+            /* Tablet - Adjust grid layouts for better viewing */
+            .fullscreen-grid.grid-7 {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+            }
+
+            .fullscreen-grid.grid-8 {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+            }
+
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+                grid-column: span 2;
+            }
+        }
+
+        /* Mobile Landscape (up to 767px, landscape) - PHONE SPORTS BAR MODE */
+        @media (max-width: 767px) and (orientation: landscape) {
+
+            /* Disable all scrolling on mobile */
+            html,
+            body {
+                overflow: hidden !important;
+                position: fixed !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+            }
+
+            .fullscreen-container {
+                overflow: hidden !important;
+            }
+
+            .fullscreen-grid {
+                padding: 0;
+                /* Padding handled by paging system */
+                overflow: hidden !important;
+                height: 100vh;
+                height: 100dvh;
+            }
+
+            .fullscreen-grid.grid-1 {
+                padding: 12px;
+            }
+
+            .fullscreen-grid.grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: 1fr;
+                gap: 10px;
+            }
+
+            .fullscreen-grid.grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: 1fr;
+                gap: 8px;
+            }
+
+            .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(3) {
+                grid-column: span 1;
+            }
+
+            .fullscreen-grid.grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: 1fr;
+                gap: 8px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6 {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(2),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(3),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(4),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(5) {
+                grid-column: span 1;
+            }
+
+            .fullscreen-grid.grid-7,
+            .fullscreen-grid.grid-8 {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+                grid-column: span 1;
+            }
+        }
+
+        /* Mobile Portrait (up to 767px, portrait) - PHONE SPORTS BAR MODE */
+        @media (max-width: 767px) and (orientation: portrait) {
+
+            /* Disable all scrolling on mobile */
+            html,
+            body {
+                overflow: hidden !important;
+                position: fixed !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+            }
+
+            .fullscreen-container {
+                flex-direction: column;
+                overflow: hidden !important;
+            }
+
+            .fullscreen-grid {
+                padding: 0;
+                /* Padding handled by paging system */
+                overflow: hidden !important;
+                height: 100vh;
+                height: 100dvh;
+            }
+
+            .fullscreen-grid.grid-1 {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr;
+                padding: 12px;
+            }
+
+            .fullscreen-grid.grid-2 {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .fullscreen-grid.grid-3 {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .fullscreen-grid.grid-3 .fullscreen-game-card:nth-child(3) {
+                grid-column: span 1;
+            }
+
+            .fullscreen-grid.grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6 {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(2),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(3),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(4),
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(5) {
+                grid-column: span 1;
+            }
+
+            .fullscreen-grid.grid-7,
+            .fullscreen-grid.grid-8 {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+
+            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+                grid-column: span 1;
+            }
+        }
+
+        /* Small Mobile (up to 375px) */
+        @media (max-width: 375px) {
+            .fullscreen-grid {
+                padding: 6px;
+            }
+
+            .fullscreen-grid.grid-1 {
+                padding: 8px;
+            }
+
+            .fullscreen-grid.grid-2,
+            .fullscreen-grid.grid-3,
+            .fullscreen-grid.grid-4 {
+                gap: 6px;
+            }
+
+            .fullscreen-grid.grid-5,
+            .fullscreen-grid.grid-6,
+            .fullscreen-grid.grid-7,
+            .fullscreen-grid.grid-8 {
+                gap: 4px;
+            }
+        }
+
+        /* ================================ */
+        /* BACK BUTTON                      */
+        /* ================================ */
+        .back-btn {
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            z-index: 100000;
+            padding: 6px 12px;
+            background: rgba(51, 65, 85, 0.85);
+            border: 2px solid transparent;
+            border-radius: 6px;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .back-btn::before {
+            content: '\2190';
+            font-size: 12px;
+        }
+
+        .back-btn:hover,
+        .back-btn.focused {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.3);
+            transform: scale(1.02);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+        }
+
+        /* ================================ */
+        /* EXIT CONFIRMATION MODAL          */
+        /* ================================ */
+        .exit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 26, 0.95);
+            z-index: 100001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .exit-modal.visible {
+            display: flex;
+        }
+
+        .exit-modal-content {
+            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
+            border-radius: 20px;
+            padding: 40px 60px;
+            text-align: center;
+            border: 3px solid var(--border);
+            max-width: 500px;
+        }
+
+        .exit-modal-content h2 {
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .exit-modal-content p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
+        .exit-modal-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .exit-modal-btn {
+            padding: 14px 36px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 10px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .exit-modal-btn.confirm {
+            background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+            color: white;
+        }
+
+        .exit-modal-btn.cancel {
+            background: #334155;
+            color: white;
+        }
+
+        .exit-modal-btn.focused {
+            border-color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        /* ================================ */
+        /* EMPTY STATE                      */
+        /* ================================ */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: var(--text-secondary);
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* ================================ */
+        /* RESPONSIVE BREAKPOINTS           */
+        /* ================================ */
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .back-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+                min-height: var(--touch-target);
+            }
+
+            .fullscreen-grid {
+                padding: var(--margin-v) var(--margin-h);
+            }
+
+            .exit-modal-content {
+                padding: 32px 40px;
+                max-width: 90%;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 767px) {
+            .back-btn {
+                top: 8px;
+                left: 8px;
+                padding: 10px 16px;
+                font-size: 13px;
+                min-height: 44px;
+            }
+
+            .fullscreen-grid {
+                padding: var(--margin-v) var(--margin-h);
+            }
+
+            .fullscreen-container {
+                flex-direction: column;
+            }
+
+            .exit-modal-content {
+                padding: 24px 20px;
+                max-width: 95%;
+                border-radius: 16px;
+            }
+
+            .exit-modal-content h2 {
+                font-size: 22px;
+            }
+
+            .exit-modal-content p {
+                font-size: 14px;
+                margin-bottom: 24px;
+            }
+
+            .exit-modal-btn {
+                padding: 12px 24px;
+                font-size: 14px;
+                min-height: 44px;
+            }
+
+            .exit-modal-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        /* Small mobile */
+        @media (max-width: 375px) {
+            .back-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .exit-modal-content {
+                padding: 20px 16px;
+            }
+
+            .exit-modal-content h2 {
+                font-size: 20px;
+            }
+        }
+
+        /* ============================================
+           SCOREBOARD COMPONENT STYLES (Fullscreen Cards)
+           ============================================ */
+
+        /* Wrapper for entire fullscreen card content with scoreboard */
+        .fs-card-wrapper {
+            width: 116%;
+            height: 77%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            gap: 8px;
+        }
+
+        /* Scoreboard top section - mirrors scoreboard layout below */
+        .fs-scoreboard-top {
+            width: 90%;
+            display: flex;
+            align-items: flex-end;
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        /* Spacer to match score box width */
+        .fs-sb-logo-spacer {
+            width: clamp(50px, 8vmin, 70px);
+            flex-shrink: 0;
+        }
+
+        /* Logo box - matches team section width */
+        .fs-sb-logo-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(0px, 0vmin, 0px);
+            /* border: 1px solid red; */
+            /* Debug */
+        }
+
+        /* Center spacer - matches time box width */
+        .fs-sb-logo-center-spacer {
+            width: clamp(60px, 10vmin, 100px);
+            flex-shrink: 0;
+        }
+
+        .fs-card-team-logo-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fs-card-team-logo {
+            width: clamp(50px, 8vmin, 90px);
+            height: clamp(50px, 8vmin, 90px);
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+        }
+
+        /* Possession indicator - football emoji near team logo */
+        .fs-possession-indicator {
+            position: absolute;
+            font-size: clamp(14px, 2.0vmin, 24px);
+            line-height: 1;
+            animation: possessionBlink 1.5s infinite;
+            filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.9));
+            z-index: 5;
+        }
+
+        /* Away team: top-right */
+        .fs-possession-indicator.away {
+            top: -8px;
+            right: -8px;
+        }
+
+        /* Home team: top-left */
+        .fs-possession-indicator.home {
+            top: -8px;
+            left: -8px;
+        }
+
+        @keyframes possessionBlink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* Grid-specific possession indicator sizing */
+        .fullscreen-grid.grid-1 .fs-possession-indicator {
+            font-size: clamp(20px, 3.5vmin, 32px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-possession-indicator.away {
+            top: -12px;
+            right: -12px;
+        }
+
+        .fullscreen-grid.grid-1 .fs-possession-indicator.home {
+            top: -12px;
+            left: -12px;
+        }
+
+        .fullscreen-grid.grid-2 .fs-possession-indicator {
+            font-size: clamp(18px, 3vmin, 28px);
+        }
+
+        .fullscreen-grid.grid-2 .fs-possession-indicator.away {
+            top: -10px;
+            right: -10px;
+        }
+
+        .fullscreen-grid.grid-2 .fs-possession-indicator.home {
+            top: -10px;
+            left: -10px;
+        }
+
+        .fullscreen-grid.grid-5 .fs-possession-indicator,
+        .fullscreen-grid.grid-6 .fs-possession-indicator {
+            font-size: clamp(12px, 2vmin, 18px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-possession-indicator.away,
+        .fullscreen-grid.grid-6 .fs-possession-indicator.away {
+            top: -6px;
+            right: -6px;
+        }
+
+        .fullscreen-grid.grid-5 .fs-possession-indicator.home,
+        .fullscreen-grid.grid-6 .fs-possession-indicator.home {
+            top: -6px;
+            left: -6px;
+        }
+
+        .fullscreen-grid.grid-7 .fs-possession-indicator,
+        .fullscreen-grid.grid-8 .fs-possession-indicator {
+            font-size: clamp(10px, 1.5vmin, 14px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-possession-indicator.away,
+        .fullscreen-grid.grid-8 .fs-possession-indicator.away {
+            top: -4px;
+            right: -4px;
+        }
+
+        .fullscreen-grid.grid-7 .fs-possession-indicator.home,
+        .fullscreen-grid.grid-8 .fs-possession-indicator.home {
+            top: -4px;
+            left: -4px;
+        }
+
+        /* The scoreboard itself */
+        .fs-scoreboard {
+            /* Default fallback colors */
+            --sb-away-primary: #4b5563;
+            --sb-away-secondary: #374151;
+            --sb-home-primary: #6b7280;
+            --sb-home-secondary: #4b5563;
+            --sb-center-bg: #1f2937;
+            --sb-text-color: #ffffff;
+            --sb-subtext-color: rgba(255, 255, 255, 0.7);
+
+            position: relative;
+            width: 90%;
+            height: clamp(50px, 8vmin, 70px);
+            display: flex;
+            align-items: stretch;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+            border-radius: 6px;
+            overflow: visible;
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                0 2px 6px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Score boxes on sides */
+        .fs-sb-score-box {
+            position: relative;
+            width: clamp(65px, 10vmin, 90px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .fs-sb-score-box.away {
+            background: linear-gradient(135deg, var(--sb-away-primary) 0%, var(--sb-away-primary) 60%, var(--sb-away-secondary) 100%);
+            /*clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%);*/
+            padding-right: 6px;
+            border-radius: 6px 0 0 6px;
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.2),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .fs-sb-score-box.home {
+            background: linear-gradient(135deg, var(--sb-home-secondary) 0%, var(--sb-home-primary) 40%, var(--sb-home-primary) 100%);
+            /*clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);*/
+            padding-left: 6px;
+            border-radius: 0 6px 6px 0;
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.2),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .fs-sb-score {
+            font-size: clamp(1.5rem, 4vmin, 2.5rem);
+            font-weight: 900;
+            color: var(--sb-text-color);
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.3),
+                0 2px 2px rgba(0, 0, 0, 0.3),
+                0 3px 4px rgba(0, 0, 0, 0.2),
+                0 0 12px rgba(255, 255, 255, 0.1);
+            letter-spacing: 1px;
+        }
+
+        /* Team info sections inside scoreboard - metallic grey area */
+        .fs-sb-team-section {
+            flex: 1;
+            background: linear-gradient(180deg,
+                    #3d4654 0%,
+                    #2d3544 15%,
+                    #1f2937 50%,
+                    #1a202c 85%,
+                    #151a23 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            position: relative;
+
+            box-shadow:
+                inset 0 2px 3px rgba(255, 255, 255, 0.15),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+                inset 1px 0 2px rgba(255, 255, 255, 0.05),
+                inset -1px 0 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .fs-sb-team-section.away {
+            padding-right: 50px;
+        }
+
+        .fs-sb-team-section.home {
+            padding-left: 50px;
+        }
+
+        .fs-sb-team-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .fs-sb-team-name {
+            font-size: clamp(0.8rem, 2vmin, 1.1rem);
+            font-weight: 700;
+            color: var(--sb-text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .fs-sb-team-record {
+            font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
+            color: var(--sb-subtext-color);
+            font-weight: 500;
+        }
+
+        /* Timeout bars container - positioned absolutely between team name and center */
+        .fs-sb-timeouts {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .fs-sb-timeouts.away {
+            right: 100px;
+        }
+
+        .fs-sb-timeouts.home {
+            left: 100px;
+        }
+
+        .fs-sb-timeout-bar {
+            width: clamp(6px, 1vmin, 10px);
+            height: clamp(6px, 1vmin, 10px);
+            background: linear-gradient(135deg, #414541 0%, #f5e3c4 100%);
+            border-radius: 1px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            transition: opacity 0.3s ease;
+        }
+
+        .fs-sb-timeout-bar.used {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            opacity: 0.4;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Center time/status section */
+        .fs-sb-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fs-sb-time-box {
+            background: linear-gradient(180deg,
+                    #252a31 0%,
+                    #000000 10%,
+                    #393c47 40%,
+                    #000000 60%,
+                    #000000 90%,
+                    #000000 100%);
+            padding: 4px 14px;
+            clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
+            min-width: 80px;
+            text-align: center;
+            border: 1px solid #5a6577;
+            box-shadow:
+                0 3px 8px rgba(0, 0, 0, 0.5),
+                0 1px 2px rgba(0, 0, 0, 0.3),
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .fs-sb-time-label {
+            font-size: clamp(1.45rem, 2.2vmin, 1.6rem);
+            color: var(--sb-subtext-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .fs-sb-time {
+            font-size: clamp(0.7rem, 2vmin, 1rem);
+            font-weight: 900;
+            color: var(--sb-text-color);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ============================================
+           GAME SITUATION BOX (NFL/NCAA Football)
+           ============================================ */
+        .fs-sb-situation {
+            --sb-possession-primary: #4b5563;
+            --sb-possession-secondary: #374151;
+
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--sb-possession-primary) 0%, var(--sb-possession-primary) 50%, var(--sb-possession-secondary) 100%);
+            padding: 3px 12px;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 140px;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+            z-index: 5;
+            transition: left 0.3s ease, transform 0.3s ease;
+        }
+
+        .fs-sb-situation.possession-away {
+            --sb-possession-primary: var(--sb-away-primary);
+            --sb-possession-secondary: var(--sb-away-secondary);
+            left: 25%;
+            transform: translateX(-50%);
+        }
+
+        .fs-sb-situation.possession-home {
+            --sb-possession-primary: var(--sb-home-primary);
+            --sb-possession-secondary: var(--sb-home-secondary);
+            left: 75%;
+            transform: translateX(-50%);
+        }
+
+        .fs-sb-down-distance {
+            font-size: clamp(0.55rem, 1.5vmin, 0.75rem);
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        .fs-sb-situation-divider {
+            width: 1px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .fs-sb-ball-position {
+            font-size: clamp(0.5rem, 1.3vmin, 0.65rem);
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .fs-sb-situation.redzone {
+            border-color: #ef4444;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+
+        .fs-sb-situation:empty,
+        .fs-sb-situation.hidden {
+            display: none;
+        }
+
+        /* Status text above scoreboard */
+        .fs-status-container {
+            margin-bottom: 4px;
+        }
+
+        .fs-status-text {
+            font-size: clamp(0.7rem, 1.8vmin, 1rem);
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .fs-status-text.upcoming {
+            color: #60a5fa;
+        }
+
+        .fs-status-text.final {
+            color: #9ca3af;
+        }
+
+        /* League logo position adjustment for scoreboard layout */
+        .fullscreen-game-card.has-scoreboard .sport-logo-indicator {
+            top: 15px;
+            right: 15px;
+            width: clamp(50px, 8vmin, 70px);
+            height: clamp(50px, 8vmin, 70px);
+        }
+
+        /* League-specific background images */
+        .fullscreen-game-card.fs-nfl {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NFL-Field.jpg') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-ncaa {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NCAAF-Field.jpg') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-nba {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NBACourt.png') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-ncaab {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NCAABCourt.png') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-nhl {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NHLIceRink.png') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.fs-mlb {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/MLBFiled.png') center center / cover no-repeat;
+        }
+
+        /* Hide default content when using scoreboard */
+        .fullscreen-game-card.has-scoreboard .fullscreen-card-content {
+            display: none;
+        }
+
+        /* Grid-specific scoreboard adjustments */
+        /* Grid 1 - largest cards */
+        .fullscreen-grid.grid-1 .fs-sb-logo-spacer {
+            width: clamp(70px, 10vmin, 100px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-logo-center-spacer {
+            width: clamp(0px, 0vmin, 120px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-card-team-logo {
+            width: clamp(80px, 12vmin, 140px);
+            height: clamp(80px, 12vmin, 140px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-scoreboard {
+            height: clamp(70px, 10vmin, 100px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-score-box {
+            width: clamp(80px, 10vmin, 100px);
+        }
+
+        /* Grid 2 */
+        .fullscreen-grid.grid-2 .fs-sb-logo-spacer {
+            width: clamp(50px, 8vmin, 70px);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-logo-center-spacer {
+            width: clamp(70px, 10vmin, 100px);
+        }
+
+        .fullscreen-grid.grid-2 .fs-card-team-logo {
+            width: clamp(60px, 10vmin, 100px);
+            height: clamp(60px, 10vmin, 100px);
+        }
+
+        /* Grid 3-4 timeout bars */
+        .fullscreen-grid.grid-3 .fs-sb-timeout-bar,
+        .fullscreen-grid.grid-4 .fs-sb-timeout-bar {
+            width: clamp(5px, 0.9vmin, 8px);
+            height: clamp(5px, 0.9vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-timeouts.away,
+        .fullscreen-grid.grid-4 .fs-sb-timeouts.away {
+            right: clamp(65px, 9vw, 90px);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-timeouts.home,
+        .fullscreen-grid.grid-4 .fs-sb-timeouts.home {
+            left: clamp(65px, 9vw, 90px);
+        }
+
+        /* Grid 5-6 */
+        .fullscreen-grid.grid-5 .fs-sb-logo-spacer,
+        .fullscreen-grid.grid-6 .fs-sb-logo-spacer {
+            width: clamp(45px, 7vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-logo-center-spacer,
+        .fullscreen-grid.grid-6 .fs-sb-logo-center-spacer {
+            width: clamp(50px, 8vmin, 80px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-card-team-logo,
+        .fullscreen-grid.grid-6 .fs-card-team-logo {
+            width: clamp(35px, 6vmin, 60px);
+            height: clamp(35px, 6vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-score-box,
+        .fullscreen-grid.grid-6 .fs-sb-score-box {
+            width: clamp(45px, 7vmin, 60px);
+        }
+
+        /* Grid 5-6 timeout bars */
+        .fullscreen-grid.grid-5 .fs-sb-timeout-bar,
+        .fullscreen-grid.grid-6 .fs-sb-timeout-bar {
+            width: clamp(5px, 0.8vmin, 8px);
+            height: clamp(5px, 0.8vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-timeouts.away,
+        .fullscreen-grid.grid-6 .fs-sb-timeouts.away {
+            right: clamp(55px, 8vw, 80px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-timeouts.home,
+        .fullscreen-grid.grid-6 .fs-sb-timeouts.home {
+            left: clamp(55px, 8vw, 80px);
+        }
+
+        /* ============================================
+           GRID 7 - FEATURED BIG CARD (first-child, spans 3 rows)
+           ============================================ */
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-logo-spacer {
+            width: clamp(45px, 6vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-logo-center-spacer {
+            width: clamp(50px, 7vmin, 70px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-card-team-logo {
+            width: clamp(50px, 8vmin, 80px);
+            height: clamp(50px, 8vmin, 80px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-scoreboard {
+            height: clamp(45px, 6vmin, 60px);
+            width: 88%;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score-box {
+            width: clamp(45px, 6vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeout-bar {
+            width: clamp(6px, 1.7vmin, 8px);
+            height: clamp(6px, 1.7vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts {
+            gap: 3px;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts.away {
+            right: 28%;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts.home {
+            left: 28%;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score {
+            font-size: clamp(1.2rem, 3vmin, 1.8rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-team-name {
+            font-size: clamp(0.7rem, 1.8vmin, 1rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-team-record {
+            font-size: clamp(0.55rem, 1.2vmin, 0.75rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time-label {
+            font-size: clamp(0.9rem, 2vmin, 1.2rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time {
+            font-size: clamp(0.55rem, 1.3vmin, 0.75rem);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time-box {
+            min-width: 60px;
+            padding: 2px 8px;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-situation {
+            bottom: -16px;
+            min-width: 100px;
+            padding: 2px 8px;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-down-distance {
+            font-size: clamp(0.5rem, 1.2vmin, 0.7rem);
+        }
+
+        /* ============================================
+           GRID 7 - 6 SMALLER CARDS (nth-child 2-7)
+           ============================================ */
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-logo-spacer {
+            width: clamp(40px, 6vmin, 55px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-logo-center-spacer {
+            width: clamp(40px, 6vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-card-team-logo {
+            width: clamp(30px, 5vmin, 50px);
+            height: clamp(30px, 5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
+            height: clamp(40px, 6vmin, 55px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-score-box {
+            width: clamp(40px, 6vmin, 55px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeout-bar {
+            width: clamp(6px, 3.6vmin, 8px);
+            height: clamp(6px, 3.6vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts {
+            gap: 3px;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.away {
+            right: clamp(50px, 8vw, 70px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.home {
+            left: clamp(50px, 8vw, 70px);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-situation {
+            bottom: -16px;
+            min-width: 100px;
+            padding: 2px 8px;
+        }
+
+        /* ============================================
+           GRID 8 - 2 BIG CARDS (first-child and nth-child(2))
+           ============================================ */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-logo-spacer,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-logo-spacer {
+            width: clamp(50px, 8vmin, 70px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-logo-center-spacer,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-logo-center-spacer {
+            width: clamp(55px, 9vmin, 80px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-card-team-logo,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-card-team-logo {
+            width: clamp(55px, 10vmin, 90px);
+            height: clamp(55px, 10vmin, 90px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-scoreboard,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-scoreboard {
+            height: clamp(55px, 8vmin, 75px);
+            width: 90%;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-score-box,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-score-box {
+            width: clamp(55px, 8vmin, 75px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-score,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-score {
+            font-size: clamp(1.4rem, 3.5vmin, 2rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-name,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-team-name {
+            font-size: clamp(0.8rem, 2vmin, 1.1rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-record,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-team-record {
+            font-size: clamp(0.6rem, 1.4vmin, 0.85rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeout-bar,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeout-bar {
+            width: clamp(6px, 0.9vmin, 9px);
+            height: clamp(6px, 0.9vmin, 9px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeouts {
+            gap: 3px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts.away,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeouts.away {
+            right: 25%;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts.home,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeouts.home {
+            left: 25%;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-time-label,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-time-label {
+            font-size: clamp(1rem, 2.5vmin, 1.4rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-time,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-time {
+            font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-time-box,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-time-box {
+            min-width: 70px;
+            padding: 3px 10px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-situation,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-situation {
+            bottom: -18px;
+            min-width: 120px;
+            padding: 3px 10px;
+        }
+
+        /* ============================================
+           GRID 8 - 6 SMALLER CARDS (nth-child 3-8)
+           ============================================ */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-logo-spacer {
+            width: clamp(35px, 5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-logo-center-spacer {
+            width: clamp(35px, 5vmin, 55px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-card-team-logo {
+            width: clamp(28px, 4.5vmin, 45px);
+            height: clamp(28px, 4.5vmin, 45px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-scoreboard {
+            height: clamp(38px, 5.5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score-box {
+            width: clamp(38px, 5.5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score {
+            font-size: clamp(1rem, 2.5vmin, 1.4rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-name {
+            font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-record {
+            font-size: clamp(0.5rem, 1.1vmin, 0.7rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeout-bar {
+            width: clamp(6px, 0.8vmin, 9px);
+            height: clamp(6px, 0.8vmin, 9px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts {
+            gap: 3px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.away {
+            right: clamp(30px, 4vw, 45px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.home {
+            left: clamp(30px, 4vw, 45px);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time-label {
+            font-size: clamp(0.8rem, 1.8vmin, 1rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time {
+            font-size: clamp(0.5rem, 1.1vmin, 0.65rem);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time-box {
+            min-width: 55px;
+            padding: 2px 6px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-situation {
+            bottom: -14px;
+            min-width: 90px;
+            padding: 2px 6px;
+        }
+
+        /* Field visualizer spacing - push down from scoreboard */
+        .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(24px, 4vmin, 40px);
+        }
+
+        .fullscreen-grid.grid-1 .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(32px, 5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-2 .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(28px, 4.5vmin, 45px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-card-wrapper .field-visualizer,
+        .fullscreen-grid.grid-6 .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(20px, 3vmin, 32px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-card-wrapper .field-visualizer,
+        .fullscreen-grid.grid-8 .fs-card-wrapper .field-visualizer {
+            margin-top: clamp(16px, 2.5vmin, 26px);
+        }
+
+        /* ================================ */
+        /* NFL STATS MODAL (Between Plays)  */
+        /* ================================ */
+        .nfl-stats-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 14, 26, 0.95) 0%, rgba(20, 30, 50, 0.95) 100%);
+            display: flex;
+            flex-direction: column;
+            padding: clamp(8px, 2vmin, 16px);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            overflow: hidden;
+        }
+
+        .nfl-stats-modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .nfl-stats-modal-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(8px, 2vmin, 16px);
+            margin-bottom: clamp(6px, 1.5vmin, 12px);
+            padding-bottom: clamp(4px, 1vmin, 8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nfl-stats-modal-title {
+            font-size: clamp(1.2rem, 3vmin, 2rem);
+            font-weight: 700;
+            color: #4ade80;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .nfl-stats-content {
+            display: flex;
+            flex: 1;
+            gap: clamp(12px, 3vmin, 24px);
+            overflow: hidden;
+        }
+
+        .nfl-stats-team {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: clamp(10px, 2.5vmin, 20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nfl-stats-team-header {
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 2.5vmin, 16px);
+            margin-bottom: clamp(10px, 2.5vmin, 16px);
+            padding-bottom: clamp(8px, 2vmin, 12px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .nfl-stats-team-score {
+            font-size: clamp(2rem, 5vmin, 4rem);
+            font-weight: 900;
+            color: #4ade80;
+            text-shadow: 0 2px 8px rgba(74, 222, 128, 0.4), 0 2px 4px rgba(0, 0, 0, 0.5);
+            min-width: clamp(50px, 8vmin, 90px);
+            text-align: center;
+        }
+
+        .nfl-stats-team-logo {
+            width: clamp(40px, 7vmin, 70px);
+            height: clamp(40px, 7vmin, 70px);
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .nfl-stats-team-name {
+            font-size: clamp(1rem, 2.5vmin, 1.6rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            flex: 1;
+        }
+
+        .nfl-stats-category {
+            margin-bottom: clamp(8px, 2vmin, 14px);
+        }
+
+        .nfl-stats-category-title {
+            font-size: clamp(0.9rem, 2.2vmin, 1.3rem);
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: clamp(4px, 1vmin, 8px);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .nfl-stats-player {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: clamp(4px, 1vmin, 8px) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nfl-stats-player:last-child {
+            border-bottom: none;
+        }
+
+        .nfl-stats-player-name {
+            font-size: clamp(0.85rem, 2vmin, 1.2rem);
+            color: white;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 45%;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .nfl-stats-player-value {
+            font-size: clamp(0.8rem, 1.8vmin, 1.1rem);
+            color: #4ade80;
+            font-weight: 700;
+            font-family: 'Roboto Mono', monospace;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .nfl-stats-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            color: #94a3b8;
+            font-size: clamp(1rem, 2.5vmin, 1.5rem);
+        }
+
+        .nfl-stats-loading::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            border: 2px solid #4ade80;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Grid 3-4 - slightly smaller */
+        .fullscreen-grid.grid-3 .nfl-stats-modal-title,
+        .fullscreen-grid.grid-4 .nfl-stats-modal-title {
+            font-size: clamp(1rem, 2.5vmin, 1.6rem);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-team-score,
+        .fullscreen-grid.grid-4 .nfl-stats-team-score {
+            font-size: clamp(1.6rem, 4vmin, 3rem);
+            min-width: clamp(40px, 6vmin, 70px);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-team-name,
+        .fullscreen-grid.grid-4 .nfl-stats-team-name {
+            font-size: clamp(0.85rem, 2vmin, 1.3rem);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-category-title,
+        .fullscreen-grid.grid-4 .nfl-stats-category-title {
+            font-size: clamp(0.75rem, 1.8vmin, 1.1rem);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-player-name,
+        .fullscreen-grid.grid-4 .nfl-stats-player-name {
+            font-size: clamp(0.7rem, 1.6vmin, 1rem);
+        }
+
+        .fullscreen-grid.grid-3 .nfl-stats-player-value,
+        .fullscreen-grid.grid-4 .nfl-stats-player-value {
+            font-size: clamp(0.65rem, 1.5vmin, 0.95rem);
+        }
+
+        /* Grid 5-6 - compact but readable */
+        .fullscreen-grid.grid-5 .nfl-stats-modal-title,
+        .fullscreen-grid.grid-6 .nfl-stats-modal-title {
+            font-size: clamp(0.85rem, 2vmin, 1.3rem);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-team-score,
+        .fullscreen-grid.grid-6 .nfl-stats-team-score {
+            font-size: clamp(1.3rem, 3.5vmin, 2.5rem);
+            min-width: clamp(35px, 5vmin, 60px);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-team-logo,
+        .fullscreen-grid.grid-6 .nfl-stats-team-logo {
+            width: clamp(30px, 5vmin, 50px);
+            height: clamp(30px, 5vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-team-name,
+        .fullscreen-grid.grid-6 .nfl-stats-team-name {
+            font-size: clamp(0.7rem, 1.6vmin, 1rem);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-category-title,
+        .fullscreen-grid.grid-6 .nfl-stats-category-title {
+            font-size: clamp(0.65rem, 1.5vmin, 0.9rem);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-player-name,
+        .fullscreen-grid.grid-6 .nfl-stats-player-name {
+            font-size: clamp(0.6rem, 1.3vmin, 0.85rem);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-player-value,
+        .fullscreen-grid.grid-6 .nfl-stats-player-value {
+            font-size: clamp(0.55rem, 1.2vmin, 0.8rem);
+        }
+
+        /* Grid 7-8 - smallest but still readable */
+        .fullscreen-grid.grid-7 .nfl-stats-modal-title,
+        .fullscreen-grid.grid-8 .nfl-stats-modal-title {
+            font-size: clamp(0.7rem, 1.6vmin, 1rem);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team-score,
+        .fullscreen-grid.grid-8 .nfl-stats-team-score {
+            font-size: clamp(1rem, 2.8vmin, 2rem);
+            min-width: clamp(28px, 4vmin, 50px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team,
+        .fullscreen-grid.grid-8 .nfl-stats-team {
+            padding: clamp(6px, 1.5vmin, 12px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team-logo,
+        .fullscreen-grid.grid-8 .nfl-stats-team-logo {
+            width: clamp(24px, 4vmin, 40px);
+            height: clamp(24px, 4vmin, 40px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team-name,
+        .fullscreen-grid.grid-8 .nfl-stats-team-name {
+            font-size: clamp(0.6rem, 1.4vmin, 0.85rem);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-category-title,
+        .fullscreen-grid.grid-8 .nfl-stats-category-title {
+            font-size: clamp(0.55rem, 1.2vmin, 0.75rem);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-player-name,
+        .fullscreen-grid.grid-8 .nfl-stats-player-name {
+            font-size: clamp(0.5rem, 1.1vmin, 0.7rem);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-player-value,
+        .fullscreen-grid.grid-8 .nfl-stats-player-value {
+            font-size: clamp(0.45rem, 1vmin, 0.65rem);
+        }
+
+        /* Grid 5-6: Hide receiving category and show only 1 player per category */
+        .fullscreen-grid.grid-5 .nfl-stats-category:nth-child(3),
+        .fullscreen-grid.grid-6 .nfl-stats-category:nth-child(3) {
+            display: none;
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-player:nth-child(n+2),
+        .fullscreen-grid.grid-6 .nfl-stats-player:nth-child(n+2) {
+            display: none;
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-category,
+        .fullscreen-grid.grid-6 .nfl-stats-category {
+            margin-bottom: clamp(4px, 1vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-team-header,
+        .fullscreen-grid.grid-6 .nfl-stats-team-header {
+            margin-bottom: clamp(6px, 1.5vmin, 10px);
+            padding-bottom: clamp(4px, 1vmin, 6px);
+        }
+
+        .fullscreen-grid.grid-5 .nfl-stats-modal-header,
+        .fullscreen-grid.grid-6 .nfl-stats-modal-header {
+            margin-bottom: clamp(4px, 1vmin, 8px);
+            padding-bottom: clamp(2px, 0.5vmin, 4px);
+        }
+
+        /* Grid 7-8: Hide receiving category, show only 1 player, minimal spacing */
+        .fullscreen-grid.grid-7 .nfl-stats-category:nth-child(3),
+        .fullscreen-grid.grid-8 .nfl-stats-category:nth-child(3) {
+            display: none;
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-player:nth-child(n+2),
+        .fullscreen-grid.grid-8 .nfl-stats-player:nth-child(n+2) {
+            display: none;
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-category,
+        .fullscreen-grid.grid-8 .nfl-stats-category {
+            margin-bottom: clamp(2px, 0.5vmin, 4px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-category-title,
+        .fullscreen-grid.grid-8 .nfl-stats-category-title {
+            margin-bottom: clamp(2px, 0.5vmin, 4px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-team-header,
+        .fullscreen-grid.grid-8 .nfl-stats-team-header {
+            margin-bottom: clamp(4px, 1vmin, 8px);
+            padding-bottom: clamp(2px, 0.5vmin, 4px);
+            gap: clamp(6px, 1.5vmin, 10px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-modal-header,
+        .fullscreen-grid.grid-8 .nfl-stats-modal-header {
+            margin-bottom: clamp(2px, 0.5vmin, 4px);
+            padding-bottom: clamp(1px, 0.3vmin, 2px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-modal,
+        .fullscreen-grid.grid-8 .nfl-stats-modal {
+            padding: clamp(4px, 1vmin, 8px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-content,
+        .fullscreen-grid.grid-8 .nfl-stats-content {
+            gap: clamp(6px, 1.5vmin, 12px);
+        }
+
+        .fullscreen-grid.grid-7 .nfl-stats-player,
+        .fullscreen-grid.grid-8 .nfl-stats-player {
+            padding: clamp(2px, 0.5vmin, 4px) 0;
+        }
+
+        /* Desktop hover states */
+        .league-card:hover,
+        .league-card.hovered {
+            transform: scale(1.05);
+            border-color: var(--accent, #6366f1);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .game-card:hover,
+        .game-card.hovered {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .sports-mode-btn:hover,
+        .clear-selections-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Cursor pointer for clickable elements */
+        .league-card,
+        .game-card,
+        .sports-mode-btn,
+        .clear-selections-btn,
+        .sign-out-link,
+        .login-option,
+        .login-btn,
+        .back-link {
+            cursor: pointer;
+        }
+
+        /* ================================ */
+        /* MOBILE RESPONSIVE STYLES         */
+        /* ================================ */
+
+        /* Tablet adjustments */
+        @media (max-width: 1024px) {
+            .fs-scoreboard {
+                width: 95%;
+            }
+
+            .fs-scoreboard-top {
+                width: 95%;
+            }
+
+            .fs-sb-team-name {
+                font-size: clamp(0.7rem, 1.8vmin, 1rem);
+            }
+
+            .fs-sb-score {
+                font-size: clamp(1.3rem, 3.5vmin, 2rem);
+            }
+        }
+
+        /* Mobile - Stack elements */
+        @media (max-width: 767px) {
+            .fullscreen-grid {
+                display: flex;
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+                gap: var(--gutter);
+            }
+
+            .fullscreen-game-card {
+                min-height: 300px;
+                flex: 0 0 auto;
+            }
+
+            .fs-scoreboard {
+                width: 98%;
+                height: clamp(45px, 12vw, 65px);
+            }
+
+            .fs-scoreboard-top {
+                width: 90%;
+            }
+
+            .fs-card-team-logo {
+                width: clamp(40px, 12vw, 70px);
+                height: clamp(40px, 12vw, 70px);
+            }
+
+            .fs-sb-score-box {
+                width: clamp(50px, 14vw, 70px);
+            }
+
+            .fs-sb-score {
+                font-size: clamp(1.2rem, 5vw, 1.8rem);
+            }
+
+            .fs-sb-team-name {
+                font-size: clamp(0.65rem, 2.5vw, 0.9rem);
+            }
+
+            .fs-sb-team-record {
+                font-size: clamp(0.5rem, 2vw, 0.7rem);
+            }
+
+            .fs-sb-time-label {
+                font-size: clamp(1.1rem, 4vw, 1.4rem);
+            }
+
+            .fs-sb-time {
+                font-size: clamp(0.6rem, 2.5vw, 0.85rem);
+            }
+
+            .fs-sb-situation {
+                min-width: 120px;
+                padding: 2px 10px;
+            }
+
+            .fs-sb-down-distance {
+                font-size: clamp(0.5rem, 2vw, 0.7rem);
+            }
+
+            /* NFL stats modal mobile */
+            .nfl-stats-content {
+                flex-direction: column;
+                gap: var(--gutter);
+            }
+
+            .nfl-stats-team {
+                padding: var(--margin-v) var(--margin-h);
+            }
+
+            .nfl-stats-modal-title {
+                font-size: clamp(1rem, 4vw, 1.4rem);
+            }
+
+            .nfl-stats-team-score {
+                font-size: clamp(1.5rem, 8vw, 2.5rem);
+            }
+
+            .nfl-stats-team-name {
+                font-size: clamp(0.85rem, 3.5vw, 1.2rem);
+            }
+
+            /* Hide timeouts on very small screens */
+            .fs-sb-timeouts {
+                display: none;
+            }
+
+            /* Adjust team section padding */
+            .fs-sb-team-section.away,
+            .fs-sb-team-section.home {
+                padding: 3px 6px;
+            }
+        }
+
+        /* Small mobile */
+        @media (max-width: 375px) {
+            .fullscreen-game-card {
+                min-height: 250px;
+            }
+
+            .fs-scoreboard {
+                height: clamp(40px, 14vw, 55px);
+            }
+
+            .fs-card-team-logo {
+                width: clamp(35px, 14vw, 55px);
+                height: clamp(35px, 14vw, 55px);
+            }
+
+            .fs-sb-score-box {
+                width: clamp(40px, 16vw, 55px);
+            }
+
+            .fs-sb-score {
+                font-size: clamp(1rem, 6vw, 1.4rem);
+            }
+
+            .fs-sb-team-name {
+                font-size: clamp(0.55rem, 3vw, 0.75rem);
+            }
+
+            .fs-sb-situation {
+                min-width: 100px;
+                padding: 2px 8px;
+                bottom: -16px;
+            }
+
+            .nfl-stats-team-score {
+                font-size: clamp(1.2rem, 10vw, 2rem);
+            }
+        }
+
+        /* Touch-friendly enhancements */
+        @media (hover: none) and (pointer: coarse) {
+            .back-btn {
+                min-height: 48px;
+                min-width: 48px;
+                padding: 12px 20px;
+            }
+
+            .exit-modal-btn {
+                min-height: 48px;
+                padding: 14px 28px;
+            }
+
+            /* Larger touch targets */
+            .fullscreen-game-card {
+                touch-action: manipulation;
+            }
+        }
+
+        /* ================================ */
+        /* MOBILE PAGING OVERRIDES          */
+        /* ================================ */
+        @media screen and (max-width: 768px) {
+
+            /* Smaller team logos for paging mode - Higher specificity to override grid-1 */
+            .fullscreen-container.mobile-paging .fullscreen-grid .fs-card-team-logo {
+                width: clamp(50px, 10vw, 70px) !important;
+                height: clamp(50px, 10vw, 70px) !important;
+            }
+
+            /* Smaller team names */
+            .fullscreen-container.mobile-paging .fs-sb-team-name {
+                font-size: clamp(0.8rem, 2.5vw, 1.1rem) !important;
+            }
+
+            /* Smaller scores */
+            .fullscreen-container.mobile-paging .fs-sb-score {
+                font-size: clamp(2rem, 8vw, 3.5rem) !important;
+            }
+
+            /* Smaller records */
+            .fullscreen-container.mobile-paging .fs-sb-team-record {
+                font-size: clamp(0.65rem, 2vw, 0.9rem) !important;
+            }
+
+            /* Mobile paging clock - hidden by default */
+            .mobile-paging-clock {
+                display: none;
+            }
+
+            /* ================================ */
+            /* MOBILE PAGING CLOCK - TWO CARDS PORTRAIT (default) */
+            /* ================================ */
+            .fullscreen-container.mobile-paging .mobile-paging-clock {
+                display: block !important;
+                position: absolute !important;
+                top: 25px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                z-index: 100 !important;
+            }
+
+            .fullscreen-container.mobile-paging .mobile-paging-clock .fs-sb-time-box {
+                min-width: auto !important;
+                padding: 4px 12px !important;
+            }
+
+            .fullscreen-container.mobile-paging .mobile-paging-clock .fs-sb-time {
+                font-size: clamp(0.7rem, 2.2vmin, 1rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .mobile-paging-clock .fs-sb-time-label {
+                font-size: clamp(0.6rem, 1.8vmin, 0.85rem) !important;
+            }
+
+            /* ================================ */
+            /* MOBILE PAGING CLOCK - SINGLE CARD PORTRAIT */
+            /* ================================ */
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .mobile-paging-clock {
+                top: 100px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .mobile-paging-clock .fs-sb-time-box {
+                padding: 6px 16px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .mobile-paging-clock .fs-sb-time {
+                font-size: clamp(0.9rem, 3vw, 1.3rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .mobile-paging-clock .fs-sb-time-label {
+                font-size: clamp(0.8rem, 2.5vw, 1.1rem) !important;
+            }
+
+            /* Hide original clock inside scoreboard for mobile paging */
+            .fullscreen-container.mobile-paging .fs-sb-center {
+                display: none !important;
+            }
+
+            /* Smaller time/status display (for scoreboard, kept as fallback) */
+            .fullscreen-container.mobile-paging .fs-sb-time {
+                font-size: clamp(0.7rem, 2.2vmin, 1rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-time-label {
+                font-size: clamp(0.6rem, 1.8vmin, 0.85rem) !important;
+            }
+
+            /* Show and resize timeout bars for paging mode */
+            .fullscreen-container.mobile-paging .fs-sb-timeouts {
+                display: flex !important;
+                gap: 4px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-timeout-bar {
+                width: 7px !important;
+                height: 7px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-timeouts.away {
+                right: clamp(11px, 5vw, 70px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-timeouts.home {
+                left: clamp(11px, 5vw, 70px) !important;
+            }
+
+            /* Smaller down/distance and ball position for football */
+            .fullscreen-container.mobile-paging .fs-sb-situation {
+                min-width: 90px !important;
+                padding: 3px 8px !important;
+                bottom: -14px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-down-distance,
+            .fullscreen-container.mobile-paging .fs-sb-ball-position {
+                font-size: clamp(0.65rem, 2.2vw, 0.9rem) !important;
+            }
+
+            /* Compact scoreboard spacing */
+            .fullscreen-container.mobile-paging .fs-scoreboard {
+                padding: clamp(6px, 1.5vw, 10px) !important;
+                gap: clamp(4px, 1vw, 8px) !important;
+            }
+
+            /* Tighter team info sections */
+            .fullscreen-container.mobile-paging .fs-sb-team-info {
+                gap: clamp(2px, 0.5vw, 4px) !important;
+            }
+
+            /* ================================ */
+            /* FIELD VISUALIZER - MOBILE PAGING */
+            /* ================================ */
+            .fullscreen-container.mobile-paging .field-visualizer {
+                max-width: 95% !important;
+                margin-top: clamp(15px, 3vw, 25px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .field-container {
+                height: clamp(30px, 8vw, 45px) !important;
+                transform: rotateX(5deg) !important;
+            }
+
+            .fullscreen-container.mobile-paging .yard-marker.endzone {
+                width: 10% !important;
+            }
+
+            .fullscreen-container.mobile-paging .endzone-text {
+                font-size: clamp(5px, 1.5vw, 8px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .yard-label {
+                font-size: clamp(5px, 1.2vw, 8px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .ball-indicator {
+                top: -6px !important;
+                bottom: -6px !important;
+            }
+
+            .fullscreen-container.mobile-paging .ball-indicator::before {
+                font-size: clamp(10px, 3vw, 16px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .first-down-line {
+                top: -6px !important;
+                bottom: -6px !important;
+            }
+
+            .fullscreen-container.mobile-paging .first-down-line::after {
+                display: none !important;
+            }
+
+            /* Compact back button for mobile paging - same row as page dots */
+            .back-btn {
+                position: fixed !important;
+                top: auto !important;
+                bottom: 15px !important;
+                left: 15px !important;
+                right: auto !important;
+                transform: none !important;
+                padding: 8px 16px !important;
+                font-size: 10px !important;
+                min-height: auto !important;
+                min-width: auto !important;
+                background: rgba(10, 14, 26, 0.8) !important;
+                border-radius: 20px !important;
+                backdrop-filter: blur(10px) !important;
+                z-index: 999999 !important;
+                height: auto !important;
+                line-height: 1 !important;
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            .back-btn::before {
+                content: '\2190' !important;
+                font-size: 10px !important;
+            }
+
+            /* ================================ */
+            /* SINGLE CARD PAGE - PORTRAIT      */
+            /* ================================ */
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card {
+                justify-content: center !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fullscreen-game-card {
+                height: 90% !important;
+                max-height: 600px !important;
+            }
+
+            /* Larger elements for single card in portrait */
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-card-team-logo {
+                width: clamp(70px, 18vw, 100px) !important;
+                height: clamp(70px, 18vw, 100px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-score {
+                font-size: clamp(3rem, 12vw, 5rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-team-name {
+                font-size: clamp(1rem, 4vw, 1.5rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-team-record {
+                font-size: clamp(0.8rem, 3vw, 1.1rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-time {
+                font-size: clamp(0.9rem, 3vw, 1.2rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-time-label {
+                font-size: clamp(0.8rem, 2.5vw, 1rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-timeout-bar {
+                width: 10px !important;
+                height: 10px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-timeouts.away {
+                right: clamp(68px, 15vw, 90px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-timeouts.home {
+                left: clamp(68px, 15vw, 90px) !important;
+            }
+        }
+
+        /* ================================ */
+        /* LANDSCAPE MODE - PHONE           */
+        /* ================================ */
+        @media screen and (max-width: 896px) and (orientation: landscape) {
+
+            /* Full screen container */
+            .fullscreen-container.mobile-paging {
+                padding: 5px !important;
+            }
+
+            /* Pages wrapper fills screen */
+            .fullscreen-container.mobile-paging .fullscreen-pages-wrapper {
+                height: calc(100vh - 50px) !important;
+            }
+
+            /* Each page fills available space */
+            .fullscreen-container.mobile-paging .fullscreen-page-grid {
+                flex-direction: row !important;
+                gap: 10px !important;
+                height: 100% !important;
+                padding: 5px !important;
+            }
+
+            /* Cards stretch to fill */
+            .fullscreen-container.mobile-paging .fullscreen-game-card {
+                flex: 1 !important;
+                width: calc(100% - 0px) !important;
+                height: 100% !important;
+                max-height: calc(100vh - 60px) !important;
+            }
+
+            /* Card wrapper fills card */
+            .fullscreen-container.mobile-paging .fs-card-wrapper {
+                height: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+            }
+
+            /* Larger team logos for landscape - more space available */
+            .fullscreen-container.mobile-paging .fullscreen-grid .fs-card-team-logo {
+                width: clamp(50px, 15vh, 80px) !important;
+                height: clamp(50px, 15vh, 80px) !important;
+            }
+
+            /* Larger team names */
+            .fullscreen-container.mobile-paging .fs-sb-team-name {
+                font-size: clamp(0.8rem, 3vh, 1.2rem) !important;
+            }
+
+            /* Larger scores */
+            .fullscreen-container.mobile-paging .fs-sb-score {
+                font-size: clamp(2rem, 10vh, 3.5rem) !important;
+            }
+
+            /* Records */
+            .fullscreen-container.mobile-paging .fs-sb-team-record {
+                font-size: clamp(0.6rem, 2vh, 0.9rem) !important;
+            }
+
+            /* Time/status display */
+            .fullscreen-container.mobile-paging .fs-sb-time {
+                font-size: clamp(0.7rem, 2.5vh, 1rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-time-label {
+                font-size: clamp(0.6rem, 2vh, 0.85rem) !important;
+            }
+
+            /* ================================ */
+            /* MOBILE PAGING CLOCK - TWO CARDS LANDSCAPE */
+            /* ================================ */
+            .fullscreen-container.mobile-paging .mobile-paging-clock {
+                display: block !important;
+                position: absolute !important;
+                top: 10px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                z-index: 100 !important;
+            }
+
+            .fullscreen-container.mobile-paging .mobile-paging-clock .fs-sb-time-box {
+                min-width: auto !important;
+                padding: 3px 10px !important;
+            }
+
+            .fullscreen-container.mobile-paging .mobile-paging-clock .fs-sb-time {
+                font-size: clamp(0.6rem, 2vh, 0.9rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .mobile-paging-clock .fs-sb-time-label {
+                font-size: clamp(0.5rem, 1.8vh, 0.8rem) !important;
+            }
+
+            /* Smaller timeout bars */
+            .fullscreen-container.mobile-paging .fs-sb-timeouts {
+                display: flex !important;
+                gap: 3px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-timeout-bar {
+                width: 5px !important;
+                height: 5px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-timeouts.away {
+                right: clamp(12px, 3vh, 40px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-timeouts.home {
+                left: clamp(12px, 3vh, 40px) !important;
+            }
+
+            /* Smaller down/distance */
+            .fullscreen-container.mobile-paging .fs-sb-situation {
+                min-width: 70px !important;
+                padding: 2px 6px !important;
+                bottom: -10px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fs-sb-down-distance,
+            .fullscreen-container.mobile-paging .fs-sb-ball-position {
+                font-size: clamp(0.5rem, 1.8vh, 0.75rem) !important;
+            }
+
+            /* Compact scoreboard */
+            .fullscreen-container.mobile-paging .fs-scoreboard {
+                padding: clamp(4px, 1vh, 8px) !important;
+                gap: clamp(2px, 0.5vh, 4px) !important;
+                height: clamp(35px, 12vh, 55px) !important;
+            }
+
+            /* Back button in landscape */
+            .back-btn {
+                bottom: 8px !important;
+                left: 8px !important;
+                padding: 6px 12px !important;
+                font-size: 9px !important;
+            }
+
+            /* Page indicators in landscape */
+            .fullscreen-page-indicators {
+                bottom: 8px !important;
+                padding: 6px 12px !important;
+            }
+
+            .page-indicator-dot {
+                width: 6px !important;
+                height: 6px !important;
+            }
+
+            .page-indicator-dot.active {
+                width: 18px !important;
+            }
+
+            /* Sport logo indicator smaller */
+            .fullscreen-container.mobile-paging .sport-logo-indicator {
+                width: clamp(30px, 6vh, 45px) !important;
+                height: auto !important;
+                top: 8px !important;
+                right: 8px !important;
+            }
+
+            /* ================================ */
+            /* FIELD VISUALIZER - LANDSCAPE     */
+            /* ================================ */
+            .fullscreen-container.mobile-paging .field-visualizer {
+                max-width: 90% !important;
+                margin-top: clamp(11px, 6vh, 24px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .field-container {
+                height: clamp(25px, 8vh, 40px) !important;
+                transform: rotateX(6deg) !important;
+            }
+
+            .fullscreen-container.mobile-paging .endzone-text {
+                font-size: clamp(4px, 1.2vh, 7px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .yard-label {
+                font-size: clamp(4px, 1vh, 6px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .ball-indicator::before {
+                font-size: clamp(8px, 2.5vh, 14px) !important;
+            }
+
+            /* ================================ */
+            /* SINGLE CARD PAGE - LANDSCAPE     */
+            /* ================================ */
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card {
+                justify-content: center !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fullscreen-game-card {
+                width: 100% !important;
+                max-width: 700px !important;
+                height: 100% !important;
+            }
+
+            /* ================================ */
+            /* MOBILE PAGING CLOCK - SINGLE CARD LANDSCAPE */
+            /* ================================ */
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .mobile-paging-clock {
+                display: block !important;
+                position: absolute !important;
+                top: 15px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                z-index: 100 !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .mobile-paging-clock .fs-sb-time-box {
+                min-width: auto !important;
+                padding: 5px 14px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .mobile-paging-clock .fs-sb-time {
+                font-size: clamp(0.8rem, 3vh, 1.1rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .mobile-paging-clock .fs-sb-time-label {
+                font-size: clamp(0.7rem, 2.5vh, 1rem) !important;
+            }
+
+            /* Larger elements for single card in landscape */
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-card-team-logo {
+                width: clamp(60px, 20vh, 100px) !important;
+                height: clamp(60px, 20vh, 100px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-score {
+                font-size: clamp(2.5rem, 15vh, 4.5rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-team-name {
+                font-size: clamp(1rem, 5vh, 1.5rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-team-record {
+                font-size: clamp(0.7rem, 3vh, 1rem) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-timeout-bar {
+                width: 8px !important;
+                height: 8px !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-timeouts.away {
+                right: clamp(40px, 10vh, 70px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-timeouts.home {
+                left: clamp(40px, 10vh, 70px) !important;
+            }
+
+            .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-scoreboard {
+                width: 86% !important;
+                height: clamp(45px, 12vw, 65px) !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Back Button -->
+    <button class="back-btn" id="back-btn">Back to Home</button>
+
+    <!-- Fullscreen Grid Container -->
+    <div class="fullscreen-container active" id="fullscreen-container">
+        <div class="fullscreen-grid" id="fullscreen-grid">
+            <!-- Game cards rendered dynamically -->
+        </div>
+    </div>
+
+    <!-- Exit Confirmation Modal -->
+    <div class="exit-modal" id="exit-modal">
+        <div class="exit-modal-content">
+            <h2>Exit Sports Bar Mode?</h2>
+            <div class="exit-modal-buttons">
+                <button class="exit-modal-btn confirm focused" id="confirm-exit">Yes, Exit</button>
+                <button class="exit-modal-btn cancel" id="cancel-exit">Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // STATE
+        // ============================================
+        let games = [];
+        let refreshInterval = null;
+        let isModalOpen = false;
+        let modalFocusIndex = 0; // 0 = confirm, 1 = cancel
+
+        // Stats modal timing state per game
+        // Each game tracks: { noPlayStartTime, isShowingStats, showStartTime }
+        const statsModalState = new Map();
+
+        // League logos
+        const leagueLogos = {
+            'nfl': '/assets/NFL-logo.png',
+            'nba': '/assets/NBA-Logo.png',
+            'mlb': '/assets/MLB-Logo.png',
+            'nhl': '/assets/NHL-Logo.png',
+            'ncaa': '/assets/NCAA logo.png',
+            'ncaab': '/assets/ncaa-basketball.png'
+        };
+
+        // NFL/NCAA Team Colors (primary)
+        const teamColors = {
+            // NFL Teams
+            'ARI': '#97233F', 'ATL': '#A71930', 'BAL': '#241773', 'BUF': '#00338D',
+            'CAR': '#0085CA', 'CHI': '#C83803', 'CIN': '#FB4F14', 'CLE': '#311D00',
+            'DAL': '#003594', 'DEN': '#FB4F14', 'DET': '#0076B6', 'GB': '#203731',
+            'HOU': '#03202F', 'IND': '#002C5F', 'JAX': '#006778', 'KC': '#E31837',
+            'LAC': '#0080C6', 'LAR': '#003594', 'LV': '#000000', 'MIA': '#008E97',
+            'MIN': '#4F2683', 'NE': '#002244', 'NO': '#D3BC8D', 'NYG': '#0B2265',
+            'NYJ': '#125740', 'PHI': '#004C54', 'PIT': '#FFB612', 'SF': '#AA0000',
+            'SEA': '#002244', 'TB': '#D50A0A', 'TEN': '#0C2340', 'WSH': '#5A1414',
+            // NBA Teams
+            'ATL': '#E03A3E', 'BOS': '#007A33', 'BKN': '#000000', 'CHA': '#1D1160',
+            'CHI': '#CE1141', 'CLE': '#6F263D', 'DAL': '#00538C', 'DEN': '#0E2240',
+            'DET': '#C8102E', 'GSW': '#1D428A', 'HOU': '#CE1141', 'IND': '#002D62',
+            'LAC': '#C8102E', 'LAL': '#552583', 'MEM': '#5D76A9', 'MIA': '#98002E',
+            'MIL': '#00471B', 'MIN': '#0C2340', 'NOP': '#0C2340', 'NYK': '#006BB6',
+            'OKC': '#007AC1', 'ORL': '#0077C0', 'PHI': '#006BB6', 'PHX': '#1D1160',
+            'POR': '#E03A3E', 'SAC': '#5A2D81', 'SAS': '#C4CED4', 'TOR': '#CE1141',
+            'UTA': '#002B5C', 'WAS': '#002B5C'
+        };
+
+        function getTeamColor(abbr) {
+            return teamColors[abbr] || '#fbbf24';
+        }
+
+        // Team colors with primary and secondary for scoreboard
+        const NFL_TEAM_COLORS = {
+            'ARI': { primary: '#97233F', secondary: '#000000' },
+            'ATL': { primary: '#A71930', secondary: '#000000' },
+            'BAL': { primary: '#241773', secondary: '#000000' },
+            'BUF': { primary: '#00338D', secondary: '#C60C30' },
+            'CAR': { primary: '#0085CA', secondary: '#101820' },
+            'CHI': { primary: '#C83803', secondary: '#0B162A' },
+            'CIN': { primary: '#FB4F14', secondary: '#000000' },
+            'CLE': { primary: '#311D00', secondary: '#FF3C00' },
+            'DAL': { primary: '#003594', secondary: '#041E42' },
+            'DEN': { primary: '#FB4F14', secondary: '#002244' },
+            'DET': { primary: '#0076B6', secondary: '#B0B7BC' },
+            'GB': { primary: '#203731', secondary: '#FFB612' },
+            'HOU': { primary: '#03202F', secondary: '#A71930' },
+            'IND': { primary: '#002C5F', secondary: '#A2AAAD' },
+            'JAX': { primary: '#006778', secondary: '#9F792C' },
+            'KC': { primary: '#E31837', secondary: '#FFB81C' },
+            'LAC': { primary: '#0080C6', secondary: '#FFC20E' },
+            'LAR': { primary: '#003594', secondary: '#FFA300' },
+            'LV': { primary: '#000000', secondary: '#A5ACAF' },
+            'MIA': { primary: '#008E97', secondary: '#FC4C02' },
+            'MIN': { primary: '#4F2683', secondary: '#FFC62F' },
+            'NE': { primary: '#002244', secondary: '#C60C30' },
+            'NO': { primary: '#D3BC8D', secondary: '#101820' },
+            'NYG': { primary: '#0B2265', secondary: '#A71930' },
+            'NYJ': { primary: '#125740', secondary: '#000000' },
+            'PHI': { primary: '#004C54', secondary: '#A5ACAF' },
+            'PIT': { primary: '#FFB612', secondary: '#101820' },
+            'SF': { primary: '#AA0000', secondary: '#B3995D' },
+            'SEA': { primary: '#002244', secondary: '#69BE28' },
+            'TB': { primary: '#D50A0A', secondary: '#FF7900' },
+            'TEN': { primary: '#0C2340', secondary: '#4B92DB' },
+            'WSH': { primary: '#5A1414', secondary: '#FFB612' }
+        };
+
+        const NBA_TEAM_COLORS = {
+            'ATL': { primary: '#E03A3E', secondary: '#C1D32F' },
+            'BOS': { primary: '#007A33', secondary: '#BA9653' },
+            'BKN': { primary: '#000000', secondary: '#FFFFFF' },
+            'CHA': { primary: '#1D1160', secondary: '#00788C' },
+            'CHI': { primary: '#CE1141', secondary: '#000000' },
+            'CLE': { primary: '#6F263D', secondary: '#FFB81C' },
+            'DAL': { primary: '#00538C', secondary: '#002B5E' },
+            'DEN': { primary: '#0E2240', secondary: '#FEC524' },
+            'DET': { primary: '#C8102E', secondary: '#1D42BA' },
+            'GSW': { primary: '#1D428A', secondary: '#FFC72C' },
+            'HOU': { primary: '#CE1141', secondary: '#000000' },
+            'IND': { primary: '#002D62', secondary: '#FDBB30' },
+            'LAC': { primary: '#C8102E', secondary: '#1D428A' },
+            'LAL': { primary: '#552583', secondary: '#FDB927' },
+            'MEM': { primary: '#5D76A9', secondary: '#12173F' },
+            'MIA': { primary: '#98002E', secondary: '#F9A01B' },
+            'MIL': { primary: '#00471B', secondary: '#EEE1C6' },
+            'MIN': { primary: '#0C2340', secondary: '#236192' },
+            'NOP': { primary: '#0C2340', secondary: '#C8102E' },
+            'NYK': { primary: '#006BB6', secondary: '#F58426' },
+            'OKC': { primary: '#007AC1', secondary: '#EF3B24' },
+            'ORL': { primary: '#0077C0', secondary: '#C4CED4' },
+            'PHI': { primary: '#006BB6', secondary: '#ED174C' },
+            'PHX': { primary: '#1D1160', secondary: '#E56020' },
+            'POR': { primary: '#E03A3E', secondary: '#000000' },
+            'SAC': { primary: '#5A2D81', secondary: '#63727A' },
+            'SAS': { primary: '#C4CED4', secondary: '#000000' },
+            'TOR': { primary: '#CE1141', secondary: '#000000' },
+            'UTA': { primary: '#002B5C', secondary: '#00471B' },
+            'WAS': { primary: '#002B5C', secondary: '#E31837' }
+        };
+
+        const NHL_TEAM_COLORS = {
+            'ANA': { primary: '#F47A38', secondary: '#B9975B' },
+            'ARI': { primary: '#8C2633', secondary: '#E2D6B5' },
+            'BOS': { primary: '#FFB81C', secondary: '#000000' },
+            'BUF': { primary: '#002654', secondary: '#FCB514' },
+            'CGY': { primary: '#C8102E', secondary: '#F1BE48' },
+            'CAR': { primary: '#CC0000', secondary: '#000000' },
+            'CHI': { primary: '#CF0A2C', secondary: '#000000' },
+            'COL': { primary: '#6F263D', secondary: '#236192' },
+            'CBJ': { primary: '#002654', secondary: '#CE1141' },
+            'DAL': { primary: '#006847', secondary: '#8F8F8C' },
+            'DET': { primary: '#CE1126', secondary: '#FFFFFF' },
+            'EDM': { primary: '#041E42', secondary: '#FF4C00' },
+            'FLA': { primary: '#041E42', secondary: '#C8102E' },
+            'LAK': { primary: '#111111', secondary: '#A2AAAD' },
+            'MIN': { primary: '#154734', secondary: '#A6192E' },
+            'MTL': { primary: '#AF1E2D', secondary: '#192168' },
+            'NSH': { primary: '#FFB81C', secondary: '#041E42' },
+            'NJD': { primary: '#CE1126', secondary: '#000000' },
+            'NYI': { primary: '#00539B', secondary: '#F47D30' },
+            'NYR': { primary: '#0038A8', secondary: '#CE1126' },
+            'OTT': { primary: '#C52032', secondary: '#C2912C' },
+            'PHI': { primary: '#F74902', secondary: '#000000' },
+            'PIT': { primary: '#FCB514', secondary: '#000000' },
+            'SJS': { primary: '#006D75', secondary: '#EA7200' },
+            'SEA': { primary: '#001628', secondary: '#99D9D9' },
+            'STL': { primary: '#002F87', secondary: '#FCB514' },
+            'TBL': { primary: '#002868', secondary: '#FFFFFF' },
+            'TOR': { primary: '#00205B', secondary: '#FFFFFF' },
+            'UTA': { primary: '#71AFE5', secondary: '#010101' },
+            'VAN': { primary: '#00205B', secondary: '#00843D' },
+            'VGK': { primary: '#B4975A', secondary: '#333F42' },
+            'WSH': { primary: '#C8102E', secondary: '#041E42' },
+            'WPG': { primary: '#041E42', secondary: '#004C97' }
+        };
+
+        const MLB_TEAM_COLORS = {
+            'ARI': { primary: '#A71930', secondary: '#E3D4AD' },
+            'ATL': { primary: '#CE1141', secondary: '#13274F' },
+            'BAL': { primary: '#DF4601', secondary: '#000000' },
+            'BOS': { primary: '#BD3039', secondary: '#0C2340' },
+            'CHC': { primary: '#0E3386', secondary: '#CC3433' },
+            'CWS': { primary: '#27251F', secondary: '#C4CED4' },
+            'CIN': { primary: '#C6011F', secondary: '#000000' },
+            'CLE': { primary: '#00385D', secondary: '#E50022' },
+            'COL': { primary: '#33006F', secondary: '#C4CED4' },
+            'DET': { primary: '#0C2340', secondary: '#FA4616' },
+            'HOU': { primary: '#002D62', secondary: '#EB6E1F' },
+            'KC': { primary: '#004687', secondary: '#BD9B60' },
+            'LAA': { primary: '#BA0021', secondary: '#003263' },
+            'LAD': { primary: '#005A9C', secondary: '#EF3E42' },
+            'MIA': { primary: '#00A3E0', secondary: '#EF3340' },
+            'MIL': { primary: '#12284B', secondary: '#B6922E' },
+            'MIN': { primary: '#002B5C', secondary: '#D31145' },
+            'NYM': { primary: '#002D72', secondary: '#FF5910' },
+            'NYY': { primary: '#003087', secondary: '#E4002C' },
+            'OAK': { primary: '#003831', secondary: '#EFB21E' },
+            'PHI': { primary: '#E81828', secondary: '#002D72' },
+            'PIT': { primary: '#27251F', secondary: '#FDB827' },
+            'SD': { primary: '#2F241D', secondary: '#FFC425' },
+            'SF': { primary: '#FD5A1E', secondary: '#27251F' },
+            'SEA': { primary: '#0C2C56', secondary: '#005C5C' },
+            'STL': { primary: '#C41E3A', secondary: '#0C2340' },
+            'TB': { primary: '#092C5C', secondary: '#8FBCE6' },
+            'TEX': { primary: '#003278', secondary: '#C0111F' },
+            'TOR': { primary: '#134A8E', secondary: '#E8291C' },
+            'WSH': { primary: '#AB0003', secondary: '#14225A' }
+        };
+
+        // Get team colors for scoreboard
+        function getScoreboardColors(league, abbr) {
+            const defaultColors = { primary: '#4b5563', secondary: '#374151' };
+
+            if (league === 'nfl' || league === 'ncaa') {
+                return NFL_TEAM_COLORS[abbr] || defaultColors;
+            } else if (league === 'nba' || league === 'ncaab') {
+                return NBA_TEAM_COLORS[abbr] || defaultColors;
+            } else if (league === 'nhl') {
+                return NHL_TEAM_COLORS[abbr] || defaultColors;
+            } else if (league === 'mlb') {
+                return MLB_TEAM_COLORS[abbr] || defaultColors;
+            }
+            return defaultColors;
+        }
+
+        // Parse game status for period/quarter and time
+        function parseGameStatus(status, league) {
+            if (!status) return { period: '', time: '' };
+
+            // Handle common status formats
+            const parts = status.split(' - ');
+            if (parts.length === 2) {
+                return { period: parts[0], time: parts[1] };
+            }
+
+            // Try to extract period and time
+            const match = status.match(/^(\d+(?:st|nd|rd|th)|OT\d*|[A-Z]+)\s+(.+)$/i);
+            if (match) {
+                return { period: match[1], time: match[2] };
+            }
+
+            // NFL/NCAA format: "3rd 5:42"
+            const nflMatch = status.match(/^(\d+(?:st|nd|rd|th))\s+(\d+:\d+)$/i);
+            if (nflMatch) {
+                return { period: nflMatch[1], time: nflMatch[2] };
+            }
+
+            // Just return the full status as time if can't parse
+            return { period: '', time: status };
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGames();
+
+            if (games.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            renderGrid();
+            setupKeyboardNavigation();
+            // startAutoRefresh(); // Disabled for now
+
+            // Update stats modals for NFL games
+            updateStatsModals();
+
+            // Focus back button
+            document.getElementById('back-btn').focus();
+
+            // Re-initialize on orientation change - reload page to ensure clean state
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    location.reload();
+                }, 100);
+            });
+        });
+
+        function loadGames() {
+            // TEMPORARY: Use mock live NFL games for testing layout
+            const USE_MOCK_DATA = false; // Set to true to use mock data
+
+            if (USE_MOCK_DATA) {
+                games = [
+                    {
+                        id: 'mock1',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '3rd 8:42',
+                        away: { abbr: 'GB', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png', score: 21, record: '9-7-1', timeouts: 2 },
+                        home: { abbr: 'CHI', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png', score: 17, record: '11-6', timeouts: 1 },
+                        possession: 'away',
+                        downDistance: '2nd & 7',
+                        fieldPosition: 'CHI 35',
+                        yardLine: 35,
+                        yardsToGo: 7,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock2',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '4th 2:00',
+                        away: { abbr: 'BUF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png', score: 28, record: '12-5', timeouts: 0 },
+                        home: { abbr: 'JAX', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png', score: 24, record: '13-4', timeouts: 3 },
+                        possession: 'home',
+                        downDistance: '1st & 10',
+                        fieldPosition: 'BUF 15',
+                        yardLine: 15,
+                        yardsToGo: 10,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock3',
+                        league: 'nfl',
+                        state: 'in', // LIVE - Red Zone!
+                        status: '2nd 5:30',
+                        away: { abbr: 'KC', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png', score: 14, record: '10-7', timeouts: 3 },
+                        home: { abbr: 'MIA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png', score: 10, record: '8-9', timeouts: 2 },
+                        possession: 'away',
+                        downDistance: '3rd & Goal',
+                        fieldPosition: 'MIA 5',
+                        yardLine: 5,
+                        yardsToGo: 5,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock4',
+                        league: 'nfl',
+                        state: 'pre', // Upcoming
+                        status: '1/12 4:30 PM EST',
+                        away: { abbr: 'DAL', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png', score: '-', record: '7-10' },
+                        home: { abbr: 'PHI', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png', score: '-', record: '11-6' }
+                    },
+                    {
+                        id: 'mock5',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '1st 12:00',
+                        away: { abbr: 'SF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png', score: 7, record: '11-6', timeouts: 3 },
+                        home: { abbr: 'SEA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png', score: 0, record: '9-8', timeouts: 3 },
+                        possession: 'home',
+                        downDistance: '2nd & 5',
+                        fieldPosition: 'SEA 40',
+                        yardLine: 40,
+                        yardsToGo: 5,
+                        possessionOnOwn: true
+                    }
+                ];
+                return;
+            }
+
+            const saved = localStorage.getItem('gridtv_sports_bar_games');
+            if (saved) {
+                try {
+                    games = JSON.parse(saved);
+                } catch (e) {
+                    games = [];
+                }
+            }
+        }
+
+        function showEmptyState() {
+            document.getElementById('fullscreen-grid').innerHTML = `
+                <div class="empty-state">
+                    <h2>No Games Selected</h2>
+                    <p>Return to Home and select games to watch.</p>
+                </div>
+            `;
+
+            // Auto-redirect after 3 seconds
+            setTimeout(() => {
+                window.location.href = '/index';
+            }, 3000);
+        }
+
+        // ============================================
+        // RENDER GRID
+        // ============================================
+        // Mobile paging instance
+        let mobilePaging = null;
+
+        function renderGrid() {
+            const grid = document.getElementById('fullscreen-grid');
+            const count = Math.min(games.length, 8); // Cap at 8 games max
+
+            // PHONE MODE: Create individual cards first, let MobileFullscreenPaging organize them into pages
+            grid.className = 'fullscreen-grid grid-1'; // Always use grid-1 styling
+            grid.innerHTML = '';
+
+            // Create all game cards (up to 8)
+            games.slice(0, count).forEach((game, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.innerHTML = createGameCard(game, index);
+                const cardElement = cardDiv.firstElementChild;
+                grid.appendChild(cardElement);
+            });
+
+            // Initialize mobile paging system - it will organize cards into pages
+            if (typeof MobileFullscreenPaging !== 'undefined') {
+                if (mobilePaging) {
+                    mobilePaging.destroy();
+                }
+                mobilePaging = new MobileFullscreenPaging();
+                const container = document.querySelector('.fullscreen-container') || document.body;
+                mobilePaging.setup(games.slice(0, 8), container);
+            }
+
+            // Update ball positions for football games
+            games.slice(0, count).forEach((game, index) => {
+                if ((game.league === 'nfl' || game.league === 'ncaa') && game.state === 'in' && game.fieldPosition) {
+                    const allCards = grid.querySelectorAll('.fullscreen-game-card');
+                    const card = allCards[index];
+                    if (card) {
+                        updateBallPosition(card, game.fieldPosition, game.yardsToGo || 0, game.possession, game.away, game.home);
+                    }
+                }
+            });
+        }
+
+        function createGameCard(game, index) {
+            const isFootball = game.league === 'nfl' || game.league === 'ncaa';
+            const isLive = game.state === 'in';
+            const isFinal = game.state === 'post';
+            const isUpcoming = game.state === 'pre';
+
+            // Determine card state class
+            let cardClass = `fullscreen-game-card has-scoreboard fs-${game.league}`;
+            if (isUpcoming) {
+                cardClass += ' upcoming-game';
+            } else if (isFinal) {
+                cardClass += ' final-game';
+                if (game.away.score > game.home.score) cardClass += ' winning-away';
+                else if (game.home.score > game.away.score) cardClass += ' winning-home';
+                else cardClass += ' tied';
+            } else if (isLive) {
+                if (game.away.score > game.home.score) cardClass += ' winning-away';
+                else if (game.home.score > game.away.score) cardClass += ' winning-home';
+                else cardClass += ' tied';
+            }
+
+            // Get league logo
+            const leagueLogo = leagueLogos[game.league] || '/assets/logo.png';
+
+            // Get team colors for scoreboard
+            const awayColors = getScoreboardColors(game.league, game.away.abbr);
+            const homeColors = getScoreboardColors(game.league, game.home.abbr);
+
+            // Parse game status for period and time
+            const statusParts = parseGameStatus(game.status, game.league);
+
+            // Determine display values
+            const awayScore = isUpcoming ? '-' : game.away.score;
+            const homeScore = isUpcoming ? '-' : game.home.score;
+
+            // Format status for display
+            let displayStatus = game.status;
+            if (isUpcoming && game.startTime) {
+                const formatted = formatStartTime(game.startTime);
+                if (formatted) displayStatus = formatted;
+            }
+
+            // Check if game is in intermission (halftime, end of quarter, etc.)
+            const statusLower = (game.status || '').toLowerCase();
+            const isIntermission = statusLower.includes('halftime') ||
+                statusLower.includes('half') ||
+                statusLower.includes('end of') ||
+                statusLower.includes('intermission') ||
+                statusLower.includes('2nd') && statusLower.includes('0:00') ||
+                statusLower.includes('4th') && statusLower.includes('0:00');
+
+            // Build game situation box for NFL/NCAA (hide during intermissions)
+            let situationHTML = '';
+            if (isFootball && isLive && game.downDistance && !isIntermission) {
+                const possession = game.possession === 'away' ? 'possession-away' :
+                    game.possession === 'home' ? 'possession-home' : '';
+                const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
+                const redzone = isRedZone ? 'redzone' : '';
+                situationHTML = `
+                    <div class="fs-sb-situation ${possession} ${redzone}">
+                        <span class="fs-sb-down-distance">${game.downDistance || ''}</span>
+                        <div class="fs-sb-situation-divider"></div>
+                        <span class="fs-sb-ball-position">${game.fieldPosition || ''}</span>
+                    </div>
+                `;
+            }
+
+            // Build field visualizer for NFL/NCAA (only show when situation box is showing, hide during intermissions)
+            let fieldVisualizerHTML = '';
+            if (isFootball && isLive && game.downDistance && game.fieldPosition && !isIntermission) {
+                // Get team colors for endzones
+                const awayColor = getTeamColor(game.away.abbr);
+                const homeColor = getTeamColor(game.home.abbr);
+
+                fieldVisualizerHTML = `
+                    <div class="field-visualizer">
+                        <div class="field-container" style="--away-primary-color: ${awayColor}; --home-primary-color: ${homeColor};">
+                            <div class="yard-markers">
+                                <div class="yard-marker endzone away-endzone">
+                                    <span class="endzone-text">${game.away.abbr}</span>
+                                </div>
+                                <div class="yard-marker"><span class="yard-label">10</span></div>
+                                <div class="yard-marker"><span class="yard-label">20</span></div>
+                                <div class="yard-marker"><span class="yard-label">30</span></div>
+                                <div class="yard-marker"><span class="yard-label">40</span></div>
+                                <div class="yard-marker"><span class="yard-label">50</span></div>
+                                <div class="yard-marker"><span class="yard-label">40</span></div>
+                                <div class="yard-marker"><span class="yard-label">30</span></div>
+                                <div class="yard-marker"><span class="yard-label">20</span></div>
+                                <div class="yard-marker"><span class="yard-label">10</span></div>
+                                <div class="yard-marker endzone home-endzone">
+                                    <span class="endzone-text">${game.home.abbr}</span>
+                                </div>
+                            </div>
+                            <div class="ball-indicator"></div>
+                            <div class="first-down-line"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Status class
+            const statusClass = isUpcoming ? 'upcoming' : isFinal ? 'final' : '';
+
+            // Possession indicator for NFL/NCAA (show football emoji next to team with ball)
+            const awayHasPossession = isFootball && isLive && game.possession === 'away';
+            const homeHasPossession = isFootball && isLive && game.possession === 'home';
+
+            return `
+                <div class="${cardClass}" data-game-id="${game.id}" data-league="${game.league}">
+                    <img class="sport-logo-indicator" src="${leagueLogo}" alt="${game.league.toUpperCase()}">
+                    <div class="fullscreen-refresh-indicator"></div>
+
+                    <!-- Mobile paging clock (top-center of card, hidden by default) -->
+                    <div class="mobile-paging-clock">
+                        <div class="fs-sb-time-box">
+                            ${isFinal ? `
+                                <div class="fs-sb-time" style="font-size: clamp(0.8rem, 2.2vmin, 1.1rem);">FINAL</div>
+                            ` : `
+                                <div class="fs-sb-time-label">${statusParts.period || (isUpcoming ? 'STARTS' : '')}</div>
+                                <div class="fs-sb-time">${statusParts.time || displayStatus}</div>
+                            `}
+                        </div>
+                    </div>
+
+                    <div class="fs-card-wrapper">
+                        <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
+                        <div class="fs-scoreboard-top">
+                            <div class="fs-sb-logo-spacer"></div>
+                            <div class="fs-sb-logo-box">
+                                <div class="fs-card-team-logo-wrapper">
+                                    <img class="fs-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                </div>
+                            </div>
+                            <div class="fs-sb-logo-center-spacer"></div>
+                            <div class="fs-sb-logo-box">
+                                <div class="fs-card-team-logo-wrapper">
+                                    <img class="fs-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                </div>
+                            </div>
+                            <div class="fs-sb-logo-spacer"></div>
+                        </div>
+
+                        <!-- Scoreboard -->
+                        <div class="fs-scoreboard" style="--sb-away-primary: ${awayColors.primary}; --sb-away-secondary: ${awayColors.secondary}; --sb-home-primary: ${homeColors.primary}; --sb-home-secondary: ${homeColors.secondary};">
+                            <div class="fs-sb-score-box away">
+                                <span class="fs-sb-score">${awayScore}</span>
+                            </div>
+                            <div class="fs-sb-team-section away">
+                                <div class="fs-sb-team-info">
+                                    <span class="fs-sb-team-name">${game.away.abbr}</span>
+                                    ${game.away.record ? `<span class="fs-sb-team-record">${game.away.record}</span>` : ''}
+                                </div>
+                                ${(isFootball && game.away.timeouts !== undefined) ? `<div class="fs-sb-timeouts away">${createTimeoutBars(game.away.timeouts)}</div>` : ''}
+                            </div>
+                            <div class="fs-sb-center">
+                                <div class="fs-sb-time-box">
+                                    ${isFinal ? `
+                                        <div class="fs-sb-time" style="font-size: clamp(0.8rem, 2.2vmin, 1.1rem);">FINAL</div>
+                                    ` : `
+                                        <div class="fs-sb-time-label">${statusParts.period || (isUpcoming ? 'STARTS' : '')}</div>
+                                        <div class="fs-sb-time">${statusParts.time || displayStatus}</div>
+                                    `}
+                                </div>
+                            </div>
+                            <div class="fs-sb-team-section home">
+                                ${(isFootball && game.home.timeouts !== undefined) ? `<div class="fs-sb-timeouts home">${createTimeoutBars(game.home.timeouts)}</div>` : ''}
+                                <div class="fs-sb-team-info">
+                                    <span class="fs-sb-team-name">${game.home.abbr}</span>
+                                    ${game.home.record ? `<span class="fs-sb-team-record">${game.home.record}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="fs-sb-score-box home">
+                                <span class="fs-sb-score">${homeScore}</span>
+                            </div>
+                            ${situationHTML}
+                        </div>
+
+                        ${fieldVisualizerHTML}
+                    </div>
+
+                    ${(game.league === 'nfl' && isLive) ? `
+                    <!-- NFL Stats Modal (shows between plays) -->
+                    <div class="nfl-stats-modal" data-game-stats-id="${game.id}">
+                        <div class="nfl-stats-modal-header">
+                            <span class="nfl-stats-modal-title">Game Stats</span>
+                        </div>
+                        <div class="nfl-stats-content">
+                            <div class="nfl-stats-loading">Loading stats...</div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function createTimeoutBars(timeouts) {
+            if (timeouts === undefined) return '';
+            const remaining = Math.max(0, Math.min(3, timeouts));
+            let bars = '';
+            for (let i = 0; i < 3; i++) {
+                const usedClass = i >= remaining ? 'used' : '';
+                bars += `<div class="fs-sb-timeout-bar ${usedClass}"></div>`;
+            }
+            return bars;
+        }
+
+        function formatStartTime(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '';
+
+            const now = new Date();
+            const diffMs = date - now;
+            const diffMins = Math.round(diffMs / 60000);
+
+            if (diffMins <= 0) return 'Starting';
+            if (diffMins < 60) return `${diffMins}m`;
+
+            // Format time in user's local timezone
+            const timeStr = date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            // If game is today, just show time
+            const today = new Date();
+            if (date.toDateString() === today.toDateString()) {
+                return timeStr;
+            }
+
+            // Otherwise show day and time
+            return date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        // ============================================
+        // BALL POSITION CALCULATION (from NFL/NCAA pages)
+        // ============================================
+        function calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam) {
+            if (!fieldPosition) return 50;
+
+            const parts = fieldPosition.trim().split(' ');
+            let yardLine;
+            let fieldSideAbbr;
+
+            if (parts.length === 1) {
+                yardLine = 50;
+                fieldSideAbbr = null;
+            } else {
+                fieldSideAbbr = parts[0];
+                yardLine = parseInt(parts[1]);
+            }
+
+            const awayAbbr = awayTeam?.abbr || awayTeam?.team?.abbreviation;
+            const homeAbbr = homeTeam?.abbr || homeTeam?.team?.abbreviation;
+
+            let absolutePosition;
+
+            if (yardLine === 50 || !fieldSideAbbr) {
+                absolutePosition = 50;
+            } else if (fieldSideAbbr === awayAbbr) {
+                absolutePosition = yardLine;
+            } else if (fieldSideAbbr === homeAbbr) {
+                absolutePosition = 100 - yardLine;
+            } else {
+                absolutePosition = 50;
+            }
+
+            return Math.max(0, Math.min(100, absolutePosition));
+        }
+
+        function updateBallPosition(cardEl, fieldPosition, yardsToGo, possession, awayTeam, homeTeam) {
+            const ballIndicator = cardEl.querySelector('.ball-indicator');
+            const firstDownLine = cardEl.querySelector('.first-down-line');
+            const situationInfo = cardEl.querySelector('.fullscreen-situation-info');
+
+            if (!ballIndicator || !fieldPosition) return;
+
+            // Get team color for styling
+            const possessionTeam = possession === 'away' ? awayTeam : homeTeam;
+            const teamColor = possessionTeam?.abbr ? getTeamColor(possessionTeam.abbr) : '#1e40af'; // Navy blue default for scrimmage line
+
+            // Apply team color to situation info
+            if (situationInfo) {
+                situationInfo.style.color = teamColor;
+                situationInfo.style.textShadow = `-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 3px rgba(0, 0, 0, 0.5)`;
+            }
+
+            // Apply team color to ball indicator
+            ballIndicator.style.background = `linear-gradient(to bottom, ${teamColor}, ${teamColor}dd)`;
+            ballIndicator.style.boxShadow = `0 0 10px ${teamColor}cc, 0 0 6px ${teamColor}99`;
+
+            // Calculate ball position
+            const ballPosition = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
+            ballIndicator.style.left = `${ballPosition}%`;
+
+            // Calculate first down line
+            if (firstDownLine && yardsToGo > 0) {
+                const possessionIsAway = possession === 'away';
+                let firstDownPosition;
+
+                if (possessionIsAway) {
+                    firstDownPosition = ballPosition + yardsToGo;
+                } else {
+                    firstDownPosition = ballPosition - yardsToGo;
+                }
+
+                firstDownPosition = Math.max(0, Math.min(100, firstDownPosition));
+                firstDownLine.style.left = `${firstDownPosition}%`;
+                firstDownLine.style.display = 'block';
+            } else if (firstDownLine) {
+                firstDownLine.style.display = 'none';
+            }
+        }
+
+        function getScoreClass(game, team) {
+            if (game.state === 'pre') return '';
+            const teamData = game[team];
+            const opponent = team === 'home' ? game.away : game.home;
+            if (teamData.score > opponent.score) return 'winning';
+            if (teamData.score < opponent.score) return 'losing';
+            return '';
+        }
+
+        // ============================================
+        // PLAY ANIMATIONS
+        // ============================================
+        let animationQueue = new Map(); // gameId -> queue of animations
+        let pageLoadTime = Date.now();
+
+        function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', isNegated = false) {
+            // Skip animations during first 6 seconds after page load
+            if (Date.now() - pageLoadTime < 6000) return;
+
+            // Remove any existing animation
+            const existingAnimation = card.querySelector('.play-animation');
+            if (existingAnimation) {
+                existingAnimation.remove();
+            }
+
+            // Create animation overlay
+            const animationDiv = document.createElement('div');
+            animationDiv.className = `play-animation ${playType}`;
+
+            // Build animation HTML based on play type
+            if (playType === 'touchdown' && teamName) {
+                const teamLogoPath = `/assets/${encodeURIComponent(teamName)}.png`;
+                animationDiv.innerHTML = `
+                    <div class="touchdown-container">
+                        <img src="${teamLogoPath}" alt="${teamName}" class="touchdown-team-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="touchdown-fallback-icon" style="display:none;">🏈</div>
+                    </div>
+                    <div class="play-animation-text">${playText}</div>
+                `;
+            } else if (playType === 'two-point') {
+                const teamLogoPath = `/assets/${encodeURIComponent(teamName)}.png`;
+                animationDiv.innerHTML = `
+                    <div class="two-point-container">
+                        <img src="${teamLogoPath}" alt="${teamName}" class="two-point-team-logo" onerror="this.style.display='none';">
+                    </div>
+                    <div class="play-animation-text">${playText}</div>
+                `;
+            } else if (playType === 'field-goal') {
+                animationDiv.innerHTML = `
+                    <div class="field-goal-container">
+                        <img src="/assets/YFrame.png" alt="Goal Post" class="yframe-image" onerror="this.style.display='none';">
+                        <div class="spinning-football">🏈</div>
+                    </div>
+                    <div class="play-animation-text">${playText}</div>
+                    ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+                `;
+            } else if (playType === 'first-down') {
+                animationDiv.innerHTML = `
+                    <div class="first-down-container">
+                        <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow left" onerror="this.style.display='none';">
+                        <img src="/assets/1stDown2.png" alt="Arrow" class="first-down-arrow right" onerror="this.style.display='none';">
+                    </div>
+                    <div class="play-animation-text">${playText}</div>
+                `;
+            } else if (playType === 'missed-kick') {
+                animationDiv.innerHTML = `
+                    <div class="missed-kick-container">
+                        <img src="/assets/YFrame.png" alt="Goal Post" class="yframe-image-missed" onerror="this.style.display='none';">
+                        <div class="missed-football">🏈</div>
+                    </div>
+                    <div class="play-animation-text">${playText}</div>
+                `;
+            } else if (playType === 'punt') {
+                animationDiv.innerHTML = `
+                    <div class="punt-container">
+                        <div class="punt-ball">🏈</div>
+                    </div>
+                    <div class="play-animation-text">${playText}</div>
+                `;
+            } else if (playType === 'sack') {
+                animationDiv.innerHTML = `
+                    <div class="sack-container">
+                        <div class="sack-icon">💥</div>
+                        <span class="sack-stars star-1">⭐</span>
+                        <span class="sack-stars star-2">⭐</span>
+                        <span class="sack-stars star-3">💫</span>
+                        <span class="sack-stars star-4">💫</span>
+                    </div>
+                    <div class="play-animation-text">${playText}</div>
+                `;
+            } else if (playType === 'timeout') {
+                const timeoutLogoUrl = recoveryInfo || '';
+                animationDiv.innerHTML = `
+                    <div class="timeout-container">
+                        ${timeoutLogoUrl ? `<img src="${timeoutLogoUrl}" alt="Team" class="timeout-team-logo">` : ''}
+                        <div class="play-animation-text">${playText}</div>
+                        ${teamName ? `<div class="timeout-team-name">${teamName}</div>` : ''}
+                    </div>
+                `;
+            } else if (playType === 'penalty') {
+                const penaltyParts = recoveryInfo ? recoveryInfo.split('|') : ['', '', '', ''];
+                const penaltyName = penaltyParts[0] || 'PENALTY';
+                const offenseDefense = penaltyParts[1] || '';
+                const playerName = penaltyParts[2] || '';
+                const teamLogoUrl = penaltyParts[3] || '';
+
+                animationDiv.innerHTML = `
+                    <div class="penalty-phase-1">
+                        <img src="/assets/NFLrefereethrowingBlur.png" alt="Referee" class="referee-throwing" onerror="this.style.display='none';">
+                        <div class="penalty-phase-1-text">FLAG!</div>
+                    </div>
+                    <div class="penalty-phase-2">
+                        <div class="penalty-info-box">
+                            ${teamLogoUrl ? `<img src="${teamLogoUrl}" alt="Team" class="penalty-team-logo">` : ''}
+                            <div class="penalty-type">${penaltyName}</div>
+                            ${offenseDefense ? `<div class="penalty-on">${offenseDefense}</div>` : ''}
+                            ${playerName ? `<div class="penalty-player">${playerName}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Generic animation
+                let icon = '⚡';
+                if (playType === 'interception') icon = '🚫';
+                else if (playType === 'fumble') icon = '💨';
+
+                let recoveryHTML = '';
+                if (playType === 'fumble' && (recoveryLogo || teamName)) {
+                    recoveryHTML = `
+                        <div class="play-animation-subtext" style="margin-top: 10px;">Recovered by</div>
+                        ${recoveryLogo ? `<img src="${recoveryLogo}" alt="Team" style="width: 60px; height: 60px; object-fit: contain; margin-top: 10px;">` : ''}
+                        ${teamName ? `<div class="play-animation-subtext" style="margin-top: 5px; font-weight: bold;">${teamName}</div>` : ''}
+                    `;
+                } else if (recoveryInfo) {
+                    recoveryHTML = `<div class="play-animation-subtext">${recoveryInfo}</div>`;
+                }
+
+                animationDiv.innerHTML = `
+                    <div class="play-animation-icon">${icon}</div>
+                    <div class="play-animation-text">${playText}</div>
+                    ${playType !== 'fumble' && teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+                    ${recoveryHTML}
+                `;
+            }
+
+            // Add negated indicator if play was called back
+            if (isNegated) {
+                animationDiv.classList.add('negated');
+                const negatedBanner = document.createElement('div');
+                negatedBanner.className = 'negated-banner';
+                negatedBanner.textContent = 'NO PLAY - PENALTY';
+                animationDiv.appendChild(negatedBanner);
+            }
+
+            card.style.position = 'relative';
+            card.appendChild(animationDiv);
+
+            // Remove after animation completes
+            let animationDuration = 8000;
+            if (playType === 'touchdown') animationDuration = 7000;
+            else if (playType === 'penalty') animationDuration = 11000;
+            else if (playType === 'timeout') animationDuration = 5000;
+
+            setTimeout(() => {
+                if (animationDiv.parentNode) {
+                    animationDiv.remove();
+                }
+            }, animationDuration);
+        }
+
+        // NHL-specific play detection
+        function detectNHLPlayEvents(card, game, comp, prevData) {
+            const awayScoreChange = game.away.score - (prevData.awayScore || 0);
+            const homeScoreChange = game.home.score - (prevData.homeScore || 0);
+
+            const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+            const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+            const awayName = awayTeam?.team?.displayName || 'Away';
+            const homeName = homeTeam?.team?.displayName || 'Home';
+
+            // Detect goals
+            if (awayScoreChange > 0 || homeScoreChange > 0) {
+                const scoringTeam = awayScoreChange > 0 ? awayName : homeName;
+                const scoreChange = awayScoreChange > 0 ? awayScoreChange : homeScoreChange;
+
+                let playType, playText;
+                if (scoreChange >= 3) {
+                    playType = 'hattrick';
+                    playText = 'HAT TRICK!';
+                } else {
+                    playType = 'goal';
+                    playText = 'GOAL!';
+                }
+
+                showNHLAnimation(card, playType, playText, scoringTeam);
+                console.log('🏒 Sports Bar - NHL event:', playType, scoringTeam);
+            }
+        }
+
+        function showNHLAnimation(card, playType, playText, teamName = '') {
+            // Skip animations during first 6 seconds after page load
+            if (Date.now() - pageLoadTime < 6000) return;
+
+            // Remove any existing animation
+            const existingAnimation = card.querySelector('.play-animation');
+            if (existingAnimation) {
+                existingAnimation.remove();
+            }
+
+            // Create animation overlay
+            const animationDiv = document.createElement('div');
+            animationDiv.className = `play-animation ${playType}`;
+
+            // Choose icon based on play type
+            let icon;
+            switch (playType) {
+                case 'goal':
+                    icon = '🚨';
+                    break;
+                case 'save':
+                    icon = '🧤';
+                    break;
+                case 'powerplay':
+                    icon = '⚡';
+                    break;
+                case 'hattrick':
+                    icon = '🎩';
+                    break;
+                case 'nhl-penalty':
+                    icon = '⚠️';
+                    break;
+                case 'shootout':
+                    icon = '🥅';
+                    break;
+                default:
+                    icon = '🏒';
+            }
+
+            animationDiv.innerHTML = `
+                <div class="play-animation-icon">${icon}</div>
+                <div class="play-animation-text">${playText}</div>
+                ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+            `;
+
+            card.style.position = 'relative';
+            card.appendChild(animationDiv);
+
+            // Remove after animation completes (5 seconds for NHL - shorter than football)
+            setTimeout(() => {
+                if (animationDiv.parentNode) {
+                    animationDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function detectPlayEvents(card, game, comp, prevData) {
+            if (game.league !== 'nfl' && game.league !== 'ncaa') return;
+
+            const lastPlay = comp?.situation?.lastPlay?.text || '';
+            if (!lastPlay || prevData.lastPlay === lastPlay) return;
+
+            const lowerLastPlay = lastPlay.toLowerCase();
+            const awayScoreChange = game.away.score - (prevData.awayScore || 0);
+            const homeScoreChange = game.home.score - (prevData.homeScore || 0);
+
+            const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+            const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+            const awayAbbr = awayTeam?.team?.abbreviation || '';
+            const homeAbbr = homeTeam?.team?.abbreviation || '';
+            const awayName = awayTeam?.team?.displayName || 'Away';
+            const homeName = homeTeam?.team?.displayName || 'Home';
+            const awayLogo = awayTeam?.team?.logo || '';
+            const homeLogo = homeTeam?.team?.logo || '';
+
+            const isNegated = lowerLastPlay.includes('no play') ||
+                (lowerLastPlay.includes('penalty') && lowerLastPlay.includes('enforced'));
+
+            const events = [];
+
+            // INTERCEPTION
+            if (lowerLastPlay.includes('intercept')) {
+                let interceptingTeam = '', interceptingTeamLogo = '';
+                const interceptMatch = lastPlay.match(/intercept(?:ed|ion)?\s+by\s+([A-Z]{2,4})-/i);
+                if (interceptMatch) {
+                    const intTeamAbbr = interceptMatch[1].toUpperCase();
+                    if (intTeamAbbr === awayAbbr.toUpperCase()) { interceptingTeam = awayName; interceptingTeamLogo = awayLogo; }
+                    else if (intTeamAbbr === homeAbbr.toUpperCase()) { interceptingTeam = homeName; interceptingTeamLogo = homeLogo; }
+                }
+                events.push({ type: 'interception', text: 'INTERCEPTION!', teamName: interceptingTeam, logo: interceptingTeamLogo, isNegated });
+
+                if (lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) {
+                    events.push({ type: 'touchdown', text: 'PICK SIX!', teamName: interceptingTeam, isNegated });
+                }
+            }
+            // FUMBLE
+            else if (lowerLastPlay.includes('fumble')) {
+                let recoveryTeam = '', recoveryLogo = '';
+                // Try multiple patterns for recovery detection
+                if (lowerLastPlay.includes('recovered by') || lowerLastPlay.includes('recovery by') ||
+                    lowerLastPlay.includes('recovered') || lowerLastPlay.includes('fumble recovery')) {
+                    // Look for team abbreviation anywhere after "fumble" or "recovered"
+                    const fumbleIndex = lowerLastPlay.indexOf('fumble');
+                    const afterFumble = lastPlay.substring(fumbleIndex);
+
+                    // Check which team abbreviation appears in the recovery context
+                    const awayAbbrUpper = awayAbbr.toUpperCase();
+                    const homeAbbrUpper = homeAbbr.toUpperCase();
+
+                    // Look for patterns like "recovered by TEAM" or "TEAM recovery" or just team abbr after fumble
+                    if (afterFumble.includes(awayAbbrUpper) && !afterFumble.includes(homeAbbrUpper)) {
+                        recoveryTeam = awayName; recoveryLogo = awayLogo;
+                    } else if (afterFumble.includes(homeAbbrUpper) && !afterFumble.includes(awayAbbrUpper)) {
+                        recoveryTeam = homeName; recoveryLogo = homeLogo;
+                    } else if (afterFumble.toLowerCase().includes(awayAbbr.toLowerCase())) {
+                        recoveryTeam = awayName; recoveryLogo = awayLogo;
+                    } else if (afterFumble.toLowerCase().includes(homeAbbr.toLowerCase())) {
+                        recoveryTeam = homeName; recoveryLogo = homeLogo;
+                    }
+                }
+                events.push({ type: 'fumble', text: 'FUMBLE!', teamName: recoveryTeam, logo: recoveryLogo, isNegated });
+
+                if (lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) {
+                    events.push({ type: 'touchdown', text: 'SCOOP & SCORE!', teamName: recoveryTeam, isNegated });
+                }
+            }
+
+            // TOUCHDOWN
+            if ((lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) && !events.some(e => e.type === 'touchdown')) {
+                let scoringTeam = '';
+                if (awayScoreChange >= 6) scoringTeam = awayName;
+                else if (homeScoreChange >= 6) scoringTeam = homeName;
+
+                let tdText = 'TOUCHDOWN!';
+                if (lowerLastPlay.includes('punt') && lowerLastPlay.includes('return')) tdText = 'PUNT RETURN TD!';
+                else if (lowerLastPlay.includes('kick') && lowerLastPlay.includes('return')) tdText = 'KICK RETURN TD!';
+
+                events.push({ type: 'touchdown', text: tdText, teamName: scoringTeam, isNegated });
+            }
+
+            // SAFETY
+            if (lowerLastPlay.includes('safety') && !lowerLastPlay.includes('free kick')) {
+                let safetyTeam = '';
+                if (awayScoreChange === 2) safetyTeam = awayName;
+                else if (homeScoreChange === 2) safetyTeam = homeName;
+                events.push({ type: 'safety', text: 'SAFETY!', teamName: safetyTeam, isNegated });
+            }
+
+            // FIELD GOAL
+            if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
+                lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good')) {
+                let fgTeam = '';
+                if (awayScoreChange === 3) fgTeam = awayName;
+                else if (homeScoreChange === 3) fgTeam = homeName;
+                events.push({ type: 'field-goal', text: 'FIELD GOAL!', teamName: fgTeam, isNegated });
+            }
+
+            // MISSED FIELD GOAL
+            if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
+                (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
+                    lowerLastPlay.includes('wide') || lowerLastPlay.includes('short') || lowerLastPlay.includes('blocked')) &&
+                !lowerLastPlay.includes('touchdown')) {
+                events.push({ type: 'missed-kick', text: lowerLastPlay.includes('blocked') ? 'BLOCKED FG!' : 'MISSED FG!', teamName: '', isNegated });
+            }
+
+            // EXTRA POINT
+            if ((lowerLastPlay.includes('extra point') || lowerLastPlay.includes('pat ') || lowerLastPlay.includes(' xp ')) &&
+                lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good')) {
+                events.push({ type: 'field-goal', text: 'EXTRA POINT!', teamName: '', isNegated });
+            }
+
+            // MISSED EXTRA POINT
+            if ((lowerLastPlay.includes('extra point') || lowerLastPlay.includes('pat ') || lowerLastPlay.includes(' xp ')) &&
+                (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') || lowerLastPlay.includes('failed') || lowerLastPlay.includes('blocked'))) {
+                events.push({ type: 'missed-kick', text: 'MISSED XP!', teamName: '', isNegated });
+            }
+
+            // TWO-POINT CONVERSION
+            if ((lowerLastPlay.includes('two-point') || lowerLastPlay.includes('2-pt') || lowerLastPlay.includes('two point')) &&
+                lowerLastPlay.includes('conversion') && (lowerLastPlay.includes('good') || lowerLastPlay.includes('success'))) {
+                let twoPointTeam = '';
+                if (awayScoreChange === 2) twoPointTeam = awayName;
+                else if (homeScoreChange === 2) twoPointTeam = homeName;
+                events.push({ type: 'two-point', text: '2-PT CONVERSION!', teamName: twoPointTeam, isNegated });
+            }
+
+            // SACK
+            if (lowerLastPlay.includes('sack') || lowerLastPlay.includes('sacked')) {
+                events.push({ type: 'sack', text: 'SACK!', teamName: '', isNegated });
+            }
+
+            // PUNT
+            if (lowerLastPlay.includes('punt') && !lowerLastPlay.includes('fake') && !events.some(e => e.type === 'touchdown')) {
+                if (!lowerLastPlay.includes('touchdown')) {
+                    events.push({ type: 'punt', text: 'PUNT!', teamName: '', isNegated });
+                }
+            }
+
+            // PENALTY
+            if ((lowerLastPlay.includes('penalty') || lowerLastPlay.includes('flag')) &&
+                !lowerLastPlay.includes('no flags') && !lowerLastPlay.includes('declined')) {
+                let penaltyName = 'PENALTY';
+                const penaltyPatterns = [
+                    'holding', 'false start', 'offsides', 'pass interference', 'roughing the passer',
+                    'facemask', 'unnecessary roughness', 'delay of game', 'illegal formation', 'encroachment',
+                    'illegal contact', 'illegal use of hands', 'illegal block', 'illegal shift', 'illegal motion',
+                    'intentional grounding', 'neutral zone infraction', 'defensive holding', 'offensive holding',
+                    'unsportsmanlike conduct', 'taunting', 'personal foul', 'roughing the kicker', 'running into the kicker',
+                    'illegal substitution', 'too many men', 'ineligible downfield', 'illegal touching', 'horse collar',
+                    'tripping', 'clipping', 'chop block', 'low block', 'defensive pass interference',
+                    'offensive pass interference', 'illegal forward pass', 'illegal bat'
+                ];
+                for (const penalty of penaltyPatterns) {
+                    if (lowerLastPlay.includes(penalty)) {
+                        penaltyName = penalty.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                        break;
+                    }
+                }
+
+                // Extract team and player from penalty text - try multiple patterns
+                let teamLogo = '';
+                let playerName = '';
+                let offenseDefense = '';
+
+                // Pattern 1: "PENALTY on XXX-PlayerName" (e.g., "PENALTY on KC-T.Kelce")
+                const penaltyOnMatch = lastPlay.match(/PENALTY\s+on\s+([A-Z]{2,4})[- ]([A-Z]\.?\s*[A-Za-z'-]+)/i);
+                if (penaltyOnMatch) {
+                    const penaltyTeamAbbr = penaltyOnMatch[1].toUpperCase();
+                    playerName = penaltyOnMatch[2] || '';
+                    if (penaltyTeamAbbr === awayAbbr.toUpperCase()) {
+                        teamLogo = awayLogo;
+                    } else if (penaltyTeamAbbr === homeAbbr.toUpperCase()) {
+                        teamLogo = homeLogo;
+                    }
+                }
+
+                // Pattern 2: Just team abbreviation after "on" (e.g., "Holding on KC")
+                if (!teamLogo) {
+                    const simpleTeamMatch = lastPlay.match(/(?:on|against)\s+([A-Z]{2,4})(?:\s|,|\.|\)|$)/i);
+                    if (simpleTeamMatch) {
+                        const teamAbbr = simpleTeamMatch[1].toUpperCase();
+                        if (teamAbbr === awayAbbr.toUpperCase()) {
+                            teamLogo = awayLogo;
+                        } else if (teamAbbr === homeAbbr.toUpperCase()) {
+                            teamLogo = homeLogo;
+                        }
+                    }
+                }
+
+                // Pattern 3: Check if team name is mentioned (e.g., "Chiefs" or "Eagles")
+                if (!teamLogo) {
+                    const awayName = awayTeam?.team?.displayName?.toLowerCase() || '';
+                    const homeName = homeTeam?.team?.displayName?.toLowerCase() || '';
+                    const awayShort = awayTeam?.team?.shortDisplayName?.toLowerCase() || '';
+                    const homeShort = homeTeam?.team?.shortDisplayName?.toLowerCase() || '';
+
+                    if (awayName && lowerLastPlay.includes(awayName)) {
+                        teamLogo = awayLogo;
+                    } else if (homeName && lowerLastPlay.includes(homeName)) {
+                        teamLogo = homeLogo;
+                    } else if (awayShort && lowerLastPlay.includes(awayShort)) {
+                        teamLogo = awayLogo;
+                    } else if (homeShort && lowerLastPlay.includes(homeShort)) {
+                        teamLogo = homeLogo;
+                    }
+                }
+
+                // Determine if offense or defense penalty
+                if (lowerLastPlay.includes('offensive') || lowerLastPlay.includes('offense')) {
+                    offenseDefense = 'Offense';
+                } else if (lowerLastPlay.includes('defensive') || lowerLastPlay.includes('defense')) {
+                    offenseDefense = 'Defense';
+                }
+
+                const penaltyInfo = `${penaltyName}|${offenseDefense}|${playerName}|${teamLogo}`;
+                events.push({ type: 'penalty', text: 'FLAG!', teamName: '', recoveryInfo: penaltyInfo, isNegated: false });
+            }
+
+            // 1ST DOWN detection
+            // Only trigger if down goes from 2-4 to 1, no score change, no other events,
+            // AND possession hasn't changed (to avoid false triggers after turnovers/fumbles)
+            const currentDown = comp?.situation?.down;
+            const prevDown = prevData.down || 0;
+            const currentPossession = game.possession;
+            const prevPossession = prevData.possession;
+            const possessionChanged = prevPossession && currentPossession && prevPossession !== currentPossession;
+
+            if (currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
+                awayScoreChange === 0 && homeScoreChange === 0 && events.length === 0 && !possessionChanged) {
+                events.push({ type: 'first-down', text: '1ST DOWN!', teamName: '', isNegated: false });
+            }
+
+            // Show animations
+            for (const event of events) {
+                showPlayAnimation(card, event.type, event.text, event.teamName, event.recoveryInfo || '', event.logo || '', event.isNegated);
+            }
+
+            if (events.length > 0) {
+                console.log('🎬 Sports Bar - Play events:', events.map(e => e.type).join(', '));
+            }
+        }
+
+        // ============================================
+        // NFL STATS MODAL (Between Plays)
+        // ============================================
+        const gameStatsCache = new Map(); // gameId -> { stats, lastFetch }
+        const STATS_CACHE_TTL = 20000; // 20 seconds cache
+
+        async function fetchGameStats(gameId) {
+            const cached = gameStatsCache.get(gameId);
+            const now = Date.now();
+
+            // Return cached stats if still valid
+            if (cached && (now - cached.lastFetch) < STATS_CACHE_TTL) {
+                return cached.stats;
+            }
+
+            try {
+                const response = await fetch(`/api/nfl/summary/${gameId}`);
+                if (!response.ok) throw new Error('Failed to fetch stats');
+
+                const data = await response.json();
+                const stats = parseGameStats(data);
+
+                // Cache the stats
+                gameStatsCache.set(gameId, { stats, lastFetch: now });
+
+                return stats;
+            } catch (err) {
+                console.error(`Failed to fetch stats for game ${gameId}:`, err);
+                return null;
+            }
+        }
+
+        function parseGameStats(data) {
+            const boxscore = data.boxscore;
+            if (!boxscore || !boxscore.players) return null;
+
+            const stats = { away: null, home: null };
+
+            // Get home/away team IDs from header
+            const competitors = data.header?.competitions?.[0]?.competitors || [];
+            const homeTeamId = competitors.find(c => c.homeAway === 'home')?.id;
+            const awayTeamId = competitors.find(c => c.homeAway === 'away')?.id;
+
+            boxscore.players.forEach(teamData => {
+                // Determine home/away by matching team ID
+                const teamId = teamData.team?.id;
+                let homeAway = 'away'; // default
+                if (teamId === homeTeamId) {
+                    homeAway = 'home';
+                } else if (teamId === awayTeamId) {
+                    homeAway = 'away';
+                }
+
+                const teamInfo = {
+                    name: teamData.team?.displayName || teamData.team?.abbreviation || '',
+                    abbreviation: teamData.team?.abbreviation || '',
+                    logo: teamData.team?.logo || '',
+                    categories: {}
+                };
+
+                // Parse statistics by category
+                if (teamData.statistics) {
+                    teamData.statistics.forEach(stat => {
+                        const category = stat.name?.toLowerCase();
+                        if (!category) return;
+
+                        const leaders = [];
+                        if (stat.athletes) {
+                            stat.athletes.slice(0, 2).forEach(athlete => {
+                                if (athlete.athlete && athlete.stats && athlete.stats.length > 0) {
+                                    // Build short name: "L. Jackson" format
+                                    let name = athlete.athlete.displayName || '';
+                                    if (athlete.athlete.firstName && athlete.athlete.lastName) {
+                                        name = `${athlete.athlete.firstName.charAt(0)}. ${athlete.athlete.lastName}`;
+                                    }
+                                    leaders.push({
+                                        name: name,
+                                        value: formatStatValue(category, athlete.stats)
+                                    });
+                                }
+                            });
+                        }
+
+                        if (leaders.length > 0) {
+                            teamInfo.categories[category] = leaders;
+                        }
+                    });
+                }
+
+                stats[homeAway] = teamInfo;
+            });
+
+            return stats;
+        }
+
+        function formatStatValue(category, statsArray) {
+            if (!statsArray || statsArray.length === 0) return '';
+
+            // For different categories, format the display value
+            switch (category) {
+                case 'passing':
+                    // C/ATT, YDS, TD-INT format: e.g., "18/25, 245 YDS, 2 TD"
+                    if (statsArray.length >= 4) {
+                        const cmp = statsArray[0], att = statsArray[1], yds = statsArray[2], td = statsArray[4] || 0;
+                        return `${cmp}/${att}, ${yds} YDS, ${td} TD`;
+                    }
+                    return statsArray[0] || '';
+                case 'rushing':
+                    // CAR, YDS, TD format: e.g., "15 CAR, 87 YDS, 1 TD"
+                    if (statsArray.length >= 3) {
+                        return `${statsArray[0]} CAR, ${statsArray[1]} YDS, ${statsArray[3] || 0} TD`;
+                    }
+                    return statsArray[0] || '';
+                case 'receiving':
+                    // REC, YDS, TD format: e.g., "5 REC, 78 YDS, 1 TD"
+                    if (statsArray.length >= 3) {
+                        return `${statsArray[0]} REC, ${statsArray[1]} YDS, ${statsArray[3] || 0} TD`;
+                    }
+                    return statsArray[0] || '';
+                case 'defensive':
+                    // TCKL, SACK, INT format
+                    if (statsArray.length >= 2) {
+                        return `${statsArray[0]} TCKL, ${statsArray[1]} SACK`;
+                    }
+                    return statsArray[0] || '';
+                default:
+                    return statsArray[0] || '';
+            }
+        }
+
+        function renderStatsModal(modal, stats, game) {
+            if (!stats || !stats.away || !stats.home) {
+                modal.querySelector('.nfl-stats-content').innerHTML = `
+                    <div class="nfl-stats-loading">Stats unavailable</div>
+                `;
+                return;
+            }
+
+            const priorityCategories = ['passing', 'rushing', 'receiving'];
+
+            const renderTeamStats = (teamStats, teamData, score) => {
+                const categoriesHTML = priorityCategories.map(cat => {
+                    const players = teamStats.categories[cat];
+                    if (!players || players.length === 0) return '';
+
+                    const categoryTitle = cat.charAt(0).toUpperCase() + cat.slice(1);
+                    const playersHTML = players.map(p => `
+                        <div class="nfl-stats-player">
+                            <span class="nfl-stats-player-name">${p.name}</span>
+                            <span class="nfl-stats-player-value">${p.value}</span>
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div class="nfl-stats-category">
+                            <div class="nfl-stats-category-title">${categoryTitle}</div>
+                            ${playersHTML}
+                        </div>
+                    `;
+                }).join('');
+
+                // Use full team name from stats data, fallback to teamData
+                const fullName = teamStats.name || teamData.name || teamData.abbr;
+
+                return `
+                    <div class="nfl-stats-team">
+                        <div class="nfl-stats-team-header">
+                            <span class="nfl-stats-team-score">${score}</span>
+                            <img class="nfl-stats-team-logo" src="${teamData.logo}" alt="${teamData.abbr}" onerror="this.style.display='none'">
+                            <span class="nfl-stats-team-name">${fullName}</span>
+                        </div>
+                        ${categoriesHTML || '<div class="nfl-stats-loading">No stats yet</div>'}
+                    </div>
+                `;
+            };
+
+            modal.querySelector('.nfl-stats-content').innerHTML = `
+                ${renderTeamStats(stats.away, game.away, game.away.score)}
+                ${renderTeamStats(stats.home, game.home, game.home.score)}
+            `;
+        }
+
+        async function updateStatsModals() {
+            const now = Date.now();
+            const WAIT_BEFORE_SHOW = 30000; // 30 seconds of no play before showing stats
+            const SHOW_DURATION = 30000;    // Show stats for 30 seconds
+
+            for (const game of games) {
+                if (game.league !== 'nfl' || game.state !== 'in') continue;
+
+                const modal = document.querySelector(`.nfl-stats-modal[data-game-stats-id="${game.id}"]`);
+                if (!modal) continue;
+
+                // Check if there's an active animation playing - never show stats over animations
+                const card = modal.closest('.fullscreen-card');
+                const hasActiveAnimation = card && card.querySelector('.play-animation');
+                if (hasActiveAnimation) {
+                    modal.classList.remove('visible');
+                    continue;
+                }
+
+                // Initialize state for this game if not exists
+                if (!statsModalState.has(game.id)) {
+                    statsModalState.set(game.id, {
+                        noPlayStartTime: null,
+                        isShowingStats: false,
+                        showStartTime: null
+                    });
+                }
+
+                const state = statsModalState.get(game.id);
+
+                // Check if game is in intermission
+                const statusLower = (game.status || '').toLowerCase();
+                const isIntermission = statusLower.includes('halftime') ||
+                    statusLower.includes('half') ||
+                    statusLower.includes('end of') ||
+                    statusLower.includes('intermission') ||
+                    (statusLower.includes('2nd') && statusLower.includes('0:00')) ||
+                    (statusLower.includes('4th') && statusLower.includes('0:00'));
+
+                const hasActivePlays = !!game.downDistance && !isIntermission;
+
+                // If stats are currently showing, check if 30 seconds have passed
+                if (state.isShowingStats) {
+                    const elapsedShowTime = now - state.showStartTime;
+                    if (elapsedShowTime >= SHOW_DURATION) {
+                        // 30 seconds of showing complete - hide and reset
+                        modal.classList.remove('visible');
+                        state.isShowingStats = false;
+                        state.showStartTime = null;
+                        state.noPlayStartTime = hasActivePlays ? null : now; // Reset wait timer
+                    }
+                    // Keep showing (don't change visibility while in show period)
+                    continue;
+                }
+
+                // Stats are not currently showing
+                if (hasActivePlays) {
+                    // Play is active - reset the no-play timer
+                    state.noPlayStartTime = null;
+                    modal.classList.remove('visible');
+                } else {
+                    // No active play - start or continue the wait timer
+                    if (!state.noPlayStartTime) {
+                        state.noPlayStartTime = now;
+                    }
+
+                    const waitedTime = now - state.noPlayStartTime;
+                    if (waitedTime >= WAIT_BEFORE_SHOW) {
+                        // 30 seconds of no play - show the stats modal
+                        state.isShowingStats = true;
+                        state.showStartTime = now;
+                        modal.classList.add('visible');
+
+                        // Fetch and render stats
+                        const stats = await fetchGameStats(game.id);
+                        if (stats) {
+                            renderStatsModal(modal, stats, game);
+                        }
+                    }
+                    // Otherwise keep waiting (modal stays hidden)
+                }
+            }
+        }
+
+        // ============================================
+        // AUTO-REFRESH
+        // ============================================
+        let prevGameData = new Map(); // Store previous game state for animation detection
+
+        function startAutoRefresh() {
+            refreshInterval = setInterval(refreshGameData, 20000);
+        }
+
+        async function refreshGameData() {
+            const apiEndpoints = {
+                'nfl': '/api/nfl/scoreboard',
+                'nba': '/api/nba/scoreboard',
+                'mlb': '/api/mlb/scoreboard',
+                'nhl': '/api/nhl/scoreboard',
+                'ncaa': '/api/ncaa/scoreboard',
+                'ncaab': '/api/ncaab/scoreboard'
+            };
+
+            // Queue for animations to apply after render
+            const pendingAnimations = [];
+
+            // Only refresh games that aren't finished (live or upcoming)
+            const activeGames = games.filter(g => g.state !== 'post');
+
+            // If all games are finished, stop refreshing
+            if (activeGames.length === 0) {
+                console.log('📺 All games finished - stopping auto-refresh');
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                    refreshInterval = null;
+                }
+                return;
+            }
+
+            // Group active games by league to minimize API calls
+            const gamesByLeague = {};
+            activeGames.forEach(game => {
+                if (!gamesByLeague[game.league]) {
+                    gamesByLeague[game.league] = [];
+                }
+                gamesByLeague[game.league].push(game);
+            });
+
+            // Fetch updates only for leagues with active games
+            for (const league of Object.keys(gamesByLeague)) {
+                try {
+                    const response = await fetch(apiEndpoints[league]);
+                    if (!response.ok) continue;
+
+                    const data = await response.json();
+                    const events = data.events || [];
+
+                    // Update game objects with fresh data
+                    gamesByLeague[league].forEach(game => {
+                        const updated = events.find(e => e.id === game.id);
+                        if (updated) {
+                            // Store previous data for animation detection
+                            const prevData = prevGameData.get(game.id) || {};
+
+                            // Update game from event
+                            updateGameFromEvent(game, updated);
+
+                            // Store current state for next comparison
+                            const comp = updated.competitions?.[0];
+                            prevGameData.set(game.id, {
+                                awayScore: game.away.score,
+                                homeScore: game.home.score,
+                                lastPlay: comp?.situation?.lastPlay?.text || '',
+                                down: comp?.situation?.down || 0,
+                                possession: game.possession || null
+                            });
+
+                            // Queue animation detection for after render (NFL, NCAA football, and NHL)
+                            if (league === 'nfl' || league === 'ncaa' || league === 'nhl') {
+                                pendingAnimations.push({ gameId: game.id, game, comp, prevData, league });
+                            }
+                        }
+                    });
+                } catch (err) {
+                    console.error(`Failed to refresh ${league} games:`, err);
+                }
+            }
+
+            // Re-render grid with updated data
+            renderGrid();
+
+            // Apply pending animations AFTER render so cards exist in DOM
+            pendingAnimations.forEach(({ gameId, game, comp, prevData, league }) => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+                if (card) {
+                    if (league === 'nhl') {
+                        detectNHLPlayEvents(card, game, comp, prevData);
+                    } else {
+                        detectPlayEvents(card, game, comp, prevData);
+                    }
+                }
+            });
+
+            // Update stats modals for NFL games (show/hide based on play state)
+            updateStatsModals();
+
+            // Update localStorage so Home has latest data
+            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));
+        }
+
+        function updateGameFromEvent(game, event) {
+            const comp = event.competitions?.[0];
+            if (!comp) return;
+
+            game.state = comp.status?.type?.state || event.status?.type?.state;
+            game.status = comp.status?.type?.shortDetail || game.status;
+
+            // Update scores
+            const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+            const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+
+            if (homeTeam) {
+                game.home.score = parseInt(homeTeam.score || 0);
+                game.home.winner = homeTeam.winner || false;
+            }
+            if (awayTeam) {
+                game.away.score = parseInt(awayTeam.score || 0);
+                game.away.winner = awayTeam.winner || false;
+            }
+
+            // Football-specific data (NFL and NCAA)
+            if (game.league === 'nfl' || game.league === 'ncaa') {
+                const situation = comp.situation;
+
+                if (situation) {
+                    // Check if game is in intermission (halftime, end of quarter)
+                    // During intermission, possession and possessionText are not present
+                    const lastPlayType = situation.lastPlay?.type?.text?.toLowerCase() || '';
+                    const isIntermission = !situation.possession ||
+                        lastPlayType.includes('end of half') ||
+                        lastPlayType.includes('end of quarter') ||
+                        lastPlayType.includes('end quarter');
+
+                    // Possession
+                    const possessionTeamId = situation.possession;
+                    if (possessionTeamId) {
+                        if (homeTeam && possessionTeamId === homeTeam.id) {
+                            game.possession = 'home';
+                        } else if (awayTeam && possessionTeamId === awayTeam.id) {
+                            game.possession = 'away';
+                        }
+                    } else {
+                        game.possession = null;
+                    }
+
+                    // Down and distance - use full text from API which includes field position
+                    // Validate that down is 1-4 and distance is positive
+                    // Don't set during intermissions (halftime, end of quarter)
+                    const isValidDown = situation.down >= 1 && situation.down <= 4;
+                    const isValidDistance = situation.distance > 0;
+
+                    if (isIntermission) {
+                        // Clear down/distance during intermissions
+                        game.downDistance = null;
+                        game.fieldPosition = null;
+                    } else if (situation.downDistanceText && !situation.downDistanceText.includes('-1') && isValidDown) {
+                        game.downDistance = situation.downDistanceText;
+                    } else if (situation.shortDownDistanceText && !situation.shortDownDistanceText.includes('-1') && isValidDown) {
+                        game.downDistance = situation.shortDownDistanceText;
+                    } else if (isValidDown && isValidDistance && situation.possessionText) {
+                        // Only build manual downDistance if we have possessionText (active play)
+                        const downSuffix = getDownSuffix(situation.down);
+                        game.downDistance = `${situation.down}${downSuffix} & ${situation.distance}`;
+                    } else {
+                        game.downDistance = null;
+                    }
+
+                    // Yard line and field position
+                    game.yardLine = situation.yardLine;
+                    game.yardsToGo = situation.distance;
+                    game.possessionOnOwn = situation.isRedZone === false; // Rough approximation
+
+                    // Field position text
+                    if (situation.possessionText && !isIntermission) {
+                        game.fieldPosition = situation.possessionText;
+                    } else if (isIntermission) {
+                        game.fieldPosition = null;
+                    }
+
+                    // Timeouts
+                    if (homeTeam) {
+                        const homeLinescores = homeTeam.linescores;
+                        game.home.timeouts = extractTimeouts(homeTeam, situation, 'home');
+                    }
+                    if (awayTeam) {
+                        game.away.timeouts = extractTimeouts(awayTeam, situation, 'away');
+                    }
+                } else {
+                    // Clear football-specific data if no situation
+                    game.possession = null;
+                    game.downDistance = null;
+                    game.yardLine = undefined;
+                    game.fieldPosition = null;
+                }
+            }
+        }
+
+        function getDownSuffix(down) {
+            switch (down) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+            }
+        }
+
+        function extractTimeouts(team, situation, homeAway) {
+            // Try to get timeouts from situation
+            if (situation) {
+                if (homeAway === 'home' && situation.homeTimeouts !== undefined) {
+                    return situation.homeTimeouts;
+                }
+                if (homeAway === 'away' && situation.awayTimeouts !== undefined) {
+                    return situation.awayTimeouts;
+                }
+            }
+            // Default to 3 if not available
+            return 3;
+        }
+
+        // ============================================
+        // EXIT MODAL
+        // ============================================
+        function showExitModal() {
+            isModalOpen = true;
+            document.getElementById('exit-modal').classList.add('visible');
+            document.getElementById('back-btn')// focused class removed for desktop;
+            setModalFocus(0);
+        }
+
+        function hideExitModal() {
+            isModalOpen = false;
+            document.getElementById('exit-modal').classList.remove('visible');
+            document.getElementById('back-btn')// focused class removed for desktop;
+            document.getElementById('back-btn').focus();
+        }
+
+        function setModalFocus(index) {
+            modalFocusIndex = index;
+            const confirmBtn = document.getElementById('confirm-exit');
+            const cancelBtn = document.getElementById('cancel-exit');
+
+            confirmBtn// focused class removed for desktop;
+            cancelBtn// focused class removed for desktop;
+
+            if (index === 0) {
+                confirmBtn// focused class removed for desktop;
+                confirmBtn.focus();
+            } else {
+                cancelBtn// focused class removed for desktop;
+                cancelBtn.focus();
+            }
+        }
+
+        function confirmExit() {
+            // Clear refresh interval
+            if (refreshInterval) clearInterval(refreshInterval);
+
+            // Navigate back to Home with selections preserved
+            window.location.href = '/index?restoreSelections=1';
+        }
+
+        // ============================================
+        // KEYBOARD NAVIGATION
+        // ============================================
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', handleKeyDown);
+
+            // Click handlers
+            document.getElementById('back-btn').addEventListener('click', showExitModal);
+            document.getElementById('confirm-exit').addEventListener('click', confirmExit);
+            document.getElementById('cancel-exit').addEventListener('click', hideExitModal);
+        }
+
+        function handleKeyDown(e) {
+            if (isModalOpen) {
+                handleModalKeyDown(e);
+            } else {
+                handleMainKeyDown(e);
+            }
+        }
+
+        function handleMainKeyDown(e) {
+            const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
+                e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
+            const isBackKey = e.key === 'Escape' || e.key === 'GoBack' ||
+                e.keyCode === 27 || e.keyCode === 4;
+
+            if (isEnterKey || isBackKey) {
+                e.preventDefault();
+                showExitModal();
+            }
+        }
+
+        function handleModalKeyDown(e) {
+            const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
+                e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
+            const isBackKey = e.key === 'Escape' || e.key === 'GoBack' ||
+                e.keyCode === 27 || e.keyCode === 4;
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                case 'Left':
+                    e.preventDefault();
+                    setModalFocus(0);
+                    break;
+
+                case 'ArrowRight':
+                case 'Right':
+                    e.preventDefault();
+                    setModalFocus(1);
+                    break;
+            }
+
+            if (isEnterKey) {
+                e.preventDefault();
+                if (modalFocusIndex === 0) {
+                    confirmExit();
+                } else {
+                    hideExitModal();
+                }
+            }
+
+            if (isBackKey) {
+                e.preventDefault();
+                hideExitModal();
+            }
+        }
+
+        // ============================================
+        // DESKTOP MOUSE/TOUCH EVENT HANDLERS
+        // ============================================
+        document.addEventListener('click', function (e) {
+            // Handle league card clicks
+            const leagueCard = e.target.closest('.league-card');
+            if (leagueCard) {
+                const league = leagueCard.dataset.league;
+                const action = leagueCard.dataset.action;
+                if (action === 'phone-connect') {
+                    openPage('/tv-receiver.html');
+                } else if (league) {
+                    selectLeague(league);
+                }
+                return;
+            }
+
+            // Handle game card clicks
+            const gameCard = e.target.closest('.game-card');
+            if (gameCard && gameCard.dataset.game) {
+                const game = JSON.parse(gameCard.dataset.game);
+                toggleGameSelection(gameCard, game);
+                return;
+            }
+
+            // Handle sports mode button
+            if (e.target.closest('#sports-mode-btn')) {
+                enterSportsBarMode();
+                return;
+            }
+
+            // Handle clear selections button
+            if (e.target.closest('#clear-selections-btn')) {
+                clearSportsBarSelections();
+                return;
+            }
+
+            // Handle sign out
+            if (e.target.closest('#sign-out-btn')) {
+                signOut();
+                return;
+            }
+        });
+
+        // Add hover effects for desktop
+        document.addEventListener('mouseover', function (e) {
+            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .clear-selections-btn');
+            if (card) {
+                card.classList.add('hovered');
+            }
+        });
+
+        document.addEventListener('mouseout', function (e) {
+            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .clear-selections-btn');
+            if (card) {
+                card.classList.remove('hovered');
+            }
+        });
+
+    </script>
+
+    <!-- Mobile Fullscreen Paging Script -->
+    <script src="/js/mobile-fullscreen-paging.js"></script>
+</body>
+
+</html>
