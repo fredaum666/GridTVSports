@@ -38,6 +38,8 @@
     <application
         android:isGame="false"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true"
         android:icon="@mipmap/ic_launcher"
         android:banner="@drawable/banner"
         android:roundIcon="@mipmap/ic_launcher_round"

@@ -83,6 +83,43 @@
 }
 
 /* ============================================
+   TV PERFORMANCE OPTIMIZATIONS
+   ============================================
+   These optimizations improve rendering performance
+   on Android TV and other low-powered devices.
+   ============================================ */
+
+/* CSS Containment - Isolate layout/paint calculations */
+.fullscreen-grid {
+  contain: layout style paint;
+}
+
+.fullscreen-game-card,
+.fullscreen-game-slot {
+  contain: layout style;
+  will-change: transform, opacity;
+}
+
+/* TV Mode - Optimized transitions for smoother animations */
+body.tv-mode .fullscreen-game-card,
+body.tv-mode .fullscreen-game-slot {
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+/* TV Mode - Reduce animation complexity on focus */
+body.tv-mode .fullscreen-game-card:focus,
+body.tv-mode .fullscreen-game-card.focused {
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+
+/* GPU-accelerated transforms for card elements */
+.fs-card-team-logo,
+.fullscreen-team-logo {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ============================================
    2. FULLSCREEN CONTAINER & CONTROLS
    ============================================ */
 

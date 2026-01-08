@@ -206,6 +206,9 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Screen: ${screenWidth}x${screenHeight}, Density: $density")
         Log.d("MainActivity", "CSS Viewport will be: ${(screenWidth / density).toInt()}x${(screenHeight / density).toInt()}")
 
+        // Enable hardware acceleration for smoother rendering
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+
         // Enable WebView debugging only for debug builds
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
@@ -218,8 +221,8 @@ class MainActivity : AppCompatActivity() {
             // Enable DOM storage for localStorage
             domStorageEnabled = true
 
-            // Enable cache
-            cacheMode = WebSettings.LOAD_DEFAULT
+            // Performance: Use aggressive caching for faster loads
+            cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
 
             // Allow media playback
             mediaPlaybackRequiresUserGesture = false
@@ -235,6 +238,12 @@ class MainActivity : AppCompatActivity() {
 
             // Disable text auto-sizing
             textZoom = 100
+
+            // Performance: Pre-raster tiles for smoother scrolling (API 23+)
+            offscreenPreRaster = true
+
+            // Performance: Disable safe browsing for faster page loads
+            safeBrowsingEnabled = false
 
             // Configure zoom based on device type
             if (isTV) {
