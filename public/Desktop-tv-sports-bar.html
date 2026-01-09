@@ -2418,7 +2418,7 @@
 
             // FALLBACK: Use mock live NFL games when no games are selected
             // This allows testing layouts directly without selecting games
-            const USE_MOCK_DATA = true; // Set to false to disable mock fallback
+            const USE_MOCK_DATA = false; // Set to false to disable mock fallback
 
             if (USE_MOCK_DATA && games.length === 0) {
                 usingMockData = true;

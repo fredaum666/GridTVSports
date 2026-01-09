@@ -2913,13 +2913,7 @@
 
             renderGrid();
             setupKeyboardNavigation();
-
-            // Only start auto-refresh if NOT using mock data
-            if (!usingMockData) {
-                startAutoRefresh();
-            } else {
-                console.log('📺 Mock data mode - auto-refresh disabled');
-            }
+            startAutoRefresh();
 
             // Update stats modals for NFL games
             updateStatsModals();
@@ -2955,10 +2949,10 @@
 
             // FALLBACK: Use mock live NFL games when no games are selected
             // This allows testing layouts directly without selecting games
-            const USE_MOCK_DATA = true; // Set to false to disable mock fallback
+            const USE_MOCK_DATA = false; // Set to false to disable mock fallback
 
             if (USE_MOCK_DATA && games.length === 0) {
-                usingMockData = true;
+                usingMockData = false;
                 games = [
                     {
                         id: 'mock1',
