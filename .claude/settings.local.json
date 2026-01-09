@@ -30,7 +30,9 @@
       "Bash(taskkill:*)",
       "Bash(cd:*)",
       "Bash(tree:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(chmod:*)",
+      "Bash(./generate-icons.sh:*)"
     ],
     "deny": [],
     "ask": []
