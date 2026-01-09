@@ -3895,9 +3895,14 @@
                 events.push({ type: 'safety', text: 'SAFETY!', teamName: safetyTeam, isNegated });
             }
 
-            // FIELD GOAL
-            if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
-                lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good')) {
+            // FIELD GOAL - check for "good" but not "no good"
+            const isFGAttempt = lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ');
+            const isFGGood = lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good');
+            const isFGMissed = lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
+                lowerLastPlay.includes('wide left') || lowerLastPlay.includes('wide right') ||
+                lowerLastPlay.includes('short') || lowerLastPlay.includes('blocked');
+
+            if (isFGAttempt && isFGGood && !isFGMissed) {
                 let fgTeam = '';
                 if (awayScoreChange === 3) fgTeam = awayName;
                 else if (homeScoreChange === 3) fgTeam = homeName;
@@ -3905,10 +3910,7 @@
             }
 
             // MISSED FIELD GOAL
-            if ((lowerLastPlay.includes('field goal') || lowerLastPlay.includes(' fg ')) &&
-                (lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
-                    lowerLastPlay.includes('wide') || lowerLastPlay.includes('short') || lowerLastPlay.includes('blocked')) &&
-                !lowerLastPlay.includes('touchdown')) {
+            if (isFGAttempt && isFGMissed && !lowerLastPlay.includes('touchdown')) {
                 events.push({ type: 'missed-kick', text: lowerLastPlay.includes('blocked') ? 'BLOCKED FG!' : 'MISSED FG!', teamName: '', isNegated });
             }
 
