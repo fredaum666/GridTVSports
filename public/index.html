@@ -1807,6 +1807,30 @@
             font-weight: 500;
         }
 
+        /* Mock game selector - only visible in mock mode */
+        .mock-game-selector {
+            display: none;
+            padding: 12px 16px;
+            min-height: 48px;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mock-game-selector:hover {
+            background: linear-gradient(180deg, #fcd34d 0%, #fbbf24 100%);
+            transform: translateY(-2px);
+        }
+
+        .mock-game-selector.visible {
+            display: block;
+        }
+
         /* Cast to TV button - Blue/Purple */
         .cast-to-tv-btn {
             background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
@@ -1832,27 +1856,45 @@
                 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
-        /* Clear Selections button - Subtle/Secondary */
+        /* Clear Selections button - Gray when inactive, Red when active (has selections) */
         .clear-selections-btn {
             background: linear-gradient(180deg, #4b5563 0%, #374151 100%);
-            color: #f3f4f6;
+            color: #9ca3af;
             box-shadow:
                 0 4px 14px rgba(0, 0, 0, 0.3),
                 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .clear-selections-btn:hover,
-        .clear-selections-btn.focused {
+        /* Active state - Red when games are selected */
+        .clear-selections-btn.active {
             background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
             color: #ffffff;
-            transform: translateY(-2px);
             box-shadow:
-                0 6px 20px rgba(239, 68, 68, 0.4),
+                0 4px 14px rgba(239, 68, 68, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .clear-selections-btn:hover,
+        .clear-selections-btn.focused {
+            transform: translateY(-2px);
+        }
+
+        .clear-selections-btn.active:hover,
+        .clear-selections-btn.active.focused {
+            background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+            box-shadow:
+                0 6px 20px rgba(239, 68, 68, 0.5),
                 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .clear-selections-btn:active {
             transform: translateY(0);
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.3),
+                0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .clear-selections-btn.active:active {
             box-shadow:
                 0 2px 8px rgba(239, 68, 68, 0.3),
                 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -3319,6 +3361,17 @@
                     <span>Enter Sports Bar Mode</span>
                     <span class="selection-count" id="selection-count">(0 games)</span>
                 </button>
+                <!-- Mock data game count selector (only visible in mock mode with no selections) -->
+                <select class="mock-game-selector" id="mock-game-selector" data-row="sports-mode">
+                    <option value="1">1 Game</option>
+                    <option value="2">2 Games</option>
+                    <option value="3">3 Games</option>
+                    <option value="4">4 Games</option>
+                    <option value="5">5 Games</option>
+                    <option value="6">6 Games</option>
+                    <option value="7">7 Games</option>
+                    <option value="8" selected>8 Games</option>
+                </select>
                 <button class="cast-to-tv-btn focusable" id="cast-to-tv-btn" data-row="sports-mode">
                     <span>📺 Cast to TV</span>
                 </button>
@@ -3453,7 +3506,27 @@
 
         // Sports Bar Mode - Multi-select state
         let selectedGamesForSportsBar = [];
-        const MAX_SPORTS_BAR_SELECTIONS = 8;
+
+        // Tablet detection - tablets have max 7 games, grids 5-7 only in landscape
+        function isTabletDevice() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const minDimension = Math.min(width, height);
+            const maxDimension = Math.max(width, height);
+            // Tablet: 768px - 1366px range
+            return minDimension >= 768 && maxDimension <= 1366;
+        }
+
+        function isLandscapeOrientation() {
+            return window.innerWidth > window.innerHeight;
+        }
+
+        const IS_TABLET = isTabletDevice();
+        const MAX_SPORTS_BAR_SELECTIONS = IS_TABLET ? 7 : 8;
+
+        // MOCK DATA MODE - When true, shows "Enter Sports Bar Mode" button even with no selections
+        // This allows testing layouts directly since mock data loads when no games are selected
+        const USE_MOCK_DATA_MODE = true; // Set to false for production
 
         // ============================================
         // HELPER FUNCTIONS
@@ -3770,6 +3843,10 @@
             }
 
             initHomeNavigation();
+
+            // Show sports mode button if mock data mode is enabled (for testing layouts)
+            updateSportsModeButton();
+
             fetchAllGames().then(() => {
                 // After games are loaded, restore selections if returning from Sports Bar
                 if (restoreSelections) {
@@ -3969,13 +4046,30 @@
         function updateSportsModeButton() {
             const container = document.getElementById('sports-mode-container');
             const countEl = document.getElementById('selection-count');
+            const mockSelector = document.getElementById('mock-game-selector');
+            const clearBtn = document.getElementById('clear-selections-btn');
 
             if (selectedGamesForSportsBar.length > 0) {
                 container.classList.add('visible');
                 const plural = selectedGamesForSportsBar.length === 1 ? 'game' : 'games';
                 countEl.textContent = `(${selectedGamesForSportsBar.length} ${plural})`;
+                // Hide mock selector when real games are selected
+                mockSelector.classList.remove('visible');
+                // Make clear button red (active) when games are selected
+                clearBtn.classList.add('active');
+            } else if (USE_MOCK_DATA_MODE) {
+                // Show button with mock data indicator when no games selected but mock mode is on
+                container.classList.add('visible');
+                countEl.textContent = '(Mock Data)';
+                // Show mock selector to choose number of games
+                mockSelector.classList.add('visible');
+                // Clear button stays gray when no real selections
+                clearBtn.classList.remove('active');
             } else {
                 container.classList.remove('visible');
+                mockSelector.classList.remove('visible');
+                // Clear button is gray when no selections
+                clearBtn.classList.remove('active');
             }
 
             // Update navigation rows to include/exclude the button
@@ -4014,10 +4108,20 @@
         }
 
         function enterSportsBarMode() {
-            if (selectedGamesForSportsBar.length === 0) return;
+            // Allow entering with no selections when mock data mode is enabled
+            if (selectedGamesForSportsBar.length === 0 && !USE_MOCK_DATA_MODE) return;
 
-            // Save selections to localStorage for sports-bar page
-            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(selectedGamesForSportsBar));
+            // Save selections to localStorage for sports-bar page (or clear if using mock data)
+            if (selectedGamesForSportsBar.length > 0) {
+                localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(selectedGamesForSportsBar));
+                localStorage.removeItem('gridtv_mock_game_count'); // Clear mock count when using real selections
+            } else {
+                // Clear localStorage so mock data will load
+                localStorage.removeItem('gridtv_sports_bar_games');
+                // Save the selected mock game count
+                const mockSelector = document.getElementById('mock-game-selector');
+                localStorage.setItem('gridtv_mock_game_count', mockSelector.value);
+            }
 
             // Device detection - route to appropriate sports bar page
             const screenWidth = window.innerWidth;

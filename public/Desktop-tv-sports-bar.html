@@ -7,6 +7,7 @@
     <title>GridTV Sports - Sports Bar</title>
     <link rel="icon" type="image/png" href="/assets/logo.png">
     <link rel="stylesheet" href="/styles/fullscreen-cards.css">
+    <link rel="stylesheet" href="/styles/tablet-fullscreen.css">
     <link rel="stylesheet" href="/styles/play-animations.css">
     <style>
         /* ================================ */
@@ -637,8 +638,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 12px;
+            padding: 2px;
             gap: 8px;
+        }
+
+        /* Tablet top clock - hidden by default, shown only via tablet-fullscreen.css for tablet portrait grid-4 */
+        .tablet-top-clock {
+            display: none;
         }
 
         /* Scoreboard top section - mirrors scoreboard layout below */
@@ -662,7 +668,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: clamp(8px, 2vmin, 16px);
+            padding: clamp(8px, 2vmin, 6px);
             /* border: 1px solid red; */
             /* Debug */
         }
@@ -1921,7 +1927,7 @@
             }
 
             .fs-scoreboard-top {
-                width: 95%;
+                width: 80%;
             }
 
             .fs-sb-team-name {
@@ -2342,8 +2348,12 @@
         // ============================================
         // INITIALIZATION
         // ============================================
+        // Store original games for orientation changes
+        let originalGames = [];
+
         document.addEventListener('DOMContentLoaded', () => {
             loadGames();
+            originalGames = [...games]; // Store original games before any tablet restrictions
 
             if (games.length === 0) {
                 showEmptyState();
@@ -2352,23 +2362,172 @@
 
             renderGrid();
             setupKeyboardNavigation();
-            startAutoRefresh();
+
+            // Only start auto-refresh if NOT using mock data
+            if (!usingMockData) {
+                startAutoRefresh();
+            } else {
+                console.log('📺 Mock data mode - auto-refresh disabled');
+            }
 
             // Update stats modals for NFL games
             updateStatsModals();
 
             // Focus back button
             document.getElementById('back-btn').focus();
+
+            // Handle orientation changes for tablet (re-render grid when rotating)
+            if (isTabletDevice()) {
+                window.addEventListener('orientationchange', () => {
+                    // Restore original games and re-apply tablet restrictions
+                    setTimeout(() => {
+                        games = [...originalGames];
+                        renderGrid();
+                    }, 100); // Small delay for orientation to settle
+                });
+
+                // Also handle resize for desktop browser testing
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        games = [...originalGames];
+                        renderGrid();
+                    }, 250);
+                });
+            }
         });
 
+        // Track if mock data is being used (to disable auto-refresh)
+        let usingMockData = false;
+
         function loadGames() {
+            // First try to load from localStorage (user-selected games)
             const saved = localStorage.getItem('gridtv_sports_bar_games');
             if (saved) {
                 try {
                     games = JSON.parse(saved);
+                    if (games.length > 0) {
+                        usingMockData = false;
+                        return; // User has selected games, use those
+                    }
                 } catch (e) {
                     games = [];
                 }
+            }
+
+            // FALLBACK: Use mock live NFL games when no games are selected
+            // This allows testing layouts directly without selecting games
+            const USE_MOCK_DATA = true; // Set to false to disable mock fallback
+
+            if (USE_MOCK_DATA && games.length === 0) {
+                usingMockData = true;
+                games = [
+                    {
+                        id: 'mock1',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '3rd 8:42',
+                        away: { abbr: 'GB', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png', score: 21, record: '9-7-1', timeouts: 2 },
+                        home: { abbr: 'CHI', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png', score: 17, record: '11-6', timeouts: 1 },
+                        possession: 'away',
+                        downDistance: '2nd & 7',
+                        fieldPosition: 'CHI 35',
+                        yardLine: 35,
+                        yardsToGo: 7,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock2',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '4th 2:00',
+                        away: { abbr: 'BUF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png', score: 28, record: '12-5', timeouts: 0 },
+                        home: { abbr: 'JAX', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png', score: 24, record: '13-4', timeouts: 3 },
+                        possession: 'home',
+                        downDistance: '1st & 10',
+                        fieldPosition: 'BUF 15',
+                        yardLine: 15,
+                        yardsToGo: 10,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock3',
+                        league: 'nfl',
+                        state: 'in', // LIVE - Red Zone!
+                        status: '2nd 5:30',
+                        away: { abbr: 'KC', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png', score: 14, record: '10-7', timeouts: 3 },
+                        home: { abbr: 'MIA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png', score: 10, record: '8-9', timeouts: 2 },
+                        possession: 'away',
+                        downDistance: '3rd & Goal',
+                        fieldPosition: 'MIA 5',
+                        yardLine: 5,
+                        yardsToGo: 5,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock4',
+                        league: 'nfl',
+                        state: 'pre', // Upcoming
+                        status: '1/12 4:30 PM EST',
+                        away: { abbr: 'DAL', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png', score: '-', record: '7-10' },
+                        home: { abbr: 'PHI', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png', score: '-', record: '11-6' }
+                    },
+                    {
+                        id: 'mock5',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '1st 12:00',
+                        away: { abbr: 'SF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png', score: 7, record: '11-6', timeouts: 3 },
+                        home: { abbr: 'SEA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png', score: 0, record: '9-8', timeouts: 3 },
+                        possession: 'home',
+                        downDistance: '2nd & 5',
+                        fieldPosition: 'SEA 40',
+                        yardLine: 40,
+                        yardsToGo: 5,
+                        possessionOnOwn: true
+                    },
+                    {
+                        id: 'mock6',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '2nd 3:15',
+                        away: { abbr: 'LA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png', score: 10, record: '12-5', timeouts: 2 },
+                        home: { abbr: 'CAR', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/car.png', score: 7, record: '8-9', timeouts: 3 },
+                        possession: 'away',
+                        downDistance: '3rd & 3',
+                        fieldPosition: 'CAR 42',
+                        yardLine: 42,
+                        yardsToGo: 3,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock7',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: 'Half',
+                        away: { abbr: 'DEN', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/den.png', score: 14, record: '10-7', timeouts: 3 },
+                        home: { abbr: 'LV', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png', score: 14, record: '9-8', timeouts: 3 }
+                    },
+                    {
+                        id: 'mock8',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '4th 0:30',
+                        away: { abbr: 'NYG', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png', score: 20, record: '6-11', timeouts: 0 },
+                        home: { abbr: 'WAS', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png', score: 24, record: '11-6', timeouts: 1 },
+                        possession: 'away',
+                        downDistance: '4th & 15',
+                        fieldPosition: 'NYG 25',
+                        yardLine: 25,
+                        yardsToGo: 15,
+                        possessionOnOwn: true
+                    }
+                ];
+
+                // Limit to selected mock game count from index page
+                const mockGameCount = parseInt(localStorage.getItem('gridtv_mock_game_count')) || 8;
+                games = games.slice(0, mockGameCount);
             }
         }
 
@@ -2389,9 +2548,41 @@
         // ============================================
         // RENDER GRID
         // ============================================
+
+        // Tablet detection for grid restrictions
+        function isTabletDevice() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const minDimension = Math.min(width, height);
+            const maxDimension = Math.max(width, height);
+            // Tablet: 768px - 1366px range
+            return minDimension >= 768 && maxDimension <= 1366;
+        }
+
+        function isLandscapeOrientation() {
+            return window.innerWidth > window.innerHeight;
+        }
+
         function renderGrid() {
             const grid = document.getElementById('fullscreen-grid');
-            const count = games.length;
+            let count = games.length;
+
+            // Tablet restrictions: max 7 games, grids 5-7 only in landscape
+            const isTablet = isTabletDevice();
+            if (isTablet) {
+                // Limit to max 7 games for tablet
+                if (count > 7) {
+                    count = 7;
+                    games = games.slice(0, 7);
+                }
+
+                // Grids 5, 6, 7 only work in landscape on tablet
+                // In portrait, cap at 4 games
+                if (!isLandscapeOrientation() && count >= 5) {
+                    count = 4;
+                    games = games.slice(0, 4);
+                }
+            }
 
             // Set grid class based on count
             grid.className = `fullscreen-grid grid-${count}`;
@@ -2480,11 +2671,17 @@
             // Build field visualizer for NFL/NCAA (only show when situation box is showing, hide during intermissions)
             let fieldVisualizerHTML = '';
             if (isFootball && isLive && game.downDistance && game.fieldPosition && !isIntermission) {
+                // Get team primary colors for endzones
+                const awayEndzoneColor = awayColors.primary;
+                const homeEndzoneColor = homeColors.primary;
+
                 fieldVisualizerHTML = `
                     <div class="field-visualizer">
-                        <div class="field-container">
+                        <div class="field-container" style="--away-primary-color: ${awayEndzoneColor}; --home-primary-color: ${homeEndzoneColor};">
                             <div class="yard-markers">
-                                <div class="yard-marker endzone"><span class="yard-label">0</span></div>
+                                <div class="yard-marker endzone away-endzone">
+                                    <span class="endzone-text">${game.away.abbr}</span>
+                                </div>
                                 <div class="yard-marker"><span class="yard-label">10</span></div>
                                 <div class="yard-marker"><span class="yard-label">20</span></div>
                                 <div class="yard-marker"><span class="yard-label">30</span></div>
@@ -2494,7 +2691,9 @@
                                 <div class="yard-marker"><span class="yard-label">30</span></div>
                                 <div class="yard-marker"><span class="yard-label">20</span></div>
                                 <div class="yard-marker"><span class="yard-label">10</span></div>
-                                <div class="yard-marker endzone"><span class="yard-label">0</span></div>
+                                <div class="yard-marker endzone home-endzone">
+                                    <span class="endzone-text">${game.home.abbr}</span>
+                                </div>
                             </div>
                             <div class="ball-indicator"></div>
                             <div class="first-down-line"></div>
@@ -2514,6 +2713,18 @@
                 <div class="${cardClass}" data-game-id="${game.id}" data-league="${game.league}">
                     <img class="sport-logo-indicator" src="${leagueLogo}" alt="${game.league.toUpperCase()}">
                     <div class="fullscreen-refresh-indicator"></div>
+
+                    <!-- Tablet clock (top-center of card, hidden by default - shown only for tablet portrait grid-4) -->
+                    <div class="tablet-top-clock">
+                        <div class="fs-sb-time-box">
+                            ${isFinal ? `
+                                <div class="fs-sb-time" style="font-size: clamp(0.8rem, 2.2vmin, 1.1rem);">FINAL</div>
+                            ` : `
+                                <div class="fs-sb-time-label">${statusParts.period || (isUpcoming ? 'STARTS' : '')}</div>
+                                <div class="fs-sb-time">${statusParts.time || displayStatus}</div>
+                            `}
+                        </div>
+                    </div>
 
                     <div class="fs-card-wrapper">
                         <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->

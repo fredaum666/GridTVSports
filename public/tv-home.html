@@ -2066,27 +2066,45 @@
             font-weight: 500;
         }
 
-        /* Clear Selections button - Subtle/Secondary */
+        /* Clear Selections button - Gray when inactive, Red when active (has selections) */
         .clear-selections-btn {
             background: linear-gradient(180deg, #4b5563 0%, #374151 100%);
-            color: #f3f4f6;
+            color: #9ca3af;
             box-shadow:
                 0 4px 14px rgba(0, 0, 0, 0.3),
                 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .clear-selections-btn:hover,
-        .clear-selections-btn.focused {
+        /* Active state - Red when games are selected */
+        .clear-selections-btn.active {
             background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
             color: #ffffff;
-            transform: translateY(-2px);
             box-shadow:
-                0 6px 20px rgba(239, 68, 68, 0.4),
+                0 4px 14px rgba(239, 68, 68, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .clear-selections-btn:hover,
+        .clear-selections-btn.focused {
+            transform: translateY(-2px);
+        }
+
+        .clear-selections-btn.active:hover,
+        .clear-selections-btn.active.focused {
+            background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+            box-shadow:
+                0 6px 20px rgba(239, 68, 68, 0.5),
                 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .clear-selections-btn:active {
             transform: translateY(0);
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.3),
+                0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .clear-selections-btn.active:active {
             box-shadow:
                 0 2px 8px rgba(239, 68, 68, 0.3),
                 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -3870,13 +3888,18 @@
         function updateSportsModeButton() {
             const container = document.getElementById('sports-mode-container');
             const countEl = document.getElementById('selection-count');
+            const clearBtn = document.getElementById('clear-selections-btn');
 
             if (selectedGamesForSportsBar.length > 0) {
                 container.classList.add('visible');
                 const plural = selectedGamesForSportsBar.length === 1 ? 'game' : 'games';
                 countEl.textContent = `(${selectedGamesForSportsBar.length} ${plural})`;
+                // Make clear button red (active) when games are selected
+                clearBtn.classList.add('active');
             } else {
                 container.classList.remove('visible');
+                // Clear button is gray when no selections
+                clearBtn.classList.remove('active');
             }
 
             // Update navigation rows to include/exclude the button

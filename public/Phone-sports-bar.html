@@ -2913,7 +2913,13 @@
 
             renderGrid();
             setupKeyboardNavigation();
-            // startAutoRefresh(); // Disabled for now
+
+            // Only start auto-refresh if NOT using mock data
+            if (!usingMockData) {
+                startAutoRefresh();
+            } else {
+                console.log('📺 Mock data mode - auto-refresh disabled');
+            }
 
             // Update stats modals for NFL games
             updateStatsModals();
@@ -2929,11 +2935,30 @@
             });
         });
 
-        function loadGames() {
-            // TEMPORARY: Use mock live NFL games for testing layout
-            const USE_MOCK_DATA = true; // Set to true to use mock data
+        // Track if mock data is being used (to disable auto-refresh)
+        let usingMockData = false;
 
-            if (USE_MOCK_DATA) {
+        function loadGames() {
+            // First try to load from localStorage (user-selected games)
+            const saved = localStorage.getItem('gridtv_sports_bar_games');
+            if (saved) {
+                try {
+                    games = JSON.parse(saved);
+                    if (games.length > 0) {
+                        usingMockData = false;
+                        return; // User has selected games, use those
+                    }
+                } catch (e) {
+                    games = [];
+                }
+            }
+
+            // FALLBACK: Use mock live NFL games when no games are selected
+            // This allows testing layouts directly without selecting games
+            const USE_MOCK_DATA = true; // Set to false to disable mock fallback
+
+            if (USE_MOCK_DATA && games.length === 0) {
+                usingMockData = true;
                 games = [
                     {
                         id: 'mock1',
@@ -3000,16 +3025,10 @@
                         possessionOnOwn: true
                     }
                 ];
-                return;
-            }
 
-            const saved = localStorage.getItem('gridtv_sports_bar_games');
-            if (saved) {
-                try {
-                    games = JSON.parse(saved);
-                } catch (e) {
-                    games = [];
-                }
+                // Limit to selected mock game count from index page
+                const mockGameCount = parseInt(localStorage.getItem('gridtv_mock_game_count')) || 8;
+                games = games.slice(0, mockGameCount);
             }
         }
 
