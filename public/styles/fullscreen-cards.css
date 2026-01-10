@@ -80,6 +80,59 @@
   --fs-field-height-min: 30px;
   --fs-field-height-preferred: 6vh;
   --fs-field-height-max: 50px;
+
+  /* Field Visualizer Height for Grid-1 (thicker field) */
+  --fs-field-height-grid-1-min: 45px;
+  --fs-field-height-grid-1-preferred: 9vh;
+  --fs-field-height-grid-1-max: 75px;
+
+  /* ============================================
+     FIELD VISUALIZER WIDTH VARIABLES
+     Customize field width for each grid layout,
+     device type, and orientation
+     ============================================ */
+
+  /* Desktop - Field Width by Grid Layout */
+  --fs-field-width-grid-1: 85%;
+  --fs-field-width-grid-2: 95%;
+  --fs-field-width-grid-3: 90%;
+  --fs-field-width-grid-4: 90%;
+  --fs-field-width-grid-5: 88%;
+  --fs-field-width-grid-6: 88%;
+  --fs-field-width-grid-7: 85%;
+  --fs-field-width-grid-8: 85%;
+  --fs-field-width-grid-9: 85%;
+
+  /* Tablet Portrait - Field Width by Grid Layout */
+  --fs-field-width-tablet-portrait-grid-1: 90%;
+  --fs-field-width-tablet-portrait-grid-2: 92%;
+  --fs-field-width-tablet-portrait-grid-3: 90%;
+  --fs-field-width-tablet-portrait-grid-4: 88%;
+  --fs-field-width-tablet-portrait-grid-5: 88%;
+  --fs-field-width-tablet-portrait-grid-6: 85%;
+  --fs-field-width-tablet-portrait-grid-7: 85%;
+  --fs-field-width-tablet-portrait-grid-8: 82%;
+
+  /* Tablet Landscape - Field Width by Grid Layout */
+  --fs-field-width-tablet-landscape-grid-1: 85%;
+  --fs-field-width-tablet-landscape-grid-2: 95%;
+  --fs-field-width-tablet-landscape-grid-3: 92%;
+  --fs-field-width-tablet-landscape-grid-4: 90%;
+  --fs-field-width-tablet-landscape-grid-5: 90%;
+  --fs-field-width-tablet-landscape-grid-6: 88%;
+  --fs-field-width-tablet-landscape-grid-7: 88%;
+
+  /* Phone Portrait - Field Width by Grid Layout */
+  --fs-field-width-phone-portrait-grid-1: 95%;
+  --fs-field-width-phone-portrait-grid-2: 92%;
+  --fs-field-width-phone-portrait-grid-3: 90%;
+  --fs-field-width-phone-portrait-grid-4: 88%;
+
+  /* Phone Landscape - Field Width by Grid Layout */
+  --fs-field-width-phone-landscape-grid-1: 90%;
+  --fs-field-width-phone-landscape-grid-2: 95%;
+  --fs-field-width-phone-landscape-grid-3: 92%;
+  --fs-field-width-phone-landscape-grid-4: 90%;
 }
 
 /* ============================================
@@ -304,6 +357,46 @@ body.tv-mode .fullscreen-game-card.focused {
 
 .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
   grid-column: span 2;
+}
+
+/* ============================================
+   FIELD VISUALIZER WIDTH BY GRID LAYOUT
+   Uses CSS variables for easy customization
+   ============================================ */
+.fullscreen-grid.grid-1 .field-visualizer {
+  max-width: var(--fs-field-width-grid-1, 85%);
+}
+
+.fullscreen-grid.grid-2 .field-visualizer {
+  max-width: var(--fs-field-width-grid-2, 95%);
+}
+
+.fullscreen-grid.grid-3 .field-visualizer {
+  max-width: var(--fs-field-width-grid-3, 90%);
+}
+
+.fullscreen-grid.grid-4 .field-visualizer {
+  max-width: var(--fs-field-width-grid-4, 90%);
+}
+
+.fullscreen-grid.grid-5 .field-visualizer {
+  max-width: var(--fs-field-width-grid-5, 88%);
+}
+
+.fullscreen-grid.grid-6 .field-visualizer {
+  max-width: var(--fs-field-width-grid-6, 88%);
+}
+
+.fullscreen-grid.grid-7 .field-visualizer {
+  max-width: var(--fs-field-width-grid-7, 85%);
+}
+
+.fullscreen-grid.grid-8 .field-visualizer {
+  max-width: var(--fs-field-width-grid-8, 85%);
+}
+
+.fullscreen-grid.grid-9 .field-visualizer {
+  max-width: var(--fs-field-width-grid-9, 85%);
 }
 
 /* ============================================
@@ -585,7 +678,7 @@ body.tv-mode .fullscreen-game-card.focused {
 /* Field Visualizer Container */
 .field-visualizer {
   width: 100%;
-  max-width: 90%;
+  max-width: var(--fs-field-width-grid-1, 90%);
   margin-top: clamp(8px, 1.5vh, 16px);
   margin-left: auto;
   margin-right: auto;
@@ -879,7 +972,7 @@ body.tv-mode .fullscreen-game-card.focused {
 }
 
 .fullscreen-grid.grid-1 .field-container {
-  height: 41px;
+  height: clamp(var(--fs-field-height-grid-1-min), var(--fs-field-height-grid-1-preferred), var(--fs-field-height-grid-1-max));
 }
 
 /* Grid 2 - Two cards side by side */
@@ -1378,7 +1471,7 @@ body.tv-mode .fullscreen-game-card.focused {
   }
 
   .fullscreen-grid.grid-1 .field-container {
-    height: 40px;
+    height: clamp(var(--fs-field-height-grid-1-min, 45px), var(--fs-field-height-grid-1-preferred, 9vh), var(--fs-field-height-grid-1-max, 75px));
   }
 
   .fullscreen-grid.grid-1 .fullscreen-possession {

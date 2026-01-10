@@ -671,7 +671,7 @@ html, body {
   }
 
   .fullscreen-grid.grid-1 .field-container {
-    height: 30px;
+    height: clamp(var(--fs-field-height-grid-1-min, 45px), var(--fs-field-height-grid-1-preferred, 9vh), var(--fs-field-height-grid-1-max, 75px));
   }
 
   .fullscreen-grid.grid-1 .fullscreen-possession {
@@ -759,7 +759,7 @@ html, body {
 
   .fullscreen-grid.grid-2 .field-visualizer {
     margin-top: 0.3vh;
-    max-width: 90%;
+    max-width: var(--fs-field-width-phone-portrait-grid-2, 90%);
   }
 
   .fullscreen-grid.grid-2 .fullscreen-situation-info {
@@ -790,8 +790,8 @@ html, body {
 
   .fullscreen-grid.grid-2 .field-visualizer {
     margin-top: 0.5vh;
-    max-width: 95%;
-    width: 95%;
+    max-width: var(--fs-field-width-phone-portrait-grid-2, 95%);
+    width: var(--fs-field-width-phone-portrait-grid-2, 95%);
   }
 
   .fullscreen-grid.grid-2 .field-visualizer .ball-marker {

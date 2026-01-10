@@ -3378,6 +3378,7 @@
         // AUTO-REFRESH
         // ============================================
         let prevGameData = new Map(); // Store previous game state for animation detection
+        let isFirstRefresh = true; // Skip animations on first refresh (data baseline)
 
         function startAutoRefresh() {
             refreshInterval = setInterval(refreshGameData, 20000);
@@ -3448,7 +3449,8 @@
                             });
 
                             // Queue animation detection for after render (NFL, NCAA football, and NHL)
-                            if (league === 'nfl' || league === 'ncaa' || league === 'nhl') {
+                            // Skip on first refresh to avoid triggering animations for old plays
+                            if (!isFirstRefresh && (league === 'nfl' || league === 'ncaa' || league === 'nhl')) {
                                 pendingAnimations.push({ gameId: game.id, game, comp, prevData, league });
                             }
                         }
@@ -3478,6 +3480,12 @@
 
             // Update localStorage so Home has latest data
             localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));
+
+            // After first refresh, enable animations for subsequent refreshes
+            if (isFirstRefresh) {
+                isFirstRefresh = false;
+                console.log('📺 First refresh complete - animations now enabled');
+            }
         }
 
         function updateGameFromEvent(game, event) {

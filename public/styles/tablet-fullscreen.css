@@ -131,7 +131,11 @@
   }
 
   .fullscreen-grid.grid-1 .field-container {
-    height: clamp(40px, 7vh, 60px) !important;
+    height: clamp(var(--fs-field-height-grid-1-min, 45px), var(--fs-field-height-grid-1-preferred, 9vh), var(--fs-field-height-grid-1-max, 75px)) !important;
+  }
+
+  .fullscreen-grid.grid-1 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-1, 90%) !important;
   }
 
   .fullscreen-grid.grid-1 .fs-sb-time-box {
@@ -203,6 +207,10 @@
 
   .fullscreen-grid.grid-2 .field-container {
     height: clamp(35px, 6vh, 50px) !important;
+  }
+
+  .fullscreen-grid.grid-2 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-2, 95%) !important;
   }
 
   .fullscreen-grid.grid-2 .fs-sb-time-box {
@@ -278,6 +286,10 @@
 
   .fullscreen-grid.grid-3 .field-container {
     height: clamp(28px, 5vh, 40px) !important;
+  }
+
+  .fullscreen-grid.grid-3 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-3, 92%) !important;
   }
 
   .fullscreen-grid.grid-3 .fs-sb-time-box {
@@ -368,6 +380,10 @@
     height: clamp(25px, 4.5vh, 38px) !important;
   }
 
+  .fullscreen-grid.grid-4 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-4, 92%) !important;
+  }
+
   .fullscreen-grid.grid-4 .fs-sb-timeouts.away {
     right: clamp(12px, 1vw, 65px) !important;
   }
@@ -453,6 +469,10 @@
     height: clamp(22px, 4vh, 34px) !important;
   }
 
+  .fullscreen-grid.grid-5 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-5, 90%) !important;
+  }
+
   .fullscreen-grid.grid-5 .fs-sb-time-box {
     top: clamp(2px, 0.6vh, 6px) !important;
   }
@@ -506,6 +526,10 @@
 
   .fullscreen-grid.grid-6 .field-container {
     height: clamp(20px, 3.5vh, 30px) !important;
+  }
+
+  .fullscreen-grid.grid-6 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-6, 90%) !important;
   }
 
   .fullscreen-grid.grid-6 .fs-sb-time-box {
@@ -577,6 +601,10 @@
 
   .fullscreen-grid.grid-7 .field-container {
     height: clamp(18px, 3vh, 28px) !important;
+  }
+
+  .fullscreen-grid.grid-7 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-7, 88%) !important;
   }
 
   .fullscreen-grid.grid-7 .fs-sb-time-box {
@@ -657,6 +685,10 @@
     height: clamp(16px, 2.8vh, 25px) !important;
   }
 
+  .fullscreen-grid.grid-8 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-8, 88%) !important;
+  }
+
   .fullscreen-grid.grid-8 .fs-sb-time-box {
     top: clamp(1px, 0.3vh, 4px) !important;
   }
@@ -726,7 +758,11 @@
   }
 
   .fullscreen-grid.grid-1 .field-container {
-    height: clamp(35px, 8vh, 55px) !important;
+    height: clamp(var(--fs-field-height-grid-1-min, 45px), var(--fs-field-height-grid-1-preferred, 9vh), var(--fs-field-height-grid-1-max, 75px)) !important;
+  }
+
+  .fullscreen-grid.grid-1 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-1, 85%) !important;
   }
 
   .fullscreen-grid.grid-1 .fs-sb-time-box {
@@ -782,6 +818,10 @@
 
   .fullscreen-grid.grid-2 .field-container {
     height: clamp(30px, 7vh, 48px) !important;
+  }
+
+  .fullscreen-grid.grid-2 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-2, 92%) !important;
   }
 
   .fullscreen-grid.grid-2 .fs-sb-time-box {
@@ -862,6 +902,10 @@
     height: clamp(26px, 6vh, 42px) !important;
   }
 
+  .fullscreen-grid.grid-3 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-3, 90%) !important;
+  }
+
   .fullscreen-grid.grid-3 .fs-sb-time-box {
     top: clamp(4px, 1vh, 8px) !important;
   }
@@ -915,6 +959,10 @@
 
   .fullscreen-grid.grid-4 .field-container {
     height: clamp(24px, 5.5vh, 38px) !important;
+  }
+
+  .fullscreen-grid.grid-4 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-4, 90%) !important;
   }
 
   .fullscreen-grid.grid-4 .fs-sb-time-box {
@@ -981,6 +1029,10 @@
 
   .fullscreen-grid.grid-5 .field-container {
     height: clamp(20px, 4.5vh, 32px) !important;
+  }
+
+  .fullscreen-grid.grid-5 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-5, 88%) !important;
   }
 
   .fullscreen-grid.grid-5 .fs-sb-time-box {
@@ -1074,6 +1126,10 @@
 
   .fullscreen-grid.grid-6 .field-container {
     height: clamp(18px, 4vh, 28px) !important;
+  }
+
+  .fullscreen-grid.grid-6 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-6, 88%) !important;
   }
 
   .fullscreen-grid.grid-6 .fs-sb-time-box {
@@ -1183,6 +1239,10 @@
 
   .fullscreen-grid.grid-7 .field-container {
     height: clamp(16px, 3.5vh, 26px) !important;
+  }
+
+  .fullscreen-grid.grid-7 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-7, 85%) !important;
   }
 
   .fullscreen-grid.grid-7 .fs-sb-time-box {

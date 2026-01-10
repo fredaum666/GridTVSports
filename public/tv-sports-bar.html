@@ -2037,11 +2037,17 @@
             // Build field visualizer for NFL/NCAA (only show when situation box is showing, hide during intermissions)
             let fieldVisualizerHTML = '';
             if (isFootball && isLive && game.downDistance && game.fieldPosition && !isIntermission) {
+                // Get team primary colors for endzones
+                const awayEndzoneColor = awayColors.primary;
+                const homeEndzoneColor = homeColors.primary;
+
                 fieldVisualizerHTML = `
                     <div class="field-visualizer">
-                        <div class="field-container">
+                        <div class="field-container" style="--away-primary-color: ${awayEndzoneColor}; --home-primary-color: ${homeEndzoneColor};">
                             <div class="yard-markers">
-                                <div class="yard-marker endzone"><span class="yard-label">0</span></div>
+                                <div class="yard-marker endzone away-endzone">
+                                    <span class="endzone-text">${game.away.abbr}</span>
+                                </div>
                                 <div class="yard-marker"><span class="yard-label">10</span></div>
                                 <div class="yard-marker"><span class="yard-label">20</span></div>
                                 <div class="yard-marker"><span class="yard-label">30</span></div>
@@ -2051,7 +2057,9 @@
                                 <div class="yard-marker"><span class="yard-label">30</span></div>
                                 <div class="yard-marker"><span class="yard-label">20</span></div>
                                 <div class="yard-marker"><span class="yard-label">10</span></div>
-                                <div class="yard-marker endzone"><span class="yard-label">0</span></div>
+                                <div class="yard-marker endzone home-endzone">
+                                    <span class="endzone-text">${game.home.abbr}</span>
+                                </div>
                             </div>
                             <div class="ball-indicator"></div>
                             <div class="first-down-line"></div>
@@ -2585,6 +2593,7 @@
         // AUTO-REFRESH
         // ============================================
         let prevGameData = new Map(); // Store previous game state for animation detection
+        let isFirstRefresh = true; // Skip animations on first refresh (data baseline)
 
         function startAutoRefresh() {
             refreshInterval = setInterval(refreshGameData, 20000);
@@ -2655,7 +2664,8 @@
                             });
 
                             // Queue animation detection for after render (NFL, NCAA football, and NHL)
-                            if (league === 'nfl' || league === 'ncaa' || league === 'nhl') {
+                            // Skip on first refresh to avoid triggering animations for old plays
+                            if (!isFirstRefresh && (league === 'nfl' || league === 'ncaa' || league === 'nhl')) {
                                 pendingAnimations.push({ gameId: game.id, game, comp, prevData, league });
                             }
                         }
@@ -2685,6 +2695,12 @@
 
             // Update localStorage so TV Home has latest data
             localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));
+
+            // After first refresh, enable animations for subsequent refreshes
+            if (isFirstRefresh) {
+                isFirstRefresh = false;
+                console.log('📺 First refresh complete - animations now enabled');
+            }
         }
 
         function updateGameFromEvent(game, event) {
