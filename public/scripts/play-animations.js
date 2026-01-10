@@ -220,11 +220,15 @@ function showPlayAnimationDirect(card, playType, playText, teamName = '', recove
       ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
     `;
   } else if (playType === 'first-down') {
-    // Special HTML for 1st down with arrows coming together
+    // Special HTML for 1st down animation:
+    // - 1stDown2.png behind (revealed at end)
+    // - Static 1stDown1.png in center
+    // - Moving 1stDown1.png slides in and overlaps, then both 1stDown1 fade out
     animationDiv.innerHTML = `
       <div class="first-down-container">
-        <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow left" onerror="this.style.display='none';">
-        <img src="/assets/1stDown2.png" alt="Arrow" class="first-down-arrow right" onerror="this.style.display='none';">
+        <img src="/assets/1stDown2.png" alt="Arrow" class="first-down-arrow background" onerror="this.style.display='none';">
+        <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow static" onerror="this.style.display='none';">
+        <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow moving" onerror="this.style.display='none';">
       </div>
       <div class="play-animation-text">${playText}</div>
       ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
@@ -694,24 +698,49 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   }
 
   // Check for 1st down animation
-  const isNewFirstDown = currentDown === 1 && (
-    (prevDown >= 2 && prevDown <= 4) ||
-    (prevDown === 1 && downDistanceText !== prevDownDistance && prevDownDistance !== '')
-  );
+  // Detect first down from play text (most reliable method)
+  const playTextHasFirstDown = lowerLastPlay.includes('1st down') ||
+    lowerLastPlay.includes('first down') ||
+    lowerLastPlay.includes('1st and') ||
+    lowerLastPlay.includes('for a 1st');
 
-  if (isNewFirstDown &&
-    awayScoreChange === 0 && homeScoreChange === 0 &&
-    !lowerLastPlay.includes('interception') &&
-    !lowerLastPlay.includes('intercepted') &&
-    !lowerLastPlay.includes('fumble') &&
-    !lowerLastPlay.includes('punt') &&
-    !lowerLastPlay.includes('penalty') &&
-    !lowerLastPlay.includes('touchdown')) {
-    if (card.dataset.lastFirstDown !== downDistanceText) {
+  // Detect first down from down transition (2nd/3rd/4th -> 1st)
+  const downTransitionFirstDown = currentDown === 1 && prevDown >= 2 && prevDown <= 4;
+
+  // Detect first down when staying on 1st down but yard line changed significantly
+  // This catches 1st down -> new 1st down scenarios
+  const sameDownNewFirstDown = currentDown === 1 && prevDown === 1 &&
+    downDistanceText !== prevDownDistance && prevDownDistance !== '' &&
+    playTextHasFirstDown;
+
+  const isNewFirstDown = downTransitionFirstDown || sameDownNewFirstDown ||
+    (playTextHasFirstDown && currentDown === 1 && card.dataset.lastPlayText !== lastPlay);
+
+  // Exclusion conditions - don't trigger on turnovers, punts, or scores
+  const isTurnover = lowerLastPlay.includes('interception') ||
+    lowerLastPlay.includes('intercepted') ||
+    lowerLastPlay.includes('fumble') ||
+    lowerLastPlay.includes('recovered by');
+
+  const isPuntOrKick = lowerLastPlay.includes('punt') ||
+    lowerLastPlay.includes('kickoff') ||
+    lowerLastPlay.includes('kicks');
+
+  const isScoreOrPenalty = lowerLastPlay.includes('touchdown') ||
+    lowerLastPlay.includes('penalty') ||
+    awayScoreChange > 0 || homeScoreChange > 0;
+
+  if (isNewFirstDown && !isTurnover && !isPuntOrKick && !isScoreOrPenalty) {
+    // Use lastPlay as part of the key to prevent duplicate triggers
+    const firstDownKey = `${downDistanceText}-${lastPlay.substring(0, 50)}`;
+    if (card.dataset.lastFirstDown !== firstDownKey) {
       showPlayAnimation(card, 'first-down', '1ST DOWN!');
-      card.dataset.lastFirstDown = downDistanceText;
+      card.dataset.lastFirstDown = firstDownKey;
     }
   }
+
+  // Store last play text for comparison
+  card.dataset.lastPlayText = lastPlay;
 
   return events;
 }

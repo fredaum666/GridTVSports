@@ -1002,14 +1002,14 @@
             left: 50%;
             transform: translateX(-50%);
             background: linear-gradient(135deg, var(--sb-possession-primary) 0%, var(--sb-possession-primary) 50%, var(--sb-possession-secondary) 100%);
-            padding: 3px 12px;
+            padding: 5px 16px;
             border-radius: 0 0 8px 8px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-top: none;
             display: flex;
             align-items: center;
-            gap: 8px;
-            min-width: 140px;
+            gap: 10px;
+            min-width: 160px;
             justify-content: center;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
             z-index: 5;
@@ -1031,7 +1031,7 @@
         }
 
         .fs-sb-down-distance {
-            font-size: clamp(0.55rem, 1.5vmin, 0.75rem);
+            font-size: clamp(0.65rem, 1.8vmin, 0.85rem);
             font-weight: 700;
             color: #ffffff;
             text-transform: uppercase;
@@ -1042,12 +1042,12 @@
 
         .fs-sb-situation-divider {
             width: 1px;
-            height: 10px;
+            height: 12px;
             background: rgba(255, 255, 255, 0.3);
         }
 
         .fs-sb-ball-position {
-            font-size: clamp(0.5rem, 1.3vmin, 0.65rem);
+            font-size: clamp(0.6rem, 1.5vmin, 0.75rem);
             font-weight: 600;
             color: rgba(255, 255, 255, 0.9);
             white-space: nowrap;
@@ -2510,8 +2510,9 @@
                 console.log('📺 Mock data mode - auto-refresh disabled');
             }
 
-            // Update stats modals for NFL games
+            // Update stats modals for NFL games - check every 2 seconds for phase transitions
             updateStatsModals();
+            setInterval(updateStatsModals, 2000);
 
             // Focus back button
             document.getElementById('back-btn').focus();
@@ -3293,107 +3294,124 @@
             }
         }
 
+        let statsModalUpdateInProgress = false;
+
         async function updateStatsModals() {
-            const now = Date.now();
-            const WAIT_BEFORE_SHOW = 30000; // 30 seconds of no play before showing stats
-            const PHASE_DURATION = 15000;   // Show each team for 15 seconds
+            // Prevent concurrent updates
+            if (statsModalUpdateInProgress) return;
+            statsModalUpdateInProgress = true;
 
-            for (const game of games) {
-                if (game.league !== 'nfl' || game.state !== 'in') continue;
+            try {
+                const now = Date.now();
+                const WAIT_BEFORE_SHOW = 30000; // 30 seconds of no play before showing stats
+                const PHASE_DURATION = 15000;   // Show each team for 15 seconds
 
-                const modal = document.querySelector(`.nfl-stats-modal[data-game-stats-id="${game.id}"]`);
-                if (!modal) continue;
+                for (const game of games) {
+                    if (game.league !== 'nfl' || game.state !== 'in') continue;
 
-                // Check if there's an active animation playing - never show stats over animations
-                const card = modal.closest('.fullscreen-card');
-                const hasActiveAnimation = card && card.querySelector('.play-animation');
-                if (hasActiveAnimation) {
-                    modal.classList.remove('visible');
-                    continue;
-                }
+                    const modal = document.querySelector(`.nfl-stats-modal[data-game-stats-id="${game.id}"]`);
+                    if (!modal) continue;
 
-                // Initialize state for this game if not exists
-                if (!statsModalState.has(game.id)) {
-                    statsModalState.set(game.id, {
-                        noPlayStartTime: null,
-                        isShowingStats: false,
-                        showStartTime: null,
-                        currentPhase: 0,       // 0 = away team, 1 = home team
-                        phaseStartTime: null,
-                        cachedStats: null
-                    });
-                }
+                    // Check if there's an active animation playing - never show stats over animations
+                    const card = modal.closest('.fullscreen-card');
+                    const hasActiveAnimation = card && card.querySelector('.play-animation');
+                    if (hasActiveAnimation) {
+                        modal.classList.remove('visible');
+                        continue;
+                    }
 
-                const state = statsModalState.get(game.id);
+                    // Initialize state for this game if not exists
+                    if (!statsModalState.has(game.id)) {
+                        statsModalState.set(game.id, {
+                            noPlayStartTime: null,
+                            isShowingStats: false,
+                            showStartTime: null,
+                            currentPhase: 0,       // 0 = away team, 1 = home team
+                            phaseStartTime: null,
+                            cachedStats: null,
+                            lastRenderedPhase: -1  // Track what phase was last rendered
+                        });
+                    }
 
-                // Check if game is in intermission
-                const statusLower = (game.status || '').toLowerCase();
-                const isIntermission = statusLower.includes('halftime') ||
-                    statusLower.includes('half') ||
-                    statusLower.includes('end of') ||
-                    statusLower.includes('intermission') ||
-                    (statusLower.includes('2nd') && statusLower.includes('0:00')) ||
-                    (statusLower.includes('4th') && statusLower.includes('0:00'));
+                    const state = statsModalState.get(game.id);
 
-                const hasActivePlays = !!game.downDistance && !isIntermission;
+                    // Check if game is in intermission
+                    const statusLower = (game.status || '').toLowerCase();
+                    const isIntermission = statusLower.includes('halftime') ||
+                        statusLower.includes('half') ||
+                        statusLower.includes('end of') ||
+                        statusLower.includes('intermission') ||
+                        (statusLower.includes('2nd') && statusLower.includes('0:00')) ||
+                        (statusLower.includes('4th') && statusLower.includes('0:00'));
 
-                // If stats are currently showing, manage phase transitions
-                if (state.isShowingStats) {
-                    const elapsedPhaseTime = now - state.phaseStartTime;
+                    const hasActivePlays = !!game.downDistance && !isIntermission;
 
-                    if (elapsedPhaseTime >= PHASE_DURATION) {
-                        // Current phase complete
-                        if (state.currentPhase === 0) {
-                            // Switch to phase 1 (home team)
-                            state.currentPhase = 1;
-                            state.phaseStartTime = now;
-                            if (state.cachedStats) {
-                                renderStatsModal(modal, state.cachedStats, game, 1);
+                    // If stats are currently showing, manage phase transitions
+                    if (state.isShowingStats) {
+                        const elapsedPhaseTime = now - state.phaseStartTime;
+
+                        if (elapsedPhaseTime >= PHASE_DURATION) {
+                            // Current phase complete
+                            if (state.currentPhase === 0) {
+                                // Switch to phase 1 (home team)
+                                state.currentPhase = 1;
+                                state.phaseStartTime = now;
+                                state.lastRenderedPhase = 1;
+                                if (state.cachedStats) {
+                                    console.log(`📊 Stats modal phase switch: showing HOME team for game ${game.id}`);
+                                    renderStatsModal(modal, state.cachedStats, game, 1);
+                                }
+                            } else {
+                                // Both phases complete - hide and reset
+                                console.log(`📊 Stats modal complete: hiding for game ${game.id}`);
+                                modal.classList.remove('visible');
+                                state.isShowingStats = false;
+                                state.showStartTime = null;
+                                state.phaseStartTime = null;
+                                state.currentPhase = 0;
+                                state.cachedStats = null;
+                                state.lastRenderedPhase = -1;
+                                state.noPlayStartTime = hasActivePlays ? null : now; // Reset wait timer
                             }
-                        } else {
-                            // Both phases complete - hide and reset
-                            modal.classList.remove('visible');
-                            state.isShowingStats = false;
-                            state.showStartTime = null;
-                            state.phaseStartTime = null;
-                            state.currentPhase = 0;
-                            state.cachedStats = null;
-                            state.noPlayStartTime = hasActivePlays ? null : now; // Reset wait timer
                         }
-                    }
-                    // Keep showing current phase
-                    continue;
-                }
-
-                // Stats are not currently showing
-                if (hasActivePlays) {
-                    // Play is active - reset the no-play timer
-                    state.noPlayStartTime = null;
-                    modal.classList.remove('visible');
-                } else {
-                    // No active play - start or continue the wait timer
-                    if (!state.noPlayStartTime) {
-                        state.noPlayStartTime = now;
+                        // Keep showing current phase
+                        continue;
                     }
 
-                    const waitedTime = now - state.noPlayStartTime;
-                    if (waitedTime >= WAIT_BEFORE_SHOW) {
-                        // 30 seconds of no play - show the stats modal
-                        state.isShowingStats = true;
-                        state.showStartTime = now;
-                        state.phaseStartTime = now;
-                        state.currentPhase = 0; // Start with away team
-                        modal.classList.add('visible');
-
-                        // Fetch and cache stats
-                        const stats = await fetchGameStats(game.id);
-                        if (stats) {
-                            state.cachedStats = stats;
-                            renderStatsModal(modal, stats, game, 0); // Phase 0 = away team
+                    // Stats are not currently showing
+                    if (hasActivePlays) {
+                        // Play is active - reset the no-play timer
+                        state.noPlayStartTime = null;
+                        modal.classList.remove('visible');
+                    } else {
+                        // No active play - start or continue the wait timer
+                        if (!state.noPlayStartTime) {
+                            state.noPlayStartTime = now;
                         }
+
+                        const waitedTime = now - state.noPlayStartTime;
+                        if (waitedTime >= WAIT_BEFORE_SHOW) {
+                            // 30 seconds of no play - show the stats modal
+                            state.isShowingStats = true;
+                            state.showStartTime = now;
+                            state.phaseStartTime = now;
+                            state.currentPhase = 0; // Start with away team
+                            state.lastRenderedPhase = 0;
+                            modal.classList.add('visible');
+
+                            // Fetch and cache stats
+                            const stats = await fetchGameStats(game.id);
+                            if (stats) {
+                                state.cachedStats = stats;
+                                console.log(`📊 Stats modal started: showing AWAY team for game ${game.id}`, stats.away?.name, 'vs', stats.home?.name);
+                                renderStatsModal(modal, stats, game, 0); // Phase 0 = away team
+                            }
+                        }
+                        // Otherwise keep waiting (modal stays hidden)
                     }
-                    // Otherwise keep waiting (modal stays hidden)
                 }
+            } finally {
+                statsModalUpdateInProgress = false;
             }
         }
 
