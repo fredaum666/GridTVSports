@@ -17,6 +17,19 @@
    ================================================================================== */
 @media screen and (max-width: 768px) and (orientation: portrait) {
 
+  /* --- BACK BUTTON: Portrait positioning --- */
+  .back-btn {
+    position: fixed !important;
+    top: 8px !important;
+    left: 8px !important;
+    z-index: 100000 !important;
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+    min-height: 44px !important;
+    border-radius: 6px !important;
+    background: rgba(51, 65, 85, 0.9) !important;
+  }
+
   /* ════════════════════════════════════════════════════════════════════════════════
      ░░░ BASE CONTAINER STYLES ░░░
      ════════════════════════════════════════════════════════════════════════════════ */
@@ -690,6 +703,19 @@
    ███ MOBILE LANDSCAPE (≤1024px) ███
    ================================================================================== */
 @media screen and (max-width: 1024px) and (orientation: landscape) {
+
+  /* --- BACK BUTTON: Landscape positioning --- */
+  .back-btn {
+    position: fixed !important;
+    top: 6px !important;
+    left: 6px !important;
+    z-index: 100000 !important;
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+    min-height: 36px !important;
+    border-radius: 6px !important;
+    background: rgba(51, 65, 85, 0.9) !important;
+  }
 
   /* ════════════════════════════════════════════════════════════════════════════════
      ░░░ LANDSCAPE GRID LAYOUTS ░░░

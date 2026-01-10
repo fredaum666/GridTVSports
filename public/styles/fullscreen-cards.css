@@ -82,9 +82,9 @@
   --fs-field-height-max: 50px;
 
   /* Field Visualizer Height for Grid-1 (thicker field) */
-  --fs-field-height-grid-1-min: 45px;
-  --fs-field-height-grid-1-preferred: 9vh;
-  --fs-field-height-grid-1-max: 75px;
+  --fs-field-height-grid-1-min: 55px;
+  --fs-field-height-grid-1-preferred: 12vh;
+  --fs-field-height-grid-1-max: 95px;
 
   /* ============================================
      FIELD VISUALIZER WIDTH VARIABLES
