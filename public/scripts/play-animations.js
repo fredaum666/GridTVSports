@@ -716,6 +716,106 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   return events;
 }
 
+/**
+ * Show NHL-specific animation
+ * @param {HTMLElement} card - The game card element
+ * @param {string} playType - 'goal', 'hattrick', 'save', 'powerplay', 'nhl-penalty', 'shootout'
+ * @param {string} playText - The text to display
+ * @param {string} teamName - The team name
+ */
+function showNHLAnimation(card, playType, playText, teamName = '') {
+  // Skip animations during first 6 seconds after page load
+  if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 6000) {
+    return;
+  }
+
+  // Remove any existing animation
+  const existingAnimation = card.querySelector('.play-animation');
+  if (existingAnimation) {
+    existingAnimation.remove();
+  }
+
+  // Create animation overlay
+  const animationDiv = document.createElement('div');
+  animationDiv.className = `play-animation ${playType}`;
+
+  // Choose icon based on play type
+  let icon;
+  switch (playType) {
+    case 'goal':
+      icon = '🚨';
+      break;
+    case 'save':
+      icon = '🧤';
+      break;
+    case 'powerplay':
+      icon = '⚡';
+      break;
+    case 'hattrick':
+      icon = '🎩';
+      break;
+    case 'nhl-penalty':
+      icon = '⚠️';
+      break;
+    case 'shootout':
+      icon = '🥅';
+      break;
+    default:
+      icon = '🏒';
+  }
+
+  animationDiv.innerHTML = `
+    <div class="play-animation-icon">${icon}</div>
+    <div class="play-animation-text">${playText}</div>
+    ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+  `;
+
+  card.style.position = 'relative';
+  card.appendChild(animationDiv);
+
+  // Remove after animation completes (5 seconds for NHL - shorter than football)
+  setTimeout(() => {
+    if (animationDiv.parentNode) {
+      animationDiv.remove();
+    }
+  }, 5000);
+}
+
+/**
+ * Detect NHL play events and trigger animations
+ * @param {HTMLElement} card - The game card element
+ * @param {Object} game - Game data object with away/home scores
+ * @param {Object} comp - Competition data with competitors
+ * @param {Object} prevData - Previous game state (awayScore, homeScore)
+ */
+function detectNHLPlayEvents(card, game, comp, prevData) {
+  const awayScoreChange = game.away.score - (prevData.awayScore || 0);
+  const homeScoreChange = game.home.score - (prevData.homeScore || 0);
+
+  const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+  const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+  const awayName = awayTeam?.team?.displayName || 'Away';
+  const homeName = homeTeam?.team?.displayName || 'Home';
+
+  // Detect goals
+  if (awayScoreChange > 0 || homeScoreChange > 0) {
+    const scoringTeam = awayScoreChange > 0 ? awayName : homeName;
+    const scoreChange = awayScoreChange > 0 ? awayScoreChange : homeScoreChange;
+
+    let playType, playText;
+    if (scoreChange >= 3) {
+      playType = 'hattrick';
+      playText = 'HAT TRICK!';
+    } else {
+      playType = 'goal';
+      playText = 'GOAL!';
+    }
+
+    showNHLAnimation(card, playType, playText, scoringTeam);
+    console.log('🏒 NHL event:', playType, scoringTeam);
+  }
+}
+
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -726,6 +826,8 @@ if (typeof module !== 'undefined' && module.exports) {
     showPlayAnimationDirect,
     analyzeAndAnimatePlay,
     queueAnimation,
-    processNextAnimation
+    processNextAnimation,
+    showNHLAnimation,
+    detectNHLPlayEvents
   };
 }
