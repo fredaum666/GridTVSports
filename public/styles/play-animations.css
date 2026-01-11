@@ -823,3 +823,200 @@
   color: #06b6d4;
   text-shadow: 0 0 20px #06b6d4;
 }
+
+/* ============================================
+   MLB ANIMATIONS
+   ============================================ */
+
+/* Home Run Animation - Gold/Yellow */
+.play-animation.home-run .play-animation-text {
+  background: linear-gradient(90deg, #fbbf24, #ffffff, #fbbf24);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: playTextSlide 0.8s ease-out, gradientShift 2s linear infinite;
+}
+
+.home-run-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: clamp(10px, 2vmin, 20px);
+  width: clamp(100px, 25vmin, 200px);
+  height: clamp(80px, 20vmin, 160px);
+}
+
+.home-run-ball {
+  font-size: clamp(2.5rem, 8vmin, 5rem);
+  position: absolute;
+  animation: homeRunBallFly 1.5s ease-out forwards;
+  filter: drop-shadow(0 0 15px #fbbf24);
+}
+
+.home-run-explosion {
+  font-size: clamp(4rem, 12vmin, 8rem);
+  position: absolute;
+  opacity: 0;
+  animation: homeRunExplosion 1.5s ease-out 0.8s forwards;
+  filter: drop-shadow(0 0 30px #fbbf24) drop-shadow(0 0 60px #f59e0b);
+}
+
+@keyframes homeRunBallFly {
+  0% {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(0.5) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%) scale(1) rotate(180deg);
+    opacity: 1;
+  }
+  50% {
+    bottom: 60%;
+    left: 55%;
+    transform: translateX(-50%) scale(1.2) rotate(540deg);
+    opacity: 1;
+  }
+  80% {
+    bottom: 85%;
+    left: 60%;
+    transform: translateX(-50%) scale(0.8) rotate(900deg);
+    opacity: 0.8;
+  }
+  100% {
+    bottom: 100%;
+    left: 65%;
+    transform: translateX(-50%) scale(0.3) rotate(1080deg);
+    opacity: 0;
+  }
+}
+
+@keyframes homeRunExplosion {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Grand Slam Animation - Rainbow/Celebration */
+.play-animation.grand-slam .play-animation-text {
+  background: linear-gradient(90deg, #ef4444, #f59e0b, #fbbf24, #22c55e, #3b82f6, #a855f7, #ef4444);
+  background-size: 400% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: playTextSlide 0.8s ease-out, grandSlamRainbow 3s linear infinite;
+}
+
+@keyframes grandSlamRainbow {
+  0% { background-position: 0% center; }
+  100% { background-position: 400% center; }
+}
+
+/* Strikeout Animation - Red/Fire */
+.play-animation.strikeout .play-animation-text {
+  color: #ef4444;
+  text-shadow: 0 0 20px #ef4444, 0 0 40px #dc2626;
+}
+
+.strikeout-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: clamp(10px, 2vmin, 20px);
+}
+
+.strikeout-k {
+  font-size: clamp(5rem, 18vmin, 12rem);
+  font-weight: 900;
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  color: #ef4444;
+  text-shadow: 0 0 30px #ef4444, 0 0 60px #dc2626, 0 0 90px #b91c1c;
+  animation: strikeoutEntry 0.5s ease-out, strikeoutPulse 0.5s ease-in-out 0.5s infinite;
+}
+
+@keyframes strikeoutEntry {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.3) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes strikeoutPulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 30px #ef4444, 0 0 60px #dc2626;
+  }
+  50% {
+    transform: scale(1.1);
+    text-shadow: 0 0 50px #ef4444, 0 0 90px #dc2626, 0 0 120px #b91c1c;
+  }
+}
+
+/* Double Play Animation - Blue/Lightning */
+.play-animation.double-play .play-animation-icon {
+  color: #3b82f6;
+  text-shadow: 0 0 30px #3b82f6, 0 0 60px #3b82f6;
+}
+
+.play-animation.double-play .play-animation-text {
+  color: #3b82f6;
+  text-shadow: 0 0 20px #3b82f6;
+}
+
+/* Stolen Base Animation - Green/Speed */
+.play-animation.stolen-base .play-animation-icon {
+  color: #22c55e;
+  text-shadow: 0 0 30px #22c55e, 0 0 60px #22c55e;
+}
+
+.play-animation.stolen-base .play-animation-text {
+  color: #22c55e;
+  text-shadow: 0 0 20px #22c55e;
+}
+
+/* Walk Animation - Neutral */
+.play-animation.walk .play-animation-icon {
+  color: #94a3b8;
+  text-shadow: 0 0 20px #94a3b8;
+}
+
+.play-animation.walk .play-animation-text {
+  color: #94a3b8;
+  text-shadow: 0 0 15px #94a3b8;
+}
+
+/* Hit Animation - Orange */
+.play-animation.hit .play-animation-icon {
+  color: #f97316;
+  text-shadow: 0 0 30px #f97316, 0 0 60px #f97316;
+}
+
+.play-animation.hit .play-animation-text {
+  color: #f97316;
+  text-shadow: 0 0 20px #f97316;
+}

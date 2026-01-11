@@ -2714,6 +2714,11 @@ otherPages.forEach(page => {
   });
 });
 
+// Debug console page - Admin only (direct URL access)
+app.get('/debug', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'debug.html'));
+});
+
 // Admin subscription management page - LOCALHOST ONLY
 app.get('/admin-subscriptions', (req, res) => {
   const ip = req.ip || req.connection.remoteAddress || '';

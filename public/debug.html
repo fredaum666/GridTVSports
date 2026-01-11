@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Console - GridTV Sports</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --border-color: #30363d;
+      --text-primary: #c9d1d9;
+      --text-secondary: #8b949e;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-yellow: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #a371f7;
+      --accent-orange: #db6d28;
+    }
+
+    body {
+      font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo { width: 28px; height: 28px; }
+
+    .title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-admin { background: var(--accent-red); color: #fff; }
+
+    .header-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn:hover { background: var(--border-color); }
+    .btn-primary { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+    .btn-primary:hover { background: #4090e0; }
+    .btn-danger { background: var(--accent-red); border-color: var(--accent-red); color: #fff; }
+    .btn-success { background: var(--accent-green); border-color: var(--accent-green); color: #fff; }
+
+    .container {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 0;
+      height: calc(100vh - 52px);
+    }
+
+    .sidebar {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-section {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .league-tabs {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .league-tab {
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .league-tab:hover { background: var(--border-color); color: var(--text-primary); }
+    .league-tab.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+
+    .game-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .game-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .game-item:hover { border-color: var(--accent-blue); }
+    .game-item.active { border-color: var(--accent-green); background: rgba(63, 185, 80, 0.1); }
+    .game-item.live { border-left: 3px solid var(--accent-green); }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .game-teams {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .game-status {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--bg-secondary);
+    }
+
+    .game-status.live { background: var(--accent-green); color: #fff; }
+    .game-status.pre { background: var(--accent-yellow); color: #000; }
+    .game-status.post { background: var(--text-secondary); color: #fff; }
+
+    .game-score {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tabs-bar {
+      display: flex;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 12px;
+    }
+
+    .tab {
+      padding: 10px 16px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .tab:hover { color: var(--text-primary); }
+    .tab.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+
+    .tab-content {
+      flex: 1;
+      overflow: hidden;
+      display: none;
+    }
+
+    .tab-content.active { display: flex; flex-direction: column; }
+
+    .log-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      font-size: 12px;
+    }
+
+    .log-entry {
+      padding: 8px 12px;
+      margin-bottom: 4px;
+      border-radius: 4px;
+      background: var(--bg-secondary);
+      border-left: 3px solid var(--border-color);
+      display: flex;
+      gap: 12px;
+    }
+
+    .log-entry.api { border-left-color: var(--accent-blue); }
+    .log-entry.play { border-left-color: var(--accent-green); }
+    .log-entry.animation { border-left-color: var(--accent-purple); }
+    .log-entry.cache { border-left-color: var(--accent-yellow); }
+    .log-entry.error { border-left-color: var(--accent-red); background: rgba(248, 81, 73, 0.1); }
+    .log-entry.state { border-left-color: var(--accent-orange); }
+
+    .log-time {
+      color: var(--text-secondary);
+      font-size: 10px;
+      min-width: 80px;
+    }
+
+    .log-type {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      font-weight: 600;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .log-type.api { background: var(--accent-blue); color: #fff; }
+    .log-type.play { background: var(--accent-green); color: #fff; }
+    .log-type.animation { background: var(--accent-purple); color: #fff; }
+    .log-type.cache { background: var(--accent-yellow); color: #000; }
+    .log-type.error { background: var(--accent-red); color: #fff; }
+    .log-type.state { background: var(--accent-orange); color: #fff; }
+
+    .log-message { flex: 1; word-break: break-word; }
+
+    .log-details {
+      margin-top: 6px;
+      padding: 8px;
+      background: var(--bg-primary);
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .state-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
+      padding: 12px;
+      overflow-y: auto;
+    }
+
+    .state-card {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .state-card-header {
+      padding: 10px 14px;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .state-card-body {
+      padding: 12px 14px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .state-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 11px;
+    }
+
+    .state-item:last-child { border-bottom: none; }
+
+    .state-key { color: var(--text-secondary); }
+    .state-value { color: var(--accent-blue); font-weight: 500; text-align: right; max-width: 60%; word-break: break-word; }
+
+    .json-viewer {
+      background: var(--bg-primary);
+      border-radius: 4px;
+      padding: 10px;
+      font-size: 11px;
+      max-height: 200px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    .api-response-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover { background: var(--border-color); }
+    .filter-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+
+    .no-game-selected {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .refresh-info {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .export-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .export-modal.show { display: flex; }
+
+    .export-modal-content {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .export-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .export-modal-body {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .export-textarea {
+      width: 100%;
+      height: 400px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 11px;
+      padding: 12px;
+      resize: vertical;
+    }
+
+    .export-modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 12px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .stat-box {
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .stat-value.blue { color: var(--accent-blue); }
+    .stat-value.green { color: var(--accent-green); }
+    .stat-value.yellow { color: var(--accent-yellow); }
+    .stat-value.red { color: var(--accent-red); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <img src="/assets/logo.png" alt="GridTV" class="logo">
+      <span class="title">Debug Console</span>
+      <span class="badge badge-admin">Admin</span>
+    </div>
+    <div class="header-controls">
+      <span class="refresh-info" id="refresh-info">Auto-refresh: 5s</span>
+      <div class="live-indicator" id="live-indicator" style="display: none;">
+        <span class="live-dot"></span>
+        <span>Monitoring</span>
+      </div>
+      <button class="btn" id="toggle-refresh">Pause</button>
+      <button class="btn btn-success" id="export-btn">Export Logs</button>
+      <button class="btn" onclick="window.location.href='/'">Back to App</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="section-title">League</div>
+        <div class="league-tabs">
+          <button class="league-tab active" data-league="nfl">NFL</button>
+          <button class="league-tab" data-league="ncaa">NCAA FB</button>
+          <button class="league-tab" data-league="nba">NBA</button>
+          <button class="league-tab" data-league="nhl">NHL</button>
+          <button class="league-tab" data-league="mlb">MLB</button>
+          <button class="league-tab" data-league="ncaab">NCAA BB</button>
+        </div>
+      </div>
+      <div class="sidebar-section" style="flex-shrink: 0;">
+        <div class="section-title">Live Games</div>
+        <button class="btn btn-primary" id="fetch-games" style="width: 100%;">Fetch Games</button>
+      </div>
+      <div class="game-list" id="game-list">
+        <div class="no-game-selected">Click "Fetch Games" to load</div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">API Calls</div>
+          <div class="stat-value blue" id="stat-api">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Play Updates</div>
+          <div class="stat-value green" id="stat-plays">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Animations</div>
+          <div class="stat-value yellow" id="stat-animations">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Errors</div>
+          <div class="stat-value red" id="stat-errors">0</div>
+        </div>
+      </div>
+
+      <div class="tabs-bar">
+        <div class="tab active" data-tab="logs">All Logs</div>
+        <div class="tab" data-tab="plays">Play-by-Play</div>
+        <div class="tab" data-tab="api">API Responses</div>
+        <div class="tab" data-tab="state">App State</div>
+      </div>
+
+      <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="api">API</button>
+        <button class="filter-btn" data-filter="play">Plays</button>
+        <button class="filter-btn" data-filter="animation">Animations</button>
+        <button class="filter-btn" data-filter="cache">Cache</button>
+        <button class="filter-btn" data-filter="state">State</button>
+        <button class="filter-btn" data-filter="error">Errors</button>
+        <button class="btn btn-danger" id="clear-logs" style="margin-left: auto;">Clear Logs</button>
+      </div>
+
+      <div class="tab-content active" data-content="logs">
+        <div class="log-container" id="log-container">
+          <div class="no-game-selected">Select a game to start monitoring</div>
+        </div>
+      </div>
+
+      <div class="tab-content" data-content="plays">
+        <div class="log-container" id="plays-container">
+          <div class="no-game-selected">Play-by-play will appear here</div>
+        </div>
+      </div>
+
+      <div class="tab-content" data-content="api">
+        <div class="api-response-panel" id="api-container">
+          <div class="no-game-selected">API responses will appear here</div>
+        </div>
+      </div>
+
+      <div class="tab-content" data-content="state">
+        <div class="state-panel" id="state-panel">
+          <div class="state-card">
+            <div class="state-card-header">
+              Selected Game
+              <button class="btn" id="refresh-state">Refresh</button>
+            </div>
+            <div class="state-card-body" id="selected-game-state">
+              <div style="color: var(--text-secondary);">No game selected</div>
+            </div>
+          </div>
+          <div class="state-card">
+            <div class="state-card-header">Previous Game Data (prevGameData)</div>
+            <div class="state-card-body" id="prev-game-data-state">
+              <div style="color: var(--text-secondary);">-</div>
+            </div>
+          </div>
+          <div class="state-card">
+            <div class="state-card-header">LocalStorage Cache</div>
+            <div class="state-card-body" id="localstorage-state">
+              <div style="color: var(--text-secondary);">-</div>
+            </div>
+          </div>
+          <div class="state-card">
+            <div class="state-card-header">Animation Queue</div>
+            <div class="state-card-body" id="animation-queue-state">
+              <div style="color: var(--text-secondary);">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Modal -->
+  <div class="export-modal" id="export-modal">
+    <div class="export-modal-content">
+      <div class="export-modal-header">
+        <span style="font-weight: 600;">Export Debug Logs</span>
+        <button class="btn" id="close-export">Close</button>
+      </div>
+      <div class="export-modal-body">
+        <p style="margin-bottom: 12px; color: var(--text-secondary);">Copy this log export and share with AI for analysis:</p>
+        <textarea class="export-textarea" id="export-textarea" readonly></textarea>
+      </div>
+      <div class="export-modal-footer">
+        <button class="btn" id="download-logs">Download as JSON</button>
+        <button class="btn btn-primary" id="copy-logs">Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // DEBUG CONSOLE STATE
+    // ============================================
+    let selectedLeague = 'nfl';
+    let selectedGame = null;
+    let games = [];
+    let logs = [];
+    let isRefreshing = true;
+    let refreshInterval = null;
+    let prevGameData = new Map();
+
+    // Stats counters
+    let stats = {
+      api: 0,
+      plays: 0,
+      animations: 0,
+      errors: 0
+    };
+
+    // API Endpoints
+    const apiEndpoints = {
+      'nfl': '/api/nfl/scoreboard',
+      'nba': '/api/nba/scoreboard',
+      'mlb': '/api/mlb/scoreboard',
+      'nhl': '/api/nhl/scoreboard',
+      'ncaa': '/api/ncaa/scoreboard',
+      'ncaab': '/api/ncaab/scoreboard'
+    };
+
+    // ============================================
+    // LOGGING SYSTEM
+    // ============================================
+    function log(type, message, details = null) {
+      const entry = {
+        id: Date.now() + Math.random(),
+        timestamp: new Date().toISOString(),
+        time: new Date().toLocaleTimeString(),
+        type,
+        message,
+        details,
+        gameId: selectedGame?.id
+      };
+
+      logs.push(entry);
+
+      // Update stats
+      if (type === 'api') stats.api++;
+      else if (type === 'play') stats.plays++;
+      else if (type === 'animation') stats.animations++;
+      else if (type === 'error') stats.errors++;
+
+      updateStats();
+      renderLogs();
+
+      // Keep log size manageable
+      if (logs.length > 1000) {
+        logs = logs.slice(-500);
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('stat-api').textContent = stats.api;
+      document.getElementById('stat-plays').textContent = stats.plays;
+      document.getElementById('stat-animations').textContent = stats.animations;
+      document.getElementById('stat-errors').textContent = stats.errors;
+    }
+
+    function renderLogs() {
+      const container = document.getElementById('log-container');
+      const playsContainer = document.getElementById('plays-container');
+      const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+
+      // Filter logs
+      let filteredLogs = logs;
+      if (activeFilter !== 'all') {
+        filteredLogs = logs.filter(l => l.type === activeFilter);
+      }
+
+      // Render main log container
+      if (filteredLogs.length === 0) {
+        container.innerHTML = '<div class="no-game-selected">No logs yet</div>';
+      } else {
+        container.innerHTML = filteredLogs.slice(-100).reverse().map(entry => `
+          <div class="log-entry ${entry.type}">
+            <span class="log-time">${entry.time}</span>
+            <span class="log-type ${entry.type}">${entry.type}</span>
+            <div class="log-message">
+              ${entry.message}
+              ${entry.details ? `<div class="log-details">${typeof entry.details === 'string' ? entry.details : JSON.stringify(entry.details, null, 2)}</div>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Render plays container
+      const playLogs = logs.filter(l => l.type === 'play');
+      if (playLogs.length === 0) {
+        playsContainer.innerHTML = '<div class="no-game-selected">No plays recorded yet</div>';
+      } else {
+        playsContainer.innerHTML = playLogs.slice(-50).reverse().map(entry => `
+          <div class="log-entry ${entry.type}">
+            <span class="log-time">${entry.time}</span>
+            <span class="log-type ${entry.type}">PLAY</span>
+            <div class="log-message">
+              ${entry.message}
+              ${entry.details ? `<div class="log-details">${typeof entry.details === 'string' ? entry.details : JSON.stringify(entry.details, null, 2)}</div>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // ============================================
+    // GAME FETCHING & MONITORING
+    // ============================================
+    async function fetchGames() {
+      const endpoint = apiEndpoints[selectedLeague];
+      log('api', `Fetching ${selectedLeague.toUpperCase()} games from ${endpoint}`);
+
+      try {
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+        games = data.events || [];
+
+        log('api', `Received ${games.length} games`, {
+          games: games.map(g => ({
+            id: g.id,
+            name: g.shortName || g.name,
+            state: g.status?.type?.state
+          }))
+        });
+
+        renderGameList();
+      } catch (err) {
+        log('error', `Failed to fetch games: ${err.message}`);
+      }
+    }
+
+    function renderGameList() {
+      const container = document.getElementById('game-list');
+
+      if (games.length === 0) {
+        container.innerHTML = '<div class="no-game-selected">No games found</div>';
+        return;
+      }
+
+      container.innerHTML = games.map(game => {
+        const comp = game.competitions?.[0];
+        const home = comp?.competitors?.find(c => c.homeAway === 'home');
+        const away = comp?.competitors?.find(c => c.homeAway === 'away');
+        const state = game.status?.type?.state || 'pre';
+        const isLive = state === 'in';
+        const isSelected = selectedGame?.id === game.id;
+
+        return `
+          <div class="game-item ${isLive ? 'live' : ''} ${isSelected ? 'active' : ''}" data-game-id="${game.id}">
+            <div class="game-header">
+              <span class="game-teams">${away?.team?.abbreviation || '?'} @ ${home?.team?.abbreviation || '?'}</span>
+              <span class="game-status ${state}">${state === 'in' ? 'LIVE' : state === 'pre' ? 'PRE' : 'FINAL'}</span>
+            </div>
+            <div class="game-score">
+              ${away?.score || 0} - ${home?.score || 0} | ${game.status?.type?.shortDetail || ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Add click handlers
+      container.querySelectorAll('.game-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const gameId = item.dataset.gameId;
+          selectGame(gameId);
+        });
+      });
+    }
+
+    function selectGame(gameId) {
+      selectedGame = games.find(g => g.id === gameId);
+
+      if (!selectedGame) {
+        log('error', `Game ${gameId} not found`);
+        return;
+      }
+
+      log('state', `Selected game: ${selectedGame.shortName || selectedGame.name}`, {
+        id: selectedGame.id,
+        state: selectedGame.status?.type?.state
+      });
+
+      // Update UI
+      document.querySelectorAll('.game-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.gameId === gameId);
+      });
+
+      document.getElementById('live-indicator').style.display = 'flex';
+      updateStatePanel();
+
+      // Start monitoring
+      startMonitoring();
+    }
+
+    // ============================================
+    // GAME MONITORING
+    // ============================================
+    function startMonitoring() {
+      if (refreshInterval) clearInterval(refreshInterval);
+
+      if (isRefreshing && selectedGame) {
+        refreshGameData();
+        refreshInterval = setInterval(refreshGameData, 5000);
+      }
+    }
+
+    async function refreshGameData() {
+      if (!selectedGame) return;
+
+      const endpoint = apiEndpoints[selectedLeague];
+      log('api', `Refreshing game data from ${endpoint}`);
+
+      try {
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+        const updatedGame = data.events?.find(e => e.id === selectedGame.id);
+
+        if (updatedGame) {
+          const prevData = prevGameData.get(selectedGame.id) || {};
+          analyzeGameUpdate(updatedGame, prevData);
+
+          // Store for next comparison
+          const comp = updatedGame.competitions?.[0];
+          prevGameData.set(selectedGame.id, {
+            awayScore: parseInt(comp?.competitors?.find(c => c.homeAway === 'away')?.score || 0),
+            homeScore: parseInt(comp?.competitors?.find(c => c.homeAway === 'home')?.score || 0),
+            lastPlay: comp?.situation?.lastPlay?.text || '',
+            down: comp?.situation?.down || 0,
+            downDistanceText: comp?.situation?.downDistanceText || ''
+          });
+
+          selectedGame = updatedGame;
+          games = data.events || [];
+          renderGameList();
+          updateStatePanel();
+        }
+      } catch (err) {
+        log('error', `Refresh failed: ${err.message}`);
+      }
+    }
+
+    function analyzeGameUpdate(game, prevData) {
+      const comp = game.competitions?.[0];
+      const situation = comp?.situation;
+      const lastPlay = situation?.lastPlay?.text || '';
+
+      const away = comp?.competitors?.find(c => c.homeAway === 'away');
+      const home = comp?.competitors?.find(c => c.homeAway === 'home');
+      const awayScore = parseInt(away?.score || 0);
+      const homeScore = parseInt(home?.score || 0);
+
+      // Check for score changes
+      const awayScoreChange = awayScore - (prevData.awayScore || 0);
+      const homeScoreChange = homeScore - (prevData.homeScore || 0);
+
+      if (awayScoreChange > 0 || homeScoreChange > 0) {
+        log('state', `Score change detected`, {
+          away: `${prevData.awayScore || 0} -> ${awayScore} (+${awayScoreChange})`,
+          home: `${prevData.homeScore || 0} -> ${homeScore} (+${homeScoreChange})`
+        });
+      }
+
+      // Check for new play
+      if (lastPlay && lastPlay !== prevData.lastPlay) {
+        log('play', `New play detected`, {
+          fullText: lastPlay,
+          down: situation?.down,
+          distance: situation?.distance,
+          yardLine: situation?.yardLine,
+          possession: situation?.possession,
+          downDistanceText: situation?.downDistanceText
+        });
+
+        // Detect animations that would trigger
+        detectAnimations(lastPlay, awayScoreChange, homeScoreChange, situation);
+      }
+
+      // Log situation changes
+      if (situation?.downDistanceText !== prevData.downDistanceText) {
+        log('state', `Down/distance changed: ${prevData.downDistanceText || 'N/A'} -> ${situation?.downDistanceText || 'N/A'}`);
+      }
+    }
+
+    function detectAnimations(lastPlay, awayScoreChange, homeScoreChange, situation) {
+      const lowerPlay = lastPlay.toLowerCase();
+      const animations = [];
+
+      // Touchdown detection
+      if (lowerPlay.includes('touchdown') || lowerPlay.includes('for a td')) {
+        // Check if it's an extra point play (skip TD animation)
+        const isXP = lowerPlay.includes('extra point') || lowerPlay.includes('pat ') ||
+                     lowerPlay.includes(' xp ') || lowerPlay.includes('two-point') ||
+                     lowerPlay.includes('2-pt');
+        if (!isXP) {
+          animations.push({ type: 'touchdown', reason: 'Play text contains touchdown' });
+        }
+      }
+
+      // Interception
+      if (lowerPlay.includes('intercept')) {
+        animations.push({ type: 'interception', reason: 'Play text contains intercept' });
+        if (lowerPlay.includes('touchdown') || lowerPlay.includes('for a td')) {
+          animations.push({ type: 'pick-six', reason: 'INT returned for TD' });
+        }
+      }
+
+      // Fumble
+      if (lowerPlay.includes('fumble')) {
+        animations.push({ type: 'fumble', reason: 'Play text contains fumble' });
+        if (lowerPlay.includes('touchdown') || lowerPlay.includes('for a td')) {
+          animations.push({ type: 'scoop-score', reason: 'Fumble returned for TD' });
+        }
+      }
+
+      // Field goal
+      if ((lowerPlay.includes('field goal') || lowerPlay.includes(' fg ')) &&
+          lowerPlay.includes('good') && !lowerPlay.includes('no good')) {
+        animations.push({ type: 'field-goal', reason: 'FG is good' });
+      }
+
+      // Missed FG
+      if ((lowerPlay.includes('field goal') || lowerPlay.includes(' fg ')) &&
+          (lowerPlay.includes('missed') || lowerPlay.includes('no good') || lowerPlay.includes('blocked'))) {
+        animations.push({ type: 'missed-kick', reason: 'FG missed/blocked' });
+      }
+
+      // Extra point
+      if ((lowerPlay.includes('extra point') || lowerPlay.includes('pat ') || lowerPlay.includes(' xp ')) &&
+          lowerPlay.includes('good') && !lowerPlay.includes('no good')) {
+        animations.push({ type: 'extra-point', reason: 'XP is good' });
+      }
+
+      // Safety
+      if (lowerPlay.includes('safety') && !lowerPlay.includes('free kick')) {
+        animations.push({ type: 'safety', reason: 'Safety detected' });
+      }
+
+      // Sack
+      if (lowerPlay.includes('sack') || lowerPlay.includes('sacked')) {
+        animations.push({ type: 'sack', reason: 'Sack detected' });
+      }
+
+      // Punt
+      if (lowerPlay.includes('punt') && !lowerPlay.includes('fake') && !lowerPlay.includes('touchdown')) {
+        animations.push({ type: 'punt', reason: 'Punt detected' });
+      }
+
+      // Penalty
+      if ((lowerPlay.includes('penalty') || lowerPlay.includes('flag')) &&
+          !lowerPlay.includes('no flags') && !lowerPlay.includes('declined')) {
+        animations.push({ type: 'penalty', reason: 'Penalty detected' });
+      }
+
+      // First down
+      const currentDown = situation?.down || 0;
+      const prevDown = parseInt(situation?.down || 0);
+      if (lowerPlay.includes('1st down') || lowerPlay.includes('first down') ||
+          lowerPlay.includes('for a 1st')) {
+        animations.push({ type: 'first-down', reason: 'First down in play text' });
+      }
+
+      // Score-based fallback
+      if (animations.length === 0) {
+        if (awayScoreChange === 6 || homeScoreChange === 6) {
+          animations.push({ type: 'touchdown', reason: 'Score +6 (fallback)' });
+        } else if (awayScoreChange === 3 || homeScoreChange === 3) {
+          animations.push({ type: 'field-goal', reason: 'Score +3 (fallback)' });
+        } else if (awayScoreChange === 2 || homeScoreChange === 2) {
+          animations.push({ type: 'safety-or-2pt', reason: 'Score +2 (fallback)' });
+        } else if (awayScoreChange === 1 || homeScoreChange === 1) {
+          animations.push({ type: 'extra-point', reason: 'Score +1 (fallback)' });
+        }
+      }
+
+      if (animations.length > 0) {
+        log('animation', `Would trigger: ${animations.map(a => a.type).join(', ')}`, animations);
+      }
+    }
+
+    // ============================================
+    // STATE PANEL
+    // ============================================
+    function updateStatePanel() {
+      // Selected game state
+      const gameStateEl = document.getElementById('selected-game-state');
+      if (selectedGame) {
+        const comp = selectedGame.competitions?.[0];
+        const situation = comp?.situation;
+        const away = comp?.competitors?.find(c => c.homeAway === 'away');
+        const home = comp?.competitors?.find(c => c.homeAway === 'home');
+
+        gameStateEl.innerHTML = `
+          <div class="state-item"><span class="state-key">ID</span><span class="state-value">${selectedGame.id}</span></div>
+          <div class="state-item"><span class="state-key">Name</span><span class="state-value">${selectedGame.shortName || selectedGame.name}</span></div>
+          <div class="state-item"><span class="state-key">State</span><span class="state-value">${selectedGame.status?.type?.state}</span></div>
+          <div class="state-item"><span class="state-key">Status</span><span class="state-value">${selectedGame.status?.type?.shortDetail}</span></div>
+          <div class="state-item"><span class="state-key">Away</span><span class="state-value">${away?.team?.abbreviation}: ${away?.score}</span></div>
+          <div class="state-item"><span class="state-key">Home</span><span class="state-value">${home?.team?.abbreviation}: ${home?.score}</span></div>
+          <div class="state-item"><span class="state-key">Down/Dist</span><span class="state-value">${situation?.downDistanceText || 'N/A'}</span></div>
+          <div class="state-item"><span class="state-key">Possession</span><span class="state-value">${situation?.possession || 'N/A'}</span></div>
+          <div class="state-item"><span class="state-key">Yard Line</span><span class="state-value">${situation?.yardLine || 'N/A'}</span></div>
+        `;
+      } else {
+        gameStateEl.innerHTML = '<div style="color: var(--text-secondary);">No game selected</div>';
+      }
+
+      // Prev game data
+      const prevDataEl = document.getElementById('prev-game-data-state');
+      if (selectedGame && prevGameData.has(selectedGame.id)) {
+        const prev = prevGameData.get(selectedGame.id);
+        prevDataEl.innerHTML = `
+          <div class="state-item"><span class="state-key">Away Score</span><span class="state-value">${prev.awayScore}</span></div>
+          <div class="state-item"><span class="state-key">Home Score</span><span class="state-value">${prev.homeScore}</span></div>
+          <div class="state-item"><span class="state-key">Down</span><span class="state-value">${prev.down}</span></div>
+          <div class="state-item"><span class="state-key">Last Play</span><span class="state-value" style="font-size: 10px; max-width: 200px;">${prev.lastPlay?.substring(0, 100)}...</span></div>
+        `;
+      } else {
+        prevDataEl.innerHTML = '<div style="color: var(--text-secondary);">No previous data</div>';
+      }
+
+      // LocalStorage
+      const lsEl = document.getElementById('localstorage-state');
+      const savedGames = localStorage.getItem('gridtv_sports_bar_games');
+      if (savedGames) {
+        try {
+          const parsed = JSON.parse(savedGames);
+          lsEl.innerHTML = `
+            <div class="state-item"><span class="state-key">Saved Games</span><span class="state-value">${parsed.length}</span></div>
+            <div class="json-viewer">${JSON.stringify(parsed.slice(0, 2), null, 2)}${parsed.length > 2 ? '\n... and more' : ''}</div>
+          `;
+        } catch (e) {
+          lsEl.innerHTML = '<div style="color: var(--accent-red);">Parse error</div>';
+        }
+      } else {
+        lsEl.innerHTML = '<div style="color: var(--text-secondary);">No cached games</div>';
+      }
+
+      // Animation queue (simulated - would need access to actual module)
+      const animQueueEl = document.getElementById('animation-queue-state');
+      animQueueEl.innerHTML = '<div style="color: var(--text-secondary);">Animation queue tracking requires sports bar page</div>';
+    }
+
+    // ============================================
+    // EXPORT FUNCTIONALITY
+    // ============================================
+    function exportLogs() {
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        session: {
+          league: selectedLeague,
+          gameId: selectedGame?.id,
+          gameName: selectedGame?.shortName || selectedGame?.name,
+          stats: { ...stats }
+        },
+        logs: logs.map(l => ({
+          ...l,
+          id: undefined // Remove internal id
+        }))
+      };
+
+      const formatted = JSON.stringify(exportData, null, 2);
+      document.getElementById('export-textarea').value = formatted;
+      document.getElementById('export-modal').classList.add('show');
+    }
+
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // League tabs
+      document.querySelectorAll('.league-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.league-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          selectedLeague = tab.dataset.league;
+          games = [];
+          selectedGame = null;
+          renderGameList();
+          log('state', `Switched to ${selectedLeague.toUpperCase()}`);
+        });
+      });
+
+      // Fetch games button
+      document.getElementById('fetch-games').addEventListener('click', fetchGames);
+
+      // Toggle refresh
+      document.getElementById('toggle-refresh').addEventListener('click', () => {
+        isRefreshing = !isRefreshing;
+        document.getElementById('toggle-refresh').textContent = isRefreshing ? 'Pause' : 'Resume';
+        if (isRefreshing) {
+          startMonitoring();
+        } else if (refreshInterval) {
+          clearInterval(refreshInterval);
+        }
+      });
+
+      // Tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          document.querySelector(`[data-content="${tab.dataset.tab}"]`).classList.add('active');
+        });
+      });
+
+      // Filters
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderLogs();
+        });
+      });
+
+      // Clear logs
+      document.getElementById('clear-logs').addEventListener('click', () => {
+        logs = [];
+        stats = { api: 0, plays: 0, animations: 0, errors: 0 };
+        updateStats();
+        renderLogs();
+        log('state', 'Logs cleared');
+      });
+
+      // Export
+      document.getElementById('export-btn').addEventListener('click', exportLogs);
+      document.getElementById('close-export').addEventListener('click', () => {
+        document.getElementById('export-modal').classList.remove('show');
+      });
+
+      document.getElementById('copy-logs').addEventListener('click', () => {
+        const textarea = document.getElementById('export-textarea');
+        textarea.select();
+        document.execCommand('copy');
+        document.getElementById('copy-logs').textContent = 'Copied!';
+        setTimeout(() => {
+          document.getElementById('copy-logs').textContent = 'Copy to Clipboard';
+        }, 2000);
+      });
+
+      document.getElementById('download-logs').addEventListener('click', () => {
+        const content = document.getElementById('export-textarea').value;
+        const blob = new Blob([content], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `gridtv-debug-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Refresh state button
+      document.getElementById('refresh-state').addEventListener('click', updateStatePanel);
+
+      // Initial log
+      log('state', 'Debug console initialized');
+    });
+  </script>
+</body>
+</html>

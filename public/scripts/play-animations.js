@@ -133,7 +133,7 @@ function processNextAnimation(card, cardId) {
  */
 function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', isNegated = false) {
   // Skip animations during the first update cycle after entering fullscreen mode
-  if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 6000) {
+  if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 3000) {
     return;
   }
   queueAnimation(card, playType, playText, teamName, recoveryInfo, recoveryLogo, isNegated);
@@ -152,7 +152,7 @@ function showPlayAnimation(card, playType, playText, teamName = '', recoveryInfo
  */
 function showPlayAnimationDirect(card, playType, playText, teamName = '', recoveryInfo = '', recoveryLogo = '', isNegated = false, onComplete = null) {
   // Skip animations during the first update cycle after entering fullscreen mode
-  if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 6000) {
+  if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 3000) {
     if (onComplete) onComplete();
     return;
   }
@@ -240,8 +240,6 @@ function showPlayAnimationDirect(card, playType, playText, teamName = '', recove
         <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow static" onerror="this.style.display='none';">
         <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow moving" onerror="this.style.display='none';">
       </div>
-      <div class="play-animation-text">${playText}</div>
-      ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
     `;
   } else if (playType === 'missed-kick') {
     // Special HTML for missed field goal/XP with YFrame and ball missing
@@ -780,7 +778,7 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
  */
 function showNHLAnimation(card, playType, playText, teamName = '') {
   // Skip animations during first 6 seconds after page load
-  if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 6000) {
+  if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 3000) {
     return;
   }
 
@@ -871,6 +869,136 @@ function detectNHLPlayEvents(card, game, comp, prevData) {
   }
 }
 
+/**
+ * Show MLB-specific animation
+ * @param {HTMLElement} card - The game card element
+ * @param {string} playType - 'home-run', 'strikeout', 'double-play', 'stolen-base', 'walk', 'hit', 'grand-slam'
+ * @param {string} playText - The text to display
+ * @param {string} teamName - The team name
+ */
+function showMLBAnimation(card, playType, playText, teamName = '') {
+  // Skip animations during first 3 seconds after page load
+  if (fullscreenEnteredAt && (Date.now() - fullscreenEnteredAt) < 3000) {
+    return;
+  }
+
+  // Remove any existing animation
+  const existingAnimation = card.querySelector('.play-animation');
+  if (existingAnimation) {
+    existingAnimation.remove();
+  }
+
+  // Create animation overlay
+  const animationDiv = document.createElement('div');
+  animationDiv.className = `play-animation ${playType}`;
+
+  // Choose icon based on play type
+  let icon;
+  switch (playType) {
+    case 'home-run':
+    case 'grand-slam':
+      icon = '💥';
+      break;
+    case 'strikeout':
+      icon = '🔥';
+      break;
+    case 'double-play':
+      icon = '⚡';
+      break;
+    case 'stolen-base':
+      icon = '🏃';
+      break;
+    case 'walk':
+      icon = '🚶';
+      break;
+    case 'hit':
+      icon = '💪';
+      break;
+    default:
+      icon = '⚾';
+  }
+
+  // Special HTML for home run with baseball flying
+  if (playType === 'home-run' || playType === 'grand-slam') {
+    animationDiv.innerHTML = `
+      <div class="home-run-container">
+        <div class="home-run-ball">⚾</div>
+        <div class="home-run-explosion">💥</div>
+      </div>
+      <div class="play-animation-text">${playText}</div>
+      ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+    `;
+  } else if (playType === 'strikeout') {
+    animationDiv.innerHTML = `
+      <div class="strikeout-container">
+        <div class="strikeout-k">K</div>
+      </div>
+      <div class="play-animation-text">${playText}</div>
+      ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+    `;
+  } else {
+    animationDiv.innerHTML = `
+      <div class="play-animation-icon">${icon}</div>
+      <div class="play-animation-text">${playText}</div>
+      ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+    `;
+  }
+
+  card.style.position = 'relative';
+  card.appendChild(animationDiv);
+
+  // Remove after animation completes (5 seconds for MLB)
+  setTimeout(() => {
+    if (animationDiv.parentNode) {
+      animationDiv.remove();
+    }
+  }, 5000);
+}
+
+/**
+ * Detect MLB play events and trigger animations
+ * @param {HTMLElement} card - The game card element
+ * @param {Object} game - Game data object with away/home scores
+ * @param {Object} comp - Competition data with competitors
+ * @param {Object} prevData - Previous game state (awayScore, homeScore, outs)
+ */
+function detectMLBPlayEvents(card, game, comp, prevData) {
+  const awayScoreChange = game.away.score - (prevData.awayScore || 0);
+  const homeScoreChange = game.home.score - (prevData.homeScore || 0);
+
+  const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
+  const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+  const awayName = awayTeam?.team?.displayName || 'Away';
+  const homeName = homeTeam?.team?.displayName || 'Home';
+
+  // Detect runs scored
+  if (awayScoreChange > 0 || homeScoreChange > 0) {
+    const scoringTeam = awayScoreChange > 0 ? awayName : homeName;
+    const runsScored = awayScoreChange > 0 ? awayScoreChange : homeScoreChange;
+
+    let playType, playText;
+    if (runsScored >= 4) {
+      playType = 'grand-slam';
+      playText = 'GRAND SLAM!';
+    } else if (runsScored >= 1) {
+      // Could be a home run or just runs scored
+      playType = 'home-run';
+      playText = runsScored === 1 ? 'RUN SCORED!' : `${runsScored} RUNS!`;
+    }
+
+    showMLBAnimation(card, playType, playText, scoringTeam);
+    console.log('⚾ MLB event:', playType, scoringTeam);
+  }
+
+  // Detect strikeout (outs increased and situation suggests strikeout)
+  const currentOuts = game.outs || 0;
+  const prevOuts = prevData.outs || 0;
+  if (currentOuts > prevOuts) {
+    // Could trigger strikeout animation here if we had play-by-play text
+    // For now, we just track the out change
+  }
+}
+
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -883,6 +1011,8 @@ if (typeof module !== 'undefined' && module.exports) {
     queueAnimation,
     processNextAnimation,
     showNHLAnimation,
-    detectNHLPlayEvents
+    detectNHLPlayEvents,
+    showMLBAnimation,
+    detectMLBPlayEvents
   };
 }
