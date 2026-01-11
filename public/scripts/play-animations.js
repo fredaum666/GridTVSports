@@ -84,6 +84,16 @@ function queueAnimation(card, playType, playText, teamName = '', recoveryInfo = 
   }
 
   const queue = animationQueues.get(cardId);
+
+  // Debug: Log queue status
+  console.log('📥 queueAnimation:', {
+    cardId,
+    playType,
+    playText,
+    queueLengthBefore: queue.length,
+    existingInQueue: queue.map(q => q.playText).join(', ')
+  });
+
   queue.push({ playType, playText, teamName, recoveryInfo, recoveryLogo, isNegated });
 
   // If this is the only animation in queue, start it
@@ -357,6 +367,14 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     prevDownDistance = ''
   } = options;
 
+  // Debug: Log when this function is called
+  console.log('🔍 analyzeAndAnimatePlay called:', {
+    gameId: card?.dataset?.gameId,
+    awayScoreChange,
+    homeScoreChange,
+    lastPlayPreview: lastPlay.substring(0, 80) + '...'
+  });
+
   const lowerLastPlay = lastPlay.toLowerCase();
 
   // Detect if play was negated by penalty ("No Play" at the end)
@@ -448,8 +466,16 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   }
 
   // 3. TOUCHDOWN detection (if not already caught by turnover)
+  // Skip if this is clearly an extra point/PAT play (play text may reference "after the touchdown")
+  const isExtraPointPlay = lowerLastPlay.includes('extra point') ||
+    lowerLastPlay.includes('pat ') ||
+    lowerLastPlay.includes(' xp ') ||
+    lowerLastPlay.includes('two-point') ||
+    lowerLastPlay.includes('2-pt');
+
   if ((lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) &&
-    !events.some(e => e.type === 'touchdown')) {
+    !events.some(e => e.type === 'touchdown') &&
+    !isExtraPointPlay) {
     let scoringTeam = '';
     if (awayScoreChange >= 6) {
       scoringTeam = awayName;

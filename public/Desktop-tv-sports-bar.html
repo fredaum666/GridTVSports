@@ -3092,6 +3092,15 @@
             if (game.league !== 'nfl' && game.league !== 'ncaa') return;
 
             const lastPlay = comp?.situation?.lastPlay?.text || '';
+
+            // Debug: Log every call to detectPlayEvents
+            console.log('🏈 detectPlayEvents:', {
+                gameId: game.id,
+                lastPlayPreview: lastPlay.substring(0, 50) + '...',
+                prevLastPlay: (prevData.lastPlay || '').substring(0, 50) + '...',
+                isDuplicate: prevData.lastPlay === lastPlay
+            });
+
             if (!lastPlay || prevData.lastPlay === lastPlay) return;
 
             const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
@@ -3304,21 +3313,17 @@
             try {
                 const now = Date.now();
                 const WAIT_BEFORE_SHOW = 30000; // 30 seconds of no play before showing stats
-                const PHASE_DURATION = 15000;   // Show each team for 15 seconds
+                const PHASE_DURATION = 15000;   // Show each team for 15 seconds (normal play)
+
+                // Halftime-specific timing
+                const HALFTIME_PHASE_DURATION = 60000;  // 1 minute per team during halftime
+                const HALFTIME_OFF_DURATION = 120000;   // 2 minutes off between cycles during halftime
 
                 for (const game of games) {
                     if (game.league !== 'nfl' || game.state !== 'in') continue;
 
                     const modal = document.querySelector(`.nfl-stats-modal[data-game-stats-id="${game.id}"]`);
                     if (!modal) continue;
-
-                    // Check if there's an active animation playing - never show stats over animations
-                    const card = modal.closest('.fullscreen-card');
-                    const hasActiveAnimation = card && card.querySelector('.play-animation');
-                    if (hasActiveAnimation) {
-                        modal.classList.remove('visible');
-                        continue;
-                    }
 
                     // Initialize state for this game if not exists
                     if (!statsModalState.has(game.id)) {
@@ -3329,28 +3334,66 @@
                             currentPhase: 0,       // 0 = away team, 1 = home team
                             phaseStartTime: null,
                             cachedStats: null,
-                            lastRenderedPhase: -1  // Track what phase was last rendered
+                            lastRenderedPhase: -1, // Track what phase was last rendered
+                            halftimeCooldownStart: null // Track halftime cooldown period
                         });
                     }
 
                     const state = statsModalState.get(game.id);
 
-                    // Check if game is in intermission
+                    // Check if there's an active animation playing - hide stats during animations
+                    // but don't skip the phase management logic
+                    const card = modal.closest('.fullscreen-card');
+                    const hasActiveAnimation = card && card.querySelector('.play-animation');
+                    if (hasActiveAnimation) {
+                        modal.classList.remove('visible');
+                        // Don't continue - still need to track phase timing
+                    } else if (state.isShowingStats) {
+                        // Re-show modal if it was hidden during animation but should still be visible
+                        modal.classList.add('visible');
+                    }
+
+                    // Check if game is specifically at halftime (not just any intermission)
                     const statusLower = (game.status || '').toLowerCase();
-                    const isIntermission = statusLower.includes('halftime') ||
-                        statusLower.includes('half') ||
+                    const isHalftime = statusLower.includes('halftime') ||
+                        statusLower === 'half' ||
+                        (statusLower.includes('2nd') && statusLower.includes('0:00'));
+
+                    // Check for other intermissions (end of quarters, etc.)
+                    const isIntermission = isHalftime ||
                         statusLower.includes('end of') ||
                         statusLower.includes('intermission') ||
-                        (statusLower.includes('2nd') && statusLower.includes('0:00')) ||
                         (statusLower.includes('4th') && statusLower.includes('0:00'));
 
                     const hasActivePlays = !!game.downDistance && !isIntermission;
+
+                    // Use halftime-specific timing if at halftime
+                    const phaseDuration = isHalftime ? HALFTIME_PHASE_DURATION : PHASE_DURATION;
+
+                    // If in halftime cooldown period, check if it's over
+                    if (state.halftimeCooldownStart && isHalftime) {
+                        const cooldownElapsed = now - state.halftimeCooldownStart;
+                        if (cooldownElapsed < HALFTIME_OFF_DURATION) {
+                            // Still in cooldown - keep modal hidden
+                            modal.classList.remove('visible');
+                            continue;
+                        } else {
+                            // Cooldown complete - reset and start new cycle
+                            state.halftimeCooldownStart = null;
+                            state.noPlayStartTime = now - WAIT_BEFORE_SHOW; // Immediately trigger stats display
+                        }
+                    }
+
+                    // Reset halftime cooldown if no longer at halftime
+                    if (!isHalftime && state.halftimeCooldownStart) {
+                        state.halftimeCooldownStart = null;
+                    }
 
                     // If stats are currently showing, manage phase transitions
                     if (state.isShowingStats) {
                         const elapsedPhaseTime = now - state.phaseStartTime;
 
-                        if (elapsedPhaseTime >= PHASE_DURATION) {
+                        if (elapsedPhaseTime >= phaseDuration) {
                             // Current phase complete
                             if (state.currentPhase === 0) {
                                 // Switch to phase 1 (home team)
@@ -3358,12 +3401,10 @@
                                 state.phaseStartTime = now;
                                 state.lastRenderedPhase = 1;
                                 if (state.cachedStats) {
-                                    console.log(`📊 Stats modal phase switch: showing HOME team for game ${game.id}`);
                                     renderStatsModal(modal, state.cachedStats, game, 1);
                                 }
                             } else {
                                 // Both phases complete - hide and reset
-                                console.log(`📊 Stats modal complete: hiding for game ${game.id}`);
                                 modal.classList.remove('visible');
                                 state.isShowingStats = false;
                                 state.showStartTime = null;
@@ -3371,7 +3412,14 @@
                                 state.currentPhase = 0;
                                 state.cachedStats = null;
                                 state.lastRenderedPhase = -1;
-                                state.noPlayStartTime = hasActivePlays ? null : now; // Reset wait timer
+
+                                if (isHalftime) {
+                                    // Start halftime cooldown period
+                                    state.halftimeCooldownStart = now;
+                                    state.noPlayStartTime = null;
+                                } else {
+                                    state.noPlayStartTime = hasActivePlays ? null : now; // Reset wait timer
+                                }
                             }
                         }
                         // Keep showing current phase
@@ -3390,8 +3438,11 @@
                         }
 
                         const waitedTime = now - state.noPlayStartTime;
-                        if (waitedTime >= WAIT_BEFORE_SHOW) {
-                            // 30 seconds of no play - show the stats modal
+                        // At halftime, start showing immediately (no wait period needed)
+                        const waitTime = isHalftime ? 0 : WAIT_BEFORE_SHOW;
+
+                        if (waitedTime >= waitTime) {
+                            // Show the stats modal
                             state.isShowingStats = true;
                             state.showStartTime = now;
                             state.phaseStartTime = now;
@@ -3403,7 +3454,7 @@
                             const stats = await fetchGameStats(game.id);
                             if (stats) {
                                 state.cachedStats = stats;
-                                console.log(`📊 Stats modal started: showing AWAY team for game ${game.id}`, stats.away?.name, 'vs', stats.home?.name);
+                                console.log(`📊 Stats modal started: showing AWAY team for game ${game.id}${isHalftime ? ' (halftime mode - 1 min per team)' : ''}`, stats.away?.name, 'vs', stats.home?.name);
                                 renderStatsModal(modal, stats, game, 0); // Phase 0 = away team
                             }
                         }
