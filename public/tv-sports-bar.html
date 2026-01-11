@@ -2710,18 +2710,6 @@
 
                     const state = statsModalState.get(game.id);
 
-                    // Check if there's an active animation playing - hide stats during animations
-                    // but don't skip the phase management logic
-                    const card = modal.closest('.fullscreen-card');
-                    const hasActiveAnimation = card && card.querySelector('.play-animation');
-                    if (hasActiveAnimation) {
-                        modal.classList.remove('visible');
-                        // Don't continue - still need to track phase timing
-                    } else if (state.isShowingStats) {
-                        // Re-show modal if it was hidden during animation but should still be visible
-                        modal.classList.add('visible');
-                    }
-
                     // Check if game is specifically at halftime (not just any intermission)
                     const statusLower = (game.status || '').toLowerCase();
                     const isHalftime = statusLower.includes('halftime') ||
@@ -2735,6 +2723,14 @@
                         (statusLower.includes('4th') && statusLower.includes('0:00'));
 
                     const hasActivePlays = !!game.downDistance && !isIntermission;
+
+                    // Check if there's an active animation playing - hide stats during animations
+                    const card = modal.closest('.fullscreen-card');
+                    const hasActiveAnimation = card && card.querySelector('.play-animation');
+                    if (hasActiveAnimation) {
+                        modal.classList.remove('visible');
+                        // Continue to manage state timing, but don't show modal during animation
+                    }
 
                     // Use halftime-specific timing if at halftime
                     const phaseDuration = isHalftime ? HALFTIME_PHASE_DURATION : PHASE_DURATION;
@@ -2771,6 +2767,12 @@
                             state.lastRenderedPhase = -1;
                             state.noPlayStartTime = null;
                             continue;
+                        }
+
+                        // Re-add visible class if no active play and no animation
+                        // (needed because renderGrid recreates the modal element without the class)
+                        if (!hasActiveAnimation) {
+                            modal.classList.add('visible');
                         }
 
                         const elapsedPhaseTime = now - state.phaseStartTime;
