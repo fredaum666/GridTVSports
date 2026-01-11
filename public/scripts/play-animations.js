@@ -772,7 +772,10 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   const possessionChanged = prevPossession !== null && currentPossession !== null &&
     prevPossession !== currentPossession;
 
-  if (was4thDown && possessionChanged && !isTurnover && !isPuntOrKick && !isScoreOrPenalty) {
+  // Turnover on downs is specifically: 4th down + possession change + NOT a punt/kick/fumble/int
+  const isTurnoverOnDowns = was4thDown && possessionChanged && !isTurnover && !isPuntOrKick && !isScoreOrPenalty;
+
+  if (isTurnoverOnDowns) {
     const turnoverKey = `turnover-${downDistanceText}-${lastPlay.substring(0, 50)}`;
     if (card.dataset.lastTurnoverOnDowns !== turnoverKey) {
       showPlayAnimation(card, 'turnover-on-downs', 'TURNOVER ON DOWNS!');
@@ -789,9 +792,10 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     lowerLastPlay.includes('for a 1st');
 
   // Detect first down from down transition (2nd/3rd/4th -> 1st)
-  // But NOT if it was 4th down with possession change (that's turnover on downs, not first down)
+  // Exclude turnover on downs (4th down failed conversion with possession change, not punt/kick)
+  // Punts/kicks are OK - the receiving team gets 1st down after a punt
   const downTransitionFirstDown = currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
-    !(was4thDown && possessionChanged);
+    !isTurnoverOnDowns;
 
   // Detect first down when staying on 1st down but yard line changed significantly
   // This catches 1st down -> new 1st down scenarios
@@ -799,8 +803,10 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     downDistanceText !== prevDownDistance && prevDownDistance !== '' &&
     playTextHasFirstDown;
 
-  const isNewFirstDown = downTransitionFirstDown || sameDownNewFirstDown ||
-    (playTextHasFirstDown && currentDown === 1 && card.dataset.lastPlayText !== lastPlay && !possessionChanged);
+  // Don't trigger first down on turnover on downs
+  const isNewFirstDown = (downTransitionFirstDown || sameDownNewFirstDown ||
+    (playTextHasFirstDown && currentDown === 1 && card.dataset.lastPlayText !== lastPlay)) &&
+    !isTurnoverOnDowns;
 
   if (isNewFirstDown && !isTurnover && !isPuntOrKick && !isScoreOrPenalty) {
     // Use lastPlay as part of the key to prevent duplicate triggers
