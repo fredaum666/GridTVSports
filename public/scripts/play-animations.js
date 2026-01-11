@@ -792,21 +792,20 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     lowerLastPlay.includes('for a 1st');
 
   // Detect first down from down transition (2nd/3rd/4th -> 1st)
-  // Exclude turnover on downs (4th down failed conversion with possession change, not punt/kick)
-  // Punts/kicks are OK - the receiving team gets 1st down after a punt
+  // Only trigger if possession did NOT change (same team earned the first down)
+  // Excludes: punts, kickoffs, turnovers, turnover on downs
   const downTransitionFirstDown = currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
-    !isTurnoverOnDowns;
+    !possessionChanged;
 
   // Detect first down when staying on 1st down but yard line changed significantly
-  // This catches 1st down -> new 1st down scenarios
+  // This catches 1st down -> new 1st down scenarios (same team keeps moving)
   const sameDownNewFirstDown = currentDown === 1 && prevDown === 1 &&
     downDistanceText !== prevDownDistance && prevDownDistance !== '' &&
-    playTextHasFirstDown;
+    playTextHasFirstDown && !possessionChanged;
 
-  // Don't trigger first down on turnover on downs
+  // First down only when same team earns it (no possession change)
   const isNewFirstDown = (downTransitionFirstDown || sameDownNewFirstDown ||
-    (playTextHasFirstDown && currentDown === 1 && card.dataset.lastPlayText !== lastPlay)) &&
-    !isTurnoverOnDowns;
+    (playTextHasFirstDown && currentDown === 1 && card.dataset.lastPlayText !== lastPlay && !possessionChanged));
 
   if (isNewFirstDown && !isTurnover && !isPuntOrKick && !isScoreOrPenalty) {
     // Use lastPlay as part of the key to prevent duplicate triggers
