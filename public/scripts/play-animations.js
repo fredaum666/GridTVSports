@@ -431,23 +431,41 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     let recoveryTeam = '';
     let recoveryLogo = '';
 
+    // Parse "RECOVERED by TEAM-PlayerName" format
+    // Example: "RECOVERED by NE-E.Ponder" or "RECOVERED by JAX-D.Lloyd"
     if (lowerLastPlay.includes('recovered by')) {
       const recoveredIndex = lowerLastPlay.indexOf('recovered by');
-      const afterRecovered = lastPlay.substring(recoveredIndex);
+      const afterRecovered = lastPlay.substring(recoveredIndex + 13); // Skip "recovered by "
 
-      if (afterRecovered.toLowerCase().includes(awayAbbr.toLowerCase())) {
-        recoveryTeam = awayName;
-        recoveryLogo = awayLogo;
-      } else if (afterRecovered.toLowerCase().includes(homeAbbr.toLowerCase())) {
-        recoveryTeam = homeName;
-        recoveryLogo = homeLogo;
+      // The team abbreviation comes right after "RECOVERED by " and before the hyphen
+      // Format: "RECOVERED by XXX-PlayerName" where XXX is the team abbreviation
+      const hyphenIndex = afterRecovered.indexOf('-');
+      if (hyphenIndex > 0) {
+        const recoveredByTeam = afterRecovered.substring(0, hyphenIndex).trim().toUpperCase();
+
+        if (recoveredByTeam === awayAbbr.toUpperCase()) {
+          recoveryTeam = awayName;
+          recoveryLogo = awayLogo;
+        } else if (recoveredByTeam === homeAbbr.toUpperCase()) {
+          recoveryTeam = homeName;
+          recoveryLogo = homeLogo;
+        }
+      } else {
+        // Fallback: check if team abbr appears in the text after "recovered by"
+        if (afterRecovered.toUpperCase().startsWith(awayAbbr.toUpperCase())) {
+          recoveryTeam = awayName;
+          recoveryLogo = awayLogo;
+        } else if (afterRecovered.toUpperCase().startsWith(homeAbbr.toUpperCase())) {
+          recoveryTeam = homeName;
+          recoveryLogo = homeLogo;
+        }
       }
     }
 
     events.push({
       type: 'fumble',
       text: 'FUMBLE!',
-      teamName: '',
+      teamName: recoveryTeam,
       logo: recoveryLogo,
       isNegated: isNegated
     });

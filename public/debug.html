@@ -503,7 +503,7 @@
       <span class="badge badge-admin">Admin</span>
     </div>
     <div class="header-controls">
-      <span class="refresh-info" id="refresh-info">Auto-refresh: 5s</span>
+      <span class="refresh-info" id="refresh-info">Auto-refresh: 20s</span>
       <div class="live-indicator" id="live-indicator" style="display: none;">
         <span class="live-dot"></span>
         <span>Monitoring</span>
@@ -619,6 +619,24 @@
             <div class="state-card-header">Animation Queue</div>
             <div class="state-card-body" id="animation-queue-state">
               <div style="color: var(--text-secondary);">-</div>
+            </div>
+          </div>
+          <div class="state-card" style="grid-column: span 2;">
+            <div class="state-card-header">
+              Server Cache Status
+              <button class="btn" id="refresh-cache-status">Refresh</button>
+            </div>
+            <div class="state-card-body" id="server-cache-state">
+              <div style="color: var(--text-secondary);">Loading...</div>
+            </div>
+          </div>
+          <div class="state-card" style="grid-column: span 2;">
+            <div class="state-card-header">
+              ESPN API Health
+              <button class="btn" id="refresh-espn-status">Refresh</button>
+            </div>
+            <div class="state-card-body" id="espn-health-state">
+              <div style="color: var(--text-secondary);">Loading...</div>
             </div>
           </div>
         </div>
@@ -856,7 +874,7 @@
 
       if (isRefreshing && selectedGame) {
         refreshGameData();
-        refreshInterval = setInterval(refreshGameData, 5000);
+        refreshInterval = setInterval(refreshGameData, 20000);
       }
     }
 
@@ -1096,6 +1114,82 @@
       // Animation queue (simulated - would need access to actual module)
       const animQueueEl = document.getElementById('animation-queue-state');
       animQueueEl.innerHTML = '<div style="color: var(--text-secondary);">Animation queue tracking requires sports bar page</div>';
+
+      // Fetch server cache status
+      fetchServerCacheStatus();
+      fetchESPNHealthStatus();
+    }
+
+    // Fetch and display server cache status
+    async function fetchServerCacheStatus() {
+      const cacheEl = document.getElementById('server-cache-state');
+      try {
+        const response = await fetch('/api/health/cache');
+        const data = await response.json();
+
+        // Log cache fetch for tracking
+        log('cache', 'Server cache status fetched', {
+          status: data.status,
+          hits: data.stats?.hits,
+          misses: data.stats?.misses,
+          hitRate: data.stats?.hitRate,
+          backgroundUpdates: data.stats?.backgroundUpdates,
+          lastUpdate: data.stats?.lastBackgroundUpdate
+        });
+
+        const cacheForLeague = data.caches?.[selectedLeague];
+        const activeKey = selectedLeague === 'nfl' || selectedLeague === 'ncaa' ? 'activeWeeks' : 'activeDates';
+        const activeItems = cacheForLeague?.[activeKey] || [];
+
+        cacheEl.innerHTML = `
+          <div class="state-item"><span class="state-key">Status</span><span class="state-value" style="color: ${data.status === 'ready' ? 'var(--accent-green)' : 'var(--accent-yellow)'}">${data.status}</span></div>
+          <div class="state-item"><span class="state-key">Cache Hits</span><span class="state-value" style="color: var(--accent-green)">${data.stats?.hits || 0}</span></div>
+          <div class="state-item"><span class="state-key">Cache Misses</span><span class="state-value" style="color: var(--accent-red)">${data.stats?.misses || 0}</span></div>
+          <div class="state-item"><span class="state-key">Hit Rate</span><span class="state-value">${data.stats?.hitRate || 'N/A'}</span></div>
+          <div class="state-item"><span class="state-key">Background Updates</span><span class="state-value" style="color: var(--accent-blue)">${data.stats?.backgroundUpdates || 0}</span></div>
+          <div class="state-item"><span class="state-key">Last Background Update</span><span class="state-value" style="font-size: 10px;">${data.stats?.lastBackgroundUpdate || 'Never'}</span></div>
+          <div class="state-item"><span class="state-key">Poll Interval</span><span class="state-value">${data.architecture?.pollInterval || '20s'}</span></div>
+          <div class="state-item"><span class="state-key">${selectedLeague.toUpperCase()} Active</span><span class="state-value">${activeItems.join(', ') || 'None'}</span></div>
+          <div class="state-item" style="grid-column: span 2;"><span class="state-key">${selectedLeague.toUpperCase()} Cache Entries</span></div>
+          <div class="json-viewer" style="grid-column: span 2; max-height: 150px; overflow-y: auto;">${JSON.stringify(cacheForLeague?.entries || {}, null, 2)}</div>
+        `;
+      } catch (error) {
+        log('error', 'Failed to fetch cache status', { error: error.message });
+        cacheEl.innerHTML = `<div style="color: var(--accent-red);">Error: ${error.message}</div>`;
+      }
+    }
+
+    // Fetch and display ESPN API health
+    async function fetchESPNHealthStatus() {
+      const espnEl = document.getElementById('espn-health-state');
+      try {
+        const response = await fetch('/api/health/espn');
+        const data = await response.json();
+
+        // Log ESPN health fetch
+        log('cache', 'ESPN API health fetched', {
+          status: data.status,
+          totalCalls: data.metrics?.totalCalls,
+          successRate: data.metrics?.successRate,
+          rateLimitHits: data.metrics?.rateLimitHits
+        });
+
+        const statusColor = data.status === 'healthy' ? 'var(--accent-green)' : data.status === 'degraded' ? 'var(--accent-yellow)' : 'var(--accent-red)';
+
+        espnEl.innerHTML = `
+          <div class="state-item"><span class="state-key">Status</span><span class="state-value" style="color: ${statusColor}">${data.status}</span></div>
+          <div class="state-item"><span class="state-key">Uptime</span><span class="state-value">${data.uptime}</span></div>
+          <div class="state-item"><span class="state-key">Total ESPN Calls</span><span class="state-value" style="color: var(--accent-blue)">${data.metrics?.totalCalls || 0}</span></div>
+          <div class="state-item"><span class="state-key">Success Calls</span><span class="state-value" style="color: var(--accent-green)">${data.metrics?.successCalls || 0}</span></div>
+          <div class="state-item"><span class="state-key">Failed Calls</span><span class="state-value" style="color: var(--accent-red)">${data.metrics?.failedCalls || 0}</span></div>
+          <div class="state-item"><span class="state-key">Success Rate</span><span class="state-value">${data.metrics?.successRate || 'N/A'}</span></div>
+          <div class="state-item"><span class="state-key">Rate Limit Hits</span><span class="state-value" style="color: var(--accent-yellow)">${data.metrics?.rateLimitHits || 0}</span></div>
+          ${data.lastError ? `<div class="state-item" style="grid-column: span 2;"><span class="state-key">Last Error</span><span class="state-value" style="color: var(--accent-red); font-size: 10px;">${JSON.stringify(data.lastError)}</span></div>` : ''}
+        `;
+      } catch (error) {
+        log('error', 'Failed to fetch ESPN health', { error: error.message });
+        espnEl.innerHTML = `<div style="color: var(--accent-red);">Error: ${error.message}</div>`;
+      }
     }
 
     // ============================================
@@ -1210,8 +1304,24 @@
       // Refresh state button
       document.getElementById('refresh-state').addEventListener('click', updateStatePanel);
 
+      // Refresh cache status button
+      document.getElementById('refresh-cache-status').addEventListener('click', fetchServerCacheStatus);
+
+      // Refresh ESPN health button
+      document.getElementById('refresh-espn-status').addEventListener('click', fetchESPNHealthStatus);
+
       // Initial log
       log('state', 'Debug console initialized');
+
+      // Initial fetch of server status
+      fetchServerCacheStatus();
+      fetchESPNHealthStatus();
+
+      // Auto-refresh server stats every 20 seconds
+      setInterval(() => {
+        fetchServerCacheStatus();
+        fetchESPNHealthStatus();
+      }, 20000);
     });
   </script>
 </body>

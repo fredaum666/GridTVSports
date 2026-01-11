@@ -3751,7 +3751,7 @@
         const gameStatsCache = new Map(); // gameId -> { stats, lastFetch }
         const STATS_CACHE_TTL = 20000; // 20 seconds cache
 
-        async function fetchGameStats(gameId) {
+        async function fetchGameStats(gameId, retryCount = 0) {
             const cached = gameStatsCache.get(gameId);
             const now = Date.now();
 
@@ -3765,10 +3765,20 @@
                 if (!response.ok) throw new Error('Failed to fetch stats');
 
                 const data = await response.json();
+
+                // Handle server cache miss - retry after delay
+                if (data._cache && !data._cache.hit && data._cache.retryAfter && retryCount < 3) {
+                    console.log(`[Stats] Cache miss for ${gameId}, retrying in ${data._cache.retryAfter}s...`);
+                    await new Promise(resolve => setTimeout(resolve, data._cache.retryAfter * 1000));
+                    return fetchGameStats(gameId, retryCount + 1);
+                }
+
                 const stats = parseGameStats(data);
 
-                // Cache the stats
-                gameStatsCache.set(gameId, { stats, lastFetch: now });
+                // Only cache if we got valid stats
+                if (stats) {
+                    gameStatsCache.set(gameId, { stats, lastFetch: now });
+                }
 
                 return stats;
             } catch (err) {
@@ -4018,6 +4028,19 @@
 
                     // If stats are currently showing, manage phase transitions
                     if (state.isShowingStats) {
+                        // If a new play started, immediately hide stats
+                        if (hasActivePlays) {
+                            modal.classList.remove('visible');
+                            state.isShowingStats = false;
+                            state.showStartTime = null;
+                            state.phaseStartTime = null;
+                            state.currentPhase = 0;
+                            state.cachedStats = null;
+                            state.lastRenderedPhase = -1;
+                            state.noPlayStartTime = null;
+                            continue;
+                        }
+
                         const elapsedPhaseTime = now - state.phaseStartTime;
 
                         if (elapsedPhaseTime >= phaseDuration) {

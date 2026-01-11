@@ -2760,8 +2760,31 @@ const sportsCache = {
   ncaab: { data: new Map(), activeDates: new Set() },
   mlb: { data: new Map(), activeDates: new Set() },
   nhl: { data: new Map(), activeDates: new Set() },
-  CACHE_DURATION: 30000, // 30 seconds for live games (increased to avoid ESPN rate limits)
-  COMPLETED_CACHE_DURATION: 3600000 // 1 hour for completed
+  CACHE_DURATION: 30000, // Not used for client requests anymore - clients always get cache
+  COMPLETED_CACHE_DURATION: 3600000, // 1 hour for completed
+  BACKGROUND_POLL_INTERVAL: 20000, // 20 seconds - background polling interval
+  initialized: false, // Track if initial cache population is done
+  lastUpdate: null // Track last background update time
+};
+
+// Game Stats/Summary Cache - stores detailed game stats (boxscore, play-by-play, etc.)
+// Key format: "{league}-{gameId}" e.g., "nfl-401772977"
+const gameStatsCache = {
+  data: new Map(),
+  STATS_CACHE_DURATION: 30000, // 30 seconds for live game stats
+  COMPLETED_STATS_CACHE_DURATION: 3600000 // 1 hour for completed games
+};
+
+// Cache statistics for monitoring
+const cacheStats = {
+  hits: 0,
+  misses: 0,
+  statsHits: 0,
+  statsMisses: 0,
+  backgroundUpdates: 0,
+  statsUpdates: 0,
+  lastBackgroundUpdate: null,
+  startTime: Date.now()
 };
 
 // ============================================
@@ -3056,6 +3079,310 @@ function getTomorrowDate() {
 }
 
 // ============================================
+// BACKGROUND CACHE FETCH FUNCTIONS
+// ============================================
+// These functions fetch data from ESPN and populate the cache.
+// They are called by background jobs and on cache miss.
+
+async function fetchNFLDataForCache(cacheKey, seasonType, week) {
+  const url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=${seasonType}&week=${week}`;
+  console.log(`[NFL Cache] Fetching: ${url}`);
+
+  let data = await fetchESPN(url);
+  let isComplete = areAllGamesComplete(data);
+
+  // If current week is complete, also fetch next week for upcoming games
+  if (isComplete) {
+    let nextUrl;
+    if (seasonType === 2 && week < 18) {
+      nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=2&week=${week + 1}`;
+    } else if (seasonType === 2 && week === 18) {
+      nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=1`;
+    } else if (seasonType === 3 && week < 5) {
+      nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${week + 1}`;
+    }
+
+    if (nextUrl) {
+      try {
+        const nextData = await fetchESPN(nextUrl);
+        if (nextData.events && nextData.events.length > 0) {
+          data.events = [...(data.events || []), ...nextData.events];
+          isComplete = false;
+        }
+      } catch (e) {
+        // Ignore errors fetching next week
+      }
+    }
+  }
+
+  const now = Date.now();
+  sportsCache.nfl.data.set(cacheKey, { data, timestamp: now, isComplete });
+  cacheStats.backgroundUpdates++;
+  cacheStats.lastBackgroundUpdate = now;
+
+  if (isComplete) {
+    sportsCache.nfl.activeWeeks.delete(cacheKey);
+  } else {
+    sportsCache.nfl.activeWeeks.add(cacheKey);
+  }
+
+  return data;
+}
+
+async function fetchNCAADataForCache(cacheKey, seasonType, week) {
+  let url;
+  if (seasonType === 'bowl') {
+    url = `${ESPN_BASE}/football/college-football/scoreboard?seasontype=3&week=1&groups=80&limit=100`;
+  } else {
+    url = `${ESPN_BASE}/football/college-football/scoreboard?seasontype=2&week=${week}&groups=80&limit=100`;
+  }
+
+  console.log(`[NCAA Cache] Fetching: ${url}`);
+  const data = await fetchESPN(url);
+  const isComplete = areAllGamesComplete(data);
+  const now = Date.now();
+
+  sportsCache.ncaa.data.set(cacheKey, { data, timestamp: now, isComplete });
+  cacheStats.backgroundUpdates++;
+  cacheStats.lastBackgroundUpdate = now;
+
+  if (isComplete) {
+    sportsCache.ncaa.activeWeeks.delete(cacheKey);
+  } else {
+    sportsCache.ncaa.activeWeeks.add(cacheKey);
+  }
+
+  return data;
+}
+
+async function fetchNBADataForCache(date) {
+  const url = `${ESPN_BASE}/basketball/nba/scoreboard?dates=${date}`;
+  console.log(`[NBA Cache] Fetching: ${url}`);
+
+  const data = await fetchESPN(url);
+  const isComplete = areAllGamesComplete(data);
+  const now = Date.now();
+
+  sportsCache.nba.data.set(`date-${date}`, { data, timestamp: now, isComplete });
+  cacheStats.backgroundUpdates++;
+  cacheStats.lastBackgroundUpdate = now;
+
+  if (isComplete) {
+    sportsCache.nba.activeDates.delete(date);
+  } else {
+    sportsCache.nba.activeDates.add(date);
+  }
+
+  return data;
+}
+
+async function fetchNCAABDataForCache(date) {
+  const url = `${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?dates=${date}&groups=50&limit=100`;
+  console.log(`[NCAAB Cache] Fetching: ${url}`);
+
+  const data = await fetchESPN(url);
+  const isComplete = areAllGamesComplete(data);
+  const now = Date.now();
+
+  sportsCache.ncaab.data.set(`date-${date}`, { data, timestamp: now, isComplete });
+  cacheStats.backgroundUpdates++;
+  cacheStats.lastBackgroundUpdate = now;
+
+  if (isComplete) {
+    sportsCache.ncaab.activeDates.delete(date);
+  } else {
+    sportsCache.ncaab.activeDates.add(date);
+  }
+
+  return data;
+}
+
+async function fetchMLBDataForCache(date) {
+  const url = `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${date}`;
+  console.log(`[MLB Cache] Fetching: ${url}`);
+
+  const data = await fetchESPN(url);
+  const isComplete = areAllGamesComplete(data);
+  const now = Date.now();
+
+  sportsCache.mlb.data.set(`date-${date}`, { data, timestamp: now, isComplete });
+  cacheStats.backgroundUpdates++;
+  cacheStats.lastBackgroundUpdate = now;
+
+  if (isComplete) {
+    sportsCache.mlb.activeDates.delete(date);
+  } else {
+    sportsCache.mlb.activeDates.add(date);
+  }
+
+  return data;
+}
+
+async function fetchNHLDataForCache(date) {
+  const url = `${ESPN_BASE}/hockey/nhl/scoreboard?dates=${date}`;
+  console.log(`[NHL Cache] Fetching: ${url}`);
+
+  const data = await fetchESPN(url);
+  const isComplete = areAllGamesComplete(data);
+  const now = Date.now();
+
+  sportsCache.nhl.data.set(`date-${date}`, { data, timestamp: now, isComplete });
+  cacheStats.backgroundUpdates++;
+  cacheStats.lastBackgroundUpdate = now;
+
+  if (isComplete) {
+    sportsCache.nhl.activeDates.delete(date);
+  } else {
+    sportsCache.nhl.activeDates.add(date);
+  }
+
+  return data;
+}
+
+// ============================================
+// GAME STATS/SUMMARY CACHE FUNCTIONS
+// ============================================
+// Fetches detailed game stats (boxscore, play-by-play) and caches them
+
+async function fetchGameStatsForCache(league, gameId, isComplete = false) {
+  const cacheKey = `${league}-${gameId}`;
+
+  // Determine the correct ESPN endpoint based on league
+  const leagueEndpoints = {
+    'nfl': `${ESPN_BASE}/football/nfl/summary?event=${gameId}`,
+    'ncaa': `${ESPN_BASE}/football/college-football/summary?event=${gameId}`,
+    'nba': `${ESPN_BASE}/basketball/nba/summary?event=${gameId}`,
+    'ncaab': `${ESPN_BASE}/basketball/mens-college-basketball/summary?event=${gameId}`,
+    'mlb': `${ESPN_BASE}/baseball/mlb/summary?event=${gameId}`,
+    'nhl': `${ESPN_BASE}/hockey/nhl/summary?event=${gameId}`
+  };
+
+  const url = leagueEndpoints[league];
+  if (!url) {
+    console.error(`[Stats Cache] Unknown league: ${league}`);
+    return null;
+  }
+
+  try {
+    const data = await fetchESPN(url);
+    const now = Date.now();
+
+    gameStatsCache.data.set(cacheKey, {
+      data,
+      timestamp: now,
+      isComplete,
+      league,
+      gameId
+    });
+
+    cacheStats.statsUpdates++;
+    return data;
+  } catch (error) {
+    console.error(`[Stats Cache] Failed to fetch stats for ${cacheKey}:`, error.message);
+    return null;
+  }
+}
+
+// Pre-fetch stats for all live games in a scoreboard response
+async function prefetchLiveGameStats(league, scoreboardData) {
+  if (!scoreboardData?.events) return;
+
+  const liveGames = scoreboardData.events.filter(e => e.status?.type?.state === 'in');
+
+  if (liveGames.length === 0) return;
+
+  // Fetch stats for all live games in parallel
+  const fetchPromises = liveGames.map(async (game) => {
+    const cacheKey = `${league}-${game.id}`;
+    const cached = gameStatsCache.data.get(cacheKey);
+    const now = Date.now();
+
+    // Skip if recently fetched (within 20 seconds)
+    if (cached && (now - cached.timestamp) < 20000) {
+      return;
+    }
+
+    try {
+      await fetchGameStatsForCache(league, game.id, false);
+    } catch (e) {
+      // Ignore individual failures
+    }
+  });
+
+  await Promise.allSettled(fetchPromises);
+}
+
+// Initialize cache on server startup
+async function initializeCache() {
+  console.log('[Cache] Initializing cache with current data...');
+  const today = getTodayDate();
+  const yesterday = getYesterdayDate();
+  const tomorrow = getTomorrowDate();
+
+  try {
+    // NFL - fetch current week
+    const nflSeason = getNFLSeasonInfo();
+    const nflCacheKey = nflSeason.seasonType === 3
+      ? `postseason-week-${nflSeason.week}`
+      : `regular-week-${nflSeason.week}`;
+    await fetchNFLDataForCache(nflCacheKey, nflSeason.seasonType, nflSeason.week);
+    console.log(`[Cache] NFL initialized: ${nflCacheKey}`);
+  } catch (e) {
+    console.error('[Cache] Failed to initialize NFL:', e.message);
+  }
+
+  try {
+    // NBA - fetch today, yesterday, tomorrow
+    await Promise.all([
+      fetchNBADataForCache(today),
+      fetchNBADataForCache(yesterday),
+      fetchNBADataForCache(tomorrow)
+    ]);
+    console.log('[Cache] NBA initialized: today, yesterday, tomorrow');
+  } catch (e) {
+    console.error('[Cache] Failed to initialize NBA:', e.message);
+  }
+
+  try {
+    // NHL - fetch today, yesterday
+    await Promise.all([
+      fetchNHLDataForCache(today),
+      fetchNHLDataForCache(yesterday)
+    ]);
+    console.log('[Cache] NHL initialized: today, yesterday');
+  } catch (e) {
+    console.error('[Cache] Failed to initialize NHL:', e.message);
+  }
+
+  try {
+    // MLB - fetch today, yesterday
+    await Promise.all([
+      fetchMLBDataForCache(today),
+      fetchMLBDataForCache(yesterday)
+    ]);
+    console.log('[Cache] MLB initialized: today, yesterday');
+  } catch (e) {
+    console.error('[Cache] Failed to initialize MLB:', e.message);
+  }
+
+  try {
+    // NCAAB - fetch today, yesterday, tomorrow
+    await Promise.all([
+      fetchNCAABDataForCache(today),
+      fetchNCAABDataForCache(yesterday),
+      fetchNCAABDataForCache(tomorrow)
+    ]);
+    console.log('[Cache] NCAAB initialized: today, yesterday, tomorrow');
+  } catch (e) {
+    console.error('[Cache] Failed to initialize NCAAB:', e.message);
+  }
+
+  sportsCache.initialized = true;
+  sportsCache.lastUpdate = Date.now();
+  console.log('[Cache] Initialization complete');
+}
+
+// ============================================
 // API ROUTES - NFL
 // ============================================
 
@@ -3065,115 +3392,116 @@ app.get('/api/nfl/scoreboard', async (req, res) => {
     const requestedWeek = req.query.week;
     const requestedSeasonType = req.query.seasontype;
 
-    // Determine what to fetch
-    let week, seasonType, cacheKey, url;
+    // Determine cache key
+    let week, seasonType, cacheKey;
 
     if (requestedWeek === 'playoffs' || requestedWeek === 'postseason') {
-      // Explicitly requesting postseason
       seasonType = 3;
       week = requestedSeasonType ? parseInt(requestedSeasonType) : seasonInfo.week;
       cacheKey = `postseason-week-${week}`;
-      url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${week}`;
     } else if (requestedWeek) {
-      // Specific week requested
       week = parseInt(requestedWeek);
-      // If requesting week > 18, treat as postseason week
       if (week > 18) {
         seasonType = 3;
-        week = week - 18; // Convert to postseason week (19=1, 20=2, etc.)
+        week = week - 18;
         cacheKey = `postseason-week-${week}`;
-        url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${week}`;
       } else {
         seasonType = 2;
         cacheKey = `regular-week-${week}`;
-        url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=2&week=${week}`;
       }
     } else {
-      // Auto-detect based on current date
       seasonType = seasonInfo.seasonType;
       week = seasonInfo.week;
       cacheKey = seasonType === 3 ? `postseason-week-${week}` : `regular-week-${week}`;
-      url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=${seasonType}&week=${week}`;
     }
 
+    // ALWAYS serve from cache - never trigger ESPN API calls from client requests
     const cached = sportsCache.nfl.data.get(cacheKey);
-    const now = Date.now();
 
-    if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
-      return res.json(cached.data);
-    }
-
-    console.log(`[NFL] Fetching: ${url}`);
-    let data = await fetchESPN(url);
-    let isComplete = areAllGamesComplete(data);
-
-    // Count game statuses for better logging
-    const statusCount = data.events?.reduce((acc, e) => {
-      const state = e.status?.type?.state || 'unknown';
-      acc[state] = (acc[state] || 0) + 1;
-      return acc;
-    }, {}) || {};
-
-    const roundName = seasonType === 3 ? getPostseasonRoundName(week) : `Week ${week}`;
-    console.log(`[NFL] ${roundName} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
-
-    // If current week is complete and no specific week requested, fetch next week for upcoming games
-    if (isComplete && !requestedWeek) {
-      let nextUrl;
-      let nextLabel;
-
-      if (seasonType === 2 && week < 18) {
-        // Regular season: fetch next regular week
-        const nextWeek = week + 1;
-        nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=2&week=${nextWeek}`;
-        nextLabel = `Week ${nextWeek}`;
-      } else if (seasonType === 2 && week === 18) {
-        // End of regular season: fetch Wild Card (postseason week 1)
-        nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=1`;
-        nextLabel = 'Wild Card';
-      } else if (seasonType === 3 && week < 5) {
-        // Postseason: fetch next postseason round
-        const nextWeek = week + 1;
-        nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${nextWeek}`;
-        nextLabel = getPostseasonRoundName(nextWeek);
-      }
-
-      if (nextUrl) {
-        console.log(`[NFL] Current week complete, also fetching ${nextLabel}`);
-        try {
-          const nextData = await fetchESPN(nextUrl);
-          // Merge next week's events into current data
-          if (nextData.events && nextData.events.length > 0) {
-            data.events = [...(data.events || []), ...nextData.events];
-            isComplete = false; // Not complete since next week has games
-            console.log(`[NFL] Added ${nextData.events.length} games from ${nextLabel}`);
-          }
-        } catch (e) {
-          console.error(`[NFL] Failed to fetch ${nextLabel}:`, e.message);
+    if (cached) {
+      cacheStats.hits++;
+      const cacheAge = Date.now() - cached.timestamp;
+      // Add cache metadata to response
+      const response = {
+        ...cached.data,
+        _cache: {
+          hit: true,
+          age: cacheAge,
+          ageSeconds: Math.round(cacheAge / 1000),
+          key: cacheKey,
+          timestamp: cached.timestamp,
+          isComplete: cached.isComplete
         }
+      };
+      return res.json(response);
+    }
+
+    // Cache miss - trigger background fetch and return empty/waiting response
+    cacheStats.misses++;
+    console.log(`[NFL] Cache miss for ${cacheKey} - triggering background fetch`);
+
+    // Add to active weeks so background job picks it up
+    sportsCache.nfl.activeWeeks.add(cacheKey);
+
+    // Trigger immediate background fetch
+    fetchNFLDataForCache(cacheKey, seasonType, week).catch(err => {
+      console.error(`[NFL] Background fetch failed for ${cacheKey}:`, err.message);
+    });
+
+    // Return response indicating cache is being populated
+    res.json({
+      events: [],
+      _cache: {
+        hit: false,
+        message: 'Cache is being populated. Data will be available shortly.',
+        key: cacheKey,
+        retryAfter: 2 // Suggest client retry after 2 seconds
       }
-    }
-
-    sportsCache.nfl.data.set(cacheKey, { data, timestamp: now, isComplete });
-
-    if (!isComplete) {
-      sportsCache.nfl.activeWeeks.add(cacheKey);
-    } else {
-      sportsCache.nfl.activeWeeks.delete(cacheKey);
-    }
-
-    res.json(data);
+    });
   } catch (error) {
-    console.error('[NFL] Error fetching scoreboard:', error.message);
+    console.error('[NFL] Error in scoreboard endpoint:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
 
 app.get('/api/nfl/summary/:gameId', async (req, res) => {
   try {
-    const url = `${ESPN_BASE}/football/nfl/summary?event=${req.params.gameId}`;
-    const data = await fetchESPN(url);
-    res.json(data);
+    const gameId = req.params.gameId;
+    const cacheKey = `nfl-${gameId}`;
+    const cached = gameStatsCache.data.get(cacheKey);
+
+    if (cached) {
+      cacheStats.statsHits++;
+      const cacheAge = Date.now() - cached.timestamp;
+      return res.json({
+        ...cached.data,
+        _cache: {
+          hit: true,
+          age: cacheAge,
+          ageSeconds: Math.round(cacheAge / 1000),
+          key: cacheKey
+        }
+      });
+    }
+
+    // Cache miss - trigger background fetch and return waiting response
+    cacheStats.statsMisses++;
+    console.log(`[NFL Stats] Cache miss for ${cacheKey} - triggering background fetch`);
+
+    // Trigger immediate background fetch
+    fetchGameStatsForCache('nfl', gameId, false).catch(err => {
+      console.error(`[NFL Stats] Background fetch failed for ${cacheKey}:`, err.message);
+    });
+
+    // Return response indicating cache is being populated
+    res.json({
+      _cache: {
+        hit: false,
+        message: 'Stats are being fetched. Data will be available shortly.',
+        key: cacheKey,
+        retryAfter: 2
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -3739,9 +4067,23 @@ app.get('/api/ncaa/scoreboard', async (req, res) => {
 
 app.get('/api/ncaa/summary/:gameId', async (req, res) => {
   try {
-    const url = `${ESPN_BASE}/football/college-football/summary?event=${req.params.gameId}`;
-    const data = await fetchESPN(url);
-    res.json(data);
+    const gameId = req.params.gameId;
+    const cacheKey = `ncaa-${gameId}`;
+    const cached = gameStatsCache.data.get(cacheKey);
+
+    if (cached) {
+      cacheStats.statsHits++;
+      const cacheAge = Date.now() - cached.timestamp;
+      return res.json({
+        ...cached.data,
+        _cache: { hit: true, age: cacheAge, ageSeconds: Math.round(cacheAge / 1000), key: cacheKey }
+      });
+    }
+
+    cacheStats.statsMisses++;
+    fetchGameStatsForCache('ncaa', gameId, false).catch(err => console.error(`[NCAA Stats] Background fetch failed:`, err.message));
+
+    res.json({ _cache: { hit: false, message: 'Stats are being fetched.', key: cacheKey, retryAfter: 2 } });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -3955,98 +4297,64 @@ app.get('/api/ncaa/playoff-bracket', async (req, res) => {
 app.get('/api/nba/scoreboard', async (req, res) => {
   try {
     const requestedDate = req.query.date;
-
-    if (requestedDate) {
-      // If specific date requested, use it
-      const cacheKey = `date-${requestedDate}`;
-      const cached = sportsCache.nba.data.get(cacheKey);
-      const now = Date.now();
-
-      if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
-        return res.json(cached.data);
-      }
-
-      const url = `${ESPN_BASE}/basketball/nba/scoreboard?dates=${requestedDate}`;
-      const data = await fetchESPN(url);
-      const isComplete = areAllGamesComplete(data);
-
-      const statusCount = data.events?.reduce((acc, e) => {
-        const state = e.status?.type?.state || 'unknown';
-        acc[state] = (acc[state] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-      console.log(`[NBA] Date ${requestedDate} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
-
-      sportsCache.nba.data.set(cacheKey, { data, timestamp: now, isComplete });
-
-      if (!isComplete) {
-        sportsCache.nba.activeDates.add(requestedDate);
-      } else {
-        sportsCache.nba.activeDates.delete(requestedDate);
-      }
-
-      return res.json(data);
-    }
-
-    // No specific date - fetch yesterday, today, AND tomorrow to catch live and upcoming games
     const today = getTodayDate();
     const yesterday = getYesterdayDate();
     const tomorrow = getTomorrowDate();
 
-    const [todayUrl, yesterdayUrl, tomorrowUrl] = [
-      `${ESPN_BASE}/basketball/nba/scoreboard?dates=${today}`,
-      `${ESPN_BASE}/basketball/nba/scoreboard?dates=${yesterday}`,
-      `${ESPN_BASE}/basketball/nba/scoreboard?dates=${tomorrow}`
-    ];
+    if (requestedDate) {
+      // Specific date requested - serve from cache only
+      const cacheKey = `date-${requestedDate}`;
+      const cached = sportsCache.nba.data.get(cacheKey);
 
-    const [todayData, yesterdayData, tomorrowData] = await Promise.all([
-      fetchESPN(todayUrl),
-      fetchESPN(yesterdayUrl),
-      fetchESPN(tomorrowUrl)
-    ]);
+      if (cached) {
+        cacheStats.hits++;
+        const cacheAge = Date.now() - cached.timestamp;
+        return res.json({
+          ...cached.data,
+          _cache: { hit: true, age: cacheAge, ageSeconds: Math.round(cacheAge / 1000), key: cacheKey }
+        });
+      }
 
-    // Merge games from all three days, prioritizing live games
+      // Cache miss - trigger background fetch
+      cacheStats.misses++;
+      sportsCache.nba.activeDates.add(requestedDate);
+      fetchNBADataForCache(requestedDate).catch(err => console.error(`[NBA] Background fetch failed:`, err.message));
+
+      return res.json({
+        events: [],
+        _cache: { hit: false, message: 'Cache is being populated.', key: cacheKey, retryAfter: 2 }
+      });
+    }
+
+    // No specific date - combine yesterday, today, tomorrow from cache
+    const cachedYesterday = sportsCache.nba.data.get(`date-${yesterday}`);
+    const cachedToday = sportsCache.nba.data.get(`date-${today}`);
+    const cachedTomorrow = sportsCache.nba.data.get(`date-${tomorrow}`);
+
     const allGames = [
-      ...(yesterdayData.events || []),
-      ...(todayData.events || []),
-      ...(tomorrowData.events || [])
+      ...(cachedYesterday?.data?.events || []),
+      ...(cachedToday?.data?.events || []),
+      ...(cachedTomorrow?.data?.events || [])
     ];
 
-    // Create combined response
-    const combinedData = {
-      ...todayData,
-      events: allGames
-    };
+    const oldestTimestamp = Math.min(
+      cachedYesterday?.timestamp || Date.now(),
+      cachedToday?.timestamp || Date.now(),
+      cachedTomorrow?.timestamp || Date.now()
+    );
 
-    const statusCount = allGames.reduce((acc, e) => {
-      const state = e.status?.type?.state || 'unknown';
-      acc[state] = (acc[state] || 0) + 1;
-      return acc;
-    }, {});
+    cacheStats.hits++;
+    const cacheAge = Date.now() - oldestTimestamp;
 
-    console.log(`[NBA] Combined (${yesterday} + ${today} + ${tomorrow}) - Games: ${allGames.length}, Statuses:`, statusCount);
-
-    // Cache all three dates
-    const now = Date.now();
-    const todayComplete = areAllGamesComplete(todayData);
-    const yesterdayComplete = areAllGamesComplete(yesterdayData);
-    const tomorrowComplete = areAllGamesComplete(tomorrowData);
-
-    sportsCache.nba.data.set(`date-${today}`, { data: todayData, timestamp: now, isComplete: todayComplete });
-    sportsCache.nba.data.set(`date-${yesterday}`, { data: yesterdayData, timestamp: now, isComplete: yesterdayComplete });
-    sportsCache.nba.data.set(`date-${tomorrow}`, { data: tomorrowData, timestamp: now, isComplete: tomorrowComplete });
-
-    if (!todayComplete) sportsCache.nba.activeDates.add(today);
-    else sportsCache.nba.activeDates.delete(today);
-
-    if (!yesterdayComplete) sportsCache.nba.activeDates.add(yesterday);
-    else sportsCache.nba.activeDates.delete(yesterday);
-
-    if (!tomorrowComplete) sportsCache.nba.activeDates.add(tomorrow);
-    else sportsCache.nba.activeDates.delete(tomorrow);
-
-    res.json(combinedData);
+    res.json({
+      events: allGames,
+      _cache: {
+        hit: true,
+        age: cacheAge,
+        ageSeconds: Math.round(cacheAge / 1000),
+        sources: { yesterday, today, tomorrow }
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -4054,9 +4362,43 @@ app.get('/api/nba/scoreboard', async (req, res) => {
 
 app.get('/api/nba/summary/:gameId', async (req, res) => {
   try {
-    const url = `${ESPN_BASE}/basketball/nba/summary?event=${req.params.gameId}`;
-    const data = await fetchESPN(url);
-    res.json(data);
+    const gameId = req.params.gameId;
+    const cacheKey = `nba-${gameId}`;
+    const cached = gameStatsCache.data.get(cacheKey);
+
+    if (cached) {
+      cacheStats.statsHits++;
+      const cacheAge = Date.now() - cached.timestamp;
+      return res.json({
+        ...cached.data,
+        _cache: {
+          hit: true,
+          age: cacheAge,
+          ageSeconds: Math.round(cacheAge / 1000),
+          key: cacheKey
+        }
+      });
+    }
+
+    // Cache miss - trigger background fetch and return waiting response
+    cacheStats.statsMisses++;
+    console.log(`[NBA Stats] Cache miss for ${cacheKey} - triggering background fetch`);
+
+    // Trigger immediate background fetch
+    fetchGameStatsForCache('nba', gameId, false).catch(err => {
+      console.error(`[NBA Stats] Background fetch failed for ${cacheKey}:`, err.message);
+    });
+
+    // Return response indicating cache is being populated
+    res.json({
+      boxscore: null,
+      _cache: {
+        hit: false,
+        message: 'Stats are being fetched. Please retry in 2 seconds.',
+        key: cacheKey,
+        retryAfter: 2
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -4069,98 +4411,64 @@ app.get('/api/nba/summary/:gameId', async (req, res) => {
 app.get('/api/ncaab/scoreboard', async (req, res) => {
   try {
     const requestedDate = req.query.date;
-
-    if (requestedDate) {
-      // If specific date requested, use it
-      const cacheKey = `date-${requestedDate}`;
-      const cached = sportsCache.ncaab.data.get(cacheKey);
-      const now = Date.now();
-
-      if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
-        return res.json(cached.data);
-      }
-
-      const url = `${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?dates=${requestedDate}&limit=200`;
-      const data = await fetchESPN(url);
-      const isComplete = areAllGamesComplete(data);
-
-      const statusCount = data.events?.reduce((acc, e) => {
-        const state = e.status?.type?.state || 'unknown';
-        acc[state] = (acc[state] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-      console.log(`[NCAAB] Date ${requestedDate} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
-
-      sportsCache.ncaab.data.set(cacheKey, { data, timestamp: now, isComplete });
-
-      if (!isComplete) {
-        sportsCache.ncaab.activeDates.add(requestedDate);
-      } else {
-        sportsCache.ncaab.activeDates.delete(requestedDate);
-      }
-
-      return res.json(data);
-    }
-
-    // No specific date - fetch yesterday, today, AND tomorrow to catch live and upcoming games
     const today = getTodayDate();
     const yesterday = getYesterdayDate();
     const tomorrow = getTomorrowDate();
 
-    const [todayUrl, yesterdayUrl, tomorrowUrl] = [
-      `${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?dates=${today}&limit=200`,
-      `${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?dates=${yesterday}&limit=200`,
-      `${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?dates=${tomorrow}&limit=200`
-    ];
+    if (requestedDate) {
+      // Specific date requested - serve from cache only
+      const cacheKey = `date-${requestedDate}`;
+      const cached = sportsCache.ncaab.data.get(cacheKey);
 
-    const [todayData, yesterdayData, tomorrowData] = await Promise.all([
-      fetchESPN(todayUrl),
-      fetchESPN(yesterdayUrl),
-      fetchESPN(tomorrowUrl)
-    ]);
+      if (cached) {
+        cacheStats.hits++;
+        const cacheAge = Date.now() - cached.timestamp;
+        return res.json({
+          ...cached.data,
+          _cache: { hit: true, age: cacheAge, ageSeconds: Math.round(cacheAge / 1000), key: cacheKey }
+        });
+      }
 
-    // Merge games from all three days, prioritizing live games
+      // Cache miss - trigger background fetch
+      cacheStats.misses++;
+      sportsCache.ncaab.activeDates.add(requestedDate);
+      fetchNCAABDataForCache(requestedDate).catch(err => console.error(`[NCAAB] Background fetch failed:`, err.message));
+
+      return res.json({
+        events: [],
+        _cache: { hit: false, message: 'Cache is being populated.', key: cacheKey, retryAfter: 2 }
+      });
+    }
+
+    // No specific date - combine yesterday, today, tomorrow from cache
+    const cachedYesterday = sportsCache.ncaab.data.get(`date-${yesterday}`);
+    const cachedToday = sportsCache.ncaab.data.get(`date-${today}`);
+    const cachedTomorrow = sportsCache.ncaab.data.get(`date-${tomorrow}`);
+
     const allGames = [
-      ...(yesterdayData.events || []),
-      ...(todayData.events || []),
-      ...(tomorrowData.events || [])
+      ...(cachedYesterday?.data?.events || []),
+      ...(cachedToday?.data?.events || []),
+      ...(cachedTomorrow?.data?.events || [])
     ];
 
-    // Create combined response
-    const combinedData = {
-      ...todayData,
-      events: allGames
-    };
+    const oldestTimestamp = Math.min(
+      cachedYesterday?.timestamp || Date.now(),
+      cachedToday?.timestamp || Date.now(),
+      cachedTomorrow?.timestamp || Date.now()
+    );
 
-    const statusCount = allGames.reduce((acc, e) => {
-      const state = e.status?.type?.state || 'unknown';
-      acc[state] = (acc[state] || 0) + 1;
-      return acc;
-    }, {});
+    cacheStats.hits++;
+    const cacheAge = Date.now() - oldestTimestamp;
 
-    console.log(`[NCAAB] Combined (${yesterday} + ${today} + ${tomorrow}) - Games: ${allGames.length}, Statuses:`, statusCount);
-
-    // Cache all three dates
-    const now = Date.now();
-    const todayComplete = areAllGamesComplete(todayData);
-    const yesterdayComplete = areAllGamesComplete(yesterdayData);
-    const tomorrowComplete = areAllGamesComplete(tomorrowData);
-
-    sportsCache.ncaab.data.set(`date-${today}`, { data: todayData, timestamp: now, isComplete: todayComplete });
-    sportsCache.ncaab.data.set(`date-${yesterday}`, { data: yesterdayData, timestamp: now, isComplete: yesterdayComplete });
-    sportsCache.ncaab.data.set(`date-${tomorrow}`, { data: tomorrowData, timestamp: now, isComplete: tomorrowComplete });
-
-    if (!todayComplete) sportsCache.ncaab.activeDates.add(today);
-    else sportsCache.ncaab.activeDates.delete(today);
-
-    if (!yesterdayComplete) sportsCache.ncaab.activeDates.add(yesterday);
-    else sportsCache.ncaab.activeDates.delete(yesterday);
-
-    if (!tomorrowComplete) sportsCache.ncaab.activeDates.add(tomorrow);
-    else sportsCache.ncaab.activeDates.delete(tomorrow);
-
-    res.json(combinedData);
+    res.json({
+      events: allGames,
+      _cache: {
+        hit: true,
+        age: cacheAge,
+        ageSeconds: Math.round(cacheAge / 1000),
+        sources: { yesterday, today, tomorrow }
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -4168,9 +4476,43 @@ app.get('/api/ncaab/scoreboard', async (req, res) => {
 
 app.get('/api/ncaab/summary/:gameId', async (req, res) => {
   try {
-    const url = `${ESPN_BASE}/basketball/mens-college-basketball/summary?event=${req.params.gameId}`;
-    const data = await fetchESPN(url);
-    res.json(data);
+    const gameId = req.params.gameId;
+    const cacheKey = `ncaab-${gameId}`;
+    const cached = gameStatsCache.data.get(cacheKey);
+
+    if (cached) {
+      cacheStats.statsHits++;
+      const cacheAge = Date.now() - cached.timestamp;
+      return res.json({
+        ...cached.data,
+        _cache: {
+          hit: true,
+          age: cacheAge,
+          ageSeconds: Math.round(cacheAge / 1000),
+          key: cacheKey
+        }
+      });
+    }
+
+    // Cache miss - trigger background fetch and return waiting response
+    cacheStats.statsMisses++;
+    console.log(`[NCAAB Stats] Cache miss for ${cacheKey} - triggering background fetch`);
+
+    // Trigger immediate background fetch
+    fetchGameStatsForCache('ncaab', gameId, false).catch(err => {
+      console.error(`[NCAAB Stats] Background fetch failed for ${cacheKey}:`, err.message);
+    });
+
+    // Return response indicating cache is being populated
+    res.json({
+      boxscore: null,
+      _cache: {
+        hit: false,
+        message: 'Stats are being fetched. Please retry in 2 seconds.',
+        key: cacheKey,
+        retryAfter: 2
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -4183,88 +4525,60 @@ app.get('/api/ncaab/summary/:gameId', async (req, res) => {
 app.get('/api/mlb/scoreboard', async (req, res) => {
   try {
     const requestedDate = req.query.date;
-
-    if (requestedDate) {
-      // If specific date requested, use it
-      const cacheKey = `date-${requestedDate}`;
-      const cached = sportsCache.mlb.data.get(cacheKey);
-      const now = Date.now();
-
-      if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
-        return res.json(cached.data);
-      }
-
-      const url = `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${requestedDate}`;
-      const data = await fetchESPN(url);
-      const isComplete = areAllGamesComplete(data);
-
-      const statusCount = data.events?.reduce((acc, e) => {
-        const state = e.status?.type?.state || 'unknown';
-        acc[state] = (acc[state] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-      console.log(`[MLB] Date ${requestedDate} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
-
-      sportsCache.mlb.data.set(cacheKey, { data, timestamp: now, isComplete });
-
-      if (!isComplete) {
-        sportsCache.mlb.activeDates.add(requestedDate);
-      } else {
-        sportsCache.mlb.activeDates.delete(requestedDate);
-      }
-
-      return res.json(data);
-    }
-
-    // No specific date - fetch today AND yesterday to catch live games
     const today = getTodayDate();
     const yesterday = getYesterdayDate();
 
-    const [todayUrl, yesterdayUrl] = [
-      `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${today}`,
-      `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${yesterday}`
-    ];
+    if (requestedDate) {
+      // Specific date requested - serve from cache only
+      const cacheKey = `date-${requestedDate}`;
+      const cached = sportsCache.mlb.data.get(cacheKey);
 
-    const [todayData, yesterdayData] = await Promise.all([
-      fetchESPN(todayUrl),
-      fetchESPN(yesterdayUrl)
-    ]);
+      if (cached) {
+        cacheStats.hits++;
+        const cacheAge = Date.now() - cached.timestamp;
+        return res.json({
+          ...cached.data,
+          _cache: { hit: true, age: cacheAge, ageSeconds: Math.round(cacheAge / 1000), key: cacheKey }
+        });
+      }
 
-    // Merge games from both days
+      // Cache miss - trigger background fetch
+      cacheStats.misses++;
+      sportsCache.mlb.activeDates.add(requestedDate);
+      fetchMLBDataForCache(requestedDate).catch(err => console.error(`[MLB] Background fetch failed:`, err.message));
+
+      return res.json({
+        events: [],
+        _cache: { hit: false, message: 'Cache is being populated.', key: cacheKey, retryAfter: 2 }
+      });
+    }
+
+    // No specific date - combine yesterday and today from cache
+    const cachedYesterday = sportsCache.mlb.data.get(`date-${yesterday}`);
+    const cachedToday = sportsCache.mlb.data.get(`date-${today}`);
+
     const allGames = [
-      ...(yesterdayData.events || []),
-      ...(todayData.events || [])
+      ...(cachedYesterday?.data?.events || []),
+      ...(cachedToday?.data?.events || [])
     ];
 
-    const combinedData = {
-      ...todayData,
-      events: allGames
-    };
+    const oldestTimestamp = Math.min(
+      cachedYesterday?.timestamp || Date.now(),
+      cachedToday?.timestamp || Date.now()
+    );
 
-    const statusCount = allGames.reduce((acc, e) => {
-      const state = e.status?.type?.state || 'unknown';
-      acc[state] = (acc[state] || 0) + 1;
-      return acc;
-    }, {});
+    cacheStats.hits++;
+    const cacheAge = Date.now() - oldestTimestamp;
 
-    console.log(`[MLB] Combined (${yesterday} + ${today}) - Games: ${allGames.length}, Statuses:`, statusCount);
-
-    // Cache both dates
-    const now = Date.now();
-    const todayComplete = areAllGamesComplete(todayData);
-    const yesterdayComplete = areAllGamesComplete(yesterdayData);
-
-    sportsCache.mlb.data.set(`date-${today}`, { data: todayData, timestamp: now, isComplete: todayComplete });
-    sportsCache.mlb.data.set(`date-${yesterday}`, { data: yesterdayData, timestamp: now, isComplete: yesterdayComplete });
-
-    if (!todayComplete) sportsCache.mlb.activeDates.add(today);
-    else sportsCache.mlb.activeDates.delete(today);
-
-    if (!yesterdayComplete) sportsCache.mlb.activeDates.add(yesterday);
-    else sportsCache.mlb.activeDates.delete(yesterday);
-
-    res.json(combinedData);
+    res.json({
+      events: allGames,
+      _cache: {
+        hit: true,
+        age: cacheAge,
+        ageSeconds: Math.round(cacheAge / 1000),
+        sources: { yesterday, today }
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -4272,9 +4586,43 @@ app.get('/api/mlb/scoreboard', async (req, res) => {
 
 app.get('/api/mlb/summary/:gameId', async (req, res) => {
   try {
-    const url = `${ESPN_BASE}/baseball/mlb/summary?event=${req.params.gameId}`;
-    const data = await fetchESPN(url);
-    res.json(data);
+    const gameId = req.params.gameId;
+    const cacheKey = `mlb-${gameId}`;
+    const cached = gameStatsCache.data.get(cacheKey);
+
+    if (cached) {
+      cacheStats.statsHits++;
+      const cacheAge = Date.now() - cached.timestamp;
+      return res.json({
+        ...cached.data,
+        _cache: {
+          hit: true,
+          age: cacheAge,
+          ageSeconds: Math.round(cacheAge / 1000),
+          key: cacheKey
+        }
+      });
+    }
+
+    // Cache miss - trigger background fetch and return waiting response
+    cacheStats.statsMisses++;
+    console.log(`[MLB Stats] Cache miss for ${cacheKey} - triggering background fetch`);
+
+    // Trigger immediate background fetch
+    fetchGameStatsForCache('mlb', gameId, false).catch(err => {
+      console.error(`[MLB Stats] Background fetch failed for ${cacheKey}:`, err.message);
+    });
+
+    // Return response indicating cache is being populated
+    res.json({
+      boxscore: null,
+      _cache: {
+        hit: false,
+        message: 'Stats are being fetched. Please retry in 2 seconds.',
+        key: cacheKey,
+        retryAfter: 2
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -4287,88 +4635,60 @@ app.get('/api/mlb/summary/:gameId', async (req, res) => {
 app.get('/api/nhl/scoreboard', async (req, res) => {
   try {
     const requestedDate = req.query.date;
-
-    if (requestedDate) {
-      // If specific date requested, use it
-      const cacheKey = `date-${requestedDate}`;
-      const cached = sportsCache.nhl.data.get(cacheKey);
-      const now = Date.now();
-
-      if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
-        return res.json(cached.data);
-      }
-
-      const url = `${ESPN_BASE}/hockey/nhl/scoreboard?dates=${requestedDate}`;
-      const data = await fetchESPN(url);
-      const isComplete = areAllGamesComplete(data);
-
-      const statusCount = data.events?.reduce((acc, e) => {
-        const state = e.status?.type?.state || 'unknown';
-        acc[state] = (acc[state] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-      console.log(`[NHL] Date ${requestedDate} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
-
-      sportsCache.nhl.data.set(cacheKey, { data, timestamp: now, isComplete });
-
-      if (!isComplete) {
-        sportsCache.nhl.activeDates.add(requestedDate);
-      } else {
-        sportsCache.nhl.activeDates.delete(requestedDate);
-      }
-
-      return res.json(data);
-    }
-
-    // No specific date - fetch today AND yesterday to catch live games
     const today = getTodayDate();
     const yesterday = getYesterdayDate();
 
-    const [todayUrl, yesterdayUrl] = [
-      `${ESPN_BASE}/hockey/nhl/scoreboard?dates=${today}`,
-      `${ESPN_BASE}/hockey/nhl/scoreboard?dates=${yesterday}`
-    ];
+    if (requestedDate) {
+      // Specific date requested - serve from cache only
+      const cacheKey = `date-${requestedDate}`;
+      const cached = sportsCache.nhl.data.get(cacheKey);
 
-    const [todayData, yesterdayData] = await Promise.all([
-      fetchESPN(todayUrl),
-      fetchESPN(yesterdayUrl)
-    ]);
+      if (cached) {
+        cacheStats.hits++;
+        const cacheAge = Date.now() - cached.timestamp;
+        return res.json({
+          ...cached.data,
+          _cache: { hit: true, age: cacheAge, ageSeconds: Math.round(cacheAge / 1000), key: cacheKey }
+        });
+      }
 
-    // Merge games from both days
+      // Cache miss - trigger background fetch
+      cacheStats.misses++;
+      sportsCache.nhl.activeDates.add(requestedDate);
+      fetchNHLDataForCache(requestedDate).catch(err => console.error(`[NHL] Background fetch failed:`, err.message));
+
+      return res.json({
+        events: [],
+        _cache: { hit: false, message: 'Cache is being populated.', key: cacheKey, retryAfter: 2 }
+      });
+    }
+
+    // No specific date - combine yesterday and today from cache
+    const cachedYesterday = sportsCache.nhl.data.get(`date-${yesterday}`);
+    const cachedToday = sportsCache.nhl.data.get(`date-${today}`);
+
     const allGames = [
-      ...(yesterdayData.events || []),
-      ...(todayData.events || [])
+      ...(cachedYesterday?.data?.events || []),
+      ...(cachedToday?.data?.events || [])
     ];
 
-    const combinedData = {
-      ...todayData,
-      events: allGames
-    };
+    const oldestTimestamp = Math.min(
+      cachedYesterday?.timestamp || Date.now(),
+      cachedToday?.timestamp || Date.now()
+    );
 
-    const statusCount = allGames.reduce((acc, e) => {
-      const state = e.status?.type?.state || 'unknown';
-      acc[state] = (acc[state] || 0) + 1;
-      return acc;
-    }, {});
+    cacheStats.hits++;
+    const cacheAge = Date.now() - oldestTimestamp;
 
-    console.log(`[NHL] Combined (${yesterday} + ${today}) - Games: ${allGames.length}, Statuses:`, statusCount);
-
-    // Cache both dates
-    const now = Date.now();
-    const todayComplete = areAllGamesComplete(todayData);
-    const yesterdayComplete = areAllGamesComplete(yesterdayData);
-
-    sportsCache.nhl.data.set(`date-${today}`, { data: todayData, timestamp: now, isComplete: todayComplete });
-    sportsCache.nhl.data.set(`date-${yesterday}`, { data: yesterdayData, timestamp: now, isComplete: yesterdayComplete });
-
-    if (!todayComplete) sportsCache.nhl.activeDates.add(today);
-    else sportsCache.nhl.activeDates.delete(today);
-
-    if (!yesterdayComplete) sportsCache.nhl.activeDates.add(yesterday);
-    else sportsCache.nhl.activeDates.delete(yesterday);
-
-    res.json(combinedData);
+    res.json({
+      events: allGames,
+      _cache: {
+        hit: true,
+        age: cacheAge,
+        ageSeconds: Math.round(cacheAge / 1000),
+        sources: { yesterday, today }
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -4376,171 +4696,168 @@ app.get('/api/nhl/scoreboard', async (req, res) => {
 
 app.get('/api/nhl/summary/:gameId', async (req, res) => {
   try {
-    const url = `${ESPN_BASE}/hockey/nhl/summary?event=${req.params.gameId}`;
-    const data = await fetchESPN(url);
-    res.json(data);
+    const gameId = req.params.gameId;
+    const cacheKey = `nhl-${gameId}`;
+    const cached = gameStatsCache.data.get(cacheKey);
+
+    if (cached) {
+      cacheStats.statsHits++;
+      const cacheAge = Date.now() - cached.timestamp;
+      return res.json({
+        ...cached.data,
+        _cache: {
+          hit: true,
+          age: cacheAge,
+          ageSeconds: Math.round(cacheAge / 1000),
+          key: cacheKey
+        }
+      });
+    }
+
+    // Cache miss - trigger background fetch and return waiting response
+    cacheStats.statsMisses++;
+    console.log(`[NHL Stats] Cache miss for ${cacheKey} - triggering background fetch`);
+
+    // Trigger immediate background fetch
+    fetchGameStatsForCache('nhl', gameId, false).catch(err => {
+      console.error(`[NHL Stats] Background fetch failed for ${cacheKey}:`, err.message);
+    });
+
+    // Return response indicating cache is being populated
+    res.json({
+      boxscore: null,
+      _cache: {
+        hit: false,
+        message: 'Stats are being fetched. Please retry in 2 seconds.',
+        key: cacheKey,
+        retryAfter: 2
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 // ============================================
-// BACKGROUND JOBS - AUTO CACHE UPDATES
+// BACKGROUND JOBS - AUTO CACHE UPDATES (20 second interval)
 // ============================================
+// These background jobs are the ONLY way data is fetched from ESPN.
+// Client API requests NEVER trigger ESPN calls - they only read from cache.
 
-// Update NFL cache every 15 seconds for active weeks
-cron.schedule('*/15 * * * * *', async () => {
+// Update NFL cache every 20 seconds for active weeks
+cron.schedule('*/20 * * * * *', async () => {
   for (const cacheKey of sportsCache.nfl.activeWeeks) {
     try {
-      // Parse cacheKey format: "regular-week-15" or "postseason-week-1"
       const isPostseason = cacheKey.startsWith('postseason-');
       const weekMatch = cacheKey.match(/week-(\d+)/);
       const weekNum = parseInt(weekMatch ? weekMatch[1] : '1');
       const seasonType = isPostseason ? 3 : 2;
 
-      const url = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=${seasonType}&week=${weekNum}`;
-      let data = await fetchESPN(url);
-      let isComplete = areAllGamesComplete(data);
+      const data = await fetchNFLDataForCache(cacheKey, seasonType, weekNum);
 
-      // If current week is complete, also fetch next week for upcoming games
-      // This mirrors the logic in the API endpoint to prevent games from disappearing
-      if (isComplete) {
-        let nextUrl;
-        if (seasonType === 2 && weekNum < 18) {
-          // Regular season: fetch next regular week
-          nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=2&week=${weekNum + 1}`;
-        } else if (seasonType === 2 && weekNum === 18) {
-          // End of regular season: fetch Wild Card (postseason week 1)
-          nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=1`;
-        } else if (seasonType === 3 && weekNum < 5) {
-          // Postseason: fetch next postseason round
-          nextUrl = `${ESPN_BASE}/football/nfl/scoreboard?seasontype=3&week=${weekNum + 1}`;
-        }
-
-        if (nextUrl) {
-          try {
-            const nextData = await fetchESPN(nextUrl);
-            if (nextData.events && nextData.events.length > 0) {
-              data.events = [...(data.events || []), ...nextData.events];
-              isComplete = false; // Not complete since next week has games
-            }
-          } catch (e) {
-            // Ignore errors fetching next week
-          }
-        }
-      }
-
-      sportsCache.nfl.data.set(cacheKey, {
-        data,
-        timestamp: Date.now(),
-        isComplete
-      });
-
-      if (isComplete) {
-        sportsCache.nfl.activeWeeks.delete(cacheKey);
-        console.log(`[NFL] ${cacheKey} marked complete - removed from active tracking`);
-      }
-
-      // Count live games - only log if there are live games
       const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
       if (liveGames > 0) {
-        const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
-        console.log(`[NFL] ${cacheKey} - Live: ${liveGames}, Upcoming: ${upcomingGames}`);
+        console.log(`[NFL Background] ${cacheKey} - Live: ${liveGames}`);
+        // Pre-fetch stats for live games
+        prefetchLiveGameStats('nfl', data).catch(() => {});
       }
     } catch (error) {
-      console.error(`[NFL] Failed to update ${cacheKey}:`, error.message);
+      console.error(`[NFL Background] Failed to update ${cacheKey}:`, error.message);
     }
   }
 });
 
-// Update NBA cache every 15 seconds for active dates
-cron.schedule('*/15 * * * * *', async () => {
+// Update NCAA (college football) cache every 20 seconds for active weeks
+cron.schedule('*/20 * * * * *', async () => {
+  for (const cacheKey of sportsCache.ncaa.activeWeeks) {
+    try {
+      const isBowlSeason = cacheKey.startsWith('bowls-');
+      const weekMatch = cacheKey.match(/week-(\d+)/);
+      const weekNum = parseInt(weekMatch ? weekMatch[1] : '1');
+      const seasonType = isBowlSeason ? 3 : 2;
+
+      const data = await fetchNCAADataForCache(cacheKey, seasonType, weekNum);
+
+      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
+      if (liveGames > 0) {
+        console.log(`[NCAA Background] ${cacheKey} - Live: ${liveGames}`);
+        // Pre-fetch stats for live games
+        prefetchLiveGameStats('ncaa', data).catch(() => {});
+      }
+    } catch (error) {
+      console.error(`[NCAA Background] Failed to update ${cacheKey}:`, error.message);
+    }
+  }
+});
+
+// Update NBA cache every 20 seconds for active dates
+cron.schedule('*/20 * * * * *', async () => {
   for (const date of sportsCache.nba.activeDates) {
     try {
-      const url = `${ESPN_BASE}/basketball/nba/scoreboard?dates=${date}`;
-      const data = await fetchESPN(url);
-      const isComplete = areAllGamesComplete(data);
+      const data = await fetchNBADataForCache(date);
 
-      sportsCache.nba.data.set(`date-${date}`, {
-        data,
-        timestamp: Date.now(),
-        isComplete
-      });
-
-      if (isComplete) {
-        sportsCache.nba.activeDates.delete(date);
-      }
-
-      // Only log if there are live games
       const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
       if (liveGames > 0) {
-        const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
-        console.log(`[NBA] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}`);
+        console.log(`[NBA Background] ${date} - Live: ${liveGames}`);
+        // Pre-fetch stats for live games
+        prefetchLiveGameStats('nba', data).catch(() => {});
       }
     } catch (error) {
-      console.error(`[NBA] Failed to update ${date}:`, error.message);
+      console.error(`[NBA Background] Failed to update ${date}:`, error.message);
     }
   }
 });
 
-// Update MLB cache every 15 seconds for active dates
-cron.schedule('*/15 * * * * *', async () => {
+// Update MLB cache every 20 seconds for active dates
+cron.schedule('*/20 * * * * *', async () => {
   for (const date of sportsCache.mlb.activeDates) {
     try {
-      const url = `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${date}`;
-      const data = await fetchESPN(url);
-      const isComplete = areAllGamesComplete(data);
+      const data = await fetchMLBDataForCache(date);
 
-      sportsCache.mlb.data.set(`date-${date}`, {
-        data,
-        timestamp: Date.now(),
-        isComplete
-      });
-
-      if (isComplete) {
-        sportsCache.mlb.activeDates.delete(date);
-      }
-
-      // Enhanced logging
       const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
-
       if (liveGames > 0) {
-        console.log(`[MLB] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}`);
+        console.log(`[MLB Background] ${date} - Live: ${liveGames}`);
+        // Pre-fetch stats for live games
+        prefetchLiveGameStats('mlb', data).catch(() => {});
       }
     } catch (error) {
-      console.error(`[MLB] Failed to update ${date}:`, error.message);
+      console.error(`[MLB Background] Failed to update ${date}:`, error.message);
     }
   }
 });
 
-// Update NHL cache every 15 seconds for active dates
-cron.schedule('*/15 * * * * *', async () => {
+// Update NHL cache every 20 seconds for active dates
+cron.schedule('*/20 * * * * *', async () => {
   for (const date of sportsCache.nhl.activeDates) {
     try {
-      const url = `${ESPN_BASE}/hockey/nhl/scoreboard?dates=${date}`;
-      const data = await fetchESPN(url);
-      const isComplete = areAllGamesComplete(data);
+      const data = await fetchNHLDataForCache(date);
 
-      sportsCache.nhl.data.set(`date-${date}`, {
-        data,
-        timestamp: Date.now(),
-        isComplete
-      });
-
-      if (isComplete) {
-        sportsCache.nhl.activeDates.delete(date);
-      }
-
-      // Enhanced logging
       const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
-
       if (liveGames > 0) {
-        console.log(`[NHL] Date ${date} - Live: ${liveGames}, Upcoming: ${upcomingGames}`);
+        console.log(`[NHL Background] ${date} - Live: ${liveGames}`);
+        // Pre-fetch stats for live games
+        prefetchLiveGameStats('nhl', data).catch(() => {});
       }
     } catch (error) {
-      console.error(`[NHL] Failed to update ${date}:`, error.message);
+      console.error(`[NHL Background] Failed to update ${date}:`, error.message);
+    }
+  }
+});
+
+// Update NCAAB cache every 20 seconds for active dates
+cron.schedule('*/20 * * * * *', async () => {
+  for (const date of sportsCache.ncaab.activeDates) {
+    try {
+      const data = await fetchNCAABDataForCache(date);
+
+      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
+      if (liveGames > 0) {
+        console.log(`[NCAAB Background] ${date} - Live: ${liveGames}`);
+        // Pre-fetch stats for live games
+        prefetchLiveGameStats('ncaab', data).catch(() => {});
+      }
+    } catch (error) {
+      console.error(`[NCAAB Background] Failed to update ${date}:`, error.message);
     }
   }
 });
@@ -4898,6 +5215,74 @@ app.delete('/api/final-games/clear/:sport', (req, res) => {
 // ============================================
 // HEALTH & MONITORING ENDPOINTS
 // ============================================
+
+// Cache Status Endpoint - shows cache health and stats
+app.get('/api/health/cache', (req, res) => {
+  const now = Date.now();
+  const uptime = now - cacheStats.startTime;
+
+  // Calculate cache ages for each sport
+  const getCacheAges = (cache, keyPrefix = 'date-') => {
+    const ages = {};
+    for (const [key, data] of cache.data.entries()) {
+      const age = now - data.timestamp;
+      ages[key] = {
+        ageSeconds: Math.round(age / 1000),
+        isComplete: data.isComplete,
+        gameCount: data.data?.events?.length || 0,
+        liveGames: data.data?.events?.filter(e => e.status?.type?.state === 'in').length || 0
+      };
+    }
+    return ages;
+  };
+
+  res.json({
+    status: sportsCache.initialized ? 'ready' : 'initializing',
+    architecture: {
+      description: 'Background polling feeds cache, clients read from cache only',
+      pollInterval: '20 seconds',
+      clientsNeverCallESPN: true
+    },
+    stats: {
+      hits: cacheStats.hits,
+      misses: cacheStats.misses,
+      hitRate: cacheStats.hits + cacheStats.misses > 0
+        ? `${((cacheStats.hits / (cacheStats.hits + cacheStats.misses)) * 100).toFixed(2)}%`
+        : 'N/A',
+      backgroundUpdates: cacheStats.backgroundUpdates,
+      lastBackgroundUpdate: cacheStats.lastBackgroundUpdate
+        ? new Date(cacheStats.lastBackgroundUpdate).toISOString()
+        : null,
+      uptimeSeconds: Math.round(uptime / 1000)
+    },
+    caches: {
+      nfl: {
+        activeWeeks: Array.from(sportsCache.nfl.activeWeeks),
+        entries: getCacheAges(sportsCache.nfl)
+      },
+      nba: {
+        activeDates: Array.from(sportsCache.nba.activeDates),
+        entries: getCacheAges(sportsCache.nba)
+      },
+      nhl: {
+        activeDates: Array.from(sportsCache.nhl.activeDates),
+        entries: getCacheAges(sportsCache.nhl)
+      },
+      mlb: {
+        activeDates: Array.from(sportsCache.mlb.activeDates),
+        entries: getCacheAges(sportsCache.mlb)
+      },
+      ncaab: {
+        activeDates: Array.from(sportsCache.ncaab.activeDates),
+        entries: getCacheAges(sportsCache.ncaab)
+      },
+      ncaa: {
+        activeWeeks: Array.from(sportsCache.ncaa.activeWeeks),
+        entries: getCacheAges(sportsCache.ncaa)
+      }
+    }
+  });
+});
 
 // ESPN API Health Monitor
 app.get('/api/health/espn', (req, res) => {
@@ -5435,7 +5820,7 @@ app.get('/Phone-sports-bar', (req, res) => {
 // START SERVER
 // ============================================
 
-const httpServer = app.listen(PORT, '0.0.0.0', () => {
+const httpServer = app.listen(PORT, '0.0.0.0', async () => {
   console.log(`✅ GridTV Sports Multi-Sport Server running on port ${PORT} (bound to 0.0.0.0)`);
   console.log(`🏈 NFL API: http://localhost:${PORT}/api/nfl/scoreboard`);
   console.log(`🏈 NCAA API: http://localhost:${PORT}/api/ncaa/scoreboard`);
@@ -5447,6 +5832,12 @@ const httpServer = app.listen(PORT, '0.0.0.0', () => {
 
   // Clean up any stale dates from cache
   cleanupActiveDates();
+
+  // Initialize cache with current data on server startup
+  // This ensures clients get data immediately without waiting for background jobs
+  console.log('🔄 Initializing server cache...');
+  await initializeCache();
+  console.log('✅ Server cache initialized - clients will now receive cached data');
 });
 
 // ============================================
