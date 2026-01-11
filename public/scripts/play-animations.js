@@ -27,6 +27,54 @@ function getFullscreenEnteredAt() {
 }
 
 /**
+ * Show play text modal after turnover animations (fumble/interception)
+ * Highlights uppercase words in the play text
+ * @param {HTMLElement} card - The game card element
+ * @param {string} playText - The full play text from API
+ * @param {number} duration - How long to show the modal in ms (default 15000)
+ */
+function showPlayTextModal(card, playText, duration = 15000) {
+  // Remove any existing play text modal
+  const existingModal = card.querySelector('.play-text-modal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  // Create the modal
+  const modal = document.createElement('div');
+  modal.className = 'play-text-modal';
+
+  // Highlight uppercase words (like player names, team abbreviations)
+  // Match sequences of 2+ uppercase letters (with optional periods/hyphens)
+  const highlightedText = playText.replace(
+    /\b([A-Z][A-Z.'-]+[A-Z]?)\b/g,
+    '<span class="play-text-highlight">$1</span>'
+  );
+
+  modal.innerHTML = `
+    <div class="play-text-modal-content">
+      <div class="play-text-modal-body">${highlightedText}</div>
+    </div>
+  `;
+
+  card.style.position = 'relative';
+  card.appendChild(modal);
+
+  // Fade in
+  requestAnimationFrame(() => {
+    modal.classList.add('visible');
+  });
+
+  // Fade out and remove after duration
+  setTimeout(() => {
+    modal.classList.add('fade-out');
+    setTimeout(() => {
+      modal.remove();
+    }, 500); // Match fade-out transition duration
+  }, duration);
+}
+
+/**
  * Detect play type based on score change and trigger animation
  * @param {HTMLElement} card - The game card element
  * @param {number} scoreChange - The change in score
@@ -726,17 +774,32 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   }
 
   // Queue all detected events for animation
+  // Track if we have a fumble or interception to show play text modal after
+  let hasTurnoverAnimation = false;
+
   for (const event of events) {
     if (event.type === 'penalty') {
       showPlayAnimation(card, event.type, event.text, event.teamName, event.recoveryInfo, event.logo || '', false);
     } else {
       showPlayAnimation(card, event.type, event.text, event.teamName, event.recoveryInfo || '', event.logo || '', isNegated && event.type !== 'penalty');
     }
+
+    // Check for turnover events
+    if (event.type === 'fumble' || event.type === 'interception') {
+      hasTurnoverAnimation = true;
+    }
   }
 
   // Log detected events for debugging
   if (events.length > 0) {
     console.log('🎬 Play events detected:', events.map(e => e.type + (e.isNegated ? ' (NEGATED)' : '')).join(', '));
+  }
+
+  // Show play text modal after fumble/interception animation completes (8 seconds)
+  if (hasTurnoverAnimation && lastPlay) {
+    setTimeout(() => {
+      showPlayTextModal(card, lastPlay, 15000);
+    }, 8000); // Wait for main animation to finish
   }
 
   // Score-based detection fallback (for when play text doesn't match)
@@ -1060,6 +1123,7 @@ if (typeof module !== 'undefined' && module.exports) {
     detectAndAnimatePlay,
     showPlayAnimation,
     showPlayAnimationDirect,
+    showPlayTextModal,
     analyzeAndAnimatePlay,
     queueAnimation,
     processNextAnimation,

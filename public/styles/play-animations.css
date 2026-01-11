@@ -1082,3 +1082,68 @@
   color: #f97316;
   text-shadow: 0 0 20px #f97316;
 }
+
+
+/* ============================================
+   PLAY TEXT MODAL (for turnovers)
+   Shows full play text with highlighted uppercase words
+   ============================================ */
+.play-text-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(20, 20, 40, 0.95) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  padding: clamp(10px, 3vmin, 30px);
+}
+
+.play-text-modal.visible {
+  opacity: 1;
+}
+
+.play-text-modal.fade-out {
+  opacity: 0;
+}
+
+.play-text-modal-content {
+  max-width: 90%;
+  max-height: 80%;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.play-text-modal-body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: clamp(14px, 3vmin, 24px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Highlighted text (uppercase words like player names) */
+.play-text-highlight {
+  color: #fbbf24;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+
+/* Responsive sizing for smaller grids */
+.fullscreen-grid.grid-6 .play-text-modal-body,
+.fullscreen-grid.grid-7 .play-text-modal-body,
+.fullscreen-grid.grid-8 .play-text-modal-body {
+  font-size: clamp(10px, 2vmin, 16px);
+  line-height: 1.4;
+}
+
+.fullscreen-grid.grid-6 .play-text-modal,
+.fullscreen-grid.grid-7 .play-text-modal,
+.fullscreen-grid.grid-8 .play-text-modal {
+  padding: clamp(5px, 2vmin, 15px);
+}
