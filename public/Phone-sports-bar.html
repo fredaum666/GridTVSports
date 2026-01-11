@@ -3741,7 +3741,9 @@
                 prevDown: prevData.down || 0,
                 currentDown: comp?.situation?.down || 0,
                 downDistanceText: comp?.situation?.downDistanceText || '',
-                prevDownDistance: prevData.downDistanceText || ''
+                prevDownDistance: prevData.downDistanceText || '',
+                prevPossession: prevData.possession || null,
+                currentPossession: game.possession || null
             });
         }
 

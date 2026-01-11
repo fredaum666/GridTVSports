@@ -185,6 +185,9 @@ function showPlayAnimationDirect(card, playType, playText, teamName = '', recove
     case 'fumble':
       icon = '💨';
       break;
+    case 'turnover-on-downs':
+      icon = '🔄';
+      break;
     default:
       icon = '⚡';
   }
@@ -240,6 +243,14 @@ function showPlayAnimationDirect(card, playType, playText, teamName = '', recove
         <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow static" onerror="this.style.display='none';">
         <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow moving" onerror="this.style.display='none';">
       </div>
+    `;
+  } else if (playType === 'turnover-on-downs') {
+    // Special HTML for turnover on downs - yellow/amber themed
+    animationDiv.innerHTML = `
+      <div class="turnover-on-downs-container">
+        <div class="turnover-on-downs-icon">🔄</div>
+      </div>
+      <div class="play-animation-text">${playText}</div>
     `;
   } else if (playType === 'missed-kick') {
     // Special HTML for missed field goal/XP with YFrame and ball missing
@@ -362,7 +373,9 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     prevDown = 0,
     currentDown = 0,
     downDistanceText = '',
-    prevDownDistance = ''
+    prevDownDistance = '',
+    prevPossession = null,
+    currentPossession = null
   } = options;
 
   // Debug: Log when this function is called
@@ -739,25 +752,6 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     }
   }
 
-  // Check for 1st down animation
-  // Detect first down from play text (most reliable method)
-  const playTextHasFirstDown = lowerLastPlay.includes('1st down') ||
-    lowerLastPlay.includes('first down') ||
-    lowerLastPlay.includes('1st and') ||
-    lowerLastPlay.includes('for a 1st');
-
-  // Detect first down from down transition (2nd/3rd/4th -> 1st)
-  const downTransitionFirstDown = currentDown === 1 && prevDown >= 2 && prevDown <= 4;
-
-  // Detect first down when staying on 1st down but yard line changed significantly
-  // This catches 1st down -> new 1st down scenarios
-  const sameDownNewFirstDown = currentDown === 1 && prevDown === 1 &&
-    downDistanceText !== prevDownDistance && prevDownDistance !== '' &&
-    playTextHasFirstDown;
-
-  const isNewFirstDown = downTransitionFirstDown || sameDownNewFirstDown ||
-    (playTextHasFirstDown && currentDown === 1 && card.dataset.lastPlayText !== lastPlay);
-
   // Exclusion conditions - don't trigger on turnovers, punts, or scores
   const isTurnover = lowerLastPlay.includes('interception') ||
     lowerLastPlay.includes('intercepted') ||
@@ -771,6 +765,42 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   const isScoreOrPenalty = lowerLastPlay.includes('touchdown') ||
     lowerLastPlay.includes('penalty') ||
     awayScoreChange > 0 || homeScoreChange > 0;
+
+  // Check for TURNOVER ON DOWNS
+  // Conditions: 4th down play + possession changed + no score + no other turnover + no punt/kick
+  const was4thDown = prevDown === 4;
+  const possessionChanged = prevPossession !== null && currentPossession !== null &&
+    prevPossession !== currentPossession;
+
+  if (was4thDown && possessionChanged && !isTurnover && !isPuntOrKick && !isScoreOrPenalty) {
+    const turnoverKey = `turnover-${downDistanceText}-${lastPlay.substring(0, 50)}`;
+    if (card.dataset.lastTurnoverOnDowns !== turnoverKey) {
+      showPlayAnimation(card, 'turnover-on-downs', 'TURNOVER ON DOWNS!');
+      card.dataset.lastTurnoverOnDowns = turnoverKey;
+      console.log('🔄 Turnover on downs detected:', { prevDown, currentDown, prevPossession, currentPossession });
+    }
+  }
+
+  // Check for 1st down animation
+  // Detect first down from play text (most reliable method)
+  const playTextHasFirstDown = lowerLastPlay.includes('1st down') ||
+    lowerLastPlay.includes('first down') ||
+    lowerLastPlay.includes('1st and') ||
+    lowerLastPlay.includes('for a 1st');
+
+  // Detect first down from down transition (2nd/3rd/4th -> 1st)
+  // But NOT if it was 4th down with possession change (that's turnover on downs, not first down)
+  const downTransitionFirstDown = currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
+    !(was4thDown && possessionChanged);
+
+  // Detect first down when staying on 1st down but yard line changed significantly
+  // This catches 1st down -> new 1st down scenarios
+  const sameDownNewFirstDown = currentDown === 1 && prevDown === 1 &&
+    downDistanceText !== prevDownDistance && prevDownDistance !== '' &&
+    playTextHasFirstDown;
+
+  const isNewFirstDown = downTransitionFirstDown || sameDownNewFirstDown ||
+    (playTextHasFirstDown && currentDown === 1 && card.dataset.lastPlayText !== lastPlay && !possessionChanged);
 
   if (isNewFirstDown && !isTurnover && !isPuntOrKick && !isScoreOrPenalty) {
     // Use lastPlay as part of the key to prevent duplicate triggers

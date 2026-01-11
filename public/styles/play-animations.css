@@ -383,6 +383,68 @@
 }
 
 /* ============================================
+   TURNOVER ON DOWNS ANIMATION
+   ============================================ */
+.play-animation.turnover-on-downs .play-animation-icon {
+  color: #eab308;
+  text-shadow: 0 0 30px #eab308, 0 0 60px #eab308;
+}
+
+.play-animation.turnover-on-downs .play-animation-text {
+  color: #eab308;
+  text-shadow: 0 0 20px #eab308;
+}
+
+.turnover-on-downs-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: clamp(5px, 1.5vh, 15px);
+  width: clamp(80px, 20vmin, 160px);
+  height: clamp(80px, 20vmin, 160px);
+}
+
+/* Radial glow background */
+.turnover-on-downs-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at center,
+    rgba(234, 179, 8, 0.4) 0%,
+    rgba(234, 179, 8, 0.2) 25%,
+    rgba(234, 179, 8, 0.05) 50%,
+    transparent 70%);
+  animation: turnoverGlow 3s ease-in-out forwards;
+}
+
+@keyframes turnoverGlow {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  80% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+.turnover-on-downs-icon {
+  font-size: clamp(50px, 12vmin, 100px);
+  color: #eab308;
+  filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.8));
+  animation: turnoverPulse 3s ease-in-out forwards;
+}
+
+@keyframes turnoverPulse {
+  0% { transform: scale(0); opacity: 0; }
+  15% { transform: scale(1.2); opacity: 1; }
+  25% { transform: scale(1); }
+  75% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+
+/* ============================================
    SACK ANIMATION
    ============================================ */
 .play-animation.sack .play-animation-text {
