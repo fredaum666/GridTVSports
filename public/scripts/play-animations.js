@@ -436,9 +436,13 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
 
   const lowerLastPlay = lastPlay.toLowerCase();
 
-  // Detect if play was negated by penalty ("No Play" at the end)
-  const isNegated = lowerLastPlay.includes('no play') ||
-    (lowerLastPlay.includes('penalty') && lowerLastPlay.includes('enforced'));
+  // Detect if play was negated by penalty
+  // "No Play" explicitly means the play was called back
+  // "enforced between downs" means the play stood and penalty applied after (NOT negated)
+  // Only consider negated if "No Play" appears OR penalty on offense during scoring play
+  const hasNoPlay = lowerLastPlay.includes('no play');
+  const enforcedBetweenDowns = lowerLastPlay.includes('enforced between downs');
+  const isNegated = hasNoPlay && !enforcedBetweenDowns;
 
   // Helper to get team info
   const awayAbbr = awayTeam?.team?.abbreviation || '';
