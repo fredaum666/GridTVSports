@@ -864,11 +864,14 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   const downTransitionFirstDown = currentDown === 1 && prevDown >= 2 && prevDown <= 4 &&
     !possessionChanged;
 
-  // Detect first down when staying on 1st down but yard line changed significantly
+  // Detect first down when staying on 1st down but field position changed
   // This catches 1st down -> new 1st down scenarios (same team keeps moving)
+  // Example: "1st & 10 at SF 31" -> "1st & 10 at SF 41" (team gained 10 yards, new 1st down)
+  // We detect this by checking if the down/distance text changed while staying on 1st & 10
   const sameDownNewFirstDown = currentDown === 1 && prevDown === 1 &&
     downDistanceText !== prevDownDistance && prevDownDistance !== '' &&
-    playTextHasFirstDown && !possessionChanged;
+    downDistanceText.includes('1st & 10') && prevDownDistance.includes('1st & 10') &&
+    !possessionChanged;
 
   // First down only when same team earns it (no possession change)
   const isNewFirstDown = (downTransitionFirstDown || sameDownNewFirstDown ||
