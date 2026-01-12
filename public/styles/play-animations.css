@@ -1087,21 +1087,22 @@
 /* ============================================
    PLAY TEXT MODAL (for turnovers)
    Shows full play text with highlighted uppercase words
+   Positioned at bottom of card, not full overlay
    ============================================ */
 .play-text-modal {
   position: absolute;
-  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(20, 20, 40, 0.95) 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.85) 80%, transparent 100%);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   z-index: 100;
   opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-  padding: clamp(10px, 3vmin, 30px);
+  transition: opacity 0.8s ease-in-out;
+  padding: clamp(15px, 4vmin, 40px);
+  padding-top: clamp(30px, 8vmin, 80px);
 }
 
 .play-text-modal.visible {
@@ -1110,40 +1111,42 @@
 
 .play-text-modal.fade-out {
   opacity: 0;
+  transition: opacity 1.5s ease-out;
 }
 
 .play-text-modal-content {
-  max-width: 90%;
-  max-height: 80%;
-  overflow-y: auto;
+  max-width: 95%;
   text-align: center;
 }
 
 .play-text-modal-body {
   font-family: 'Segoe UI', system-ui, sans-serif;
-  font-size: clamp(14px, 3vmin, 24px);
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: clamp(18px, 4vmin, 32px);
+  font-weight: 500;
+  line-height: 1.5;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.02em;
 }
 
 /* Highlighted text (uppercase words like player names) */
 .play-text-highlight {
   color: #fbbf24;
-  font-weight: 600;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  font-weight: 700;
+  text-shadow: 0 0 15px rgba(251, 191, 36, 0.6), 0 2px 8px rgba(0, 0, 0, 0.8);
 }
 
 /* Responsive sizing for smaller grids */
 .fullscreen-grid.grid-6 .play-text-modal-body,
 .fullscreen-grid.grid-7 .play-text-modal-body,
 .fullscreen-grid.grid-8 .play-text-modal-body {
-  font-size: clamp(10px, 2vmin, 16px);
+  font-size: clamp(12px, 2.5vmin, 20px);
   line-height: 1.4;
 }
 
 .fullscreen-grid.grid-6 .play-text-modal,
 .fullscreen-grid.grid-7 .play-text-modal,
 .fullscreen-grid.grid-8 .play-text-modal {
-  padding: clamp(5px, 2vmin, 15px);
+  padding: clamp(8px, 2vmin, 20px);
+  padding-top: clamp(20px, 5vmin, 50px);
 }
