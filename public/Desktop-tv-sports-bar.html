@@ -896,7 +896,7 @@
         }
 
         .fs-sb-team-name {
-            font-size: clamp(0.8rem, 2vmin, 1.1rem);
+            font-size: clamp(0.8rem, 7vmin, 2.1rem);
             font-weight: 700;
             color: var(--sb-text-color);
             text-transform: uppercase;
@@ -904,7 +904,7 @@
         }
 
         .fs-sb-team-record {
-            font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
+            font-size: clamp(0.6rem, 3.5vmin, 1.45rem);
             color: var(--sb-subtext-color);
             font-weight: 500;
         }
@@ -930,8 +930,8 @@
         }
 
         .fs-sb-timeout-bar {
-            width: clamp(6px, 1vmin, 10px);
-            height: clamp(6px, 1vmin, 10px);
+            width: clamp(6px, 5vmin, 14px);
+            height: clamp(6px, 5vmin, 14px);
             background: linear-gradient(135deg, #414541 0%, #f5e3c4 100%);
             border-radius: 1px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
@@ -1248,7 +1248,7 @@
         }
 
         .fullscreen-grid.grid-1 .fs-sb-score-box {
-            width: clamp(70px, 10vmin, 100px);
+            width: clamp(70px, 15vmin, 120px);
         }
 
         /* Grid 2 */
@@ -2604,6 +2604,8 @@
 
             // Only start auto-refresh if NOT using mock data
             if (!usingMockData) {
+                // Immediately fetch fresh data to avoid stale localStorage data
+                refreshGameData();
                 startAutoRefresh();
             } else {
                 console.log('📺 Mock data mode - auto-refresh disabled');

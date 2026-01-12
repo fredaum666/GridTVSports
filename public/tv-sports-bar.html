@@ -2009,7 +2009,15 @@
 
             renderGrid();
             setupKeyboardNavigation();
-            startAutoRefresh();
+
+            // Only start auto-refresh if NOT using mock data
+            if (!usingMockData) {
+                // Immediately fetch fresh data to avoid stale localStorage data
+                refreshGameData();
+                startAutoRefresh();
+            } else {
+                console.log('📺 Mock data mode - auto-refresh disabled');
+            }
 
             // Update stats modals for NFL games - check every 2 seconds for phase transitions
             updateStatsModals();
@@ -2019,14 +2027,136 @@
             document.getElementById('back-btn').focus();
         });
 
+        // Track if mock data is being used (to disable auto-refresh)
+        let usingMockData = false;
+
         function loadGames() {
+            // First try to load from localStorage (user-selected games)
             const saved = localStorage.getItem('gridtv_sports_bar_games');
             if (saved) {
                 try {
                     games = JSON.parse(saved);
+                    if (games.length > 0) {
+                        usingMockData = false;
+                        return; // User has selected games, use those
+                    }
                 } catch (e) {
                     games = [];
                 }
+            }
+
+            // FALLBACK: Use mock live NFL games when no games are selected
+            // This allows testing layouts directly without selecting games
+            const USE_MOCK_DATA = false; // Set to false to disable mock fallback
+
+            if (USE_MOCK_DATA && games.length === 0) {
+                usingMockData = true;
+                games = [
+                    {
+                        id: 'mock1',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '3rd 8:42',
+                        away: { abbr: 'GB', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png', score: 21, record: '9-7-1', timeouts: 2 },
+                        home: { abbr: 'CHI', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png', score: 17, record: '11-6', timeouts: 1 },
+                        possession: 'away',
+                        downDistance: '2nd & 7',
+                        fieldPosition: 'CHI 35',
+                        yardLine: 35,
+                        yardsToGo: 7,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock2',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '4th 2:00',
+                        away: { abbr: 'BUF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png', score: 28, record: '12-5', timeouts: 0 },
+                        home: { abbr: 'JAX', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png', score: 24, record: '13-4', timeouts: 3 },
+                        possession: 'home',
+                        downDistance: '1st & 10',
+                        fieldPosition: 'BUF 15',
+                        yardLine: 15,
+                        yardsToGo: 10,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock3',
+                        league: 'nfl',
+                        state: 'in', // LIVE - Red Zone!
+                        status: '2nd 5:30',
+                        away: { abbr: 'KC', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png', score: 14, record: '10-7', timeouts: 3 },
+                        home: { abbr: 'MIA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png', score: 10, record: '8-9', timeouts: 2 },
+                        possession: 'away',
+                        downDistance: '3rd & Goal',
+                        fieldPosition: 'MIA 5',
+                        yardLine: 5,
+                        yardsToGo: 5,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock4',
+                        league: 'nfl',
+                        state: 'pre', // Upcoming
+                        status: '1/12 4:30 PM EST',
+                        away: { abbr: 'DAL', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png', score: '-', record: '7-10' },
+                        home: { abbr: 'PHI', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png', score: '-', record: '11-6' }
+                    },
+                    {
+                        id: 'mock5',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '1st 12:00',
+                        away: { abbr: 'SF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png', score: 7, record: '11-6', timeouts: 3 },
+                        home: { abbr: 'SEA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png', score: 0, record: '9-8', timeouts: 3 },
+                        possession: 'home',
+                        downDistance: '2nd & 5',
+                        fieldPosition: 'SEA 40',
+                        yardLine: 40,
+                        yardsToGo: 5,
+                        possessionOnOwn: true
+                    },
+                    {
+                        id: 'mock6',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '2nd 3:15',
+                        away: { abbr: 'LA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png', score: 10, record: '12-5', timeouts: 2 },
+                        home: { abbr: 'CAR', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/car.png', score: 7, record: '8-9', timeouts: 3 },
+                        possession: 'away',
+                        downDistance: '3rd & 3',
+                        fieldPosition: 'CAR 42',
+                        yardLine: 42,
+                        yardsToGo: 3,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock7',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: 'Half',
+                        away: { abbr: 'DEN', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/den.png', score: 14, record: '10-7', timeouts: 3 },
+                        home: { abbr: 'LV', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png', score: 14, record: '9-8', timeouts: 3 }
+                    },
+                    {
+                        id: 'mock8',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '4th 0:30',
+                        away: { abbr: 'NYG', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png', score: 20, record: '6-11', timeouts: 0 },
+                        home: { abbr: 'WAS', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png', score: 24, record: '11-6', timeouts: 1 },
+                        possession: 'away',
+                        downDistance: '4th & 15',
+                        fieldPosition: 'NYG 25',
+                        yardLine: 25,
+                        yardsToGo: 15,
+                        possessionOnOwn: true
+                    }
+                ];
+
+                // Limit to selected mock game count from index page
+                const mockGameCount = parseInt(localStorage.getItem('gridtv_mock_game_count')) || 8;
+                games = games.slice(0, mockGameCount);
             }
         }
 

@@ -842,6 +842,22 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   // Turnover on downs is specifically: 4th down + possession change + NOT a punt/kick/fumble/int
   const isTurnoverOnDowns = was4thDown && possessionChanged && !isTurnover && !isPuntOrKick && !isScoreOrPenalty;
 
+  // Debug logging for 4th down plays
+  if (was4thDown) {
+    console.log('🔍 4th down play analysis:', {
+      prevDown,
+      currentDown,
+      prevPossession,
+      currentPossession,
+      possessionChanged,
+      isPuntOrKick,
+      isTurnover,
+      isScoreOrPenalty,
+      isTurnoverOnDowns,
+      lastPlayPreview: lastPlay.substring(0, 80)
+    });
+  }
+
   if (isTurnoverOnDowns) {
     const turnoverKey = `turnover-${downDistanceText}-${lastPlay.substring(0, 50)}`;
     if (card.dataset.lastTurnoverOnDowns !== turnoverKey) {

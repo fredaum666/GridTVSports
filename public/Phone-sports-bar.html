@@ -2367,11 +2367,11 @@
             /* ================================ */
             .fullscreen-container.mobile-paging .field-visualizer {
                 max-width: 95% !important;
-                margin-top: clamp(15px, 3vw, 25px) !important;
+                margin-top: clamp(40px, 3vw, 25px) !important;
             }
 
             .fullscreen-container.mobile-paging .field-container {
-                height: clamp(30px, 8vw, 45px) !important;
+                height: clamp(30px, 20vw, 70px) !important;
                 transform: rotateX(5deg) !important;
             }
 
@@ -2380,11 +2380,11 @@
             }
 
             .fullscreen-container.mobile-paging .endzone-text {
-                font-size: clamp(5px, 1.5vw, 8px) !important;
+                font-size: clamp(10px, 3.5vw, 12px) !important;
             }
 
             .fullscreen-container.mobile-paging .yard-label {
-                font-size: clamp(5px, 1.2vw, 8px) !important;
+                font-size: clamp(10px, 1.2vw, 8px) !important;
             }
 
             .fullscreen-container.mobile-paging .ball-indicator {
@@ -3151,7 +3151,15 @@
 
             renderGrid();
             setupKeyboardNavigation();
-            startAutoRefresh();
+
+            // Only start auto-refresh if NOT using mock data
+            if (!usingMockData) {
+                // Immediately fetch fresh data to avoid stale localStorage data
+                refreshGameData();
+                startAutoRefresh();
+            } else {
+                console.log('📺 Mock data mode - auto-refresh disabled');
+            }
 
             // Update stats modals for NFL games - check every 2 seconds for phase transitions
             updateStatsModals();
@@ -3191,7 +3199,7 @@
             const USE_MOCK_DATA = false; // Set to false to disable mock fallback
 
             if (USE_MOCK_DATA && games.length === 0) {
-                usingMockData = false;
+                usingMockData = true;
                 games = [
                     {
                         id: 'mock1',

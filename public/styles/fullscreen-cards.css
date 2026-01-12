@@ -699,19 +699,16 @@ body.tv-mode .fullscreen-game-card.focused {
   height: clamp(var(--fs-field-height-min), var(--fs-field-height-preferred), var(--fs-field-height-max));
   /* Enhanced 3D grass effect */
   background:
-    repeating-linear-gradient(
-      90deg,
+    repeating-linear-gradient(90deg,
       rgba(255, 255, 255, 0.03) 0px,
       rgba(255, 255, 255, 0.03) 2px,
       transparent 2px,
-      transparent 10px
-    ),
+      transparent 10px),
     linear-gradient(180deg,
       rgba(255, 255, 255, 0.1) 0%,
       transparent 30%,
       transparent 70%,
-      rgba(0, 0, 0, 0.15) 100%
-    ),
+      rgba(0, 0, 0, 0.15) 100%),
     linear-gradient(to right, #064e3b 0%, #047857 25%, #059669 50%, #047857 75%, #064e3b 100%);
   border: clamp(1px, 0.3vmin, 3px) solid #10b981;
   border-radius: clamp(4px, 0.8vmin, 8px);
@@ -741,7 +738,7 @@ body.tv-mode .fullscreen-game-card.focused {
 
 .yard-marker {
   position: relative;
-  width: clamp(1px, 0.2vmin, 2px);
+  width: clamp(3px, 0.2vmin, 2px);
   height: 100%;
   background: rgba(255, 255, 255, 0.25);
   display: flex;
@@ -758,11 +755,10 @@ body.tv-mode .fullscreen-game-card.focused {
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
   /* Default endzone color */
   background: linear-gradient(180deg,
-    rgba(255, 255, 255, 0.15) 0%,
-    var(--endzone-color, #374151) 20%,
-    var(--endzone-color, #374151) 80%,
-    rgba(0, 0, 0, 0.2) 100%
-  );
+      rgba(255, 255, 255, 0.15) 0%,
+      var(--endzone-color, #374151) 20%,
+      var(--endzone-color, #374151) 80%,
+      rgba(0, 0, 0, 0.2) 100%);
 }
 
 .yard-marker.endzone:last-child {

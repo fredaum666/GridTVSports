@@ -65,7 +65,7 @@
 
   /* Timeout bars base */
   .fs-sb-timeouts {
-    gap: 4px !important;
+    gap: 10px !important;
   }
 
   .fs-sb-timeout-pip {
@@ -808,11 +808,11 @@
   }
 
   .fullscreen-grid.grid-1 .fs-sb-timeouts.away {
-    right: clamp(70px, 12vw, 130px) !important;
+    right: clamp(70px, 12vw, 100px) !important;
   }
 
   .fullscreen-grid.grid-1 .fs-sb-timeouts.home {
-    left: clamp(70px, 12vw, 130px) !important;
+    left: clamp(70px, 12vw, 100px) !important;
   }
 
   /* ----------------------------------------
@@ -1102,12 +1102,12 @@
   }
 
   /* Grid-5 Team logo positioning */
-  .fullscreen-grid.grid-5 .fs-scoreboard-top > :nth-child(2) .fs-card-team-logo-wrapper {
+  .fullscreen-grid.grid-5 .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-scoreboard-top > :nth-child(4) .fs-card-team-logo-wrapper {
+  .fullscreen-grid.grid-5 .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
@@ -1199,12 +1199,12 @@
   }
 
   /* Grid-6 Team logo positioning */
-  .fullscreen-grid.grid-6 .fs-scoreboard-top > :nth-child(2) .fs-card-team-logo-wrapper {
+  .fullscreen-grid.grid-6 .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
 
-  .fullscreen-grid.grid-6 .fs-scoreboard-top > :nth-child(4) .fs-card-team-logo-wrapper {
+  .fullscreen-grid.grid-6 .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
@@ -1312,12 +1312,12 @@
   }
 
   /* Grid-7 Team logo positioning */
-  .fullscreen-grid.grid-7 .fs-scoreboard-top > :nth-child(2) .fs-card-team-logo-wrapper {
+  .fullscreen-grid.grid-7 .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
 
-  .fullscreen-grid.grid-7 .fs-scoreboard-top > :nth-child(4) .fs-card-team-logo-wrapper {
+  .fullscreen-grid.grid-7 .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
