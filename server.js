@@ -3319,25 +3319,46 @@ async function initializeCache() {
   const yesterday = getYesterdayDate();
   const tomorrow = getTomorrowDate();
 
+  // Store scoreboard data for stats pre-fetching
+  let nflData = null;
+  let ncaaData = null;
+  let nbaData = null;
+  let nhlData = null;
+  let mlbData = null;
+  let ncaabData = null;
+
   try {
     // NFL - fetch current week
     const nflSeason = getNFLSeasonInfo();
     const nflCacheKey = nflSeason.seasonType === 3
       ? `postseason-week-${nflSeason.week}`
       : `regular-week-${nflSeason.week}`;
-    await fetchNFLDataForCache(nflCacheKey, nflSeason.seasonType, nflSeason.week);
+    nflData = await fetchNFLDataForCache(nflCacheKey, nflSeason.seasonType, nflSeason.week);
     console.log(`[Cache] NFL initialized: ${nflCacheKey}`);
   } catch (e) {
     console.error('[Cache] Failed to initialize NFL:', e.message);
   }
 
   try {
+    // NCAA Football - fetch current week or bowl season
+    const ncaaWeek = getCurrentNCAAWeek();
+    const isBowl = isCollegeBowlSeason();
+    const ncaaCacheKey = isBowl ? 'bowl-season' : `week-${ncaaWeek}`;
+    const seasonType = isBowl ? 3 : 2;
+    ncaaData = await fetchNCAADataForCache(ncaaCacheKey, seasonType, ncaaWeek);
+    console.log(`[Cache] NCAA initialized: ${ncaaCacheKey}`);
+  } catch (e) {
+    console.error('[Cache] Failed to initialize NCAA:', e.message);
+  }
+
+  try {
     // NBA - fetch today, yesterday, tomorrow
-    await Promise.all([
+    const [nbaToday] = await Promise.all([
       fetchNBADataForCache(today),
       fetchNBADataForCache(yesterday),
       fetchNBADataForCache(tomorrow)
     ]);
+    nbaData = nbaToday;
     console.log('[Cache] NBA initialized: today, yesterday, tomorrow');
   } catch (e) {
     console.error('[Cache] Failed to initialize NBA:', e.message);
@@ -3345,10 +3366,11 @@ async function initializeCache() {
 
   try {
     // NHL - fetch today, yesterday
-    await Promise.all([
+    const [nhlToday] = await Promise.all([
       fetchNHLDataForCache(today),
       fetchNHLDataForCache(yesterday)
     ]);
+    nhlData = nhlToday;
     console.log('[Cache] NHL initialized: today, yesterday');
   } catch (e) {
     console.error('[Cache] Failed to initialize NHL:', e.message);
@@ -3356,10 +3378,11 @@ async function initializeCache() {
 
   try {
     // MLB - fetch today, yesterday
-    await Promise.all([
+    const [mlbToday] = await Promise.all([
       fetchMLBDataForCache(today),
       fetchMLBDataForCache(yesterday)
     ]);
+    mlbData = mlbToday;
     console.log('[Cache] MLB initialized: today, yesterday');
   } catch (e) {
     console.error('[Cache] Failed to initialize MLB:', e.message);
@@ -3367,11 +3390,12 @@ async function initializeCache() {
 
   try {
     // NCAAB - fetch today, yesterday, tomorrow
-    await Promise.all([
+    const [ncaabToday] = await Promise.all([
       fetchNCAABDataForCache(today),
       fetchNCAABDataForCache(yesterday),
       fetchNCAABDataForCache(tomorrow)
     ]);
+    ncaabData = ncaabToday;
     console.log('[Cache] NCAAB initialized: today, yesterday, tomorrow');
   } catch (e) {
     console.error('[Cache] Failed to initialize NCAAB:', e.message);
@@ -3380,6 +3404,21 @@ async function initializeCache() {
   sportsCache.initialized = true;
   sportsCache.lastUpdate = Date.now();
   console.log('[Cache] Initialization complete');
+
+  // Pre-fetch stats for live games (run in background, don't block startup)
+  console.log('[Cache] Pre-fetching stats for live games...');
+  const statsPrefetchPromises = [];
+
+  if (nflData) statsPrefetchPromises.push(prefetchLiveGameStats('nfl', nflData).catch(() => {}));
+  if (ncaaData) statsPrefetchPromises.push(prefetchLiveGameStats('ncaa', ncaaData).catch(() => {}));
+  if (nbaData) statsPrefetchPromises.push(prefetchLiveGameStats('nba', nbaData).catch(() => {}));
+  if (nhlData) statsPrefetchPromises.push(prefetchLiveGameStats('nhl', nhlData).catch(() => {}));
+  if (mlbData) statsPrefetchPromises.push(prefetchLiveGameStats('mlb', mlbData).catch(() => {}));
+  if (ncaabData) statsPrefetchPromises.push(prefetchLiveGameStats('ncaab', ncaabData).catch(() => {}));
+
+  Promise.all(statsPrefetchPromises).then(() => {
+    console.log('[Cache] Stats pre-fetch complete');
+  });
 }
 
 // ============================================

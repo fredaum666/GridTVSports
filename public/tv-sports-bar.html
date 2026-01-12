@@ -3067,8 +3067,46 @@
                 }
             }
 
+            // Preserve any active play text modals before re-render (with timing info)
+            const activePlayTextModals = new Map();
+            document.querySelectorAll('.play-text-modal').forEach(modal => {
+                const card = modal.closest('.fullscreen-game-card');
+                if (card && !modal.classList.contains('fade-out')) {
+                    const gameId = card.dataset.gameId;
+                    const createdAt = parseInt(modal.dataset.createdAt) || 0;
+                    const duration = parseInt(modal.dataset.duration) || 15000;
+                    const elapsed = Date.now() - createdAt;
+                    const remaining = duration - elapsed;
+
+                    // Only preserve if there's still time remaining
+                    if (remaining > 1000) {
+                        activePlayTextModals.set(gameId, {
+                            modal: modal.cloneNode(true),
+                            remaining: remaining
+                        });
+                    }
+                }
+            });
+
             // Re-render grid with updated data
             renderGrid();
+
+            // Restore any active play text modals after re-render with new timeouts
+            activePlayTextModals.forEach(({ modal, remaining }, gameId) => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+                if (card) {
+                    card.style.position = 'relative';
+                    card.appendChild(modal);
+
+                    // Set up new timeout for remaining duration
+                    setTimeout(() => {
+                        modal.classList.add('fade-out');
+                        setTimeout(() => {
+                            modal.remove();
+                        }, 1500);
+                    }, remaining);
+                }
+            });
 
             // Apply pending animations AFTER render so cards exist in DOM
             pendingAnimations.forEach(({ gameId, game, comp, prevData, league }) => {

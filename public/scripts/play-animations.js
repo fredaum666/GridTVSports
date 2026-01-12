@@ -44,6 +44,10 @@ function showPlayTextModal(card, playText, duration = 15000) {
   const modal = document.createElement('div');
   modal.className = 'play-text-modal';
 
+  // Store creation time and duration for preservation across re-renders
+  modal.dataset.createdAt = Date.now().toString();
+  modal.dataset.duration = duration.toString();
+
   // Highlight uppercase words (like player names, team abbreviations)
   // Match sequences of 2+ uppercase letters (with optional periods/hyphens)
   const highlightedText = playText.replace(
@@ -70,7 +74,7 @@ function showPlayTextModal(card, playText, duration = 15000) {
     modal.classList.add('fade-out');
     setTimeout(() => {
       modal.remove();
-    }, 500); // Match fade-out transition duration
+    }, 1500); // Match fade-out transition duration
   }, duration);
 }
 
