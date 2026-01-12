@@ -2858,7 +2858,7 @@
         let isFirstRefresh = true; // Skip animations on first refresh (data baseline)
 
         function startAutoRefresh() {
-            refreshInterval = setInterval(refreshGameData, 20000);
+            refreshInterval = setInterval(refreshGameData, 10000); // 10 seconds - read from server cache
         }
 
         async function refreshGameData() {

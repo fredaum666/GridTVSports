@@ -2762,7 +2762,7 @@ const sportsCache = {
   nhl: { data: new Map(), activeDates: new Set() },
   CACHE_DURATION: 30000, // Not used for client requests anymore - clients always get cache
   COMPLETED_CACHE_DURATION: 3600000, // 1 hour for completed
-  BACKGROUND_POLL_INTERVAL: 20000, // 20 seconds - background polling interval
+  BACKGROUND_POLL_INTERVAL: 15000, // 15 seconds - background polling interval
   initialized: false, // Track if initial cache population is done
   lastUpdate: null // Track last background update time
 };
@@ -3297,8 +3297,8 @@ async function prefetchLiveGameStats(league, scoreboardData) {
     const cached = gameStatsCache.data.get(cacheKey);
     const now = Date.now();
 
-    // Skip if recently fetched (within 20 seconds)
-    if (cached && (now - cached.timestamp) < 20000) {
+    // Skip if recently fetched (within 15 seconds)
+    if (cached && (now - cached.timestamp) < 15000) {
       return;
     }
 
@@ -4744,8 +4744,8 @@ app.get('/api/nhl/summary/:gameId', async (req, res) => {
 // These background jobs are the ONLY way data is fetched from ESPN.
 // Client API requests NEVER trigger ESPN calls - they only read from cache.
 
-// Update NFL cache every 20 seconds for active weeks
-cron.schedule('*/20 * * * * *', async () => {
+// Update NFL cache every 15 seconds for active weeks
+cron.schedule('*/15 * * * * *', async () => {
   for (const cacheKey of sportsCache.nfl.activeWeeks) {
     try {
       const isPostseason = cacheKey.startsWith('postseason-');
@@ -4767,8 +4767,8 @@ cron.schedule('*/20 * * * * *', async () => {
   }
 });
 
-// Update NCAA (college football) cache every 20 seconds for active weeks
-cron.schedule('*/20 * * * * *', async () => {
+// Update NCAA (college football) cache every 15 seconds for active weeks
+cron.schedule('*/15 * * * * *', async () => {
   for (const cacheKey of sportsCache.ncaa.activeWeeks) {
     try {
       const isBowlSeason = cacheKey.startsWith('bowls-');
@@ -4790,8 +4790,8 @@ cron.schedule('*/20 * * * * *', async () => {
   }
 });
 
-// Update NBA cache every 20 seconds for active dates
-cron.schedule('*/20 * * * * *', async () => {
+// Update NBA cache every 15 seconds for active dates
+cron.schedule('*/15 * * * * *', async () => {
   for (const date of sportsCache.nba.activeDates) {
     try {
       const data = await fetchNBADataForCache(date);
@@ -4808,8 +4808,8 @@ cron.schedule('*/20 * * * * *', async () => {
   }
 });
 
-// Update MLB cache every 20 seconds for active dates
-cron.schedule('*/20 * * * * *', async () => {
+// Update MLB cache every 15 seconds for active dates
+cron.schedule('*/15 * * * * *', async () => {
   for (const date of sportsCache.mlb.activeDates) {
     try {
       const data = await fetchMLBDataForCache(date);
@@ -4826,8 +4826,8 @@ cron.schedule('*/20 * * * * *', async () => {
   }
 });
 
-// Update NHL cache every 20 seconds for active dates
-cron.schedule('*/20 * * * * *', async () => {
+// Update NHL cache every 15 seconds for active dates
+cron.schedule('*/15 * * * * *', async () => {
   for (const date of sportsCache.nhl.activeDates) {
     try {
       const data = await fetchNHLDataForCache(date);
@@ -4844,8 +4844,8 @@ cron.schedule('*/20 * * * * *', async () => {
   }
 });
 
-// Update NCAAB cache every 20 seconds for active dates
-cron.schedule('*/20 * * * * *', async () => {
+// Update NCAAB cache every 15 seconds for active dates
+cron.schedule('*/15 * * * * *', async () => {
   for (const date of sportsCache.ncaab.activeDates) {
     try {
       const data = await fetchNCAABDataForCache(date);
@@ -5240,7 +5240,7 @@ app.get('/api/health/cache', (req, res) => {
     status: sportsCache.initialized ? 'ready' : 'initializing',
     architecture: {
       description: 'Background polling feeds cache, clients read from cache only',
-      pollInterval: '20 seconds',
+      pollInterval: '15 seconds',
       clientsNeverCallESPN: true
     },
     stats: {
