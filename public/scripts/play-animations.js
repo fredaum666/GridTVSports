@@ -1254,28 +1254,59 @@ function parseSpecialTeamsPlay(playText, prevFieldPosition, teams) {
   let returnEnd = null;
 
   if (isKickoff) {
-    // Kickoff pattern: "C.Boswell kicks 63 yards from PIT 35 to HST 2"
-    const kickoffMatch = playText.match(/kicks?\s+(\d+)\s+yards?\s+from\s+([A-Z]{2,4})\s+(\d+)\s+to\s+([A-Z]{2,4})\s+(\d+)/i);
+    // Kickoff pattern 1: "C.Boswell kicks 63 yards from PIT 35 to HST 2"
+    // Note: yard line can be negative (e.g., "to PIT -1" means into the end zone)
+    const kickoffMatch = playText.match(/kicks?\s+(\d+)\s+yards?\s+from\s+([A-Z]{2,4})\s+(-?\d+)\s+to\s+([A-Z]{2,4})\s+(-?\d+)/i);
+
+    // Kickoff pattern 2: "K.Fairbairn kicks 65 yards from HST 35 to end zone, Touchback"
+    // When kick goes to "end zone", we need to extract origin and infer landing
+    const kickoffEndZoneMatch = !kickoffMatch && playText.match(/kicks?\s+(\d+)\s+yards?\s+from\s+([A-Z]{2,4})\s+(-?\d+)\s+to\s+(?:the\s+)?end\s*zone/i);
+
     if (kickoffMatch) {
+      const originYardLine = parseInt(kickoffMatch[3]);
+      const landingYardLine = parseInt(kickoffMatch[5]);
+
       kickOrigin = {
         team: kickoffMatch[2],
-        yardLine: parseInt(kickoffMatch[3]),
-        fieldPercent: yardLineToFieldPercent(kickoffMatch[2], parseInt(kickoffMatch[3]), awayAbbr, homeAbbr)
+        yardLine: originYardLine,
+        fieldPercent: yardLineToFieldPercent(kickoffMatch[2], Math.max(0, originYardLine), awayAbbr, homeAbbr)
       };
       landingSpot = {
         team: kickoffMatch[4],
-        yardLine: parseInt(kickoffMatch[5]),
-        fieldPercent: yardLineToFieldPercent(kickoffMatch[4], parseInt(kickoffMatch[5]), awayAbbr, homeAbbr)
+        yardLine: landingYardLine,
+        // Negative yard line means in/past the end zone - clamp to 0
+        fieldPercent: yardLineToFieldPercent(kickoffMatch[4], Math.max(0, landingYardLine), awayAbbr, homeAbbr)
+      };
+    } else if (kickoffEndZoneMatch) {
+      // Kick to end zone - origin is parsed, landing is the opposite end zone (0 yard line)
+      const originYardLine = parseInt(kickoffEndZoneMatch[3]);
+      const originTeam = kickoffEndZoneMatch[2];
+
+      // Figure out which team's end zone it went to (opposite of kicking team)
+      const landingTeam = originTeam.toUpperCase() === awayAbbr.toUpperCase() ? homeAbbr : awayAbbr;
+
+      kickOrigin = {
+        team: originTeam,
+        yardLine: originYardLine,
+        fieldPercent: yardLineToFieldPercent(originTeam, originYardLine, awayAbbr, homeAbbr)
+      };
+      landingSpot = {
+        team: landingTeam,
+        yardLine: 0, // End zone
+        fieldPercent: yardLineToFieldPercent(landingTeam, 0, awayAbbr, homeAbbr)
       };
     }
   } else if (isPunt) {
     // Punt pattern: "C.Waitman punts 44 yards to HST 7"
-    const puntMatch = playText.match(/punts?\s+(\d+)\s+yards?\s+to\s+([A-Z]{2,4})\s+(\d+)/i);
+    // Note: yard line can be negative (e.g., "to PIT -1" means into the end zone)
+    const puntMatch = playText.match(/punts?\s+(\d+)\s+yards?\s+to\s+([A-Z]{2,4})\s+(-?\d+)/i);
     if (puntMatch) {
+      const puntLandingYardLine = parseInt(puntMatch[3]);
       landingSpot = {
         team: puntMatch[2],
-        yardLine: parseInt(puntMatch[3]),
-        fieldPercent: yardLineToFieldPercent(puntMatch[2], parseInt(puntMatch[3]), awayAbbr, homeAbbr)
+        yardLine: puntLandingYardLine,
+        // Negative yard line means in/past the end zone - clamp to 0
+        fieldPercent: yardLineToFieldPercent(puntMatch[2], Math.max(0, puntLandingYardLine), awayAbbr, homeAbbr)
       };
 
       // For punts, kick origin comes from previous play's field position
@@ -1298,24 +1329,39 @@ function parseSpecialTeamsPlay(playText, prevFieldPosition, teams) {
   // Parse return: "J.Noel to HST 20 for 18 yards" or "ran ob at HST 8 for 1 yard"
   if (!isTouchback && !isFairCatch) {
     // Look for return pattern after the landing spot
-    const returnMatch = playText.match(/\.\s*([A-Z]\.[A-Za-z'-]+)\s+(?:to|ran\s+ob\s+at)\s+([A-Z]{2,4})\s+(\d+)\s+for\s+(\d+)\s+yards?/i);
+    // Note: yard line can be negative in edge cases
+    const returnMatch = playText.match(/\.\s*([A-Z]\.[A-Za-z'-]+)\s+(?:to|ran\s+ob\s+at)\s+([A-Z]{2,4})\s+(-?\d+)\s+for\s+(\d+)\s+yards?/i);
     if (returnMatch) {
+      const returnYardLine = parseInt(returnMatch[3]);
       returnEnd = {
         team: returnMatch[2],
-        yardLine: parseInt(returnMatch[3]),
-        fieldPercent: yardLineToFieldPercent(returnMatch[2], parseInt(returnMatch[3]), awayAbbr, homeAbbr),
+        yardLine: returnYardLine,
+        fieldPercent: yardLineToFieldPercent(returnMatch[2], Math.max(0, returnYardLine), awayAbbr, homeAbbr),
         yards: parseInt(returnMatch[4])
       };
     }
   }
 
-  // Handle touchback - ball goes to 25-yard line (or 20 for kickoff in some leagues)
+  // Handle touchback - try to extract actual touchback position from text
+  // Format: "Touchback to the PIT 35" or "Touchback, PIT 30"
   if (isTouchback && landingSpot) {
-    returnEnd = {
-      team: landingSpot.team,
-      yardLine: 25,
-      fieldPercent: yardLineToFieldPercent(landingSpot.team, 25, awayAbbr, homeAbbr)
-    };
+    // Try to parse actual touchback destination from play text
+    const touchbackMatch = playText.match(/touchback[,\s]+(?:to\s+(?:the\s+)?)?([A-Z]{2,4})\s+(\d+)/i);
+    if (touchbackMatch) {
+      returnEnd = {
+        team: touchbackMatch[1],
+        yardLine: parseInt(touchbackMatch[2]),
+        fieldPercent: yardLineToFieldPercent(touchbackMatch[1], parseInt(touchbackMatch[2]), awayAbbr, homeAbbr)
+      };
+    } else {
+      // Default: NFL kickoff touchback = 30, punt touchback = 20
+      const touchbackYardLine = isKickoff ? 30 : 20;
+      returnEnd = {
+        team: landingSpot.team,
+        yardLine: touchbackYardLine,
+        fieldPercent: yardLineToFieldPercent(landingSpot.team, touchbackYardLine, awayAbbr, homeAbbr)
+      };
+    }
   }
 
   return {

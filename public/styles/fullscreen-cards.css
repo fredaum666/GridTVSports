@@ -793,7 +793,9 @@ body.tv-mode .fullscreen-game-card.focused {
     0 1px 2px rgba(0, 0, 0, 0.9),
     0 0 4px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
-  pointer-events: none;
+  /* pointer-events: none; - Removed to allow Chrome DevTools inspection */
+  /* Default vertical offset - adjust per grid */
+  margin-top: 0;
 }
 
 /* Ball Indicator (Scrimmage Line) */
@@ -876,6 +878,12 @@ body.tv-mode .fullscreen-game-card.focused {
   --line-white: rgba(255, 255, 255, 0.85);
 }
 
+/* Field Wrapper - provides 3D perspective */
+.field-wrapper {
+  perspective: 600px;
+  width: 100%;
+}
+
 /* Main Field Container */
 .football-field-container {
   width: 100%;
@@ -887,7 +895,11 @@ body.tv-mode .fullscreen-game-card.focused {
   box-sizing: border-box;
   background-image: radial-gradient(circle at center, var(--field-green-light) 0%, var(--field-green) 80%);
   border-radius: clamp(4px, 0.8vmin, 8px);
-  overflow: hidden;
+  overflow: visible;
+  /* 3D Transform */
+  transform: rotateX(30deg) scale(0.9);
+  transform-origin: center 100%;
+  transform-style: preserve-3d;
 }
 
 /* Endzones - 8.333% each (10 yards of 120 total) */
@@ -956,6 +968,40 @@ body.tv-mode .fullscreen-game-card.focused {
   bottom: 35%;
 }
 
+/* Goal Post Images - 3D positioned */
+.goal-post {
+  position: absolute;
+  height: 120px;
+  width: auto;
+  z-index: 15;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transform-style: preserve-3d;
+  transform-origin: center bottom;
+  pointer-events: none;
+}
+
+/* Left Goal Post */
+.end-zone.left .goal-post {
+  left: 50%;
+  top: 34.87%;
+  transform: translate(-50%, -50%)
+    rotateX(-26deg)
+    rotateY(-23deg)
+    rotateZ(0deg)
+    scale(1.15);
+}
+
+/* Right Goal Post */
+.end-zone.right .goal-post {
+  left: 50%;
+  top: 35.2%;
+  transform: translate(-50%, -50%)
+    rotateX(-28deg)
+    rotateY(19deg)
+    rotateZ(0deg)
+    scale(1.05);
+}
+
 /* Playing Field - takes remaining 83.333% */
 .playing-field {
   flex: 1;
@@ -988,13 +1034,11 @@ body.tv-mode .fullscreen-game-card.focused {
 .hash-row {
   position: absolute;
   width: 100%;
-  background-image: repeating-linear-gradient(
-    to right,
-    var(--line-white),
-    var(--line-white) 2px,
-    transparent 2px,
-    transparent 10%
-  );
+  background-image: repeating-linear-gradient(to right,
+      var(--line-white),
+      var(--line-white) 2px,
+      transparent 2px,
+      transparent 10%);
   background-position: calc(10% - 1px) 0;
 }
 
@@ -1046,11 +1090,66 @@ body.tv-mode .fullscreen-game-card.focused {
   color: var(--line-white);
   font-family: "Courier New", Courier, monospace;
   font-weight: bold;
-  font-size: clamp(6px, 1.2vmin, 12px);
+  font-size: clamp(6px, 2.2vmin, 16px);
+  /* Default vertical offset - adjust per grid */
+  margin-top: 0;
 }
 
 .numbers-row.top {
   transform: rotate(180deg);
+}
+
+/* ============================================
+   NUMBERS ROW - GRID-SPECIFIC SIZING CONTROLS
+   Adjust font-size and margin-top per grid quantity
+   ============================================ */
+
+/* Grid 1 (single card - largest) */
+.fullscreen-grid.grid-1 .numbers-row {
+  font-size: clamp(10px, 3vmin, 20px);
+  margin-top: 0;
+}
+
+/* Grid 2 */
+.fullscreen-grid.grid-2 .numbers-row {
+  font-size: clamp(8px, 2.5vmin, 18px);
+  margin-top: 0;
+}
+
+/* Grid 3 */
+.fullscreen-grid.grid-3 .numbers-row {
+  font-size: clamp(7px, 2.2vmin, 16px);
+  margin-top: 47px;
+}
+
+/* Grid 4 */
+.fullscreen-grid.grid-4 .numbers-row {
+  font-size: clamp(6px, 2vmin, 14px);
+  margin-top: 47px;
+}
+
+/* Grid 5 */
+.fullscreen-grid.grid-5 .numbers-row {
+  font-size: clamp(5px, 1.8vmin, 12px);
+  margin-top: 47px;
+}
+
+/* Grid 6 */
+.fullscreen-grid.grid-6 .numbers-row {
+  font-size: clamp(5px, 1.6vmin, 11px);
+  margin-top: 40px;
+}
+
+/* Grid 7 */
+.fullscreen-grid.grid-7 .numbers-row {
+  font-size: clamp(4px, 1.4vmin, 10px);
+  margin-top: 40px;
+}
+
+/* Grid 8 (smallest cards) */
+.fullscreen-grid.grid-8 .numbers-row {
+  font-size: clamp(4px, 1.2vmin, 9px);
+  margin-top: 40px;
 }
 
 .number-group {
@@ -1148,31 +1247,57 @@ body.tv-mode .fullscreen-game-card.focused {
   display: none;
 }
 
+/* Hide goal post images in compressed view */
+.field-compressed .goal-post {
+  display: none;
+}
+
 /* ============================================
    GRID-SPECIFIC FIELD HEIGHTS
    ============================================ */
 
 .fullscreen-grid.grid-1 .football-field-container {
-  max-height: 15vh;
+  max-height: 25vh;
 }
 
 .fullscreen-grid.grid-2 .football-field-container {
-  max-height: 12vh;
+  max-height: 25vh;
 }
 
 .fullscreen-grid.grid-3 .football-field-container,
 .fullscreen-grid.grid-4 .football-field-container {
-  max-height: 6vh;
+  max-height: 10vh;
 }
 
 .fullscreen-grid.grid-5 .football-field-container,
 .fullscreen-grid.grid-6 .football-field-container {
-  max-height: 5vh;
+  max-height: 10vh;
 }
 
 .fullscreen-grid.grid-7 .football-field-container,
 .fullscreen-grid.grid-8 .football-field-container {
-  max-height: 4vh;
+  max-height: 8vh;
+}
+
+/* Grid-specific goal post scaling */
+.fullscreen-grid.grid-1 .goal-post,
+.fullscreen-grid.grid-2 .goal-post {
+  height: 120px;
+}
+
+.fullscreen-grid.grid-3 .goal-post,
+.fullscreen-grid.grid-4 .goal-post {
+  height: 60px;
+}
+
+.fullscreen-grid.grid-5 .goal-post,
+.fullscreen-grid.grid-6 .goal-post {
+  height: 50px;
+}
+
+.fullscreen-grid.grid-7 .goal-post,
+.fullscreen-grid.grid-8 .goal-post {
+  height: 40px;
 }
 
 /* ============================================
@@ -1269,6 +1394,16 @@ body.tv-mode .fullscreen-game-card.focused {
   height: clamp(var(--fs-field-height-grid-1-min), var(--fs-field-height-grid-1-preferred), var(--fs-field-height-grid-1-max));
 }
 
+.fullscreen-grid.grid-1 .yard-label {
+  font-size: 14px !important;
+  margin-top: 0px;
+  /* Adjust: negative = up, positive = down */
+}
+
+.fullscreen-grid.grid-1 .playing-field .ball-indicator::before {
+  font-size: 24px !important;
+}
+
 /* Grid 2 - Two cards side by side */
 .fullscreen-grid.grid-2 .sport-logo-indicator {
   width: 70px;
@@ -1290,6 +1425,16 @@ body.tv-mode .fullscreen-game-card.focused {
 
 .fullscreen-grid.grid-2 .fullscreen-team-record {
   font-size: 1.1rem;
+}
+
+.fullscreen-grid.grid-2 .yard-label {
+  font-size: 13px !important;
+  margin-top: 0px;
+  /* Adjust: negative = up, positive = down */
+}
+
+.fullscreen-grid.grid-2 .playing-field .ball-indicator::before {
+  font-size: 22px !important;
 }
 
 /* Grid 3 - Similar to grid-2 sizing */
@@ -1317,6 +1462,16 @@ body.tv-mode .fullscreen-game-card.focused {
 
 .fullscreen-grid.grid-3 .fullscreen-status-text {
   font-size: 1.2rem;
+}
+
+.fullscreen-grid.grid-3 .yard-label {
+  font-size: 12px !important;
+  margin-top: 0px;
+  /* Adjust: negative = up, positive = down */
+}
+
+.fullscreen-grid.grid-3 .playing-field .ball-indicator::before {
+  font-size: 20px !important;
 }
 
 /* Grid 4 - 2x2 layout */
@@ -1360,6 +1515,16 @@ body.tv-mode .fullscreen-game-card.focused {
   right: -20px;
 }
 
+.fullscreen-grid.grid-4 .yard-label {
+  font-size: 11px !important;
+  margin-top: 0px;
+  /* Adjust: negative = up, positive = down */
+}
+
+.fullscreen-grid.grid-4 .playing-field .ball-indicator::before {
+  font-size: 18px !important;
+}
+
 /* Grid 5 - Mixed sizing */
 .fullscreen-grid.grid-5 .sport-logo-indicator {
   width: 65px;
@@ -1397,11 +1562,13 @@ body.tv-mode .fullscreen-game-card.focused {
 }
 
 .fullscreen-grid.grid-5 .yard-label {
-  font-size: 9px;
+  font-size: 9px !important;
+  margin-top: 0px;
+  /* Adjust: negative = up, positive = down */
 }
 
-.fullscreen-grid.grid-5 .ball-indicator::before {
-  font-size: 16px;
+.fullscreen-grid.grid-5 .playing-field .ball-indicator::before {
+  font-size: 16px !important;
 }
 
 /* Grid 6 - 3x2 layout */
@@ -1443,11 +1610,13 @@ body.tv-mode .fullscreen-game-card.focused {
 }
 
 .fullscreen-grid.grid-6 .yard-label {
-  font-size: 8px;
+  font-size: 8px !important;
+  margin-top: 0px;
+  /* Adjust: negative = up, positive = down */
 }
 
-.fullscreen-grid.grid-6 .ball-indicator::before {
-  font-size: 14px;
+.fullscreen-grid.grid-6 .playing-field .ball-indicator::before {
+  font-size: 14px !important;
 }
 
 .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
@@ -1502,11 +1671,13 @@ body.tv-mode .fullscreen-game-card.focused {
 }
 
 .fullscreen-grid.grid-7 .yard-label {
-  font-size: 7px;
+  font-size: 7px !important;
+  margin-top: 0px;
+  /* Adjust: negative = up, positive = down */
 }
 
-.fullscreen-grid.grid-7 .ball-indicator::before {
-  font-size: 13px;
+.fullscreen-grid.grid-7 .playing-field .ball-indicator::before {
+  font-size: 13px !important;
 }
 
 .fullscreen-grid.grid-7 .fullscreen-vs-divider-live {
@@ -1550,11 +1721,13 @@ body.tv-mode .fullscreen-game-card.focused {
 }
 
 .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .yard-label {
-  font-size: 10px;
+  font-size: 10px !important;
+  margin-top: 0px;
+  /* Adjust: negative = up, positive = down */
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .ball-indicator::before {
-  font-size: 18px;
+.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .playing-field .ball-indicator::before {
+  font-size: 18px !important;
 }
 
 /* Grid 8 - Asymmetric layout (featured + stacked) */
@@ -1602,11 +1775,13 @@ body.tv-mode .fullscreen-game-card.focused {
 }
 
 .fullscreen-grid.grid-8 .yard-label {
-  font-size: 7px;
+  font-size: 7px !important;
+  margin-top: 0px;
+  /* Adjust: negative = up, positive = down */
 }
 
-.fullscreen-grid.grid-8 .ball-indicator::before {
-  font-size: 12px;
+.fullscreen-grid.grid-8 .playing-field .ball-indicator::before {
+  font-size: 12px !important;
 }
 
 .fullscreen-grid.grid-8 .fullscreen-vs-divider-live {
@@ -2124,6 +2299,86 @@ body.tv-mode .fullscreen-game-card.focused {
   .fullscreen-grid.grid-8 .fullscreen-field-position {
     font-size: clamp(0.5rem, 1.8vw, 0.7rem);
   }
+
+  /* ============================================
+     MOBILE PORTRAIT - YARD LABEL CONTROLS
+     Adjust font-size and margin-top per grid
+     margin-top: negative = up, positive = down
+     ============================================ */
+  .fullscreen-grid.grid-1 .yard-label {
+    font-size: 11px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-1 .playing-field .ball-indicator::before {
+    font-size: 20px !important;
+  }
+
+  .fullscreen-grid.grid-2 .yard-label {
+    font-size: 10px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-2 .playing-field .ball-indicator::before {
+    font-size: 18px !important;
+  }
+
+  .fullscreen-grid.grid-4 .yard-label {
+    font-size: 8px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-4 .playing-field .ball-indicator::before {
+    font-size: 14px !important;
+  }
+
+  .fullscreen-grid.grid-6 .yard-label {
+    font-size: 6px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-6 .playing-field .ball-indicator::before {
+    font-size: 12px !important;
+  }
+
+  .fullscreen-grid.grid-8 .yard-label {
+    font-size: 5px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-8 .playing-field .ball-indicator::before {
+    font-size: 10px !important;
+  }
+
+  /* ============================================
+     MOBILE PORTRAIT - NUMBERS ROW CONTROLS
+     Adjust font-size and margin-top per grid
+     margin-top: negative = up, positive = down
+     ============================================ */
+  .fullscreen-grid.grid-1 .numbers-row {
+    font-size: 11px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-2 .numbers-row {
+    font-size: 10px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-4 .numbers-row {
+    font-size: 8px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-6 .numbers-row {
+    font-size: 6px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-8 .numbers-row {
+    font-size: 5px !important;
+    margin-top: 0px;
+  }
 }
 
 /* ============================================
@@ -2146,6 +2401,86 @@ body.tv-mode .fullscreen-game-card.focused {
 
   .fullscreen-grid.grid-1 .fullscreen-vs-divider-live {
     display: block;
+  }
+
+  /* ============================================
+     MOBILE LANDSCAPE - YARD LABEL CONTROLS
+     Adjust font-size and margin-top per grid
+     margin-top: negative = up, positive = down
+     ============================================ */
+  .fullscreen-grid.grid-1 .yard-label {
+    font-size: 12px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-1 .playing-field .ball-indicator::before {
+    font-size: 22px !important;
+  }
+
+  .fullscreen-grid.grid-2 .yard-label {
+    font-size: 11px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-2 .playing-field .ball-indicator::before {
+    font-size: 20px !important;
+  }
+
+  .fullscreen-grid.grid-4 .yard-label {
+    font-size: 9px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-4 .playing-field .ball-indicator::before {
+    font-size: 16px !important;
+  }
+
+  .fullscreen-grid.grid-6 .yard-label {
+    font-size: 7px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-6 .playing-field .ball-indicator::before {
+    font-size: 13px !important;
+  }
+
+  .fullscreen-grid.grid-8 .yard-label {
+    font-size: 6px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-8 .playing-field .ball-indicator::before {
+    font-size: 11px !important;
+  }
+
+  /* ============================================
+     MOBILE LANDSCAPE - NUMBERS ROW CONTROLS
+     Adjust font-size and margin-top per grid
+     margin-top: negative = up, positive = down
+     ============================================ */
+  .fullscreen-grid.grid-1 .numbers-row {
+    font-size: 12px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-2 .numbers-row {
+    font-size: 11px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-4 .numbers-row {
+    font-size: 9px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-6 .numbers-row {
+    font-size: 7px !important;
+    margin-top: 0px;
+  }
+
+  .fullscreen-grid.grid-8 .numbers-row {
+    font-size: 6px !important;
+    margin-top: 0px;
   }
 }
 

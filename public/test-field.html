@@ -3,104 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSS Football Field</title>
+    <title>Football Field - Perspective Test</title>
     <style>
         :root {
-            --field-green: #147d3b; /* Slightly richer green from image */
+            --field-green: #147d3b;
             --line-white: rgba(255, 255, 255, 0.85);
-            --field-ratio: 53.3 / 120; /* Standard NFL field aspect ratio (height/width) */
+            --field-ratio: 53.3 / 120;
+
+            /* Perspective Controls - Adjust these! */
+            --perspective: 800px;
+            --rotate-x: 0deg;
+            --scale: 1;
+            --origin-y: 50%;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            background-color: #333;
+            background-color: #1a1a2e;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: white;
+        }
+
+        /* Control Panel */
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            border-radius: 12px;
+            z-index: 1000;
+            min-width: 280px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #fbbf24;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .controls h3::after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.3s;
+        }
+
+        .controls.collapsed h3::after {
+            transform: rotate(-90deg);
+        }
+
+        .controls-content {
+            overflow: hidden;
+            max-height: 1000px;
+            transition: max-height 0.3s ease-out, margin-top 0.3s ease-out, opacity 0.3s ease-out;
+            margin-top: 15px;
+            opacity: 1;
+        }
+
+        .controls.collapsed .controls-content {
+            max-height: 0;
+            margin-top: 0;
+            opacity: 0;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .control-group .value {
+            float: right;
+            color: #4ade80;
+            font-family: monospace;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .preset-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 8px 12px;
+            background: #2563eb;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: #3b82f6;
+            transform: translateY(-1px);
+        }
+
+        .preset-btn.active {
+            background: #16a34a;
+        }
+
+        /* Field Container */
+        .field-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
+            padding: 40px;
+            perspective: var(--perspective);
         }
 
         /* Main Field Container */
         .football-field-container {
-            width: 90vw;
-            /* Calculate height based on aspect ratio */
+            width: 80vw;
+            max-width: 1000px;
             aspect-ratio: 120 / 53.3;
             background-color: var(--field-green);
             border: 3px solid var(--line-white);
             position: relative;
             display: flex;
-            box-sizing: border-box;
-            /* Subtle texture gradient */
+            transform: rotateX(var(--rotate-x)) scale(var(--scale));
+            transform-origin: center var(--origin-y);
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease-out;
             background-image: radial-gradient(circle at center, #1a8e46 0%, var(--field-green) 80%);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
-        /* --- End Zones --- */
+        /* End Zones */
         .end-zone {
-            /* End zones are 10 yards, field is 100. Total 120. */
-            /* 10/120 = 8.333% width */
             flex: 0 0 8.333%;
             position: relative;
-            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+            transform-style: preserve-3d;
         }
 
         .end-zone.left {
             border-right: 3px solid var(--line-white);
+            background: linear-gradient(90deg, #0f5132 0%, var(--field-green) 100%);
         }
 
         .end-zone.right {
             border-left: 3px solid var(--line-white);
+            background: linear-gradient(270deg, #0f5132 0%, var(--field-green) 100%);
         }
 
-        /* Goal Post Marks in Endzones */
-        .end-zone::before, .end-zone::after {
-            content: '';
+        .end-zone-text {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-size: clamp(8px, 3vw, 24px);
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5em;
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+        }
+
+        .end-zone.right .end-zone-text {
+            transform: rotate(0deg);
+        }
+
+        /* Goal Post Images - 3D enabled with individual controls */
+        .goal-post {
             position: absolute;
-            width: 20%; /* Width of the T crossbar */
-            height: 2px;
-            background: var(--line-white);
-            left: 40%; /* Center horizontally */
-        }
-        /* The vertical part of the T */
-        .end-zone .goal-post-base {
-            position: absolute;
-            width: 2px;
-            height: 5%;
-            background: var(--line-white);
-            left: 50%;
-            transform: translateX(-50%);
+            height: var(--goalpost-height, 120px);
+            width: auto;
+            z-index: 15;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            /* Enable drag and drop */
+            cursor: grab;
+            user-select: none;
+            /* 3D transforms */
+            transform-style: preserve-3d;
+            transform-origin: center bottom;
+            transition: filter 0.2s;
         }
 
-        .end-zone::before { top: 40%; }
-        .end-zone .goal-post-base.top { top: 40%; }
+        .goal-post:active {
+            cursor: grabbing;
+        }
 
-        .end-zone::after { bottom: 40%; }
-        .end-zone .goal-post-base.bottom { bottom: 40%; }
+        .goal-post:hover {
+            filter: drop-shadow(0 4px 8px rgba(251, 191, 36, 0.6));
+        }
 
+        .goal-post.dragging {
+            z-index: 100;
+            filter: drop-shadow(0 6px 12px rgba(251, 191, 36, 0.8));
+        }
 
-        /* --- Playing Field Area --- */
+        /* Left goal post - individual 3D transform */
+        .end-zone.left .goal-post {
+            left: var(--left-goalpost-x, 50%);
+            top: var(--left-goalpost-y, 50%);
+            transform:
+                translate(-50%, -50%)
+                rotateX(var(--left-goalpost-rotateX, 0deg))
+                rotateY(var(--left-goalpost-rotateY, 0deg))
+                rotateZ(var(--left-goalpost-rotateZ, 0deg))
+                scale(var(--left-goalpost-scale, 1));
+        }
+
+        /* Right goal post - individual 3D transform */
+        .end-zone.right .goal-post {
+            left: var(--right-goalpost-x, 50%);
+            top: var(--right-goalpost-y, 50%);
+            transform:
+                translate(-50%, -50%)
+                rotateX(var(--right-goalpost-rotateX, 0deg))
+                rotateY(var(--right-goalpost-rotateY, 0deg))
+                rotateZ(var(--right-goalpost-rotateZ, 0deg))
+                scale(var(--right-goalpost-scale, 1));
+        }
+
+        /* Playing Field Area */
         .playing-field {
-            flex: 1; /* Takes remaining space (100 yards) */
+            flex: 1;
             display: flex;
             position: relative;
         }
 
-        /* --- 10 Yard Sections & Grid --- */
+        /* 10 Yard Sections */
         .ten-yard-section {
-            flex: 1; /* Divide into 10 equal parts */
-            box-sizing: border-box;
-            /* The right border acts as the major 10-yard line */
+            flex: 1;
             border-right: 2px solid var(--line-white);
             position: relative;
             display: flex;
             justify-content: center;
         }
-        /* Remove border from the last section so it doesn't double up with endzone line */
+
         .ten-yard-section:last-child {
             border-right: none;
         }
 
-        /* --- Hash Marks Container --- */
-        /* This container sits inside a 10-yard section and draws the ticks */
+        /* Hash Marks */
         .hash-marks-container {
             position: absolute;
             width: 100%;
@@ -109,42 +275,32 @@
             left: 0;
         }
 
-        /* Shared styles for the rows of hash marks */
         .hash-row {
             position: absolute;
             width: 100%;
-            /* This creates a repeating line every 10% of the container's width.
-               Since the container is 10 yards wide, this makes a tick every 1 yard. */
             background-image: repeating-linear-gradient(
                 to right,
                 var(--line-white),
-                var(--line-white) 2px, /* Thickness of hash mark */
+                var(--line-white) 2px,
                 transparent 2px,
-                transparent 10% /* Repeat interval */
+                transparent 10%
             );
-            /* Shift left slightly so the first tick isn't on the border line */
-            /* calc(10% - 2px) aligns the ticks between the major lines */
             background-position: calc(10% - 1px) 0;
         }
 
         .hash-row.sideline-top {
             top: 1%;
-            height: 3%; /* Length of sideline ticks */
+            height: 3%;
         }
 
         .hash-row.middle-hashes {
-            /* In college/NFL, these are two separate rows near the middle */
             top: 40%;
-            height: 20%; /* Total height area for middle hashes */
-            /* We need two rows here. Let's use a mask or gradient trick. */
-            /* Simpler approach: Redefine background to be two thin horizontal strips */
-             background-image:
-                /* Top middle row */
+            height: 20%;
+            background-image:
                 repeating-linear-gradient(to right, var(--line-white) 0, var(--line-white) 2px, transparent 2px, transparent 10%),
-                /* Bottom middle row */
                 repeating-linear-gradient(to right, var(--line-white) 0, var(--line-white) 2px, transparent 2px, transparent 10%);
-            background-size: 100% 15%, 100% 15%; /* Width / Height of the strips */
-            background-position: calc(10% - 1px) 0, calc(10% - 1px) 100%; /* Position top and bottom of container */
+            background-size: 100% 15%, 100% 15%;
+            background-position: calc(10% - 1px) 0, calc(10% - 1px) 100%;
             background-repeat: repeat-x;
         }
 
@@ -153,161 +309,1121 @@
             height: 3%;
         }
 
-
-        /* --- Numbers Overlay --- */
+        /* Numbers Overlay */
         .numbers-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Let clicks pass through */
+            pointer-events: none;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 7% 0; /* Position numbers away from sidelines */
-            box-sizing: border-box;
+            padding: 8% 0;
         }
 
         .numbers-row {
             display: flex;
-            /* Distribute evenly. The first and last items are spacers to offset from goal lines */
             justify-content: space-evenly;
             color: var(--line-white);
-            font-family: "Courier New", Courier, monospace; /* Blocky font */
+            font-family: "Courier New", Courier, monospace;
             font-weight: bold;
-            /* Responsive font size based on container width */
-            font-size: 3vw;
+            font-size: clamp(10px, 2.5vw, 24px);
         }
 
-        /* Top row needs to face the sideline (rotated 180deg) */
         .numbers-row.top {
             transform: rotate(180deg);
         }
 
-        /* Specific spacing for the numbers to align with grid lines */
         .number-group {
-            width: 0; /* act as center points */
+            width: 0;
             display: flex;
             justify-content: center;
             white-space: nowrap;
         }
 
+        /* Ball Indicator */
+        .ball-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 35%;
+            width: 4px;
+            background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.9);
+            z-index: 10;
+            transform: translateX(-50%);
+            transition: left 0.6s ease-out;
+        }
+
+        .ball-indicator::before {
+            content: '\1F3C8';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(16px, 3vw, 28px);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+        }
+
+        /* First Down Line */
+        .first-down-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 45%;
+            width: 3px;
+            background: linear-gradient(to bottom, #fcd34d, #f59e0b);
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.9);
+            z-index: 9;
+            transform: translateX(-50%);
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 12px;
+            max-width: 300px;
+        }
+
+        .info-panel h4 {
+            margin: 0 0 10px 0;
+            color: #fbbf24;
+        }
+
+        .info-panel p {
+            margin: 5px 0;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .info-panel code {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #4ade80;
+        }
+
+        /* CSS Output */
+        .css-output {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .css-output pre {
+            background: #1a1a2e;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            overflow-x: auto;
+            margin: 5px 0 0 0;
+            color: #4ade80;
+        }
+
+        /* Comparison View */
+        .comparison-wrapper {
+            display: none;
+            padding: 40px;
+            gap: 40px;
+        }
+
+        .comparison-wrapper.active {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .comparison-item {
+            text-align: center;
+        }
+
+        .comparison-item h4 {
+            margin: 0 0 10px 0;
+            color: #fbbf24;
+        }
+
+        .comparison-item .football-field-container {
+            width: 400px;
+        }
+
+        .field-wrapper.hidden {
+            display: none;
+        }
+
+        /* Toggle Button */
+        .view-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #7c3aed;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .view-toggle:hover {
+            background: #8b5cf6;
+        }
+
+        /* Goal Post Control Panel */
+        .goalpost-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 12px;
+            z-index: 1000;
+            min-width: 260px;
+            max-height: 70vh;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .goalpost-controls h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #fbbf24;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .goalpost-controls h3::after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.3s;
+        }
+
+        .goalpost-controls.collapsed h3::after {
+            transform: rotate(-90deg);
+        }
+
+        .goalpost-content {
+            overflow-y: auto;
+            max-height: 60vh;
+            transition: max-height 0.3s ease-out, margin-top 0.3s ease-out, opacity 0.3s ease-out;
+            margin-top: 10px;
+            opacity: 1;
+        }
+
+        .goalpost-controls.collapsed .goalpost-content {
+            max-height: 0;
+            margin-top: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .goalpost-section {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .goalpost-section h4 {
+            margin: 0 0 10px 0;
+            font-size: 12px;
+            color: #60a5fa;
+        }
+
+        .goalpost-section.right h4 {
+            color: #f87171;
+        }
+
+        .gp-control {
+            margin-bottom: 8px;
+        }
+
+        .gp-control label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 3px;
+        }
+
+        .gp-control .gp-value {
+            color: #4ade80;
+            font-family: monospace;
+        }
+
+        .gp-control input[type="range"] {
+            width: 100%;
+            height: 4px;
+        }
+
+        .goalpost-position-display {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            font-size: 10px;
+            color: #888;
+        }
+
+        .goalpost-position-display code {
+            color: #4ade80;
+            background: transparent;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 6px 12px;
+            background: #dc2626;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 10px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .reset-btn:hover {
+            background: #ef4444;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background: #16a34a;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .save-btn:hover {
+            background: #22c55e;
+        }
+
+        .load-btn {
+            width: 100%;
+            padding: 6px 12px;
+            background: #2563eb;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 10px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .load-btn:hover {
+            background: #3b82f6;
+        }
+
+        .save-status {
+            margin-top: 8px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .save-status.success {
+            display: block;
+            background: rgba(22, 163, 74, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(22, 163, 74, 0.3);
+        }
+
+        .save-status.error {
+            display: block;
+            background: rgba(220, 38, 38, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .goalpost-css-output {
+            margin-top: 10px;
+            padding: 10px;
+            background: #1a1a2e;
+            border-radius: 6px;
+            font-size: 9px;
+            overflow-x: auto;
+        }
+
+        .goalpost-css-output pre {
+            margin: 0;
+            color: #4ade80;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
 
-    <div class="football-field-container">
-        <div class="end-zone left">
-            <div class="goal-post-base top"></div>
-            <div class="goal-post-base bottom"></div>
-        </div>
+    <button class="view-toggle" onclick="toggleView()">Toggle Comparison View</button>
 
-        <div class="playing-field">
-
-            <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
-            </div>
-             <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
-            </div>
-             <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
-            </div>
-            <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
-            </div>
-             <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
-            </div>
-             <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
-            </div>
-             <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
-            </div>
-            <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
-            </div>
-             <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
-            </div>
-             <div class="ten-yard-section">
-                <div class="hash-marks-container">
-                    <div class="hash-row sideline-top"></div>
-                    <div class="hash-row middle-hashes"></div>
-                    <div class="hash-row sideline-bottom"></div>
-                </div>
+    <!-- Single Field View with Controls -->
+    <div class="field-wrapper" id="singleView">
+        <div class="football-field-container" id="mainField">
+            <div class="end-zone left">
+                <img src="/assets/FieldYLeft.png" alt="Goal Post" class="goal-post" id="leftGoalPost" draggable="false">
+                <span class="end-zone-text">AWAY</span>
             </div>
 
-            <div class="numbers-overlay">
-                <div class="numbers-row top">
-                    <div class="number-group">10</div>
-                    <div class="number-group">20</div>
-                    <div class="number-group">30</div>
-                    <div class="number-group">40</div>
-                    <div class="number-group">50</div>
-                    <div class="number-group">40</div>
-                    <div class="number-group">30</div>
-                    <div class="number-group">20</div>
-                    <div class="number-group">10</div>
+            <div class="playing-field">
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
                 </div>
-                <div class="numbers-row bottom">
-                    <div class="number-group">10</div>
-                    <div class="number-group">20</div>
-                    <div class="number-group">30</div>
-                    <div class="number-group">40</div>
-                    <div class="number-group">50</div>
-                    <div class="number-group">40</div>
-                    <div class="number-group">30</div>
-                    <div class="number-group">20</div>
-                    <div class="number-group">10</div>
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
+                </div>
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
+                </div>
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
+                </div>
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
+                </div>
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
+                </div>
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
+                </div>
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
+                </div>
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
+                </div>
+                <div class="ten-yard-section">
+                    <div class="hash-marks-container">
+                        <div class="hash-row sideline-top"></div>
+                        <div class="hash-row middle-hashes"></div>
+                        <div class="hash-row sideline-bottom"></div>
+                    </div>
+                </div>
+
+                <!-- Ball and First Down Markers -->
+                <div class="ball-indicator"></div>
+                <div class="first-down-line"></div>
+
+                <div class="numbers-overlay">
+                    <div class="numbers-row top">
+                        <div class="number-group">10</div>
+                        <div class="number-group">20</div>
+                        <div class="number-group">30</div>
+                        <div class="number-group">40</div>
+                        <div class="number-group">50</div>
+                        <div class="number-group">40</div>
+                        <div class="number-group">30</div>
+                        <div class="number-group">20</div>
+                        <div class="number-group">10</div>
+                    </div>
+                    <div class="numbers-row bottom">
+                        <div class="number-group">10</div>
+                        <div class="number-group">20</div>
+                        <div class="number-group">30</div>
+                        <div class="number-group">40</div>
+                        <div class="number-group">50</div>
+                        <div class="number-group">40</div>
+                        <div class="number-group">30</div>
+                        <div class="number-group">20</div>
+                        <div class="number-group">10</div>
+                    </div>
                 </div>
             </div>
 
-        </div>
-
-        <div class="end-zone right">
-            <div class="goal-post-base top"></div>
-            <div class="goal-post-base bottom"></div>
+            <div class="end-zone right">
+                <img src="/assets/FieldYRight.png" alt="Goal Post" class="goal-post" id="rightGoalPost" draggable="false">
+                <span class="end-zone-text">HOME</span>
+            </div>
         </div>
     </div>
+
+    <!-- Goal Post Controls -->
+    <div class="goalpost-controls" id="goalpostControls">
+        <h3 onclick="toggleGoalpostControls()">Goal Post Controls</h3>
+
+        <div class="goalpost-content">
+            <!-- Global Size -->
+            <div class="gp-control">
+                <label>Size <span class="gp-value" id="gpSizeValue">120px</span></label>
+                <input type="range" id="gpSizeSlider" min="40" max="200" value="120" step="5">
+            </div>
+
+            <!-- Left Goal Post Section -->
+            <div class="goalpost-section left">
+                <h4>Left Goal Post (Away)</h4>
+
+                <div class="gp-control">
+                    <label>Rotate X <span class="gp-value" id="leftRotateXValue">0°</span></label>
+                    <input type="range" id="leftRotateXSlider" min="-90" max="90" value="0" step="1">
+                </div>
+
+                <div class="gp-control">
+                    <label>Rotate Y <span class="gp-value" id="leftRotateYValue">0°</span></label>
+                    <input type="range" id="leftRotateYSlider" min="-90" max="90" value="0" step="1">
+                </div>
+
+                <div class="gp-control">
+                <label>Rotate Z <span class="gp-value" id="leftRotateZValue">0°</span></label>
+                <input type="range" id="leftRotateZSlider" min="-45" max="45" value="0" step="1">
+            </div>
+
+            <div class="gp-control">
+                <label>Scale <span class="gp-value" id="leftScaleValue">1.0</span></label>
+                <input type="range" id="leftScaleSlider" min="0.3" max="2" value="1" step="0.05">
+            </div>
+
+            <div class="goalpost-position-display">
+                Position: <code id="leftPositionDisplay">X: 50%, Y: 50%</code>
+            </div>
+
+            <button class="reset-btn" onclick="resetGoalPost('left')">Reset Left</button>
+        </div>
+
+        <!-- Right Goal Post Section -->
+        <div class="goalpost-section right">
+            <h4>Right Goal Post (Home)</h4>
+
+            <div class="gp-control">
+                <label>Rotate X <span class="gp-value" id="rightRotateXValue">0°</span></label>
+                <input type="range" id="rightRotateXSlider" min="-90" max="90" value="0" step="1">
+            </div>
+
+            <div class="gp-control">
+                <label>Rotate Y <span class="gp-value" id="rightRotateYValue">0°</span></label>
+                <input type="range" id="rightRotateYSlider" min="-90" max="90" value="0" step="1">
+            </div>
+
+            <div class="gp-control">
+                <label>Rotate Z <span class="gp-value" id="rightRotateZValue">0°</span></label>
+                <input type="range" id="rightRotateZSlider" min="-45" max="45" value="0" step="1">
+            </div>
+
+            <div class="gp-control">
+                <label>Scale <span class="gp-value" id="rightScaleValue">1.0</span></label>
+                <input type="range" id="rightScaleSlider" min="0.3" max="2" value="1" step="0.05">
+            </div>
+
+            <div class="goalpost-position-display">
+                Position: <code id="rightPositionDisplay">X: 50%, Y: 50%</code>
+            </div>
+
+                <button class="reset-btn" onclick="resetGoalPost('right')">Reset Right</button>
+            </div>
+
+            <!-- Save/Load Buttons -->
+            <button class="save-btn" onclick="saveAllSettings()">Save All Settings</button>
+            <button class="load-btn" onclick="loadAllSettings()">Load Saved Settings</button>
+            <div class="save-status" id="saveStatus"></div>
+
+            <!-- CSS Output for Goal Posts -->
+            <div class="goalpost-css-output">
+                <pre id="goalpostCssOutput">/* Goal Post CSS */</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison View -->
+    <div class="comparison-wrapper" id="comparisonView">
+        <!-- Will be populated by JS -->
+    </div>
+
+    <!-- Control Panel -->
+    <div class="controls" id="perspectiveControls">
+        <h3 onclick="togglePerspectiveControls()">Field Perspective Controls</h3>
+
+        <div class="controls-content">
+            <div class="control-group">
+                <label>Perspective Distance <span class="value" id="perspectiveValue">800px</span></label>
+                <input type="range" id="perspectiveSlider" min="200" max="2000" value="800" step="50">
+            </div>
+
+            <div class="control-group">
+                <label>Rotation X (Tilt) <span class="value" id="rotateValue">0deg</span></label>
+                <input type="range" id="rotateSlider" min="-60" max="60" value="0" step="1">
+            </div>
+
+            <div class="control-group">
+                <label>Scale <span class="value" id="scaleValue">1.0</span></label>
+                <input type="range" id="scaleSlider" min="0.5" max="1.5" value="1" step="0.05">
+            </div>
+
+            <div class="control-group">
+                <label>Transform Origin Y <span class="value" id="originValue">50%</span></label>
+                <input type="range" id="originSlider" min="0" max="100" value="50" step="5">
+            </div>
+
+            <div class="preset-buttons">
+                <button class="preset-btn active" onclick="applyPreset('flat')">Flat (Top)</button>
+                <button class="preset-btn" onclick="applyPreset('subtle')">Subtle Tilt</button>
+                <button class="preset-btn" onclick="applyPreset('broadcast')">Broadcast</button>
+                <button class="preset-btn" onclick="applyPreset('dramatic')">Dramatic</button>
+                <button class="preset-btn" onclick="applyPreset('endzone')">End Zone</button>
+                <button class="preset-btn" onclick="applyPreset('isometric')">Isometric</button>
+            </div>
+
+            <div class="css-output">
+                <label style="color: #888; font-size: 12px;">Generated CSS:</label>
+                <pre id="cssOutput">.field-wrapper {
+  perspective: 800px;
+}
+.football-field-container {
+  transform: rotateX(0deg) scale(1);
+  transform-origin: center 50%;
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <h4>How to Use</h4>
+        <p>Use the sliders to adjust the perspective view of the football field.</p>
+        <p><code>Perspective</code> - Distance from viewer (lower = more dramatic)</p>
+        <p><code>Rotation X</code> - Tilt angle (positive = view from above)</p>
+        <p><code>Origin Y</code> - Pivot point (100% = bottom edge)</p>
+        <p>Click presets for common views. Copy the CSS when ready!</p>
+    </div>
+
+    <script>
+        const presets = {
+            flat: { perspective: 800, rotate: 0, scale: 1, origin: 50 },
+            subtle: { perspective: 1000, rotate: 15, scale: 1, origin: 80 },
+            broadcast: { perspective: 600, rotate: 30, scale: 0.9, origin: 100 },
+            dramatic: { perspective: 400, rotate: 45, scale: 0.8, origin: 100 },
+            endzone: { perspective: 500, rotate: -25, scale: 0.95, origin: 0 },
+            isometric: { perspective: 1200, rotate: 35, scale: 0.85, origin: 50 }
+        };
+
+        const perspectiveSlider = document.getElementById('perspectiveSlider');
+        const rotateSlider = document.getElementById('rotateSlider');
+        const scaleSlider = document.getElementById('scaleSlider');
+        const originSlider = document.getElementById('originSlider');
+
+        function updateField() {
+            const perspective = perspectiveSlider.value;
+            const rotate = rotateSlider.value;
+            const scale = scaleSlider.value;
+            const origin = originSlider.value;
+
+            document.documentElement.style.setProperty('--perspective', `${perspective}px`);
+            document.documentElement.style.setProperty('--rotate-x', `${rotate}deg`);
+            document.documentElement.style.setProperty('--scale', scale);
+            document.documentElement.style.setProperty('--origin-y', `${origin}%`);
+
+            document.getElementById('perspectiveValue').textContent = `${perspective}px`;
+            document.getElementById('rotateValue').textContent = `${rotate}deg`;
+            document.getElementById('scaleValue').textContent = scale;
+            document.getElementById('originValue').textContent = `${origin}%`;
+
+            // Update CSS output
+            document.getElementById('cssOutput').textContent = `.field-wrapper {
+  perspective: ${perspective}px;
+}
+.football-field-container {
+  transform: rotateX(${rotate}deg) scale(${scale});
+  transform-origin: center ${origin}%;
+}`;
+
+            // Update active preset button
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+        }
+
+        function applyPreset(name) {
+            const preset = presets[name];
+            perspectiveSlider.value = preset.perspective;
+            rotateSlider.value = preset.rotate;
+            scaleSlider.value = preset.scale;
+            originSlider.value = preset.origin;
+            updateField();
+
+            // Highlight active preset
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase().includes(name));
+            });
+        }
+
+        function toggleView() {
+            const singleView = document.getElementById('singleView');
+            const comparisonView = document.getElementById('comparisonView');
+
+            if (singleView.classList.contains('hidden')) {
+                singleView.classList.remove('hidden');
+                comparisonView.classList.remove('active');
+            } else {
+                singleView.classList.add('hidden');
+                comparisonView.classList.add('active');
+                generateComparison();
+            }
+        }
+
+        function generateComparison() {
+            const container = document.getElementById('comparisonView');
+            container.innerHTML = '';
+
+            Object.entries(presets).forEach(([name, preset]) => {
+                const item = document.createElement('div');
+                item.className = 'comparison-item';
+                item.innerHTML = `
+                    <h4>${name.charAt(0).toUpperCase() + name.slice(1)}</h4>
+                    <div style="perspective: ${preset.perspective}px;">
+                        <div class="football-field-container" style="
+                            transform: rotateX(${preset.rotate}deg) scale(${preset.scale});
+                            transform-origin: center ${preset.origin}%;
+                        ">
+                            <div class="end-zone left">
+                                <img src="/assets/FieldYLeft.png" alt="Goal Post" class="goal-post">
+                                <span class="end-zone-text">AWAY</span>
+                            </div>
+                            <div class="playing-field">
+                                ${Array(10).fill().map(() => `
+                                    <div class="ten-yard-section">
+                                        <div class="hash-marks-container">
+                                            <div class="hash-row sideline-top"></div>
+                                            <div class="hash-row middle-hashes"></div>
+                                            <div class="hash-row sideline-bottom"></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                <div class="ball-indicator" style="left: 35%;"></div>
+                                <div class="first-down-line" style="left: 45%;"></div>
+                                <div class="numbers-overlay">
+                                    <div class="numbers-row top">
+                                        ${[10,20,30,40,50,40,30,20,10].map(n => `<div class="number-group">${n}</div>`).join('')}
+                                    </div>
+                                    <div class="numbers-row bottom">
+                                        ${[10,20,30,40,50,40,30,20,10].map(n => `<div class="number-group">${n}</div>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="end-zone right">
+                                <img src="/assets/FieldYRight.png" alt="Goal Post" class="goal-post">
+                                <span class="end-zone-text">HOME</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 11px; color: #888; margin-top: 8px;">
+                        perspective: ${preset.perspective}px | rotateX: ${preset.rotate}deg
+                    </p>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Event listeners
+        perspectiveSlider.addEventListener('input', updateField);
+        rotateSlider.addEventListener('input', updateField);
+        scaleSlider.addEventListener('input', updateField);
+        originSlider.addEventListener('input', updateField);
+
+        // Initial update
+        updateField();
+
+        // ============================================
+        // COLLAPSIBLE CONTROLS
+        // ============================================
+
+        function togglePerspectiveControls() {
+            const panel = document.getElementById('perspectiveControls');
+            panel.classList.toggle('collapsed');
+        }
+
+        function toggleGoalpostControls() {
+            const panel = document.getElementById('goalpostControls');
+            panel.classList.toggle('collapsed');
+        }
+
+        // ============================================
+        // SAVE/LOAD SETTINGS
+        // ============================================
+
+        const STORAGE_KEY = 'gridtv-field-perspective-settings';
+
+        function saveAllSettings() {
+            const settings = {
+                field: {
+                    perspective: parseInt(perspectiveSlider.value),
+                    rotate: parseInt(rotateSlider.value),
+                    scale: parseFloat(scaleSlider.value),
+                    origin: parseInt(originSlider.value)
+                },
+                goalPosts: {
+                    size: goalPostState.size,
+                    left: { ...goalPostState.left },
+                    right: { ...goalPostState.right }
+                },
+                savedAt: new Date().toISOString()
+            };
+
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+                showSaveStatus('Settings saved successfully!', 'success');
+                console.log('Settings saved:', settings);
+            } catch (e) {
+                showSaveStatus('Failed to save settings', 'error');
+                console.error('Save error:', e);
+            }
+        }
+
+        function loadAllSettings() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) {
+                    showSaveStatus('No saved settings found', 'error');
+                    return;
+                }
+
+                const settings = JSON.parse(saved);
+
+                // Load field perspective
+                if (settings.field) {
+                    perspectiveSlider.value = settings.field.perspective;
+                    rotateSlider.value = settings.field.rotate;
+                    scaleSlider.value = settings.field.scale;
+                    originSlider.value = settings.field.origin;
+                    updateField();
+                }
+
+                // Load goal post settings
+                if (settings.goalPosts) {
+                    // Size
+                    goalPostState.size = settings.goalPosts.size;
+                    gpSizeSlider.value = settings.goalPosts.size;
+                    document.getElementById('gpSizeValue').textContent = `${settings.goalPosts.size}px`;
+                    document.documentElement.style.setProperty('--goalpost-height', `${settings.goalPosts.size}px`);
+
+                    // Left goal post
+                    if (settings.goalPosts.left) {
+                        goalPostState.left = { ...settings.goalPosts.left };
+                        document.getElementById('leftRotateXSlider').value = settings.goalPosts.left.rotateX;
+                        document.getElementById('leftRotateYSlider').value = settings.goalPosts.left.rotateY;
+                        document.getElementById('leftRotateZSlider').value = settings.goalPosts.left.rotateZ;
+                        document.getElementById('leftScaleSlider').value = settings.goalPosts.left.scale;
+                        document.getElementById('leftRotateXValue').textContent = `${settings.goalPosts.left.rotateX}°`;
+                        document.getElementById('leftRotateYValue').textContent = `${settings.goalPosts.left.rotateY}°`;
+                        document.getElementById('leftRotateZValue').textContent = `${settings.goalPosts.left.rotateZ}°`;
+                        document.getElementById('leftScaleValue').textContent = settings.goalPosts.left.scale.toFixed(2);
+                        updateLeftGoalPostTransform();
+                    }
+
+                    // Right goal post
+                    if (settings.goalPosts.right) {
+                        goalPostState.right = { ...settings.goalPosts.right };
+                        document.getElementById('rightRotateXSlider').value = settings.goalPosts.right.rotateX;
+                        document.getElementById('rightRotateYSlider').value = settings.goalPosts.right.rotateY;
+                        document.getElementById('rightRotateZSlider').value = settings.goalPosts.right.rotateZ;
+                        document.getElementById('rightScaleSlider').value = settings.goalPosts.right.scale;
+                        document.getElementById('rightRotateXValue').textContent = `${settings.goalPosts.right.rotateX}°`;
+                        document.getElementById('rightRotateYValue').textContent = `${settings.goalPosts.right.rotateY}°`;
+                        document.getElementById('rightRotateZValue').textContent = `${settings.goalPosts.right.rotateZ}°`;
+                        document.getElementById('rightScaleValue').textContent = settings.goalPosts.right.scale.toFixed(2);
+                        updateRightGoalPostTransform();
+                    }
+
+                    updateGoalPostCSS();
+                }
+
+                const savedDate = new Date(settings.savedAt).toLocaleString();
+                showSaveStatus(`Loaded settings from ${savedDate}`, 'success');
+                console.log('Settings loaded:', settings);
+            } catch (e) {
+                showSaveStatus('Failed to load settings', 'error');
+                console.error('Load error:', e);
+            }
+        }
+
+        function showSaveStatus(message, type) {
+            const status = document.getElementById('saveStatus');
+            status.textContent = message;
+            status.className = 'save-status ' + type;
+
+            // Hide after 3 seconds
+            setTimeout(() => {
+                status.className = 'save-status';
+            }, 3000);
+        }
+
+        // Auto-load saved settings on page load
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                loadAllSettings();
+            }
+        });
+
+        // ============================================
+        // GOAL POST CONTROLS
+        // ============================================
+
+        // Goal post state
+        const goalPostState = {
+            left: { x: 50, y: 50, rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1 },
+            right: { x: 50, y: 50, rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1 },
+            size: 120
+        };
+
+        // Get DOM elements
+        const leftGoalPost = document.getElementById('leftGoalPost');
+        const rightGoalPost = document.getElementById('rightGoalPost');
+
+        // Size slider
+        const gpSizeSlider = document.getElementById('gpSizeSlider');
+        gpSizeSlider.addEventListener('input', () => {
+            goalPostState.size = parseInt(gpSizeSlider.value);
+            document.getElementById('gpSizeValue').textContent = `${goalPostState.size}px`;
+            document.documentElement.style.setProperty('--goalpost-height', `${goalPostState.size}px`);
+            updateGoalPostCSS();
+        });
+
+        // Left goal post controls
+        ['RotateX', 'RotateY', 'RotateZ', 'Scale'].forEach(prop => {
+            const slider = document.getElementById(`left${prop}Slider`);
+            slider.addEventListener('input', () => {
+                const value = parseFloat(slider.value);
+                const propKey = prop.charAt(0).toLowerCase() + prop.slice(1);
+                goalPostState.left[propKey] = value;
+
+                const displayValue = prop === 'Scale' ? value.toFixed(2) : `${value}°`;
+                document.getElementById(`left${prop}Value`).textContent = displayValue;
+
+                updateLeftGoalPostTransform();
+                updateGoalPostCSS();
+            });
+        });
+
+        // Right goal post controls
+        ['RotateX', 'RotateY', 'RotateZ', 'Scale'].forEach(prop => {
+            const slider = document.getElementById(`right${prop}Slider`);
+            slider.addEventListener('input', () => {
+                const value = parseFloat(slider.value);
+                const propKey = prop.charAt(0).toLowerCase() + prop.slice(1);
+                goalPostState.right[propKey] = value;
+
+                const displayValue = prop === 'Scale' ? value.toFixed(2) : `${value}°`;
+                document.getElementById(`right${prop}Value`).textContent = displayValue;
+
+                updateRightGoalPostTransform();
+                updateGoalPostCSS();
+            });
+        });
+
+        function updateLeftGoalPostTransform() {
+            const s = goalPostState.left;
+            document.documentElement.style.setProperty('--left-goalpost-x', `${s.x}%`);
+            document.documentElement.style.setProperty('--left-goalpost-y', `${s.y}%`);
+            document.documentElement.style.setProperty('--left-goalpost-rotateX', `${s.rotateX}deg`);
+            document.documentElement.style.setProperty('--left-goalpost-rotateY', `${s.rotateY}deg`);
+            document.documentElement.style.setProperty('--left-goalpost-rotateZ', `${s.rotateZ}deg`);
+            document.documentElement.style.setProperty('--left-goalpost-scale', s.scale);
+            document.getElementById('leftPositionDisplay').textContent = `X: ${s.x.toFixed(0)}%, Y: ${s.y.toFixed(0)}%`;
+        }
+
+        function updateRightGoalPostTransform() {
+            const s = goalPostState.right;
+            document.documentElement.style.setProperty('--right-goalpost-x', `${s.x}%`);
+            document.documentElement.style.setProperty('--right-goalpost-y', `${s.y}%`);
+            document.documentElement.style.setProperty('--right-goalpost-rotateX', `${s.rotateX}deg`);
+            document.documentElement.style.setProperty('--right-goalpost-rotateY', `${s.rotateY}deg`);
+            document.documentElement.style.setProperty('--right-goalpost-rotateZ', `${s.rotateZ}deg`);
+            document.documentElement.style.setProperty('--right-goalpost-scale', s.scale);
+            document.getElementById('rightPositionDisplay').textContent = `X: ${s.x.toFixed(0)}%, Y: ${s.y.toFixed(0)}%`;
+        }
+
+        function updateGoalPostCSS() {
+            const css = `/* Goal Post Styles */
+.goal-post {
+  height: ${goalPostState.size}px;
+}
+
+/* Left Goal Post */
+.end-zone.left .goal-post {
+  left: ${goalPostState.left.x}%;
+  top: ${goalPostState.left.y}%;
+  transform: translate(-50%, -50%)
+    rotateX(${goalPostState.left.rotateX}deg)
+    rotateY(${goalPostState.left.rotateY}deg)
+    rotateZ(${goalPostState.left.rotateZ}deg)
+    scale(${goalPostState.left.scale});
+}
+
+/* Right Goal Post */
+.end-zone.right .goal-post {
+  left: ${goalPostState.right.x}%;
+  top: ${goalPostState.right.y}%;
+  transform: translate(-50%, -50%)
+    rotateX(${goalPostState.right.rotateX}deg)
+    rotateY(${goalPostState.right.rotateY}deg)
+    rotateZ(${goalPostState.right.rotateZ}deg)
+    scale(${goalPostState.right.scale});
+}`;
+            document.getElementById('goalpostCssOutput').textContent = css;
+        }
+
+        function resetGoalPost(side) {
+            goalPostState[side] = { x: 50, y: 50, rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1 };
+
+            // Reset sliders
+            document.getElementById(`${side}RotateXSlider`).value = 0;
+            document.getElementById(`${side}RotateYSlider`).value = 0;
+            document.getElementById(`${side}RotateZSlider`).value = 0;
+            document.getElementById(`${side}ScaleSlider`).value = 1;
+
+            // Reset display values
+            document.getElementById(`${side}RotateXValue`).textContent = '0°';
+            document.getElementById(`${side}RotateYValue`).textContent = '0°';
+            document.getElementById(`${side}RotateZValue`).textContent = '0°';
+            document.getElementById(`${side}ScaleValue`).textContent = '1.0';
+
+            if (side === 'left') {
+                updateLeftGoalPostTransform();
+            } else {
+                updateRightGoalPostTransform();
+            }
+            updateGoalPostCSS();
+        }
+
+        // ============================================
+        // DRAG AND DROP FOR GOAL POSTS
+        // ============================================
+
+        let dragState = {
+            isDragging: false,
+            element: null,
+            side: null,
+            startX: 0,
+            startY: 0,
+            startPosX: 0,
+            startPosY: 0
+        };
+
+        function startDrag(e, side) {
+            e.preventDefault();
+            const goalPost = side === 'left' ? leftGoalPost : rightGoalPost;
+            const endZone = goalPost.parentElement;
+            const rect = endZone.getBoundingClientRect();
+
+            dragState.isDragging = true;
+            dragState.element = goalPost;
+            dragState.side = side;
+            dragState.startX = e.clientX || e.touches[0].clientX;
+            dragState.startY = e.clientY || e.touches[0].clientY;
+            dragState.startPosX = goalPostState[side].x;
+            dragState.startPosY = goalPostState[side].y;
+            dragState.endZoneRect = rect;
+
+            goalPost.classList.add('dragging');
+        }
+
+        function doDrag(e) {
+            if (!dragState.isDragging) return;
+            e.preventDefault();
+
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+
+            const rect = dragState.endZoneRect;
+            const deltaX = clientX - dragState.startX;
+            const deltaY = clientY - dragState.startY;
+
+            // Convert pixel delta to percentage
+            const deltaXPercent = (deltaX / rect.width) * 100;
+            const deltaYPercent = (deltaY / rect.height) * 100;
+
+            // Update position
+            let newX = dragState.startPosX + deltaXPercent;
+            let newY = dragState.startPosY + deltaYPercent;
+
+            // Clamp to bounds (-50 to 150 to allow some overflow)
+            newX = Math.max(-50, Math.min(150, newX));
+            newY = Math.max(-50, Math.min(150, newY));
+
+            goalPostState[dragState.side].x = newX;
+            goalPostState[dragState.side].y = newY;
+
+            if (dragState.side === 'left') {
+                updateLeftGoalPostTransform();
+            } else {
+                updateRightGoalPostTransform();
+            }
+            updateGoalPostCSS();
+        }
+
+        function endDrag() {
+            if (!dragState.isDragging) return;
+
+            dragState.element.classList.remove('dragging');
+            dragState.isDragging = false;
+            dragState.element = null;
+            dragState.side = null;
+        }
+
+        // Mouse events
+        leftGoalPost.addEventListener('mousedown', (e) => startDrag(e, 'left'));
+        rightGoalPost.addEventListener('mousedown', (e) => startDrag(e, 'right'));
+        document.addEventListener('mousemove', doDrag);
+        document.addEventListener('mouseup', endDrag);
+
+        // Touch events
+        leftGoalPost.addEventListener('touchstart', (e) => startDrag(e, 'left'), { passive: false });
+        rightGoalPost.addEventListener('touchstart', (e) => startDrag(e, 'right'), { passive: false });
+        document.addEventListener('touchmove', doDrag, { passive: false });
+        document.addEventListener('touchend', endDrag);
+
+        // Initialize goal post positions
+        updateLeftGoalPostTransform();
+        updateRightGoalPostTransform();
+        updateGoalPostCSS();
+    </script>
 
 </body>
 </html>

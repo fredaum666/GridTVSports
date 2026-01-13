@@ -2719,6 +2719,11 @@ app.get('/debug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'debug.html'));
 });
 
+// Test field perspective page
+app.get('/test-field', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'test-field.html'));
+});
+
 // Admin subscription management page - LOCALHOST ONLY
 app.get('/admin-subscriptions', (req, res) => {
   const ip = req.ip || req.connection.remoteAddress || '';
@@ -3131,7 +3136,8 @@ async function fetchNFLDataForCache(cacheKey, seasonType, week) {
 
 async function fetchNCAADataForCache(cacheKey, seasonType, week) {
   let url;
-  if (seasonType === 'bowl') {
+  // seasonType can be 3 (postseason/bowls), 2 (regular season), or 'bowl' string
+  if (seasonType === 3 || seasonType === 'bowl') {
     url = `${ESPN_BASE}/football/college-football/scoreboard?seasontype=3&week=1&groups=80&limit=100`;
   } else {
     url = `${ESPN_BASE}/football/college-football/scoreboard?seasontype=2&week=${week}&groups=80&limit=100`;
