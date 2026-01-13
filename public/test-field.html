@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Football Field</title>
+    <style>
+        :root {
+            --field-green: #147d3b; /* Slightly richer green from image */
+            --line-white: rgba(255, 255, 255, 0.85);
+            --field-ratio: 53.3 / 120; /* Standard NFL field aspect ratio (height/width) */
+        }
+
+        body {
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Main Field Container */
+        .football-field-container {
+            width: 90vw;
+            /* Calculate height based on aspect ratio */
+            aspect-ratio: 120 / 53.3;
+            background-color: var(--field-green);
+            border: 3px solid var(--line-white);
+            position: relative;
+            display: flex;
+            box-sizing: border-box;
+            /* Subtle texture gradient */
+            background-image: radial-gradient(circle at center, #1a8e46 0%, var(--field-green) 80%);
+        }
+
+        /* --- End Zones --- */
+        .end-zone {
+            /* End zones are 10 yards, field is 100. Total 120. */
+            /* 10/120 = 8.333% width */
+            flex: 0 0 8.333%;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .end-zone.left {
+            border-right: 3px solid var(--line-white);
+        }
+
+        .end-zone.right {
+            border-left: 3px solid var(--line-white);
+        }
+
+        /* Goal Post Marks in Endzones */
+        .end-zone::before, .end-zone::after {
+            content: '';
+            position: absolute;
+            width: 20%; /* Width of the T crossbar */
+            height: 2px;
+            background: var(--line-white);
+            left: 40%; /* Center horizontally */
+        }
+        /* The vertical part of the T */
+        .end-zone .goal-post-base {
+            position: absolute;
+            width: 2px;
+            height: 5%;
+            background: var(--line-white);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .end-zone::before { top: 40%; }
+        .end-zone .goal-post-base.top { top: 40%; }
+
+        .end-zone::after { bottom: 40%; }
+        .end-zone .goal-post-base.bottom { bottom: 40%; }
+
+
+        /* --- Playing Field Area --- */
+        .playing-field {
+            flex: 1; /* Takes remaining space (100 yards) */
+            display: flex;
+            position: relative;
+        }
+
+        /* --- 10 Yard Sections & Grid --- */
+        .ten-yard-section {
+            flex: 1; /* Divide into 10 equal parts */
+            box-sizing: border-box;
+            /* The right border acts as the major 10-yard line */
+            border-right: 2px solid var(--line-white);
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        /* Remove border from the last section so it doesn't double up with endzone line */
+        .ten-yard-section:last-child {
+            border-right: none;
+        }
+
+        /* --- Hash Marks Container --- */
+        /* This container sits inside a 10-yard section and draws the ticks */
+        .hash-marks-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        /* Shared styles for the rows of hash marks */
+        .hash-row {
+            position: absolute;
+            width: 100%;
+            /* This creates a repeating line every 10% of the container's width.
+               Since the container is 10 yards wide, this makes a tick every 1 yard. */
+            background-image: repeating-linear-gradient(
+                to right,
+                var(--line-white),
+                var(--line-white) 2px, /* Thickness of hash mark */
+                transparent 2px,
+                transparent 10% /* Repeat interval */
+            );
+            /* Shift left slightly so the first tick isn't on the border line */
+            /* calc(10% - 2px) aligns the ticks between the major lines */
+            background-position: calc(10% - 1px) 0;
+        }
+
+        .hash-row.sideline-top {
+            top: 1%;
+            height: 3%; /* Length of sideline ticks */
+        }
+
+        .hash-row.middle-hashes {
+            /* In college/NFL, these are two separate rows near the middle */
+            top: 40%;
+            height: 20%; /* Total height area for middle hashes */
+            /* We need two rows here. Let's use a mask or gradient trick. */
+            /* Simpler approach: Redefine background to be two thin horizontal strips */
+             background-image:
+                /* Top middle row */
+                repeating-linear-gradient(to right, var(--line-white) 0, var(--line-white) 2px, transparent 2px, transparent 10%),
+                /* Bottom middle row */
+                repeating-linear-gradient(to right, var(--line-white) 0, var(--line-white) 2px, transparent 2px, transparent 10%);
+            background-size: 100% 15%, 100% 15%; /* Width / Height of the strips */
+            background-position: calc(10% - 1px) 0, calc(10% - 1px) 100%; /* Position top and bottom of container */
+            background-repeat: repeat-x;
+        }
+
+        .hash-row.sideline-bottom {
+            bottom: 1%;
+            height: 3%;
+        }
+
+
+        /* --- Numbers Overlay --- */
+        .numbers-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Let clicks pass through */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 7% 0; /* Position numbers away from sidelines */
+            box-sizing: border-box;
+        }
+
+        .numbers-row {
+            display: flex;
+            /* Distribute evenly. The first and last items are spacers to offset from goal lines */
+            justify-content: space-evenly;
+            color: var(--line-white);
+            font-family: "Courier New", Courier, monospace; /* Blocky font */
+            font-weight: bold;
+            /* Responsive font size based on container width */
+            font-size: 3vw;
+        }
+
+        /* Top row needs to face the sideline (rotated 180deg) */
+        .numbers-row.top {
+            transform: rotate(180deg);
+        }
+
+        /* Specific spacing for the numbers to align with grid lines */
+        .number-group {
+            width: 0; /* act as center points */
+            display: flex;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="football-field-container">
+        <div class="end-zone left">
+            <div class="goal-post-base top"></div>
+            <div class="goal-post-base bottom"></div>
+        </div>
+
+        <div class="playing-field">
+
+            <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+             <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+             <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+            <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+             <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+             <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+             <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+            <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+             <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+             <div class="ten-yard-section">
+                <div class="hash-marks-container">
+                    <div class="hash-row sideline-top"></div>
+                    <div class="hash-row middle-hashes"></div>
+                    <div class="hash-row sideline-bottom"></div>
+                </div>
+            </div>
+
+            <div class="numbers-overlay">
+                <div class="numbers-row top">
+                    <div class="number-group">10</div>
+                    <div class="number-group">20</div>
+                    <div class="number-group">30</div>
+                    <div class="number-group">40</div>
+                    <div class="number-group">50</div>
+                    <div class="number-group">40</div>
+                    <div class="number-group">30</div>
+                    <div class="number-group">20</div>
+                    <div class="number-group">10</div>
+                </div>
+                <div class="numbers-row bottom">
+                    <div class="number-group">10</div>
+                    <div class="number-group">20</div>
+                    <div class="number-group">30</div>
+                    <div class="number-group">40</div>
+                    <div class="number-group">50</div>
+                    <div class="number-group">40</div>
+                    <div class="number-group">30</div>
+                    <div class="number-group">20</div>
+                    <div class="number-group">10</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="end-zone right">
+            <div class="goal-post-base top"></div>
+            <div class="goal-post-base bottom"></div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -804,7 +804,7 @@
 
             position: relative;
             width: 90%;
-            height: clamp(50px, 8vmin, 70px);
+            height: clamp(50px, 12vmin, 100px);
             display: flex;
             align-items: stretch;
             filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
@@ -1388,12 +1388,12 @@
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-scoreboard {
-            height: clamp(45px, 6vmin, 60px);
+            height: clamp(45px, 15vmin, 100px);
             width: 88%;
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score-box {
-            width: clamp(45px, 6vmin, 60px);
+            width: clamp(45px, 10vmin, 75px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeout-bar {
@@ -1414,15 +1414,15 @@
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score {
-            font-size: clamp(1.2rem, 3vmin, 1.8rem);
+            font-size: clamp(1.2rem, 8vmin, 2.8rem);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-team-name {
-            font-size: clamp(0.7rem, 1.8vmin, 1rem);
+            font-size: clamp(0.7rem, 3.8vmin, 2rem);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-team-record {
-            font-size: clamp(0.55rem, 1.2vmin, 0.75rem);
+            font-size: clamp(0.55rem, 5.2vmin, 1.0rem);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time-label {
@@ -1465,7 +1465,7 @@
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
-            height: clamp(40px, 6vmin, 55px);
+            height: clamp(40px, 10vmin, 80px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-score-box {
@@ -3044,23 +3044,27 @@
 
                 fieldVisualizerHTML = `
                     <div class="${fieldClass}">
-                        <div class="football-field-container" style="--away-primary-color: ${awayEndzoneColor}; --home-primary-color: ${homeEndzoneColor};">
-                            <div class="end-zone left away-endzone">
-                                <span class="endzone-text">${game.away.abbr}</span>
-                                ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
-                            </div>
-                            <div class="playing-field">
-                                ${tenYardSections}
-                                <div class="numbers-overlay">
-                                    ${!isCompressed ? `<div class="numbers-row top">${numbersHTML}</div>` : ''}
-                                    <div class="numbers-row bottom">${numbersHTML}</div>
+                        <div class="field-wrapper">
+                            <div class="football-field-container" style="--away-primary-color: ${awayEndzoneColor}; --home-primary-color: ${homeEndzoneColor};">
+                                <div class="end-zone left away-endzone">
+                                    <span class="endzone-text">${game.away.abbr}</span>
+                                    ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
+                                    <img src="/assets/FieldYLeft.png" alt="Goal Post" class="goal-post">
                                 </div>
-                                <div class="ball-indicator"></div>
-                                <div class="first-down-line"></div>
-                            </div>
-                            <div class="end-zone right home-endzone">
-                                <span class="endzone-text">${game.home.abbr}</span>
-                                ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
+                                <div class="playing-field">
+                                    ${tenYardSections}
+                                    <div class="numbers-overlay">
+                                        ${!isCompressed ? `<div class="numbers-row top">${numbersHTML}</div>` : ''}
+                                        <div class="numbers-row bottom">${numbersHTML}</div>
+                                    </div>
+                                    <div class="ball-indicator"></div>
+                                    <div class="first-down-line"></div>
+                                </div>
+                                <div class="end-zone right home-endzone">
+                                    <span class="endzone-text">${game.home.abbr}</span>
+                                    ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
+                                    <img src="/assets/FieldYRight.png" alt="Goal Post" class="goal-post">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -4042,6 +4046,13 @@
                         game.fieldPosition = situation.possessionText;
                     } else if (isIntermission) {
                         game.fieldPosition = null;
+                    } else if (game.downDistance && !isIntermission) {
+                        // Fallback: extract field position from downDistanceText if possessionText not available
+                        // Format: "1st & 10 at PIT 35" -> "PIT 35"
+                        const atMatch = game.downDistance.match(/at\s+([A-Z]{2,4}\s+\d+)/i);
+                        if (atMatch) {
+                            game.fieldPosition = atMatch[1];
+                        }
                     }
 
                     // Timeouts

@@ -3531,23 +3531,27 @@
 
                 fieldVisualizerHTML = `
                     <div class="${fieldClass}">
-                        <div class="football-field-container" style="--away-primary-color: ${awayColor}; --home-primary-color: ${homeColor};">
-                            <div class="end-zone left away-endzone">
-                                <span class="endzone-text">${game.away.abbr}</span>
-                                ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
-                            </div>
-                            <div class="playing-field">
-                                ${tenYardSections}
-                                <div class="numbers-overlay">
-                                    ${!isCompressed ? `<div class="numbers-row top">${numbersHTML}</div>` : ''}
-                                    <div class="numbers-row bottom">${numbersHTML}</div>
+                        <div class="field-wrapper">
+                            <div class="football-field-container" style="--away-primary-color: ${awayColor}; --home-primary-color: ${homeColor};">
+                                <div class="end-zone left away-endzone">
+                                    <span class="endzone-text">${game.away.abbr}</span>
+                                    ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
+                                    <img src="/assets/FieldYLeft.png" alt="Goal Post" class="goal-post">
                                 </div>
-                                <div class="ball-indicator"></div>
-                                <div class="first-down-line"></div>
-                            </div>
-                            <div class="end-zone right home-endzone">
-                                <span class="endzone-text">${game.home.abbr}</span>
-                                ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
+                                <div class="playing-field">
+                                    ${tenYardSections}
+                                    <div class="numbers-overlay">
+                                        ${!isCompressed ? `<div class="numbers-row top">${numbersHTML}</div>` : ''}
+                                        <div class="numbers-row bottom">${numbersHTML}</div>
+                                    </div>
+                                    <div class="ball-indicator"></div>
+                                    <div class="first-down-line"></div>
+                                </div>
+                                <div class="end-zone right home-endzone">
+                                    <span class="endzone-text">${game.home.abbr}</span>
+                                    ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
+                                    <img src="/assets/FieldYRight.png" alt="Goal Post" class="goal-post">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -4528,6 +4532,13 @@
                         game.fieldPosition = situation.possessionText;
                     } else if (isIntermission) {
                         game.fieldPosition = null;
+                    } else if (game.downDistance && !isIntermission) {
+                        // Fallback: extract field position from downDistanceText if possessionText not available
+                        // Format: "1st & 10 at PIT 35" -> "PIT 35"
+                        const atMatch = game.downDistance.match(/at\s+([A-Z]{2,4}\s+\d+)/i);
+                        if (atMatch) {
+                            game.fieldPosition = atMatch[1];
+                        }
                     }
 
                     // Timeouts
