@@ -5,43 +5,72 @@ module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
 
   return {
-    entry: './public/sportsBarMode.js',
+    entry: {
+      sportsBarMode: './public/sportsBarMode.js',
+      gridConfig: './public/grid-config/index.jsx'
+    },
     output: {
-      filename: 'sportsBarMode.min.js',
+      filename: '[name].min.js',
       path: path.resolve(__dirname, 'public/dist'),
-      clean: true, // Clean the output directory before emit
+      clean: true,
     },
     mode: isProduction ? 'production' : 'development',
+    module: {
+      rules: [
+        {
+          test: /\.(js|jsx)$/,
+          include: [
+            path.resolve(__dirname, 'public/grid-config')
+          ],
+          use: {
+            loader: 'babel-loader',
+            options: {
+              sourceType: 'unambiguous',
+              presets: [
+                ['@babel/preset-env', {
+                  targets: { browsers: ['> 1%', 'last 2 versions'] }
+                }],
+                ['@babel/preset-react', { runtime: 'automatic' }]
+              ]
+            }
+          }
+        },
+        {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader']
+        }
+      ]
+    },
+    resolve: {
+      extensions: ['.js', '.jsx']
+    },
     optimization: {
-      minimize: isProduction, // Only minimize in production
+      minimize: isProduction,
       minimizer: [
         new TerserPlugin({
           terserOptions: {
             compress: {
-              drop_console: true, // Remove console.logs in production
-              drop_debugger: true, // Remove debugger statements
-              dead_code: false, // Don't remove dead code too aggressively
-              unused: false, // Don't remove unused code
-              passes: 2, // Run compression twice for better results
+              drop_console: true,
+              drop_debugger: true,
+              dead_code: false,
+              unused: false,
+              passes: 2,
             },
             mangle: {
-              // Mangle variable names to make them unreadable
-              toplevel: false, // Don't mangle top-level names to avoid breaking code
-              // Keep these public API names intact
+              toplevel: false,
               reserved: ['initSportsBarMode', 'SportsBarMode', 'sportsBarMode']
             },
             format: {
-              comments: false, // Remove all comments
+              comments: false,
             },
           },
-          extractComments: false, // Don't extract comments to separate file
+          extractComments: false,
         }),
       ],
     },
-    // Source maps only in development
     devtool: isProduction ? false : 'source-map',
     performance: {
-      hints: false, // Disable performance hints
+      hints: false,
     },
   };
 };

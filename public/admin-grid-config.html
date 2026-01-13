@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid Configuration Tool - GridTV Sports</title>
+    <!-- Import the main fullscreen-cards.css for actual card styles -->
+    <link rel="stylesheet" href="/styles/fullscreen-cards.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html, body, #root {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0f172a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Override fullscreen-container for config tool */
+        .fullscreen-container {
+            display: flex !important;
+            position: relative !important;
+        }
+
+        /* Make fullscreen-grid work in config context */
+        .fullscreen-grid {
+            height: 100% !important;
+            padding: 15px;
+            gap: 15px;
+        }
+
+        /* ============================================
+           SCOREBOARD COMPONENT STYLES (from tv-sports-bar)
+           ============================================ */
+
+        .fs-card-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            gap: 8px;
+        }
+
+        .fs-scoreboard-top {
+            width: 90%;
+            display: flex;
+            align-items: flex-end;
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        .fs-sb-logo-spacer {
+            width: clamp(50px, 8vmin, 70px);
+            flex-shrink: 0;
+        }
+
+        .fs-sb-logo-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(8px, 2vmin, 16px);
+        }
+
+        .fs-sb-logo-center-spacer {
+            width: clamp(60px, 10vmin, 100px);
+            flex-shrink: 0;
+        }
+
+        .fs-card-team-logo-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fs-card-team-logo {
+            width: clamp(50px, 8vmin, 90px);
+            height: clamp(50px, 8vmin, 90px);
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+        }
+
+        .fs-possession-indicator {
+            position: absolute;
+            font-size: clamp(14px, 2.0vmin, 24px);
+            line-height: 1;
+            animation: possessionBlink 1.5s infinite;
+            filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.9));
+            z-index: 5;
+        }
+
+        .fs-possession-indicator.away {
+            top: -8px;
+            right: -8px;
+        }
+
+        .fs-possession-indicator.home {
+            top: -8px;
+            left: -8px;
+        }
+
+        @keyframes possessionBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .fs-scoreboard {
+            --sb-away-primary: #4b5563;
+            --sb-away-secondary: #374151;
+            --sb-home-primary: #6b7280;
+            --sb-home-secondary: #4b5563;
+            --sb-center-bg: #1f2937;
+            --sb-text-color: #ffffff;
+            --sb-subtext-color: rgba(255, 255, 255, 0.7);
+
+            position: relative;
+            width: 90%;
+            height: clamp(50px, 8vmin, 70px);
+            display: flex;
+            align-items: stretch;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+            border-radius: 6px;
+            overflow: visible;
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                0 2px 6px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .fs-sb-score-box {
+            position: relative;
+            width: clamp(65px, 10vmin, 90px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .fs-sb-score-box.away {
+            background: linear-gradient(135deg, var(--sb-away-primary) 0%, var(--sb-away-primary) 60%, var(--sb-away-secondary) 100%);
+            padding-right: 6px;
+            border-radius: 6px 0 0 6px;
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.2),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .fs-sb-score-box.home {
+            background: linear-gradient(135deg, var(--sb-home-secondary) 0%, var(--sb-home-primary) 40%, var(--sb-home-primary) 100%);
+            padding-left: 6px;
+            border-radius: 0 6px 6px 0;
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.2),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .fs-sb-score {
+            font-size: clamp(1.5rem, 4vmin, 2.5rem);
+            font-weight: 900;
+            color: var(--sb-text-color);
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.3),
+                0 2px 2px rgba(0, 0, 0, 0.3),
+                0 3px 4px rgba(0, 0, 0, 0.2),
+                0 0 12px rgba(255, 255, 255, 0.1);
+            letter-spacing: 1px;
+        }
+
+        .fs-sb-team-section {
+            flex: 1;
+            background: linear-gradient(180deg,
+                    #3d4654 0%,
+                    #2d3544 15%,
+                    #1f2937 50%,
+                    #1a202c 85%,
+                    #151a23 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 8px;
+            gap: 8px;
+            box-shadow:
+                inset 0 2px 3px rgba(255, 255, 255, 0.15),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+                inset 1px 0 2px rgba(255, 255, 255, 0.05),
+                inset -1px 0 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .fs-sb-team-section.away {
+            flex-direction: row;
+            justify-content: center;
+            padding-right: clamp(50px, 8vmin, 80px);
+            padding-left: 10px;
+        }
+
+        .fs-sb-team-section.home {
+            flex-direction: row;
+            justify-content: center;
+            padding-left: clamp(50px, 8vmin, 80px);
+            padding-right: 10px;
+        }
+
+        .fs-sb-team-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .fs-sb-team-name {
+            font-size: clamp(0.8rem, 2vmin, 1.1rem);
+            font-weight: 700;
+            color: var(--sb-text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .fs-sb-team-record {
+            font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
+            color: var(--sb-subtext-color);
+            font-weight: 500;
+        }
+
+        .fs-sb-timeouts {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            z-index: 5;
+        }
+
+        .fs-sb-timeout-bar {
+            width: clamp(6px, 1vmin, 10px);
+            height: clamp(6px, 1vmin, 10px);
+            background: linear-gradient(135deg, #f5e3c4 0%, #d4c4a8 100%);
+            border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+            transition: opacity 0.3s ease;
+        }
+
+        .fs-sb-timeout-bar.used {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            opacity: 0.3;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .fs-sb-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fs-sb-time-box {
+            background: linear-gradient(180deg,
+                    #252a31 0%,
+                    #000000 10%,
+                    #393c47 40%,
+                    #000000 60%,
+                    #000000 90%,
+                    #000000 100%);
+            padding: 3px 10px;
+            clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
+            min-width: 60px;
+            text-align: center;
+            border: 1px solid #5a6577;
+            box-shadow:
+                0 3px 8px rgba(0, 0, 0, 0.5),
+                0 1px 2px rgba(0, 0, 0, 0.3),
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .fs-sb-time-label {
+            font-size: clamp(0.5rem, 1.2vmin, 0.7rem);
+            color: var(--sb-subtext-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .fs-sb-time {
+            font-size: clamp(0.65rem, 1.8vmin, 0.9rem);
+            font-weight: 900;
+            color: var(--sb-text-color);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .fs-sb-situation {
+            --sb-possession-primary: #4b5563;
+            --sb-possession-secondary: #374151;
+
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--sb-possession-primary) 0%, var(--sb-possession-primary) 50%, var(--sb-possession-secondary) 100%);
+            padding: 5px 16px;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 160px;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+            z-index: 5;
+            transition: left 0.3s ease, transform 0.3s ease;
+        }
+
+        .fs-sb-situation.possession-away {
+            --sb-possession-primary: var(--sb-away-primary);
+            --sb-possession-secondary: var(--sb-away-secondary);
+            left: 25%;
+            transform: translateX(-50%);
+        }
+
+        .fs-sb-situation.possession-home {
+            --sb-possession-primary: var(--sb-home-primary);
+            --sb-possession-secondary: var(--sb-home-secondary);
+            left: 75%;
+            transform: translateX(-50%);
+        }
+
+        .fs-sb-situation.redzone {
+            border-color: #ef4444;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+
+        .fs-sb-down-distance {
+            font-size: clamp(0.65rem, 1.8vmin, 0.85rem);
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        .fs-sb-situation-divider {
+            width: 1px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .fs-sb-ball-position {
+            font-size: clamp(0.6rem, 1.5vmin, 0.75rem);
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* League background images */
+        .fullscreen-game-card.fs-nfl {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/NFL-Field.jpg') center center / cover no-repeat;
+        }
+
+        .fullscreen-game-card.has-scoreboard .sport-logo-indicator {
+            top: 15px;
+            right: 15px;
+            left: auto;
+            width: clamp(50px, 8vmin, 70px);
+            height: clamp(50px, 8vmin, 70px);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script src="/dist/gridConfig.min.js"></script>
+</body>
+</html>

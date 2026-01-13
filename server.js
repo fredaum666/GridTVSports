@@ -2481,12 +2481,136 @@ app.put('/api/admin/pricing/:planType', requireAdmin, async (req, res) => {
 });
 
 // ============================================
+// GRID CONFIGURATION API (Admin Tool)
+// ============================================
+
+// Get current grid configuration
+app.get('/api/admin/grid-config', requireLocalhost, async (req, res) => {
+  try {
+    const fs = require('fs').promises;
+    const cssPath = path.join(__dirname, 'public', 'styles', 'fullscreen-cards.css');
+
+    // Read the CSS file
+    const cssContent = await fs.readFile(cssPath, 'utf8');
+
+    // Parse CSS variables (basic parsing)
+    const configVars = {};
+    const varRegex = /--fs-([^:]+):\s*([^;]+);/g;
+    let match;
+
+    while ((match = varRegex.exec(cssContent)) !== null) {
+      configVars[match[1]] = match[2].trim();
+    }
+
+    res.json({
+      success: true,
+      config: configVars,
+      cssPath: 'public/styles/fullscreen-cards.css'
+    });
+  } catch (error) {
+    console.error('❌ Error reading grid config:', error);
+    res.status(500).json({ error: 'Failed to read configuration' });
+  }
+});
+
+// Save grid configuration to CSS file
+app.post('/api/admin/grid-config', requireLocalhost, async (req, res) => {
+  try {
+    const fs = require('fs').promises;
+    const cssPath = path.join(__dirname, 'public', 'styles', 'fullscreen-cards.css');
+    const { config } = req.body;
+
+    if (!config) {
+      return res.status(400).json({ error: 'No configuration provided' });
+    }
+
+    // Read current CSS file
+    let cssContent = await fs.readFile(cssPath, 'utf8');
+
+    // Backup the original file
+    const backupPath = cssPath + '.backup';
+    await fs.writeFile(backupPath, cssContent);
+
+    // Generate CSS variables from config
+    const cssVariables = [];
+    const devices = ['mobile', 'tablet', 'desktop', 'tv'];
+    const grids = [1, 2, 3, 4, 5, 6, 7, 8];
+
+    devices.forEach(device => {
+      grids.forEach(grid => {
+        const gridConfig = config[device]?.[grid];
+        if (gridConfig) {
+          Object.entries(gridConfig).forEach(([element, props]) => {
+            Object.entries(props).forEach(([prop, value]) => {
+              if (value && typeof value === 'object') {
+                const varName = `--fs-${element}-${prop}-${device}-grid-${grid}`;
+                const clampValue = `clamp(${value.min}${value.unit}, ${value.preferred}vmin, ${value.max}${value.unit})`;
+                cssVariables.push(`  ${varName}: ${clampValue};`);
+              }
+            });
+          });
+        }
+      });
+    });
+
+    // Check if :root section exists with grid config comment
+    const gridConfigSection = `/* Grid Configuration Tool Variables */`;
+    const endComment = `/* End Grid Config */`;
+
+    if (cssContent.includes(gridConfigSection)) {
+      // Replace existing section
+      const startIndex = cssContent.indexOf(gridConfigSection);
+      const endIndex = cssContent.indexOf(endComment);
+
+      if (endIndex > startIndex) {
+        cssContent = cssContent.substring(0, startIndex) +
+          gridConfigSection + '\n' +
+          cssVariables.join('\n') + '\n' +
+          endComment +
+          cssContent.substring(endIndex + endComment.length);
+      }
+    } else {
+      // Add new section at the beginning of :root
+      const rootIndex = cssContent.indexOf(':root {');
+      if (rootIndex !== -1) {
+        const insertIndex = cssContent.indexOf('{', rootIndex) + 1;
+        cssContent = cssContent.substring(0, insertIndex) + '\n' +
+          '  ' + gridConfigSection + '\n' +
+          cssVariables.join('\n') + '\n' +
+          '  ' + endComment + '\n' +
+          cssContent.substring(insertIndex);
+      }
+    }
+
+    // Write updated CSS
+    await fs.writeFile(cssPath, cssContent);
+
+    console.log(`[Admin] Grid configuration saved to ${cssPath}`);
+    res.json({
+      success: true,
+      message: 'Configuration saved successfully',
+      variablesCount: cssVariables.length
+    });
+  } catch (error) {
+    console.error('❌ Error saving grid config:', error);
+    res.status(500).json({ error: 'Failed to save configuration' });
+  }
+});
+
+// ============================================
 // STATIC FILE SERVING (with auth protection)
 // ============================================
 
 // Public routes (no auth required)
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
+app.use('/dist', express.static(path.join(__dirname, 'public', 'dist'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    }
+  }
+}));
 app.use('/scripts', express.static(path.join(__dirname, 'public', 'scripts'), {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.js')) {
@@ -2521,6 +2645,7 @@ app.use((req, res, next) => {
     req.path === '/tv-sports-bar.html' ||
     req.path.startsWith('/assets/') ||
     req.path.startsWith('/css/') ||
+    req.path.startsWith('/dist/') ||
     req.path.startsWith('/scripts/') ||
     req.path.startsWith('/styles/') ||
     req.path.startsWith('/api/auth/') ||
@@ -2733,6 +2858,18 @@ app.get('/admin-subscriptions', (req, res) => {
     return res.status(403).send('This page is only accessible from localhost');
   }
   res.sendFile(path.join(__dirname, 'public', 'admin-subscriptions.html'));
+});
+
+// Admin Grid Configuration Tool - LOCALHOST ONLY
+app.get('/admin/grid-config', (req, res) => {
+  const ip = req.ip || req.connection.remoteAddress || '';
+  const isLocalhost = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip === 'localhost';
+
+  if (!isLocalhost) {
+    return res.status(403).send('This page is only accessible from localhost');
+  }
+  res.type('text/html; charset=utf-8');
+  res.sendFile(path.join(__dirname, 'public', 'admin-grid-config.html'));
 });
 
 // ============================================
