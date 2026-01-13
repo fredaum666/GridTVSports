@@ -1150,3 +1150,78 @@
   padding: clamp(8px, 2vmin, 20px);
   padding-top: clamp(20px, 5vmin, 50px);
 }
+
+/* ============================================
+   SPECIAL TEAMS ANIMATIONS (Kickoff/Punt)
+   Field visualizer animations
+   ============================================ */
+
+/* State during special teams animation - hide scrimmage line styling */
+.playing-field.special-teams-active .ball-indicator {
+  background: transparent !important;
+  box-shadow: none !important;
+  width: auto !important;
+}
+
+/* Make ball larger during flight */
+.playing-field.special-teams-active .ball-indicator::before {
+  font-size: clamp(18px, 4vmin, 32px) !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(251, 191, 36, 0.6));
+}
+
+/* Hide first down line during special teams */
+.playing-field.special-teams-active .first-down-line {
+  opacity: 0 !important;
+  transition: opacity 0.3s ease-out;
+}
+
+/* Label for KICKOFF/PUNT/TOUCHBACK/FAIR CATCH */
+.special-teams-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.95) 0%, rgba(245, 158, 11, 0.95) 100%);
+  color: #000;
+  font-size: clamp(10px, 2.5vmin, 18px);
+  font-weight: 900;
+  padding: clamp(4px, 1vmin, 8px) clamp(8px, 2vmin, 16px);
+  border-radius: clamp(4px, 0.8vmin, 8px);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 20px rgba(251, 191, 36, 0.3);
+  animation: specialTeamsLabelFade 2s ease-in-out forwards;
+  pointer-events: none;
+}
+
+@keyframes specialTeamsLabelFade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+/* Grid-responsive special teams label sizing */
+.fullscreen-grid.grid-5 .special-teams-label,
+.fullscreen-grid.grid-6 .special-teams-label {
+  font-size: clamp(8px, 2vmin, 14px);
+  padding: clamp(3px, 0.8vmin, 6px) clamp(6px, 1.5vmin, 12px);
+}
+
+.fullscreen-grid.grid-7 .special-teams-label,
+.fullscreen-grid.grid-8 .special-teams-label {
+  font-size: clamp(6px, 1.5vmin, 10px);
+  padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 8px);
+}

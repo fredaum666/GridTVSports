@@ -3,556 +3,1559 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Debug Console - GridTV Sports</title>
+  <title>Mission Control - GridTV Sports</title>
   <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg-primary: #0d1117;
-      --bg-secondary: #161b22;
-      --bg-tertiary: #21262d;
-      --border-color: #30363d;
+      /* Deep Space Blacks */
+      --bg-void: #05070a;
+      --bg-panel: #0a0e14;
+      --bg-surface: #0f141c;
+      --bg-elevated: #151c27;
+      --bg-hover: #1a2332;
+
+      /* Luminous Telemetry Colors */
+      --signal-blue: #00d4ff;
+      --signal-green: #00ff88;
+      --signal-amber: #ffb800;
+      --signal-red: #ff3366;
+      --signal-purple: #a855f7;
+      --signal-orange: #ff6b35;
+
+      /* Text Colors */
+      --text-bright: #f0f4f8;
       --text-primary: #c9d1d9;
-      --text-secondary: #8b949e;
-      --accent-blue: #58a6ff;
-      --accent-green: #3fb950;
-      --accent-yellow: #d29922;
-      --accent-red: #f85149;
-      --accent-purple: #a371f7;
-      --accent-orange: #db6d28;
+      --text-dim: #6b7a8f;
+      --text-muted: #3d4a5c;
+
+      /* Borders */
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-active: rgba(0, 212, 255, 0.4);
+
+      /* Glows */
+      --glow-blue: 0 0 20px rgba(0, 212, 255, 0.3);
+      --glow-green: 0 0 20px rgba(0, 255, 136, 0.3);
+      --glow-red: 0 0 20px rgba(255, 51, 102, 0.3);
+      --glow-amber: 0 0 20px rgba(255, 184, 0, 0.3);
+      --glow-purple: 0 0 20px rgba(168, 85, 247, 0.3);
+
+      /* Timing */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes scanline {
+      0%, 100% { transform: translateX(-100%); opacity: 0; }
+      50% { transform: translateX(100%); opacity: 1; }
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slide-in-right {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slide-in-left {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes value-bump {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes progress-fill {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     body {
-      font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
-      background: var(--bg-primary);
+      font-family: 'Space Grotesk', -apple-system, sans-serif;
+      background: var(--bg-void);
       color: var(--text-primary);
       min-height: 100vh;
       font-size: 13px;
       line-height: 1.5;
+      overflow: hidden;
     }
 
+    /* ========== HEADER ========== */
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 20px;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-color);
-      position: sticky;
-      top: 0;
+      padding: 0 24px;
+      height: 60px;
+      background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-void) 100%);
+      border-bottom: 1px solid var(--border-subtle);
+      position: relative;
       z-index: 100;
+      animation: fade-in 0.4s var(--ease-out-expo);
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--signal-blue) 50%, transparent 100%);
+      opacity: 0.8;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+      animation: scanline 4s ease-in-out infinite;
+      opacity: 0.3;
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
     }
 
-    .logo { width: 28px; height: 28px; }
+    .logo-container {
+      position: relative;
+      width: 36px;
+      height: 36px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo-glow {
+      position: absolute;
+      inset: -4px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, transparent 70%);
+      border-radius: 12px;
+      animation: glow-pulse 3s ease-in-out infinite;
+    }
+
+    .title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
 
     .title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .badge {
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: 0.5px;
       text-transform: uppercase;
     }
 
-    .badge-admin { background: var(--accent-red); color: #fff; }
+    .subtitle {
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .badge-admin {
+      background: linear-gradient(135deg, var(--signal-red), #cc2952);
+      color: #fff;
+      box-shadow: var(--glow-red);
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .monitoring-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .live-dot-container {
+      position: relative;
+      width: 10px;
+      height: 10px;
+    }
+
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--signal-green);
+      position: relative;
+      z-index: 1;
+    }
+
+    .live-dot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: var(--signal-green);
+      animation: pulse-ring 2s ease-out infinite;
+    }
+
+    .monitoring-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--signal-green);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .monitoring-game {
+      font-size: 12px;
+      color: var(--text-dim);
+      padding-left: 12px;
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    .refresh-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 140px;
+    }
+
+    .refresh-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .refresh-bar {
+      height: 3px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .refresh-progress {
+      height: 100%;
+      background: linear-gradient(90deg, var(--signal-blue), var(--signal-green));
+      border-radius: 2px;
+      transform-origin: left;
+      animation: progress-fill 20s linear infinite;
+      box-shadow: 0 0 10px var(--signal-blue);
+    }
 
     .header-controls {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
     }
 
     .btn {
-      padding: 6px 12px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: inherit;
-    }
-
-    .btn:hover { background: var(--border-color); }
-    .btn-primary { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
-    .btn-primary:hover { background: #4090e0; }
-    .btn-danger { background: var(--accent-red); border-color: var(--accent-red); color: #fff; }
-    .btn-success { background: var(--accent-green); border-color: var(--accent-green); color: #fff; }
-
-    .container {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 0;
-      height: calc(100vh - 52px);
-    }
-
-    .sidebar {
-      background: var(--bg-secondary);
-      border-right: 1px solid var(--border-color);
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out-expo);
+      position: relative;
       overflow: hidden;
     }
 
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--bg-elevated);
+      border-color: var(--border-active);
+      transform: translateY(-1px);
+    }
+
+    .btn:hover::before {
+      opacity: 1;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-icon {
+      width: 40px;
+      padding: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--signal-blue), #0099cc);
+      border-color: var(--signal-blue);
+      color: #fff;
+      box-shadow: var(--glow-blue);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #00e5ff, var(--signal-blue));
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--signal-green), #00cc6a);
+      border-color: var(--signal-green);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .btn-success:hover {
+      box-shadow: var(--glow-green);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--signal-red), #cc2952);
+      border-color: var(--signal-red);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      box-shadow: var(--glow-red);
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .container {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      height: calc(100vh - 60px);
+    }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slide-in-left 0.5s var(--ease-out-expo) 0.1s both;
+    }
+
     .sidebar-section {
-      padding: 12px;
-      border-bottom: 1px solid var(--border-color);
+      padding: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
     }
 
     .section-title {
-      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
       text-transform: uppercase;
-      color: var(--text-secondary);
-      margin-bottom: 10px;
+      color: var(--text-dim);
       font-weight: 600;
-      letter-spacing: 0.5px;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .league-tabs {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
+    .section-title::before {
+      content: '';
+      width: 3px;
+      height: 12px;
+      background: var(--signal-blue);
+      border-radius: 2px;
+    }
+
+    .league-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
     }
 
     .league-tab {
-      padding: 4px 10px;
-      border-radius: 4px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
+      padding: 10px 8px;
+      border-radius: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
       cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       font-weight: 600;
-      transition: all 0.2s;
+      text-align: center;
+      transition: all 0.2s var(--ease-out-expo);
+      position: relative;
+      overflow: hidden;
     }
 
-    .league-tab:hover { background: var(--border-color); color: var(--text-primary); }
-    .league-tab.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+    .league-tab::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: var(--signal-blue);
+      transition: all 0.3s var(--ease-out-expo);
+      transform: translateX(-50%);
+    }
+
+    .league-tab:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border-color: var(--border-active);
+    }
+
+    .league-tab:hover::before {
+      width: 50%;
+    }
+
+    .league-tab.active {
+      background: rgba(0, 212, 255, 0.1);
+      border-color: var(--signal-blue);
+      color: var(--signal-blue);
+      box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .league-tab.active::before {
+      width: 80%;
+      box-shadow: 0 0 10px var(--signal-blue);
+    }
 
     .game-list {
       flex: 1;
       overflow-y: auto;
-      padding: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .game-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .game-list::-webkit-scrollbar-track {
+      background: var(--bg-void);
+    }
+
+    .game-list::-webkit-scrollbar-thumb {
+      background: var(--bg-elevated);
+      border-radius: 3px;
+    }
+
+    .game-list::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
     }
 
     .game-item {
-      padding: 10px 12px;
-      border-radius: 6px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      margin-bottom: 8px;
+      position: relative;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.25s var(--ease-out-expo);
+      overflow: hidden;
     }
 
-    .game-item:hover { border-color: var(--accent-blue); }
-    .game-item.active { border-color: var(--accent-green); background: rgba(63, 185, 80, 0.1); }
-    .game-item.live { border-left: 3px solid var(--accent-green); }
+    .game-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--game-status-color, var(--text-muted));
+      transition: all 0.25s var(--ease-out-expo);
+    }
+
+    .game-item:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-active);
+      transform: translateX(4px);
+    }
+
+    .game-item:hover::before {
+      width: 4px;
+      box-shadow: 0 0 15px var(--game-status-color, var(--text-muted));
+    }
+
+    .game-item.active {
+      background: rgba(0, 212, 255, 0.08);
+      border-color: var(--signal-blue);
+    }
+
+    .game-item.active::before {
+      width: 4px;
+      background: var(--signal-blue);
+      box-shadow: var(--glow-blue);
+    }
+
+    .game-item.live {
+      --game-status-color: var(--signal-green);
+    }
+
+    .game-item.pre {
+      --game-status-color: var(--signal-amber);
+    }
+
+    .game-item.post {
+      --game-status-color: var(--text-muted);
+    }
 
     .game-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .game-teams {
-      font-size: 12px;
-      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-bright);
     }
 
     .game-status {
-      font-size: 10px;
-      padding: 2px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 8px;
       border-radius: 4px;
-      background: var(--bg-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .game-status.live { background: var(--accent-green); color: #fff; }
-    .game-status.pre { background: var(--accent-yellow); color: #000; }
-    .game-status.post { background: var(--text-secondary); color: #fff; }
+    .game-status.live {
+      background: var(--signal-green);
+      color: #000;
+      box-shadow: var(--glow-green);
+    }
+
+    .game-status.pre {
+      background: var(--signal-amber);
+      color: #000;
+    }
+
+    .game-status.post {
+      background: var(--text-muted);
+      color: var(--text-bright);
+    }
 
     .game-score {
-      font-size: 11px;
-      color: var(--text-secondary);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 10px;
     }
 
+    .game-progress {
+      height: 3px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .game-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--signal-green), var(--signal-blue));
+      border-radius: 2px;
+      transition: width 0.5s var(--ease-out-expo);
+    }
+
+    .no-games {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--text-dim);
+      text-align: center;
+      gap: 12px;
+    }
+
+    .no-games svg {
+      width: 48px;
+      height: 48px;
+      opacity: 0.3;
+    }
+
+    /* ========== MAIN CONTENT ========== */
     .main-content {
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      animation: slide-up 0.5s var(--ease-out-expo) 0.2s both;
     }
 
+    /* ========== STATS GRID ========== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 16px 20px;
+      background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-void) 100%);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .stat-box {
+      position: relative;
+      background: var(--bg-surface);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      padding: 16px 20px;
+      overflow: hidden;
+      transition: all 0.3s var(--ease-out-expo);
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--stat-color);
+    }
+
+    .stat-box::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(180deg, var(--stat-color), transparent);
+      opacity: 0.1;
+    }
+
+    .stat-box:hover {
+      transform: translateY(-2px);
+      border-color: var(--stat-color);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-box.api { --stat-color: var(--signal-blue); }
+    .stat-box.plays { --stat-color: var(--signal-green); }
+    .stat-box.animations { --stat-color: var(--signal-amber); }
+    .stat-box.errors { --stat-color: var(--signal-red); }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .stat-rate {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--stat-color);
+      opacity: 0.8;
+    }
+
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--stat-color);
+      text-shadow: 0 0 30px var(--stat-color);
+      line-height: 1;
+      transition: transform 0.15s var(--ease-out-back);
+    }
+
+    .stat-value.bump {
+      animation: value-bump 0.3s var(--ease-out-back);
+    }
+
+    .sparkline {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 24px;
+      margin-top: 12px;
+    }
+
+    .sparkline-bar {
+      flex: 1;
+      background: var(--stat-color);
+      border-radius: 2px;
+      opacity: 0.4;
+      transition: all 0.3s var(--ease-out-expo);
+      min-height: 2px;
+    }
+
+    .sparkline-bar:last-child {
+      opacity: 0.8;
+    }
+
+    /* ========== TABS BAR ========== */
     .tabs-bar {
       display: flex;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-color);
-      padding: 0 12px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 20px;
+      position: relative;
+    }
+
+    .tab-indicator {
+      position: absolute;
+      bottom: 0;
+      height: 2px;
+      background: var(--signal-blue);
+      box-shadow: 0 0 15px var(--signal-blue);
+      transition: all 0.3s var(--ease-out-expo);
+      border-radius: 2px 2px 0 0;
     }
 
     .tab {
-      padding: 10px 16px;
-      color: var(--text-secondary);
+      padding: 16px 24px;
+      color: var(--text-dim);
       cursor: pointer;
-      border-bottom: 2px solid transparent;
-      font-size: 12px;
-      font-weight: 500;
-      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s var(--ease-out-expo);
+      position: relative;
     }
 
-    .tab:hover { color: var(--text-primary); }
-    .tab.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+    .tab:hover {
+      color: var(--text-primary);
+    }
 
+    .tab.active {
+      color: var(--signal-blue);
+    }
+
+    /* ========== FILTER BAR ========== */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out-expo);
+      color: var(--text-dim);
+    }
+
+    .filter-chip:hover {
+      background: var(--bg-elevated);
+      border-color: var(--border-active);
+      color: var(--text-primary);
+    }
+
+    .filter-chip.active {
+      background: rgba(0, 212, 255, 0.15);
+      border-color: var(--signal-blue);
+      color: var(--signal-blue);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+    }
+
+    .filter-chip.active.api {
+      --filter-color: var(--signal-blue);
+      background: rgba(0, 212, 255, 0.15);
+      border-color: var(--signal-blue);
+      color: var(--signal-blue);
+    }
+    .filter-chip.active.play {
+      --filter-color: var(--signal-green);
+      background: rgba(0, 255, 136, 0.15);
+      border-color: var(--signal-green);
+      color: var(--signal-green);
+    }
+    .filter-chip.active.animation {
+      --filter-color: var(--signal-purple);
+      background: rgba(168, 85, 247, 0.15);
+      border-color: var(--signal-purple);
+      color: var(--signal-purple);
+    }
+    .filter-chip.active.cache {
+      --filter-color: var(--signal-amber);
+      background: rgba(255, 184, 0, 0.15);
+      border-color: var(--signal-amber);
+      color: var(--signal-amber);
+    }
+    .filter-chip.active.state {
+      --filter-color: var(--signal-orange);
+      background: rgba(255, 107, 53, 0.15);
+      border-color: var(--signal-orange);
+      color: var(--signal-orange);
+    }
+    .filter-chip.active.error {
+      --filter-color: var(--signal-red);
+      background: rgba(255, 51, 102, 0.15);
+      border-color: var(--signal-red);
+      color: var(--signal-red);
+    }
+
+    .filter-badge {
+      background: currentColor;
+      color: #000;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 9px;
+      font-weight: 700;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .filter-spacer {
+      flex: 1;
+    }
+
+    /* ========== TAB CONTENT ========== */
     .tab-content {
       flex: 1;
       overflow: hidden;
       display: none;
     }
 
-    .tab-content.active { display: flex; flex-direction: column; }
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+    }
 
+    /* ========== LOG CONTAINER ========== */
     .log-container {
       flex: 1;
       overflow-y: auto;
-      padding: 12px;
-      font-size: 12px;
+      padding: 16px 20px;
+    }
+
+    .log-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .log-container::-webkit-scrollbar-track {
+      background: var(--bg-void);
+    }
+
+    .log-container::-webkit-scrollbar-thumb {
+      background: var(--bg-elevated);
+      border-radius: 4px;
     }
 
     .log-entry {
-      padding: 8px 12px;
-      margin-bottom: 4px;
-      border-radius: 4px;
-      background: var(--bg-secondary);
-      border-left: 3px solid var(--border-color);
-      display: flex;
-      gap: 12px;
+      display: grid;
+      grid-template-columns: 80px 70px 1fr;
+      gap: 16px;
+      padding: 12px 16px;
+      background: var(--bg-surface);
+      border-radius: 8px;
+      border-left: 3px solid var(--log-color, var(--text-muted));
+      margin-bottom: 8px;
+      transition: all 0.2s var(--ease-out-expo);
+      animation: slide-in-right 0.3s var(--ease-out-expo);
     }
 
-    .log-entry.api { border-left-color: var(--accent-blue); }
-    .log-entry.play { border-left-color: var(--accent-green); }
-    .log-entry.animation { border-left-color: var(--accent-purple); }
-    .log-entry.cache { border-left-color: var(--accent-yellow); }
-    .log-entry.error { border-left-color: var(--accent-red); background: rgba(248, 81, 73, 0.1); }
-    .log-entry.state { border-left-color: var(--accent-orange); }
+    .log-entry:hover {
+      background: var(--bg-elevated);
+      transform: translateX(4px);
+    }
+
+    .log-entry.api { --log-color: var(--signal-blue); }
+    .log-entry.play { --log-color: var(--signal-green); }
+    .log-entry.animation { --log-color: var(--signal-purple); }
+    .log-entry.cache { --log-color: var(--signal-amber); }
+    .log-entry.error {
+      --log-color: var(--signal-red);
+      background: rgba(255, 51, 102, 0.08);
+    }
+    .log-entry.state { --log-color: var(--signal-orange); }
 
     .log-time {
-      color: var(--text-secondary);
-      font-size: 10px;
-      min-width: 80px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding-top: 2px;
     }
 
-    .log-type {
-      font-size: 10px;
-      padding: 1px 6px;
-      border-radius: 3px;
+    .log-type-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
       text-transform: uppercase;
-      font-weight: 600;
-      min-width: 60px;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--log-color);
+      color: #000;
       text-align: center;
+      height: fit-content;
     }
 
-    .log-type.api { background: var(--accent-blue); color: #fff; }
-    .log-type.play { background: var(--accent-green); color: #fff; }
-    .log-type.animation { background: var(--accent-purple); color: #fff; }
-    .log-type.cache { background: var(--accent-yellow); color: #000; }
-    .log-type.error { background: var(--accent-red); color: #fff; }
-    .log-type.state { background: var(--accent-orange); color: #fff; }
+    .log-entry.cache .log-type-badge,
+    .log-entry.state .log-type-badge {
+      color: #000;
+    }
 
-    .log-message { flex: 1; word-break: break-word; }
+    .log-entry.api .log-type-badge,
+    .log-entry.play .log-type-badge,
+    .log-entry.animation .log-type-badge,
+    .log-entry.error .log-type-badge {
+      color: #fff;
+    }
+
+    .log-message {
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .log-connector {
+      color: var(--text-muted);
+      margin-right: 8px;
+      font-family: 'JetBrains Mono', monospace;
+    }
 
     .log-details {
-      margin-top: 6px;
-      padding: 8px;
-      background: var(--bg-primary);
-      border-radius: 4px;
+      margin-top: 10px;
+      padding: 12px;
+      background: var(--bg-void);
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      white-space: pre-wrap;
+      line-height: 1.6;
       max-height: 200px;
       overflow-y: auto;
+      white-space: pre-wrap;
+      color: var(--text-dim);
     }
 
+    .log-details .json-key { color: var(--signal-purple); }
+    .log-details .json-string { color: var(--signal-green); }
+    .log-details .json-number { color: var(--signal-amber); }
+
+    .no-logs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      color: var(--text-dim);
+      text-align: center;
+      gap: 16px;
+    }
+
+    .no-logs svg {
+      width: 64px;
+      height: 64px;
+      opacity: 0.2;
+    }
+
+    .no-logs-text {
+      font-size: 14px;
+    }
+
+    .no-logs-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ========== STATE PANEL ========== */
     .state-panel {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 12px;
-      padding: 12px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      padding: 20px;
       overflow-y: auto;
     }
 
     .state-card {
-      background: var(--bg-secondary);
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
       overflow: hidden;
+      transition: all 0.3s var(--ease-out-expo);
+    }
+
+    .state-card:hover {
+      border-color: var(--border-active);
+    }
+
+    .state-card.full-width {
+      grid-column: span 2;
     }
 
     .state-card-header {
-      padding: 10px 14px;
-      background: var(--bg-tertiary);
-      border-bottom: 1px solid var(--border-color);
-      font-size: 12px;
-      font-weight: 600;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 14px 18px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .state-card-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .state-card-title::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--signal-blue);
+      border-radius: 2px;
+    }
+
+    .state-card-header .btn {
+      padding: 6px 12px;
+      font-size: 10px;
     }
 
     .state-card-body {
-      padding: 12px 14px;
-      max-height: 300px;
+      padding: 16px 18px;
+      max-height: 320px;
       overflow-y: auto;
     }
 
     .state-item {
       display: flex;
       justify-content: space-between;
-      padding: 4px 0;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 11px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .state-item:last-child { border-bottom: none; }
-
-    .state-key { color: var(--text-secondary); }
-    .state-value { color: var(--accent-blue); font-weight: 500; text-align: right; max-width: 60%; word-break: break-word; }
-
-    .json-viewer {
-      background: var(--bg-primary);
-      border-radius: 4px;
-      padding: 10px;
-      font-size: 11px;
-      max-height: 200px;
-      overflow: auto;
-      white-space: pre-wrap;
+    .state-item:last-child {
+      border-bottom: none;
     }
 
-    .api-response-panel {
+    .state-key {
+      color: var(--text-muted);
+      font-size: 12px;
       display: flex;
-      flex-direction: column;
-      padding: 12px;
-      gap: 12px;
-      overflow-y: auto;
-    }
-
-    .filter-bar {
-      display: flex;
+      align-items: center;
       gap: 8px;
-      padding: 8px 12px;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-color);
-      flex-wrap: wrap;
     }
 
-    .filter-btn {
-      padding: 4px 10px;
-      border-radius: 4px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-size: 11px;
-      transition: all 0.2s;
+    .state-key::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px dotted var(--border-subtle);
+      min-width: 20px;
     }
 
-    .filter-btn:hover { background: var(--border-color); }
-    .filter-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
-
-    .no-game-selected {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-secondary);
-      font-size: 14px;
+    .state-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--signal-blue);
+      text-align: right;
+      max-width: 60%;
+      word-break: break-word;
     }
 
-    .live-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .state-value.success { color: var(--signal-green); }
+    .state-value.warning { color: var(--signal-amber); }
+    .state-value.error { color: var(--signal-red); }
 
-    .live-dot {
+    .status-dot {
+      display: inline-block;
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--accent-green);
-      animation: pulse 2s infinite;
+      margin-right: 6px;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+    .status-dot.green { background: var(--signal-green); box-shadow: var(--glow-green); }
+    .status-dot.amber { background: var(--signal-amber); box-shadow: var(--glow-amber); }
+    .status-dot.red { background: var(--signal-red); box-shadow: var(--glow-red); }
+
+    .progress-bar-container {
+      margin-top: 12px;
     }
 
-    .refresh-info {
+    .progress-bar-label {
+      display: flex;
+      justify-content: space-between;
       font-size: 11px;
-      color: var(--text-secondary);
+      margin-bottom: 6px;
     }
 
-    .export-modal {
+    .progress-bar {
+      height: 6px;
+      background: var(--bg-void);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s var(--ease-out-expo);
+    }
+
+    .progress-bar-fill.success { background: linear-gradient(90deg, var(--signal-green), var(--signal-blue)); }
+    .progress-bar-fill.error { background: var(--signal-red); }
+
+    .json-viewer {
+      background: var(--bg-void);
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      max-height: 180px;
+      overflow: auto;
+      white-space: pre-wrap;
+      color: var(--text-dim);
+      margin-top: 12px;
+    }
+
+    /* ========== API RESPONSE PANEL ========== */
+    .api-response-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    /* ========== EXPORT MODAL ========== */
+    .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s var(--ease-out-expo);
     }
 
-    .export-modal.show { display: flex; }
+    .modal-backdrop.show {
+      opacity: 1;
+      visibility: visible;
+    }
 
-    .export-modal-content {
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      width: 90%;
-      max-width: 800px;
-      max-height: 80vh;
+    .modal-content {
+      background: var(--bg-panel);
+      border: 2px solid var(--signal-blue);
+      border-radius: 16px;
+      box-shadow: 0 0 60px rgba(0, 212, 255, 0.2),
+                  0 30px 80px rgba(0, 0, 0, 0.6);
+      max-width: 900px;
+      width: 95%;
+      max-height: 85vh;
       display: flex;
       flex-direction: column;
+      transform: scale(0.9) translateY(20px);
+      transition: all 0.4s var(--ease-out-expo);
     }
 
-    .export-modal-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border-color);
+    .modal-backdrop.show .modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--border-subtle);
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
     }
 
-    .export-modal-body {
-      padding: 20px;
+    .modal-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--signal-blue);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-title svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .modal-subtitle {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: var(--signal-red);
+      border-color: var(--signal-red);
+      color: #fff;
+    }
+
+    .modal-close svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .modal-body {
+      padding: 24px 28px;
       flex: 1;
       overflow-y: auto;
     }
 
-    .export-textarea {
-      width: 100%;
-      height: 400px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 11px;
-      padding: 12px;
-      resize: vertical;
-    }
-
-    .export-modal-footer {
-      padding: 16px 20px;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-
-    .stats-grid {
+    .export-info {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      padding: 12px;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-color);
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
     }
 
-    .stat-box {
-      background: var(--bg-tertiary);
-      border-radius: 6px;
-      padding: 12px;
-      text-align: center;
+    .export-info-item {
+      background: var(--bg-surface);
+      border-radius: 8px;
+      padding: 14px 16px;
+      border: 1px solid var(--border-subtle);
     }
 
-    .stat-label {
+    .export-info-label {
       font-size: 10px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       text-transform: uppercase;
+      letter-spacing: 1px;
       margin-bottom: 4px;
     }
 
-    .stat-value {
-      font-size: 20px;
-      font-weight: 700;
+    .export-info-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--text-bright);
     }
 
-    .stat-value.blue { color: var(--accent-blue); }
-    .stat-value.green { color: var(--accent-green); }
-    .stat-value.yellow { color: var(--accent-yellow); }
-    .stat-value.red { color: var(--accent-red); }
+    .export-textarea {
+      width: 100%;
+      height: 350px;
+      background: var(--bg-void);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      padding: 16px;
+      resize: vertical;
+    }
+
+    .export-textarea:focus {
+      outline: none;
+      border-color: var(--signal-blue);
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    .modal-footer {
+      padding: 20px 28px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .btn-action svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .btn-action.success {
+      background: linear-gradient(135deg, var(--signal-green), #00cc6a) !important;
+      border-color: var(--signal-green) !important;
+      color: #000 !important;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .state-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .state-card.full-width {
+        grid-column: span 1;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .monitoring-status {
+        display: none;
+      }
+
+      .header-center {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="header-left">
-      <img src="/assets/logo.png" alt="GridTV" class="logo">
-      <span class="title">Debug Console</span>
+      <div class="logo-container">
+        <div class="logo-glow"></div>
+        <img src="/assets/logo.png" alt="GridTV" class="logo">
+      </div>
+      <div class="title-group">
+        <span class="title">Mission Control</span>
+        <span class="subtitle">Debug Console</span>
+      </div>
       <span class="badge badge-admin">Admin</span>
     </div>
-    <div class="header-controls">
-      <span class="refresh-info" id="refresh-info">Auto-refresh: 20s</span>
-      <div class="live-indicator" id="live-indicator" style="display: none;">
-        <span class="live-dot"></span>
-        <span>Monitoring</span>
+
+    <div class="header-center">
+      <div class="monitoring-status" id="monitoring-status" style="display: none;">
+        <div class="live-indicator">
+          <div class="live-dot-container">
+            <span class="live-dot"></span>
+          </div>
+          <span class="monitoring-text">Live</span>
+        </div>
+        <span class="monitoring-game" id="monitoring-game">-</span>
       </div>
-      <button class="btn" id="toggle-refresh">Pause</button>
-      <button class="btn btn-success" id="export-btn">Export Logs</button>
-      <button class="btn" onclick="window.location.href='/'">Back to App</button>
+
+      <div class="refresh-container">
+        <div class="refresh-text">
+          <span>Auto-refresh</span>
+          <span id="refresh-countdown">20s</span>
+        </div>
+        <div class="refresh-bar">
+          <div class="refresh-progress" id="refresh-progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <button class="btn" id="toggle-refresh" title="Pause/Resume">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Pause</span>
+      </button>
+      <button class="btn btn-success" id="export-btn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        <span>Export</span>
+      </button>
+      <button class="btn" onclick="window.location.href='/'">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>Back</span>
+      </button>
     </div>
   </div>
 
   <div class="container">
     <div class="sidebar">
       <div class="sidebar-section">
-        <div class="section-title">League</div>
-        <div class="league-tabs">
+        <div class="section-header">
+          <div class="section-title">Leagues</div>
+        </div>
+        <div class="league-grid">
           <button class="league-tab active" data-league="nfl">NFL</button>
-          <button class="league-tab" data-league="ncaa">NCAA FB</button>
+          <button class="league-tab" data-league="ncaa">NCAAF</button>
           <button class="league-tab" data-league="nba">NBA</button>
           <button class="league-tab" data-league="nhl">NHL</button>
           <button class="league-tab" data-league="mlb">MLB</button>
-          <button class="league-tab" data-league="ncaab">NCAA BB</button>
+          <button class="league-tab" data-league="ncaab">NCAAB</button>
         </div>
       </div>
-      <div class="sidebar-section" style="flex-shrink: 0;">
-        <div class="section-title">Live Games</div>
-        <button class="btn btn-primary" id="fetch-games" style="width: 100%;">Fetch Games</button>
+
+      <div class="sidebar-section">
+        <div class="section-header">
+          <div class="section-title">Games</div>
+        </div>
+        <button class="btn btn-primary" id="fetch-games" style="width: 100%;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Fetch Games</span>
+        </button>
       </div>
+
       <div class="game-list" id="game-list">
-        <div class="no-game-selected">Click "Fetch Games" to load</div>
+        <div class="no-games">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          <span>Click "Fetch Games" to load</span>
+        </div>
       </div>
     </div>
 
     <div class="main-content">
       <div class="stats-grid" id="stats-grid">
-        <div class="stat-box">
-          <div class="stat-label">API Calls</div>
-          <div class="stat-value blue" id="stat-api">0</div>
+        <div class="stat-box api">
+          <div class="stat-header">
+            <span class="stat-label">API Calls</span>
+            <span class="stat-rate" id="stat-api-rate">+0/min</span>
+          </div>
+          <div class="stat-value" id="stat-api">0</div>
+          <div class="sparkline" id="sparkline-api"></div>
         </div>
-        <div class="stat-box">
-          <div class="stat-label">Play Updates</div>
-          <div class="stat-value green" id="stat-plays">0</div>
+        <div class="stat-box plays">
+          <div class="stat-header">
+            <span class="stat-label">Play Events</span>
+            <span class="stat-rate" id="stat-plays-rate">+0/min</span>
+          </div>
+          <div class="stat-value" id="stat-plays">0</div>
+          <div class="sparkline" id="sparkline-plays"></div>
         </div>
-        <div class="stat-box">
-          <div class="stat-label">Animations</div>
-          <div class="stat-value yellow" id="stat-animations">0</div>
+        <div class="stat-box animations">
+          <div class="stat-header">
+            <span class="stat-label">Animations</span>
+            <span class="stat-rate" id="stat-anim-rate">+0/min</span>
+          </div>
+          <div class="stat-value" id="stat-animations">0</div>
+          <div class="sparkline" id="sparkline-anim"></div>
         </div>
-        <div class="stat-box">
-          <div class="stat-label">Errors</div>
-          <div class="stat-value red" id="stat-errors">0</div>
+        <div class="stat-box errors">
+          <div class="stat-header">
+            <span class="stat-label">Errors</span>
+            <span class="stat-rate" id="stat-errors-rate">+0/min</span>
+          </div>
+          <div class="stat-value" id="stat-errors">0</div>
+          <div class="sparkline" id="sparkline-errors"></div>
         </div>
       </div>
 
@@ -561,34 +1564,51 @@
         <div class="tab" data-tab="plays">Play-by-Play</div>
         <div class="tab" data-tab="api">API Responses</div>
         <div class="tab" data-tab="state">App State</div>
+        <div class="tab-indicator" id="tab-indicator"></div>
       </div>
 
       <div class="filter-bar" id="filter-bar">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="api">API</button>
-        <button class="filter-btn" data-filter="play">Plays</button>
-        <button class="filter-btn" data-filter="animation">Animations</button>
-        <button class="filter-btn" data-filter="cache">Cache</button>
-        <button class="filter-btn" data-filter="state">State</button>
-        <button class="filter-btn" data-filter="error">Errors</button>
-        <button class="btn btn-danger" id="clear-logs" style="margin-left: auto;">Clear Logs</button>
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip api" data-filter="api">API <span class="filter-badge" id="badge-api">0</span></button>
+        <button class="filter-chip play" data-filter="play">Plays <span class="filter-badge" id="badge-play">0</span></button>
+        <button class="filter-chip animation" data-filter="animation">Animations <span class="filter-badge" id="badge-animation">0</span></button>
+        <button class="filter-chip cache" data-filter="cache">Cache <span class="filter-badge" id="badge-cache">0</span></button>
+        <button class="filter-chip state" data-filter="state">State <span class="filter-badge" id="badge-state">0</span></button>
+        <button class="filter-chip error" data-filter="error">Errors <span class="filter-badge" id="badge-error">0</span></button>
+        <div class="filter-spacer"></div>
+        <button class="btn btn-danger" id="clear-logs">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          Clear
+        </button>
       </div>
 
       <div class="tab-content active" data-content="logs">
         <div class="log-container" id="log-container">
-          <div class="no-game-selected">Select a game to start monitoring</div>
+          <div class="no-logs">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <div class="no-logs-text">No logs yet</div>
+            <div class="no-logs-hint">Select a game to start monitoring</div>
+          </div>
         </div>
       </div>
 
       <div class="tab-content" data-content="plays">
         <div class="log-container" id="plays-container">
-          <div class="no-game-selected">Play-by-play will appear here</div>
+          <div class="no-logs">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <div class="no-logs-text">Play-by-play will appear here</div>
+            <div class="no-logs-hint">Live plays are logged as they happen</div>
+          </div>
         </div>
       </div>
 
       <div class="tab-content" data-content="api">
         <div class="api-response-panel" id="api-container">
-          <div class="no-game-selected">API responses will appear here</div>
+          <div class="no-logs">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <div class="no-logs-text">API responses will appear here</div>
+            <div class="no-logs-hint">Full response payloads are captured</div>
+          </div>
         </div>
       </div>
 
@@ -596,47 +1616,58 @@
         <div class="state-panel" id="state-panel">
           <div class="state-card">
             <div class="state-card-header">
-              Selected Game
+              <div class="state-card-title">Selected Game</div>
               <button class="btn" id="refresh-state">Refresh</button>
             </div>
             <div class="state-card-body" id="selected-game-state">
-              <div style="color: var(--text-secondary);">No game selected</div>
+              <div style="color: var(--text-dim); text-align: center; padding: 20px;">No game selected</div>
             </div>
           </div>
+
           <div class="state-card">
-            <div class="state-card-header">Previous Game Data (prevGameData)</div>
-            <div class="state-card-body" id="prev-game-data-state">
-              <div style="color: var(--text-secondary);">-</div>
-            </div>
-          </div>
-          <div class="state-card">
-            <div class="state-card-header">LocalStorage Cache</div>
-            <div class="state-card-body" id="localstorage-state">
-              <div style="color: var(--text-secondary);">-</div>
-            </div>
-          </div>
-          <div class="state-card">
-            <div class="state-card-header">Animation Queue</div>
-            <div class="state-card-body" id="animation-queue-state">
-              <div style="color: var(--text-secondary);">-</div>
-            </div>
-          </div>
-          <div class="state-card" style="grid-column: span 2;">
             <div class="state-card-header">
-              Server Cache Status
+              <div class="state-card-title">Previous Data</div>
+            </div>
+            <div class="state-card-body" id="prev-game-data-state">
+              <div style="color: var(--text-dim); text-align: center; padding: 20px;">-</div>
+            </div>
+          </div>
+
+          <div class="state-card">
+            <div class="state-card-header">
+              <div class="state-card-title">LocalStorage</div>
+            </div>
+            <div class="state-card-body" id="localstorage-state">
+              <div style="color: var(--text-dim); text-align: center; padding: 20px;">-</div>
+            </div>
+          </div>
+
+          <div class="state-card">
+            <div class="state-card-header">
+              <div class="state-card-title">Animation Queue</div>
+            </div>
+            <div class="state-card-body" id="animation-queue-state">
+              <div style="color: var(--text-dim); text-align: center; padding: 20px;">-</div>
+            </div>
+          </div>
+
+          <div class="state-card full-width">
+            <div class="state-card-header">
+              <div class="state-card-title">Server Cache Status</div>
               <button class="btn" id="refresh-cache-status">Refresh</button>
             </div>
             <div class="state-card-body" id="server-cache-state">
-              <div style="color: var(--text-secondary);">Loading...</div>
+              <div style="color: var(--text-dim); text-align: center; padding: 20px;">Loading...</div>
             </div>
           </div>
-          <div class="state-card" style="grid-column: span 2;">
+
+          <div class="state-card full-width">
             <div class="state-card-header">
-              ESPN API Health
+              <div class="state-card-title">ESPN API Health</div>
               <button class="btn" id="refresh-espn-status">Refresh</button>
             </div>
             <div class="state-card-body" id="espn-health-state">
-              <div style="color: var(--text-secondary);">Loading...</div>
+              <div style="color: var(--text-dim); text-align: center; padding: 20px;">Loading...</div>
             </div>
           </div>
         </div>
@@ -645,19 +1676,46 @@
   </div>
 
   <!-- Export Modal -->
-  <div class="export-modal" id="export-modal">
-    <div class="export-modal-content">
-      <div class="export-modal-header">
-        <span style="font-weight: 600;">Export Debug Logs</span>
-        <button class="btn" id="close-export">Close</button>
+  <div class="modal-backdrop" id="export-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Export Debug Logs
+          </div>
+          <div class="modal-subtitle" id="export-subtitle">Session data ready for export</div>
+        </div>
+        <button class="modal-close" id="close-export">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
-      <div class="export-modal-body">
-        <p style="margin-bottom: 12px; color: var(--text-secondary);">Copy this log export and share with AI for analysis:</p>
+      <div class="modal-body">
+        <div class="export-info">
+          <div class="export-info-item">
+            <div class="export-info-label">Session</div>
+            <div class="export-info-value" id="export-session">-</div>
+          </div>
+          <div class="export-info-item">
+            <div class="export-info-label">Total Entries</div>
+            <div class="export-info-value" id="export-entries">0</div>
+          </div>
+          <div class="export-info-item">
+            <div class="export-info-label">Duration</div>
+            <div class="export-info-value" id="export-duration">0m 0s</div>
+          </div>
+        </div>
         <textarea class="export-textarea" id="export-textarea" readonly></textarea>
       </div>
-      <div class="export-modal-footer">
-        <button class="btn" id="download-logs">Download as JSON</button>
-        <button class="btn btn-primary" id="copy-logs">Copy to Clipboard</button>
+      <div class="modal-footer">
+        <button class="btn btn-action" id="download-logs">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Download JSON
+        </button>
+        <button class="btn btn-primary btn-action" id="copy-logs">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+          Copy to Clipboard
+        </button>
       </div>
     </div>
   </div>
@@ -673,14 +1731,12 @@
     let isRefreshing = true;
     let refreshInterval = null;
     let prevGameData = new Map();
+    let sessionStartTime = Date.now();
 
     // Stats counters
-    let stats = {
-      api: 0,
-      plays: 0,
-      animations: 0,
-      errors: 0
-    };
+    let stats = { api: 0, plays: 0, animations: 0, errors: 0 };
+    let statCounts = { api: [], plays: [], animations: [], errors: [] };
+    let filterCounts = { api: 0, play: 0, animation: 0, cache: 0, state: 0, error: 0 };
 
     // API Endpoints
     const apiEndpoints = {
@@ -691,6 +1747,46 @@
       'ncaa': '/api/ncaa/scoreboard',
       'ncaab': '/api/ncaab/scoreboard'
     };
+
+    // ============================================
+    // TAB INDICATOR
+    // ============================================
+    function updateTabIndicator() {
+      const activeTab = document.querySelector('.tab.active');
+      const indicator = document.getElementById('tab-indicator');
+      if (activeTab && indicator) {
+        indicator.style.left = activeTab.offsetLeft + 'px';
+        indicator.style.width = activeTab.offsetWidth + 'px';
+      }
+    }
+
+    // ============================================
+    // SPARKLINES
+    // ============================================
+    function initSparklines() {
+      ['api', 'plays', 'anim', 'errors'].forEach(type => {
+        const container = document.getElementById(`sparkline-${type}`);
+        if (container) {
+          container.innerHTML = Array(8).fill(0).map(() =>
+            `<div class="sparkline-bar" style="height: 2px;"></div>`
+          ).join('');
+        }
+      });
+    }
+
+    function updateSparkline(type, values) {
+      const container = document.getElementById(`sparkline-${type}`);
+      if (!container) return;
+
+      const max = Math.max(...values, 1);
+      const bars = container.querySelectorAll('.sparkline-bar');
+      values.slice(-8).forEach((val, i) => {
+        if (bars[i]) {
+          const height = Math.max(2, (val / max) * 24);
+          bars[i].style.height = height + 'px';
+        }
+      });
+    }
 
     // ============================================
     // LOGGING SYSTEM
@@ -709,10 +1805,25 @@
       logs.push(entry);
 
       // Update stats
-      if (type === 'api') stats.api++;
-      else if (type === 'play') stats.plays++;
-      else if (type === 'animation') stats.animations++;
-      else if (type === 'error') stats.errors++;
+      if (type === 'api') {
+        stats.api++;
+        statCounts.api.push(1);
+      } else if (type === 'play') {
+        stats.plays++;
+        statCounts.plays.push(1);
+      } else if (type === 'animation') {
+        stats.animations++;
+        statCounts.animations.push(1);
+      } else if (type === 'error') {
+        stats.errors++;
+        statCounts.errors.push(1);
+      }
+
+      // Update filter counts
+      if (filterCounts.hasOwnProperty(type)) {
+        filterCounts[type]++;
+        updateFilterBadges();
+      }
 
       updateStats();
       renderLogs();
@@ -724,16 +1835,42 @@
     }
 
     function updateStats() {
-      document.getElementById('stat-api').textContent = stats.api;
-      document.getElementById('stat-plays').textContent = stats.plays;
-      document.getElementById('stat-animations').textContent = stats.animations;
-      document.getElementById('stat-errors').textContent = stats.errors;
+      const apiEl = document.getElementById('stat-api');
+      const playsEl = document.getElementById('stat-plays');
+      const animEl = document.getElementById('stat-animations');
+      const errorsEl = document.getElementById('stat-errors');
+
+      [
+        { el: apiEl, val: stats.api },
+        { el: playsEl, val: stats.plays },
+        { el: animEl, val: stats.animations },
+        { el: errorsEl, val: stats.errors }
+      ].forEach(({ el, val }) => {
+        if (el && el.textContent !== String(val)) {
+          el.textContent = val;
+          el.classList.add('bump');
+          setTimeout(() => el.classList.remove('bump'), 300);
+        }
+      });
+
+      // Update sparklines
+      updateSparkline('api', statCounts.api.slice(-8));
+      updateSparkline('plays', statCounts.plays.slice(-8));
+      updateSparkline('anim', statCounts.animations.slice(-8));
+      updateSparkline('errors', statCounts.errors.slice(-8));
+    }
+
+    function updateFilterBadges() {
+      Object.keys(filterCounts).forEach(type => {
+        const badge = document.getElementById(`badge-${type}`);
+        if (badge) badge.textContent = filterCounts[type];
+      });
     }
 
     function renderLogs() {
       const container = document.getElementById('log-container');
       const playsContainer = document.getElementById('plays-container');
-      const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+      const activeFilter = document.querySelector('.filter-chip.active')?.dataset.filter || 'all';
 
       // Filter logs
       let filteredLogs = logs;
@@ -743,12 +1880,18 @@
 
       // Render main log container
       if (filteredLogs.length === 0) {
-        container.innerHTML = '<div class="no-game-selected">No logs yet</div>';
+        container.innerHTML = `
+          <div class="no-logs">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <div class="no-logs-text">No logs yet</div>
+            <div class="no-logs-hint">Select a game to start monitoring</div>
+          </div>
+        `;
       } else {
         container.innerHTML = filteredLogs.slice(-100).reverse().map(entry => `
           <div class="log-entry ${entry.type}">
             <span class="log-time">${entry.time}</span>
-            <span class="log-type ${entry.type}">${entry.type}</span>
+            <span class="log-type-badge">${entry.type}</span>
             <div class="log-message">
               ${entry.message}
               ${entry.details ? `<div class="log-details">${typeof entry.details === 'string' ? entry.details : JSON.stringify(entry.details, null, 2)}</div>` : ''}
@@ -760,12 +1903,18 @@
       // Render plays container
       const playLogs = logs.filter(l => l.type === 'play');
       if (playLogs.length === 0) {
-        playsContainer.innerHTML = '<div class="no-game-selected">No plays recorded yet</div>';
+        playsContainer.innerHTML = `
+          <div class="no-logs">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <div class="no-logs-text">Play-by-play will appear here</div>
+            <div class="no-logs-hint">Live plays are logged as they happen</div>
+          </div>
+        `;
       } else {
         playsContainer.innerHTML = playLogs.slice(-50).reverse().map(entry => `
           <div class="log-entry ${entry.type}">
             <span class="log-time">${entry.time}</span>
-            <span class="log-type ${entry.type}">PLAY</span>
+            <span class="log-type-badge">PLAY</span>
             <div class="log-message">
               ${entry.message}
               ${entry.details ? `<div class="log-details">${typeof entry.details === 'string' ? entry.details : JSON.stringify(entry.details, null, 2)}</div>` : ''}
@@ -807,7 +1956,12 @@
       const container = document.getElementById('game-list');
 
       if (games.length === 0) {
-        container.innerHTML = '<div class="no-game-selected">No games found</div>';
+        container.innerHTML = `
+          <div class="no-games">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span>No games found</span>
+          </div>
+        `;
         return;
       }
 
@@ -819,8 +1973,20 @@
         const isLive = state === 'in';
         const isSelected = selectedGame?.id === game.id;
 
+        // Calculate game progress for live games
+        let progress = 0;
+        if (isLive && game.status?.type?.shortDetail) {
+          const detail = game.status.type.shortDetail.toLowerCase();
+          if (detail.includes('1st')) progress = 12.5;
+          else if (detail.includes('2nd')) progress = 37.5;
+          else if (detail.includes('half')) progress = 50;
+          else if (detail.includes('3rd')) progress = 62.5;
+          else if (detail.includes('4th')) progress = 87.5;
+          else progress = 50;
+        }
+
         return `
-          <div class="game-item ${isLive ? 'live' : ''} ${isSelected ? 'active' : ''}" data-game-id="${game.id}">
+          <div class="game-item ${state} ${isSelected ? 'active' : ''}" data-game-id="${game.id}">
             <div class="game-header">
               <span class="game-teams">${away?.team?.abbreviation || '?'} @ ${home?.team?.abbreviation || '?'}</span>
               <span class="game-status ${state}">${state === 'in' ? 'LIVE' : state === 'pre' ? 'PRE' : 'FINAL'}</span>
@@ -828,6 +1994,11 @@
             <div class="game-score">
               ${away?.score || 0} - ${home?.score || 0} | ${game.status?.type?.shortDetail || ''}
             </div>
+            ${isLive ? `
+              <div class="game-progress">
+                <div class="game-progress-fill" style="width: ${progress}%"></div>
+              </div>
+            ` : ''}
           </div>
         `;
       }).join('');
@@ -859,10 +2030,13 @@
         item.classList.toggle('active', item.dataset.gameId === gameId);
       });
 
-      document.getElementById('live-indicator').style.display = 'flex';
-      updateStatePanel();
+      // Show monitoring status
+      const monitoringStatus = document.getElementById('monitoring-status');
+      const monitoringGame = document.getElementById('monitoring-game');
+      monitoringStatus.style.display = 'flex';
+      monitoringGame.textContent = selectedGame.shortName || selectedGame.name;
 
-      // Start monitoring
+      updateStatePanel();
       startMonitoring();
     }
 
@@ -874,7 +2048,7 @@
 
       if (isRefreshing && selectedGame) {
         refreshGameData();
-        refreshInterval = setInterval(refreshGameData, 10000); // 10 seconds - read from server cache
+        refreshInterval = setInterval(refreshGameData, 10000);
       }
     }
 
@@ -947,13 +2121,14 @@
           downDistanceText: situation?.downDistanceText
         });
 
-        // Detect animations that would trigger
         detectAnimations(lastPlay, awayScoreChange, homeScoreChange, situation);
       }
 
-      // Log situation changes
-      if (situation?.downDistanceText !== prevData.downDistanceText) {
-        log('state', `Down/distance changed: ${prevData.downDistanceText || 'N/A'} -> ${situation?.downDistanceText || 'N/A'}`);
+      // Log situation changes - compare normalized values
+      const currentDownDist = situation?.downDistanceText || '';
+      const prevDownDist = prevData.downDistanceText || '';
+      if (currentDownDist !== prevDownDist) {
+        log('state', `Down/distance changed: ${prevDownDist || 'N/A'} -> ${currentDownDist || 'N/A'}`);
       }
     }
 
@@ -963,7 +2138,6 @@
 
       // Touchdown detection
       if (lowerPlay.includes('touchdown') || lowerPlay.includes('for a td')) {
-        // Check if it's an extra point play (skip TD animation)
         const isXP = lowerPlay.includes('extra point') || lowerPlay.includes('pat ') ||
                      lowerPlay.includes(' xp ') || lowerPlay.includes('two-point') ||
                      lowerPlay.includes('2-pt');
@@ -1028,8 +2202,6 @@
       }
 
       // First down
-      const currentDown = situation?.down || 0;
-      const prevDown = parseInt(situation?.down || 0);
       if (lowerPlay.includes('1st down') || lowerPlay.includes('first down') ||
           lowerPlay.includes('for a 1st')) {
         animations.push({ type: 'first-down', reason: 'First down in play text' });
@@ -1068,7 +2240,7 @@
         gameStateEl.innerHTML = `
           <div class="state-item"><span class="state-key">ID</span><span class="state-value">${selectedGame.id}</span></div>
           <div class="state-item"><span class="state-key">Name</span><span class="state-value">${selectedGame.shortName || selectedGame.name}</span></div>
-          <div class="state-item"><span class="state-key">State</span><span class="state-value">${selectedGame.status?.type?.state}</span></div>
+          <div class="state-item"><span class="state-key">State</span><span class="state-value"><span class="status-dot ${selectedGame.status?.type?.state === 'in' ? 'green' : 'amber'}"></span>${selectedGame.status?.type?.state}</span></div>
           <div class="state-item"><span class="state-key">Status</span><span class="state-value">${selectedGame.status?.type?.shortDetail}</span></div>
           <div class="state-item"><span class="state-key">Away</span><span class="state-value">${away?.team?.abbreviation}: ${away?.score}</span></div>
           <div class="state-item"><span class="state-key">Home</span><span class="state-value">${home?.team?.abbreviation}: ${home?.score}</span></div>
@@ -1077,7 +2249,7 @@
           <div class="state-item"><span class="state-key">Yard Line</span><span class="state-value">${situation?.yardLine || 'N/A'}</span></div>
         `;
       } else {
-        gameStateEl.innerHTML = '<div style="color: var(--text-secondary);">No game selected</div>';
+        gameStateEl.innerHTML = '<div style="color: var(--text-dim); text-align: center; padding: 20px;">No game selected</div>';
       }
 
       // Prev game data
@@ -1088,10 +2260,10 @@
           <div class="state-item"><span class="state-key">Away Score</span><span class="state-value">${prev.awayScore}</span></div>
           <div class="state-item"><span class="state-key">Home Score</span><span class="state-value">${prev.homeScore}</span></div>
           <div class="state-item"><span class="state-key">Down</span><span class="state-value">${prev.down}</span></div>
-          <div class="state-item"><span class="state-key">Last Play</span><span class="state-value" style="font-size: 10px; max-width: 200px;">${prev.lastPlay?.substring(0, 100)}...</span></div>
+          <div class="state-item"><span class="state-key">Last Play</span><span class="state-value" style="font-size: 10px; max-width: 180px;">${prev.lastPlay?.substring(0, 80)}...</span></div>
         `;
       } else {
-        prevDataEl.innerHTML = '<div style="color: var(--text-secondary);">No previous data</div>';
+        prevDataEl.innerHTML = '<div style="color: var(--text-dim); text-align: center; padding: 20px;">No previous data</div>';
       }
 
       // LocalStorage
@@ -1105,29 +2277,26 @@
             <div class="json-viewer">${JSON.stringify(parsed.slice(0, 2), null, 2)}${parsed.length > 2 ? '\n... and more' : ''}</div>
           `;
         } catch (e) {
-          lsEl.innerHTML = '<div style="color: var(--accent-red);">Parse error</div>';
+          lsEl.innerHTML = '<div style="color: var(--signal-red);">Parse error</div>';
         }
       } else {
-        lsEl.innerHTML = '<div style="color: var(--text-secondary);">No cached games</div>';
+        lsEl.innerHTML = '<div style="color: var(--text-dim); text-align: center; padding: 20px;">No cached games</div>';
       }
 
-      // Animation queue (simulated - would need access to actual module)
+      // Animation queue
       const animQueueEl = document.getElementById('animation-queue-state');
-      animQueueEl.innerHTML = '<div style="color: var(--text-secondary);">Animation queue tracking requires sports bar page</div>';
+      animQueueEl.innerHTML = '<div style="color: var(--text-dim); text-align: center; padding: 20px;">Animation queue tracking requires sports bar page</div>';
 
-      // Fetch server cache status
       fetchServerCacheStatus();
       fetchESPNHealthStatus();
     }
 
-    // Fetch and display server cache status
     async function fetchServerCacheStatus() {
       const cacheEl = document.getElementById('server-cache-state');
       try {
         const response = await fetch('/api/health/cache');
         const data = await response.json();
 
-        // Log cache fetch for tracking
         log('cache', 'Server cache status fetched', {
           status: data.status,
           hits: data.stats?.hits,
@@ -1141,32 +2310,42 @@
         const activeKey = selectedLeague === 'nfl' || selectedLeague === 'ncaa' ? 'activeWeeks' : 'activeDates';
         const activeItems = cacheForLeague?.[activeKey] || [];
 
+        const hits = data.stats?.hits || 0;
+        const misses = data.stats?.misses || 0;
+        const total = hits + misses;
+        const hitPercent = total > 0 ? (hits / total * 100).toFixed(1) : 0;
+
         cacheEl.innerHTML = `
-          <div class="state-item"><span class="state-key">Status</span><span class="state-value" style="color: ${data.status === 'ready' ? 'var(--accent-green)' : 'var(--accent-yellow)'}">${data.status}</span></div>
-          <div class="state-item"><span class="state-key">Cache Hits</span><span class="state-value" style="color: var(--accent-green)">${data.stats?.hits || 0}</span></div>
-          <div class="state-item"><span class="state-key">Cache Misses</span><span class="state-value" style="color: var(--accent-red)">${data.stats?.misses || 0}</span></div>
-          <div class="state-item"><span class="state-key">Hit Rate</span><span class="state-value">${data.stats?.hitRate || 'N/A'}</span></div>
-          <div class="state-item"><span class="state-key">Background Updates</span><span class="state-value" style="color: var(--accent-blue)">${data.stats?.backgroundUpdates || 0}</span></div>
-          <div class="state-item"><span class="state-key">Last Background Update</span><span class="state-value" style="font-size: 10px;">${data.stats?.lastBackgroundUpdate || 'Never'}</span></div>
+          <div class="state-item"><span class="state-key">Status</span><span class="state-value ${data.status === 'ready' ? 'success' : 'warning'}"><span class="status-dot ${data.status === 'ready' ? 'green' : 'amber'}"></span>${data.status}</span></div>
+          <div class="state-item"><span class="state-key">Hit Rate</span><span class="state-value success">${data.stats?.hitRate || 'N/A'}</span></div>
+          <div class="state-item"><span class="state-key">BG Updates</span><span class="state-value">${data.stats?.backgroundUpdates || 0}</span></div>
           <div class="state-item"><span class="state-key">Poll Interval</span><span class="state-value">${data.architecture?.pollInterval || '20s'}</span></div>
           <div class="state-item"><span class="state-key">${selectedLeague.toUpperCase()} Active</span><span class="state-value">${activeItems.join(', ') || 'None'}</span></div>
-          <div class="state-item" style="grid-column: span 2;"><span class="state-key">${selectedLeague.toUpperCase()} Cache Entries</span></div>
-          <div class="json-viewer" style="grid-column: span 2; max-height: 150px; overflow-y: auto;">${JSON.stringify(cacheForLeague?.entries || {}, null, 2)}</div>
+
+          <div class="progress-bar-container">
+            <div class="progress-bar-label">
+              <span style="color: var(--signal-green);">Hits: ${hits}</span>
+              <span style="color: var(--signal-red);">Misses: ${misses}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar-fill success" style="width: ${hitPercent}%"></div>
+            </div>
+          </div>
+
+          <div class="json-viewer">${JSON.stringify(cacheForLeague?.entries || {}, null, 2)}</div>
         `;
       } catch (error) {
         log('error', 'Failed to fetch cache status', { error: error.message });
-        cacheEl.innerHTML = `<div style="color: var(--accent-red);">Error: ${error.message}</div>`;
+        cacheEl.innerHTML = `<div style="color: var(--signal-red);">Error: ${error.message}</div>`;
       }
     }
 
-    // Fetch and display ESPN API health
     async function fetchESPNHealthStatus() {
       const espnEl = document.getElementById('espn-health-state');
       try {
         const response = await fetch('/api/health/espn');
         const data = await response.json();
 
-        // Log ESPN health fetch
         log('cache', 'ESPN API health fetched', {
           status: data.status,
           totalCalls: data.metrics?.totalCalls,
@@ -1174,21 +2353,20 @@
           rateLimitHits: data.metrics?.rateLimitHits
         });
 
-        const statusColor = data.status === 'healthy' ? 'var(--accent-green)' : data.status === 'degraded' ? 'var(--accent-yellow)' : 'var(--accent-red)';
+        const statusClass = data.status === 'healthy' ? 'success' : data.status === 'degraded' ? 'warning' : 'error';
+        const statusDot = data.status === 'healthy' ? 'green' : data.status === 'degraded' ? 'amber' : 'red';
 
         espnEl.innerHTML = `
-          <div class="state-item"><span class="state-key">Status</span><span class="state-value" style="color: ${statusColor}">${data.status}</span></div>
+          <div class="state-item"><span class="state-key">Status</span><span class="state-value ${statusClass}"><span class="status-dot ${statusDot}"></span>${data.status}</span></div>
           <div class="state-item"><span class="state-key">Uptime</span><span class="state-value">${data.uptime}</span></div>
-          <div class="state-item"><span class="state-key">Total ESPN Calls</span><span class="state-value" style="color: var(--accent-blue)">${data.metrics?.totalCalls || 0}</span></div>
-          <div class="state-item"><span class="state-key">Success Calls</span><span class="state-value" style="color: var(--accent-green)">${data.metrics?.successCalls || 0}</span></div>
-          <div class="state-item"><span class="state-key">Failed Calls</span><span class="state-value" style="color: var(--accent-red)">${data.metrics?.failedCalls || 0}</span></div>
-          <div class="state-item"><span class="state-key">Success Rate</span><span class="state-value">${data.metrics?.successRate || 'N/A'}</span></div>
-          <div class="state-item"><span class="state-key">Rate Limit Hits</span><span class="state-value" style="color: var(--accent-yellow)">${data.metrics?.rateLimitHits || 0}</span></div>
-          ${data.lastError ? `<div class="state-item" style="grid-column: span 2;"><span class="state-key">Last Error</span><span class="state-value" style="color: var(--accent-red); font-size: 10px;">${JSON.stringify(data.lastError)}</span></div>` : ''}
+          <div class="state-item"><span class="state-key">Total Calls</span><span class="state-value">${data.metrics?.totalCalls || 0}</span></div>
+          <div class="state-item"><span class="state-key">Success Rate</span><span class="state-value success">${data.metrics?.successRate || 'N/A'}</span></div>
+          <div class="state-item"><span class="state-key">Rate Limit Hits</span><span class="state-value warning">${data.metrics?.rateLimitHits || 0}</span></div>
+          ${data.lastError ? `<div class="state-item"><span class="state-key">Last Error</span><span class="state-value error" style="font-size: 10px;">${JSON.stringify(data.lastError)}</span></div>` : ''}
         `;
       } catch (error) {
         log('error', 'Failed to fetch ESPN health', { error: error.message });
-        espnEl.innerHTML = `<div style="color: var(--accent-red);">Error: ${error.message}</div>`;
+        espnEl.innerHTML = `<div style="color: var(--signal-red);">Error: ${error.message}</div>`;
       }
     }
 
@@ -1196,19 +2374,25 @@
     // EXPORT FUNCTIONALITY
     // ============================================
     function exportLogs() {
+      const duration = Math.floor((Date.now() - sessionStartTime) / 1000);
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+
       const exportData = {
         exportedAt: new Date().toISOString(),
         session: {
           league: selectedLeague,
           gameId: selectedGame?.id,
           gameName: selectedGame?.shortName || selectedGame?.name,
+          duration: `${minutes}m ${seconds}s`,
           stats: { ...stats }
         },
-        logs: logs.map(l => ({
-          ...l,
-          id: undefined // Remove internal id
-        }))
+        logs: logs.map(l => ({ ...l, id: undefined }))
       };
+
+      document.getElementById('export-session').textContent = selectedGame?.shortName || selectedLeague.toUpperCase();
+      document.getElementById('export-entries').textContent = logs.length.toLocaleString();
+      document.getElementById('export-duration').textContent = `${minutes}m ${seconds}s`;
 
       const formatted = JSON.stringify(exportData, null, 2);
       document.getElementById('export-textarea').value = formatted;
@@ -1216,9 +2400,33 @@
     }
 
     // ============================================
+    // GLOBAL ERROR HANDLER
+    // ============================================
+    window.onerror = function(message, source, lineno, colno, error) {
+      const shortSource = source ? source.split('/').pop() : 'unknown';
+      log('error', `${message}`, {
+        source: shortSource,
+        line: lineno,
+        column: colno,
+        stack: error?.stack?.split('\n').slice(0, 3).join('\n')
+      });
+      return false; // Don't suppress the error
+    };
+
+    window.addEventListener('unhandledrejection', function(event) {
+      log('error', `Unhandled Promise: ${event.reason?.message || event.reason}`, {
+        stack: event.reason?.stack?.split('\n').slice(0, 3).join('\n')
+      });
+    });
+
+    // ============================================
     // EVENT LISTENERS
     // ============================================
     document.addEventListener('DOMContentLoaded', () => {
+      // Init
+      initSparklines();
+      updateTabIndicator();
+
       // League tabs
       document.querySelectorAll('.league-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -1227,6 +2435,7 @@
           selectedLeague = tab.dataset.league;
           games = [];
           selectedGame = null;
+          document.getElementById('monitoring-status').style.display = 'none';
           renderGameList();
           log('state', `Switched to ${selectedLeague.toUpperCase()}`);
         });
@@ -1238,7 +2447,12 @@
       // Toggle refresh
       document.getElementById('toggle-refresh').addEventListener('click', () => {
         isRefreshing = !isRefreshing;
-        document.getElementById('toggle-refresh').textContent = isRefreshing ? 'Pause' : 'Resume';
+        const btn = document.getElementById('toggle-refresh');
+        btn.querySelector('span').textContent = isRefreshing ? 'Pause' : 'Resume';
+
+        const progress = document.getElementById('refresh-progress');
+        progress.style.animationPlayState = isRefreshing ? 'running' : 'paused';
+
         if (isRefreshing) {
           startMonitoring();
         } else if (refreshInterval) {
@@ -1253,13 +2467,14 @@
           document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
           tab.classList.add('active');
           document.querySelector(`[data-content="${tab.dataset.tab}"]`).classList.add('active');
+          updateTabIndicator();
         });
       });
 
       // Filters
-      document.querySelectorAll('.filter-btn').forEach(btn => {
+      document.querySelectorAll('.filter-chip').forEach(btn => {
         btn.addEventListener('click', () => {
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           renderLogs();
         });
@@ -1269,7 +2484,11 @@
       document.getElementById('clear-logs').addEventListener('click', () => {
         logs = [];
         stats = { api: 0, plays: 0, animations: 0, errors: 0 };
+        statCounts = { api: [], plays: [], animations: [], errors: [] };
+        filterCounts = { api: 0, play: 0, animation: 0, cache: 0, state: 0, error: 0 };
         updateStats();
+        updateFilterBadges();
+        initSparklines();
         renderLogs();
         log('state', 'Logs cleared');
       });
@@ -1280,13 +2499,28 @@
         document.getElementById('export-modal').classList.remove('show');
       });
 
+      document.getElementById('export-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('export-modal')) {
+          document.getElementById('export-modal').classList.remove('show');
+        }
+      });
+
       document.getElementById('copy-logs').addEventListener('click', () => {
         const textarea = document.getElementById('export-textarea');
         textarea.select();
         document.execCommand('copy');
-        document.getElementById('copy-logs').textContent = 'Copied!';
+        const btn = document.getElementById('copy-logs');
+        btn.classList.add('success');
+        btn.innerHTML = `
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Copied!
+        `;
         setTimeout(() => {
-          document.getElementById('copy-logs').textContent = 'Copy to Clipboard';
+          btn.classList.remove('success');
+          btn.innerHTML = `
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            Copy to Clipboard
+          `;
         }, 2000);
       });
 
@@ -1303,15 +2537,14 @@
 
       // Refresh state button
       document.getElementById('refresh-state').addEventListener('click', updateStatePanel);
-
-      // Refresh cache status button
       document.getElementById('refresh-cache-status').addEventListener('click', fetchServerCacheStatus);
-
-      // Refresh ESPN health button
       document.getElementById('refresh-espn-status').addEventListener('click', fetchESPNHealthStatus);
 
+      // Window resize for tab indicator
+      window.addEventListener('resize', updateTabIndicator);
+
       // Initial log
-      log('state', 'Debug console initialized');
+      log('state', 'Mission Control initialized');
 
       // Initial fetch of server status
       fetchServerCacheStatus();

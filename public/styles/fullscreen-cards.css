@@ -777,21 +777,9 @@ body.tv-mode .fullscreen-game-card.focused {
   border-right: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Endzone text styling */
+/* Endzone text styling - hidden */
 .endzone-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-90deg);
-  font-size: clamp(6px, 1.2vmin, 10px);
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.9);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.8),
-    0 0 4px rgba(0, 0, 0, 0.5);
-  white-space: nowrap;
+  display: none;
 }
 
 .yard-label {
@@ -875,6 +863,316 @@ body.tv-mode .fullscreen-game-card.focused {
   color: #94a3b8;
   margin-top: 5px;
   text-align: center;
+}
+
+/* ============================================
+   NEW FULL FIELD VISUALIZER
+   ============================================ */
+
+/* Field color variables */
+.field-visualizer {
+  --field-green: #147d3b;
+  --field-green-light: #1a8e46;
+  --line-white: rgba(255, 255, 255, 0.85);
+}
+
+/* Main Field Container */
+.football-field-container {
+  width: 100%;
+  aspect-ratio: 120 / 53.3;
+  background-color: var(--field-green);
+  border: 2px solid var(--line-white);
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  background-image: radial-gradient(circle at center, var(--field-green-light) 0%, var(--field-green) 80%);
+  border-radius: clamp(4px, 0.8vmin, 8px);
+  overflow: hidden;
+}
+
+/* Endzones - 8.333% each (10 yards of 120 total) */
+.end-zone {
+  flex: 0 0 8.333%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.end-zone.left {
+  border-right: 2px solid var(--line-white);
+}
+
+.end-zone.right {
+  border-left: 2px solid var(--line-white);
+}
+
+.end-zone.away-endzone {
+  background: var(--away-primary-color, #1f2937);
+}
+
+.end-zone.home-endzone {
+  background: var(--home-primary-color, #1f2937);
+}
+
+.end-zone .endzone-text {
+  display: none;
+}
+
+/* Goal post marks in endzones */
+.goal-post-base {
+  position: absolute;
+  width: 2px;
+  height: 8%;
+  background: var(--line-white);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.goal-post-base.top {
+  top: 35%;
+}
+
+.goal-post-base.bottom {
+  bottom: 35%;
+}
+
+.end-zone::before,
+.end-zone::after {
+  content: '';
+  position: absolute;
+  width: 25%;
+  height: 2px;
+  background: var(--line-white);
+  left: 37.5%;
+}
+
+.end-zone::before {
+  top: 35%;
+}
+
+.end-zone::after {
+  bottom: 35%;
+}
+
+/* Playing Field - takes remaining 83.333% */
+.playing-field {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+/* 10 Yard Sections */
+.ten-yard-section {
+  flex: 1;
+  box-sizing: border-box;
+  border-right: 2px solid var(--line-white);
+  position: relative;
+}
+
+.ten-yard-section:last-child {
+  border-right: none;
+}
+
+/* Hash marks container */
+.hash-marks-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+/* Hash mark rows */
+.hash-row {
+  position: absolute;
+  width: 100%;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--line-white),
+    var(--line-white) 2px,
+    transparent 2px,
+    transparent 10%
+  );
+  background-position: calc(10% - 1px) 0;
+}
+
+.hash-row.sideline-top {
+  top: 2%;
+  height: 4%;
+}
+
+.hash-row.sideline-bottom {
+  bottom: 2%;
+  height: 4%;
+}
+
+.hash-row.middle-hashes {
+  top: 40%;
+  height: 20%;
+  background-image:
+    repeating-linear-gradient(to right, var(--line-white) 0, var(--line-white) 2px, transparent 2px, transparent 10%),
+    repeating-linear-gradient(to right, var(--line-white) 0, var(--line-white) 2px, transparent 2px, transparent 10%);
+  background-size: 100% 15%, 100% 15%;
+  background-position: calc(10% - 1px) 0, calc(10% - 1px) 100%;
+  background-repeat: repeat-x;
+}
+
+/* Single center hash row for compressed field */
+.hash-row.middle-single {
+  top: 45%;
+  height: 10%;
+}
+
+/* Numbers overlay */
+.numbers-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8% 0;
+  box-sizing: border-box;
+}
+
+.numbers-row {
+  display: flex;
+  justify-content: space-evenly;
+  color: var(--line-white);
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+  font-size: clamp(6px, 1.2vmin, 12px);
+}
+
+.numbers-row.top {
+  transform: rotate(180deg);
+}
+
+.number-group {
+  width: 0;
+  display: flex;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* Ball Indicator - inside playing-field */
+.playing-field .ball-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: clamp(4px, 0.6vmin, 6px);
+  background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.9), 0 0 4px rgba(59, 130, 246, 0.7);
+  transition: left 0.6s ease-out, background 0.3s ease;
+  z-index: 10;
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+.playing-field .ball-indicator::before {
+  content: '🏈';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(12px, 2.5vmin, 20px);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+}
+
+/* First Down Line - inside playing-field */
+.playing-field .first-down-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 60%;
+  width: clamp(3px, 0.5vmin, 5px);
+  background: linear-gradient(to bottom, #fcd34d, #f59e0b);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.9), 0 0 4px rgba(251, 191, 36, 0.7);
+  transition: left 0.6s ease-out;
+  z-index: 9;
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+.playing-field .first-down-line::after {
+  content: '1ST';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(5px, 0.8vmin, 8px);
+  font-weight: 800;
+  color: #000;
+  background: #fcd34d;
+  padding: 1px 3px;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   COMPRESSED FIELD (Grid 3-8)
+   ============================================ */
+
+.field-compressed .football-field-container {
+  aspect-ratio: 120 / 26;
+}
+
+.field-compressed .numbers-overlay {
+  padding: 0;
+  justify-content: center;
+}
+
+.field-compressed .numbers-row.top {
+  display: none;
+}
+
+.field-compressed .hash-row.sideline-top,
+.field-compressed .hash-row.sideline-bottom,
+.field-compressed .hash-row.middle-hashes {
+  display: none;
+}
+
+.field-compressed .endzone-text {
+  font-size: clamp(6px, 1vmin, 10px);
+}
+
+.field-compressed .goal-post-base,
+.field-compressed .end-zone::before,
+.field-compressed .end-zone::after {
+  display: none;
+}
+
+/* ============================================
+   GRID-SPECIFIC FIELD HEIGHTS
+   ============================================ */
+
+.fullscreen-grid.grid-1 .football-field-container {
+  max-height: 15vh;
+}
+
+.fullscreen-grid.grid-2 .football-field-container {
+  max-height: 12vh;
+}
+
+.fullscreen-grid.grid-3 .football-field-container,
+.fullscreen-grid.grid-4 .football-field-container {
+  max-height: 6vh;
+}
+
+.fullscreen-grid.grid-5 .football-field-container,
+.fullscreen-grid.grid-6 .football-field-container {
+  max-height: 5vh;
+}
+
+.fullscreen-grid.grid-7 .football-field-container,
+.fullscreen-grid.grid-8 .football-field-container {
+  max-height: 4vh;
 }
 
 /* ============================================
@@ -1098,6 +1396,14 @@ body.tv-mode .fullscreen-game-card.focused {
   height: 28px;
 }
 
+.fullscreen-grid.grid-5 .yard-label {
+  font-size: 9px;
+}
+
+.fullscreen-grid.grid-5 .ball-indicator::before {
+  font-size: 16px;
+}
+
 /* Grid 6 - 3x2 layout */
 .fullscreen-grid.grid-6 .sport-logo-indicator {
   width: 40px;
@@ -1134,6 +1440,14 @@ body.tv-mode .fullscreen-game-card.focused {
 
 .fullscreen-grid.grid-6 .field-container {
   height: 25px;
+}
+
+.fullscreen-grid.grid-6 .yard-label {
+  font-size: 8px;
+}
+
+.fullscreen-grid.grid-6 .ball-indicator::before {
+  font-size: 14px;
 }
 
 .fullscreen-grid.grid-6 .fullscreen-vs-divider-live {
@@ -1187,6 +1501,14 @@ body.tv-mode .fullscreen-game-card.focused {
   height: 22px;
 }
 
+.fullscreen-grid.grid-7 .yard-label {
+  font-size: 7px;
+}
+
+.fullscreen-grid.grid-7 .ball-indicator::before {
+  font-size: 13px;
+}
+
 .fullscreen-grid.grid-7 .fullscreen-vs-divider-live {
   font-size: 0.8rem;
 }
@@ -1225,6 +1547,14 @@ body.tv-mode .fullscreen-game-card.focused {
 
 .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .field-container {
   height: 35px;
+}
+
+.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .yard-label {
+  font-size: 10px;
+}
+
+.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .ball-indicator::before {
+  font-size: 18px;
 }
 
 /* Grid 8 - Asymmetric layout (featured + stacked) */
@@ -1849,4 +2179,11 @@ body.tv-mode .fullscreen-game-card.focused {
     transform: scale(2);
     opacity: 0;
   }
+}
+
+/* ============================================
+   NFL STATS MODAL - DISABLED
+   ============================================ */
+.nfl-stats-modal {
+  display: none !important;
 }

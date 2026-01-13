@@ -246,11 +246,19 @@ function showPlayAnimationDirect(card, playType, playText, teamName = '', recove
 
   // Build recovery HTML with logo for fumbles
   let recoveryHTML = '';
-  if (playType === 'fumble' && recoveryLogo) {
-    recoveryHTML = `
-      <div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">Recovered by</div>
-      <img src="${recoveryLogo}" alt="Team" style="width: clamp(40px, 8vmin, 80px); height: clamp(40px, 8vmin, 80px); object-fit: contain; margin-top: clamp(5px, 1vh, 10px);">
-    `;
+  if (playType === 'fumble') {
+    // For fumbles: teamName = fumbling team, recoveryInfo = recovery team name, recoveryLogo = recovery team logo
+    if (teamName) {
+      recoveryHTML = `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">Fumble by ${teamName}</div>`;
+    }
+    if (recoveryLogo) {
+      recoveryHTML += `
+        <div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">Recovered by</div>
+        <img src="${recoveryLogo}" alt="Team" style="width: clamp(40px, 8vmin, 80px); height: clamp(40px, 8vmin, 80px); object-fit: contain; margin-top: clamp(5px, 1vh, 10px);">
+      `;
+    } else if (recoveryInfo) {
+      recoveryHTML += `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>`;
+    }
   } else if (recoveryInfo && playType !== 'penalty') {
     recoveryHTML = `<div class="play-animation-subtext" style="margin-top: clamp(5px, 1vh, 10px);">${recoveryInfo}</div>`;
   }
@@ -374,10 +382,12 @@ function showPlayAnimationDirect(card, playType, playText, teamName = '', recove
       </div>
     `;
   } else {
+    // For fumbles, don't show teamName separately since it's in recoveryHTML as "Fumble by X"
+    const showTeamName = teamName && playType !== 'fumble';
     animationDiv.innerHTML = `
       <div class="play-animation-icon">${icon}</div>
       <div class="play-animation-text">${playText}</div>
-      ${teamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
+      ${showTeamName ? `<div class="play-animation-subtext">${teamName}</div>` : ''}
       ${recoveryHTML}
     `;
   }
@@ -497,11 +507,25 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
 
   // 2. FUMBLE detection (Scoop and Score)
   else if (lowerLastPlay.includes('fumble')) {
+    let fumbleTeam = '';
+    let fumbleLogo = '';
     let recoveryTeam = '';
     let recoveryLogo = '';
 
-    // Parse "RECOVERED by TEAM-PlayerName" format
-    // Example: "RECOVERED by NE-E.Ponder" or "RECOVERED by JAX-D.Lloyd"
+    // The fumbling team is the team with possession at the start of the play
+    // Use prevPossession as the primary indicator
+    if (prevPossession) {
+      if (prevPossession === 'away') {
+        fumbleTeam = awayName;
+        fumbleLogo = awayLogo;
+      } else if (prevPossession === 'home') {
+        fumbleTeam = homeName;
+        fumbleLogo = homeLogo;
+      }
+    }
+
+    // Parse "RECOVERED by TEAM-PlayerName" format to find recovery team
+    // Example: "RECOVERED by NE-E.Ponder" or "RECOVERED by JAX-D.Lloyd" or "RECOVERED by PIT-T.Watt"
     if (lowerLastPlay.includes('recovered by')) {
       const recoveredIndex = lowerLastPlay.indexOf('recovered by');
       const afterRecovered = lastPlay.substring(recoveredIndex + 13); // Skip "recovered by "
@@ -531,11 +555,36 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
       }
     }
 
+    // Check for self-recovery patterns: "and recovers" or ", recovers"
+    const selfRecovery = lowerLastPlay.includes('and recovers') || lowerLastPlay.includes(', recovers');
+    if (selfRecovery && fumbleTeam && !recoveryTeam) {
+      // Same team recovered their own fumble
+      recoveryTeam = fumbleTeam;
+      recoveryLogo = fumbleLogo;
+    }
+
+    // Determine if it's a turnover (different teams)
+    const isTurnoverFumble = fumbleTeam && recoveryTeam && fumbleTeam !== recoveryTeam;
+
+    // Debug log for fumble detection
+    console.log('🏈 Fumble detected:', {
+      fumbleTeam,
+      recoveryTeam,
+      isTurnoverFumble,
+      selfRecovery,
+      prevPossession,
+      awayAbbr,
+      homeAbbr,
+      playPreview: lastPlay.substring(0, 100)
+    });
+
     events.push({
       type: 'fumble',
       text: 'FUMBLE!',
-      teamName: recoveryTeam,
-      logo: recoveryLogo,
+      teamName: fumbleTeam,      // Who fumbled
+      logo: fumbleLogo,          // Fumbling team's logo
+      recoveryTeam: recoveryTeam, // Who recovered
+      recoveryLogo: recoveryLogo, // Recovery team's logo
       isNegated: isNegated
     });
 
@@ -693,18 +742,18 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     });
   }
 
-  // 11. PUNT detection
-  if (lowerLastPlay.includes('punt') && !lowerLastPlay.includes('fake') &&
-    !events.some(e => e.type === 'touchdown')) {
-    if (!lowerLastPlay.includes('touchdown')) {
-      events.push({
-        type: 'punt',
-        text: 'PUNT!',
-        teamName: '',
-        isNegated: isNegated
-      });
-    }
-  }
+  // 11. PUNT detection - DISABLED: Now using field visualizer animation instead
+  // if (lowerLastPlay.includes('punt') && !lowerLastPlay.includes('fake') &&
+  //   !events.some(e => e.type === 'touchdown')) {
+  //   if (!lowerLastPlay.includes('touchdown')) {
+  //     events.push({
+  //       type: 'punt',
+  //       text: 'PUNT!',
+  //       teamName: '',
+  //       isNegated: isNegated
+  //     });
+  //   }
+  // }
 
   // 12. PENALTY detection (always show last so action is seen first)
   if ((lowerLastPlay.includes('penalty') || lowerLastPlay.includes('flag')) &&
@@ -788,6 +837,10 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   for (const event of events) {
     if (event.type === 'penalty') {
       showPlayAnimation(card, event.type, event.text, event.teamName, event.recoveryInfo, event.logo || '', false);
+    } else if (event.type === 'fumble') {
+      // For fumbles, pass recovery team info as recoveryInfo and recoveryLogo
+      const recoveryInfo = event.recoveryTeam ? `Recovery: ${event.recoveryTeam}` : '';
+      showPlayAnimation(card, event.type, event.text, event.teamName, recoveryInfo, event.recoveryLogo || '', isNegated);
     } else {
       showPlayAnimation(card, event.type, event.text, event.teamName, event.recoveryInfo || '', event.logo || '', isNegated && event.type !== 'penalty');
     }
@@ -1142,6 +1195,244 @@ function detectMLBPlayEvents(card, game, comp, prevData) {
   }
 }
 
+// ============================================
+// SPECIAL TEAMS ANIMATIONS (Kickoff/Punt)
+// ============================================
+
+/**
+ * Convert team yard line to field percentage (0-100)
+ * @param {string} teamAbbr - Team abbreviation for the yard line
+ * @param {number} yardLine - Yard line number (0-50)
+ * @param {string} awayAbbr - Away team abbreviation
+ * @param {string} homeAbbr - Home team abbreviation
+ * @returns {number} Field percentage (0 = away endzone, 100 = home endzone)
+ */
+function yardLineToFieldPercent(teamAbbr, yardLine, awayAbbr, homeAbbr) {
+  const upperTeam = teamAbbr.toUpperCase();
+  const upperAway = awayAbbr.toUpperCase();
+  const upperHome = homeAbbr.toUpperCase();
+
+  // Away team's side: yard line = percentage (e.g., HST 2 = 2%)
+  // Home team's side: 100 - yard line (e.g., PIT 35 = 65%)
+  if (upperTeam === upperAway) {
+    return yardLine;
+  } else if (upperTeam === upperHome) {
+    return 100 - yardLine;
+  }
+  return 50; // Fallback to midfield
+}
+
+/**
+ * Parse kickoff/punt play text to extract distances and positions
+ * @param {string} playText - Full play text from API
+ * @param {string} prevFieldPosition - Previous field position (for punts, e.g., "KC 35")
+ * @param {Object} teams - { awayAbbr, homeAbbr }
+ * @returns {Object|null} Parsed data or null if not a special teams play
+ */
+function parseSpecialTeamsPlay(playText, prevFieldPosition, teams) {
+  if (!playText) return null;
+
+  const lowerText = playText.toLowerCase();
+  const { awayAbbr, homeAbbr } = teams;
+
+  // Skip blocked kicks/punts - they're handled differently
+  if (lowerText.includes('blocked')) return null;
+
+  // Detect play type
+  const isKickoff = lowerText.includes('kicks') && (lowerText.includes('yards from') || lowerText.includes('yard from'));
+  const isPunt = lowerText.includes('punts') && (lowerText.includes('yards to') || lowerText.includes('yard to'));
+
+  if (!isKickoff && !isPunt) return null;
+
+  // Edge case detection
+  const isTouchback = /touchback/i.test(playText);
+  const isFairCatch = /fair\s*catch/i.test(playText);
+  const isOutOfBounds = /out\s*of\s*bounds|out-of-bounds|\bob\b/i.test(playText);
+
+  let kickOrigin = null;
+  let landingSpot = null;
+  let returnEnd = null;
+
+  if (isKickoff) {
+    // Kickoff pattern: "C.Boswell kicks 63 yards from PIT 35 to HST 2"
+    const kickoffMatch = playText.match(/kicks?\s+(\d+)\s+yards?\s+from\s+([A-Z]{2,4})\s+(\d+)\s+to\s+([A-Z]{2,4})\s+(\d+)/i);
+    if (kickoffMatch) {
+      kickOrigin = {
+        team: kickoffMatch[2],
+        yardLine: parseInt(kickoffMatch[3]),
+        fieldPercent: yardLineToFieldPercent(kickoffMatch[2], parseInt(kickoffMatch[3]), awayAbbr, homeAbbr)
+      };
+      landingSpot = {
+        team: kickoffMatch[4],
+        yardLine: parseInt(kickoffMatch[5]),
+        fieldPercent: yardLineToFieldPercent(kickoffMatch[4], parseInt(kickoffMatch[5]), awayAbbr, homeAbbr)
+      };
+    }
+  } else if (isPunt) {
+    // Punt pattern: "C.Waitman punts 44 yards to HST 7"
+    const puntMatch = playText.match(/punts?\s+(\d+)\s+yards?\s+to\s+([A-Z]{2,4})\s+(\d+)/i);
+    if (puntMatch) {
+      landingSpot = {
+        team: puntMatch[2],
+        yardLine: parseInt(puntMatch[3]),
+        fieldPercent: yardLineToFieldPercent(puntMatch[2], parseInt(puntMatch[3]), awayAbbr, homeAbbr)
+      };
+
+      // For punts, kick origin comes from previous play's field position
+      if (prevFieldPosition) {
+        const prevMatch = prevFieldPosition.match(/([A-Z]{2,4})\s+(\d+)/i);
+        if (prevMatch) {
+          kickOrigin = {
+            team: prevMatch[1],
+            yardLine: parseInt(prevMatch[2]),
+            fieldPercent: yardLineToFieldPercent(prevMatch[1], parseInt(prevMatch[2]), awayAbbr, homeAbbr)
+          };
+        }
+      }
+    }
+  }
+
+  // If we couldn't parse the basic play, return null
+  if (!landingSpot) return null;
+
+  // Parse return: "J.Noel to HST 20 for 18 yards" or "ran ob at HST 8 for 1 yard"
+  if (!isTouchback && !isFairCatch) {
+    // Look for return pattern after the landing spot
+    const returnMatch = playText.match(/\.\s*([A-Z]\.[A-Za-z'-]+)\s+(?:to|ran\s+ob\s+at)\s+([A-Z]{2,4})\s+(\d+)\s+for\s+(\d+)\s+yards?/i);
+    if (returnMatch) {
+      returnEnd = {
+        team: returnMatch[2],
+        yardLine: parseInt(returnMatch[3]),
+        fieldPercent: yardLineToFieldPercent(returnMatch[2], parseInt(returnMatch[3]), awayAbbr, homeAbbr),
+        yards: parseInt(returnMatch[4])
+      };
+    }
+  }
+
+  // Handle touchback - ball goes to 25-yard line (or 20 for kickoff in some leagues)
+  if (isTouchback && landingSpot) {
+    returnEnd = {
+      team: landingSpot.team,
+      yardLine: 25,
+      fieldPercent: yardLineToFieldPercent(landingSpot.team, 25, awayAbbr, homeAbbr)
+    };
+  }
+
+  return {
+    playType: isKickoff ? 'kickoff' : 'punt',
+    kickOrigin,
+    landingSpot,
+    returnEnd,
+    isTouchback,
+    isFairCatch,
+    isOutOfBounds
+  };
+}
+
+/**
+ * Animate kickoff or punt on field visualizer
+ * @param {HTMLElement} card - Game card element
+ * @param {Object} parsedPlay - Output from parseSpecialTeamsPlay()
+ * @param {Object} options - { awayTeam, homeTeam, awayAbbr, homeAbbr }
+ */
+function animateSpecialTeamsPlay(card, parsedPlay, options) {
+  const playingField = card.querySelector('.playing-field');
+  const ballIndicator = playingField?.querySelector('.ball-indicator');
+  const firstDownLine = playingField?.querySelector('.first-down-line');
+
+  if (!playingField || !ballIndicator) {
+    console.log('⚠️ Special teams animation skipped - missing field elements');
+    return;
+  }
+
+  const { playType, kickOrigin, landingSpot, returnEnd, isTouchback, isFairCatch } = parsedPlay;
+
+  // Calculate animation durations based on distance
+  const kickDistance = kickOrigin
+    ? Math.abs(landingSpot.fieldPercent - kickOrigin.fieldPercent)
+    : 50; // Default if no origin
+  const kickDuration = Math.max(1200, Math.min(2500, kickDistance * 25)); // 1.2s - 2.5s
+
+  const returnDistance = returnEnd && landingSpot
+    ? Math.abs(returnEnd.fieldPercent - landingSpot.fieldPercent)
+    : 0;
+  const returnDuration = returnDistance > 0 ? Math.max(600, returnDistance * 20) : 0;
+
+  // Determine label text
+  let labelText = playType === 'kickoff' ? 'KICKOFF' : 'PUNT';
+  if (isTouchback) labelText = 'TOUCHBACK';
+  if (isFairCatch) labelText = 'FAIR CATCH';
+
+  console.log(`🏈 Special teams animation: ${labelText}`, {
+    kickOrigin: kickOrigin?.fieldPercent,
+    landingSpot: landingSpot?.fieldPercent,
+    returnEnd: returnEnd?.fieldPercent,
+    kickDuration,
+    returnDuration
+  });
+
+  // Phase 1: Setup - add active class, position ball at origin, show label
+  playingField.classList.add('special-teams-active');
+
+  // Hide first down line
+  if (firstDownLine) {
+    firstDownLine.style.opacity = '0';
+  }
+
+  // Position ball at kick origin (or landing spot if no origin for punts)
+  const startPosition = kickOrigin ? kickOrigin.fieldPercent : landingSpot.fieldPercent;
+  ballIndicator.style.transition = 'none';
+  ballIndicator.style.left = `${startPosition}%`;
+
+  // Create and show label
+  const existingLabel = playingField.querySelector('.special-teams-label');
+  if (existingLabel) existingLabel.remove();
+
+  const label = document.createElement('div');
+  label.className = 'special-teams-label';
+  label.textContent = labelText;
+  playingField.appendChild(label);
+
+  // Phase 2: After short delay, animate ball to landing spot
+  setTimeout(() => {
+    ballIndicator.style.transition = `left ${kickDuration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+    ballIndicator.style.left = `${landingSpot.fieldPercent}%`;
+  }, 300);
+
+  // Phase 3: After landing, animate return (if applicable)
+  const afterLandingTime = 300 + kickDuration + 300; // setup + flight + pause
+
+  if (returnEnd && returnDistance > 0) {
+    setTimeout(() => {
+      ballIndicator.style.transition = `left ${returnDuration}ms ease-out`;
+      ballIndicator.style.left = `${returnEnd.fieldPercent}%`;
+    }, afterLandingTime);
+  }
+
+  // Phase 4: Cleanup and show lines at final position
+  const totalDuration = afterLandingTime + (returnDuration > 0 ? returnDuration + 300 : 0);
+
+  setTimeout(() => {
+    // Remove label if still present
+    const labelToRemove = playingField.querySelector('.special-teams-label');
+    if (labelToRemove) labelToRemove.remove();
+
+    // Remove active class
+    playingField.classList.remove('special-teams-active');
+
+    // Restore first down line visibility
+    if (firstDownLine) {
+      firstDownLine.style.opacity = '';
+      firstDownLine.style.transition = 'opacity 0.5s ease-out';
+    }
+
+    // Reset ball transition for normal updates
+    ballIndicator.style.transition = 'left 0.6s ease-out';
+
+    console.log('🏈 Special teams animation complete');
+  }, totalDuration);
+}
+
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -1157,6 +1448,9 @@ if (typeof module !== 'undefined' && module.exports) {
     showNHLAnimation,
     detectNHLPlayEvents,
     showMLBAnimation,
-    detectMLBPlayEvents
+    detectMLBPlayEvents,
+    parseSpecialTeamsPlay,
+    animateSpecialTeamsPlay,
+    yardLineToFieldPercent
   };
 }

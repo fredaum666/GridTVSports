@@ -1097,6 +1097,56 @@
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(239, 68, 68, 0.5);
         }
 
+        /* Special play situations (kickoff, punt, return, etc.) */
+        .fs-sb-situation.special-play {
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.95) 0%, rgba(15, 35, 60, 0.95) 100%);
+            border-color: #3b82f6;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .fs-sb-situation.special-play .fs-sb-down-distance {
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .fs-sb-situation.special-play-kickoff {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(60, 50, 20, 0.95) 0%, rgba(40, 30, 10, 0.95) 100%);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .fs-sb-situation.special-play-punt {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, rgba(50, 30, 70, 0.95) 0%, rgba(30, 20, 50, 0.95) 100%);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(139, 92, 246, 0.3);
+        }
+
+        .fs-sb-situation.special-play-return {
+            border-color: #10b981;
+            background: linear-gradient(135deg, rgba(20, 60, 50, 0.95) 0%, rgba(10, 40, 30, 0.95) 100%);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .fs-sb-situation.special-play-touchback,
+        .fs-sb-situation.special-play-faircatch {
+            border-color: #6b7280;
+            background: linear-gradient(135deg, rgba(40, 45, 55, 0.95) 0%, rgba(25, 30, 40, 0.95) 100%);
+        }
+
+        .fs-sb-situation.special-play-xp,
+        .fs-sb-situation.special-play-fg {
+            border-color: #22c55e;
+            background: linear-gradient(135deg, rgba(20, 60, 40, 0.95) 0%, rgba(10, 40, 25, 0.95) 100%);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(34, 197, 94, 0.3);
+        }
+
+        .fs-sb-situation.special-play-2pt {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, rgba(60, 30, 30, 0.95) 0%, rgba(40, 20, 20, 0.95) 100%);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 0 8px rgba(239, 68, 68, 0.3);
+        }
+
         .fs-sb-situation:empty,
         .fs-sb-situation.hidden {
             display: none;
@@ -3397,6 +3447,14 @@
                         <span class="fs-sb-ball-position">${game.fieldPosition || ''}</span>
                     </div>
                 `;
+            } else if (isFootball && isLive && game.specialPlay && game.specialPlayText && !isIntermission) {
+                // Show special play (kickoff, punt, return, etc.) when no down/distance
+                const specialClass = `special-play-${game.specialPlay}`;
+                situationHTML = `
+                    <div class="fs-sb-situation special-play ${specialClass}">
+                        <span class="fs-sb-down-distance">${game.specialPlayText}</span>
+                    </div>
+                `;
             } else if (isMLB && isLive) {
                 // MLB situation box with count and outs
                 const balls = game.balls || 0;
@@ -3441,28 +3499,56 @@
                 const awayColor = getTeamColor(game.away.abbr, game.league);
                 const homeColor = getTeamColor(game.home.abbr, game.league);
 
+                // Determine if compressed field (grid 3-8)
+                const gridCount = games.length;
+                const isCompressed = gridCount >= 3;
+                const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
+
+                // Generate 10 yard sections
+                const tenYardSections = Array(10).fill(0).map(() => `
+                    <div class="ten-yard-section">
+                        <div class="hash-marks-container">
+                            ${isCompressed ?
+                                '<div class="hash-row middle-single"></div>' :
+                                `<div class="hash-row sideline-top"></div>
+                                 <div class="hash-row middle-hashes"></div>
+                                 <div class="hash-row sideline-bottom"></div>`}
+                        </div>
+                    </div>
+                `).join('');
+
+                const numbersHTML = `
+                    <div class="number-group">10</div>
+                    <div class="number-group">20</div>
+                    <div class="number-group">30</div>
+                    <div class="number-group">40</div>
+                    <div class="number-group">50</div>
+                    <div class="number-group">40</div>
+                    <div class="number-group">30</div>
+                    <div class="number-group">20</div>
+                    <div class="number-group">10</div>
+                `;
+
                 fieldVisualizerHTML = `
-                    <div class="field-visualizer">
-                        <div class="field-container" style="--away-primary-color: ${awayColor}; --home-primary-color: ${homeColor};">
-                            <div class="yard-markers">
-                                <div class="yard-marker endzone away-endzone">
-                                    <span class="endzone-text">${game.away.abbr}</span>
-                                </div>
-                                <div class="yard-marker"><span class="yard-label">10</span></div>
-                                <div class="yard-marker"><span class="yard-label">20</span></div>
-                                <div class="yard-marker"><span class="yard-label">30</span></div>
-                                <div class="yard-marker"><span class="yard-label">40</span></div>
-                                <div class="yard-marker"><span class="yard-label">50</span></div>
-                                <div class="yard-marker"><span class="yard-label">40</span></div>
-                                <div class="yard-marker"><span class="yard-label">30</span></div>
-                                <div class="yard-marker"><span class="yard-label">20</span></div>
-                                <div class="yard-marker"><span class="yard-label">10</span></div>
-                                <div class="yard-marker endzone home-endzone">
-                                    <span class="endzone-text">${game.home.abbr}</span>
-                                </div>
+                    <div class="${fieldClass}">
+                        <div class="football-field-container" style="--away-primary-color: ${awayColor}; --home-primary-color: ${homeColor};">
+                            <div class="end-zone left away-endzone">
+                                <span class="endzone-text">${game.away.abbr}</span>
+                                ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
                             </div>
-                            <div class="ball-indicator"></div>
-                            <div class="first-down-line"></div>
+                            <div class="playing-field">
+                                ${tenYardSections}
+                                <div class="numbers-overlay">
+                                    ${!isCompressed ? `<div class="numbers-row top">${numbersHTML}</div>` : ''}
+                                    <div class="numbers-row bottom">${numbersHTML}</div>
+                                </div>
+                                <div class="ball-indicator"></div>
+                                <div class="first-down-line"></div>
+                            </div>
+                            <div class="end-zone right home-endzone">
+                                <span class="endzone-text">${game.home.abbr}</span>
+                                ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -3654,8 +3740,9 @@
         }
 
         function updateBallPosition(cardEl, fieldPosition, yardsToGo, possession, awayTeam, homeTeam, league) {
-            const ballIndicator = cardEl.querySelector('.ball-indicator');
-            const firstDownLine = cardEl.querySelector('.first-down-line');
+            // Ball and first down line are now inside .playing-field container
+            const ballIndicator = cardEl.querySelector('.playing-field .ball-indicator');
+            const firstDownLine = cardEl.querySelector('.playing-field .first-down-line');
             const situationInfo = cardEl.querySelector('.fullscreen-situation-info');
 
             if (!ballIndicator || !fieldPosition) return;
@@ -3674,13 +3761,10 @@
             ballIndicator.style.background = `linear-gradient(to bottom, ${teamColor}, ${teamColor}dd)`;
             ballIndicator.style.boxShadow = `0 0 10px ${teamColor}cc, 0 0 6px ${teamColor}99`;
 
-            // Calculate ball position (0-100 represents the playable field between endzones)
+            // Calculate ball position (0-100 represents the playable field)
+            // Ball is now positioned within .playing-field which is the 100-yard area (no endzone offset needed)
             const ballPosition = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
-
-            // Scale to account for 8% endzones on each side (8% away endzone + 84% field + 8% home endzone)
-            // Playable field is from 8% to 92% of the total width
-            const scaledBallPosition = 8 + (ballPosition * 0.84);
-            ballIndicator.style.left = `${scaledBallPosition}%`;
+            ballIndicator.style.left = `${ballPosition}%`;
 
             // Calculate first down line (hide on Goal situations since goal line IS the first down)
             // yardsToGo of 0 indicates Goal situation
@@ -3694,10 +3778,9 @@
                     firstDownPosition = ballPosition - yardsToGo;
                 }
 
-                // Clamp to playable field (0-100) then scale for endzone offsets
+                // Clamp to playable field (0-100%)
                 firstDownPosition = Math.max(0, Math.min(100, firstDownPosition));
-                const scaledFirstDownPosition = 8 + (firstDownPosition * 0.84);
-                firstDownLine.style.left = `${scaledFirstDownPosition}%`;
+                firstDownLine.style.left = `${firstDownPosition}%`;
                 firstDownLine.style.display = 'block';
             } else if (firstDownLine) {
                 firstDownLine.style.display = 'none';
@@ -3737,8 +3820,49 @@
 
             if (!lastPlay || prevData.lastPlay === lastPlay) return;
 
+            // Skip administrative events that aren't actual football plays
+            // These can appear in the API but aren't shown on ESPN's gamecast
+            const lowerPlay = lastPlay.toLowerCase();
+            const isAdministrativeEvent =
+                (lowerPlay.includes('timeout') && !lowerPlay.includes('return')) ||
+                lowerPlay.includes('coin toss') ||
+                lowerPlay.includes('won the toss') ||
+                lowerPlay.includes('delay of game') ||
+                lowerPlay.includes('injury') ||
+                lowerPlay.includes('review') ||
+                lowerPlay.includes('challenge') ||
+                lowerPlay.includes('measurement') ||
+                lowerPlay.includes('two-minute warning') ||
+                lowerPlay.includes('2-minute warning') ||
+                lowerPlay.match(/^(official|officials?)\s+(timeout|review)/i);
+
+            if (isAdministrativeEvent) {
+                console.log('🏈 Skipping administrative event:', lastPlay.substring(0, 50));
+                return;
+            }
+
             const awayTeam = comp.competitors?.find(c => c.homeAway === 'away');
             const homeTeam = comp.competitors?.find(c => c.homeAway === 'home');
+            const awayAbbr = awayTeam?.team?.abbreviation || '';
+            const homeAbbr = homeTeam?.team?.abbreviation || '';
+
+            // Check for special teams plays (kickoff/punt) and animate on field
+            const parsedSpecialTeams = parseSpecialTeamsPlay(
+                lastPlay,
+                prevData.fieldPosition,
+                { awayAbbr, homeAbbr }
+            );
+
+            if (parsedSpecialTeams) {
+                console.log('🏈 Special teams play detected:', parsedSpecialTeams.playType);
+                animateSpecialTeamsPlay(card, parsedSpecialTeams, {
+                    awayTeam: { team: awayTeam?.team },
+                    homeTeam: { team: homeTeam?.team },
+                    awayAbbr,
+                    homeAbbr
+                });
+                // Continue to analyzeAndAnimatePlay for other animations (TD on return, etc.)
+            }
 
             // Use centralized analyzeAndAnimatePlay function
             analyzeAndAnimatePlay(card, lastPlay, {
@@ -4197,7 +4321,9 @@
                                 homeScore: game.home.score,
                                 lastPlay: comp?.situation?.lastPlay?.text || '',
                                 down: comp?.situation?.down || 0,
-                                possession: game.possession || null
+                                possession: game.possession || null,
+                                downDistanceText: comp?.situation?.downDistanceText || '',
+                                fieldPosition: game.fieldPosition || null
                             });
 
                             // Queue animation detection for after render (NFL, NCAA football, and NHL)
@@ -4412,12 +4538,55 @@
                     if (awayTeam) {
                         game.away.timeouts = extractTimeouts(awayTeam, situation, 'away');
                     }
+
+                    // Store last play text for kickoff/return/punt display
+                    const lastPlayText = situation.lastPlay?.text || '';
+                    game.lastPlayText = lastPlayText;
+
+                    // Detect special plays (kickoff, punt, return) when no down/distance
+                    if (!game.downDistance && lastPlayText && !isIntermission) {
+                        const lowerPlay = lastPlayText.toLowerCase();
+                        if (lowerPlay.includes('kickoff') || lowerPlay.includes('kicks off')) {
+                            game.specialPlay = 'kickoff';
+                            game.specialPlayText = extractSpecialPlayText(lastPlayText, 'kickoff');
+                        } else if (lowerPlay.includes('punt')) {
+                            game.specialPlay = 'punt';
+                            game.specialPlayText = extractSpecialPlayText(lastPlayText, 'punt');
+                        } else if (lowerPlay.includes('return') || lowerPlay.includes('returned')) {
+                            game.specialPlay = 'return';
+                            game.specialPlayText = extractSpecialPlayText(lastPlayText, 'return');
+                        } else if (lowerPlay.includes('touchback')) {
+                            game.specialPlay = 'touchback';
+                            game.specialPlayText = 'Touchback';
+                        } else if (lowerPlay.includes('fair catch')) {
+                            game.specialPlay = 'faircatch';
+                            game.specialPlayText = 'Fair Catch';
+                        } else if (lowerPlay.includes('extra point') || lowerPlay.includes('pat ')) {
+                            game.specialPlay = 'xp';
+                            game.specialPlayText = lowerPlay.includes('good') ? 'XP Good' : 'Extra Point';
+                        } else if (lowerPlay.includes('two-point') || lowerPlay.includes('2-pt') || lowerPlay.includes('2 pt')) {
+                            game.specialPlay = '2pt';
+                            game.specialPlayText = '2-Pt Conversion';
+                        } else if (lowerPlay.includes('field goal')) {
+                            game.specialPlay = 'fg';
+                            game.specialPlayText = lowerPlay.includes('good') ? 'FG Good' : 'Field Goal';
+                        } else {
+                            game.specialPlay = null;
+                            game.specialPlayText = null;
+                        }
+                    } else {
+                        game.specialPlay = null;
+                        game.specialPlayText = null;
+                    }
                 } else {
                     // Clear football-specific data if no situation
                     game.possession = null;
                     game.downDistance = null;
                     game.yardLine = undefined;
                     game.fieldPosition = null;
+                    game.lastPlayText = null;
+                    game.specialPlay = null;
+                    game.specialPlayText = null;
                 }
             }
         }
@@ -4429,6 +4598,69 @@
                 case 3: return 'rd';
                 default: return 'th';
             }
+        }
+
+        function extractSpecialPlayText(playText, playType) {
+            // Create a short summary of the special play
+            const lowerPlay = playText.toLowerCase();
+
+            if (playType === 'kickoff') {
+                // Extract yards if available: "kicks off 65 yards"
+                const yardMatch = playText.match(/kicks?\s*off\s*(\d+)\s*yard/i);
+                if (yardMatch) {
+                    return `Kickoff ${yardMatch[1]} yds`;
+                }
+                if (lowerPlay.includes('touchback')) {
+                    return 'Kickoff - Touchback';
+                }
+                if (lowerPlay.includes('out of bounds') || lowerPlay.includes('out-of-bounds')) {
+                    return 'Kickoff OOB';
+                }
+                return 'Kickoff';
+            }
+
+            if (playType === 'punt') {
+                const yardMatch = playText.match(/punts?\s*(\d+)\s*yard/i);
+                if (yardMatch) {
+                    if (lowerPlay.includes('touchback')) {
+                        return `Punt ${yardMatch[1]} yds - TB`;
+                    }
+                    if (lowerPlay.includes('fair catch')) {
+                        return `Punt ${yardMatch[1]} yds - FC`;
+                    }
+                    return `Punt ${yardMatch[1]} yds`;
+                }
+                if (lowerPlay.includes('touchback')) {
+                    return 'Punt - Touchback';
+                }
+                if (lowerPlay.includes('fair catch')) {
+                    return 'Punt - Fair Catch';
+                }
+                return 'Punt';
+            }
+
+            if (playType === 'return') {
+                // Try to find return yards
+                const returnMatch = playText.match(/return(?:ed|s)?\s*(?:for\s*)?(\d+)\s*yard/i);
+                if (returnMatch) {
+                    if (lowerPlay.includes('touchdown')) {
+                        return `Return TD (${returnMatch[1]} yds)`;
+                    }
+                    return `Return ${returnMatch[1]} yds`;
+                }
+                if (lowerPlay.includes('touchdown')) {
+                    return 'Return TD';
+                }
+                if (lowerPlay.includes('kickoff')) {
+                    return 'Kick Return';
+                }
+                if (lowerPlay.includes('punt')) {
+                    return 'Punt Return';
+                }
+                return 'Return';
+            }
+
+            return playType.charAt(0).toUpperCase() + playType.slice(1);
         }
 
         function extractTimeouts(team, situation, homeAway) {
