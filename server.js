@@ -2849,6 +2849,11 @@ app.get('/test-field', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'test-field.html'));
 });
 
+// Test field animations page
+app.get('/test-field-animations', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'test-field-animations.html'));
+});
+
 // Admin subscription management page - LOCALHOST ONLY
 app.get('/admin-subscriptions', (req, res) => {
   const ip = req.ip || req.connection.remoteAddress || '';
