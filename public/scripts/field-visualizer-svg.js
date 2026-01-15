@@ -86,7 +86,7 @@ class SVGFieldVisualizer {
   createSVG() {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'field-svg');
-    svg.setAttribute('viewBox', this.options.compressed ? '0 20 600 80' : '0 -40 600 130');
+    svg.setAttribute('viewBox', this.options.compressed ? '0 0 600 115' : '0 -40 600 130');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
@@ -97,8 +97,9 @@ class SVGFieldVisualizer {
       ${this.getFieldSide()}
       ${this.getFieldTop()}
       ${this.getEndZoneLogos()}
-      ${this.options.showGoalPosts && !this.options.compressed ? this.getGoalPosts() : ''}
+      ${this.options.showGoalPosts ? this.getGoalPosts() : ''}
       ${this.getEndZoneText()}
+      ${this.options.compressed ? this.getCompactYardMarkers() : ''}
       ${this.getFirstDownMarker()}
       ${this.getScrimmageMarker()}
       ${this.getAnimationLayer()}
@@ -156,6 +157,19 @@ class SVGFieldVisualizer {
         .yard-number {
           fill: rgba(255,255,255,0.85);
           font-family: 'Courier New', Courier, monospace;
+          font-weight: bold;
+          font-size: 8px;
+          text-anchor: middle;
+        }
+
+        /* Compact yard markers (below field for grids 3-8) */
+        .compact-yard-tick {
+          stroke: rgba(255,255,255,0.7);
+          stroke-width: 1.5;
+        }
+        .compact-yard-number {
+          fill: rgba(255,255,255,0.85);
+          font-family: Arial, sans-serif;
           font-weight: bold;
           font-size: 8px;
           text-anchor: middle;
@@ -364,6 +378,34 @@ class SVGFieldVisualizer {
       <g data-name="Yard Numbers">
         <g class="numbers-top">${topRow.join('')}</g>
         <g class="numbers-bottom">${bottomRow.join('')}</g>
+      </g>
+    `;
+  }
+
+  getCompactYardMarkers() {
+    // Yard markers below the field for compact/grid 3-8 view
+    // Only 10-yard increments
+    const positions = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+    const labels = ['10', '20', '30', '40', '50', '40', '30', '20', '10'];
+
+    const markers = positions.map((yardPos, i) => {
+      const { bottomX } = this.yardToCoords(yardPos);
+      // Small tick mark below field and number
+      return `
+        <line class="compact-yard-tick" x1="${bottomX}" y1="88" x2="${bottomX}" y2="92"/>
+        <text class="compact-yard-number" x="${bottomX}" y="100">${labels[i]}</text>
+      `;
+    });
+
+    // Add end zone markers (goal lines)
+    const leftEndX = this.yardToCoords(0).bottomX;
+    const rightEndX = this.yardToCoords(100).bottomX;
+
+    return `
+      <g data-name="Compact Yard Markers" class="compact-yard-markers">
+        <line class="compact-yard-tick" x1="${leftEndX}" y1="88" x2="${leftEndX}" y2="92"/>
+        ${markers.join('')}
+        <line class="compact-yard-tick" x1="${rightEndX}" y1="88" x2="${rightEndX}" y2="92"/>
       </g>
     `;
   }
@@ -1488,7 +1530,7 @@ class SVGFieldVisualizer {
    */
   setCompressed(compressed) {
     this.options.compressed = compressed;
-    this.svg.setAttribute('viewBox', compressed ? '0 20 600 80' : '0 -40 600 130');
+    this.svg.setAttribute('viewBox', compressed ? '0 20 600 88' : '0 -40 600 130');
   }
 
   /**

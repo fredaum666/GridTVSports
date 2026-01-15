@@ -1732,6 +1732,16 @@
             height: auto;
         }
 
+        /* Phone: Bigger yard markers for readability */
+        .svg-field-container .compact-yard-number {
+            font-size: 12px !important;
+            fill: rgba(255,255,255,0.95) !important;
+        }
+        .svg-field-container .compact-yard-tick {
+            stroke-width: 2 !important;
+            stroke: rgba(255,255,255,0.8) !important;
+        }
+
         /* ================================ */
         /* NFL STATS MODAL (Between Plays)  */
         /* ================================ */
@@ -3420,7 +3430,7 @@
 
                 const visualizer = new SVGFieldVisualizer(container, {
                     compressed: isCompressed,
-                    showGoalPosts: !isCompressed,
+                    showGoalPosts: true,
                     showYardNumbers: !isCompressed,
                     showOneYardLines: !isCompressed,
                     awayColor: awayColor,
@@ -3551,10 +3561,9 @@
                 const awayEndzoneColor = getTeamColor(game.away.abbr, game.league);
                 const homeEndzoneColor = getTeamColor(game.home.abbr, game.league);
 
-                // Determine if compressed field (grid 3-8)
-                const gridCount = games.length;
-                const isCompressed = gridCount >= 3;
-                const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
+                // Phone always uses compressed field for all grid sizes
+                const isCompressed = true;
+                const fieldClass = 'field-visualizer field-compressed';
 
                 // SVG field container - SVGFieldVisualizer will populate this
                 fieldVisualizerHTML = `
