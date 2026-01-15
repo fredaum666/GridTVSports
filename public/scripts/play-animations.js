@@ -437,7 +437,10 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     downDistanceText = '',
     prevDownDistance = '',
     prevPossession = null,
-    currentPossession = null
+    currentPossession = null,
+    fieldPosition = '',  // Field position at start of play, e.g., "KC 35"
+    awayAbbr: providedAwayAbbr = '',
+    homeAbbr: providedHomeAbbr = ''
   } = options;
 
   // Debug: Log when this function is called
@@ -459,8 +462,8 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   const isNegated = hasNoPlay && !enforcedBetweenDowns;
 
   // Helper to get team info
-  const awayAbbr = awayTeam?.team?.abbreviation || '';
-  const homeAbbr = homeTeam?.team?.abbreviation || '';
+  const awayAbbr = providedAwayAbbr || awayTeam?.team?.abbreviation || '';
+  const homeAbbr = providedHomeAbbr || homeTeam?.team?.abbreviation || '';
   const awayName = awayTeam?.team?.displayName || 'Away';
   const homeName = homeTeam?.team?.displayName || 'Home';
   const awayLogo = awayTeam?.team?.logo || '';
@@ -834,6 +837,14 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   // Track if we have a fumble or interception to show play text modal after
   let hasTurnoverAnimation = false;
 
+  // Build options for SVG field animation
+  const svgAnimationOptions = {
+    awayAbbr,
+    homeAbbr,
+    fieldPosition,
+    possession: currentPossession
+  };
+
   for (const event of events) {
     if (event.type === 'penalty') {
       showPlayAnimation(card, event.type, event.text, event.teamName, event.recoveryInfo, event.logo || '', false);
@@ -843,6 +854,11 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
       showPlayAnimation(card, event.type, event.text, event.teamName, recoveryInfo, event.recoveryLogo || '', isNegated);
     } else {
       showPlayAnimation(card, event.type, event.text, event.teamName, event.recoveryInfo || '', event.logo || '', isNegated && event.type !== 'penalty');
+    }
+
+    // Trigger SVG field animation for non-penalty events
+    if (event.type !== 'penalty' && !isNegated) {
+      animatePlayOnSVGField(card, event, lastPlay, svgAnimationOptions);
     }
 
     // Check for turnover events
@@ -1196,6 +1212,240 @@ function detectMLBPlayEvents(card, game, comp, prevData) {
 }
 
 // ============================================
+// SVG FIELD ANIMATION INTEGRATION
+// ============================================
+
+/**
+ * Parse yard positions from play text
+ * Extracts starting position, ending position, and yards gained
+ * @param {string} playText - Full play text from API
+ * @param {string} fieldPosition - Current field position (e.g., "KC 35")
+ * @param {Object} teams - { awayAbbr, homeAbbr }
+ * @returns {Object|null} { fromYard, toYard, yardsGained, playAction }
+ */
+function parseYardPositionsFromPlay(playText, fieldPosition, teams) {
+  if (!playText) return null;
+
+  const { awayAbbr, homeAbbr } = teams;
+  const lowerText = playText.toLowerCase();
+
+  // Parse starting position from field position
+  let fromYard = 50; // Default to midfield
+  if (fieldPosition) {
+    const fieldMatch = fieldPosition.match(/([A-Z]{2,4})\s+(\d+)/i);
+    if (fieldMatch) {
+      const teamAbbr = fieldMatch[1].toUpperCase();
+      const yardLine = parseInt(fieldMatch[2]);
+      if (teamAbbr === awayAbbr?.toUpperCase()) {
+        fromYard = yardLine;
+      } else if (teamAbbr === homeAbbr?.toUpperCase()) {
+        fromYard = 100 - yardLine;
+      }
+    }
+  }
+
+  let toYard = fromYard;
+  let yardsGained = 0;
+  let playAction = null;
+
+  // Pattern: "for X yards" or "for X yard"
+  const yardsMatch = playText.match(/for\s+(-?\d+)\s+yards?/i);
+  // Pattern: "X yard pass" or "X yard run"
+  const yardPlayMatch = playText.match(/(\d+)\s+yard\s+(pass|run|rush)/i);
+  // Pattern: "to [TEAM] [YARD]" for ending position
+  const toPositionMatch = playText.match(/to\s+([A-Z]{2,4})\s+(\d+)/i);
+  // Pattern: "at [TEAM] [YARD]" for ending position (sacks, etc.)
+  const atPositionMatch = playText.match(/at\s+([A-Z]{2,4})\s+(\d+)/i);
+
+  // Determine play action type
+  if (lowerText.includes('pass') || lowerText.includes('complete') || lowerText.includes('incomplete')) {
+    playAction = lowerText.includes('incomplete') ? 'incomplete_pass' : 'pass';
+  } else if (lowerText.includes('run') || lowerText.includes('rush') || lowerText.includes('scramble')) {
+    playAction = 'rush';
+  } else if (lowerText.includes('sack')) {
+    playAction = 'sack';
+  } else if (lowerText.includes('kneel') || lowerText.includes('knee')) {
+    playAction = 'kneel';
+  }
+
+  // Calculate ending position from "to [TEAM] [YARD]" pattern
+  if (toPositionMatch && !lowerText.includes('punt') && !lowerText.includes('kick')) {
+    const toTeam = toPositionMatch[1].toUpperCase();
+    const toYardLine = parseInt(toPositionMatch[2]);
+    if (toTeam === awayAbbr?.toUpperCase()) {
+      toYard = toYardLine;
+    } else if (toTeam === homeAbbr?.toUpperCase()) {
+      toYard = 100 - toYardLine;
+    }
+    yardsGained = Math.abs(toYard - fromYard);
+  }
+  // Fallback to "at [TEAM] [YARD]" pattern
+  else if (atPositionMatch && playAction === 'sack') {
+    const atTeam = atPositionMatch[1].toUpperCase();
+    const atYardLine = parseInt(atPositionMatch[2]);
+    if (atTeam === awayAbbr?.toUpperCase()) {
+      toYard = atYardLine;
+    } else if (atTeam === homeAbbr?.toUpperCase()) {
+      toYard = 100 - atYardLine;
+    }
+    yardsGained = toYard - fromYard; // Will be negative for sacks
+  }
+  // Fallback to yards gained pattern
+  else if (yardsMatch) {
+    yardsGained = parseInt(yardsMatch[1]);
+    // Estimate toYard (may not be accurate for all plays)
+    toYard = fromYard + yardsGained;
+  } else if (yardPlayMatch) {
+    yardsGained = parseInt(yardPlayMatch[1]);
+    toYard = fromYard + yardsGained;
+  }
+
+  // Clamp to field bounds
+  toYard = Math.max(0, Math.min(100, toYard));
+
+  // Handle touchdown - ball goes to end zone
+  if (lowerText.includes('touchdown') || lowerText.includes('for a td')) {
+    // Determine which end zone based on direction of travel
+    if (toYard > fromYard) {
+      toYard = 100; // Heading toward home end zone
+    } else if (toYard < fromYard) {
+      toYard = 0; // Heading toward away end zone
+    } else {
+      // If no clear direction, use the closer end zone
+      toYard = fromYard > 50 ? 100 : 0;
+    }
+  }
+
+  return {
+    fromYard,
+    toYard,
+    yardsGained,
+    playAction
+  };
+}
+
+/**
+ * Trigger SVG field animation for a detected play
+ * @param {HTMLElement} card - The game card element
+ * @param {Object} event - Detected play event from analyzeAndAnimatePlay
+ * @param {string} playText - Original play text from API
+ * @param {Object} options - { awayAbbr, homeAbbr, fieldPosition, possession }
+ */
+async function animatePlayOnSVGField(card, event, playText, options = {}) {
+  const gameId = card.dataset.gameId;
+  const visualizer = window.fieldVisualizers?.get(gameId);
+
+  if (!visualizer) {
+    console.log('⚠️ SVG animation skipped - no field visualizer for game:', gameId);
+    return;
+  }
+
+  const { awayAbbr = '', homeAbbr = '', fieldPosition = '', possession = '' } = options;
+
+  // Parse yard positions from play text
+  const positions = parseYardPositionsFromPlay(playText, fieldPosition, { awayAbbr, homeAbbr });
+  if (!positions) {
+    console.log('⚠️ SVG animation skipped - could not parse positions from:', playText.substring(0, 50));
+    return;
+  }
+
+  const { fromYard, toYard, yardsGained, playAction } = positions;
+
+  console.log('🎬 SVG field animation:', {
+    eventType: event.type,
+    playAction,
+    fromYard,
+    toYard,
+    yardsGained
+  });
+
+  try {
+    switch (event.type) {
+      case 'touchdown':
+        // Animate the scoring play
+        const tdPlayType = playAction === 'pass' || playAction === 'incomplete_pass' ? 'pass' : 'rush';
+        await visualizer.animateTouchdown(tdPlayType, fromYard, toYard, 1500);
+        break;
+
+      case 'interception':
+        // Animate pass that gets intercepted
+        const returnYards = event.text.includes('PICK SIX') ? -1 : 15; // Pick-six or 15-yard return
+        await visualizer.animateInterception(fromYard, toYard, returnYards, 1200);
+        break;
+
+      case 'fumble':
+        // Animate rush that leads to fumble
+        const recoveryYard = toYard + (event.recoveryTeam === event.teamName ? 1 : -5);
+        const offenseRecovery = event.recoveryTeam === event.teamName;
+        await visualizer.animateFumble(fromYard, toYard, recoveryYard, offenseRecovery, 800);
+        break;
+
+      case 'field-goal':
+        // Animate field goal kick
+        const fgDirection = fromYard > 50 ? 'right' : 'left';
+        await visualizer.animateFieldGoal(fromYard, fgDirection, 2500);
+        break;
+
+      case 'missed-kick':
+        // Animate missed field goal
+        const missDirection = fromYard > 50 ? 'right' : 'left';
+        const missType = event.text.includes('WIDE') ? 'wide_right' : 'short';
+        await visualizer.animateMissedFieldGoal(fromYard, missDirection, missType, 2500);
+        break;
+
+      case 'sack':
+        // Animate sack (backwards movement)
+        const yardsLost = Math.abs(yardsGained) || 7;
+        await visualizer.animateSack(fromYard, yardsLost, 800);
+        break;
+
+      case 'safety':
+        // Animate play that ends in safety (tackled in own end zone)
+        await visualizer.animateRush(fromYard, fromYard > 50 ? 100 : 0, 1000);
+        break;
+
+      case 'two-point':
+        // Animate two-point conversion attempt
+        const twoPointType = playAction === 'pass' ? 'pass' : 'rush';
+        if (twoPointType === 'pass') {
+          await visualizer.animatePass(fromYard, toYard, 15, 1000);
+        } else {
+          await visualizer.animateRush(fromYard, toYard, 800);
+        }
+        break;
+
+      case 'first-down':
+        // Animate the play that resulted in first down
+        if (playAction === 'pass' || playAction === 'incomplete_pass') {
+          await visualizer.animatePass(fromYard, toYard, 20, 1000);
+        } else {
+          await visualizer.animateRush(fromYard, toYard, 800);
+        }
+        break;
+
+      default:
+        // Generic animation based on play action
+        if (playAction === 'pass') {
+          await visualizer.animatePass(fromYard, toYard, 20, 1000);
+        } else if (playAction === 'incomplete_pass') {
+          await visualizer.animateIncompletePass(fromYard, toYard, 1000);
+        } else if (playAction === 'rush' || playAction === 'scramble') {
+          await visualizer.animateRush(fromYard, toYard, 800);
+        } else if (playAction === 'sack') {
+          await visualizer.animateSack(fromYard, Math.abs(yardsGained) || 7, 800);
+        }
+        break;
+    }
+
+    // Update ball position after animation
+    visualizer.setBallPosition(toYard);
+
+  } catch (err) {
+    console.error('🏈 SVG field animation error:', err);
+  }
+}
+
+// ============================================
 // SPECIAL TEAMS ANIMATIONS (Kickoff/Punt)
 // ============================================
 
@@ -1381,102 +1631,70 @@ function parseSpecialTeamsPlay(playText, prevFieldPosition, teams) {
  * @param {Object} parsedPlay - Output from parseSpecialTeamsPlay()
  * @param {Object} options - { awayTeam, homeTeam, awayAbbr, homeAbbr }
  */
-function animateSpecialTeamsPlay(card, parsedPlay, options) {
-  const playingField = card.querySelector('.playing-field');
-  const ballIndicator = playingField?.querySelector('.ball-indicator');
-  const firstDownLine = playingField?.querySelector('.first-down-line');
+async function animateSpecialTeamsPlay(card, parsedPlay, options) {
+  // Get the game ID from the card to look up the SVGFieldVisualizer
+  const gameId = card.dataset.gameId;
+  const visualizer = window.fieldVisualizers?.get(gameId);
 
-  if (!playingField || !ballIndicator) {
-    console.log('⚠️ Special teams animation skipped - missing field elements');
+  if (!visualizer) {
+    console.log('⚠️ Special teams animation skipped - no field visualizer for game:', gameId);
     return;
   }
 
   const { playType, kickOrigin, landingSpot, returnEnd, isTouchback, isFairCatch } = parsedPlay;
 
-  // Calculate animation durations based on distance
-  const kickDistance = kickOrigin
-    ? Math.abs(landingSpot.fieldPercent - kickOrigin.fieldPercent)
-    : 50; // Default if no origin
-  const kickDuration = Math.max(1200, Math.min(2500, kickDistance * 25)); // 1.2s - 2.5s
-
-  const returnDistance = returnEnd && landingSpot
+  // Calculate positions and durations
+  const fromYard = kickOrigin ? kickOrigin.fieldPercent : (landingSpot?.fieldPercent || 35);
+  const toYard = landingSpot?.fieldPercent || 75;
+  const returnYards = returnEnd && landingSpot
     ? Math.abs(returnEnd.fieldPercent - landingSpot.fieldPercent)
     : 0;
-  const returnDuration = returnDistance > 0 ? Math.max(600, returnDistance * 20) : 0;
+
+  // Calculate animation durations based on distance
+  const kickDistance = Math.abs(toYard - fromYard);
+  const kickDuration = Math.max(1200, Math.min(2500, kickDistance * 25)); // 1.2s - 2.5s
 
   // Determine label text
   let labelText = playType === 'kickoff' ? 'KICKOFF' : 'PUNT';
   if (isTouchback) labelText = 'TOUCHBACK';
   if (isFairCatch) labelText = 'FAIR CATCH';
 
-  console.log(`🏈 Special teams animation: ${labelText}`, {
-    kickOrigin: kickOrigin?.fieldPercent,
-    landingSpot: landingSpot?.fieldPercent,
-    returnEnd: returnEnd?.fieldPercent,
-    kickDuration,
-    returnDuration
+  console.log(`🏈 Special teams SVG animation: ${labelText}`, {
+    fromYard,
+    toYard,
+    returnYards,
+    kickDuration
   });
 
-  // Phase 1: Setup - add active class, position ball at origin, show label
-  playingField.classList.add('special-teams-active');
+  try {
+    // Set ball at starting position
+    visualizer.setBallPosition(fromYard);
 
-  // Hide first down line
-  if (firstDownLine) {
-    firstDownLine.style.opacity = '0';
-  }
+    // Small delay before animation starts
+    await new Promise(r => setTimeout(r, 200));
 
-  // Position ball at kick origin (or landing spot if no origin for punts)
-  const startPosition = kickOrigin ? kickOrigin.fieldPercent : landingSpot.fieldPercent;
-  ballIndicator.style.transition = 'none';
-  ballIndicator.style.left = `${startPosition}%`;
-
-  // Create and show label
-  const existingLabel = playingField.querySelector('.special-teams-label');
-  if (existingLabel) existingLabel.remove();
-
-  const label = document.createElement('div');
-  label.className = 'special-teams-label';
-  label.textContent = labelText;
-  playingField.appendChild(label);
-
-  // Phase 2: After short delay, animate ball to landing spot
-  setTimeout(() => {
-    ballIndicator.style.transition = `left ${kickDuration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
-    ballIndicator.style.left = `${landingSpot.fieldPercent}%`;
-  }, 300);
-
-  // Phase 3: After landing, animate return (if applicable)
-  const afterLandingTime = 300 + kickDuration + 300; // setup + flight + pause
-
-  if (returnEnd && returnDistance > 0) {
-    setTimeout(() => {
-      ballIndicator.style.transition = `left ${returnDuration}ms ease-out`;
-      ballIndicator.style.left = `${returnEnd.fieldPercent}%`;
-    }, afterLandingTime);
-  }
-
-  // Phase 4: Cleanup and show lines at final position
-  const totalDuration = afterLandingTime + (returnDuration > 0 ? returnDuration + 300 : 0);
-
-  setTimeout(() => {
-    // Remove label if still present
-    const labelToRemove = playingField.querySelector('.special-teams-label');
-    if (labelToRemove) labelToRemove.remove();
-
-    // Remove active class
-    playingField.classList.remove('special-teams-active');
-
-    // Restore first down line visibility
-    if (firstDownLine) {
-      firstDownLine.style.opacity = '';
-      firstDownLine.style.transition = 'opacity 0.5s ease-out';
+    // Use the appropriate SVG animation method
+    if (playType === 'kickoff') {
+      // Kickoff with return animation
+      const result = await visualizer.animateKickoff(fromYard, toYard, returnYards, kickDuration);
+      visualizer.setBallPosition(result);
+      console.log(`🏈 Kickoff animation complete: landed at ${toYard}, final position ${result}`);
+    } else if (playType === 'punt') {
+      // Punt with optional return
+      const returnAmount = isTouchback || isFairCatch ? 0 : returnYards;
+      const result = await visualizer.animatePunt(fromYard, toYard, returnAmount, kickDuration);
+      visualizer.setBallPosition(result);
+      console.log(`🏈 Punt animation complete: landed at ${toYard}, final position ${result}`);
+    } else {
+      // Generic kick animation
+      await visualizer.animateKick(fromYard, toYard, kickDuration);
+      visualizer.setBallPosition(toYard);
     }
 
-    // Reset ball transition for normal updates
-    ballIndicator.style.transition = 'left 0.6s ease-out';
-
-    console.log('🏈 Special teams animation complete');
-  }, totalDuration);
+    console.log('🏈 Special teams SVG animation complete');
+  } catch (err) {
+    console.error('🏈 Special teams animation error:', err);
+  }
 }
 
 // Export functions for use in other modules
@@ -1497,6 +1715,8 @@ if (typeof module !== 'undefined' && module.exports) {
     detectMLBPlayEvents,
     parseSpecialTeamsPlay,
     animateSpecialTeamsPlay,
-    yardLineToFieldPercent
+    yardLineToFieldPercent,
+    parseYardPositionsFromPlay,
+    animatePlayOnSVGField
   };
 }

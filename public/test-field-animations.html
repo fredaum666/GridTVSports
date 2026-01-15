@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Animation Tester - GridTV Sports</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png">
+    <script src="/scripts/field-visualizer-svg.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .panel h2 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel h2 span {
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .panel h2 .count {
+            background: var(--success);
+            margin-left: auto;
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 11px;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: black;
+        }
+
+        .btn-error {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Field Preview Section */
+        .field-preview-section {
+            grid-column: 1 / -1;
+        }
+
+        .field-container {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .field-controls {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .control-group input[type="number"] {
+            width: 70px;
+            padding: 6px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .control-group select {
+            padding: 6px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .svg-field-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Extracted Animation Preview */
+        .extracted-preview {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .extracted-preview h4 {
+            font-size: 13px;
+            margin-bottom: 12px;
+            color: var(--accent-light);
+        }
+
+        .extracted-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .detail-box {
+            background: var(--bg-secondary);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .detail-box label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .detail-box span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Learned Animations Library */
+        .library-section {
+            margin-top: 16px;
+        }
+
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .library-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .library-item:hover {
+            border-color: var(--accent);
+        }
+
+        .library-item .type {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-light);
+        }
+
+        .library-item .desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .library-item .meta {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .library-item .delete-btn {
+            color: var(--error);
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Parse Result */
+        .parse-result {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .parse-result.success {
+            border-left: 3px solid var(--success);
+        }
+
+        .parse-result.warning {
+            border-left: 3px solid var(--warning);
+        }
+
+        .parse-result.error {
+            border-left: 3px solid var(--error);
+        }
+
+        .parse-result h4 {
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .parse-result .missing-animation {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .parse-result .missing-animation p {
+            font-size: 12px;
+            color: var(--warning);
+            margin-bottom: 8px;
+        }
+
+        .parse-result .missing-animation code {
+            display: block;
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        /* Animation Status */
+        .animation-status {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+
+        .status-indicator.animating {
+            background: var(--success);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .log-output {
+            margin-top: 16px;
+            padding: 12px;
+            background: #000;
+            border-radius: 8px;
+            font-family: 'Monaco', monospace;
+            font-size: 11px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .log-output .log-entry {
+            padding: 2px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .log-output .log-entry.info { color: #60a5fa; }
+        .log-output .log-entry.success { color: #4ade80; }
+        .log-output .log-entry.warning { color: #fbbf24; }
+        .log-output .log-entry.error { color: #f87171; }
+
+        /* Play Type Tags */
+        .play-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .play-type-tag {
+            padding: 4px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .play-type-tag.learned {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .play-type-tag.preset {
+            border-color: var(--accent);
+            color: var(--accent-light);
+        }
+
+        .play-type-tag.missing {
+            border-color: var(--error);
+            color: var(--error);
+            opacity: 0.6;
+        }
+
+        /* Preset grid */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 8px;
+        }
+
+        .preset-btn {
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--accent);
+            background: var(--bg-secondary);
+        }
+
+        .preset-btn .label {
+            font-weight: 600;
+            display: block;
+        }
+
+        .preset-btn .desc {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .preset-btn.pass { border-left: 3px solid #3b82f6; }
+        .preset-btn.rush { border-left: 3px solid #22c55e; }
+        .preset-btn.kick { border-left: 3px solid #f59e0b; }
+        .preset-btn.turnover { border-left: 3px solid #ef4444; }
+        .preset-btn.score { border-left: 3px solid #a855f7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Field Animation Tester & Library</h1>
+            <p>Extract ESPN animations, learn patterns, and test play-by-play animations</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Field Preview - NOW AT TOP -->
+            <div class="panel field-preview-section" style="grid-column: 1 / -1;">
+                <h2>Field Preview</h2>
+
+                <div class="field-controls">
+                    <div class="control-group">
+                        <label>Ball:</label>
+                        <input type="number" id="ball-pos" value="35" min="0" max="100" onchange="updateFieldPosition()">
+                    </div>
+                    <div class="control-group">
+                        <label>1st Down:</label>
+                        <input type="number" id="first-down-pos" value="45" min="0" max="100" onchange="updateFieldPosition()">
+                    </div>
+                    <div class="control-group">
+                        <label>Mode:</label>
+                        <select id="field-mode" onchange="updateFieldMode()">
+                            <option value="full">Full (Grid 1-2)</option>
+                            <option value="compressed">Compressed (Grid 3-8)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Away:</label>
+                        <select id="away-team" onchange="updateTeams()">
+                            <option value="ARI">ARI</option>
+                            <option value="ATL">ATL</option>
+                            <option value="BAL">BAL</option>
+                            <option value="BUF">BUF</option>
+                            <option value="CAR">CAR</option>
+                            <option value="CHI">CHI</option>
+                            <option value="CIN">CIN</option>
+                            <option value="CLE">CLE</option>
+                            <option value="DAL">DAL</option>
+                            <option value="DEN">DEN</option>
+                            <option value="DET">DET</option>
+                            <option value="GB">GB</option>
+                            <option value="HOU">HOU</option>
+                            <option value="IND">IND</option>
+                            <option value="JAX">JAX</option>
+                            <option value="KC">KC</option>
+                            <option value="LAC">LAC</option>
+                            <option value="LAR" selected>LAR</option>
+                            <option value="LV">LV</option>
+                            <option value="MIA">MIA</option>
+                            <option value="MIN">MIN</option>
+                            <option value="NE">NE</option>
+                            <option value="NO">NO</option>
+                            <option value="NYG">NYG</option>
+                            <option value="NYJ">NYJ</option>
+                            <option value="PHI">PHI</option>
+                            <option value="PIT">PIT</option>
+                            <option value="SF">SF</option>
+                            <option value="SEA">SEA</option>
+                            <option value="TB">TB</option>
+                            <option value="TEN">TEN</option>
+                            <option value="WAS">WAS</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Home:</label>
+                        <select id="home-team" onchange="updateTeams()">
+                            <option value="ARI">ARI</option>
+                            <option value="ATL">ATL</option>
+                            <option value="BAL">BAL</option>
+                            <option value="BUF">BUF</option>
+                            <option value="CAR" selected>CAR</option>
+                            <option value="CHI">CHI</option>
+                            <option value="CIN">CIN</option>
+                            <option value="CLE">CLE</option>
+                            <option value="DAL">DAL</option>
+                            <option value="DEN">DEN</option>
+                            <option value="DET">DET</option>
+                            <option value="GB">GB</option>
+                            <option value="HOU">HOU</option>
+                            <option value="IND">IND</option>
+                            <option value="JAX">JAX</option>
+                            <option value="KC">KC</option>
+                            <option value="LAC">LAC</option>
+                            <option value="LAR">LAR</option>
+                            <option value="LV">LV</option>
+                            <option value="MIA">MIA</option>
+                            <option value="MIN">MIN</option>
+                            <option value="NE">NE</option>
+                            <option value="NO">NO</option>
+                            <option value="NYG">NYG</option>
+                            <option value="NYJ">NYJ</option>
+                            <option value="PHI">PHI</option>
+                            <option value="PIT">PIT</option>
+                            <option value="SF">SF</option>
+                            <option value="SEA">SEA</option>
+                            <option value="TB">TB</option>
+                            <option value="TEN">TEN</option>
+                            <option value="WAS">WAS</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="resetField()">Reset</button>
+                </div>
+
+                <div class="field-container">
+                    <div class="svg-field-wrapper" id="field-container"></div>
+                </div>
+
+                <div class="animation-status">
+                    <div class="status-indicator" id="status-indicator"></div>
+                    <span id="status-text">Ready</span>
+                </div>
+            </div>
+
+            <!-- Play Text Parser - RIGHT BELOW FIELD -->
+            <div class="panel" style="grid-column: 1 / -1;">
+                <h2>
+                    Play-by-Play Animator
+                    <span>PASTE PLAY</span>
+                </h2>
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start;">
+                    <div>
+                        <textarea id="play-input" style="height: 100px;" placeholder="Paste play description here...
+
+Example: (Shotgun) B.Young pass short right to T.Tremble to LA 28 for 4 yards. 3rd & 7 at LAR 32"></textarea>
+                        <div class="parse-result" id="parse-result" style="display: none; margin-top: 10px;"></div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn btn-success" style="padding: 20px 30px; font-size: 16px;" onclick="parseAndAnimate()">GO</button>
+                        <button class="btn btn-warning" onclick="clearPlayInput()">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preset Animations (Quick Test) -->
+            <div class="panel" style="grid-column: 1 / -1;">
+                <h2>
+                    Preset Animations
+                    <span>QUICK TEST</span>
+                </h2>
+                <div class="preset-grid" id="preset-grid"></div>
+            </div>
+
+            <!-- Drive Simulator -->
+            <div class="panel" style="grid-column: 1 / -1;">
+                <h2>
+                    Drive Simulator
+                    <span>LIVE GAME DEMO</span>
+                </h2>
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; color: var(--text-secondary); margin-right: 8px;">Select Drive:</label>
+                    <select id="drive-selector" onchange="switchDrive()" style="padding: 6px 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary);">
+                        <option value="drive1">Drive 1: TD Drive (4 plays)</option>
+                        <option value="drive2">Drive 2: FG Drive with Penalties (9 plays)</option>
+                        <option value="drive3">Drive 3: Punt + FG Drive (15 plays)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <div class="drive-plays" id="drive-plays" style="background: var(--bg-tertiary); border-radius: 8px; padding: 12px; max-height: 280px; overflow-y: auto;">
+                            <!-- Drive plays rendered dynamically -->
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn btn-success" style="padding: 16px 24px; font-size: 14px;" onclick="playDriveDemo()">
+                            ▶ Play Drive
+                        </button>
+                        <button class="btn btn-primary" onclick="playNextPlay()">Next Play</button>
+                        <button class="btn btn-warning" onclick="resetDrive()">Reset</button>
+                        <div style="font-size: 11px; color: var(--text-secondary); text-align: center; margin-top: 8px;">
+                            Play <span id="current-play-num">0</span>/<span id="total-plays">4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG Animation Extractor -->
+            <div class="panel">
+                <h2>
+                    SVG Animation Extractor
+                    <span>PASTE ESPN CODE</span>
+                </h2>
+                <textarea id="svg-input" style="height: 120px;" placeholder="Paste ESPN SVG animation code here..."></textarea>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="extractAndPreview()">Extract & Preview</button>
+                    <button class="btn btn-success" onclick="learnAnimation()">Learn Animation</button>
+                    <button class="btn btn-warning" onclick="clearSvgInput()">Clear</button>
+                </div>
+
+                <div class="extracted-preview" id="extracted-preview" style="display: none;">
+                    <h4>Extracted Animation</h4>
+                    <div class="extracted-details" id="extracted-details"></div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="replayExtracted()">Replay on Field</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learned Animations Library -->
+            <div class="panel">
+                <h2>
+                    Learned Animations Library
+                    <span class="count" id="library-count">0</span>
+                </h2>
+                <div class="library-grid" id="library-grid" style="max-height: 150px;">
+                    <p style="color: var(--text-secondary); font-size: 13px; grid-column: 1/-1; text-align: center; padding: 20px;">
+                        No animations learned yet.
+                    </p>
+                </div>
+                <div class="btn-group" style="margin-top: 12px;">
+                    <button class="btn btn-error" onclick="clearLibrary()">Clear All</button>
+                    <button class="btn btn-primary" onclick="exportLibrary()">Export</button>
+                    <button class="btn btn-primary" onclick="document.getElementById('import-file').click()">Import</button>
+                    <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importLibrary(event)">
+                </div>
+            </div>
+
+            <!-- Play Type Status -->
+            <div class="panel" style="grid-column: 1 / -1;">
+                <h2>Animation Status</h2>
+                <div class="play-types" id="play-types">
+                    <span style="font-size: 11px; color: var(--text-secondary); margin-right: 8px;">Animation Library:</span>
+                </div>
+            </div>
+
+            <!-- Log moved to bottom -->
+            <div class="panel" style="grid-column: 1 / -1;">
+                <h2>Log</h2>
+                <div class="log-output" id="log-output" style="max-height: 100px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONSTANTS
+        // ==========================================
+        const STORAGE_KEY = 'gridtv_learned_animations';
+
+        const teamColors = {
+            'ARI': '#97233F', 'ATL': '#A71930', 'BAL': '#241773', 'BUF': '#00338D',
+            'CAR': '#0085CA', 'CHI': '#0B162A', 'CIN': '#FB4F14', 'CLE': '#311D00',
+            'DAL': '#003594', 'DEN': '#FB4F14', 'DET': '#0076B6', 'GB': '#203731',
+            'HOU': '#03202F', 'IND': '#002C5F', 'JAX': '#006778', 'KC': '#E31837',
+            'LAC': '#0080C6', 'LAR': '#003594', 'LA': '#003594', 'LV': '#000000',
+            'MIA': '#008E97', 'MIN': '#4F2683', 'NE': '#002244', 'NO': '#D3BC8D',
+            'NYG': '#0B2265', 'NYJ': '#125740', 'PHI': '#004C54', 'PIT': '#FFB612',
+            'SF': '#AA0000', 'SEA': '#002244', 'TB': '#D50A0A', 'TEN': '#4B92DB',
+            'WAS': '#773141'
+        };
+
+        // Play type categories for matching (order matters - more specific patterns first)
+        const PLAY_CATEGORIES = [
+            // Turnovers (check these first as they're most specific)
+            { id: 'pick_six', label: 'Pick Six', pattern: /intercept.*touchdown|pick.?six|pick.?6|interception.*TD/i },
+            { id: 'interception_return', label: 'Interception (Return)', pattern: /intercept.*return|intercept.*for \d+ yard/i },
+            { id: 'interception', label: 'Interception', pattern: /intercept/i },
+            { id: 'fumble', label: 'Fumble', pattern: /fumble/i },
+
+            // Special teams - check before passes/rushes
+            { id: 'field_goal_missed', label: 'Missed Field Goal', pattern: /field goal.*(no good|miss|wide|short|blocked)/i },
+            { id: 'field_goal', label: 'Field Goal (Good)', pattern: /field goal|(\d+)[\s-]yard FG/i },
+            { id: 'extra_point_missed', label: 'Missed Extra Point', pattern: /extra point.*(no good|miss|wide|blocked)|PAT.*(no good|miss)|XP.*(no good|miss)/i },
+            { id: 'extra_point', label: 'Extra Point (Good)', pattern: /extra point|PAT|XP/i },
+            { id: 'kickoff', label: 'Kickoff', pattern: /kick(s)?\s*off|kickoff/i },
+            { id: 'punt_no_return', label: 'Punt (no return)', pattern: /punt.*(fair catch|touchback|out of bounds|downed)/i },
+            { id: 'punt_return', label: 'Punt (with return)', pattern: /punt/i },
+
+            // Touchdowns
+            { id: 'touchdown_pass', label: 'Touchdown (Pass)', pattern: /pass.*touchdown|TD pass|pass.*TD/i },
+            { id: 'touchdown_rush', label: 'Touchdown (Rush)', pattern: /rush.*touchdown|TD rush|run.*TD|rushing.*touchdown/i },
+
+            // Passes - check incomplete before complete
+            { id: 'pass_incomplete', label: 'Incomplete Pass', pattern: /pass incomplete|incomplete|pass.*incomplete/i },
+            { id: 'pass_deep', label: 'Deep Pass (26+ yds)', pattern: /pass.*(deep|for (2[6-9]|[3-9]\d) yard)/i },
+            { id: 'pass_medium', label: 'Medium Pass (11-25 yds)', pattern: /pass.*(for (1[1-9]|2[0-5]) yard)/i },
+            { id: 'pass_short', label: 'Short Pass (1-10 yds)', pattern: /pass.*(short|for ([1-9]|10) yard)/i },
+
+            // Rushes
+            { id: 'sack', label: 'Sack', pattern: /sack/i },
+            { id: 'rush_long', label: 'Long Rush (16+ yds)', pattern: /rush.*for (1[6-9]|[2-9]\d) yard/i },
+            { id: 'rush_medium', label: 'Medium Rush (6-15 yds)', pattern: /rush.*for ([6-9]|1[0-5]) yard/i },
+            { id: 'rush_short', label: 'Short Rush (1-5 yds)', pattern: /rush.*(for [1-5] yard|no gain|for a loss)/i }
+        ];
+
+        // Preset animations (built-in defaults)
+        const PRESET_ANIMATIONS = {
+            pass_short: { type: 'pass', yards: 6, arcHeight: 15, duration: 900 },
+            pass_medium: { type: 'pass', yards: 18, arcHeight: 28, duration: 1100 },
+            pass_deep: { type: 'pass', yards: 35, arcHeight: 45, duration: 1400 },
+            pass_incomplete: { type: 'incomplete', yards: 12, arcHeight: 25, duration: 1000 },
+            rush_short: { type: 'rush', yards: 3, duration: 600 },
+            rush_medium: { type: 'rush', yards: 10, duration: 900 },
+            rush_long: { type: 'rush', yards: 22, duration: 1200 },
+            sack: { type: 'sack', yards: -7, duration: 700 },
+            kickoff: { type: 'kickoff', fromYard: 35, toYard: 75, returnYards: 22, duration: 2500 },
+            punt_no_return: { type: 'punt', puntYards: 45, returnYards: 0, duration: 2000 },
+            punt_return: { type: 'punt', puntYards: 45, returnYards: 12, duration: 2000 },
+            field_goal: { type: 'field_goal', direction: 'right', duration: 2500 },
+            field_goal_missed: { type: 'field_goal_missed', direction: 'right', missDirection: 'wide_right', duration: 2500 },
+            extra_point: { type: 'extra_point', good: true, duration: 1500 },
+            extra_point_missed: { type: 'extra_point', good: false, duration: 1500 },
+            touchdown_pass: { type: 'touchdown', playType: 'pass', yards: 25, duration: 1500 },
+            touchdown_rush: { type: 'touchdown', playType: 'rush', yards: 8, duration: 1200 },
+            interception: { type: 'interception', yards: 15, returnYards: 0, duration: 1200 },
+            interception_return: { type: 'interception', yards: 18, returnYards: 15, duration: 1200 },
+            pick_six: { type: 'interception', yards: 20, returnYards: -1, duration: 1200 },
+            fumble: { type: 'fumble', yards: 5, offenseRecovery: false, duration: 800 }
+        };
+
+        // ==========================================
+        // STATE
+        // ==========================================
+        let fieldVisualizer = null;
+        let extractedAnimation = null;
+        let learnedAnimations = [];
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLibrary();
+            initField();
+            updatePlayTypeTags();
+            renderPresetGrid();
+            log('Field Animation Tester initialized', 'success');
+            log(`${Object.keys(PRESET_ANIMATIONS).length} preset animations available`, 'info');
+        });
+
+        function renderPresetGrid() {
+            const grid = document.getElementById('preset-grid');
+
+            const presetButtons = [
+                { id: 'pass_short', label: 'Short Pass', desc: '1-10 yds', category: 'pass' },
+                { id: 'pass_medium', label: 'Medium Pass', desc: '11-25 yds', category: 'pass' },
+                { id: 'pass_deep', label: 'Deep Pass', desc: '26+ yds', category: 'pass' },
+                { id: 'pass_incomplete', label: 'Incomplete', desc: 'No gain', category: 'pass' },
+                { id: 'rush_short', label: 'Short Rush', desc: '1-5 yds', category: 'rush' },
+                { id: 'rush_medium', label: 'Medium Rush', desc: '6-15 yds', category: 'rush' },
+                { id: 'rush_long', label: 'Long Rush', desc: '16+ yds', category: 'rush' },
+                { id: 'sack', label: 'Sack', desc: '-7 yds', category: 'turnover' },
+                { id: 'kickoff', label: 'Kickoff', desc: 'With return', category: 'kick' },
+                { id: 'punt_no_return', label: 'Punt', desc: 'No return', category: 'kick' },
+                { id: 'punt_return', label: 'Punt', desc: 'With return', category: 'kick' },
+                { id: 'field_goal', label: 'Field Goal', desc: 'Good', category: 'kick' },
+                { id: 'field_goal_missed', label: 'Field Goal', desc: 'Missed', category: 'kick' },
+                { id: 'extra_point', label: 'Extra Point', desc: 'Good', category: 'score' },
+                { id: 'extra_point_missed', label: 'Extra Point', desc: 'Missed', category: 'score' },
+                { id: 'touchdown_pass', label: 'TD Pass', desc: 'Passing TD', category: 'score' },
+                { id: 'touchdown_rush', label: 'TD Rush', desc: 'Rushing TD', category: 'score' },
+                { id: 'interception', label: 'Interception', desc: 'No return', category: 'turnover' },
+                { id: 'interception_return', label: 'INT Return', desc: 'With return', category: 'turnover' },
+                { id: 'pick_six', label: 'Pick Six', desc: 'INT for TD', category: 'turnover' },
+                { id: 'fumble', label: 'Fumble', desc: 'Lost', category: 'turnover' }
+            ];
+
+            grid.innerHTML = presetButtons.map(btn => `
+                <button class="preset-btn ${btn.category}" onclick="playPresetAnimation('${btn.id}')">
+                    <span class="label">${btn.label}</span>
+                    <span class="desc">${btn.desc}</span>
+                </button>
+            `).join('');
+        }
+
+        function initField() {
+            const container = document.getElementById('field-container');
+            const isCompressed = document.getElementById('field-mode').value === 'compressed';
+            const awayTeam = document.getElementById('away-team').value;
+            const homeTeam = document.getElementById('home-team').value;
+
+            if (fieldVisualizer) {
+                fieldVisualizer.destroy();
+            }
+
+            fieldVisualizer = new SVGFieldVisualizer(container, {
+                compressed: isCompressed,
+                showGoalPosts: !isCompressed,
+                showYardNumbers: !isCompressed,
+                showOneYardLines: !isCompressed,
+                awayColor: teamColors[awayTeam] || '#1f2937',
+                homeColor: teamColors[homeTeam] || '#1f2937',
+                awayAbbr: awayTeam,
+                homeAbbr: homeTeam
+            });
+
+            updateFieldPosition();
+        }
+
+        // ==========================================
+        // SVG EXTRACTION
+        // ==========================================
+        function extractAndPreview() {
+            const svgCode = document.getElementById('svg-input').value;
+            if (!svgCode) {
+                log('No SVG code provided', 'error');
+                return;
+            }
+
+            extractedAnimation = parseESPNAnimation(svgCode);
+
+            if (!extractedAnimation) {
+                log('Could not parse animation from SVG code', 'error');
+                document.getElementById('extracted-preview').style.display = 'none';
+                return;
+            }
+
+            displayExtractedAnimation(extractedAnimation);
+            log(`Extracted ${extractedAnimation.type} animation: ${extractedAnimation.fromYard} → ${extractedAnimation.toYard} (${extractedAnimation.yards} yds)`, 'success');
+
+            // Auto-replay
+            replayExtracted();
+        }
+
+        function parseESPNAnimation(svgCode) {
+            const result = {
+                type: 'unknown',
+                subType: null,
+                fromYard: 50,
+                toYard: 50,
+                yards: 0,
+                duration: 1000,
+                arcHeight: 0,
+                pathData: null,
+                rawSvg: svgCode
+            };
+
+            // Extract path data for pass
+            const passPathMatch = svgCode.match(/id="[^"]*pass-path"[^>]*d="([^"]+)"/);
+            if (passPathMatch) {
+                result.pathData = passPathMatch[1];
+                result.type = 'pass';
+
+                // Parse path coordinates
+                const coords = parsePathCoordinates(result.pathData);
+                if (coords) {
+                    result.fromYard = espnXToYard(coords.startX);
+                    result.toYard = espnXToYard(coords.endX);
+                    result.yards = Math.abs(result.toYard - result.fromYard);
+
+                    // Calculate arc height from control points
+                    if (coords.controlY !== undefined) {
+                        result.arcHeight = Math.abs(coords.startY - coords.controlY);
+                    }
+                }
+            }
+
+            // Extract path data for rush
+            const rushPathMatch = svgCode.match(/id="[^"]*rush-path"[^>]*d="([^"]+)"/);
+            if (rushPathMatch && !passPathMatch) {
+                result.pathData = rushPathMatch[1];
+                result.type = 'rush';
+
+                const coords = parsePathCoordinates(result.pathData);
+                if (coords) {
+                    result.fromYard = espnXToYard(coords.startX);
+                    result.toYard = espnXToYard(coords.endX);
+                    result.yards = Math.abs(result.toYard - result.fromYard);
+                }
+            }
+
+            // Detect kick animations (kickoff, punt, field goal)
+            if (svgCode.includes('clockwiseKick') || svgCode.includes('counterclockwiseKick')) {
+                result.type = 'kick';
+                result.subType = svgCode.includes('clockwise') ? 'clockwise' : 'counterclockwise';
+
+                // If we didn't get path data from pass/rush, try to find any path with d attribute
+                if (!result.pathData) {
+                    const anyPathMatch = svgCode.match(/d="(M[^"]+)"/);
+                    if (anyPathMatch) {
+                        result.pathData = anyPathMatch[1];
+                        const coords = parsePathCoordinates(result.pathData);
+                        if (coords) {
+                            result.fromYard = espnXToYard(coords.startX);
+                            result.toYard = espnXToYard(coords.endX);
+                            result.yards = Math.abs(result.toYard - result.fromYard);
+
+                            // Calculate arc height from control points
+                            if (coords.controlY !== undefined) {
+                                result.arcHeight = Math.abs(coords.startY - coords.controlY);
+                            }
+                        }
+                    }
+                }
+
+                // Check if this is a field goal (ball goes past the end zone x > 550)
+                if (result.pathData) {
+                    const coords = parsePathCoordinates(result.pathData);
+                    if (coords && coords.endX > 550) {
+                        result.type = 'field_goal';
+                        result.subType = 'right'; // Kicking toward right goal post
+                    } else if (coords && coords.endX < 50) {
+                        result.type = 'field_goal';
+                        result.subType = 'left'; // Kicking toward left goal post
+                    }
+                }
+            }
+
+            // Extract duration from animation style
+            const durationMatch = svgCode.match(/animation-duration:\s*([\d.]+)ms/);
+            if (durationMatch) {
+                result.duration = parseFloat(durationMatch[1]);
+            }
+
+            // Also check inline animation duration
+            const inlineDurationMatch = svgCode.match(/animation:\s*([\d.]+)ms/);
+            if (inlineDurationMatch) {
+                result.duration = parseFloat(inlineDurationMatch[1]);
+            }
+
+            // Categorize by yards
+            if (result.type === 'pass') {
+                if (result.yards <= 10) result.subType = 'short';
+                else if (result.yards <= 25) result.subType = 'medium';
+                else result.subType = 'deep';
+            } else if (result.type === 'rush') {
+                if (result.yards <= 5) result.subType = 'short';
+                else if (result.yards <= 15) result.subType = 'medium';
+                else result.subType = 'long';
+            }
+
+            return result.type !== 'unknown' ? result : null;
+        }
+
+        function parsePathCoordinates(pathData) {
+            if (!pathData) return null;
+
+            const result = {
+                startX: 0,
+                startY: 0,
+                endX: 0,
+                endY: 0,
+                controlX: undefined,
+                controlY: undefined
+            };
+
+            // Match M (move to) command
+            const moveMatch = pathData.match(/M\s*([-\d.]+)\s*([-\d.]+)/);
+            if (moveMatch) {
+                result.startX = parseFloat(moveMatch[1]);
+                result.startY = parseFloat(moveMatch[2]);
+            }
+
+            // Match C (cubic bezier) command for curves
+            const curveMatch = pathData.match(/C\s*([-\d.]+)[,\s]*([-\d.]+)[,\s]*([-\d.]+)[,\s]*([-\d.]+)[,\s]*([-\d.]+)[,\s]*([-\d.]+)/);
+            if (curveMatch) {
+                result.controlX = parseFloat(curveMatch[1]);
+                result.controlY = parseFloat(curveMatch[2]);
+                result.endX = parseFloat(curveMatch[5]);
+                result.endY = parseFloat(curveMatch[6]);
+            }
+
+            // Match L (line to) command for straight lines
+            const lineMatch = pathData.match(/L\s*([-\d.]+)\s*([-\d.]+)/);
+            if (lineMatch) {
+                result.endX = parseFloat(lineMatch[1]);
+                result.endY = parseFloat(lineMatch[2]);
+            }
+
+            return result;
+        }
+
+        // ESPN uses different coordinate system - convert to our 0-100 yard scale
+        function espnXToYard(x) {
+            // ESPN field: approximately x=0 is left end zone, x=550 is right end zone
+            // Playing field x=50 to x=550 = 100 yards
+            // Adjust based on observed ESPN values
+            const yardPerUnit = 100 / 500; // 500 units = 100 yards
+            const yard = (x - 50) * yardPerUnit;
+            return Math.max(0, Math.min(100, Math.round(yard)));
+        }
+
+        function displayExtractedAnimation(anim) {
+            const preview = document.getElementById('extracted-preview');
+            const details = document.getElementById('extracted-details');
+
+            preview.style.display = 'block';
+            details.innerHTML = `
+                <div class="detail-box">
+                    <label>Type</label>
+                    <span>${anim.type}${anim.subType ? ' (' + anim.subType + ')' : ''}</span>
+                </div>
+                <div class="detail-box">
+                    <label>From Yard</label>
+                    <span>${anim.fromYard}</span>
+                </div>
+                <div class="detail-box">
+                    <label>To Yard</label>
+                    <span>${anim.toYard}</span>
+                </div>
+                <div class="detail-box">
+                    <label>Distance</label>
+                    <span>${anim.yards} yds</span>
+                </div>
+                <div class="detail-box">
+                    <label>Duration</label>
+                    <span>${anim.duration}ms</span>
+                </div>
+                ${anim.arcHeight ? `
+                <div class="detail-box">
+                    <label>Arc Height</label>
+                    <span>${Math.round(anim.arcHeight)}</span>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        async function replayExtracted() {
+            if (!extractedAnimation || !fieldVisualizer) return;
+
+            const anim = extractedAnimation;
+            setStatus(true, `Playing ${anim.type} animation...`);
+
+            // Set starting position
+            fieldVisualizer.setBallPosition(anim.fromYard);
+            await sleep(200);
+
+            try {
+                if (anim.type === 'pass') {
+                    await fieldVisualizer.animatePass(anim.fromYard, anim.toYard, anim.arcHeight || 25, anim.duration);
+                    document.getElementById('ball-pos').value = anim.toYard;
+                } else if (anim.type === 'rush') {
+                    await fieldVisualizer.animateRush(anim.fromYard, anim.toYard, anim.duration);
+                    document.getElementById('ball-pos').value = anim.toYard;
+                } else if (anim.type === 'field_goal') {
+                    // Field goal goes through the goal posts (doesn't update ball position)
+                    await fieldVisualizer.animateFieldGoal(anim.fromYard, anim.subType || 'right', anim.duration);
+                } else if (anim.type === 'kick') {
+                    await fieldVisualizer.animateKick(anim.fromYard, anim.toYard, anim.duration);
+                    document.getElementById('ball-pos').value = anim.toYard;
+                }
+
+                log(`Animation complete: ${anim.type} ${anim.fromYard} → ${anim.type === 'field_goal' ? 'goal posts' : anim.toYard}`, 'success');
+            } catch (err) {
+                log(`Animation error: ${err.message}`, 'error');
+            }
+
+            setStatus(false, 'Ready');
+        }
+
+        // ==========================================
+        // ANIMATION LIBRARY
+        // ==========================================
+        function learnAnimation() {
+            if (!extractedAnimation) {
+                log('No animation extracted. Extract first, then learn.', 'warning');
+                return;
+            }
+
+            const anim = extractedAnimation;
+            const categoryId = getCategoryForAnimation(anim);
+
+            const learned = {
+                id: Date.now().toString(),
+                categoryId: categoryId,
+                type: anim.type,
+                subType: anim.subType,
+                yards: anim.yards,
+                duration: anim.duration,
+                arcHeight: anim.arcHeight,
+                pathData: anim.pathData,
+                createdAt: new Date().toISOString()
+            };
+
+            // Check if we already have this category
+            const existingIndex = learnedAnimations.findIndex(a => a.categoryId === categoryId);
+            if (existingIndex >= 0) {
+                learnedAnimations[existingIndex] = learned;
+                log(`Updated animation for: ${categoryId}`, 'success');
+            } else {
+                learnedAnimations.push(learned);
+                log(`Learned new animation: ${categoryId}`, 'success');
+            }
+
+            saveLibrary();
+            renderLibrary();
+            updatePlayTypeTags();
+        }
+
+        function getCategoryForAnimation(anim) {
+            if (anim.type === 'pass') {
+                if (anim.subType === 'short' || anim.yards <= 10) return 'pass_short';
+                if (anim.subType === 'medium' || anim.yards <= 25) return 'pass_medium';
+                return 'pass_deep';
+            }
+            if (anim.type === 'rush') {
+                if (anim.subType === 'short' || anim.yards <= 5) return 'rush_short';
+                if (anim.subType === 'medium' || anim.yards <= 15) return 'rush_medium';
+                return 'rush_long';
+            }
+            if (anim.type === 'field_goal') {
+                return 'field_goal';
+            }
+            if (anim.type === 'kick') {
+                return 'kickoff'; // Could be punt too
+            }
+            return 'unknown';
+        }
+
+        function loadLibrary() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    learnedAnimations = JSON.parse(stored);
+                    log(`Loaded ${learnedAnimations.length} animations from library`, 'info');
+                }
+            } catch (e) {
+                log('Error loading library: ' + e.message, 'error');
+            }
+            renderLibrary();
+        }
+
+        function saveLibrary() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(learnedAnimations));
+            } catch (e) {
+                log('Error saving library: ' + e.message, 'error');
+            }
+        }
+
+        function renderLibrary() {
+            const grid = document.getElementById('library-grid');
+            const count = document.getElementById('library-count');
+
+            count.textContent = learnedAnimations.length;
+
+            if (learnedAnimations.length === 0) {
+                grid.innerHTML = `
+                    <p style="color: var(--text-secondary); font-size: 13px; grid-column: 1/-1; text-align: center; padding: 20px;">
+                        No animations learned yet. Extract ESPN SVG code and click "Learn Animation" to build your library.
+                    </p>
+                `;
+                return;
+            }
+
+            grid.innerHTML = learnedAnimations.map(anim => {
+                const category = PLAY_CATEGORIES.find(c => c.id === anim.categoryId);
+                return `
+                    <div class="library-item" onclick="playLearnedAnimation('${anim.id}')">
+                        <div class="type">${category ? category.label : anim.categoryId}</div>
+                        <div class="desc">${anim.type} - ${anim.yards} yds @ ${anim.duration}ms</div>
+                        <div class="meta">
+                            <span>${new Date(anim.createdAt).toLocaleDateString()}</span>
+                            <span class="delete-btn" onclick="event.stopPropagation(); deleteAnimation('${anim.id}')">Delete</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function deleteAnimation(id) {
+            learnedAnimations = learnedAnimations.filter(a => a.id !== id);
+            saveLibrary();
+            renderLibrary();
+            updatePlayTypeTags();
+            log('Animation deleted', 'info');
+        }
+
+        function clearLibrary() {
+            if (confirm('Delete all learned animations?')) {
+                learnedAnimations = [];
+                saveLibrary();
+                renderLibrary();
+                updatePlayTypeTags();
+                log('Library cleared', 'info');
+            }
+        }
+
+        function exportLibrary() {
+            const data = JSON.stringify(learnedAnimations, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gridtv-animations.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            log('Library exported', 'success');
+        }
+
+        function importLibrary(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    learnedAnimations = imported;
+                    saveLibrary();
+                    renderLibrary();
+                    updatePlayTypeTags();
+                    log(`Imported ${imported.length} animations`, 'success');
+                } catch (err) {
+                    log('Import error: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function playLearnedAnimation(id) {
+            const anim = learnedAnimations.find(a => a.id === id);
+            if (!anim || !fieldVisualizer) return;
+
+            // Create a mock parsed object to reuse animateWithLearned
+            const mockParsed = {
+                playType: anim.categoryId,
+                categoryId: anim.categoryId,
+                fromYard: parseInt(document.getElementById('ball-pos').value) || 50,
+                yards: anim.yards || 10
+            };
+
+            await animateWithLearned(mockParsed, { ...anim, source: 'learned' });
+        }
+
+        // Play a preset animation directly (for testing)
+        async function playPresetAnimation(categoryId) {
+            const preset = PRESET_ANIMATIONS[categoryId];
+            if (!preset || !fieldVisualizer) return;
+
+            const mockParsed = {
+                playType: categoryId,
+                categoryId: categoryId,
+                fromYard: parseInt(document.getElementById('ball-pos').value) || 50,
+                yards: preset.yards || 10
+            };
+
+            await animateWithLearned(mockParsed, { ...preset, categoryId, source: 'preset' });
+        }
+
+        function updatePlayTypeTags() {
+            const container = document.getElementById('play-types');
+            const learnedIds = learnedAnimations.map(a => a.categoryId);
+
+            container.innerHTML = `
+                <span style="font-size: 11px; color: var(--text-secondary); margin-right: 8px;">Status:</span>
+                ${PLAY_CATEGORIES.map(cat => {
+                    const isLearned = learnedIds.includes(cat.id);
+                    const hasPreset = PRESET_ANIMATIONS[cat.id] !== undefined;
+                    let className = 'missing';
+                    let title = 'No animation';
+                    if (isLearned) {
+                        className = 'learned';
+                        title = 'Learned from ESPN';
+                    } else if (hasPreset) {
+                        className = 'preset';
+                        title = 'Using preset animation';
+                    }
+                    return `<span class="play-type-tag ${className}" title="${title}" onclick="playPresetAnimation('${cat.id}')">${cat.label}</span>`;
+                }).join('')}
+            `;
+        }
+
+        // ==========================================
+        // PLAY TEXT PARSING
+        // ==========================================
+        function parseAndAnimate() {
+            const playText = document.getElementById('play-input').value.trim();
+            if (!playText) {
+                showParseResult(null, 'Please enter a play description');
+                return;
+            }
+
+            const parsed = parsePlayText(playText);
+            const matchedAnimation = findMatchingAnimation(parsed);
+
+            if (matchedAnimation) {
+                showParseResult(parsed, null, matchedAnimation);
+                animateWithLearned(parsed, matchedAnimation);
+            } else {
+                showParseResult(parsed, null, null, getMissingAnimationType(parsed));
+            }
+        }
+
+        function parsePlayText(text) {
+            const result = {
+                raw: text,
+                playType: null,
+                categoryId: null,
+                fromYard: parseInt(document.getElementById('ball-pos').value) || 50,
+                toYard: null,
+                yards: 0,
+                player: null,
+                receiver: null,
+                direction: null,
+                puntYards: null,
+                returnYards: null,
+                fgDistance: null
+            };
+
+            const lowerText = text.toLowerCase();
+
+            // Extract player names
+            const playerMatch = text.match(/([A-Z]\.[A-Za-z]+)/g);
+            if (playerMatch) {
+                result.player = playerMatch[0];
+                if (playerMatch.length > 1) {
+                    result.receiver = playerMatch[1];
+                }
+            }
+
+            // Extract direction
+            if (lowerText.includes('left')) result.direction = 'left';
+            else if (lowerText.includes('right')) result.direction = 'right';
+            else if (lowerText.includes('middle') || lowerText.includes('up the middle')) result.direction = 'middle';
+
+            // Extract starting position - look for "at XXX ##" pattern (last one is usually the down/distance)
+            const allStartMatches = [...text.matchAll(/at\s+([A-Z]{2,3})\s+(\d+)/gi)];
+            if (allStartMatches.length > 0) {
+                // Use the last "at XXX ##" which is typically the down & distance line
+                const lastMatch = allStartMatches[allStartMatches.length - 1];
+                result.fromYard = parseInt(lastMatch[2]);
+                result.startTeam = lastMatch[1];
+            }
+
+            // Determine play type first (order matters)
+            for (const cat of PLAY_CATEGORIES) {
+                if (cat.pattern.test(text)) {
+                    result.playType = cat.label;
+                    result.categoryId = cat.id;
+                    break;
+                }
+            }
+
+            // PUNT-specific parsing
+            if (result.categoryId === 'punt_return' || result.categoryId === 'punt_no_return') {
+                // Extract punt distance: "punts 44 yards"
+                const puntDistMatch = text.match(/punts?\s+(\d+)\s*yard/i);
+                if (puntDistMatch) {
+                    result.puntYards = parseInt(puntDistMatch[1]);
+                }
+
+                // Extract landing spot: "to HST 7" or "to the HST 7"
+                const landingMatch = text.match(/to\s+(?:the\s+)?([A-Z]{2,3})\s+(\d+)/i);
+                if (landingMatch) {
+                    result.landingYard = parseInt(landingMatch[2]);
+                    result.landingTeam = landingMatch[1];
+                }
+
+                // Extract return yards - look for "for X yard" after the landing
+                // Pattern: "J.Noel pushed ob at HST 8 for 1 yard" or "returned for 15 yards"
+                const returnPatterns = [
+                    /(?:return|pushed|ran).*?for\s+(\d+)\s*yard/i,
+                    /for\s+(\d+)\s*yard.*?return/i,
+                    /(\d+)[\s-]*yard\s*return/i
+                ];
+                for (const pattern of returnPatterns) {
+                    const match = text.match(pattern);
+                    if (match) {
+                        result.returnYards = parseInt(match[1]);
+                        break;
+                    }
+                }
+
+                // Check for no return scenarios
+                if (lowerText.includes('fair catch') || lowerText.includes('touchback') ||
+                    lowerText.includes('out of bounds') || lowerText.includes('downed')) {
+                    result.returnYards = 0;
+                    result.categoryId = 'punt_no_return';
+                    result.playType = 'Punt (no return)';
+                }
+
+                // Set yards to punt distance for display
+                result.yards = result.puntYards || 45;
+            }
+
+            // KICKOFF-specific parsing
+            else if (result.categoryId === 'kickoff') {
+                // "kicks off 65 yards" or "kickoff for 65 yards"
+                const kickDistMatch = text.match(/kick(?:s\s+off|off)?\s+(?:for\s+)?(\d+)\s*yard/i);
+                if (kickDistMatch) {
+                    result.kickYards = parseInt(kickDistMatch[1]);
+                }
+
+                // Extract return yards
+                const returnMatch = text.match(/return.*?(\d+)\s*yard|for\s+(\d+)\s*yard.*?return/i);
+                if (returnMatch) {
+                    result.returnYards = parseInt(returnMatch[1] || returnMatch[2]);
+                }
+
+                // Touchback
+                if (lowerText.includes('touchback')) {
+                    result.returnYards = 0;
+                    result.toYard = 25; // Touchback to 25
+                }
+
+                result.yards = result.kickYards || 65;
+            }
+
+            // FIELD GOAL parsing
+            else if (result.categoryId === 'field_goal' || result.categoryId === 'field_goal_missed') {
+                const fgMatch = text.match(/(\d+)[\s-]*yard\s*(?:field\s*goal|FG)/i);
+                if (fgMatch) {
+                    result.fgDistance = parseInt(fgMatch[1]);
+                    // FG distance = yards from goal line + 17 (end zone + snap)
+                    // So a 44-yard FG is kicked from about the 27 yard line
+                    result.fromYard = result.fgDistance - 17;
+                }
+                result.yards = result.fgDistance || 40;
+            }
+
+            // PASS/RUSH - extract yards gained
+            else if (result.categoryId && result.categoryId.startsWith('pass')) {
+                const yardsMatch = text.match(/for\s+(-?\d+)\s*yard/i);
+                if (yardsMatch) {
+                    result.yards = parseInt(yardsMatch[1]);
+                }
+                // Extract "to XXX ##" for destination
+                const destMatch = text.match(/to\s+([A-Z]{2,3})\s+(\d+)\s+for/i);
+                if (destMatch) {
+                    result.toYard = parseInt(destMatch[2]);
+                }
+            }
+
+            else if (result.categoryId && result.categoryId.startsWith('rush')) {
+                const yardsMatch = text.match(/for\s+(-?\d+)\s*yard/i);
+                if (yardsMatch) {
+                    result.yards = parseInt(yardsMatch[1]);
+                }
+                // "no gain"
+                if (lowerText.includes('no gain')) {
+                    result.yards = 0;
+                }
+                // "for a loss of X"
+                const lossMatch = text.match(/loss\s+of\s+(\d+)/i);
+                if (lossMatch) {
+                    result.yards = -parseInt(lossMatch[1]);
+                }
+            }
+
+            // SACK
+            else if (result.categoryId === 'sack') {
+                const sackYards = text.match(/for\s*(?:a\s*)?(?:loss\s*of\s*)?(-?\d+)\s*yard/i);
+                if (sackYards) {
+                    result.yards = -Math.abs(parseInt(sackYards[1]));
+                } else {
+                    result.yards = -7;
+                }
+            }
+
+            // INTERCEPTION
+            else if (result.categoryId && result.categoryId.includes('interception') || result.categoryId === 'pick_six') {
+                // "returned for 25 yards" or "return for 25 yards"
+                const returnMatch = text.match(/return(?:ed)?\s+(?:for\s+)?(\d+)\s*yard/i);
+                if (returnMatch) {
+                    result.returnYards = parseInt(returnMatch[1]);
+                }
+                // "returned for a touchdown"
+                if (lowerText.includes('touchdown') || lowerText.includes(' td')) {
+                    result.returnYards = -1; // Signal for pick-six
+                }
+            }
+
+            // FUMBLE
+            else if (result.categoryId === 'fumble') {
+                result.offenseRecovery = lowerText.includes('recovered by') ?
+                    lowerText.includes('offense') : true;
+
+                // Extract yards before fumble
+                const yardsMatch = text.match(/for\s+(\d+)\s*yard.*fumble/i);
+                if (yardsMatch) {
+                    result.yards = parseInt(yardsMatch[1]);
+                }
+            }
+
+            // Calculate toYard if we have yards and fromYard (for non-special teams)
+            if (result.yards && !result.toYard && !result.categoryId?.includes('punt') &&
+                !result.categoryId?.includes('kick') && !result.categoryId?.includes('field_goal')) {
+                result.toYard = result.fromYard + result.yards;
+            }
+
+            return result;
+        }
+
+        function findMatchingAnimation(parsed) {
+            if (!parsed.categoryId) return null;
+            // First check learned animations
+            const learned = learnedAnimations.find(a => a.categoryId === parsed.categoryId);
+            if (learned) return { ...learned, source: 'learned' };
+            // Fall back to presets
+            const preset = PRESET_ANIMATIONS[parsed.categoryId];
+            if (preset) return { ...preset, categoryId: parsed.categoryId, source: 'preset' };
+            return null;
+        }
+
+        function getMissingAnimationType(parsed) {
+            const category = PLAY_CATEGORIES.find(c => c.id === parsed.categoryId);
+            return category ? category.label : 'Unknown play type';
+        }
+
+        function showParseResult(parsed, error = null, matchedAnim = null, missingType = null) {
+            const container = document.getElementById('parse-result');
+
+            if (error) {
+                container.className = 'parse-result error';
+                container.innerHTML = `<h4>Error</h4><p>${error}</p>`;
+                container.style.display = 'block';
+                return;
+            }
+
+            if (missingType) {
+                container.className = 'parse-result warning';
+                container.innerHTML = `
+                    <h4>Parsed: ${parsed.playType || 'Unknown'}</h4>
+                    <div class="extracted-details">
+                        <div class="detail-box"><label>Category</label><span>${parsed.categoryId || 'unknown'}</span></div>
+                        <div class="detail-box"><label>Yards</label><span>${parsed.yards}</span></div>
+                        <div class="detail-box"><label>Player</label><span>${parsed.player || '-'}</span></div>
+                        <div class="detail-box"><label>Direction</label><span>${parsed.direction || '-'}</span></div>
+                    </div>
+                    <div class="missing-animation">
+                        <p>Animation not found: <strong>${missingType}</strong></p>
+                        <code>This play type doesn't have a matching animation pattern yet.</code>
+                    </div>
+                `;
+                container.style.display = 'block';
+                log(`No animation for: ${missingType}`, 'warning');
+                return;
+            }
+
+            const sourceLabel = matchedAnim.source === 'preset'
+                ? '<span style="background:#6366f1;color:white;padding:2px 6px;border-radius:4px;font-size:10px;">PRESET</span>'
+                : '<span style="background:#22c55e;color:white;padding:2px 6px;border-radius:4px;font-size:10px;">LEARNED</span>';
+
+            container.className = 'parse-result success';
+
+            // Build details based on play type
+            let detailsHTML = '';
+
+            if (parsed.categoryId?.includes('punt')) {
+                detailsHTML = `
+                    <div class="detail-box"><label>Category</label><span>${parsed.categoryId}</span></div>
+                    <div class="detail-box"><label>Punt Dist</label><span>${parsed.puntYards || matchedAnim.puntYards || 45} yds</span></div>
+                    <div class="detail-box"><label>From</label><span>${parsed.startTeam || ''} ${parsed.fromYard}</span></div>
+                    <div class="detail-box"><label>Landing</label><span>${parsed.landingTeam || ''} ${parsed.landingYard || '-'}</span></div>
+                    <div class="detail-box"><label>Return</label><span>${parsed.returnYards !== null ? parsed.returnYards + ' yds' : '-'}</span></div>
+                    <div class="detail-box"><label>Player</label><span>${parsed.player || '-'}</span></div>
+                `;
+            } else if (parsed.categoryId === 'kickoff') {
+                detailsHTML = `
+                    <div class="detail-box"><label>Category</label><span>${parsed.categoryId}</span></div>
+                    <div class="detail-box"><label>Kick Dist</label><span>${parsed.kickYards || 65} yds</span></div>
+                    <div class="detail-box"><label>Return</label><span>${parsed.returnYards !== null ? parsed.returnYards + ' yds' : '-'}</span></div>
+                    <div class="detail-box"><label>Player</label><span>${parsed.player || '-'}</span></div>
+                    <div class="detail-box"><label>Duration</label><span>${matchedAnim.duration}ms</span></div>
+                `;
+            } else if (parsed.categoryId?.includes('field_goal')) {
+                detailsHTML = `
+                    <div class="detail-box"><label>Category</label><span>${parsed.categoryId}</span></div>
+                    <div class="detail-box"><label>FG Distance</label><span>${parsed.fgDistance || 40} yds</span></div>
+                    <div class="detail-box"><label>From Line</label><span>${parsed.fromYard}</span></div>
+                    <div class="detail-box"><label>Player</label><span>${parsed.player || '-'}</span></div>
+                    <div class="detail-box"><label>Duration</label><span>${matchedAnim.duration}ms</span></div>
+                `;
+            } else {
+                detailsHTML = `
+                    <div class="detail-box"><label>Category</label><span>${parsed.categoryId}</span></div>
+                    <div class="detail-box"><label>Yards</label><span>${parsed.yards || matchedAnim.yards || '-'}</span></div>
+                    <div class="detail-box"><label>From</label><span>${parsed.fromYard}</span></div>
+                    <div class="detail-box"><label>To</label><span>${parsed.toYard || '-'}</span></div>
+                    <div class="detail-box"><label>Player</label><span>${parsed.player || '-'}</span></div>
+                    <div class="detail-box"><label>Duration</label><span>${matchedAnim.duration}ms</span></div>
+                `;
+            }
+
+            container.innerHTML = `
+                <h4>Parsed: ${parsed.playType} ${sourceLabel}</h4>
+                <div class="extracted-details">${detailsHTML}</div>
+            `;
+            container.style.display = 'block';
+        }
+
+        async function animateWithLearned(parsed, anim) {
+            if (!fieldVisualizer) return;
+
+            const source = anim.source === 'preset' ? '(preset)' : '(learned)';
+            setStatus(true, `Animating ${parsed.playType} ${source}...`);
+
+            // Use parsed positions or defaults
+            let startPos = parsed.fromYard || parseInt(document.getElementById('ball-pos').value) || 50;
+            let endPos = parsed.toYard || (startPos + (parsed.yards || anim.yards || 0));
+
+            fieldVisualizer.setBallPosition(startPos);
+            await sleep(200);
+
+            try {
+                switch (anim.type) {
+                    case 'pass':
+                        endPos = Math.max(0, Math.min(100, endPos));
+                        await fieldVisualizer.animatePass(startPos, endPos, anim.arcHeight || 25, anim.duration);
+                        document.getElementById('ball-pos').value = endPos;
+                        log(`Pass: ${startPos} → ${endPos} yds ${source}`, 'success');
+                        break;
+
+                    case 'incomplete':
+                        endPos = startPos + (anim.yards || 12);
+                        await fieldVisualizer.animateIncompletePass(startPos, endPos, anim.duration);
+                        log(`Incomplete pass: ${startPos} → ${endPos} (no gain) ${source}`, 'success');
+                        break;
+
+                    case 'rush':
+                        endPos = Math.max(0, Math.min(100, endPos));
+                        await fieldVisualizer.animateRush(startPos, endPos, anim.duration);
+                        document.getElementById('ball-pos').value = endPos;
+                        log(`Rush: ${startPos} → ${endPos} yds ${source}`, 'success');
+                        break;
+
+                    case 'sack':
+                        const yardsLost = Math.abs(anim.yards || 7);
+                        endPos = Math.max(0, startPos - yardsLost);
+                        await fieldVisualizer.animateSack(startPos, yardsLost, anim.duration);
+                        document.getElementById('ball-pos').value = endPos;
+                        log(`Sack: ${startPos} → ${endPos} (-${yardsLost} yds) ${source}`, 'success');
+                        break;
+
+                    case 'kickoff':
+                        const kickFrom = anim.fromYard || 35;
+                        const kickDistance = parsed.kickYards || anim.toYard - kickFrom || 65;
+                        const kickTo = Math.min(100, kickFrom + kickDistance);
+                        const kickReturn = parsed.returnYards !== null ? parsed.returnYards : (anim.returnYards || 0);
+                        fieldVisualizer.setBallPosition(kickFrom);
+                        await sleep(100);
+                        const kickResult = await fieldVisualizer.animateKickoff(kickFrom, kickTo, kickReturn, anim.duration);
+                        document.getElementById('ball-pos').value = kickResult;
+                        log(`Kickoff: ${kickFrom} → ${kickTo} (${kickDistance} yds), return ${kickReturn} yds to ${kickResult} ${source}`, 'success');
+                        break;
+
+                    case 'punt':
+                        // Use parsed values if available, otherwise use preset defaults
+                        const puntDistance = parsed.puntYards || anim.puntYards || 45;
+                        const puntTo = Math.min(100, startPos + puntDistance);
+                        const puntReturn = parsed.returnYards !== null ? parsed.returnYards : (anim.returnYards || 0);
+                        const puntResult = await fieldVisualizer.animatePunt(startPos, puntTo, puntReturn, anim.duration);
+                        document.getElementById('ball-pos').value = puntResult;
+                        log(`Punt: ${startPos} → ${puntTo} (${puntDistance} yds), return ${puntReturn} yds to ${puntResult} ${source}`, 'success');
+                        break;
+
+                    case 'field_goal':
+                        const fgDirection = startPos > 50 ? 'right' : 'left';
+                        await fieldVisualizer.animateFieldGoal(startPos, fgDirection, anim.duration);
+                        log(`Field Goal GOOD from ${startPos} ${source}`, 'success');
+                        break;
+
+                    case 'field_goal_missed':
+                        const missDir = startPos > 50 ? 'right' : 'left';
+                        await fieldVisualizer.animateMissedFieldGoal(startPos, missDir, anim.missDirection || 'wide_right', anim.duration);
+                        log(`Field Goal NO GOOD from ${startPos} ${source}`, 'warning');
+                        break;
+
+                    case 'extra_point':
+                        const xpDir = startPos > 50 ? 'right' : 'left';
+                        await fieldVisualizer.animateExtraPoint(xpDir, anim.good !== false, anim.duration);
+                        log(`Extra Point ${anim.good !== false ? 'GOOD' : 'NO GOOD'} ${source}`, anim.good !== false ? 'success' : 'warning');
+                        break;
+
+                    case 'touchdown':
+                        const tdEnd = startPos > 50 ? 100 : 0;
+                        const tdYards = anim.yards || Math.abs(tdEnd - startPos);
+                        const actualEnd = startPos > 50 ? Math.min(100, startPos + tdYards) : Math.max(0, startPos - tdYards);
+                        await fieldVisualizer.animateTouchdown(anim.playType || 'rush', startPos, actualEnd > 95 ? 100 : actualEnd, anim.duration);
+                        document.getElementById('ball-pos').value = actualEnd > 95 ? 100 : actualEnd;
+                        log(`TOUCHDOWN! ${anim.playType}: ${startPos} → ${actualEnd > 95 ? 100 : actualEnd} ${source}`, 'success');
+                        break;
+
+                    case 'interception':
+                        const intYard = startPos + (anim.yards || 15);
+                        const intReturn = anim.returnYards || 0;
+                        const intResult = await fieldVisualizer.animateInterception(startPos, intYard, intReturn, anim.duration);
+                        document.getElementById('ball-pos').value = intResult;
+                        if (intReturn === -1) {
+                            log(`PICK SIX! INT at ${intYard} returned for TD ${source}`, 'success');
+                        } else if (intReturn > 0) {
+                            log(`Interception at ${intYard}, returned to ${intResult} ${source}`, 'warning');
+                        } else {
+                            log(`Interception at ${intYard} ${source}`, 'warning');
+                        }
+                        break;
+
+                    case 'fumble':
+                        const fumbleAt = startPos + (anim.yards || 5);
+                        const fumbleResult = await fieldVisualizer.animateFumble(startPos, fumbleAt, null, anim.offenseRecovery, anim.duration);
+                        document.getElementById('ball-pos').value = fumbleResult;
+                        log(`FUMBLE at ${fumbleAt}! ${anim.offenseRecovery ? 'Offense' : 'Defense'} recovers at ${fumbleResult} ${source}`, 'warning');
+                        break;
+
+                    case 'kick':
+                        await fieldVisualizer.animateKick(startPos, endPos, anim.duration);
+                        document.getElementById('ball-pos').value = Math.max(0, Math.min(100, endPos));
+                        log(`Kick: ${startPos} → ${endPos} ${source}`, 'success');
+                        break;
+
+                    default:
+                        log(`Unknown animation type: ${anim.type}`, 'error');
+                }
+            } catch (err) {
+                log(`Animation error: ${err.message}`, 'error');
+            }
+
+            setStatus(false, 'Ready');
+        }
+
+        // ==========================================
+        // FIELD CONTROLS
+        // ==========================================
+        function updateFieldPosition() {
+            if (!fieldVisualizer) return;
+            const ballPos = parseInt(document.getElementById('ball-pos').value) || 50;
+            const firstDownPos = parseInt(document.getElementById('first-down-pos').value) || 60;
+            fieldVisualizer.setBallPosition(ballPos);
+            fieldVisualizer.setFirstDownPosition(firstDownPos, true);
+        }
+
+        function updateFieldMode() {
+            initField();
+            log('Field mode: ' + document.getElementById('field-mode').value, 'info');
+        }
+
+        function updateTeams() {
+            const awayTeam = document.getElementById('away-team').value;
+            const homeTeam = document.getElementById('home-team').value;
+            if (fieldVisualizer) {
+                fieldVisualizer.setTeamColors(teamColors[awayTeam] || '#1f2937', teamColors[homeTeam] || '#1f2937');
+                fieldVisualizer.setTeamAbbreviations(awayTeam, homeTeam);
+            }
+            log(`Teams: ${awayTeam} @ ${homeTeam}`, 'info');
+        }
+
+        function resetField() {
+            document.getElementById('ball-pos').value = 50;
+            document.getElementById('first-down-pos').value = 60;
+            updateFieldPosition();
+            log('Field reset', 'info');
+        }
+
+        // ==========================================
+        // UTILITIES
+        // ==========================================
+        function clearSvgInput() {
+            document.getElementById('svg-input').value = '';
+            document.getElementById('extracted-preview').style.display = 'none';
+            extractedAnimation = null;
+        }
+
+        function clearPlayInput() {
+            document.getElementById('play-input').value = '';
+            document.getElementById('parse-result').style.display = 'none';
+        }
+
+        function setStatus(animating, text) {
+            const indicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            indicator.classList.toggle('animating', animating);
+            statusText.textContent = text;
+        }
+
+        function log(message, type = 'info') {
+            const logOutput = document.getElementById('log-output');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${time}] ${message}`;
+            logOutput.insertBefore(entry, logOutput.firstChild);
+            while (logOutput.children.length > 30) {
+                logOutput.removeChild(logOutput.lastChild);
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ==========================================
+        // DRIVE SIMULATOR
+        // ==========================================
+
+        // Drive 1: TD Drive (original)
+        // LAR driving toward CAR end zone (toward 100)
+        const DRIVE_1 = {
+            name: 'TD Drive',
+            startYard: 55,
+            startFirstDown: 65,
+            driveToward: 100,  // Direction: toward yard 100 (CAR end zone)
+            plays: [
+                {
+                    type: 'pass', fromYard: 55, toYard: 71, yards: 16,
+                    arcHeight: 25, duration: 1100,
+                    description: '16-yd Pass', player: 'M.Stafford', receiver: 'P.Nacua',
+                    down: 1, distance: 10, isFirstDown: true,
+                    downText: '1st & 10 at CAR 45', time: '13:26 - 1st'
+                },
+                {
+                    type: 'rush', fromYard: 71, toYard: 76, yards: 5,
+                    duration: 700,
+                    description: '5-yd Run', player: 'K.Williams',
+                    down: 1, distance: 10, isFirstDown: false,
+                    downText: '1st & 10 at CAR 29', time: '12:49 - 1st'
+                },
+                {
+                    type: 'pass', fromYard: 76, toYard: 86, yards: 10,
+                    arcHeight: 20, duration: 1000,
+                    description: '10-yd Pass', player: 'M.Stafford', receiver: 'P.Nacua',
+                    down: 2, distance: 5, isFirstDown: true,
+                    downText: '2nd & 5 at CAR 24', time: '12:17 - 1st'
+                },
+                {
+                    type: 'touchdown', playType: 'pass', fromYard: 86, toYard: 100, yards: 14,
+                    arcHeight: 28, duration: 1200,
+                    description: '14-yd TD Pass', player: 'M.Stafford', receiver: 'P.Nacua',
+                    down: 1, distance: 10, isFirstDown: true,
+                    downText: '1st & 10 at CAR 14', time: '11:35 - 1st'
+                }
+            ]
+        };
+
+        // Drive 2: FG Drive with Penalties
+        // CAR kicks off, LAR drives for field goal (toward 100)
+        // Yard positions: LA 35 = 35, CAR 34 = 66, CAR 28 = 72
+        const DRIVE_2 = {
+            name: 'FG Drive with Penalties',
+            startYard: 65,  // CAR 35 kickoff position
+            startFirstDown: 45,  // First down at LA 45 after touchback
+            driveToward: 100,  // Direction: toward yard 100 (CAR end zone)
+            plays: [
+                {
+                    // CAR kicks from CAR 35 (=65) TOWARD LAR end zone (=0)
+                    type: 'kickoff', fromYard: 65, toYard: 0, returnYards: 0,
+                    duration: 2000,
+                    description: 'Kickoff (Touchback)', player: 'R.Fitzgerald',
+                    down: 0, distance: 0, isFirstDown: false, isTouchback: true, touchbackYard: 35,
+                    downText: 'Kickoff', time: '8:53 - 2nd',
+                    fullText: 'R.Fitzgerald kicks 65 yards from CAR 35 to end zone, Touchback.'
+                },
+                {
+                    type: 'rush', fromYard: 35, toYard: 40, yards: 5,
+                    duration: 700,
+                    description: '5-yd Run', player: 'B.Corum',
+                    down: 1, distance: 10, isFirstDown: false,
+                    downText: '1st & 10 at LAR 35', time: '8:53 - 2nd',
+                    fullText: 'B.Corum up the middle to LA 40 for 5 yards (C.Cherelus).'
+                },
+                {
+                    type: 'penalty', fromYard: 40, toYard: 35, yards: -5,
+                    duration: 500,
+                    description: 'Penalty: False Start', player: 'D.Adams',
+                    down: 2, distance: 5, isFirstDown: false, isNoPlay: true,
+                    downText: '2nd & 5 at LAR 40', time: '8:12 - 2nd',
+                    fullText: 'PENALTY on LA-D.Adams, False Start, 5 yards - No Play.'
+                },
+                {
+                    type: 'penalty', fromYard: 35, toYard: 30, yards: -5,
+                    duration: 500,
+                    description: 'Penalty: Offside', player: 'X.Smith',
+                    down: 2, distance: 10, isFirstDown: false, isNoPlay: true,
+                    downText: '2nd & 10 at LAR 35', time: '7:52 - 2nd',
+                    fullText: 'M.Stafford pass to D.Adams for 4 yards. PENALTY Offensive Offside - No Play.'
+                },
+                {
+                    type: 'pass', fromYard: 30, toYard: 66, yards: 36,
+                    arcHeight: 40, duration: 1400,
+                    description: '36-yd Pass', player: 'M.Stafford', receiver: 'T.Higbee',
+                    down: 2, distance: 15, isFirstDown: true,
+                    downText: '2nd & 15 at LAR 30', time: '7:33 - 2nd',
+                    fullText: '(Shotgun) M.Stafford pass deep right to T.Higbee to CAR 34 for 36 yards.'
+                },
+                {
+                    type: 'rush', fromYard: 66, toYard: 68, yards: 2,
+                    duration: 600,
+                    description: '2-yd Run', player: 'B.Corum',
+                    down: 1, distance: 10, isFirstDown: false,
+                    downText: '1st & 10 at CAR 34', time: '6:52 - 2nd',
+                    fullText: 'B.Corum left tackle to CAR 32 for 2 yards (T.Wharton; C.Smith-Wade).'
+                },
+                {
+                    type: 'pass', fromYard: 68, toYard: 72, yards: 4,
+                    arcHeight: 15, duration: 900,
+                    description: '4-yd Pass', player: 'M.Stafford', receiver: 'P.Nacua',
+                    down: 2, distance: 8, isFirstDown: false,
+                    downText: '2nd & 8 at CAR 32', time: '6:15 - 2nd',
+                    fullText: '(Shotgun) M.Stafford pass short middle to P.Nacua to CAR 28 for 4 yards.'
+                },
+                {
+                    type: 'incomplete', fromYard: 72, toYard: 72, yards: 0,
+                    arcHeight: 30, duration: 1000,
+                    description: 'Incomplete Pass', player: 'M.Stafford', receiver: 'D.Adams',
+                    down: 3, distance: 4, isFirstDown: false,
+                    downText: '3rd & 4 at CAR 28', time: '5:34 - 2nd',
+                    fullText: '(Shotgun) M.Stafford pass incomplete deep right to D.Adams (M.Jackson).'
+                },
+                {
+                    type: 'field_goal', fromYard: 72, toYard: 100, yards: 46,
+                    duration: 2500,
+                    description: '46-yd FG Good', player: 'H.Mevis',
+                    down: 4, distance: 4, isFirstDown: false, isScore: true,
+                    downText: '4th & 4 at CAR 28', time: '5:24 - 2nd',
+                    fullText: 'H.Mevis 46 yard field goal is GOOD, Center-J.McQuaide, Holder-E.Evans.'
+                }
+            ]
+        };
+
+        // Drive 3: Punt then FG Drive
+        // LAR punts, CAR receives and drives for field goal
+        // CAR driving toward LAR end zone (yard 0)
+        const DRIVE_3 = {
+            name: 'Punt + FG Drive',
+            startYard: 35,  // LAR 35 punt position
+            startFirstDown: 97,  // 4th & 10, first down at CAR 3
+            driveToward: 0,  // Direction: toward yard 0 (LAR end zone)
+            plays: [
+                {
+                    // LAR punts from LAR 35 (=35) to CAR 13 (=87)
+                    type: 'punt', fromYard: 35, toYard: 87, returnYards: 0,
+                    duration: 2000,
+                    description: 'Punt (Fair Catch)', player: 'E.Evans',
+                    down: 4, distance: 10, isFirstDown: false,
+                    downText: '4th & 10 at LAR 35', time: '14:45 - 3rd',
+                    fullText: 'E.Evans punts 52 yards to CAR 13, Center-J.McQuaide, fair catch by T.Etienne.'
+                },
+                {
+                    // CAR at CAR 13 (=87), runs to CAR 22 (=78) - 9 yards toward 0
+                    type: 'rush', fromYard: 87, toYard: 78, yards: 9,
+                    duration: 900,
+                    description: '9-yd Run', player: 'B.Young',
+                    down: 1, distance: 10, isFirstDown: false,
+                    downText: '1st & 10 at CAR 13', time: '14:37 - 3rd',
+                    fullText: 'B.Young scrambles left end to CAR 22 for 9 yards (N.Landman).'
+                },
+                {
+                    // CAR 22 (=78) to CAR 28 (=72) - 6 yards
+                    type: 'rush', fromYard: 78, toYard: 72, yards: 6,
+                    duration: 700,
+                    description: '6-yd Run', player: 'C.Hubbard',
+                    down: 2, distance: 1, isFirstDown: true,
+                    downText: '2nd & 1 at CAR 22', time: '13:54 - 3rd',
+                    fullText: 'C.Hubbard right guard to CAR 28 for 6 yards (N.Landman).'
+                },
+                {
+                    type: 'incomplete', fromYard: 72, toYard: 72, yards: 0,
+                    arcHeight: 25, duration: 900,
+                    description: 'Incomplete Pass', player: 'B.Young',
+                    down: 1, distance: 10, isFirstDown: false,
+                    downText: '1st & 10 at CAR 28', time: '13:19 - 3rd',
+                    fullText: '(Shotgun) B.Young pass incomplete short middle [K.Curl].'
+                },
+                {
+                    type: 'incomplete', fromYard: 72, toYard: 72, yards: 0,
+                    arcHeight: 20, duration: 900,
+                    description: 'Incomplete Pass', player: 'B.Young', receiver: 'T.McMillan',
+                    down: 2, distance: 10, isFirstDown: false,
+                    downText: '2nd & 10 at CAR 28', time: '13:16 - 3rd',
+                    fullText: '(Shotgun) B.Young pass incomplete short left to T.McMillan.'
+                },
+                {
+                    // CAR 28 (=72) to CAR 44 (=56) - 16 yards
+                    type: 'pass', fromYard: 72, toYard: 56, yards: 16,
+                    arcHeight: 22, duration: 1100,
+                    description: '16-yd Pass', player: 'B.Young', receiver: 'T.McMillan',
+                    down: 3, distance: 10, isFirstDown: true,
+                    downText: '3rd & 10 at CAR 28', time: '13:09 - 3rd',
+                    fullText: '(Shotgun) B.Young pass short right to T.McMillan to CAR 44 for 16 yards (E.Forbes).'
+                },
+                {
+                    // CAR 44 (=56) to CAR 49 (=51) - 5 yards
+                    type: 'rush', fromYard: 56, toYard: 51, yards: 5,
+                    duration: 700,
+                    description: '5-yd Run', player: 'C.Hubbard',
+                    down: 1, distance: 10, isFirstDown: false,
+                    downText: '1st & 10 at CAR 44', time: '12:29 - 3rd',
+                    fullText: '(Shotgun) C.Hubbard up the middle to CAR 49 for 5 yards (N.Landman).'
+                },
+                {
+                    // CAR 49 (=51) stays at 51 - no gain
+                    type: 'rush', fromYard: 51, toYard: 51, yards: 0,
+                    duration: 600,
+                    description: '0-yd Run', player: 'C.Hubbard',
+                    down: 2, distance: 5, isFirstDown: false,
+                    downText: '2nd & 5 at CAR 49', time: '11:47 - 3rd',
+                    fullText: 'C.Hubbard right guard to CAR 49 for no gain (O.Speights).'
+                },
+                {
+                    // Defensive Offside: CAR gains 5 yards, CAR 49 (=51) to LAR 46 (=46)
+                    type: 'penalty', fromYard: 51, toYard: 46, yards: 5,
+                    duration: 500,
+                    description: 'Penalty: Defensive Offside', player: 'B.Fiske',
+                    down: 3, distance: 5, isFirstDown: true, isNoPlay: true, isDefensivePenalty: true,
+                    downText: '3rd & 5 at CAR 49', time: '11:06 - 3rd',
+                    fullText: '(Shotgun) B.Young pass incomplete deep right to J.Coker. PENALTY on LA-B.Fiske, Defensive Offside, 5 yards, enforced at CAR 49 - No Play.'
+                },
+                {
+                    // LAR 46 (=46) to LAR 42 (=42) - 4 yards
+                    type: 'rush', fromYard: 46, toYard: 42, yards: 4,
+                    duration: 700,
+                    description: '4-yd Run', player: 'C.Hubbard',
+                    down: 1, distance: 10, isFirstDown: false,
+                    downText: '1st & 10 at LAR 46', time: '11:01 - 3rd',
+                    fullText: 'C.Hubbard right guard to LA 42 for 4 yards (O.Speights).'
+                },
+                {
+                    // LAR 42 (=42) to LAR 35 (=35) - 7 yards
+                    type: 'pass', fromYard: 42, toYard: 35, yards: 7,
+                    arcHeight: 15, duration: 900,
+                    description: '7-yd Pass', player: 'B.Young', receiver: 'C.Hubbard',
+                    down: 2, distance: 6, isFirstDown: true,
+                    downText: '2nd & 6 at LAR 42', time: '10:19 - 3rd',
+                    fullText: '(Shotgun) B.Young pass short right to C.Hubbard to LA 35 for 7 yards (N.Landman).'
+                },
+                {
+                    // LAR 35 (=35) to LAR 33 (=33) - 2 yards
+                    type: 'rush', fromYard: 35, toYard: 33, yards: 2,
+                    duration: 600,
+                    description: '2-yd Run', player: 'C.Hubbard',
+                    down: 1, distance: 10, isFirstDown: false,
+                    downText: '1st & 10 at LAR 35', time: '9:31 - 3rd',
+                    fullText: 'C.Hubbard right guard to LA 33 for 2 yards (K.Curl; T.Hamilton).'
+                },
+                {
+                    // LAR 33 (=33) to LAR 32 (=32) - 1 yard
+                    type: 'rush', fromYard: 33, toYard: 32, yards: 1,
+                    duration: 600,
+                    description: '1-yd Run', player: 'C.Hubbard',
+                    down: 2, distance: 8, isFirstDown: false,
+                    downText: '2nd & 8 at LAR 33', time: '8:53 - 3rd',
+                    fullText: '(Shotgun) C.Hubbard right tackle to LA 32 for 1 yard (N.Landman; T.Davis).'
+                },
+                {
+                    // LAR 32 (=32) to LAR 28 (=28) - 4 yards
+                    type: 'pass', fromYard: 32, toYard: 28, yards: 4,
+                    arcHeight: 12, duration: 800,
+                    description: '4-yd Pass', player: 'B.Young', receiver: 'T.Tremble',
+                    down: 3, distance: 7, isFirstDown: false,
+                    downText: '3rd & 7 at LAR 32', time: '8:13 - 3rd',
+                    fullText: '(Shotgun) B.Young pass short right to T.Tremble to LA 28 for 4 yards (E.Forbes; N.Landman).'
+                },
+                {
+                    // FG from LAR 28 (=28) toward LAR end zone
+                    type: 'field_goal', fromYard: 28, toYard: 0, yards: 46,
+                    duration: 2500,
+                    description: '46-yd FG Good', player: 'R.Fitzgerald',
+                    down: 4, distance: 3, isFirstDown: false, isScore: true,
+                    downText: '4th & 3 at LAR 28', time: '7:29 - 3rd',
+                    fullText: 'R.Fitzgerald 46 yard field goal is GOOD, Center-J.Jansen, Holder-S.Martin.'
+                }
+            ]
+        };
+
+        const ALL_DRIVES = { drive1: DRIVE_1, drive2: DRIVE_2, drive3: DRIVE_3 };
+        let currentDrive = DRIVE_1;
+        let currentPlayIndex = 0;
+        let driveInProgress = false;
+        let currentFirstDownPosition = 65;
+
+        function getPlayColor(play) {
+            if (play.type === 'touchdown' || play.isScore) return '#a855f7';
+            if (play.type === 'penalty' || play.isNoPlay) return '#ef4444';
+            if (play.type === 'pass' || play.type === 'incomplete') return '#3b82f6';
+            if (play.type === 'rush') return '#22c55e';
+            if (play.type === 'kickoff' || play.type === 'punt') return '#f59e0b';
+            if (play.type === 'field_goal') return '#a855f7';
+            return '#6366f1';
+        }
+
+        function renderDrivePlays() {
+            const container = document.getElementById('drive-plays');
+            const plays = currentDrive.plays;
+
+            container.innerHTML = plays.map((play, i) => `
+                <div class="drive-play" data-index="${i}" style="padding: 8px; border-left: 3px solid ${getPlayColor(play)}; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 4px; transition: all 0.2s;">
+                    <div style="font-weight: 600; color: ${play.isNoPlay ? '#ef4444' : 'var(--accent-light)'};">${play.description}${play.isNoPlay ? ' (No Play)' : ''}</div>
+                    <div style="font-size: 11px; color: var(--text-secondary);">${play.time || ''}</div>
+                    <div style="font-size: 12px; margin-top: 4px;">${play.fullText || ''}</div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${play.downText || ''}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('total-plays').textContent = plays.length;
+        }
+
+        function switchDrive() {
+            const selector = document.getElementById('drive-selector');
+            currentDrive = ALL_DRIVES[selector.value];
+            renderDrivePlays();
+            resetDrive();
+            log(`Switched to: ${currentDrive.name}`, 'info');
+        }
+
+        function updatePlayHighlight(index) {
+            document.querySelectorAll('.drive-play').forEach((el, i) => {
+                el.style.opacity = i < index ? '0.5' : i === index ? '1' : '0.7';
+                el.style.transform = i === index ? 'scale(1.02)' : 'scale(1)';
+                el.style.boxShadow = i === index ? '0 0 10px rgba(99, 102, 241, 0.5)' : 'none';
+            });
+            document.getElementById('current-play-num').textContent = index;
+        }
+
+        function resetDrive() {
+            currentPlayIndex = 0;
+            driveInProgress = false;
+            currentFirstDownPosition = currentDrive.startFirstDown;
+
+            fieldVisualizer.setBallPosition(currentDrive.startYard);
+            fieldVisualizer.setFirstDownPosition(currentFirstDownPosition, true);
+            document.getElementById('ball-pos').value = currentDrive.startYard;
+
+            updatePlayHighlight(0);
+            log(`Drive reset: ${currentDrive.name}`, 'info');
+            setStatus(false, 'Ready - Drive reset');
+        }
+
+        // Calculate first down position based on drive direction
+        function calcFirstDown(ballPosition) {
+            if (currentDrive.driveToward === 0) {
+                // Driving toward yard 0: first down is 10 yards less
+                return Math.max(0, ballPosition - 10);
+            } else {
+                // Driving toward yard 100: first down is 10 yards more
+                return Math.min(100, ballPosition + 10);
+            }
+        }
+
+        async function playNextPlay() {
+            if (driveInProgress) return;
+            if (currentPlayIndex >= currentDrive.plays.length) {
+                log('Drive complete! Reset to play again.', 'success');
+                return;
+            }
+
+            driveInProgress = true;
+            const play = currentDrive.plays[currentPlayIndex];
+
+            updatePlayHighlight(currentPlayIndex);
+            setStatus(true, `Playing: ${play.description}...`);
+            log(`Play ${currentPlayIndex + 1}: ${play.description} (${play.player}${play.receiver ? ' to ' + play.receiver : ''})`, 'info');
+
+            // Handle penalty (No Play) - animate with colored line
+            if (play.isNoPlay) {
+                // Red line for yards lost, blue line for yards gained
+                // isDefensivePenalty = true means offense gains yards (show blue)
+                const isGain = play.isDefensivePenalty || play.yards > 0;
+                await fieldVisualizer.animatePenalty(play.fromYard, play.toYard, 800, { isGain });
+                fieldVisualizer.setBallPosition(play.toYard);
+                document.getElementById('ball-pos').value = Math.round(play.toYard);
+
+                // Update first down line if penalty results in first down
+                if (play.isFirstDown) {
+                    currentFirstDownPosition = calcFirstDown(play.toYard);
+                    fieldVisualizer.setFirstDownPosition(currentFirstDownPosition, true);
+                    log(`⚠️ ${play.description} - ${Math.abs(play.yards)} yard gain - FIRST DOWN!`, 'warning');
+                    setStatus(false, '1st & 10 - Ready');
+                } else {
+                    const yardsText = isGain ? `${Math.abs(play.yards)} yard gain` : `${Math.abs(play.yards)} yard loss`;
+                    log(`⚠️ ${play.description} - ${yardsText}`, 'warning');
+                    setStatus(false, `Penalty - ${play.down + 1} & ${play.distance + Math.abs(play.yards)}`);
+                }
+
+                currentPlayIndex++;
+                updatePlayHighlight(currentPlayIndex);
+                driveInProgress = false;
+                return;
+            }
+
+            // Set ball at starting position
+            fieldVisualizer.setBallPosition(play.fromYard);
+            await sleep(300);
+
+            try {
+                // Handle different play types
+                if (play.type === 'kickoff') {
+                    const result = await fieldVisualizer.animateKickoff(play.fromYard, play.toYard, play.returnYards || 0, play.duration);
+                    const finalYard = play.isTouchback ? play.touchbackYard : result;
+                    fieldVisualizer.setBallPosition(finalYard);
+                    document.getElementById('ball-pos').value = Math.round(finalYard);
+                    // Set first down line after kickoff
+                    currentFirstDownPosition = calcFirstDown(finalYard);
+                    fieldVisualizer.setFirstDownPosition(currentFirstDownPosition, true);
+                    log(`Kickoff complete. Ball at ${finalYard}${play.isTouchback ? ' (Touchback)' : ''}`, 'success');
+                    setStatus(false, '1st & 10 - Ready');
+                }
+                else if (play.type === 'punt') {
+                    const result = await fieldVisualizer.animatePunt(play.fromYard, play.toYard, play.returnYards || 0, play.duration);
+                    const finalYard = result;
+                    fieldVisualizer.setBallPosition(finalYard);
+                    document.getElementById('ball-pos').value = Math.round(finalYard);
+                    // Set first down line for receiving team
+                    currentFirstDownPosition = calcFirstDown(finalYard);
+                    fieldVisualizer.setFirstDownPosition(currentFirstDownPosition, true);
+                    log(`Punt complete. Ball at ${finalYard}${play.returnYards ? ` (${play.returnYards} yard return)` : ' (Fair catch)'}`, 'success');
+                    setStatus(false, '1st & 10 - Ready');
+                }
+                else if (play.type === 'pass') {
+                    await fieldVisualizer.animatePass(play.fromYard, play.toYard, play.arcHeight || 25, play.duration);
+                    fieldVisualizer.setBallPosition(play.toYard);
+                    document.getElementById('ball-pos').value = Math.round(play.toYard);
+                }
+                else if (play.type === 'incomplete') {
+                    // Target direction depends on drive direction
+                    const incompleteTarget = currentDrive.driveToward === 0
+                        ? Math.max(0, play.fromYard - 15)
+                        : Math.min(100, play.fromYard + 15);
+                    await fieldVisualizer.animateIncompletePass(play.fromYard, incompleteTarget, play.duration);
+                    // Ball stays at same position for incomplete
+                    fieldVisualizer.setBallPosition(play.fromYard);
+                    document.getElementById('ball-pos').value = Math.round(play.fromYard);
+                }
+                else if (play.type === 'rush') {
+                    await fieldVisualizer.animateRush(play.fromYard, play.toYard, play.duration);
+                    fieldVisualizer.setBallPosition(play.toYard);
+                    document.getElementById('ball-pos').value = Math.round(play.toYard);
+                }
+                else if (play.type === 'touchdown') {
+                    await fieldVisualizer.animateTouchdown(play.playType || 'pass', play.fromYard, play.toYard, play.duration);
+                    fieldVisualizer.setBallPosition(play.toYard);
+                    document.getElementById('ball-pos').value = Math.round(play.toYard);
+                }
+                else if (play.type === 'field_goal') {
+                    // Direction based on which end zone the drive is heading toward
+                    const direction = currentDrive.driveToward === 0 ? 'left' : 'right';
+                    await fieldVisualizer.animateFieldGoal(play.fromYard, direction, play.duration);
+                    log(`🏈 FIELD GOAL GOOD! ${play.yards} yards`, 'success');
+                    setStatus(false, 'FIELD GOAL! 🏈');
+                    currentPlayIndex++;
+                    updatePlayHighlight(currentPlayIndex);
+                    driveInProgress = false;
+                    return;
+                }
+
+                // Update first down line based on play result (skip for kickoff/punt/FG)
+                if (play.type !== 'kickoff' && play.type !== 'punt' && play.type !== 'field_goal') {
+                    if (play.type === 'touchdown') {
+                        // Hide first down line at end zone
+                        const endZone = currentDrive.driveToward === 0 ? 0 : 100;
+                        fieldVisualizer.setFirstDownPosition(endZone, false);
+                    } else if (play.isFirstDown) {
+                        currentFirstDownPosition = calcFirstDown(play.toYard);
+                        fieldVisualizer.setFirstDownPosition(currentFirstDownPosition, true);
+                    }
+                    // If not first down, line stays where it was
+
+                    // Log with down info
+                    const downInfo = play.isFirstDown ? '1ST DOWN!' :
+                        (play.type === 'incomplete' ? `${play.down + 1} & ${play.distance}` :
+                        `${play.down + 1} & ${Math.max(1, play.distance - play.yards)}`);
+                    log(`${play.description} complete: ${play.fromYard} → ${play.toYard} (${play.yards >= 0 ? '+' : ''}${play.yards} yds) - ${downInfo}`, 'success');
+
+                    if (play.type === 'touchdown') {
+                        log('🏈 TOUCHDOWN! Drive complete!', 'success');
+                        setStatus(false, 'TOUCHDOWN! 🏈');
+                    } else if (play.isFirstDown) {
+                        log(`First down line moved to ${currentFirstDownPosition}`, 'info');
+                        setStatus(false, '1st Down - Ready');
+                    } else if (play.type === 'incomplete') {
+                        setStatus(false, `${play.down + 1} & ${play.distance} - Ready`);
+                    } else {
+                        setStatus(false, `${play.down + 1} & ${Math.max(1, play.distance - play.yards)} - Ready`);
+                    }
+                }
+
+            } catch (err) {
+                log(`Animation error: ${err.message}`, 'error');
+                setStatus(false, 'Error');
+            }
+
+            currentPlayIndex++;
+            updatePlayHighlight(currentPlayIndex);
+            driveInProgress = false;
+        }
+
+        async function playDriveDemo() {
+            if (driveInProgress) return;
+
+            resetDrive();
+            await sleep(500);
+
+            log(`▶ Starting drive: ${currentDrive.name}`, 'info');
+
+            for (let i = 0; i < currentDrive.plays.length; i++) {
+                await playNextPlay();
+                if (i < currentDrive.plays.length - 1) {
+                    await sleep(2000);  // 2 second interval between plays
+                }
+            }
+        }
+
+        // Initialize drive on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (fieldVisualizer) {
+                    renderDrivePlays();
+                    resetDrive();
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/styles/tablet-fullscreen.css">
     <link rel="stylesheet" href="/styles/play-animations.css">
     <script src="/scripts/play-animations.js"></script>
+    <script src="/scripts/field-visualizer-svg.js"></script>
     <style>
         /* ================================ */
         /* SPORTS BAR MODE - RESPONSIVE     */
@@ -1679,6 +1680,20 @@
             margin-top: clamp(16px, 2.5vmin, 26px);
         }
 
+        /* SVG Field Container */
+        .svg-field-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .svg-field-container .field-svg {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+        }
+
         /* ================================ */
         /* NFL STATS MODAL (Between Plays)  */
         /* ================================ */
@@ -2275,6 +2290,10 @@
         let isModalOpen = false;
         let modalFocusIndex = 0; // 0 = confirm, 1 = cancel
 
+        // SVG Field Visualizers map (gameId -> SVGFieldVisualizer instance)
+        // Exposed globally so play-animations.js can access visualizers
+        window.fieldVisualizers = new Map();
+
         // Stats modal timing state per game
         // Each game tracks: { noPlayStartTime, isShowingStats, showStartTime, currentPhase, cachedStats }
         // currentPhase: 0 = away team, 1 = home team
@@ -2710,7 +2729,7 @@
 
             // FALLBACK: Use mock live NFL games when no games are selected
             // This allows testing layouts directly without selecting games
-            const USE_MOCK_DATA = false; // Set to false to disable mock fallback
+            const USE_MOCK_DATA = true; // Set to false to disable mock fallback
 
             if (USE_MOCK_DATA && games.length === 0) {
                 usingMockData = true;
@@ -2882,6 +2901,9 @@
             // Render cards
             grid.innerHTML = games.map((game, index) => createGameCard(game, index)).join('');
 
+            // Initialize SVG field visualizers for football games
+            initFieldVisualizers();
+
             // Update ball positions for football games
             games.forEach((game, index) => {
                 if ((game.league === 'nfl' || game.league === 'ncaa') && game.state === 'in' && game.fieldPosition) {
@@ -2890,6 +2912,36 @@
                         updateBallPosition(card, game.fieldPosition, game.yardsToGo || 0, game.possession, game.away, game.home, game.league);
                     }
                 }
+            });
+        }
+
+        // Initialize SVG field visualizers for all football game cards
+        function initFieldVisualizers() {
+            // Clear old visualizers
+            window.fieldVisualizers.forEach(visualizer => visualizer.destroy());
+            window.fieldVisualizers.clear();
+
+            // Find all SVG field containers and initialize visualizers
+            document.querySelectorAll('.svg-field-container').forEach(container => {
+                const gameId = container.dataset.gameId;
+                const isCompressed = container.dataset.compressed === 'true';
+                const awayColor = container.dataset.awayColor;
+                const homeColor = container.dataset.homeColor;
+                const awayAbbr = container.dataset.awayAbbr;
+                const homeAbbr = container.dataset.homeAbbr;
+
+                const visualizer = new SVGFieldVisualizer(container, {
+                    compressed: isCompressed,
+                    showGoalPosts: !isCompressed,
+                    showYardNumbers: !isCompressed,
+                    showOneYardLines: !isCompressed,
+                    awayColor: awayColor,
+                    homeColor: homeColor,
+                    awayAbbr: awayAbbr,
+                    homeAbbr: homeAbbr
+                });
+
+                window.fieldVisualizers.set(gameId, visualizer);
             });
         }
 
@@ -3017,55 +3069,16 @@
                 const isCompressed = gridCount >= 3;
                 const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
 
-                // Generate 10 yard sections
-                const tenYardSections = Array(10).fill(0).map(() => `
-                    <div class="ten-yard-section">
-                        <div class="hash-marks-container">
-                            ${isCompressed ?
-                        '<div class="hash-row middle-single"></div>' :
-                        `<div class="hash-row sideline-top"></div>
-                                 <div class="hash-row middle-hashes"></div>
-                                 <div class="hash-row sideline-bottom"></div>`}
-                        </div>
-                    </div>
-                `).join('');
-
-                const numbersHTML = `
-                    <div class="number-group">10</div>
-                    <div class="number-group">20</div>
-                    <div class="number-group">30</div>
-                    <div class="number-group">40</div>
-                    <div class="number-group">50</div>
-                    <div class="number-group">40</div>
-                    <div class="number-group">30</div>
-                    <div class="number-group">20</div>
-                    <div class="number-group">10</div>
-                `;
-
+                // SVG field container - SVGFieldVisualizer will populate this
                 fieldVisualizerHTML = `
                     <div class="${fieldClass}">
-                        <div class="field-wrapper">
-                            <div class="football-field-container" style="--away-primary-color: ${awayEndzoneColor}; --home-primary-color: ${homeEndzoneColor};">
-                                <div class="end-zone left away-endzone">
-                                    <span class="endzone-text">${game.away.abbr}</span>
-                                    ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
-                                    <img src="/assets/FieldYLeft.png" alt="Goal Post" class="goal-post">
-                                </div>
-                                <div class="playing-field">
-                                    ${tenYardSections}
-                                    <div class="numbers-overlay">
-                                        ${!isCompressed ? `<div class="numbers-row top">${numbersHTML}</div>` : ''}
-                                        <div class="numbers-row bottom">${numbersHTML}</div>
-                                    </div>
-                                    <div class="ball-indicator"></div>
-                                    <div class="first-down-line"></div>
-                                </div>
-                                <div class="end-zone right home-endzone">
-                                    <span class="endzone-text">${game.home.abbr}</span>
-                                    ${!isCompressed ? '<div class="goal-post-base top"></div><div class="goal-post-base bottom"></div>' : ''}
-                                    <img src="/assets/FieldYRight.png" alt="Goal Post" class="goal-post">
-                                </div>
-                            </div>
+                        <div class="svg-field-container"
+                             data-game-id="${game.id}"
+                             data-compressed="${isCompressed}"
+                             data-away-color="${awayEndzoneColor}"
+                             data-home-color="${homeEndzoneColor}"
+                             data-away-abbr="${game.away.abbr}"
+                             data-home-abbr="${game.home.abbr}">
                         </div>
                     </div>
                 `;
@@ -3257,35 +3270,33 @@
         }
 
         function updateBallPosition(cardEl, fieldPosition, yardsToGo, possession, awayTeam, homeTeam, league) {
-            // Ball and first down line are now inside .playing-field container
-            const ballIndicator = cardEl.querySelector('.playing-field .ball-indicator');
-            const firstDownLine = cardEl.querySelector('.playing-field .first-down-line');
-            const situationInfo = cardEl.querySelector('.fullscreen-situation-info');
+            // Get game ID from card
+            const gameId = cardEl.dataset.gameId;
+            if (!gameId || !fieldPosition) return;
 
-            if (!ballIndicator || !fieldPosition) return;
+            // Get SVG visualizer for this game
+            const visualizer = window.fieldVisualizers.get(gameId);
+            if (!visualizer) return;
 
             // Get team color for styling
             const possessionTeam = possession === 'away' ? awayTeam : homeTeam;
-            const teamColor = possessionTeam?.abbr ? getTeamColor(possessionTeam.abbr, league) : '#1e40af'; // Navy blue default for scrimmage line
+            const teamColor = possessionTeam?.abbr ? getTeamColor(possessionTeam.abbr, league) : '#3b82f6'; // Blue default
 
-            // Apply team color to situation info
+            // Apply team color to situation info (outside the SVG)
+            const situationInfo = cardEl.querySelector('.fullscreen-situation-info');
             if (situationInfo) {
                 situationInfo.style.color = teamColor;
                 situationInfo.style.textShadow = `-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 3px rgba(0, 0, 0, 0.5)`;
             }
 
-            // Apply team color to ball indicator
-            ballIndicator.style.background = `linear-gradient(to bottom, ${teamColor}, ${teamColor}dd)`;
-            ballIndicator.style.boxShadow = `0 0 10px ${teamColor}cc, 0 0 6px ${teamColor}99`;
-
             // Calculate ball position (0-100 represents the playable field)
-            // Ball is now positioned within .playing-field which is the 100-yard area (no endzone offset needed)
             const ballPosition = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
-            ballIndicator.style.left = `${ballPosition}%`;
 
-            // Calculate first down line (hide on Goal situations since goal line IS the first down)
-            // yardsToGo of 0 indicates Goal situation
-            if (firstDownLine && yardsToGo > 0) {
+            // Update SVG visualizer
+            visualizer.setBallPosition(ballPosition, teamColor);
+
+            // Calculate and set first down line (hide on Goal situations)
+            if (yardsToGo > 0) {
                 const possessionIsAway = possession === 'away';
                 let firstDownPosition;
 
@@ -3297,10 +3308,9 @@
 
                 // Clamp to playable field (0-100%)
                 firstDownPosition = Math.max(0, Math.min(100, firstDownPosition));
-                firstDownLine.style.left = `${firstDownPosition}%`;
-                firstDownLine.style.display = 'block';
-            } else if (firstDownLine) {
-                firstDownLine.style.display = 'none';
+                visualizer.setFirstDownPosition(firstDownPosition, true);
+            } else {
+                visualizer.setFirstDownPosition(50, false); // Hide first down line
             }
         }
 
@@ -3392,7 +3402,10 @@
                 downDistanceText: comp?.situation?.downDistanceText || '',
                 prevDownDistance: prevData.downDistanceText || '',
                 prevPossession: prevData.possession || null,
-                currentPossession: game.possession || null
+                currentPossession: game.possession || null,
+                fieldPosition: prevData.fieldPosition || '',  // Field position at START of play for animation
+                awayAbbr,
+                homeAbbr
             });
         }
 
