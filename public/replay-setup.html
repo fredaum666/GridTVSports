@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GridTV Sports - Replay Control Center</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="/scripts/nfl-teams-data.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #0f1629;
+            --bg-tertiary: #141c32;
+            --bg-card: #1a2340;
+            --accent-cyan: #00f0ff;
+            --accent-green: #00ff88;
+            --accent-orange: #ff6b35;
+            --accent-red: #ff3366;
+            --accent-purple: #aa55ff;
+            --text-primary: #ffffff;
+            --text-secondary: #8892b0;
+            --text-muted: #495670;
+            --border-color: #243052;
+            --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.3);
+            --glow-green: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--bg-primary);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Scan line overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 240, 255, 0.01) 2px,
+                rgba(0, 240, 255, 0.01) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-cyan), transparent);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 20px;
+            color: var(--bg-primary);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, var(--text-primary), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent-cyan);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+            50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
+        }
+
+        .status-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Main Layout - 3 Column */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr 380px;
+            gap: 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Panel Styles */
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green), var(--accent-cyan));
+            background-size: 200% 100%;
+            animation: gradientShift 3s linear infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title::before {
+            content: '';
+            width: 4px;
+            height: 14px;
+            background: var(--accent-cyan);
+            border-radius: 2px;
+        }
+
+        .panel-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            padding: 4px 8px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 4px;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+
+        .panel-content {
+            padding: 20px;
+        }
+
+        /* Input Section */
+        .input-section {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-label::before {
+            content: '>';
+            color: var(--accent-cyan);
+        }
+
+        /* Text Area */
+        .data-textarea {
+            width: 100%;
+            height: 200px;
+            padding: 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--accent-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            line-height: 1.5;
+            resize: none;
+            transition: all 0.2s ease;
+        }
+
+        .data-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .data-textarea:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.1);
+            outline: none;
+        }
+
+        .textarea-counter {
+            text-align: right;
+            margin-top: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), #00c8d4);
+            color: var(--bg-primary);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #00d970);
+            color: var(--bg-primary);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-orange {
+            background: linear-gradient(135deg, var(--accent-orange), #ff8855);
+            color: var(--bg-primary);
+        }
+
+        .btn-orange:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(255, 107, 53, 0.5);
+        }
+
+        /* Detected Teams */
+        .detected-teams {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .teams-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--accent-green);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .team-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .team-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .team-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            object-fit: contain;
+            background: var(--bg-secondary);
+        }
+
+        .team-info {
+            flex: 1;
+        }
+
+        .team-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .team-abbr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .team-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .team-label.away {
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--accent-cyan);
+        }
+
+        .team-label.home {
+            background: rgba(255, 107, 53, 0.15);
+            color: var(--accent-orange);
+        }
+
+        /* Save Options */
+        .save-options {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .save-option-group {
+            margin-bottom: 12px;
+        }
+
+        .save-option-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .save-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+        }
+
+        .save-input:focus {
+            border-color: var(--accent-cyan);
+            outline: none;
+        }
+
+        .tag-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag-btn {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .tag-btn.active {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        /* Preview Section */
+        .preview-panel {
+            grid-column: 1 / 3;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .play-count {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .play-count span {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .preview-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .preview-grid::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+        }
+
+        .preview-grid::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        /* Play Card */
+        .play-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .play-card:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .play-card.selected {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .play-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .play-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .play-number {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--accent-cyan);
+        }
+
+        .play-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .play-quarter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            padding: 3px 6px;
+            background: rgba(0, 240, 255, 0.1);
+            border-radius: 4px;
+            color: var(--accent-cyan);
+        }
+
+        .play-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .play-type {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+            margin-right: 4px;
+        }
+
+        .play-type.pass { background: rgba(0, 136, 255, 0.2); color: #00aaff; }
+        .play-type.rush { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); }
+        .play-type.kickoff { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+        .play-type.punt { background: rgba(170, 0, 255, 0.2); color: #aa55ff; }
+        .play-type.touchdown { background: rgba(255, 51, 102, 0.2); color: var(--accent-red); }
+        .play-type.fieldgoal { background: rgba(255, 107, 53, 0.2); color: var(--accent-orange); }
+        .play-type.interception { background: rgba(255, 51, 102, 0.3); color: #ff6699; }
+        .play-type.fumble { background: rgba(255, 170, 0, 0.3); color: #ffcc00; }
+
+        .play-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        /* Library Panel */
+        .library-panel {
+            grid-row: 1 / 4;
+        }
+
+        .library-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .library-tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .library-tab:hover {
+            color: var(--text-secondary);
+        }
+
+        .library-tab.active {
+            color: var(--accent-cyan);
+        }
+
+        .library-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background: var(--accent-cyan);
+        }
+
+        .library-tab-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            margin-left: 4px;
+            padding: 2px 5px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        .library-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .library-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .library-item:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .library-item.selected {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .library-item-checkbox {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .library-item.selected .library-item-checkbox {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .library-item.selected .library-item-checkbox::after {
+            content: '✓';
+            color: var(--bg-primary);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .library-item-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding-right: 30px;
+        }
+
+        .library-item-logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        .library-item-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .library-item-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .library-item-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(170, 85, 255, 0.15);
+            color: var(--accent-purple);
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            margin-right: 4px;
+        }
+
+        .library-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .library-action-btn {
+            flex: 1;
+            padding: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .library-action-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        /* Launch Section */
+        .launch-section {
+            grid-column: 1 / 4;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .launch-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
+        }
+
+        .launch-info h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            background: linear-gradient(90deg, var(--text-primary), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .launch-info p {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .selection-summary {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .selection-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+
+        .selection-badge.games { color: var(--accent-cyan); }
+        .selection-badge.plays { color: var(--accent-purple); }
+
+        .launch-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Speed Presets */
+        .speed-presets {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .speed-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .speed-btn {
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .speed-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .speed-btn.active {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .btn-launch {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--accent-green), #00d970);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: var(--glow-green);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-launch:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 35px rgba(0, 255, 136, 0.6);
+        }
+
+        .btn-launch:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-green);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--glow-green);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.3);
+        }
+
+        /* Delete Confirmation Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .library-panel {
+                grid-column: 1 / 3;
+                grid-row: auto;
+            }
+
+            .preview-panel {
+                grid-column: 1 / 3;
+            }
+
+            .launch-section {
+                grid-column: 1 / 3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .library-panel,
+            .preview-panel,
+            .launch-section {
+                grid-column: 1;
+            }
+
+            .launch-section {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .launch-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .speed-presets {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">
+                    <div class="logo-title">GRIDTV SPORTS</div>
+                    <div class="logo-subtitle">Replay Control Center</div>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span class="status-text">System Ready</span>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Data Input Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">ESPN Data Input</div>
+                    <span class="panel-badge">PASTE DATA</span>
+                </div>
+                <div class="panel-content">
+                    <div class="input-section">
+                        <label class="input-label">Play-by-Play Data</label>
+                        <textarea
+                            class="data-textarea"
+                            id="dataInput"
+                            placeholder="Paste ESPN play-by-play JSON or text here..."
+                        ></textarea>
+                        <div class="textarea-counter" id="charCounter">0 chars</div>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="parseBtn">Parse Data</button>
+                        <button class="btn btn-secondary" id="clearBtn">Clear</button>
+                    </div>
+
+                    <!-- Detected Teams -->
+                    <div class="detected-teams" id="detectedTeams" style="display: none;">
+                        <div class="teams-header">Detected Teams</div>
+                        <div id="teamsDisplay"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Options Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">Save Options</div>
+                    <span class="panel-badge">LIBRARY</span>
+                </div>
+                <div class="panel-content">
+                    <div class="save-options">
+                        <div class="save-option-group">
+                            <label class="save-option-label">Save as Game</label>
+                            <input type="text" class="save-input" id="gameName" placeholder="e.g., GB @ CHI - Week 5">
+                            <div class="button-group">
+                                <button class="btn btn-success" id="saveGameBtn" disabled>Save as Game</button>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; color: var(--text-muted); margin: 16px 0; font-size: 12px;">— OR —</div>
+
+                        <div class="save-option-group">
+                            <label class="save-option-label">Save Selected as Play</label>
+                            <input type="text" class="save-input" id="playName" placeholder="e.g., Hail Mary TD">
+                            <label class="save-option-label" style="margin-top: 10px;">Play Tag</label>
+                            <div class="tag-selector" id="tagSelector">
+                                <button class="tag-btn" data-tag="touchdown">Touchdown</button>
+                                <button class="tag-btn" data-tag="turnover">Turnover</button>
+                                <button class="tag-btn" data-tag="big-play">Big Play</button>
+                                <button class="tag-btn" data-tag="scoring">Scoring</button>
+                                <button class="tag-btn" data-tag="highlight">Highlight</button>
+                            </div>
+                            <div class="button-group">
+                                <button class="btn btn-orange" id="savePlayBtn" disabled>Save as Play</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Library Panel -->
+            <div class="panel library-panel">
+                <div class="panel-header">
+                    <div class="panel-title">My Library</div>
+                </div>
+                <div class="library-tabs">
+                    <button class="library-tab active" data-tab="games">
+                        Games <span class="library-tab-count" id="gamesCount">0</span>
+                    </button>
+                    <button class="library-tab" data-tab="plays">
+                        Plays <span class="library-tab-count" id="playsCount">0</span>
+                    </button>
+                </div>
+                <div class="library-list" id="libraryList">
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <div class="empty-title">No Saved Items</div>
+                    </div>
+                </div>
+                <div class="library-actions">
+                    <button class="library-action-btn" id="selectAllBtn">Select All</button>
+                    <button class="library-action-btn" id="clearSelectionBtn">Clear</button>
+                    <button class="library-action-btn" id="deleteSelectedBtn" style="color: var(--accent-red);">Delete</button>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="panel preview-panel">
+                <div class="panel-header preview-header">
+                    <div class="panel-title">Parsed Plays</div>
+                    <div class="play-count" id="playCount">0 <span>plays</span></div>
+                </div>
+                <div class="panel-content">
+                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Click plays to select for "Save as Play"</div>
+                    <div class="preview-grid" id="previewGrid">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <div class="empty-title">No Plays Loaded</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Launch Section -->
+            <div class="launch-section">
+                <div class="launch-info">
+                    <h3>Launch Replay</h3>
+                    <p>Start the replay simulation with selected games and plays</p>
+                    <div class="selection-summary" id="selectionSummary">
+                        <div class="selection-badge games">
+                            <span id="selectedGamesCount">0</span> games
+                        </div>
+                        <div class="selection-badge plays">
+                            <span id="selectedPlaysCount">0</span> plays
+                        </div>
+                    </div>
+                </div>
+                <div class="launch-controls">
+                    <div class="speed-presets">
+                        <span class="speed-label">Speed:</span>
+                        <button class="speed-btn" data-speed="8000">0.25x</button>
+                        <button class="speed-btn" data-speed="6000">0.5x</button>
+                        <button class="speed-btn active" data-speed="3000">1x</button>
+                        <button class="speed-btn" data-speed="1500">2x</button>
+                        <button class="speed-btn" data-speed="750">4x</button>
+                    </div>
+                    <button class="btn-launch" id="launchBtn" disabled>
+                        <span>▶</span>
+                        Launch Replay
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span class="toast-text" id="toastText">Action completed</span>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h3>Delete Selected Items?</h3>
+            <p>This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmDeleteBtn" style="background: var(--accent-red);">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // STATE
+        // ==========================================
+        let parsedPlays = [];
+        let detectedTeams = null;
+        let selectedPlayIndices = new Set();
+        let selectedTag = null;
+        let selectedSpeed = 3000;
+        let activeLibraryTab = 'games';
+        let selectedLibraryItems = new Set(); // Format: 'games-id' or 'plays-id'
+
+        // ==========================================
+        // DOM ELEMENTS
+        // ==========================================
+        const dataInput = document.getElementById('dataInput');
+        const charCounter = document.getElementById('charCounter');
+        const parseBtn = document.getElementById('parseBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const previewGrid = document.getElementById('previewGrid');
+        const playCount = document.getElementById('playCount');
+        const detectedTeamsEl = document.getElementById('detectedTeams');
+        const teamsDisplay = document.getElementById('teamsDisplay');
+        const saveGameBtn = document.getElementById('saveGameBtn');
+        const savePlayBtn = document.getElementById('savePlayBtn');
+        const gameName = document.getElementById('gameName');
+        const playName = document.getElementById('playName');
+        const launchBtn = document.getElementById('launchBtn');
+        const toast = document.getElementById('toast');
+        const toastText = document.getElementById('toastText');
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLibrary();
+            setupEventListeners();
+            updateLaunchButton();
+        });
+
+        function setupEventListeners() {
+            // Character counter
+            dataInput.addEventListener('input', () => {
+                charCounter.textContent = `${dataInput.value.length.toLocaleString()} chars`;
+            });
+
+            // Parse button
+            parseBtn.addEventListener('click', parseData);
+
+            // Clear button
+            clearBtn.addEventListener('click', clearData);
+
+            // Save buttons
+            saveGameBtn.addEventListener('click', saveAsGame);
+            savePlayBtn.addEventListener('click', saveAsPlay);
+
+            // Tag selector
+            document.querySelectorAll('.tag-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedTag = btn.dataset.tag;
+                    updateSavePlayButton();
+                });
+            });
+
+            // Speed presets
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedSpeed = parseInt(btn.dataset.speed);
+                });
+            });
+
+            // Library tabs
+            document.querySelectorAll('.library-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.library-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    activeLibraryTab = tab.dataset.tab;
+                    renderLibrary();
+                });
+            });
+
+            // Library actions
+            document.getElementById('selectAllBtn').addEventListener('click', selectAllLibraryItems);
+            document.getElementById('clearSelectionBtn').addEventListener('click', clearLibrarySelection);
+            document.getElementById('deleteSelectedBtn').addEventListener('click', showDeleteModal);
+            document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteModal);
+            document.getElementById('confirmDeleteBtn').addEventListener('click', deleteSelectedItems);
+
+            // Launch button
+            launchBtn.addEventListener('click', launchReplay);
+
+            // Input change handlers
+            gameName.addEventListener('input', updateSaveGameButton);
+            playName.addEventListener('input', updateSavePlayButton);
+        }
+
+        // ==========================================
+        // PARSING
+        // ==========================================
+        function parseData() {
+            const rawData = dataInput.value.trim();
+            if (!rawData) {
+                showToast('Please paste some data first', true);
+                return;
+            }
+
+            try {
+                parsedPlays = parseESPNData(rawData);
+
+                // Detect teams
+                if (typeof detectTeamsFromPlays === 'function') {
+                    detectedTeams = detectTeamsFromPlays(parsedPlays);
+                }
+
+                renderPreview();
+                renderDetectedTeams();
+                updateSaveGameButton();
+
+                playCount.innerHTML = `${parsedPlays.length} <span>plays</span>`;
+                showToast(`Parsed ${parsedPlays.length} plays`);
+            } catch (error) {
+                console.error('Parse error:', error);
+                showToast('Error parsing data', true);
+            }
+        }
+
+        function parseESPNData(rawData) {
+            // Try JSON first
+            try {
+                const json = JSON.parse(rawData);
+                if (json.plays) {
+                    return json.plays.map((play, index) => formatPlay(play, index));
+                }
+                if (Array.isArray(json)) {
+                    return json.map((play, index) => formatPlay(play, index));
+                }
+            } catch (e) {
+                // Not JSON
+            }
+
+            // Parse text format
+            return parseESPNTextFormat(rawData);
+        }
+
+        function formatPlay(play, index) {
+            return {
+                sequenceNumber: play.sequenceNumber || index + 1,
+                period: play.period?.number || play.period || 1,
+                clock: play.clock?.displayValue || play.clock || '--:--',
+                type: detectPlayType(play.type?.text || play.text || ''),
+                text: play.text || '',
+                startYard: play.start?.yardLine || play.startYard || play.yardLine || 0,
+                endYard: play.end?.yardLine || play.endYard || play.yardLine || 0,
+                down: play.down || 0,
+                distance: play.distance || 0,
+                awayScore: play.awayScore || 0,
+                homeScore: play.homeScore || 0,
+                possession: play.possession || 'home',
+                scoringPlay: play.scoringPlay || false,
+                isTouchdown: play.isTouchdown || /touchdown/i.test(play.text || ''),
+                isInterception: play.isInterception || /intercept/i.test(play.text || ''),
+                isFumble: play.isFumble || /fumble/i.test(play.text || '')
+            };
+        }
+
+        function parseESPNTextFormat(rawData) {
+            const plays = [];
+            const lines = rawData.split('\n');
+            let currentPeriod = 1;
+            let currentDown = 0;
+            let currentDistance = 0;
+            let awayScore = 0;
+            let homeScore = 0;
+            let possession = 'away';
+            let playNumber = 0;
+
+            const clockPattern = /^(\d{1,2}:\d{2})\s*-\s*(\d+)(?:st|nd|rd|th)$/i;
+            const downDistancePattern = /^(\d)(?:st|nd|rd|th)\s*&\s*(\d+|Goal)\s+at\s+(\w+)\s+(\d+)$/i;
+            const yardGainPattern = /(?:to|at)\s+(\w{2,4})\s+(\d+)/i;
+            const yardsPattern = /for\s+(-?\d+)\s+yard/i;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                // Check for quarter changes
+                if (line.match(/^\d+(?:st|nd|rd|th)\s+Quarter$/i)) {
+                    currentPeriod = parseInt(line.match(/(\d+)/)[1]);
+                    continue;
+                }
+
+                // Check for down & distance info
+                const downMatch = line.match(downDistancePattern);
+                if (downMatch) {
+                    currentDown = parseInt(downMatch[1]);
+                    currentDistance = downMatch[2] === 'Goal' ? 0 : parseInt(downMatch[2]);
+                    continue;
+                }
+
+                // Check for clock/period line
+                const clockMatch = line.match(clockPattern);
+                if (clockMatch) {
+                    const clock = clockMatch[1];
+                    currentPeriod = parseInt(clockMatch[2]);
+
+                    if (i + 1 < lines.length) {
+                        const playText = lines[i + 1].trim();
+                        if (!playText || downDistancePattern.test(playText) || clockPattern.test(playText)) {
+                            continue;
+                        }
+
+                        let startYard = 0;
+                        let endYard = 0;
+
+                        const yardMatch = playText.match(yardGainPattern);
+                        if (yardMatch) {
+                            const yard = parseInt(yardMatch[2]);
+                            endYard = yard;
+                        }
+
+                        const yardsGainedMatch = playText.match(yardsPattern);
+                        const yardsGained = yardsGainedMatch ? parseInt(yardsGainedMatch[1]) : 0;
+                        startYard = endYard - yardsGained;
+
+                        const isTouchdown = /TOUCHDOWN/i.test(playText);
+                        const isFieldGoal = /field goal is GOOD/i.test(playText);
+                        const isInterception = /INTERCEPTED/i.test(playText);
+                        const isFumble = /FUMBLE/i.test(playText);
+
+                        if (isTouchdown) {
+                            const hasXP = /extra point is GOOD/i.test(playText);
+                            if (possession === 'away') awayScore += 6 + (hasXP ? 1 : 0);
+                            else homeScore += 6 + (hasXP ? 1 : 0);
+                        } else if (isFieldGoal) {
+                            if (possession === 'away') awayScore += 3;
+                            else homeScore += 3;
+                        }
+
+                        playNumber++;
+                        plays.push({
+                            sequenceNumber: playNumber,
+                            period: currentPeriod,
+                            clock: clock,
+                            type: detectPlayType(playText),
+                            text: playText,
+                            startYard: Math.max(0, Math.min(100, startYard)),
+                            endYard: Math.max(0, Math.min(100, endYard)),
+                            down: currentDown,
+                            distance: currentDistance,
+                            possession: possession,
+                            awayScore: awayScore,
+                            homeScore: homeScore,
+                            scoringPlay: isTouchdown || isFieldGoal,
+                            isInterception: isInterception,
+                            isFumble: isFumble,
+                            isTouchdown: isTouchdown
+                        });
+
+                        if (isInterception || isFumble) {
+                            possession = possession === 'away' ? 'home' : 'away';
+                        }
+
+                        i++;
+                    }
+                }
+            }
+
+            return plays;
+        }
+
+        function detectPlayType(text) {
+            const lower = text.toLowerCase();
+            if (lower.includes('kickoff') || lower.includes('kicks off')) return 'kickoff';
+            if (lower.includes('punt')) return 'punt';
+            if (lower.includes('field goal')) return 'fieldgoal';
+            if (lower.includes('touchdown')) return 'touchdown';
+            if (lower.includes('pass') || lower.includes('incomplete') || lower.includes('complete')) return 'pass';
+            if (lower.includes('rush') || lower.includes('up the middle') || lower.includes('left end') || lower.includes('right end')) return 'rush';
+            if (lower.includes('sack')) return 'rush';
+            if (lower.includes('penalty')) return 'penalty';
+            return 'pass';
+        }
+
+        // ==========================================
+        // RENDERING
+        // ==========================================
+        function renderPreview() {
+            if (parsedPlays.length === 0) {
+                previewGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-title">No Plays Found</div>
+                    </div>
+                `;
+                return;
+            }
+
+            previewGrid.innerHTML = parsedPlays.slice(0, 50).map((play, index) => `
+                <div class="play-card ${selectedPlayIndices.has(index) ? 'selected' : ''}" data-index="${index}">
+                    <div class="play-header">
+                        <span class="play-number">#${play.sequenceNumber}</span>
+                        <div class="play-meta">
+                            <span class="play-quarter">Q${play.period}</span>
+                            <span class="play-clock">${play.clock}</span>
+                        </div>
+                    </div>
+                    <span class="play-type ${play.type}">${play.type}</span>
+                    ${play.isTouchdown ? '<span class="play-type touchdown">TD</span>' : ''}
+                    ${play.isInterception ? '<span class="play-type interception">INT</span>' : ''}
+                    ${play.isFumble ? '<span class="play-type fumble">FUM</span>' : ''}
+                    <p class="play-text">${truncateText(play.text, 100)}</p>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            previewGrid.querySelectorAll('.play-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const index = parseInt(card.dataset.index);
+                    if (selectedPlayIndices.has(index)) {
+                        selectedPlayIndices.delete(index);
+                        card.classList.remove('selected');
+                    } else {
+                        selectedPlayIndices.add(index);
+                        card.classList.add('selected');
+                    }
+                    updateSavePlayButton();
+                });
+            });
+        }
+
+        function renderDetectedTeams() {
+            if (!detectedTeams) {
+                detectedTeamsEl.style.display = 'none';
+                return;
+            }
+
+            detectedTeamsEl.style.display = 'block';
+            teamsDisplay.innerHTML = `
+                <div class="team-row">
+                    <img class="team-logo" src="${detectedTeams.away?.logo || ''}" alt="${detectedTeams.away?.name || 'Away'}">
+                    <div class="team-info">
+                        <div class="team-name">${detectedTeams.away?.fullName || detectedTeams.away?.name || 'Away Team'}</div>
+                        <div class="team-abbr">${detectedTeams.away?.abbr || 'AWAY'}</div>
+                    </div>
+                    <span class="team-label away">Away</span>
+                </div>
+                <div class="team-row">
+                    <img class="team-logo" src="${detectedTeams.home?.logo || ''}" alt="${detectedTeams.home?.name || 'Home'}">
+                    <div class="team-info">
+                        <div class="team-name">${detectedTeams.home?.fullName || detectedTeams.home?.name || 'Home Team'}</div>
+                        <div class="team-abbr">${detectedTeams.home?.abbr || 'HOME'}</div>
+                    </div>
+                    <span class="team-label home">Home</span>
+                </div>
+            `;
+
+            // Auto-fill game name
+            if (detectedTeams.away && detectedTeams.home && !gameName.value) {
+                gameName.value = `${detectedTeams.away.abbr} @ ${detectedTeams.home.abbr}`;
+            }
+        }
+
+        function renderLibrary() {
+            const games = getSavedGames();
+            const plays = getSavedPlays();
+
+            document.getElementById('gamesCount').textContent = games.length;
+            document.getElementById('playsCount').textContent = plays.length;
+
+            const list = document.getElementById('libraryList');
+            const items = activeLibraryTab === 'games' ? games : plays;
+
+            if (items.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <div class="empty-title">No Saved ${activeLibraryTab === 'games' ? 'Games' : 'Plays'}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = items.map(item => {
+                const itemKey = `${activeLibraryTab}-${item.id}`;
+                const isSelected = selectedLibraryItems.has(itemKey);
+
+                if (activeLibraryTab === 'games') {
+                    return `
+                        <div class="library-item ${isSelected ? 'selected' : ''}" data-id="${item.id}" data-type="games">
+                            <div class="library-item-checkbox"></div>
+                            <div class="library-item-header">
+                                <img class="library-item-logo" src="${item.metadata?.away?.logo || ''}" alt="">
+                                <img class="library-item-logo" src="${item.metadata?.home?.logo || ''}" alt="">
+                                <div>
+                                    <div class="library-item-title">${item.name}</div>
+                                    <div class="library-item-meta">${item.totalPlays || item.plays?.length || 0} plays</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="library-item ${isSelected ? 'selected' : ''}" data-id="${item.id}" data-type="plays">
+                            <div class="library-item-checkbox"></div>
+                            <div class="library-item-header">
+                                <div>
+                                    <div class="library-item-title">${item.name}</div>
+                                    <div class="library-item-meta">${item.plays?.length || 1} play(s)</div>
+                                </div>
+                            </div>
+                            ${item.tag ? `<span class="library-item-tag">${item.tag}</span>` : ''}
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            // Add click handlers
+            list.querySelectorAll('.library-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const id = item.dataset.id;
+                    const type = item.dataset.type;
+                    const itemKey = `${type}-${id}`;
+
+                    if (selectedLibraryItems.has(itemKey)) {
+                        selectedLibraryItems.delete(itemKey);
+                        item.classList.remove('selected');
+                    } else {
+                        selectedLibraryItems.add(itemKey);
+                        item.classList.add('selected');
+                    }
+                    updateLaunchButton();
+                });
+            });
+        }
+
+        // ==========================================
+        // STORAGE
+        // ==========================================
+        function getSavedGames() {
+            try {
+                return JSON.parse(localStorage.getItem('gridtv_saved_games') || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function getSavedPlays() {
+            try {
+                return JSON.parse(localStorage.getItem('gridtv_saved_plays') || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveAsGame() {
+            if (parsedPlays.length === 0 || !detectedTeams) return;
+
+            const name = gameName.value.trim() || `${detectedTeams.away?.abbr || 'AWAY'} @ ${detectedTeams.home?.abbr || 'HOME'}`;
+            const games = getSavedGames();
+
+            const newGame = {
+                id: `game-${Date.now()}`,
+                type: 'game',
+                name: name,
+                savedAt: new Date().toISOString(),
+                metadata: {
+                    away: detectedTeams.away,
+                    home: detectedTeams.home
+                },
+                plays: parsedPlays,
+                totalPlays: parsedPlays.length
+            };
+
+            games.push(newGame);
+            localStorage.setItem('gridtv_saved_games', JSON.stringify(games));
+
+            showToast(`Saved game: ${name}`);
+            gameName.value = '';
+            loadLibrary();
+        }
+
+        function saveAsPlay() {
+            if (selectedPlayIndices.size === 0) return;
+
+            const name = playName.value.trim();
+            if (!name) {
+                showToast('Please enter a name for the play', true);
+                return;
+            }
+
+            const selectedPlays = [...selectedPlayIndices].sort((a, b) => a - b).map(i => parsedPlays[i]);
+            const plays = getSavedPlays();
+
+            const newPlay = {
+                id: `play-${Date.now()}`,
+                type: 'play',
+                name: name,
+                tag: selectedTag,
+                savedAt: new Date().toISOString(),
+                metadata: detectedTeams,
+                plays: selectedPlays
+            };
+
+            plays.push(newPlay);
+            localStorage.setItem('gridtv_saved_plays', JSON.stringify(plays));
+
+            showToast(`Saved play: ${name}`);
+            playName.value = '';
+            selectedPlayIndices.clear();
+            selectedTag = null;
+            document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+            renderPreview();
+            loadLibrary();
+            updateSavePlayButton();
+        }
+
+        function loadLibrary() {
+            renderLibrary();
+            updateLaunchButton();
+        }
+
+        // ==========================================
+        // LIBRARY ACTIONS
+        // ==========================================
+        function selectAllLibraryItems() {
+            const items = activeLibraryTab === 'games' ? getSavedGames() : getSavedPlays();
+            items.forEach(item => {
+                selectedLibraryItems.add(`${activeLibraryTab}-${item.id}`);
+            });
+            renderLibrary();
+            updateLaunchButton();
+        }
+
+        function clearLibrarySelection() {
+            selectedLibraryItems.clear();
+            renderLibrary();
+            updateLaunchButton();
+        }
+
+        function showDeleteModal() {
+            if (selectedLibraryItems.size === 0) {
+                showToast('No items selected', true);
+                return;
+            }
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function hideDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+
+        function deleteSelectedItems() {
+            let games = getSavedGames();
+            let plays = getSavedPlays();
+
+            selectedLibraryItems.forEach(itemKey => {
+                const [type, id] = itemKey.split('-');
+                const fullId = itemKey.substring(type.length + 1);
+
+                if (type === 'games') {
+                    games = games.filter(g => g.id !== fullId);
+                } else {
+                    plays = plays.filter(p => p.id !== fullId);
+                }
+            });
+
+            localStorage.setItem('gridtv_saved_games', JSON.stringify(games));
+            localStorage.setItem('gridtv_saved_plays', JSON.stringify(plays));
+
+            selectedLibraryItems.clear();
+            hideDeleteModal();
+            loadLibrary();
+            showToast('Items deleted');
+        }
+
+        // ==========================================
+        // UI UPDATES
+        // ==========================================
+        function updateSaveGameButton() {
+            saveGameBtn.disabled = parsedPlays.length === 0 || !detectedTeams;
+        }
+
+        function updateSavePlayButton() {
+            savePlayBtn.disabled = selectedPlayIndices.size === 0 || !playName.value.trim();
+        }
+
+        function updateLaunchButton() {
+            // Count selected games and plays
+            let gamesCount = 0;
+            let playsCount = 0;
+
+            selectedLibraryItems.forEach(itemKey => {
+                if (itemKey.startsWith('games-')) gamesCount++;
+                else if (itemKey.startsWith('plays-')) playsCount++;
+            });
+
+            document.getElementById('selectedGamesCount').textContent = gamesCount;
+            document.getElementById('selectedPlaysCount').textContent = playsCount;
+
+            launchBtn.disabled = (gamesCount + playsCount) === 0;
+        }
+
+        // ==========================================
+        // LAUNCH
+        // ==========================================
+        function launchReplay() {
+            const games = getSavedGames();
+            const plays = getSavedPlays();
+
+            const replayItems = [];
+
+            selectedLibraryItems.forEach(itemKey => {
+                if (itemKey.startsWith('games-')) {
+                    const id = itemKey.substring(6);
+                    const game = games.find(g => g.id === id);
+                    if (game) {
+                        replayItems.push({
+                            id: game.id,
+                            type: 'game',
+                            plays: game.plays,
+                            metadata: game.metadata
+                        });
+                    }
+                } else if (itemKey.startsWith('plays-')) {
+                    const id = itemKey.substring(6);
+                    const play = plays.find(p => p.id === id);
+                    if (play) {
+                        replayItems.push({
+                            id: play.id,
+                            type: 'play',
+                            name: play.name,
+                            plays: play.plays,
+                            metadata: play.metadata
+                        });
+                    }
+                }
+            });
+
+            if (replayItems.length === 0) {
+                showToast('No items selected', true);
+                return;
+            }
+
+            // Store in sessionStorage
+            const replayData = {
+                games: replayItems,
+                speed: selectedSpeed
+            };
+            sessionStorage.setItem('gridtv_replay_data', JSON.stringify(replayData));
+
+            // Navigate to replay page
+            window.location.href = `/Desktop-tv-sports-bar?replay=true&grid=${replayItems.length}`;
+        }
+
+        // ==========================================
+        // UTILITIES
+        // ==========================================
+        function clearData() {
+            dataInput.value = '';
+            charCounter.textContent = '0 chars';
+            parsedPlays = [];
+            detectedTeams = null;
+            selectedPlayIndices.clear();
+            playCount.innerHTML = '0 <span>plays</span>';
+            detectedTeamsEl.style.display = 'none';
+            gameName.value = '';
+            playName.value = '';
+            updateSaveGameButton();
+            updateSavePlayButton();
+            previewGrid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <div class="empty-title">No Plays Loaded</div>
+                </div>
+            `;
+            showToast('Data cleared');
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function showToast(message, isError = false) {
+            toastText.textContent = message;
+            toast.classList.toggle('error', isError);
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

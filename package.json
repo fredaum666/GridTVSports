@@ -14,7 +14,11 @@
     "start:dev": "npm run build:dev && node server.js",
     "start:prod": "npm run build:prod && set NODE_ENV=production&& node server.js",
     "setup-db": "node setup-db.js",
-    "test-db": "node test-db.js"
+    "test-db": "node test-db.js",
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:phone": "npx playwright test phone-fullscreen-cards",
+    "test:report": "npx playwright show-report"
   },
   "dependencies": {
     "axios": "^1.12.2",
@@ -47,6 +51,7 @@
     "@babel/core": "^7.28.6",
     "@babel/preset-env": "^7.28.6",
     "@babel/preset-react": "^7.28.5",
+    "@playwright/test": "^1.57.0",
     "babel-loader": "^10.0.0",
     "css-loader": "^7.1.2",
     "nodemon": "^3.1.10",
