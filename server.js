@@ -165,10 +165,10 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://cdn.jsdelivr.net"],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https://a.espncdn.com", "https://*.espncdn.com", "https://*.stripe.com"],
       connectSrc: ["'self'", "https://api.stripe.com", "wss:", "ws:"],
-      fontSrc: ["'self'"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com", "http://localhost:3001", "https://localhost:3001"],
@@ -2854,6 +2854,11 @@ app.get('/test-field-animations', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'test-field-animations.html'));
 });
 
+// Replay setup page for play-by-play testing
+app.get('/replay-setup', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'replay-setup.html'));
+});
+
 // Admin subscription management page - LOCALHOST ONLY
 app.get('/admin-subscriptions', (req, res) => {
   const ip = req.ip || req.connection.remoteAddress || '';
@@ -4223,6 +4228,9 @@ app.get('/api/ncaa/scoreboard', async (req, res) => {
     const now = Date.now();
 
     if (cached && (now - cached.timestamp) < sportsCache.CACHE_DURATION) {
+      // Log cache hit with upcoming count for debugging
+      const cachedUpcoming = cached.data.events?.filter(e => e.status?.type?.state === 'pre').length || 0;
+      console.log(`[NCAA] CACHE HIT - ${cacheKey}, Upcoming: ${cachedUpcoming}, Total: ${cached.data.events?.length || 0}`);
       return res.json(cached.data);
     }
 
@@ -4235,7 +4243,12 @@ app.get('/api/ncaa/scoreboard', async (req, res) => {
       return acc;
     }, {}) || {};
 
-    console.log(`[NCAA] ${isBowlRequest ? 'Bowl Season' : 'Week ' + (requestedWeek || getCurrentNCAAWeek())} - Games: ${data.events?.length || 0}, Statuses:`, statusCount, `Complete: ${isComplete}`);
+    // Log detailed info for upcoming games
+    const upcomingGames = data.events?.filter(e => e.status?.type?.state === 'pre') || [];
+    const upcomingNames = upcomingGames.slice(0, 5).map(e => e.shortName || e.name).join(', ');
+
+    console.log(`[NCAA] FRESH FETCH - ${isBowlRequest ? 'Bowl Season' : 'Week ' + (requestedWeek || getCurrentNCAAWeek())} - Games: ${data.events?.length || 0}, Statuses:`, statusCount);
+    console.log(`[NCAA] Upcoming (${upcomingGames.length}): ${upcomingNames || 'none'}`);
 
     sportsCache.ncaa.data.set(cacheKey, { data, timestamp: now, isComplete });
 
@@ -4248,6 +4261,18 @@ app.get('/api/ncaa/scoreboard', async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('[NCAA] Error fetching scoreboard:', error.message);
+
+    // Return stale cache if available rather than failing
+    const requestedWeek = req.query.week;
+    const isBowlRequest = requestedWeek === 'bowl' || (!requestedWeek && isCollegeBowlSeason());
+    const staleCacheKey = isBowlRequest ? 'bowl-season' : `week-${requestedWeek || getCurrentNCAAWeek()}`;
+    const staleCache = sportsCache.ncaa.data.get(staleCacheKey);
+
+    if (staleCache) {
+      console.log(`[NCAA] Returning stale cache (${staleCacheKey}) due to fetch error`);
+      return res.json(staleCache.data);
+    }
+
     res.status(500).json({ error: error.message });
   }
 });
@@ -4958,10 +4983,13 @@ cron.schedule('*/30 * * * * *', async () => {
 cron.schedule('*/30 * * * * *', async () => {
   for (const cacheKey of sportsCache.ncaa.activeWeeks) {
     try {
-      const isBowlSeason = cacheKey.startsWith('bowls-');
+      // Check for bowl season - cache key is 'bowl-season' (not 'bowls-')
+      const isBowlSeason = cacheKey === 'bowl-season' || cacheKey.startsWith('bowl');
       const weekMatch = cacheKey.match(/week-(\d+)/);
       const weekNum = parseInt(weekMatch ? weekMatch[1] : '1');
       const seasonType = isBowlSeason ? 3 : 2;
+
+      console.log(`[NCAA Background] Refreshing ${cacheKey} (bowl: ${isBowlSeason}, seasonType: ${seasonType})`);
 
       const data = await fetchNCAADataForCache(cacheKey, seasonType, weekNum);
 
