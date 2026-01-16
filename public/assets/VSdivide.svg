@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 300">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFE5A0"/>
+      <stop offset="50%" stop-color="#C9943D"/>
+      <stop offset="100%" stop-color="#8B6914"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Lightning bolt glow -->
+  <path d="M42 0 L37 50 L47 55 L32 105 L45 112 L28 155 L48 165 L32 210 L45 220 L30 270 L42 280 L38 300" fill="none" stroke="rgba(200,230,255,0.5)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Lightning bolt main -->
+  <path d="M42 0 L37 50 L47 55 L32 105 L45 112 L28 155 L48 165 L32 210 L45 220 L30 270 L42 280 L38 300" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Lightning bolt core -->
+  <path d="M42 0 L37 50 L47 55 L32 105 L45 112 L28 155 L48 165 L32 210 L45 220 L30 270 L42 280 L38 300" fill="none" stroke="#e0f4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- VS shadow -->
+  <text x="42" y="162" font-family="Impact,Arial Black,sans-serif" font-size="42" font-weight="bold" text-anchor="middle" fill="#000" opacity="0.5">VS</text>
+
+  <!-- VS text -->
+  <text x="40" y="160" font-family="Impact,Arial Black,sans-serif" font-size="42" font-weight="bold" text-anchor="middle" fill="url(#gold)">VS</text>
+</svg>

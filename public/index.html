@@ -1773,7 +1773,7 @@
             left: 0;
             right: 0;
             height: 50%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
             pointer-events: none;
         }
 
@@ -2484,7 +2484,7 @@
         }
 
         .live-sb-score {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 900;
             color: var(--sb-text-color);
             text-shadow:
@@ -3165,6 +3165,7 @@
             .dropdown-item:active {
                 background: rgba(99, 102, 241, 0.4);
             }
+
             /* Button :active states defined in standardized button section */
         }
 
@@ -3220,27 +3221,38 @@
                         Enter the 6-digit code shown on your TV:
                     </p>
                     <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 1.5rem;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin1" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin2" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin3" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin4" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin5" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin6" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin1"
+                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin2"
+                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin3"
+                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin4"
+                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin5"
+                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin6"
+                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
                     </div>
-                    <button id="cast-connect-btn" class="modal-btn modal-btn-primary" style="width: 100%; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);" disabled>
+                    <button id="cast-connect-btn" class="modal-btn modal-btn-primary"
+                        style="width: 100%; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);" disabled>
                         Connect to TV
                     </button>
                 </div>
 
                 <!-- Connection Status (shown after connecting) -->
                 <div id="cast-status-section" style="display: none; text-align: center;">
-                    <div id="cast-status-box" style="padding: 15px; border-radius: 8px; margin-bottom: 1rem; background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308;">
+                    <div id="cast-status-box"
+                        style="padding: 15px; border-radius: 8px; margin-bottom: 1rem; background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308;">
                         <div style="display: inline-flex; align-items: center; gap: 10px;">
-                            <div class="cast-pulse-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #eab308; animation: pulse 1.5s infinite;"></div>
+                            <div class="cast-pulse-dot"
+                                style="width: 10px; height: 10px; border-radius: 50%; background: #eab308; animation: pulse 1.5s infinite;">
+                            </div>
                             <span id="cast-status-text">Connecting to TV...</span>
                         </div>
                     </div>
-                    <button id="cast-end-btn" class="modal-btn" style="width: 100%; background: #ef4444; color: white; display: none;">
+                    <button id="cast-end-btn" class="modal-btn"
+                        style="width: 100%; background: #ef4444; color: white; display: none;">
                         End Casting
                     </button>
                 </div>
@@ -3249,8 +3261,11 @@
     </div>
 
     <!-- Floating Casting Indicator -->
-    <div id="casting-indicator" style="display: none; position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); z-index: 9999; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s;">
-        <div class="cast-pulse-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite;"></div>
+    <div id="casting-indicator"
+        style="display: none; position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); z-index: 9999; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s;">
+        <div class="cast-pulse-dot"
+            style="width: 10px; height: 10px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite;">
+        </div>
         <span style="font-weight: 600;">📺 Casting...</span>
     </div>
 
@@ -3526,7 +3541,7 @@
 
         // MOCK DATA MODE - When true, shows "Enter Sports Bar Mode" button even with no selections
         // This allows testing layouts directly since mock data loads when no games are selected
-        const USE_MOCK_DATA_MODE = true; // Set to false for production
+        const USE_MOCK_DATA_MODE = false; // Set to false for production
 
         // ============================================
         // HELPER FUNCTIONS
@@ -4860,7 +4875,6 @@
 
         function renderLeagueRows() {
             const container = document.getElementById('league-rows-container');
-            container.innerHTML = '';
 
             // Group live games by league
             const liveGamesByLeague = {};
@@ -4891,40 +4905,83 @@
                 return;
             }
 
-            // Render rows for each league that has live games (in order)
-            leagueOrder.forEach(leagueId => {
-                const games = liveGamesByLeague[leagueId];
-                if (!games || games.length === 0) return;
+            // Check if we can update in place (same leagues with live games)
+            const existingSections = container.querySelectorAll('.tv-row[data-row^="league-row-"]');
+            const existingLeagues = Array.from(existingSections).map(s => s.dataset.row.replace('league-row-', ''));
+            const newLeagues = leagueOrder.filter(id => liveGamesByLeague[id]?.length > 0);
 
-                const leagueName = leagueDisplayNames[leagueId] || leagueId.toUpperCase();
-                const rowId = `league-row-${leagueId}`;
+            const canUpdateInPlace = existingLeagues.length === newLeagues.length &&
+                existingLeagues.every((id, i) => id === newLeagues[i]);
 
-                const sectionHtml = `
-                    <section class="tv-row" data-row="${rowId}" id="${rowId}-section">
-                        <div class="tv-row-header">
-                            <span class="tv-row-title">${leagueName}</span>
-                            <span class="tv-row-badge live">LIVE</span>
-                            <span class="tv-row-count">${games.length} game${games.length > 1 ? 's' : ''}</span>
-                        </div>
-                        <div class="tv-row-scroll-wrapper">
-                            <span class="scroll-handle handle-prev" data-scroll-target="${rowId}" role="button" aria-label="See previous">
-                                <span class="handle-icon">‹</span>
-                            </span>
-                            <div class="tv-row-scroll" id="${rowId}">
-                                ${games.map(game => createGameCard(game, rowId)).join('')}
+            if (canUpdateInPlace) {
+                // Update existing league rows in place
+                newLeagues.forEach(leagueId => {
+                    const games = liveGamesByLeague[leagueId];
+                    const rowId = `league-row-${leagueId}`;
+                    const rowContainer = document.getElementById(rowId);
+                    if (rowContainer) {
+                        // Update game count
+                        const countEl = rowContainer.closest('.tv-row')?.querySelector('.tv-row-count');
+                        if (countEl) countEl.textContent = `${games.length} game${games.length > 1 ? 's' : ''}`;
+
+                        // Update cards in place or re-render row if games changed
+                        const existingCards = rowContainer.querySelectorAll('.game-card');
+                        const existingIds = Array.from(existingCards).map(card => {
+                            try { return JSON.parse(card.dataset.game || '{}').id; }
+                            catch (e) { return null; }
+                        });
+                        const newIds = games.map(g => g.id);
+
+                        const canUpdateRow = existingIds.length === newIds.length &&
+                            existingIds.every((id, i) => id === newIds[i]);
+
+                        if (canUpdateRow) {
+                            games.forEach((game, index) => {
+                                updateGameCardInPlace(existingCards[index], game, rowId);
+                            });
+                        } else {
+                            rowContainer.innerHTML = games.map(game => createGameCard(game, rowId)).join('');
+                        }
+                    }
+                });
+            } else {
+                // Full re-render needed (leagues changed)
+                container.innerHTML = '';
+
+                leagueOrder.forEach(leagueId => {
+                    const games = liveGamesByLeague[leagueId];
+                    if (!games || games.length === 0) return;
+
+                    const leagueName = leagueDisplayNames[leagueId] || leagueId.toUpperCase();
+                    const rowId = `league-row-${leagueId}`;
+
+                    const sectionHtml = `
+                        <section class="tv-row" data-row="${rowId}" id="${rowId}-section">
+                            <div class="tv-row-header">
+                                <span class="tv-row-title">${leagueName}</span>
+                                <span class="tv-row-badge live">LIVE</span>
+                                <span class="tv-row-count">${games.length} game${games.length > 1 ? 's' : ''}</span>
                             </div>
-                            <span class="scroll-handle handle-next" data-scroll-target="${rowId}" role="button" aria-label="See more">
-                                <span class="handle-icon">›</span>
-                            </span>
-                        </div>
-                    </section>
-                `;
+                            <div class="tv-row-scroll-wrapper">
+                                <span class="scroll-handle handle-prev" data-scroll-target="${rowId}" role="button" aria-label="See previous">
+                                    <span class="handle-icon">‹</span>
+                                </span>
+                                <div class="tv-row-scroll" id="${rowId}">
+                                    ${games.map(game => createGameCard(game, rowId)).join('')}
+                                </div>
+                                <span class="scroll-handle handle-next" data-scroll-target="${rowId}" role="button" aria-label="See more">
+                                    <span class="handle-icon">›</span>
+                                </span>
+                            </div>
+                        </section>
+                    `;
 
-                container.insertAdjacentHTML('beforeend', sectionHtml);
-            });
+                    container.insertAdjacentHTML('beforeend', sectionHtml);
+                });
 
-            // Initialize scroll handles for dynamically created rows
-            initScrollHandles();
+                // Initialize scroll handles for dynamically created rows
+                initScrollHandles();
+            }
         }
 
         function renderGameRow(containerId, games, rowName, emptyId, countId) {
@@ -4940,10 +4997,91 @@
 
             if (countEl) countEl.textContent = `${games.length} games`;
 
-            container.innerHTML = games.map(game => createGameCard(game, rowName)).join('');
+            // Check if we can update in place (same number of games with same IDs)
+            const existingCards = container.querySelectorAll('.game-card');
+            const existingIds = Array.from(existingCards).map(card => {
+                try {
+                    return JSON.parse(card.dataset.game || '{}').id;
+                } catch (e) {
+                    return null;
+                }
+            });
+            const newIds = games.map(g => g.id);
+
+            // If same games in same order, update in place
+            const canUpdateInPlace = existingIds.length === newIds.length &&
+                existingIds.every((id, i) => id === newIds[i]);
+
+            if (canUpdateInPlace) {
+                // Update existing cards in place
+                games.forEach((game, index) => {
+                    const card = existingCards[index];
+                    if (card) {
+                        updateGameCardInPlace(card, game, rowName);
+                    }
+                });
+            } else {
+                // Full re-render needed (games changed)
+                container.innerHTML = games.map(game => createGameCard(game, rowName)).join('');
+            }
 
             // Update scroll handles for this row
             updateScrollHandlesForRow(containerId);
+        }
+
+        // Update a game card in place without destroying DOM
+        function updateGameCardInPlace(card, game, rowName) {
+            // Update the data attribute
+            card.dataset.game = JSON.stringify(game);
+
+            // For live games, update scores and status
+            if (game.state === 'in') {
+                // Update scores
+                const awayScoreEl = card.querySelector('.live-sb-score-box.away .live-sb-score');
+                const homeScoreEl = card.querySelector('.live-sb-score-box.home .live-sb-score');
+                if (awayScoreEl) awayScoreEl.textContent = game.away.score || 0;
+                if (homeScoreEl) homeScoreEl.textContent = game.home.score || 0;
+
+                // Update time/status
+                const timeEl = card.querySelector('.live-sb-time');
+                const periodEl = card.querySelector('.live-sb-period');
+                if (timeEl || periodEl) {
+                    const statusParts = parseGameStatus(game.status, game.league);
+                    if (periodEl) periodEl.textContent = statusParts.period || '';
+                    if (timeEl) timeEl.textContent = statusParts.time || game.status;
+                }
+
+                // Update football situation (NFL/NCAA)
+                if (game.league === 'nfl' || game.league === 'ncaa') {
+                    const downDistEl = card.querySelector('.live-sb-down-distance');
+                    const fieldPosEl = card.querySelector('.live-sb-ball-position');
+                    if (downDistEl) downDistEl.textContent = game.downDistance || '';
+                    if (fieldPosEl) fieldPosEl.textContent = game.fieldPosition || '';
+
+                    // Update possession indicator
+                    const situationBox = card.querySelector('.live-sb-situation');
+                    if (situationBox) {
+                        situationBox.classList.remove('possession-away', 'possession-home', 'redzone');
+                        if (game.possession === 'away') situationBox.classList.add('possession-away');
+                        else if (game.possession === 'home') situationBox.classList.add('possession-home');
+
+                        const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
+                        if (isRedZone) situationBox.classList.add('redzone');
+                    }
+                }
+            } else if (game.state === 'pre') {
+                // Upcoming game - update start time
+                const timeEl = card.querySelector('.game-card-status');
+                if (timeEl) timeEl.textContent = formatStartTime(game.startTime);
+            } else if (game.state === 'post') {
+                // Final game - update scores
+                const awayScoreEl = card.querySelector('.game-card-team.away .game-card-team-score') ||
+                    card.querySelector('.game-card-team:first-child .game-card-team-score');
+                const homeScoreEl = card.querySelector('.game-card-team.home .game-card-team-score') ||
+                    card.querySelector('.game-card-team:last-child .game-card-team-score');
+                if (awayScoreEl) awayScoreEl.textContent = game.away.score || 0;
+                if (homeScoreEl) homeScoreEl.textContent = game.home.score || 0;
+            }
         }
 
         // ============================================
@@ -5140,7 +5278,7 @@
                                 <span class="nba-upcoming-abbr">${game.away.abbr}</span>
                             </div>
                             <div class="nba-upcoming-vs-container">
-                                <img class="nba-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                                <img class="nba-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
                             </div>
                             <div class="nba-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
                                 <img class="nba-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
@@ -5191,7 +5329,7 @@
                                 <span class="nfl-upcoming-abbr">${game.away.abbr}</span>
                             </div>
                             <div class="nfl-upcoming-vs-container">
-                                <img class="nfl-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                                <img class="nfl-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
                             </div>
                             <div class="nfl-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
                                 <img class="nfl-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
@@ -5242,7 +5380,7 @@
                                 <span class="nhl-upcoming-abbr">${game.away.abbr}</span>
                             </div>
                             <div class="nhl-upcoming-vs-container">
-                                <img class="nhl-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                                <img class="nhl-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
                             </div>
                             <div class="nhl-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
                                 <img class="nhl-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
@@ -5293,7 +5431,7 @@
                                 <span class="mlb-upcoming-abbr">${game.away.abbr}</span>
                             </div>
                             <div class="mlb-upcoming-vs-container">
-                                <img class="mlb-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                                <img class="mlb-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
                             </div>
                             <div class="mlb-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
                                 <img class="mlb-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
@@ -5343,7 +5481,7 @@
                                 <span class="ncaa-upcoming-abbr">${game.away.abbr}</span>
                             </div>
                             <div class="ncaa-upcoming-vs-container">
-                                <img class="ncaa-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                                <img class="ncaa-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
                             </div>
                             <div class="ncaa-upcoming-half home" style="background: linear-gradient(270deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
                                 <img class="ncaa-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
@@ -5393,7 +5531,7 @@
                                 <span class="ncaab-upcoming-abbr">${game.away.abbr}</span>
                             </div>
                             <div class="ncaab-upcoming-vs-container">
-                                <img class="ncaab-upcoming-vs-img" src="/assets/VSdivide.png" alt="VS">
+                                <img class="ncaab-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
                             </div>
                             <div class="ncaab-upcoming-half home" style="background: linear-gradient(270deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
                                 <img class="ncaab-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">

@@ -154,6 +154,12 @@ app.get('/manifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
 });
 
+// Serve SVG files with correct MIME type
+app.get('/assets/*.svg', (req, res) => {
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.sendFile(path.join(__dirname, 'public', req.path));
+});
+
 // ============================================
 // SECURITY MIDDLEWARE
 // ============================================
@@ -2852,6 +2858,15 @@ app.get('/test-field', (req, res) => {
 // Test field animations page
 app.get('/test-field-animations', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'test-field-animations.html'));
+});
+
+// V2 Homepage Preview (redesigned UI - no auth required for preview)
+app.get('/v2', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index-v2.html'));
+});
+
+app.get('/index-v2', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index-v2.html'));
 });
 
 // Replay setup page for play-by-play testing

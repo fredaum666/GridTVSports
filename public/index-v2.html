@@ -4,45 +4,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GridTV Sports</title>
+    <title>GridTV Sports - V2</title>
     <link rel="icon" type="image/png" href="/assets/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/scripts/qrcode.min.js"></script>
     <style>
         /* ================================ */
-        /* TV DESIGN SYSTEM                 */
-        /* Based on Android TV Guidelines   */
+        /* BROADCAST CONTROL ROOM THEME     */
+        /* V2 - Angular, Neon, Premium Dark */
         /* ================================ */
         :root {
-            /* Colors */
-            --tv-bg-primary: #0a0e1a;
-            --tv-bg-secondary: #111827;
-            --tv-bg-card: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            --tv-bg-card-hover: linear-gradient(135deg, #252b3d 0%, #2f3649 100%);
-            --tv-accent: #6366f1;
-            --tv-accent-light: #818cf8;
-            --tv-accent-glow: rgba(99, 102, 241, 0.4);
-            --tv-text-primary: #ffffff;
-            --tv-text-secondary: #94a3b8;
-            --tv-text-muted: #64748b;
-            --tv-live-red: #ef4444;
-            --tv-success: #22c55e;
-            --tv-border: #334155;
+            /* V2 Color Palette - Deep void with electric accents */
+            --bg-primary: #05080f;
+            --bg-secondary: #0a1019;
+            --bg-card: linear-gradient(135deg, #0f1520 0%, #151d2d 100%);
+            --bg-card-hover: linear-gradient(135deg, #151d2d 0%, #1a2438 100%);
+            --accent: #00f0ff;
+            --accent-light: #66f7ff;
+            --accent-glow: rgba(0, 240, 255, 0.4);
+            --accent-magenta: #ff0066;
+            --accent-magenta-dim: rgba(255, 0, 102, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: #8892a4;
+            --text-muted: #4a5568;
+            --live-red: #ff0066;
+            --success: #00ff88;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(0, 240, 255, 0.3);
 
-            /* Spacing (5% overscan margins for 960x540) */
-            --tv-margin-h: 48px;
-            --tv-margin-v: 27px;
-            --tv-gutter: 20px;
-            --tv-row-gap: 24px;
+            /* Desktop defaults */
+            --margin-h: 40px;
+            --margin-v: 24px;
+            --gutter: 16px;
+            --row-gap: 20px;
 
-            /* Cards */
-            --tv-card-radius: 16px;
-            --tv-focus-outline: 3px;
-            --tv-focus-scale: 1.05;
-            --tv-focus-glow: 0 0 30px var(--tv-accent-glow);
+            /* Cards - Angular geometry */
+            --card-radius: 4px;
+            --clip-corner: 12px;
+            --hover-scale: 1.02;
+            --hover-shadow: 0 8px 32px rgba(0, 240, 255, 0.15);
 
-            /* Typography - System fonts for Android TV compatibility */
-            --tv-font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            /* Touch targets - minimum 44px for accessibility */
+            --touch-target: 44px;
+
+            /* V2 Typography */
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-family: var(--font-body);
+        }
+
+        /* Tablet (768px - 1024px) */
+        @media (max-width: 1024px) {
+            :root {
+                --margin-h: 24px;
+                --margin-v: 20px;
+                --gutter: 12px;
+                --row-gap: 16px;
+                --card-radius: 10px;
+            }
+        }
+
+        /* Mobile (up to 767px) */
+        @media (max-width: 767px) {
+            :root {
+                --margin-h: 16px;
+                --margin-v: 12px;
+                --gutter: 8px;
+                --row-gap: 12px;
+                --card-radius: 8px;
+            }
         }
 
         * {
@@ -55,10 +87,45 @@
         body {
             width: 100%;
             height: 100%;
-            overflow: hidden;
-            background: var(--tv-bg-primary);
-            font-family: var(--tv-font-family);
-            color: var(--tv-text-primary);
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* V2 Noise texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* V2 Scanline effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9998;
         }
 
         .hidden {
@@ -66,397 +133,15 @@
         }
 
         /* ================================ */
-        /* LOGIN SCREEN STYLES              */
+        /* MAIN HOME - RESPONSIVE LAYOUT    */
         /* ================================ */
-        .login-screen {
+        .home {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: clamp(20px, 4vh, 60px);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: clamp(25px, 5vh, 60px);
-        }
-
-        .login-header img {
-            height: clamp(50px, 8vh, 100px);
-            margin-bottom: clamp(10px, 2vh, 25px);
-        }
-
-        .login-header h1 {
-            font-size: clamp(28px, 5vw, 60px);
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: clamp(5px, 1vh, 15px);
-        }
-
-        .login-header p {
-            font-size: clamp(14px, 2vw, 26px);
-            color: #94a3b8;
-        }
-
-        .login-options {
-            display: flex;
-            gap: clamp(30px, 4vw, 80px);
-            align-items: stretch;
-        }
-
-        .login-option {
-            width: clamp(280px, 22vw, 500px);
-            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            border: 3px solid transparent;
-            border-radius: clamp(16px, 1.5vw, 30px);
-            padding: clamp(25px, 3vw, 50px);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .login-option.focused {
-            border-color: #6366f1;
-            transform: scale(1.02);
-            box-shadow: 0 0 50px rgba(99, 102, 241, 0.4);
-        }
-
-        .login-option h2 {
-            font-size: clamp(18px, 1.8vw, 34px);
-            margin-bottom: clamp(10px, 1.5vh, 20px);
-            color: #fff;
-        }
-
-        .login-option p {
-            font-size: clamp(12px, 1.2vw, 20px);
-            color: #94a3b8;
-            margin-bottom: clamp(15px, 2.5vh, 35px);
-        }
-
-        .login-option .icon {
-            font-size: clamp(40px, 5vw, 80px);
-            margin-bottom: clamp(12px, 2vh, 25px);
-            display: block;
-        }
-
-        .login-divider {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            font-size: clamp(14px, 1.3vw, 24px);
-            font-weight: 600;
-        }
-
-        .login-divider::before,
-        .login-divider::after {
-            content: '';
-            width: 2px;
-            height: clamp(50px, 8vh, 100px);
-            background: #334155;
-        }
-
-        .login-divider span {
-            padding: clamp(12px, 2vh, 25px) 0;
-        }
-
-        /* Password Login Form */
-        .password-login-screen {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: clamp(60px, 8vw, 150px);
-            padding: clamp(20px, 4vh, 60px);
-        }
-
-        .password-login-screen .login-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .password-login-screen .login-content .back-link,
-        .qr-login-screen .login-content .back-link {
-            margin-top: clamp(20px, 3vh, 40px);
-            color: #6366f1;
-            font-size: clamp(14px, 1.3vw, 22px);
-            cursor: pointer;
-            padding: clamp(10px, 1.5vh, 20px) clamp(20px, 2vw, 40px);
-            border: 2px solid #334155;
-            border-radius: clamp(6px, 0.8vw, 12px);
-            transition: all 0.3s;
-            text-align: center;
-            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-        }
-
-        .password-login-screen .login-logo {
-            text-align: center;
-        }
-
-        .password-login-screen .login-logo img {
-            height: clamp(80px, 15vh, 180px);
-            margin-bottom: clamp(15px, 2vh, 30px);
-        }
-
-        .password-login-screen .login-logo h1 {
-            font-size: clamp(32px, 4vw, 70px);
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .login-form {
-            width: clamp(320px, 30vw, 600px);
-            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            border-radius: clamp(16px, 1.5vw, 30px);
-            padding: clamp(30px, 4vw, 60px);
-        }
-
-        .login-form h2 {
-            font-size: clamp(22px, 2.2vw, 40px);
-            margin-bottom: clamp(6px, 1vh, 15px);
-            text-align: center;
-        }
-
-        .login-form .subtitle {
-            color: #94a3b8;
-            text-align: center;
-            margin-bottom: clamp(25px, 4vh, 50px);
-            font-size: clamp(12px, 1.2vw, 20px);
-        }
-
-        .form-group {
-            margin-bottom: clamp(15px, 2.5vh, 30px);
-        }
-
-        .form-group label {
-            display: block;
-            font-size: clamp(12px, 1.2vw, 20px);
-            color: #94a3b8;
-            margin-bottom: clamp(6px, 1vh, 12px);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: clamp(12px, 1.5vw, 22px) clamp(14px, 1.5vw, 24px);
-            font-size: clamp(14px, 1.4vw, 24px);
-            background: #0f172a;
-            border: 3px solid #334155;
-            border-radius: clamp(8px, 1vw, 16px);
-            color: #fff;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group input.focused {
-            border-color: #6366f1;
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-        }
-
-        .form-group input::placeholder {
-            color: #64748b;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: clamp(14px, 1.8vw, 24px);
-            font-size: clamp(16px, 1.6vw, 26px);
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            border: 3px solid transparent;
-            border-radius: clamp(8px, 1vw, 16px);
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: clamp(12px, 2vh, 25px);
-        }
-
-        .login-btn:focus,
-        .login-btn.focused {
-            border-color: #fff;
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .back-link {
-            margin-top: clamp(20px, 3vh, 40px);
-            color: #6366f1;
-            font-size: clamp(14px, 1.3vw, 22px);
-            cursor: pointer;
-            padding: clamp(10px, 1.5vh, 20px) clamp(20px, 2vw, 40px);
-            border: 2px solid transparent;
-            border-radius: clamp(6px, 0.8vw, 12px);
-            transition: all 0.3s;
-        }
-
-        .back-link:focus,
-        .back-link.focused {
-            border-color: #6366f1;
-            background: rgba(99, 102, 241, 0.1);
-        }
-
-        .login-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            border-radius: clamp(6px, 0.8vw, 12px);
-            padding: clamp(10px, 1.5vh, 20px);
-            color: #ef4444;
-            margin-bottom: clamp(12px, 2vh, 25px);
-            text-align: center;
-            font-size: clamp(12px, 1.1vw, 18px);
-            display: none;
-        }
-
-        .login-error.show {
-            display: block;
-        }
-
-        /* QR Code Login Screen */
-        .qr-login-screen {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: clamp(60px, 8vw, 150px);
-            padding: clamp(20px, 4vh, 60px);
-        }
-
-        .qr-login-screen .login-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .qr-login-screen .login-logo {
-            text-align: center;
-        }
-
-        .qr-login-screen .login-logo img {
-            height: clamp(80px, 15vh, 180px);
-            margin-bottom: clamp(15px, 2vh, 30px);
-        }
-
-        .qr-login-screen .login-logo h1 {
-            font-size: clamp(32px, 4vw, 70px);
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .qr-login-box {
-            width: clamp(320px, 30vw, 600px);
-            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            border-radius: clamp(16px, 1.5vw, 30px);
-            padding: clamp(30px, 4vw, 60px);
-            text-align: center;
-        }
-
-        .qr-login-box h2 {
-            font-size: clamp(22px, 2.2vw, 40px);
-            margin-bottom: clamp(6px, 1vh, 15px);
-        }
-
-        .qr-login-box .subtitle {
-            color: #94a3b8;
-            margin-bottom: clamp(20px, 3vh, 40px);
-            font-size: clamp(12px, 1.2vw, 20px);
-        }
-
-        .qr-container {
-            background: #fff;
-            border-radius: clamp(10px, 1.2vw, 20px);
-            padding: clamp(15px, 2vw, 30px);
-            display: inline-block;
-            margin: clamp(12px, 2vh, 25px) 0;
-        }
-
-        .qr-container canvas,
-        .qr-container img {
-            display: block;
-            width: clamp(150px, 15vw, 250px) !important;
-            height: clamp(150px, 15vw, 250px) !important;
-        }
-
-        #login-qr-code {
-            display: inline-block;
-        }
-
-        .qr-loading {
-            width: clamp(150px, 15vw, 250px);
-            height: clamp(150px, 15vw, 250px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6366f1;
-            font-size: clamp(12px, 1.2vw, 20px);
-        }
-
-        .qr-timer {
-            color: #94a3b8;
-            font-size: clamp(12px, 1.2vw, 20px);
-            margin-top: clamp(10px, 1.5vh, 20px);
-        }
-
-        .qr-timer span:last-child {
-            color: #6366f1;
-            font-weight: 700;
-        }
-
-        .qr-status {
-            margin-top: clamp(12px, 2vh, 25px);
-            padding: clamp(8px, 1vh, 15px) clamp(14px, 1.5vw, 25px);
-            border-radius: clamp(6px, 0.8vw, 12px);
-            font-size: clamp(12px, 1.2vw, 20px);
-        }
-
-        .qr-status.success {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid #22c55e;
-            color: #22c55e;
-        }
-
-        .qr-status.error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #ef4444;
-        }
-
-        .qr-status.info {
-
-            color: #6366f1;
-        }
-
-        /* ================================ */
-        /* MAIN TV HOME - STREAMING LAYOUT  */
-        /* ================================ */
-        .tv-home {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: var(--tv-margin-v) var(--tv-margin-h);
-            overflow: hidden;
+            padding: var(--margin-v) var(--margin-h);
+            overflow-y: auto;
             position: relative;
         }
 
@@ -502,12 +187,15 @@
         }
 
         .tv-logo h1 {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--tv-accent) 0%, #8b5cf6 100%);
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 0 30px var(--accent-glow);
         }
 
         .tv-header-right {
@@ -518,7 +206,7 @@
 
         .tv-time {
             font-size: 18px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
@@ -526,7 +214,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
             font-size: 14px;
         }
 
@@ -534,18 +222,20 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: var(--font-display);
             font-size: 16px;
             font-weight: 700;
-            color: #fff;
+            color: var(--bg-primary);
             text-transform: uppercase;
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
         .sign-out-link {
-            color: var(--tv-accent);
+            color: var(--accent);
             cursor: pointer;
             padding: 8px 16px;
             border: 2px solid transparent;
@@ -554,7 +244,7 @@
         }
 
         .sign-out-link.focused {
-            border-color: var(--tv-accent);
+            border-color: var(--accent);
             background: rgba(99, 102, 241, 0.1);
             transform: scale(1.05);
         }
@@ -589,9 +279,12 @@
         }
 
         .tv-row-title {
+            font-family: var(--font-display);
             font-size: 18px;
-            font-weight: 600;
-            color: var(--tv-text-primary);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: var(--text-primary);
         }
 
         .tv-row-badge {
@@ -605,7 +298,7 @@
         }
 
         .tv-row-badge.live {
-            background: var(--tv-live-red);
+            background: var(--live-red);
             color: white;
         }
 
@@ -632,8 +325,14 @@
 
         .tv-row-count {
             font-size: 14px;
-            color: var(--tv-text-muted);
+            color: var(--text-muted);
             margin-left: 8px;
+        }
+
+        /* Row Scroll Container Wrapper */
+        .tv-row-scroll-wrapper {
+            position: relative;
+            width: 100%;
         }
 
         /* Horizontal Scroll Container */
@@ -652,14 +351,104 @@
             display: none;
         }
 
-        /* League Cards (2:3 aspect ratio) */
+        /* Scroll Navigation Handles - matches game card dimensions */
+        .scroll-handle {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-52%);
+            width: 40px;
+            height: 180px;
+            background: linear-gradient(135deg, rgba(15, 21, 32, 0.9) 0%, rgba(10, 16, 25, 0.95) 100%);
+            border: 1px solid var(--border);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-handle.active {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-handle:hover {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(15, 21, 32, 0.95) 100%);
+            border-color: var(--accent);
+        }
+
+        .scroll-handle.handle-prev {
+            left: 0;
+            border-radius: 0 var(--card-radius) var(--card-radius) 0;
+            border-left: none;
+        }
+
+        .scroll-handle.handle-next {
+            right: 0;
+            border-radius: var(--card-radius) 0 0 var(--card-radius);
+            border-right: none;
+        }
+
+        .scroll-handle .handle-icon {
+            font-size: 48px;
+            color: var(--text-primary);
+            font-weight: bold;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .scroll-handle:hover .handle-icon {
+            color: var(--accent-light);
+        }
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .scroll-handle {
+                width: 36px;
+                height: 160px;
+            }
+
+            .scroll-handle .handle-icon {
+                font-size: 40px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 767px) {
+            .scroll-handle {
+                width: 32px;
+                height: 140px;
+            }
+
+            .scroll-handle .handle-icon {
+                font-size: 36px;
+            }
+        }
+
+        /* Small mobile */
+        @media (max-width: 375px) {
+            .scroll-handle {
+                width: 28px;
+                height: 130px;
+            }
+
+            .scroll-handle .handle-icon {
+                font-size: 32px;
+            }
+        }
+
+        /* League Cards (2:3 aspect ratio) - V2 Magenta Design */
         .league-card {
             flex-shrink: 0;
             width: 120px;
             height: 160px;
-            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
-            border: 3px solid #000;
-            border-radius: var(--tv-card-radius);
+            background: linear-gradient(180deg, #0f1520 0%, #10081a 50%, #05080f 100%);
+            border: 1px solid rgba(255, 0, 102, 0.15);
+            border-radius: var(--card-radius);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -668,18 +457,25 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
             box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+                0 4px 16px rgba(255, 0, 102, 0.06),
+                inset 0 1px 0 rgba(255, 0, 102, 0.08);
+        }
+
+        .league-card:hover {
+            border-color: rgba(255, 0, 102, 0.35);
+            box-shadow:
+                0 6px 28px rgba(255, 0, 102, 0.12);
+            transform: translateY(-2px);
         }
 
         .league-card.focused {
-            border: 3px solid var(--tv-accent);
-            transform: scale(var(--tv-focus-scale));
+            border: 1px solid var(--accent-magenta);
+            transform: scale(var(--hover-scale));
             box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
+                0 0 0 1px rgba(255, 0, 102, 0.4),
+                0 6px 28px rgba(255, 0, 102, 0.2);
             z-index: 10;
         }
 
@@ -690,14 +486,16 @@
         }
 
         .league-card .league-name {
+            font-family: var(--font-display);
             font-size: 14px;
-            font-weight: 600;
-            color: var(--tv-text-primary);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: var(--text-primary);
         }
 
         .league-card .league-status {
             font-size: 10px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
             text-align: center;
             line-height: 1.3;
         }
@@ -711,7 +509,7 @@
             position: absolute;
             top: 8px;
             right: 8px;
-            background: var(--tv-live-red);
+            background: var(--live-red);
             color: white;
             font-size: 9px;
             font-weight: 600;
@@ -733,7 +531,7 @@
 
         /* Selected league filter */
         .league-card.selected {
-            border-color: var(--tv-accent);
+            border-color: var(--accent);
             background: linear-gradient(180deg, #2d2050 0%, #1f1540 50%, #150f30 100%);
             box-shadow:
                 0 4px 16px rgba(99, 102, 241, 0.2),
@@ -749,36 +547,57 @@
             transform: translateX(-50%);
             width: 24px;
             height: 3px;
-            background: var(--tv-accent);
+            background: var(--accent);
             border-radius: 2px;
         }
 
-        /* Game Cards (16:9 aspect ratio) */
+        /* Game Cards (16:9 aspect ratio) - V2 Magenta Design */
         .game-card {
             flex-shrink: 0;
             width: 320px;
             height: 180px;
-            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
-            border: 3px solid #000;
-            border-radius: var(--tv-card-radius);
-            padding: 16px;
+            background: linear-gradient(135deg, #0f1520 0%, #12081a 100%);
+            border: 1px solid rgba(255, 0, 102, 0.2);
+            border-radius: var(--card-radius);
+            padding: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             display: flex;
             flex-direction: column;
+            clip-path: polygon(var(--clip-corner) 0, 100% 0, 100% calc(100% - var(--clip-corner)), calc(100% - var(--clip-corner)) 100%, 0 100%, 0 var(--clip-corner));
             box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+                0 4px 24px rgba(255, 0, 102, 0.08),
+                inset 0 1px 0 rgba(255, 0, 102, 0.1);
+            overflow: hidden;
+        }
+
+        /* Diagonal accent stripe */
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 0, 102, 0.08) 100%);
+            pointer-events: none;
+        }
+
+        .game-card:hover {
+            border-color: rgba(255, 0, 102, 0.4);
+            box-shadow:
+                0 8px 40px rgba(255, 0, 102, 0.15),
+                inset 0 1px 0 rgba(255, 0, 102, 0.15);
+            transform: translateY(-2px);
         }
 
         .game-card.focused {
-            border: 3px solid var(--tv-accent);
-            transform: scale(var(--tv-focus-scale));
+            border: 1px solid var(--accent-magenta);
+            transform: scale(var(--hover-scale));
             box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
+                0 0 0 1px rgba(255, 0, 102, 0.5),
+                0 8px 40px rgba(255, 0, 102, 0.25);
             z-index: 10;
         }
 
@@ -790,33 +609,45 @@
         }
 
         .game-card-league {
+            font-family: var(--font-display);
             font-size: 10px;
-            font-weight: 600;
-            color: var(--tv-accent);
+            font-weight: 700;
+            color: var(--accent-magenta);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.08em;
         }
 
         .game-card-status {
+            font-family: var(--font-display);
             font-size: 10px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 6px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 2px;
+            letter-spacing: 0.04em;
+            clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
         }
 
         .game-card-status.live {
-            background: var(--tv-live-red);
+            background: var(--accent-magenta);
             color: white;
+            box-shadow: 0 0 16px rgba(255, 0, 102, 0.5);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 12px rgba(255, 0, 102, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(255, 0, 102, 0.6); }
         }
 
         .game-card-status.upcoming {
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--tv-accent-light);
+            background: rgba(255, 0, 102, 0.12);
+            color: var(--accent-magenta);
+            border: 1px solid rgba(255, 0, 102, 0.3);
         }
 
         .game-card-status.final {
-            background: rgba(100, 116, 139, 0.2);
-            color: var(--tv-text-secondary);
+            background: rgba(74, 85, 104, 0.15);
+            color: var(--text-muted);
         }
 
         .game-card-teams {
@@ -840,65 +671,70 @@
         }
 
         .game-card-team-name {
+            font-family: var(--font-display);
             flex: 1;
             font-size: 14px;
-            font-weight: 500;
-            color: var(--tv-text-primary);
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: var(--text-primary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .game-card-team-score {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--tv-text-primary);
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
             min-width: 36px;
             text-align: right;
         }
 
         .game-card-team.winner .game-card-team-name,
         .game-card-team.winner .game-card-team-score {
-            color: var(--tv-success);
+            color: var(--accent-magenta);
+            text-shadow: 0 0 12px rgba(255, 0, 102, 0.3);
         }
 
         /* ===== LIVE GAME CARD - VS Layout ===== */
         .game-card.live-card {
             padding: 0;
             overflow: hidden;
-            background: linear-gradient(180deg, #1a2235 0%, #0f1525 100%);
-            border: 3px solid #000;
+            background: linear-gradient(180deg, #0f1520 0%, #05080f 100%);
+            border: 1px solid var(--border-accent);
             position: relative;
         }
 
         /* League-specific watermark backgrounds */
         .game-card.live-card.live-nfl {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NFL-Field.jpg') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-ncaa {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NCAAF-Field.jpg') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-nba {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NBACourt.png') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-ncaab {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NCAABCourt.png') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-nhl {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NHLIceRink.png') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-mlb {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/MLBFiled.png') center center / cover no-repeat;
         }
 
@@ -935,14 +771,16 @@
         }
 
         .live-card-team-abbr {
+            font-family: var(--font-display);
             font-size: 13px;
             font-weight: 700;
-            color: var(--tv-text-primary);
+            letter-spacing: 0.02em;
+            color: var(--text-primary);
         }
 
         .live-card-team-record {
             font-size: 9px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         .live-card-scores {
@@ -952,25 +790,27 @@
         }
 
         .live-card-score {
+            font-family: var(--font-display);
             font-size: 32px;
             font-weight: 800;
-            color: var(--tv-text-primary);
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
             min-width: 36px;
             text-align: center;
         }
 
         .live-card-score.winning {
-            color: var(--tv-success);
+            color: var(--success);
         }
 
         .live-card-score.losing {
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         .live-card-vs {
             font-size: 14px;
             font-weight: 600;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         .live-card-footer {
@@ -981,7 +821,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             background: rgba(99, 102, 241, 0.15);
             padding: 4px 12px;
             border-radius: 10px;
@@ -989,8 +829,8 @@
         }
 
         .game-card.live-card.focused {
-            border: 3px solid var(--tv-accent);
-            transform: scale(var(--tv-focus-scale));
+            border: 3px solid var(--accent);
+            transform: scale(var(--hover-scale));
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1092,7 +932,7 @@
         }
 
         .game-card.nba-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1106,7 +946,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1220,7 +1060,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1230,7 +1070,7 @@
         }
 
         .game-card.nfl-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1341,7 +1181,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1351,7 +1191,7 @@
         }
 
         .game-card.nhl-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1462,7 +1302,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1472,7 +1312,7 @@
         }
 
         .game-card.mlb-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1583,7 +1423,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1593,7 +1433,7 @@
         }
 
         .game-card.ncaa-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1704,7 +1544,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1714,7 +1554,7 @@
         }
 
         .game-card.ncaab-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1748,14 +1588,14 @@
         .game-card-footer {
             margin-top: 8px;
             font-size: 11px;
-            color: var(--tv-text-muted);
+            color: var(--text-muted);
         }
 
         .game-card-footer-time {
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             padding-top: 8px;
             margin-top: auto;
         }
@@ -1766,7 +1606,7 @@
             align-items: center;
             justify-content: center;
             padding: 24px;
-            color: var(--tv-text-muted);
+            color: var(--text-muted);
             font-size: 14px;
         }
 
@@ -1796,8 +1636,8 @@
         .loading-spinner {
             width: 48px;
             height: 48px;
-            border: 4px solid var(--tv-border);
-            border-top-color: var(--tv-accent);
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -1811,7 +1651,7 @@
         .loading-text {
             margin-top: 16px;
             font-size: 16px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         /* ================================ */
@@ -1823,11 +1663,11 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: var(--tv-bg-primary);
+            background: var(--bg-primary);
             z-index: 2000;
             display: none;
             flex-direction: column;
-            padding: var(--tv-margin-v) var(--tv-margin-h);
+            padding: var(--margin-v) var(--margin-h);
         }
 
         .fullscreen-game-overlay.active {
@@ -1848,12 +1688,12 @@
             align-items: center;
             justify-content: space-between;
             padding: 16px 0;
-            border-bottom: 2px solid var(--tv-border);
+            border-bottom: 2px solid var(--border);
             margin-bottom: 24px;
         }
 
         .fullscreen-league-badge {
-            background: var(--tv-accent);
+            background: var(--accent);
             color: white;
             padding: 8px 20px;
             border-radius: 8px;
@@ -1865,17 +1705,17 @@
         .fullscreen-game-status {
             font-size: 24px;
             font-weight: 600;
-            color: var(--tv-text-primary);
+            color: var(--text-primary);
         }
 
         .fullscreen-game-status.live {
-            color: var(--tv-live-red);
+            color: var(--live-red);
         }
 
         .fullscreen-close-btn {
             background: transparent;
-            border: 2px solid var(--tv-border);
-            color: var(--tv-text-secondary);
+            border: 2px solid var(--border);
+            color: var(--text-secondary);
             padding: 12px 24px;
             border-radius: 8px;
             font-size: 16px;
@@ -1887,9 +1727,9 @@
         .fullscreen-close-btn:hover,
         .fullscreen-close-btn:focus {
             background: rgba(99, 102, 241, 0.2);
-            border-color: var(--tv-accent);
-            color: var(--tv-text-primary);
-            outline: 3px solid var(--tv-accent);
+            border-color: var(--accent);
+            color: var(--text-primary);
+            outline: 3px solid var(--accent);
             transform: scale(1.05);
         }
 
@@ -1918,36 +1758,36 @@
         .fullscreen-team-name {
             font-size: 28px;
             font-weight: 600;
-            color: var(--tv-text-primary);
+            color: var(--text-primary);
             text-align: center;
         }
 
         .fullscreen-team-score {
             font-size: 80px;
             font-weight: 700;
-            color: var(--tv-text-primary);
+            color: var(--text-primary);
             line-height: 1;
         }
 
         .fullscreen-team.winner .fullscreen-team-score {
-            color: var(--tv-success);
+            color: var(--success);
         }
 
         .fullscreen-vs {
             font-size: 32px;
             font-weight: 700;
-            color: var(--tv-text-muted);
+            color: var(--text-muted);
         }
 
         .fullscreen-game-footer {
             text-align: center;
             padding: 24px 0;
-            border-top: 2px solid var(--tv-border);
+            border-top: 2px solid var(--border);
         }
 
         .fullscreen-game-name {
             font-size: 20px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         /* ================================ */
@@ -2004,6 +1844,7 @@
 
         /* Base action button styles */
         .sports-mode-btn,
+        .cast-to-tv-btn,
         .clear-selections-btn {
             display: inline-flex;
             align-items: center;
@@ -2025,6 +1866,7 @@
 
         /* Subtle shine effect on all buttons */
         .sports-mode-btn::before,
+        .cast-to-tv-btn::before,
         .clear-selections-btn::before {
             content: '';
             position: absolute;
@@ -2036,34 +1878,87 @@
             pointer-events: none;
         }
 
-        /* Enter Sports Mode button - Green */
+        /* Enter Sports Mode button - V2 Cyan */
         .sports-mode-btn {
-            background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
-            color: #ffffff;
+            background: linear-gradient(180deg, var(--accent) 0%, #00c4cc 100%);
+            color: var(--bg-primary);
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
             box-shadow:
-                0 4px 14px rgba(34, 197, 94, 0.4),
+                0 4px 20px rgba(0, 240, 255, 0.4),
                 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .sports-mode-btn:hover,
         .sports-mode-btn.focused {
-            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            background: linear-gradient(180deg, #66f7ff 0%, var(--accent) 100%);
             transform: translateY(-2px);
             box-shadow:
-                0 6px 20px rgba(34, 197, 94, 0.5),
+                0 6px 30px rgba(0, 240, 255, 0.5),
                 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .sports-mode-btn:active {
             transform: translateY(0);
             box-shadow:
-                0 2px 8px rgba(34, 197, 94, 0.4),
+                0 2px 12px rgba(0, 240, 255, 0.4),
                 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         .sports-mode-btn .selection-count {
             opacity: 0.9;
             font-weight: 500;
+        }
+
+        /* Mock game selector - only visible in mock mode */
+        .mock-game-selector {
+            display: none;
+            padding: 12px 16px;
+            min-height: 48px;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mock-game-selector:hover {
+            background: linear-gradient(180deg, #fcd34d 0%, #fbbf24 100%);
+            transform: translateY(-2px);
+        }
+
+        .mock-game-selector.visible {
+            display: block;
+        }
+
+        /* Cast to TV button - Blue/Purple */
+        .cast-to-tv-btn {
+            background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+            color: #ffffff;
+            box-shadow:
+                0 4px 14px rgba(99, 102, 241, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .cast-to-tv-btn:hover,
+        .cast-to-tv-btn.focused {
+            background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(99, 102, 241, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .cast-to-tv-btn:active {
+            transform: translateY(0);
+            box-shadow:
+                0 2px 8px rgba(99, 102, 241, 0.4),
+                0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         /* Clear Selections button - Gray when inactive, Red when active (has selections) */
@@ -2111,14 +2006,9 @@
         }
 
         /* ================================ */
-        /* ANDROID TV WEBVIEW VIEWPORT      */
+        /* TABLET RESPONSIVE (768px-1024px) */
         /* ================================ */
-        @media screen and (min-width: 900px) and (max-width: 1100px) and (min-height: 480px) and (max-height: 600px) {
-            :root {
-                --tv-margin-h: 24px;
-                --tv-margin-v: 15px;
-            }
-
+        @media screen and (max-width: 1024px) {
             .tv-header {
                 margin-bottom: 12px;
             }
@@ -2133,16 +2023,6 @@
 
             .tv-time {
                 font-size: 14px;
-            }
-
-            .tv-user-info {
-                font-size: 11px;
-                gap: 8px;
-            }
-
-            .sign-out-link {
-                padding: 6px 12px;
-                font-size: 11px;
             }
 
             .tv-content {
@@ -2164,13 +2044,13 @@
 
             .tv-row-scroll {
                 gap: 12px;
-                padding: 6px 4px 12px 4px;
+                padding: 6px 8px 12px 8px;
             }
 
             .league-card {
                 width: 100px;
                 height: 130px;
-                border-radius: 12px;
+                border-radius: 10px;
             }
 
             .league-card img {
@@ -2185,15 +2065,180 @@
                 font-size: 9px;
             }
 
-            .league-card .phone-icon {
-                font-size: 32px;
+            /* Game cards - tablet size */
+            .game-card {
+                width: 300px;
+                height: 170px;
+                min-height: 170px;
+                padding: 14px;
+                border-radius: 10px;
             }
 
+            .game-card.live-card {
+                width: 310px;
+                height: 175px;
+            }
+
+            .game-card-team-name {
+                font-size: 13px;
+            }
+
+            .game-card-team-score {
+                font-size: 18px;
+            }
+
+            /* Live card scoreboard - tablet */
+            .live-card-team-logo {
+                width: 42px;
+                height: 42px;
+            }
+
+            .live-scoreboard {
+                height: 40px;
+            }
+
+            .live-sb-score-box {
+                width: 40px;
+            }
+
+            .live-sb-score {
+                font-size: 1.2rem;
+            }
+
+            .live-sb-team-name {
+                font-size: 11px;
+            }
+
+            .live-sb-time-box {
+                min-width: 56px;
+            }
+
+            .live-sb-time {
+                font-size: 12px;
+            }
+
+            .sports-mode-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                border-radius: 10px;
+            }
+
+            .clear-selections-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                border-radius: 10px;
+            }
+        }
+
+        /* ================================ */
+        /* MOBILE RESPONSIVE (up to 767px)  */
+        /* ================================ */
+        @media screen and (max-width: 767px) {
+            .home {
+                padding: 12px 16px;
+            }
+
+            /* Keep header on single row - logo left, user right */
+            .tv-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+
+            .tv-header-right {
+                gap: 12px;
+            }
+
+            /* Hide time on mobile to save space */
+            .tv-time {
+                display: none;
+            }
+
+            .tv-logo img {
+                height: 28px;
+            }
+
+            .tv-logo h1 {
+                font-size: 16px;
+            }
+
+            .user-menu-trigger {
+                padding: 4px 8px;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .tv-content {
+                gap: 16px;
+            }
+
+            .tv-row-header {
+                margin-bottom: 8px;
+            }
+
+            .tv-row-title {
+                font-size: 13px;
+            }
+
+            .tv-row-badge {
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+
+            /* Mobile horizontal scroll - snap scrolling */
+            .tv-row-scroll {
+                gap: 12px;
+                padding: 8px 16px 16px 16px;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* League cards - smaller for mobile */
+            .league-card {
+                width: 80px;
+                height: 100px;
+                border-radius: 8px;
+                min-height: 44px;
+                scroll-snap-align: start;
+            }
+
+            .league-card img {
+                height: 32px;
+            }
+
+            .league-card .league-name {
+                font-size: 11px;
+            }
+
+            .league-card .league-status {
+                font-size: 8px;
+            }
+
+            .league-card .phone-icon {
+                font-size: 28px;
+            }
+
+            /* Game cards - optimized for mobile horizontal scroll */
             .game-card {
-                width: 260px;
-                height: 146px;
+                width: 280px;
+                height: 160px;
+                min-height: 160px;
                 padding: 12px;
-                border-radius: 12px;
+                border-radius: 10px;
+                scroll-snap-align: start;
+                flex-shrink: 0;
+            }
+
+            /* Live cards - slightly larger for better readability */
+            .game-card.live-card {
+                width: 290px;
+                height: 165px;
             }
 
             .game-card-header {
@@ -2201,11 +2246,185 @@
             }
 
             .game-card-league {
-                font-size: 9px;
+                font-size: 10px;
             }
 
             .game-card-status {
                 font-size: 9px;
+                padding: 3px 8px;
+            }
+
+            .game-card-team img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .game-card-team-name {
+                font-size: 13px;
+            }
+
+            .game-card-team-score {
+                font-size: 18px;
+            }
+
+            .game-card-footer {
+                font-size: 10px;
+            }
+
+            /* Live card scoreboard optimizations */
+            .live-card-wrapper {
+                padding: 6px;
+                gap: 4px;
+            }
+
+            .live-card-team-logo {
+                width: 38px;
+                height: 38px;
+            }
+
+            .live-scoreboard {
+                width: 96%;
+                height: 38px;
+            }
+
+            .live-sb-score-box {
+                width: 38px;
+            }
+
+            .live-sb-score {
+                font-size: 1.1rem;
+            }
+
+            .live-sb-team-name {
+                font-size: 10px;
+            }
+
+            .live-sb-team-record {
+                font-size: 7px;
+            }
+
+            .live-sb-time-box {
+                min-width: 52px;
+            }
+
+            .live-sb-time-label {
+                font-size: 7px;
+            }
+
+            .live-sb-time {
+                font-size: 11px;
+            }
+
+            .live-sb-logo-center-spacer {
+                width: 52px;
+            }
+
+            /* Sports mode buttons - larger touch targets */
+            .sports-mode-container {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px 16px;
+            }
+
+            .sports-mode-btn {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 14px;
+                border-radius: 8px;
+                min-height: 48px;
+            }
+
+            .clear-selections-btn {
+                width: 100%;
+                padding: 12px 16px;
+                font-size: 13px;
+                border-radius: 8px;
+                min-height: 44px;
+            }
+
+            /* Cast to TV button - full width on mobile */
+            .cast-to-tv-btn {
+                width: 100%;
+                min-height: 48px;
+            }
+
+            /* Selection number on mobile */
+            .game-card .selection-number {
+                font-size: 40px;
+            }
+
+            /* User dropdown adjustments */
+            .user-dropdown {
+                min-width: 260px;
+                right: -10px;
+            }
+
+            .dropdown-item {
+                padding: 14px 20px;
+                min-height: 48px;
+            }
+
+            /* Modal adjustments */
+            .modal-content {
+                max-width: 100%;
+                margin: 16px;
+                border-radius: 16px;
+            }
+
+            .modal-form-group input {
+                padding: 16px;
+                font-size: 16px;
+                /* Prevents zoom on iOS */
+            }
+
+            .modal-btn {
+                padding: 16px;
+                min-height: 48px;
+            }
+
+            /* Hide scroll handles on mobile - use native touch scroll */
+            .scroll-handle {
+                display: none !important;
+            }
+        }
+
+        /* ================================ */
+        /* SMALL MOBILE (up to 375px)       */
+        /* ================================ */
+        @media screen and (max-width: 375px) {
+            .home {
+                padding: 10px 12px;
+            }
+
+            .tv-logo h1 {
+                font-size: 16px;
+            }
+
+            .tv-row-scroll {
+                gap: 10px;
+                padding: 6px 12px 12px 12px;
+            }
+
+            .league-card {
+                width: 70px;
+                height: 90px;
+            }
+
+            .league-card img {
+                height: 28px;
+            }
+
+            /* Game cards - compact for small phones */
+            .game-card {
+                width: 250px;
+                height: 145px;
+                min-height: 145px;
+                padding: 10px;
+            }
+
+            .game-card.live-card {
+                width: 260px;
+                height: 150px;
             }
 
             .game-card-team img {
@@ -2214,161 +2433,50 @@
             }
 
             .game-card-team-name {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .game-card-team-score {
                 font-size: 16px;
             }
 
-            .game-card-footer {
+            /* Live card adjustments for small screens */
+            .live-card-team-logo {
+                width: 32px;
+                height: 32px;
+            }
+
+            .live-scoreboard {
+                height: 34px;
+            }
+
+            .live-sb-score-box {
+                width: 34px;
+            }
+
+            .live-sb-score {
+                font-size: 1rem;
+            }
+
+            .live-sb-team-name {
                 font-size: 9px;
             }
 
-            /* Selected league for WebView */
-            .league-card.selected::after {
-                width: 18px;
-                height: 2px;
-                bottom: 6px;
+            .live-sb-time-box {
+                min-width: 48px;
             }
 
-            /* Login screens for WebView viewport */
-            .login-header img {
-                height: 50px;
+            .live-sb-time {
+                font-size: 10px;
             }
 
-            .login-header h1 {
-                font-size: 28px;
+            .live-sb-logo-center-spacer {
+                width: 48px;
             }
 
-            .login-header p {
-                font-size: 14px;
-            }
-
-            .login-options {
-                gap: 30px;
-            }
-
-            .login-option {
-                width: 220px;
-                padding: 20px;
-                border-radius: 14px;
-            }
-
-            .login-option h2 {
-                font-size: 16px;
-            }
-
-            .login-option p {
-                font-size: 11px;
-                margin-bottom: 15px;
-            }
-
-            .login-option .icon {
-                font-size: 36px;
-                margin-bottom: 10px;
-            }
-
-            .login-divider {
-                font-size: 12px;
-            }
-
-            .login-divider::before,
-            .login-divider::after {
-                height: 50px;
-            }
-
-            .qr-login-box {
-                width: 280px;
-                padding: 25px;
-            }
-
-            .qr-login-box h2 {
-                font-size: 20px;
-            }
-
-            .qr-login-box .subtitle {
-                font-size: 12px;
-                margin-bottom: 15px;
-            }
-
-            .qr-container {
-                padding: 12px;
-            }
-
-            .qr-container canvas,
-            .qr-container img {
-                width: 130px !important;
-                height: 130px !important;
-            }
-
-            .qr-timer {
-                font-size: 11px;
-                margin-top: 8px;
-            }
-
-            .qr-status {
-                font-size: 11px;
-                padding: 6px 12px;
-                margin-top: 10px;
-            }
-
-            .login-form {
-                width: 280px;
-                padding: 25px;
-            }
-
-            .login-form h2 {
-                font-size: 20px;
-            }
-
-            .login-form .subtitle {
-                font-size: 11px;
-                margin-bottom: 20px;
-            }
-
-            .form-group {
-                margin-bottom: 12px;
-            }
-
-            .form-group label {
-                font-size: 11px;
-                margin-bottom: 5px;
-            }
-
-            .form-group input {
-                padding: 10px 12px;
-                font-size: 13px;
-                border-radius: 6px;
-            }
-
-            .login-btn {
-                padding: 12px;
-                font-size: 14px;
-                margin-top: 10px;
-            }
-
-            .back-link {
-                font-size: 12px;
-                margin-top: 15px;
-                padding: 8px 16px;
-            }
-
-            /* Sports Bar Mode for WebView */
+            /* Selection number smaller */
             .game-card .selection-number {
-                font-size: 48px;
-            }
-
-            .sports-mode-btn {
-                padding: 10px 18px;
-                font-size: 13px;
-                border-radius: 10px;
-            }
-
-            .clear-selections-btn {
-                padding: 10px 14px;
-                font-size: 12px;
-                border-radius: 10px;
+                font-size: 36px;
             }
         }
 
@@ -2473,7 +2581,7 @@
         .live-sb-score-box.home {
             background: linear-gradient(135deg, var(--sb-home-secondary) 0%, var(--sb-home-primary) 40%, var(--sb-home-primary) 100%);
             clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
-            padding-left: 4px;
+            padding: 0 0 0 4px;
             border-radius: 0 4px 4px 0;
             box-shadow:
                 inset 0 2px 4px rgba(255, 255, 255, 0.2),
@@ -2735,110 +2843,535 @@
         .live-sb-situation.hidden {
             display: none;
         }
+
+        /* Desktop hover states */
+        .league-card:hover,
+        .league-card.hovered {
+            transform: scale(1.05);
+            border-color: var(--accent, #6366f1);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .game-card:hover,
+        .game-card.hovered {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Button hover states are defined in the standardized button section above */
+
+        /* Cursor pointer for clickable elements */
+        .league-card,
+        .game-card,
+        .sports-mode-btn,
+        .clear-selections-btn,
+        .sign-out-link,
+        .login-option,
+        .login-btn,
+        .back-link {
+            cursor: pointer;
+        }
+
+        /* ================================ */
+        /* USER MENU DROPDOWN               */
+        /* ================================ */
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .user-menu-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .user-menu-trigger:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .user-menu-trigger:hover .user-avatar {
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* Dropdown Menu */
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: rgba(26, 26, 46, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            min-width: 280px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dropdown-user-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .dropdown-user-email {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .dropdown-menu {
+            padding: 10px 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: #ffffff;
+        }
+
+        .dropdown-item-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+        }
+
+        .dropdown-item.logout {
+            color: #f87171;
+        }
+
+        .dropdown-item.logout:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .subscription-status-row {
+            padding: 8px 20px 12px 56px;
+        }
+
+        .subscription-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .subscription-badge.trial {
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+        }
+
+        .subscription-badge.active {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+
+        .subscription-badge.expired {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        /* ================================ */
+        /* PROFILE MODAL                    */
+        /* ================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(5, 8, 15, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(180deg, #0f1520 0%, #0a1019 100%);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--card-radius);
+            width: 100%;
+            max-width: 450px;
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(0, 240, 255, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: #ffffff;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .modal-form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .modal-form-group input {
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            background: rgba(255, 255, 255, 0.03);
+            color: #ffffff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .modal-form-group input:focus {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+
+        .modal-form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-form-group input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .modal-btn {
+            padding: 14px;
+            border: none;
+            border-radius: var(--card-radius);
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
+            color: var(--bg-primary);
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4);
+        }
+
+        .modal-btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal-message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .modal-message.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            display: block;
+        }
+
+        .modal-message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            display: block;
+        }
+
+        /* ================================ */
+        /* TOUCH-FRIENDLY ENHANCEMENTS      */
+        /* ================================ */
+        @media (hover: none) and (pointer: coarse) {
+
+            /* Ensure minimum 44-48px touch targets */
+            .league-card {
+                min-width: 80px;
+                min-height: 100px;
+            }
+
+            .game-card {
+                min-height: 140px;
+            }
+
+            .sports-mode-btn,
+            .clear-selections-btn {
+                min-height: 48px;
+                padding: 14px 24px;
+            }
+
+            .user-menu-trigger {
+                min-width: 48px;
+                min-height: 48px;
+            }
+
+            .user-avatar {
+                width: 44px;
+                height: 44px;
+            }
+
+            .dropdown-item {
+                min-height: 48px;
+                padding: 14px 16px;
+            }
+
+            /* Modal buttons */
+            .modal-close {
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            .modal-button {
+                min-height: 48px;
+            }
+
+            /* Improve tap feel */
+            .league-card,
+            .game-card,
+            .sports-mode-btn,
+            .dropdown-item {
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: rgba(99, 102, 241, 0.3);
+            }
+
+            /* Active states for touch feedback */
+            .league-card:active,
+            .game-card:active {
+                transform: scale(0.98);
+            }
+
+            .dropdown-item:active {
+                background: rgba(99, 102, 241, 0.4);
+            }
+            /* Button :active states defined in standardized button section */
+        }
+
+        /* Prevent text selection on interactive elements */
+        .league-card,
+        .game-card,
+        .sports-mode-btn,
+        .user-menu-trigger {
+            -webkit-user-select: none;
+            user-select: none;
+        }
     </style>
 </head>
 
 <body>
-    <!-- ================================ -->
-    <!-- LOGIN OPTION SELECTION SCREEN    -->
-    <!-- ================================ -->
-    <div class="login-screen hidden" id="login-screen">
-        <div class="login-header">
-            <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
-            <h1>GridTV Sports</h1>
-            <p>Sign in to access your sports dashboard</p>
-        </div>
-
-        <div class="login-options">
-            <div class="login-option focusable-login" id="option-password" data-action="password-login" tabindex="0">
-                <span class="icon">&#9000;</span>
-                <h2>Sign In with Remote</h2>
-                <p>Use your TV remote to enter your email and password</p>
+    <!-- Profile Edit Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Profile</h2>
+                <button class="modal-close" id="closeProfileModal">&times;</button>
             </div>
-
-            <div class="login-divider">
-                <span>OR</span>
-            </div>
-
-            <div class="login-option focusable-login" id="option-qr" data-action="qr-login" tabindex="0">
-                <span class="icon">&#128241;</span>
-                <h2>Scan QR Code</h2>
-                <p>Use your phone to scan a QR code and sign in instantly</p>
+            <div class="modal-body">
+                <div class="modal-message" id="profileMessage"></div>
+                <form class="modal-form" id="profileForm">
+                    <div class="modal-form-group">
+                        <label for="profileName">Display Name</label>
+                        <input type="text" id="profileName" placeholder="Enter your name" required>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="profileEmail">Email Address</label>
+                        <input type="email" id="profileEmail" placeholder="Your email" disabled>
+                    </div>
+                    <button type="submit" class="modal-btn modal-btn-primary" id="saveProfileBtn">
+                        Save Changes
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- ================================ -->
-    <!-- PASSWORD LOGIN SCREEN            -->
-    <!-- ================================ -->
-    <div class="password-login-screen hidden" id="password-login-screen">
-        <div class="login-logo">
-            <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
-            <h1>GridTV Sports</h1>
-        </div>
-
-        <div class="login-content">
-            <div class="login-form">
-                <h2>Sign In</h2>
-                <p class="subtitle">Use your remote to enter your credentials</p>
-
-                <div class="login-error" id="password-login-error"></div>
-
-                <div class="form-group">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" class="focusable-form" placeholder="Enter your email"
-                        tabindex="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" class="focusable-form" placeholder="Enter your password"
-                        tabindex="0">
-                </div>
-
-                <button class="login-btn focusable-form" id="login-submit-btn" tabindex="0">Sign In</button>
+    <!-- Cast to TV Modal -->
+    <div class="modal-overlay" id="castModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">📺 Cast to TV</h2>
+                <button class="modal-close" id="closeCastModal">&times;</button>
             </div>
+            <div class="modal-body">
+                <!-- PIN Entry Section -->
+                <div id="cast-pin-entry-section" style="text-align: center;">
+                    <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 1rem;">
+                        Enter the 6-digit code shown on your TV:
+                    </p>
+                    <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 1.5rem;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin1" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin2" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin3" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin4" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin5" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin6" style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                    </div>
+                    <button id="cast-connect-btn" class="modal-btn modal-btn-primary" style="width: 100%; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);" disabled>
+                        Connect to TV
+                    </button>
+                </div>
 
-            <div class="back-link focusable-form" id="password-back-btn" tabindex="0">&#8592; Back to login options
+                <!-- Connection Status (shown after connecting) -->
+                <div id="cast-status-section" style="display: none; text-align: center;">
+                    <div id="cast-status-box" style="padding: 15px; border-radius: 8px; margin-bottom: 1rem; background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308;">
+                        <div style="display: inline-flex; align-items: center; gap: 10px;">
+                            <div class="cast-pulse-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #eab308; animation: pulse 1.5s infinite;"></div>
+                            <span id="cast-status-text">Connecting to TV...</span>
+                        </div>
+                    </div>
+                    <button id="cast-end-btn" class="modal-btn" style="width: 100%; background: #ef4444; color: white; display: none;">
+                        End Casting
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ================================ -->
-    <!-- QR CODE LOGIN SCREEN             -->
-    <!-- ================================ -->
-    <div class="qr-login-screen hidden" id="qr-login-screen">
-        <div class="login-logo">
-            <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
-            <h1>GridTV Sports</h1>
-        </div>
-
-        <div class="login-content">
-            <div class="qr-login-box">
-                <h2>Scan to Sign In</h2>
-                <p class="subtitle">Open your phone camera and scan this QR code</p>
-
-                <div class="qr-container">
-                    <div id="login-qr-code"></div>
-                    <div id="login-qr-loading" class="qr-loading">Generating QR code...</div>
-                </div>
-
-                <div class="qr-timer">
-                    <span>Code expires in: </span>
-                    <span id="login-qr-countdown">5:00</span>
-                </div>
-
-                <div class="qr-status info" id="login-qr-status">Waiting for scan...</div>
-            </div>
-
-            <div class="back-link focusable-form" id="qr-back-btn" tabindex="0">&#8592; Back to login options</div>
-        </div>
+    <!-- Floating Casting Indicator -->
+    <div id="casting-indicator" style="display: none; position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 12px 20px; border-radius: 25px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); z-index: 9999; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s;">
+        <div class="cast-pulse-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite;"></div>
+        <span style="font-weight: 600;">📺 Casting...</span>
     </div>
 
     <!-- ================================ -->
-    <!-- MAIN TV HOME - STREAMING LAYOUT  -->
+    <!-- MAIN HOME - STREAMING LAYOUT  -->
     <!-- ================================ -->
-    <div class="tv-home hidden" id="tv-home">
+    <div class="home hidden" id="home">
         <!-- League Watermark Background -->
         <div class="league-watermark" id="league-watermark" style="background-image: url('/assets/logo.png');"></div>
 
@@ -2849,10 +3382,40 @@
             </div>
             <div class="tv-header-right">
                 <div class="tv-time" id="current-time"></div>
-                <div class="tv-user-info">
-                    <div class="user-badge" id="user-badge"></div>
-                    <span class="sign-out-link focusable" id="sign-out-btn" data-row="header" tabindex="0">Sign
-                        Out</span>
+                <!-- User Menu -->
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <div class="user-menu-trigger" id="userMenuTrigger">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <!-- Dropdown Menu -->
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="dropdown-header">
+                                <div class="dropdown-user-name" id="dropdownUserName">User Name</div>
+                                <div class="dropdown-user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                            <div class="dropdown-menu">
+                                <button class="dropdown-item" id="openProfileModal">
+                                    <span class="dropdown-item-icon">👤</span>
+                                    <span>Edit Profile</span>
+                                </button>
+                                <a href="#" class="dropdown-item" id="subscriptionLink">
+                                    <span class="dropdown-item-icon">💳</span>
+                                    <span id="subscriptionLinkText">Manage Subscription</span>
+                                </a>
+                                <div class="subscription-status-row" id="subscriptionStatusRow">
+                                    <span class="subscription-badge trial" id="subscriptionBadge">Trial</span>
+                                </div>
+                                <a href="/favorites" class="dropdown-item">
+                                    <span class="dropdown-item-icon">⭐</span>
+                                    <span>Favorite Teams</span>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item logout" id="logoutBtn">
+                                    <span class="dropdown-item-icon">🚪</span>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -2862,43 +3425,43 @@
             <section class="tv-row" data-row="leagues">
 
                 <div class="tv-row-scroll" id="leagues-row">
-                    <div class="league-card focusable selected" data-row="leagues" data-league="all" tabindex="0">
+                    <div class="league-card focusable selected" data-row="leagues" data-league="all">
                         <img src="/assets/logo.png" alt="All">
-                        <span class="league-name">All</span>
+                        <span class="league-name">Live</span>
                         <span class="league-status" id="all-status">All leagues</span>
                     </div>
-                    <div class="league-card focusable" data-row="leagues" data-league="nfl" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="nfl">
                         <img src="/assets/NFL-logo.png" alt="NFL">
                         <span class="league-name">NFL</span>
                         <span class="league-status" id="nfl-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-row="leagues" data-league="nba" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="nba">
                         <img src="/assets/nba-logo.png" alt="NBA">
                         <span class="league-name">NBA</span>
                         <span class="league-status" id="nba-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-row="leagues" data-league="mlb" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="mlb">
                         <img src="/assets/mlb-logo.png" alt="MLB">
                         <span class="league-name">MLB</span>
                         <span class="league-status" id="mlb-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-row="leagues" data-league="nhl" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="nhl">
                         <img src="/assets/nhl-logo.png" alt="NHL">
                         <span class="league-name">NHL</span>
                         <span class="league-status" id="nhl-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-row="leagues" data-league="ncaa" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="ncaa">
                         <img src="/assets/NCAA logo.png" alt="NCAA Football">
                         <span class="league-name">NCAAF</span>
                         <span class="league-status" id="ncaa-status">Loading...</span>
                     </div>
-                    <div class="league-card focusable" data-row="leagues" data-league="ncaab" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-league="ncaab">
                         <img src="/assets/ncaa-basketball.png" alt="NCAA Basketball">
                         <span class="league-name">NCAAB</span>
                         <span class="league-status" id="ncaab-status">Loading...</span>
                     </div>
                     <!-- Phone Connect Card -->
-                    <div class="league-card focusable" data-row="leagues" data-action="phone-connect" tabindex="0">
+                    <div class="league-card focusable" data-row="leagues" data-action="phone-connect">
                         <span class="phone-icon">&#128241;</span>
                         <span class="league-name">Phone</span>
                         <span class="league-status">Connect</span>
@@ -2908,12 +3471,25 @@
 
             <!-- Sports Mode Button (appears after selecting games) -->
             <div class="sports-mode-container" id="sports-mode-container">
-                <button class="sports-mode-btn focusable" id="sports-mode-btn" data-row="sports-mode" tabindex="0">
+                <button class="sports-mode-btn focusable" id="sports-mode-btn" data-row="sports-mode">
                     <span>Enter Sports Bar Mode</span>
                     <span class="selection-count" id="selection-count">(0 games)</span>
                 </button>
-                <button class="clear-selections-btn focusable" id="clear-selections-btn" data-row="sports-mode"
-                    tabindex="0">
+                <!-- Mock data game count selector (only visible in mock mode with no selections) -->
+                <select class="mock-game-selector" id="mock-game-selector" data-row="sports-mode">
+                    <option value="1">1 Game</option>
+                    <option value="2">2 Games</option>
+                    <option value="3">3 Games</option>
+                    <option value="4">4 Games</option>
+                    <option value="5">5 Games</option>
+                    <option value="6">6 Games</option>
+                    <option value="7">7 Games</option>
+                    <option value="8" selected>8 Games</option>
+                </select>
+                <button class="cast-to-tv-btn focusable" id="cast-to-tv-btn" data-row="sports-mode">
+                    <span>📺 Cast to TV</span>
+                </button>
+                <button class="clear-selections-btn focusable" id="clear-selections-btn" data-row="sports-mode">
                     <span>Clear</span>
                 </button>
             </div>
@@ -2929,8 +3505,18 @@
                         <span class="tv-row-badge live">LIVE</span>
                         <span class="tv-row-count" id="live-count"></span>
                     </div>
-                    <div class="tv-row-scroll" id="live-games-row">
-                        <div class="empty-row" id="live-empty">Loading live games...</div>
+                    <div class="tv-row-scroll-wrapper">
+                        <span class="scroll-handle handle-prev" data-scroll-target="live-games-row" role="button"
+                            aria-label="See previous">
+                            <span class="handle-icon">‹</span>
+                        </span>
+                        <div class="tv-row-scroll" id="live-games-row">
+                            <div class="empty-row" id="live-empty">Loading live games...</div>
+                        </div>
+                        <span class="scroll-handle handle-next" data-scroll-target="live-games-row" role="button"
+                            aria-label="See more">
+                            <span class="handle-icon">›</span>
+                        </span>
                     </div>
                 </section>
 
@@ -2940,8 +3526,18 @@
                         <span class="tv-row-title">Upcoming</span>
                         <span class="tv-row-count" id="upcoming-count"></span>
                     </div>
-                    <div class="tv-row-scroll" id="upcoming-games-row">
-                        <div class="empty-row" id="upcoming-empty">Loading upcoming games...</div>
+                    <div class="tv-row-scroll-wrapper">
+                        <span class="scroll-handle handle-prev" data-scroll-target="upcoming-games-row" role="button"
+                            aria-label="See previous">
+                            <span class="handle-icon">‹</span>
+                        </span>
+                        <div class="tv-row-scroll" id="upcoming-games-row">
+                            <div class="empty-row" id="upcoming-empty">Loading upcoming games...</div>
+                        </div>
+                        <span class="scroll-handle handle-next" data-scroll-target="upcoming-games-row" role="button"
+                            aria-label="See more">
+                            <span class="handle-icon">›</span>
+                        </span>
                     </div>
                 </section>
 
@@ -2951,8 +3547,18 @@
                         <span class="tv-row-title">Final</span>
                         <span class="tv-row-count" id="final-count"></span>
                     </div>
-                    <div class="tv-row-scroll" id="final-games-row">
-                        <div class="empty-row" id="final-empty">Loading final scores...</div>
+                    <div class="tv-row-scroll-wrapper">
+                        <span class="scroll-handle handle-prev" data-scroll-target="final-games-row" role="button"
+                            aria-label="See previous">
+                            <span class="handle-icon">‹</span>
+                        </span>
+                        <div class="tv-row-scroll" id="final-games-row">
+                            <div class="empty-row" id="final-empty">Loading final scores...</div>
+                        </div>
+                        <span class="scroll-handle handle-next" data-scroll-target="final-games-row" role="button"
+                            aria-label="See more">
+                            <span class="handle-icon">›</span>
+                        </span>
                     </div>
                 </section>
             </div>
@@ -3005,9 +3611,6 @@
         let socket = null;
         let deviceId = null;
         let sessionToken = null;
-        let qrToken = null;
-        let qrCountdownInterval = null;
-        let authCheckInterval = null;
 
         // Games data
         let allGames = { live: [], upcoming: [], final: [] };
@@ -3017,15 +3620,52 @@
 
         // Sports Bar Mode - Multi-select state
         let selectedGamesForSportsBar = [];
-        const MAX_SPORTS_BAR_SELECTIONS = 8;
+
+        // Tablet detection - tablets have max 7 games, grids 5-7 only in landscape
+        function isTabletDevice() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const minDimension = Math.min(width, height);
+            const maxDimension = Math.max(width, height);
+            // Tablet: 768px - 1366px range
+            return minDimension >= 768 && maxDimension <= 1366;
+        }
+
+        function isLandscapeOrientation() {
+            return window.innerWidth > window.innerHeight;
+        }
+
+        const IS_TABLET = isTabletDevice();
+        const MAX_SPORTS_BAR_SELECTIONS = IS_TABLET ? 7 : 8;
+
+        // MOCK DATA MODE - When true, shows "Enter Sports Bar Mode" button even with no selections
+        // This allows testing layouts directly since mock data loads when no games are selected
+        const USE_MOCK_DATA_MODE = false; // Set to false for production
 
         // ============================================
         // HELPER FUNCTIONS
         // ============================================
-        function setUserBadge(email) {
+        let currentUserData = null;
+
+        function setUserBadge(email, displayName = null) {
+            // Update old user-badge if exists
             const badge = document.getElementById('user-badge');
             if (badge && email) {
                 badge.textContent = email.charAt(0).toUpperCase();
+            }
+
+            // Update new user menu
+            const userMenu = document.getElementById('userMenu');
+            const userAvatar = document.getElementById('userAvatar');
+            const dropdownUserName = document.getElementById('dropdownUserName');
+            const dropdownUserEmail = document.getElementById('dropdownUserEmail');
+
+            if (userMenu && email) {
+                currentUserData = { email, displayName: displayName || email.split('@')[0] };
+                userMenu.style.display = 'flex';
+                userAvatar.textContent = (displayName || email).charAt(0).toUpperCase();
+                dropdownUserName.textContent = displayName || email.split('@')[0];
+                dropdownUserEmail.textContent = email;
             }
         }
 
@@ -3221,109 +3861,95 @@
                 localStorage.setItem('gridtv_device_id', deviceId);
             }
 
-            sessionToken = localStorage.getItem('gridtv_session_token');
+            // Check authentication using desktop auth endpoint
+            const authResult = await checkAuthentication();
 
-            // Clean URL params early
-            if (returnToMenu || restoreSelections) {
-                history.replaceState({}, '', '/tv-home');
-            }
-
-            // Start time updates
-            updateTime();
-            setInterval(updateTime, 1000);
-
-            if (sessionToken) {
-                // If we have a session token, validate it before showing any screen
-                // This prevents the login screen flash when returning from sports bar
-                const valid = await validateExistingSession();
-                if (valid) {
-                    showHomeScreen(restoreSelections);
-                    return;
-                } else {
-                    localStorage.removeItem('gridtv_session_token');
-                    sessionToken = null;
+            if (authResult.authenticated) {
+                if (returnToMenu || restoreSelections) {
+                    history.replaceState({}, '', '/index');
                 }
+                showHomeScreen(restoreSelections);
+                return;
             }
 
-            // Only show login screen if no valid session
-            showLoginScreen();
+            if (returnToMenu || restoreSelections) {
+                history.replaceState({}, '', '/index');
+            }
+
+            // Redirect to login page if not authenticated
+            window.location.href = '/login';
         });
 
         // ============================================
-        // MOCK DATA MODE
+        // AUTHENTICATION CHECK
         // ============================================
-        const USE_MOCK_DATA = false; // Set to false for production
-
-        // ============================================
-        // SESSION VALIDATION
-        // ============================================
-        async function validateExistingSession() {
+        async function checkAuthentication() {
             try {
-                const response = await fetch('/api/tv/validate-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deviceId, sessionToken })
-                });
-
+                const response = await fetch('/api/auth/check', { credentials: 'same-origin' });
                 if (response.ok) {
                     const data = await response.json();
-                    setUserBadge(data.userEmail || data.displayName || 'User');
-                    return true;
+                    if (data.authenticated && data.user) {
+                        currentUserData = data.user;
+
+                        // Update user menu
+                        const userMenu = document.getElementById('userMenu');
+                        const userAvatar = document.getElementById('userAvatar');
+                        const dropdownUserName = document.getElementById('dropdownUserName');
+                        const dropdownUserEmail = document.getElementById('dropdownUserEmail');
+                        const subscriptionBadge = document.getElementById('subscriptionBadge');
+                        const subscriptionLink = document.getElementById('subscriptionLink');
+                        const subscriptionLinkText = document.getElementById('subscriptionLinkText');
+
+                        userMenu.style.display = 'flex';
+                        userAvatar.textContent = (data.user.displayName || data.user.email).charAt(0).toUpperCase();
+                        dropdownUserName.textContent = data.user.displayName || data.user.email.split('@')[0];
+                        dropdownUserEmail.textContent = data.user.email;
+
+                        // Update subscription badge and link
+                        if (data.subscription) {
+                            const sub = data.subscription;
+                            subscriptionBadge.className = 'subscription-badge';
+
+                            if (sub.status === 'active') {
+                                subscriptionBadge.classList.add('active');
+                                subscriptionBadge.textContent = sub.plan ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Pro';
+                                subscriptionLink.href = '/subscription';
+                                subscriptionLinkText.textContent = 'Manage Subscription';
+                            } else if (sub.status === 'trial') {
+                                subscriptionBadge.classList.add('trial');
+                                subscriptionBadge.textContent = sub.daysRemaining > 0 ? `Trial: ${sub.daysRemaining}d` : 'Trial';
+                                subscriptionLink.href = '/pricing';
+                                subscriptionLinkText.textContent = 'Upgrade Plan';
+                            } else if (sub.status === 'expired' || sub.status === 'canceled') {
+                                subscriptionBadge.classList.add('expired');
+                                subscriptionBadge.textContent = 'Subscribe';
+                                subscriptionLink.href = '/pricing';
+                                subscriptionLinkText.textContent = 'Subscribe Now';
+                            } else {
+                                subscriptionBadge.classList.add('trial');
+                                subscriptionBadge.textContent = 'Trial';
+                                subscriptionLink.href = '/pricing';
+                                subscriptionLinkText.textContent = 'Upgrade Plan';
+                            }
+                        }
+
+                        setUserBadge(data.user.email, data.user.displayName);
+                        return { authenticated: true };
+                    }
                 }
-                return false;
+                return { authenticated: false };
             } catch (error) {
-                console.error('Session validation error:', error);
-                return false;
+                console.error('Auth check error:', error);
+                return { authenticated: false };
             }
         }
 
         // ============================================
         // SCREEN TRANSITIONS
         // ============================================
-        function showLoginScreen() {
-            currentScreen = 'login';
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('password-login-screen').classList.add('hidden');
-            document.getElementById('qr-login-screen').classList.add('hidden');
-            document.getElementById('tv-home').classList.add('hidden');
-
-            if (qrCountdownInterval) clearInterval(qrCountdownInterval);
-            if (authCheckInterval) clearInterval(authCheckInterval);
-
-            initLoginNavigation();
-        }
-
-        function showPasswordLoginScreen() {
-            currentScreen = 'password';
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('password-login-screen').classList.remove('hidden');
-            document.getElementById('qr-login-screen').classList.add('hidden');
-            document.getElementById('tv-home').classList.add('hidden');
-
-            initPasswordFormNavigation();
-        }
-
-        function showQRLoginScreen() {
-            currentScreen = 'qr';
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('password-login-screen').classList.add('hidden');
-            document.getElementById('qr-login-screen').classList.remove('hidden');
-            document.getElementById('tv-home').classList.add('hidden');
-
-            generateQRCode();
-            initSocketForAuth();
-            initQRNavigation();
-        }
-
         function showHomeScreen(restoreSelections = false) {
             currentScreen = 'home';
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('password-login-screen').classList.add('hidden');
-            document.getElementById('qr-login-screen').classList.add('hidden');
-            document.getElementById('tv-home').classList.remove('hidden');
-
-            if (qrCountdownInterval) clearInterval(qrCountdownInterval);
-            if (authCheckInterval) clearInterval(authCheckInterval);
+            document.getElementById('home').classList.remove('hidden');
 
             const storedToken = localStorage.getItem('gridtv_session_token');
             if (storedToken && !sessionToken) {
@@ -3331,6 +3957,10 @@
             }
 
             initHomeNavigation();
+
+            // Show sports mode button if mock data mode is enabled (for testing layouts)
+            updateSportsModeButton();
+
             fetchAllGames().then(() => {
                 // After games are loaded, restore selections if returning from Sports Bar
                 if (restoreSelections) {
@@ -3341,318 +3971,32 @@
         }
 
         // ============================================
-        // LOGIN SCREEN NAVIGATION
-        // ============================================
-        let loginFocusIndex = 0;
-        let loginElements = [];
-
-        function initLoginNavigation() {
-            loginElements = Array.from(document.querySelectorAll('.focusable-login'));
-            loginFocusIndex = 0;
-            setLoginFocus(0);
-
-            document.removeEventListener('keydown', handleHomeKeyDown);
-            document.removeEventListener('keydown', handlePasswordFormKeyDown);
-            document.removeEventListener('keydown', handleQRKeyDown);
-            document.addEventListener('keydown', handleLoginKeyDown);
-        }
-
-        function setLoginFocus(index) {
-            loginElements.forEach(el => el.classList.remove('focused'));
-            loginFocusIndex = Math.max(0, Math.min(index, loginElements.length - 1));
-            const el = loginElements[loginFocusIndex];
-            if (el) el.classList.add('focused');
-        }
-
-        function handleLoginKeyDown(e) {
-            switch (e.key) {
-                case 'ArrowLeft':
-                case 'Left':
-                    e.preventDefault();
-                    if (loginFocusIndex > 0) setLoginFocus(loginFocusIndex - 1);
-                    break;
-                case 'ArrowRight':
-                case 'Right':
-                    e.preventDefault();
-                    if (loginFocusIndex < loginElements.length - 1) setLoginFocus(loginFocusIndex + 1);
-                    break;
-                case 'Enter':
-                case ' ':
-                    e.preventDefault();
-                    const el = loginElements[loginFocusIndex];
-                    if (el) {
-                        const action = el.dataset.action;
-                        if (action === 'password-login') showPasswordLoginScreen();
-                        else if (action === 'qr-login') showQRLoginScreen();
-                    }
-                    break;
-            }
-        }
-
-        // ============================================
-        // PASSWORD FORM NAVIGATION
-        // ============================================
-        let formFocusIndex = 0;
-        let formElements = [];
-
-        function initPasswordFormNavigation() {
-            formElements = Array.from(document.querySelectorAll('#password-login-screen .focusable-form'));
-            formFocusIndex = 0;
-            setFormFocus(0);
-
-            document.removeEventListener('keydown', handleHomeKeyDown);
-            document.removeEventListener('keydown', handleLoginKeyDown);
-            document.removeEventListener('keydown', handleQRKeyDown);
-            document.addEventListener('keydown', handlePasswordFormKeyDown);
-        }
-
-        function setFormFocus(index) {
-            formElements.forEach(el => el.classList.remove('focused'));
-            formFocusIndex = Math.max(0, Math.min(index, formElements.length - 1));
-            const el = formElements[formFocusIndex];
-            if (el) {
-                el.classList.add('focused');
-                if (el.tagName === 'INPUT') el.focus();
-            }
-        }
-
-        function handlePasswordFormKeyDown(e) {
-            switch (e.key) {
-                case 'ArrowUp':
-                case 'Up':
-                    e.preventDefault();
-                    if (formFocusIndex > 0) setFormFocus(formFocusIndex - 1);
-                    break;
-                case 'ArrowDown':
-                case 'Down':
-                    e.preventDefault();
-                    if (formFocusIndex < formElements.length - 1) setFormFocus(formFocusIndex + 1);
-                    break;
-                case 'Enter':
-                    const el = formElements[formFocusIndex];
-                    if (el.id === 'login-submit-btn') {
-                        e.preventDefault();
-                        handlePasswordLogin();
-                    } else if (el.id === 'password-back-btn') {
-                        e.preventDefault();
-                        showLoginScreen();
-                    } else if (el.tagName === 'INPUT') {
-                        e.preventDefault();
-                        if (formFocusIndex < formElements.length - 1) setFormFocus(formFocusIndex + 1);
-                    }
-                    break;
-                case 'Escape':
-                case 'Backspace':
-                    const activeEl = document.activeElement;
-                    if (activeEl.tagName !== 'INPUT' || activeEl.value === '') {
-                        e.preventDefault();
-                        showLoginScreen();
-                    }
-                    break;
-            }
-        }
-
-        async function handlePasswordLogin() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            const errorDiv = document.getElementById('password-login-error');
-            const submitBtn = document.getElementById('login-submit-btn');
-
-            if (!email || !password) {
-                errorDiv.textContent = 'Please enter both email and password';
-                errorDiv.classList.add('show');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Signing in...';
-
-            try {
-                const response = await fetch('/api/tv/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, deviceId })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    sessionToken = data.sessionToken;
-                    localStorage.setItem('gridtv_session_token', sessionToken);
-                    setUserBadge(data.userEmail || email);
-                    showHomeScreen();
-                } else {
-                    errorDiv.textContent = data.message || 'Invalid email or password';
-                    errorDiv.classList.add('show');
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                errorDiv.textContent = 'Connection error. Please try again.';
-                errorDiv.classList.add('show');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign In';
-            }
-        }
-
-        // ============================================
-        // QR CODE LOGIN
-        // ============================================
-        function initQRNavigation() {
-            const backBtn = document.getElementById('qr-back-btn');
-            backBtn.classList.add('focused');
-
-            document.removeEventListener('keydown', handleHomeKeyDown);
-            document.removeEventListener('keydown', handleLoginKeyDown);
-            document.removeEventListener('keydown', handlePasswordFormKeyDown);
-            document.addEventListener('keydown', handleQRKeyDown);
-        }
-
-        function handleQRKeyDown(e) {
-            switch (e.key) {
-                case 'Enter':
-                case ' ':
-                case 'Escape':
-                case 'Backspace':
-                    e.preventDefault();
-                    showLoginScreen();
-                    break;
-            }
-        }
-
-        async function generateQRCode() {
-            const qrLoading = document.getElementById('login-qr-loading');
-            const qrContainer = document.getElementById('login-qr-code');
-            const statusDiv = document.getElementById('login-qr-status');
-
-            qrLoading.style.display = 'flex';
-            qrContainer.style.display = 'none';
-            statusDiv.textContent = 'Generating QR code...';
-            statusDiv.className = 'qr-status info';
-
-            try {
-                const response = await fetch('/api/tv/generate-qr-token', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deviceId, deviceName: 'GridTV Android TV' })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    qrToken = data.token;
-                    qrContainer.innerHTML = '';
-
-                    new QRCode(qrContainer, {
-                        text: data.authUrl,
-                        width: 200,
-                        height: 200,
-                        colorDark: '#6366f1',
-                        colorLight: '#ffffff',
-                        correctLevel: QRCode.CorrectLevel.M
-                    });
-
-                    qrLoading.style.display = 'none';
-                    qrContainer.style.display = 'block';
-                    statusDiv.textContent = 'Scan with your phone to sign in';
-                    statusDiv.className = 'qr-status info';
-
-                    startQRCountdown(new Date(data.expiresAt));
-                    startAuthPolling();
-                } else {
-                    statusDiv.textContent = 'Failed to generate QR code. Try again.';
-                    statusDiv.className = 'qr-status error';
-                    setTimeout(generateQRCode, 5000);
-                }
-            } catch (error) {
-                console.error('QR generation error:', error);
-                statusDiv.textContent = 'Connection error. Retrying...';
-                statusDiv.className = 'qr-status error';
-                setTimeout(generateQRCode, 5000);
-            }
-        }
-
-        function startQRCountdown(expiresAt) {
-            if (qrCountdownInterval) clearInterval(qrCountdownInterval);
-            const expiryTime = expiresAt instanceof Date ? expiresAt.getTime() : new Date(expiresAt).getTime();
-
-            qrCountdownInterval = setInterval(() => {
-                const now = Date.now();
-                const remaining = Math.max(0, expiryTime - now);
-                const minutes = Math.floor(remaining / 60000);
-                const seconds = Math.floor((remaining % 60000) / 1000);
-
-                document.getElementById('login-qr-countdown').textContent =
-                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-                if (remaining <= 0) {
-                    clearInterval(qrCountdownInterval);
-                    if (currentScreen === 'qr') generateQRCode();
-                }
-            }, 1000);
-        }
-
-        function initSocketForAuth() {
-            if (!socket) socket = io();
-
-            socket.on('connect', () => {
-                if (qrToken) {
-                    socket.emit('tv:register-for-auth', { token: qrToken }, (response) => { });
-                }
-            });
-
-            socket.on('tv:auth-approved', (data) => {
-                if (data.sessionToken) {
-                    sessionToken = data.sessionToken;
-                    localStorage.setItem('gridtv_session_token', sessionToken);
-                }
-                setUserBadge(data.userEmail || data.displayName || 'User');
-                const statusDiv = document.getElementById('login-qr-status');
-                statusDiv.textContent = 'Signed in successfully!';
-                statusDiv.className = 'qr-status success';
-                setTimeout(() => showHomeScreen(), 1000);
-            });
-        }
-
-        function startAuthPolling() {
-            if (authCheckInterval) clearInterval(authCheckInterval);
-
-            authCheckInterval = setInterval(() => {
-                if (!qrToken || !socket || currentScreen !== 'qr') return;
-
-                socket.emit('tv:check-auth-status', { token: qrToken }, (response) => {
-                    if (response.success && response.status === 'approved') {
-                        if (response.sessionToken) {
-                            sessionToken = response.sessionToken;
-                            localStorage.setItem('gridtv_session_token', sessionToken);
-                        }
-                        setUserBadge(response.userEmail || response.displayName || 'User');
-                        const statusDiv = document.getElementById('login-qr-status');
-                        statusDiv.textContent = 'Signed in successfully!';
-                        statusDiv.className = 'qr-status success';
-                        setTimeout(() => showHomeScreen(), 1000);
-                    }
-                });
-            }, 3000);
-        }
-
-        // ============================================
         // SIGN OUT
         // ============================================
         async function signOut() {
             try {
-                await fetch('/api/tv/sign-out', {
+                const response = await fetch('/api/auth/logout', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deviceId, sessionToken })
+                    credentials: 'same-origin'
                 });
+                if (response.ok) {
+                    localStorage.removeItem('gridtv_session_token');
+                    sessionToken = null;
+                    window.location.href = '/login';
+                } else {
+                    console.error('Logout failed with status:', response.status);
+                    // Force redirect anyway
+                    localStorage.removeItem('gridtv_session_token');
+                    sessionToken = null;
+                    window.location.href = '/login';
+                }
             } catch (error) {
-                console.error('Sign out error:', error);
+                console.error('Logout error:', error);
+                // Force redirect even on error
+                localStorage.removeItem('gridtv_session_token');
+                sessionToken = null;
+                window.location.href = '/login';
             }
-
-            localStorage.removeItem('gridtv_session_token');
-            sessionToken = null;
-            showLoginScreen();
         }
 
         // ============================================
@@ -3663,12 +4007,12 @@
             // Start on leagues row (row 1), first item is "All"
             currentRowIndex = 1;
             currentColIndex = 0;
-            setHomeFocus();
+            // setHomeFocus removed for desktop
 
-            document.removeEventListener('keydown', handleLoginKeyDown);
-            document.removeEventListener('keydown', handlePasswordFormKeyDown);
-            document.removeEventListener('keydown', handleQRKeyDown);
-            document.addEventListener('keydown', handleHomeKeyDown);
+            // D-pad navigation removed for desktop
+            // D-pad navigation removed for desktop
+            // D-pad navigation removed for desktop
+            // D-pad navigation removed for desktop
         }
 
         function updateRows() {
@@ -3724,91 +4068,11 @@
         }
 
         function setHomeFocus() {
-            // Remove all focus
-            document.querySelectorAll('.focusable').forEach(el => el.classList.remove('focused'));
-
-            // Clear any existing league focus timer
-            if (leagueFocusTimer) {
-                clearTimeout(leagueFocusTimer);
-                leagueFocusTimer = null;
-            }
-
-            if (rows.length === 0) return;
-
-            // Clamp indices
-            currentRowIndex = Math.max(0, Math.min(currentRowIndex, rows.length - 1));
-            const row = rows[currentRowIndex];
-            currentColIndex = Math.max(0, Math.min(currentColIndex, row.elements.length - 1));
-
-            // Set focus
-            const el = row.elements[currentColIndex];
-            if (el) {
-                el.classList.add('focused');
-                el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-
-                // Auto-filter: If focused on a league card, start timer to auto-select after 1s
-                const league = el.dataset.league;
-                if (league && league !== selectedLeague) {
-                    leagueFocusTimer = setTimeout(() => {
-                        selectLeague(league);
-                    }, 1000);
-                }
-            }
+            // Focus management removed for desktop - using mouse/touch instead
         }
 
         function handleHomeKeyDown(e) {
-            const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
-                e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
-
-            if (isEnterKey) {
-                e.preventDefault();
-                selectCurrentHomeItem();
-                return;
-            }
-
-            switch (e.key) {
-                case 'ArrowUp':
-                case 'Up':
-                    e.preventDefault();
-                    if (currentRowIndex > 0) {
-                        currentRowIndex--;
-                        // Try to keep similar column position
-                        const newRow = rows[currentRowIndex];
-                        currentColIndex = Math.min(currentColIndex, newRow.elements.length - 1);
-                        setHomeFocus();
-                    }
-                    break;
-
-                case 'ArrowDown':
-                case 'Down':
-                    e.preventDefault();
-                    if (currentRowIndex < rows.length - 1) {
-                        currentRowIndex++;
-                        const newRow = rows[currentRowIndex];
-                        currentColIndex = Math.min(currentColIndex, newRow.elements.length - 1);
-                        setHomeFocus();
-                    }
-                    break;
-
-                case 'ArrowLeft':
-                case 'Left':
-                    e.preventDefault();
-                    if (currentColIndex > 0) {
-                        currentColIndex--;
-                        setHomeFocus();
-                    }
-                    break;
-
-                case 'ArrowRight':
-                case 'Right':
-                    e.preventDefault();
-                    const row = rows[currentRowIndex];
-                    if (currentColIndex < row.elements.length - 1) {
-                        currentColIndex++;
-                        setHomeFocus();
-                    }
-                    break;
-            }
+            // D-pad navigation removed for desktop - using mouse/touch instead
         }
 
         function selectCurrentHomeItem() {
@@ -3826,12 +4090,15 @@
             } else if (el.id === 'sports-mode-btn') {
                 // Enter Sports Bar Mode
                 enterSportsBarMode();
+            } else if (el.id === 'cast-to-tv-btn') {
+                // Open Cast to TV modal
+                openCastModal();
             } else if (el.id === 'clear-selections-btn') {
                 // Clear all selections
                 clearSportsBarSelections();
             } else if (action === 'phone-connect') {
-                // Navigate to phone connect page
-                openPage('/tv-receiver.html');
+                // Navigate to live games page
+                openPage('/LiveGames.html');
             } else if (league) {
                 // League card - filter games
                 selectLeague(league);
@@ -3893,16 +4160,28 @@
         function updateSportsModeButton() {
             const container = document.getElementById('sports-mode-container');
             const countEl = document.getElementById('selection-count');
+            const mockSelector = document.getElementById('mock-game-selector');
             const clearBtn = document.getElementById('clear-selections-btn');
 
             if (selectedGamesForSportsBar.length > 0) {
                 container.classList.add('visible');
                 const plural = selectedGamesForSportsBar.length === 1 ? 'game' : 'games';
                 countEl.textContent = `(${selectedGamesForSportsBar.length} ${plural})`;
+                // Hide mock selector when real games are selected
+                mockSelector.classList.remove('visible');
                 // Make clear button red (active) when games are selected
                 clearBtn.classList.add('active');
+            } else if (USE_MOCK_DATA_MODE) {
+                // Show button with mock data indicator when no games selected but mock mode is on
+                container.classList.add('visible');
+                countEl.textContent = '(Mock Data)';
+                // Show mock selector to choose number of games
+                mockSelector.classList.add('visible');
+                // Clear button stays gray when no real selections
+                clearBtn.classList.remove('active');
             } else {
                 container.classList.remove('visible');
+                mockSelector.classList.remove('visible');
                 // Clear button is gray when no selections
                 clearBtn.classList.remove('active');
             }
@@ -3943,14 +4222,296 @@
         }
 
         function enterSportsBarMode() {
+            // Allow entering with no selections when mock data mode is enabled
+            if (selectedGamesForSportsBar.length === 0 && !USE_MOCK_DATA_MODE) return;
+
+            // Save selections to localStorage for sports-bar page (or clear if using mock data)
+            if (selectedGamesForSportsBar.length > 0) {
+                localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(selectedGamesForSportsBar));
+                localStorage.removeItem('gridtv_mock_game_count'); // Clear mock count when using real selections
+            } else {
+                // Clear localStorage so mock data will load
+                localStorage.removeItem('gridtv_sports_bar_games');
+                // Save the selected mock game count
+                const mockSelector = document.getElementById('mock-game-selector');
+                localStorage.setItem('gridtv_mock_game_count', mockSelector.value);
+            }
+
+            // Device detection - route to appropriate sports bar page
+            const screenWidth = window.innerWidth;
+            let sportsBarPage = '/Desktop-tv-sports-bar'; // Default to desktop
+
+            if (screenWidth <= 768) {
+                // Phone (mobile devices)
+                sportsBarPage = '/Phone-sports-bar';
+            } else if (screenWidth > 768 && screenWidth <= 1024) {
+                // Tablet (use desktop for now, can create tablet-specific later)
+                sportsBarPage = '/Desktop-tv-sports-bar';
+            }
+            // else: Desktop (>1024px) - already set to Desktop-tv-sports-bar
+
+            // Navigate to appropriate sports bar page
+            window.location.href = sportsBarPage;
+        }
+
+        // ============================================
+        // CAST TO TV FUNCTIONALITY
+        // ============================================
+        let castSocket = null;
+        let castSessionId = null;
+        let castingActive = false;
+
+        function openCastModal() {
             if (selectedGamesForSportsBar.length === 0) return;
 
-            // Save selections to localStorage for sports-bar page
-            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(selectedGamesForSportsBar));
-
-            // Navigate to sports bar page
-            window.location.href = '/tv-sports-bar';
+            const modal = document.getElementById('castModal');
+            if (castingActive) {
+                // Already casting, show status
+                document.getElementById('cast-pin-entry-section').style.display = 'none';
+                document.getElementById('cast-status-section').style.display = 'block';
+            } else {
+                // Show PIN entry
+                document.getElementById('cast-pin-entry-section').style.display = 'block';
+                document.getElementById('cast-status-section').style.display = 'none';
+                // Clear PIN inputs
+                for (let i = 1; i <= 6; i++) {
+                    document.getElementById(`cast-pin${i}`).value = '';
+                }
+                document.getElementById('cast-connect-btn').disabled = true;
+            }
+            modal.classList.add('show');
+            setTimeout(() => document.getElementById('cast-pin1').focus(), 100);
         }
+
+        function closeCastModal() {
+            document.getElementById('castModal').classList.remove('show');
+        }
+
+        function endCastingSession() {
+            castingActive = false;
+            castSessionId = null;
+
+            closeCastModal();
+
+            // Reset PIN inputs
+            for (let i = 1; i <= 6; i++) {
+                const pinInput = document.getElementById(`cast-pin${i}`);
+                if (pinInput) pinInput.value = '';
+            }
+
+            document.getElementById('cast-status-section').style.display = 'none';
+            document.getElementById('cast-pin-entry-section').style.display = 'block';
+            document.getElementById('cast-connect-btn').disabled = true;
+            document.getElementById('cast-end-btn').style.display = 'none';
+
+            // Hide floating indicator
+            document.getElementById('casting-indicator').style.display = 'none';
+
+            if (castSocket) {
+                castSocket.disconnect();
+            }
+        }
+
+        function showCastingIndicator() {
+            const indicator = document.getElementById('casting-indicator');
+            indicator.style.display = 'flex';
+            indicator.onclick = () => openCastModal();
+        }
+
+        function syncCastingState() {
+            if (!castingActive || !castSocket || !castSessionId) return;
+
+            // Format games as slots with sport:gameId format (like LiveGames.html)
+            const games = {};
+            selectedGamesForSportsBar.forEach((game, index) => {
+                // Include sport/league prefix for TV receiver to parse correctly
+                games[`slot${index + 1}`] = `${game.league}:${game.id}`;
+            });
+
+            const state = {
+                games: games,
+                layout: selectedGamesForSportsBar.length,
+                isFullscreen: true,
+                timestamp: Date.now()
+            };
+
+            console.log('Syncing state to TV:', state);
+            castSocket.emit('cast:sync-state', {
+                sessionId: castSessionId,
+                state
+            });
+        }
+
+        // Initialize Cast to TV functionality
+        function initCastToTV() {
+            // Close modal button
+            document.getElementById('closeCastModal').addEventListener('click', closeCastModal);
+
+            // Click outside modal to close
+            document.getElementById('castModal').addEventListener('click', (e) => {
+                if (e.target.id === 'castModal') closeCastModal();
+            });
+
+            // PIN input handling
+            const pinInputs = document.querySelectorAll('.cast-pin-input');
+            pinInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, '');
+                    e.target.value = value;
+
+                    if (value && index < 5) {
+                        pinInputs[index + 1].focus();
+                    }
+
+                    // Check if all 6 digits entered
+                    const fullPin = Array.from(pinInputs).map(inp => inp.value).join('');
+                    document.getElementById('cast-connect-btn').disabled = fullPin.length !== 6;
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        pinInputs[index - 1].focus();
+                    }
+                });
+
+                // Handle paste
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                    pastedData.split('').forEach((char, i) => {
+                        if (pinInputs[i]) pinInputs[i].value = char;
+                    });
+                    const fullPin = Array.from(pinInputs).map(inp => inp.value).join('');
+                    document.getElementById('cast-connect-btn').disabled = fullPin.length !== 6;
+                    if (pastedData.length === 6) {
+                        pinInputs[5].focus();
+                    }
+                });
+            });
+
+            // Connect button
+            document.getElementById('cast-connect-btn').addEventListener('click', async () => {
+                const pin = Array.from(pinInputs).map(inp => inp.value).join('');
+                if (pin.length !== 6) return;
+
+                // Check authentication
+                let authUser = null;
+                try {
+                    const authResponse = await fetch('/api/auth/check', { credentials: 'same-origin' });
+                    const authData = await authResponse.json();
+                    if (!authData.authenticated) {
+                        alert('Please log in to use casting');
+                        return;
+                    }
+                    authUser = authData.user;
+                } catch (err) {
+                    alert('Authentication check failed. Please try again.');
+                    return;
+                }
+
+                // Show connecting status
+                document.getElementById('cast-pin-entry-section').style.display = 'none';
+                document.getElementById('cast-status-section').style.display = 'block';
+                document.getElementById('cast-status-box').style.background = 'rgba(234, 179, 8, 0.1)';
+                document.getElementById('cast-status-box').style.border = '1px solid #eab308';
+                document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#eab308';
+                document.getElementById('cast-status-text').textContent = 'Connecting to TV...';
+
+                // Initialize Socket.IO if not already
+                if (!castSocket) {
+                    castSocket = io({ withCredentials: true });
+
+                    castSocket.on('connect', () => {
+                        console.log('Casting WebSocket connected');
+
+                        castSocket.emit('cast:join-session', {
+                            pin,
+                            userId: authUser ? authUser.id : null,
+                            deviceName: navigator.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop'
+                        }, (response) => {
+                            if (response.success) {
+                                castSessionId = response.sessionId;
+                                castingActive = true;
+
+                                // Update status to connected
+                                document.getElementById('cast-status-box').style.background = 'rgba(34, 197, 94, 0.1)';
+                                document.getElementById('cast-status-box').style.border = '1px solid #22c55e';
+                                document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#22c55e';
+                                document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
+                                document.getElementById('cast-end-btn').style.display = 'block';
+
+                                // Sync current state
+                                syncCastingState();
+
+                                // Auto-close modal and show floating indicator
+                                setTimeout(() => {
+                                    closeCastModal();
+                                    showCastingIndicator();
+                                    pinInputs.forEach(inp => inp.value = '');
+                                    document.getElementById('cast-connect-btn').disabled = true;
+                                }, 1500);
+                            } else {
+                                alert(response.error || 'Failed to connect. Check the PIN and try again.');
+                                document.getElementById('cast-pin-entry-section').style.display = 'block';
+                                document.getElementById('cast-status-section').style.display = 'none';
+                                document.getElementById('cast-pin1').focus();
+                            }
+                        });
+                    });
+
+                    castSocket.on('cast:receiver-connected', ({ sessionId }) => {
+                        console.log('TV receiver connected');
+                        document.getElementById('cast-status-box').style.background = 'rgba(34, 197, 94, 0.1)';
+                        document.getElementById('cast-status-box').style.border = '1px solid #22c55e';
+                        document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#22c55e';
+                        document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
+                        document.getElementById('cast-end-btn').style.display = 'block';
+
+                        syncCastingState();
+
+                        setTimeout(() => {
+                            closeCastModal();
+                            showCastingIndicator();
+                        }, 1500);
+                    });
+
+                    castSocket.on('cast:receiver-disconnected', () => {
+                        console.log('TV receiver disconnected');
+                        document.getElementById('cast-status-box').style.background = 'rgba(234, 179, 8, 0.1)';
+                        document.getElementById('cast-status-box').style.border = '1px solid #eab308';
+                        document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#eab308';
+                        document.getElementById('cast-status-text').textContent = 'TV disconnected. Waiting for reconnection...';
+                    });
+
+                    castSocket.on('cast:session-ended', () => {
+                        endCastingSession();
+                    });
+
+                    castSocket.on('cast:session-expired', () => {
+                        alert('Casting session expired');
+                        endCastingSession();
+                    });
+                } else {
+                    castSocket.connect();
+                }
+            });
+
+            // End casting button
+            document.getElementById('cast-end-btn').addEventListener('click', () => {
+                if (confirm('End casting session?')) {
+                    if (castSocket && castSessionId) {
+                        castSocket.emit('cast:end-session', { sessionId: castSessionId });
+                    }
+                    endCastingSession();
+                }
+            });
+
+            // Floating indicator click to reopen modal
+            document.getElementById('casting-indicator').addEventListener('click', openCastModal);
+        }
+
+        // Initialize casting when DOM is ready
+        document.addEventListener('DOMContentLoaded', initCastToTV);
 
         function restoreGameSelections() {
             const saved = localStorage.getItem('gridtv_sports_bar_games');
@@ -4093,16 +4654,10 @@
         // PAGE NAVIGATION
         // ============================================
         function openPage(url) {
-            let tvUrl = url + (url.includes('?') ? '&' : '?') + 'tv=1';
-            const storedToken = localStorage.getItem('gridtv_session_token');
-            const activeToken = sessionToken || storedToken;
-
-            if (activeToken) {
-                tvUrl += '&tvSession=' + encodeURIComponent(activeToken);
-            }
-
+            // Desktop mode uses tv=0
+            let pageUrl = url + (url.includes('?') ? '&' : '?') + 'tv=0';
             sessionStorage.setItem('gridtv_return_to_home', 'true');
-            window.location.href = tvUrl;
+            window.location.href = pageUrl;
         }
 
         // ============================================
@@ -4151,7 +4706,7 @@
             }, 100);
 
             // Set up keyboard handler for fullscreen
-            document.addEventListener('keydown', handleFullscreenKeyDown);
+            // D-pad navigation removed for desktop
         }
 
         function hideGameFullscreen() {
@@ -4160,29 +4715,14 @@
             currentFullscreenGame = null;
 
             // Remove keyboard handler
-            document.removeEventListener('keydown', handleFullscreenKeyDown);
+            // D-pad navigation removed for desktop
 
             // Restore focus to the game card
-            setHomeFocus();
+            // setHomeFocus removed for desktop
         }
 
         function handleFullscreenKeyDown(e) {
-            // Handle Back button or Escape to close
-            if (e.key === 'Escape' || e.key === 'GoBack' || e.keyCode === 27 || e.keyCode === 4) {
-                e.preventDefault();
-                e.stopPropagation();
-                hideGameFullscreen();
-                return;
-            }
-
-            // Handle Enter to close (since close button is focused)
-            const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
-                e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
-            if (isEnterKey) {
-                e.preventDefault();
-                e.stopPropagation();
-                hideGameFullscreen();
-            }
+            // D-pad navigation removed for desktop - using mouse/touch instead
         }
 
         // Set up close button click handler
@@ -4197,96 +4737,6 @@
         // FETCH ALL GAMES
         // ============================================
         async function fetchAllGames() {
-            // MOCK DATA MODE - Return mock live NFL games for testing
-            if (USE_MOCK_DATA) {
-                console.log('📺 Using mock data mode');
-                allGamesUnfiltered = {
-                    live: [
-                        {
-                            id: 'mock1',
-                            league: 'nfl',
-                            name: 'GB @ CHI',
-                            state: 'in',
-                            status: '3rd 8:42',
-                            away: { abbr: 'GB', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png', score: 21, record: '9-7-1', timeouts: 2 },
-                            home: { abbr: 'CHI', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png', score: 17, record: '11-6', timeouts: 1 },
-                            possession: 'away',
-                            downDistance: '2nd & 7',
-                            fieldPosition: 'CHI 35',
-                            yardLine: 35,
-                            yardsToGo: 7,
-                            possessionOnOwn: false
-                        },
-                        {
-                            id: 'mock2',
-                            league: 'nfl',
-                            name: 'BUF @ JAX',
-                            state: 'in',
-                            status: '4th 2:00',
-                            away: { abbr: 'BUF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png', score: 28, record: '12-5', timeouts: 0 },
-                            home: { abbr: 'JAX', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png', score: 24, record: '13-4', timeouts: 3 },
-                            possession: 'home',
-                            downDistance: '1st & 10',
-                            fieldPosition: 'BUF 15',
-                            yardLine: 15,
-                            yardsToGo: 10,
-                            possessionOnOwn: false
-                        },
-                        {
-                            id: 'mock3',
-                            league: 'nfl',
-                            name: 'KC @ MIA',
-                            state: 'in',
-                            status: '2nd 5:30',
-                            away: { abbr: 'KC', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png', score: 14, record: '10-7', timeouts: 3 },
-                            home: { abbr: 'MIA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png', score: 10, record: '8-9', timeouts: 2 },
-                            possession: 'away',
-                            downDistance: '3rd & Goal',
-                            fieldPosition: 'MIA 5',
-                            yardLine: 5,
-                            yardsToGo: 5,
-                            possessionOnOwn: false
-                        },
-                        {
-                            id: 'mock4',
-                            league: 'nfl',
-                            name: 'SF @ SEA',
-                            state: 'in',
-                            status: '1st 12:00',
-                            away: { abbr: 'SF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png', score: 7, record: '11-6', timeouts: 3 },
-                            home: { abbr: 'SEA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png', score: 0, record: '9-8', timeouts: 3 },
-                            possession: 'home',
-                            downDistance: '2nd & 5',
-                            fieldPosition: 'SEA 40',
-                            yardLine: 40,
-                            yardsToGo: 5,
-                            possessionOnOwn: true
-                        },
-                        {
-                            id: 'mock5',
-                            league: 'nba',
-                            name: 'LAL @ BOS',
-                            state: 'in',
-                            status: '3rd 4:22',
-                            away: { abbr: 'LAL', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/lal.png', score: 78, record: '25-15' },
-                            home: { abbr: 'BOS', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/bos.png', score: 82, record: '30-10' }
-                        },
-                        {
-                            id: 'mock6',
-                            league: 'nba',
-                            name: 'GSW @ PHX',
-                            state: 'in',
-                            status: '2nd 8:15',
-                            away: { abbr: 'GSW', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/gs.png', score: 45, record: '22-18' },
-                            home: { abbr: 'PHX', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/phx.png', score: 51, record: '24-16' }
-                        }
-                    ],
-                    upcoming: [],
-                    final: []
-                };
-                return;
-            }
-
             const leagues = [
                 { id: 'nfl', endpoint: '/api/nfl/scoreboard' },
                 { id: 'nba', endpoint: '/api/nba/scoreboard' },
@@ -4509,11 +4959,14 @@
                 renderGameRow('live-games-row', allGames.live, 'live', 'live-empty', 'live-count');
                 renderGameRow('upcoming-games-row', allGames.upcoming, 'upcoming', 'upcoming-empty', 'upcoming-count');
                 renderGameRow('final-games-row', allGames.final, 'final', 'final-empty', 'final-count');
+
+                // Initialize scroll handles for status rows
+                initScrollHandles();
             }
 
             // Update navigation
             updateRows();
-            setHomeFocus();
+            // setHomeFocus removed for desktop
 
             // Re-apply any existing game selections after rendering
             reapplyGameSelections();
@@ -4521,7 +4974,6 @@
 
         function renderLeagueRows() {
             const container = document.getElementById('league-rows-container');
-            container.innerHTML = '';
 
             // Group live games by league
             const liveGamesByLeague = {};
@@ -4542,37 +4994,93 @@
                             <span class="tv-row-title">Live Now</span>
                             <span class="tv-row-badge live">LIVE</span>
                         </div>
-                        <div class="tv-row-scroll">
-                            <div class="empty-row">No live games at the moment</div>
+                        <div class="tv-row-scroll-wrapper">
+                            <div class="tv-row-scroll">
+                                <div class="empty-row">No live games at the moment</div>
+                            </div>
                         </div>
                     </section>
                 `;
                 return;
             }
 
-            // Render rows for each league that has live games (in order)
-            leagueOrder.forEach(leagueId => {
-                const games = liveGamesByLeague[leagueId];
-                if (!games || games.length === 0) return;
+            // Check if we can update in place (same leagues with live games)
+            const existingSections = container.querySelectorAll('.tv-row[data-row^="league-row-"]');
+            const existingLeagues = Array.from(existingSections).map(s => s.dataset.row.replace('league-row-', ''));
+            const newLeagues = leagueOrder.filter(id => liveGamesByLeague[id]?.length > 0);
 
-                const leagueName = leagueDisplayNames[leagueId] || leagueId.toUpperCase();
-                const rowId = `league-row-${leagueId}`;
+            const canUpdateInPlace = existingLeagues.length === newLeagues.length &&
+                existingLeagues.every((id, i) => id === newLeagues[i]);
 
-                const sectionHtml = `
-                    <section class="tv-row" data-row="${rowId}" id="${rowId}-section">
-                        <div class="tv-row-header">
-                            <span class="tv-row-title">${leagueName}</span>
-                            <span class="tv-row-badge live">LIVE</span>
-                            <span class="tv-row-count">${games.length} game${games.length > 1 ? 's' : ''}</span>
-                        </div>
-                        <div class="tv-row-scroll" id="${rowId}">
-                            ${games.map(game => createGameCard(game, rowId)).join('')}
-                        </div>
-                    </section>
-                `;
+            if (canUpdateInPlace) {
+                // Update existing league rows in place
+                newLeagues.forEach(leagueId => {
+                    const games = liveGamesByLeague[leagueId];
+                    const rowId = `league-row-${leagueId}`;
+                    const rowContainer = document.getElementById(rowId);
+                    if (rowContainer) {
+                        // Update game count
+                        const countEl = rowContainer.closest('.tv-row')?.querySelector('.tv-row-count');
+                        if (countEl) countEl.textContent = `${games.length} game${games.length > 1 ? 's' : ''}`;
 
-                container.insertAdjacentHTML('beforeend', sectionHtml);
-            });
+                        // Update cards in place or re-render row if games changed
+                        const existingCards = rowContainer.querySelectorAll('.game-card');
+                        const existingIds = Array.from(existingCards).map(card => {
+                            try { return JSON.parse(card.dataset.game || '{}').id; }
+                            catch (e) { return null; }
+                        });
+                        const newIds = games.map(g => g.id);
+
+                        const canUpdateRow = existingIds.length === newIds.length &&
+                            existingIds.every((id, i) => id === newIds[i]);
+
+                        if (canUpdateRow) {
+                            games.forEach((game, index) => {
+                                updateGameCardInPlace(existingCards[index], game, rowId);
+                            });
+                        } else {
+                            rowContainer.innerHTML = games.map(game => createGameCard(game, rowId)).join('');
+                        }
+                    }
+                });
+            } else {
+                // Full re-render needed (leagues changed)
+                container.innerHTML = '';
+
+                leagueOrder.forEach(leagueId => {
+                    const games = liveGamesByLeague[leagueId];
+                    if (!games || games.length === 0) return;
+
+                    const leagueName = leagueDisplayNames[leagueId] || leagueId.toUpperCase();
+                    const rowId = `league-row-${leagueId}`;
+
+                    const sectionHtml = `
+                        <section class="tv-row" data-row="${rowId}" id="${rowId}-section">
+                            <div class="tv-row-header">
+                                <span class="tv-row-title">${leagueName}</span>
+                                <span class="tv-row-badge live">LIVE</span>
+                                <span class="tv-row-count">${games.length} game${games.length > 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="tv-row-scroll-wrapper">
+                                <span class="scroll-handle handle-prev" data-scroll-target="${rowId}" role="button" aria-label="See previous">
+                                    <span class="handle-icon">‹</span>
+                                </span>
+                                <div class="tv-row-scroll" id="${rowId}">
+                                    ${games.map(game => createGameCard(game, rowId)).join('')}
+                                </div>
+                                <span class="scroll-handle handle-next" data-scroll-target="${rowId}" role="button" aria-label="See more">
+                                    <span class="handle-icon">›</span>
+                                </span>
+                            </div>
+                        </section>
+                    `;
+
+                    container.insertAdjacentHTML('beforeend', sectionHtml);
+                });
+
+                // Initialize scroll handles for dynamically created rows
+                initScrollHandles();
+            }
         }
 
         function renderGameRow(containerId, games, rowName, emptyId, countId) {
@@ -4588,8 +5096,169 @@
 
             if (countEl) countEl.textContent = `${games.length} games`;
 
-            container.innerHTML = games.map(game => createGameCard(game, rowName)).join('');
+            // Check if we can update in place (same number of games with same IDs)
+            const existingCards = container.querySelectorAll('.game-card');
+            const existingIds = Array.from(existingCards).map(card => {
+                try {
+                    return JSON.parse(card.dataset.game || '{}').id;
+                } catch (e) {
+                    return null;
+                }
+            });
+            const newIds = games.map(g => g.id);
+
+            // If same games in same order, update in place
+            const canUpdateInPlace = existingIds.length === newIds.length &&
+                existingIds.every((id, i) => id === newIds[i]);
+
+            if (canUpdateInPlace) {
+                // Update existing cards in place
+                games.forEach((game, index) => {
+                    const card = existingCards[index];
+                    if (card) {
+                        updateGameCardInPlace(card, game, rowName);
+                    }
+                });
+            } else {
+                // Full re-render needed (games changed)
+                container.innerHTML = games.map(game => createGameCard(game, rowName)).join('');
+            }
+
+            // Update scroll handles for this row
+            updateScrollHandlesForRow(containerId);
         }
+
+        // Update a game card in place without destroying DOM
+        function updateGameCardInPlace(card, game, rowName) {
+            // Update the data attribute
+            card.dataset.game = JSON.stringify(game);
+
+            // For live games, update scores and status
+            if (game.state === 'in') {
+                // Update scores
+                const awayScoreEl = card.querySelector('.live-sb-score-box.away .live-sb-score');
+                const homeScoreEl = card.querySelector('.live-sb-score-box.home .live-sb-score');
+                if (awayScoreEl) awayScoreEl.textContent = game.away.score || 0;
+                if (homeScoreEl) homeScoreEl.textContent = game.home.score || 0;
+
+                // Update time/status
+                const timeEl = card.querySelector('.live-sb-time');
+                const periodEl = card.querySelector('.live-sb-period');
+                if (timeEl || periodEl) {
+                    const statusParts = parseGameStatus(game.status, game.league);
+                    if (periodEl) periodEl.textContent = statusParts.period || '';
+                    if (timeEl) timeEl.textContent = statusParts.time || game.status;
+                }
+
+                // Update football situation (NFL/NCAA)
+                if (game.league === 'nfl' || game.league === 'ncaa') {
+                    const downDistEl = card.querySelector('.live-sb-down-distance');
+                    const fieldPosEl = card.querySelector('.live-sb-ball-position');
+                    if (downDistEl) downDistEl.textContent = game.downDistance || '';
+                    if (fieldPosEl) fieldPosEl.textContent = game.fieldPosition || '';
+
+                    // Update possession indicator
+                    const situationBox = card.querySelector('.live-sb-situation');
+                    if (situationBox) {
+                        situationBox.classList.remove('possession-away', 'possession-home', 'redzone');
+                        if (game.possession === 'away') situationBox.classList.add('possession-away');
+                        else if (game.possession === 'home') situationBox.classList.add('possession-home');
+
+                        const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
+                        if (isRedZone) situationBox.classList.add('redzone');
+                    }
+                }
+            } else if (game.state === 'pre') {
+                // Upcoming game - update start time
+                const timeEl = card.querySelector('.game-card-status');
+                if (timeEl) timeEl.textContent = formatStartTime(game.startTime);
+            } else if (game.state === 'post') {
+                // Final game - update scores
+                const awayScoreEl = card.querySelector('.game-card-team.away .game-card-team-score') ||
+                                   card.querySelector('.game-card-team:first-child .game-card-team-score');
+                const homeScoreEl = card.querySelector('.game-card-team.home .game-card-team-score') ||
+                                   card.querySelector('.game-card-team:last-child .game-card-team-score');
+                if (awayScoreEl) awayScoreEl.textContent = game.away.score || 0;
+                if (homeScoreEl) homeScoreEl.textContent = game.home.score || 0;
+            }
+        }
+
+        // ============================================
+        // SCROLL HANDLES - Navigation Arrows
+        // ============================================
+        function initScrollHandles() {
+            // Find all scroll containers and set up their handles
+            document.querySelectorAll('.tv-row-scroll').forEach(scrollContainer => {
+                updateScrollHandlesForRow(scrollContainer.id);
+
+                // Listen for scroll events to update handle visibility
+                scrollContainer.addEventListener('scroll', () => {
+                    updateScrollHandlesForRow(scrollContainer.id);
+                });
+            });
+
+            // Handle click events on scroll handles
+            document.querySelectorAll('.scroll-handle').forEach(handle => {
+                handle.addEventListener('click', (e) => {
+                    const targetId = handle.dataset.scrollTarget;
+                    const scrollContainer = document.getElementById(targetId);
+                    if (!scrollContainer) return;
+
+                    const scrollAmount = scrollContainer.clientWidth * 0.75;
+
+                    if (handle.classList.contains('handle-prev')) {
+                        scrollContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                    } else {
+                        scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    }
+                });
+            });
+        }
+
+        function updateScrollHandlesForRow(containerId) {
+            if (!containerId) return;
+
+            const scrollContainer = document.getElementById(containerId);
+            if (!scrollContainer) return;
+
+            const wrapper = scrollContainer.closest('.tv-row-scroll-wrapper');
+            if (!wrapper) return;
+
+            const prevHandle = wrapper.querySelector('.handle-prev');
+            const nextHandle = wrapper.querySelector('.handle-next');
+
+            if (!prevHandle || !nextHandle) return;
+
+            const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+            const hasOverflow = scrollWidth > clientWidth + 5; // 5px threshold
+
+            // Show/hide prev handle based on scroll position
+            if (scrollLeft > 10) {
+                prevHandle.classList.add('active');
+            } else {
+                prevHandle.classList.remove('active');
+            }
+
+            // Show/hide next handle based on scroll position and overflow
+            if (hasOverflow && scrollLeft < scrollWidth - clientWidth - 10) {
+                nextHandle.classList.add('active');
+            } else {
+                nextHandle.classList.remove('active');
+            }
+        }
+
+        // Initialize scroll handles on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Delay initialization to ensure content is rendered
+            setTimeout(initScrollHandles, 500);
+
+            // Re-initialize on window resize
+            window.addEventListener('resize', () => {
+                document.querySelectorAll('.tv-row-scroll').forEach(scrollContainer => {
+                    updateScrollHandlesForRow(scrollContainer.id);
+                });
+            });
+        });
 
         function createGameCard(game, rowName) {
             const statusClass = game.state === 'in' ? 'live' : game.state === 'pre' ? 'upcoming' : 'final';
@@ -4701,7 +5370,7 @@
                 const homeColor = getNbaTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card nba-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nba-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         <div class="nba-upcoming-inner">
                             <div class="nba-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nba-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4725,7 +5394,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card nba-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nba-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         ${winnerLogo ? `<img class="nba-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4752,7 +5421,7 @@
                 const homeColor = getNflTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card nfl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nfl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         <div class="nfl-upcoming-inner">
                             <div class="nfl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nfl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4776,7 +5445,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card nfl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nfl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         ${winnerLogo ? `<img class="nfl-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4803,7 +5472,7 @@
                 const homeColor = getNhlTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card nhl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nhl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         <div class="nhl-upcoming-inner">
                             <div class="nhl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nhl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4827,7 +5496,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card nhl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nhl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         ${winnerLogo ? `<img class="nhl-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4854,7 +5523,7 @@
                 const homeColor = getMlbTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card mlb-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card mlb-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         <div class="mlb-upcoming-inner">
                             <div class="mlb-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="mlb-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4878,7 +5547,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card mlb-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card mlb-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         ${winnerLogo ? `<img class="mlb-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4904,7 +5573,7 @@
                 const defaultColor = '#6366f1';
 
                 return `
-                    <div class="game-card ncaa-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card ncaa-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         <div class="ncaa-upcoming-inner">
                             <div class="ncaa-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
                                 <img class="ncaa-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4928,7 +5597,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card ncaa-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card ncaa-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         ${winnerLogo ? `<img class="ncaa-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4954,7 +5623,7 @@
                 const defaultColor = '#6366f1';
 
                 return `
-                    <div class="game-card ncaab-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card ncaab-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         <div class="ncaab-upcoming-inner">
                             <div class="ncaab-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
                                 <img class="ncaab-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4978,7 +5647,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card ncaab-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card ncaab-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                         ${winnerLogo ? `<img class="ncaab-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -5004,7 +5673,7 @@
             const footerHtml = isUpcoming ? `<div class="game-card-footer-time">${statusText}</div>` : '';
 
             return `
-                <div class="game-card focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                <div class="game-card focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
                     <div class="game-card-header">
                         <span class="game-card-status ${statusClass}">${isUpcoming ? '' : statusText}</span>
                     </div>
@@ -5055,13 +5724,227 @@
             });
         }
 
-        // Click handlers
-        document.getElementById('sign-out-btn').addEventListener('click', signOut);
-        document.getElementById('option-password').addEventListener('click', showPasswordLoginScreen);
-        document.getElementById('option-qr').addEventListener('click', showQRLoginScreen);
-        document.getElementById('password-back-btn').addEventListener('click', showLoginScreen);
-        document.getElementById('qr-back-btn').addEventListener('click', showLoginScreen);
-        document.getElementById('login-submit-btn').addEventListener('click', handlePasswordLogin);
+        // ============================================
+        // USER MENU DROPDOWN HANDLERS
+        // ============================================
+        const userMenuTrigger = document.getElementById('userMenuTrigger');
+        const userDropdown = document.getElementById('userDropdown');
+        const openProfileModalBtn = document.getElementById('openProfileModal');
+        const profileModal = document.getElementById('profileModal');
+        const closeProfileModalBtn = document.getElementById('closeProfileModal');
+        const profileForm = document.getElementById('profileForm');
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const profileMessage = document.getElementById('profileMessage');
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const subscriptionBadge = document.getElementById('subscriptionBadge');
+        const subscriptionLink = document.getElementById('subscriptionLink');
+        const subscriptionLinkText = document.getElementById('subscriptionLinkText');
+
+        // Toggle dropdown menu
+        userMenuTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userMenuTrigger.contains(e.target)) {
+                userDropdown.classList.remove('show');
+            }
+        });
+
+        // Prevent dropdown from closing when clicking inside it
+        userDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Open profile modal
+        openProfileModalBtn.addEventListener('click', () => {
+            userDropdown.classList.remove('show');
+            profileModal.classList.add('show');
+            profileMessage.className = 'modal-message';
+            profileMessage.textContent = '';
+            if (currentUserData) {
+                profileName.value = currentUserData.displayName || '';
+                profileEmail.value = currentUserData.email || '';
+            }
+        });
+
+        // Close profile modal
+        closeProfileModalBtn.addEventListener('click', () => {
+            profileModal.classList.remove('show');
+        });
+
+        // Close modal when clicking overlay
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) {
+                profileModal.classList.remove('show');
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                profileModal.classList.remove('show');
+                userDropdown.classList.remove('show');
+            }
+        });
+
+        // Save profile
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.textContent = 'Saving...';
+            profileMessage.className = 'modal-message';
+
+            try {
+                const response = await fetch('/api/auth/update-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ displayName: profileName.value })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    profileMessage.className = 'modal-message success';
+                    profileMessage.textContent = 'Profile updated successfully!';
+                    // Update UI
+                    currentUserData.displayName = profileName.value;
+                    document.getElementById('userAvatar').textContent = profileName.value.charAt(0).toUpperCase();
+                    document.getElementById('dropdownUserName').textContent = profileName.value;
+                    // Close modal after delay
+                    setTimeout(() => {
+                        profileModal.classList.remove('show');
+                    }, 1500);
+                } else {
+                    profileMessage.className = 'modal-message error';
+                    profileMessage.textContent = data.error || 'Failed to update profile';
+                }
+            } catch (error) {
+                profileMessage.className = 'modal-message error';
+                profileMessage.textContent = 'Connection error. Please try again.';
+            } finally {
+                saveProfileBtn.disabled = false;
+                saveProfileBtn.textContent = 'Save Changes';
+            }
+        });
+
+        // Logout handler (replaces old sign-out)
+        logoutBtn.addEventListener('click', async () => {
+            signOut();
+        });
+
+        // Check subscription status
+        async function updateSubscriptionStatus() {
+            try {
+                const response = await fetch('/api/subscription/access', { credentials: 'same-origin' });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.subscription) {
+                        const sub = data.subscription;
+                        subscriptionBadge.className = 'subscription-badge';
+
+                        if (sub.status === 'active') {
+                            subscriptionBadge.classList.add('active');
+                            subscriptionBadge.textContent = sub.plan ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Pro';
+                            subscriptionLink.href = '/subscription';
+                            subscriptionLinkText.textContent = 'Manage Subscription';
+                        } else if (sub.status === 'trial') {
+                            subscriptionBadge.classList.add('trial');
+                            subscriptionBadge.textContent = sub.daysRemaining > 0 ? `Trial: ${sub.daysRemaining}d` : 'Trial';
+                            subscriptionLink.href = '/pricing';
+                            subscriptionLinkText.textContent = 'Upgrade Plan';
+                        } else if (sub.status === 'expired' || sub.status === 'canceled') {
+                            subscriptionBadge.classList.add('expired');
+                            subscriptionBadge.textContent = 'Subscribe';
+                            subscriptionLink.href = '/pricing';
+                            subscriptionLinkText.textContent = 'Subscribe Now';
+                        } else {
+                            subscriptionBadge.classList.add('trial');
+                            subscriptionBadge.textContent = 'Trial';
+                            subscriptionLink.href = '/pricing';
+                            subscriptionLinkText.textContent = 'Upgrade Plan';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to get subscription status:', error);
+            }
+        }
+
+        // Update subscription status when user menu is shown
+        userMenuTrigger.addEventListener('click', updateSubscriptionStatus);
+
+        // Handle subscription link click
+        subscriptionLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            userDropdown.classList.remove('show');
+            window.location.href = subscriptionLink.href;
+        });
+
+        // ============================================
+        // DESKTOP MOUSE/TOUCH EVENT HANDLERS
+        // ============================================
+        document.addEventListener('click', function (e) {
+            // Handle league card clicks
+            const leagueCard = e.target.closest('.league-card');
+            if (leagueCard) {
+                const league = leagueCard.dataset.league;
+                const action = leagueCard.dataset.action;
+                if (action === 'phone-connect') {
+                    openPage('/LiveGames.html');
+                } else if (league) {
+                    selectLeague(league);
+                }
+                return;
+            }
+
+            // Handle game card clicks
+            const gameCard = e.target.closest('.game-card');
+            if (gameCard && gameCard.dataset.game) {
+                const game = JSON.parse(gameCard.dataset.game);
+                toggleGameSelection(gameCard, game);
+                return;
+            }
+
+            // Handle sports mode button
+            if (e.target.closest('#sports-mode-btn')) {
+                enterSportsBarMode();
+                return;
+            }
+
+            // Handle cast to TV button
+            if (e.target.closest('#cast-to-tv-btn')) {
+                openCastModal();
+                return;
+            }
+
+            // Handle clear selections button
+            if (e.target.closest('#clear-selections-btn')) {
+                clearSportsBarSelections();
+                return;
+            }
+        });
+
+        // Add hover effects for desktop
+        document.addEventListener('mouseover', function (e) {
+            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .cast-to-tv-btn, .clear-selections-btn');
+            if (card) {
+                card.classList.add('hovered');
+            }
+        });
+
+        document.addEventListener('mouseout', function (e) {
+            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .cast-to-tv-btn, .clear-selections-btn');
+            if (card) {
+                card.classList.remove('hovered');
+            }
+        });
+
     </script>
 </body>
 

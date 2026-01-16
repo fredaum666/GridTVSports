@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/styles/play-animations.css">
     <script src="/scripts/play-animations.js"></script>
     <script src="/scripts/field-visualizer-svg.js"></script>
+    <script src="/scripts/play-replay-engine.js"></script>
     <style>
         /* ================================ */
         /* SPORTS BAR MODE - RESPONSIVE     */
@@ -2256,12 +2257,309 @@
                 touch-action: manipulation;
             }
         }
+
+        /* ================================ */
+        /* REPLAY MODE CONTROLS             */
+        /* ================================ */
+        .replay-controls {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(10, 14, 26, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .fullscreen-game-card:hover .replay-controls,
+        .fullscreen-game-card.replay-controls-visible .replay-controls {
+            opacity: 1;
+        }
+
+        .replay-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .replay-btn:hover {
+            background: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .replay-btn:active {
+            transform: scale(0.95);
+        }
+
+        .replay-btn.play-pause {
+            width: 44px;
+            height: 44px;
+            background: var(--accent);
+            font-size: 16px;
+        }
+
+        .replay-btn.play-pause:hover {
+            background: var(--accent-light);
+        }
+
+        .replay-btn.play-pause.playing {
+            background: var(--success);
+        }
+
+        .replay-progress {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin: 0 8px;
+            min-width: 80px;
+        }
+
+        .replay-progress-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .replay-progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-secondary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .replay-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .replay-speed-control {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .replay-speed-slider {
+            width: 60px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--bg-secondary);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .replay-speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Speed Preset Buttons */
+        .speed-preset-btns {
+            display: flex;
+            gap: 4px;
+        }
+
+        .speed-preset-btn {
+            padding: 4px 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .speed-preset-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .speed-preset-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .replay-speed-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+            min-width: 32px;
+        }
+
+        /* Hover trigger zone at top of screen */
+        .global-controls-trigger {
+            position: fixed;
+            top: 0;
+            left: 120px; /* Leave space for back button */
+            right: 0;
+            height: 60px;
+            z-index: 100000;
+            /* Invisible trigger zone */
+        }
+
+        /* Global replay controls bar (top of screen) */
+        .global-replay-controls {
+            position: fixed;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 24px;
+            background: rgba(10, 14, 26, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            z-index: 100001;
+            backdrop-filter: blur(12px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        /* Show controls when hovering trigger zone or the controls themselves */
+        .global-controls-trigger:hover + .global-replay-controls,
+        .global-replay-controls:hover {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .global-replay-controls .replay-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #ff6b35, #ff3366);
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .global-replay-controls .replay-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .global-replay-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .global-replay-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .global-replay-btn.active {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        /* Last play text overlay - ALWAYS VISIBLE in replay mode */
+        .replay-last-play {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            padding: 10px 14px;
+            background: rgba(10, 14, 26, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-primary);
+            line-height: 1.5;
+            opacity: 1; /* Always visible */
+            z-index: 50;
+            max-height: 100px;
+            overflow: hidden;
+        }
+
+        .replay-last-play strong {
+            color: var(--accent);
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        /* Hide replay elements when not in replay mode */
+        body:not(.replay-mode) .replay-controls,
+        body:not(.replay-mode) .global-replay-controls,
+        body:not(.replay-mode) .global-controls-trigger,
+        body:not(.replay-mode) .replay-last-play {
+            display: none !important;
+        }
     </style>
 </head>
 
 <body>
     <!-- Back Button -->
     <button class="back-btn" id="back-btn">Back to Home</button>
+
+    <!-- Hover trigger zone for global controls -->
+    <div class="global-controls-trigger" id="global-controls-trigger"></div>
+
+    <!-- Global Replay Controls (shown in replay mode) -->
+    <div class="global-replay-controls" id="global-replay-controls">
+        <div class="replay-badge">REPLAY MODE</div>
+        <button class="global-replay-btn" id="global-play-all">Play All</button>
+        <button class="global-replay-btn" id="global-pause-all">Pause All</button>
+        <button class="global-replay-btn" id="global-reset-all">Reset All</button>
+        <div class="replay-speed-control">
+            <span class="replay-speed-label">Speed:</span>
+            <div class="speed-preset-btns">
+                <button class="speed-preset-btn" data-speed="8000">0.25x</button>
+                <button class="speed-preset-btn" data-speed="6000">0.5x</button>
+                <button class="speed-preset-btn active" data-speed="3000">1x</button>
+                <button class="speed-preset-btn" data-speed="1500">2x</button>
+                <button class="speed-preset-btn" data-speed="750">4x</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Fullscreen Grid Container -->
     <div class="fullscreen-container active" id="fullscreen-container">
@@ -2293,6 +2591,10 @@
         // SVG Field Visualizers map (gameId -> SVGFieldVisualizer instance)
         // Exposed globally so play-animations.js can access visualizers
         window.fieldVisualizers = new Map();
+
+        // Replay Mode State
+        let isReplayMode = false;
+        let replayManager = null;
 
         // Stats modal timing state per game
         // Each game tracks: { noPlayStartTime, isShowingStats, showStartTime, currentPhase, cachedStats }
@@ -2637,6 +2939,12 @@
                 return { period: parts[0], time: parts[1] };
             }
 
+            // Replay format: "Q1 15:00", "Q4 2:35"
+            const replayMatch = status.match(/^Q(\d+)\s+(\d+:\d+)$/i);
+            if (replayMatch) {
+                return { period: `Q${replayMatch[1]}`, time: replayMatch[2] };
+            }
+
             // Try to extract period and time
             const match = status.match(/^(\d+(?:st|nd|rd|th)|OT\d*|[A-Z]+)\s+(.+)$/i);
             if (match) {
@@ -2670,6 +2978,11 @@
 
             renderGrid();
             setupKeyboardNavigation();
+
+            // Setup replay controls if in replay mode
+            if (isReplayMode) {
+                setupReplayControls();
+            }
 
             // Only start auto-refresh if NOT using mock data
             if (!usingMockData) {
@@ -2713,23 +3026,58 @@
         let usingMockData = false;
 
         function loadGames() {
-            // First try to load from localStorage (user-selected games)
+            const urlParams = new URLSearchParams(window.location.search);
+            let replayGames = [];
+            let liveGames = [];
+
+            // Check for replay mode (URL parameter ?replay=true)
+            if (urlParams.get('replay') === 'true') {
+                const replayLoaded = loadReplayGames();
+                if (replayLoaded) {
+                    isReplayMode = true;
+                    document.body.classList.add('replay-mode');
+                    replayGames = [...games]; // Copy replay games
+                    console.log('🎬 Replay games loaded:', replayGames.length);
+                }
+            }
+
+            // Check for live games from localStorage (user-selected games)
             const saved = localStorage.getItem('gridtv_sports_bar_games');
             if (saved) {
                 try {
-                    games = JSON.parse(saved);
-                    if (games.length > 0) {
-                        usingMockData = false;
-                        return; // User has selected games, use those
+                    const parsedGames = JSON.parse(saved);
+                    if (parsedGames.length > 0) {
+                        liveGames = parsedGames;
+                        console.log('📺 Live games loaded:', liveGames.length);
                     }
                 } catch (e) {
-                    games = [];
+                    liveGames = [];
                 }
+            }
+
+            // Combine replay and live games if both exist (parallel mode)
+            if (replayGames.length > 0 && liveGames.length > 0) {
+                // Parallel mode: combine both types
+                games = [...replayGames, ...liveGames];
+                usingMockData = false; // Keep auto-refresh for live games
+                console.log('🔀 Parallel mode: combining', replayGames.length, 'replay +', liveGames.length, 'live games');
+                return;
+            } else if (replayGames.length > 0) {
+                // Replay-only mode
+                games = replayGames;
+                usingMockData = true; // No live games to refresh
+                console.log('🎬 Replay-only mode with', games.length, 'games');
+                return;
+            } else if (liveGames.length > 0) {
+                // Live-only mode
+                games = liveGames;
+                usingMockData = false;
+                return;
             }
 
             // FALLBACK: Use mock live NFL games when no games are selected
             // This allows testing layouts directly without selecting games
-            const USE_MOCK_DATA = true; // Set to false to disable mock fallback
+            const USE_MOCK_DATA = false; // Set to false to disable mock fallback
 
             if (USE_MOCK_DATA && games.length === 0) {
                 usingMockData = true;
@@ -2840,6 +3188,480 @@
                 const mockGameCount = parseInt(localStorage.getItem('gridtv_mock_game_count')) || 8;
                 games = games.slice(0, mockGameCount);
             }
+        }
+
+        // ============================================
+        // REPLAY MODE FUNCTIONS
+        // ============================================
+
+        function loadReplayGames() {
+            try {
+                const data = sessionStorage.getItem('gridtv_replay_data');
+                if (!data) {
+                    console.warn('No replay data found in sessionStorage');
+                    return false;
+                }
+
+                const replayData = JSON.parse(data);
+                if (!replayData.games || !Array.isArray(replayData.games) || replayData.games.length === 0) {
+                    console.warn('Invalid replay data format');
+                    return false;
+                }
+
+                // Create replay manager
+                replayManager = new ReplayManager();
+
+                // Initialize games array with initial states
+                games = [];
+                replayData.games.forEach((gameData, index) => {
+                    const gameId = gameData.id || `replay-game-${index + 1}`;
+                    const metadata = gameData.metadata || {};
+
+                    // Add engine to manager
+                    const engine = replayManager.addGame(gameId, gameData.plays, metadata);
+
+                    // Get initial game state and mark as replay
+                    const initialState = engine.getCurrentGameState();
+                    initialState.isReplay = true; // Mark as replay game
+                    games.push(initialState);
+                });
+
+                // Set up update callback
+                replayManager.onGameUpdate = handleReplayUpdate;
+
+                // Apply grid size from URL if specified
+                const urlParams = new URLSearchParams(window.location.search);
+                const gridSize = parseInt(urlParams.get('grid'));
+                if (gridSize && gridSize >= 1 && gridSize <= 8) {
+                    games = games.slice(0, gridSize);
+                }
+
+                return true;
+            } catch (e) {
+                console.error('Failed to load replay data:', e);
+                return false;
+            }
+        }
+
+        function handleReplayUpdate(gameId, gameState, prevPlay) {
+            // Find and update the game card
+            const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+            if (!card) return;
+
+            // Preserve the isReplay flag when updating
+            gameState.isReplay = true;
+
+            // Update the game in our games array
+            const gameIndex = games.findIndex(g => g.id === gameId);
+            if (gameIndex !== -1) {
+                games[gameIndex] = gameState;
+            }
+
+            // Update scoreboard
+            updateGameCardScoreboard(card, gameState);
+
+            // Update field visualizer
+            const visualizer = window.fieldVisualizers.get(gameId);
+            if (visualizer && gameState.yardLine !== undefined) {
+                // Calculate ball position for SVG (0-100)
+                const ballPosition = calculateBallPositionForReplay(gameState);
+                visualizer.setBallPosition(ballPosition);
+
+                // Update first down line
+                if (gameState.yardsToGo && gameState.possession) {
+                    const firstDownPos = calculateFirstDownForReplay(ballPosition, gameState.yardsToGo, gameState.possession);
+                    visualizer.setFirstDownPosition(firstDownPos, gameState.down > 0);
+                }
+
+                // Trigger animation based on play type
+                if (prevPlay && gameState.playType) {
+                    triggerPlayAnimation(visualizer, gameState, prevPlay);
+                }
+            }
+
+            // Update last play text
+            const lastPlayEl = card.querySelector('.replay-last-play');
+            if (lastPlayEl && gameState.lastPlay) {
+                lastPlayEl.innerHTML = `<strong>${gameState.playType?.toUpperCase() || 'PLAY'}:</strong> ${gameState.lastPlay}`;
+            }
+
+            // Update replay controls progress
+            updateReplayProgress(gameId);
+        }
+
+        function calculateBallPositionForReplay(gameState) {
+            // gameState.yardLine is already in 0-100 format from the parser
+            return gameState.endYard || gameState.yardLine || 50;
+        }
+
+        function calculateFirstDownForReplay(ballPosition, yardsToGo, possession) {
+            // Away team drives toward 100 (home end zone)
+            // Home team drives toward 0 (away end zone)
+            if (possession === 'away') {
+                return Math.min(100, ballPosition + yardsToGo);
+            } else {
+                return Math.max(0, ballPosition - yardsToGo);
+            }
+        }
+
+        function triggerPlayAnimation(visualizer, gameState, prevPlay) {
+            const playType = gameState.playType?.toLowerCase();
+            const startYard = prevPlay.endYard || prevPlay.yardLine || 50;
+            const endYard = gameState.endYard || gameState.yardLine || 50;
+
+            if (!playType || visualizer.state.animating) return;
+
+            switch (playType) {
+                case 'pass':
+                case 'complete':
+                    visualizer.animatePass(startYard, endYard, 25, 1200);
+                    break;
+                case 'incomplete':
+                    visualizer.animateIncompletePass(startYard, endYard, 1000);
+                    break;
+                case 'rush':
+                case 'run':
+                    visualizer.animateRush(startYard, endYard, 800);
+                    break;
+                case 'sack':
+                    visualizer.animateSack(startYard, Math.abs(endYard - startYard), 700);
+                    break;
+                case 'kickoff':
+                    visualizer.animateKickoff(startYard, endYard, 0, 2000);
+                    break;
+                case 'punt':
+                    visualizer.animatePunt(startYard, endYard, 0, 1800);
+                    break;
+                case 'field goal':
+                case 'fg':
+                    const direction = startYard > 50 ? 'right' : 'left';
+                    visualizer.animateFieldGoal(startYard, direction, 2000);
+                    break;
+                case 'touchdown':
+                case 'td':
+                    const tdType = prevPlay.type?.toLowerCase()?.includes('pass') ? 'pass' : 'rush';
+                    visualizer.animateTouchdown(tdType, startYard, endYard, 1500);
+                    break;
+                case 'interception':
+                case 'int':
+                    visualizer.animateInterception(startYard, endYard, 0, 1200);
+                    break;
+                case 'fumble':
+                case 'fum':
+                    visualizer.animateFumble(startYard, endYard, null, gameState.possession === prevPlay.possession, 1000);
+                    break;
+                case 'penalty':
+                    visualizer.animatePenalty(startYard, endYard, 800);
+                    break;
+            }
+        }
+
+        function updateGameCardScoreboard(card, gameState) {
+            // Update scores
+            const awayScoreEl = card.querySelector('.fs-sb-score-box.away .fs-sb-score');
+            const homeScoreEl = card.querySelector('.fs-sb-score-box.home .fs-sb-score');
+            if (awayScoreEl) awayScoreEl.textContent = gameState.away.score;
+            if (homeScoreEl) homeScoreEl.textContent = gameState.home.score;
+
+            // Update time/period
+            const timeEl = card.querySelector('.fs-sb-time');
+            const timeLabelEl = card.querySelector('.fs-sb-time-label');
+            if (timeEl && gameState.status) {
+                const parts = parseGameStatus(gameState.status, 'nfl');
+                if (timeLabelEl) timeLabelEl.textContent = parts.period || '';
+                timeEl.textContent = parts.time || gameState.status;
+            }
+
+            // Update down & distance (handle special plays like kickoffs)
+            const downDistEl = card.querySelector('.fs-sb-down-distance');
+            if (downDistEl) {
+                if (gameState.downDistance) {
+                    downDistEl.textContent = gameState.downDistance;
+                } else if (gameState.playType) {
+                    // Show play type for special plays (kickoff, punt, etc.)
+                    const playType = gameState.playType.toUpperCase();
+                    downDistEl.textContent = playType;
+                } else {
+                    downDistEl.textContent = '';
+                }
+            }
+
+            // Update field position
+            const fieldPosEl = card.querySelector('.fs-sb-ball-position');
+            if (fieldPosEl) {
+                fieldPosEl.textContent = gameState.fieldPosition || '';
+            }
+
+            // Update possession indicator
+            const situationBox = card.querySelector('.fs-sb-situation');
+            if (situationBox) {
+                situationBox.classList.remove('possession-away', 'possession-home');
+                if (gameState.possession === 'away') {
+                    situationBox.classList.add('possession-away');
+                } else if (gameState.possession === 'home') {
+                    situationBox.classList.add('possession-home');
+                }
+            }
+
+            // Update timeout bars
+            updateTimeoutBars(card, '.fs-sb-timeouts.away', gameState.away?.timeouts);
+            updateTimeoutBars(card, '.fs-sb-timeouts.home', gameState.home?.timeouts);
+        }
+
+        function updateTimeoutBars(card, selector, timeouts) {
+            const container = card.querySelector(selector);
+            if (!container || timeouts === undefined) return;
+
+            const bars = container.querySelectorAll('.fs-sb-timeout-bar');
+            const remaining = Math.max(0, Math.min(3, timeouts));
+
+            bars.forEach((bar, index) => {
+                if (index >= remaining) {
+                    bar.classList.add('used');
+                } else {
+                    bar.classList.remove('used');
+                }
+            });
+        }
+
+        // Update all game cards in place without destroying/recreating DOM
+        function updateCardsInPlace() {
+            // Check if number of cards matches number of games
+            const grid = document.getElementById('fullscreen-grid');
+            const existingCards = grid.querySelectorAll('.fullscreen-game-card');
+
+            // If count doesn't match, we need a full re-render
+            if (existingCards.length !== games.length) {
+                console.log('📺 Game count changed, doing full re-render');
+                renderGrid();
+                return;
+            }
+
+            games.forEach((game, index) => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${game.id}"]`);
+                if (!card) return;
+
+                const isFootball = game.league === 'nfl' || game.league === 'ncaa';
+                const isLive = game.state === 'in';
+                const isFinal = game.state === 'post';
+                const isUpcoming = game.state === 'pre';
+
+                // Update scores
+                const awayScoreEl = card.querySelector('.fs-sb-score-box.away .fs-sb-score');
+                const homeScoreEl = card.querySelector('.fs-sb-score-box.home .fs-sb-score');
+                if (awayScoreEl) awayScoreEl.textContent = isUpcoming ? '-' : game.away.score;
+                if (homeScoreEl) homeScoreEl.textContent = isUpcoming ? '-' : game.home.score;
+
+                // Update time/period
+                const timeEl = card.querySelector('.fs-sb-time');
+                const timeLabelEl = card.querySelector('.fs-sb-time-label');
+                if (timeEl && game.status) {
+                    const parts = parseGameStatus(game.status, game.league);
+                    if (timeLabelEl) timeLabelEl.textContent = parts.period || '';
+                    timeEl.textContent = parts.time || game.status;
+                }
+
+                // Update status text element
+                const statusTextEl = card.querySelector('.fs-status-text');
+                if (statusTextEl) {
+                    statusTextEl.textContent = game.status || '';
+                    statusTextEl.className = 'fs-status-text';
+                    if (isUpcoming) statusTextEl.classList.add('upcoming');
+                    else if (isFinal) statusTextEl.classList.add('final');
+                }
+
+                // Update card classes for win/loss state
+                card.classList.remove('winning-away', 'winning-home', 'tied', 'upcoming-game', 'final-game');
+                if (isUpcoming) {
+                    card.classList.add('upcoming-game');
+                } else if (isFinal) {
+                    card.classList.add('final-game');
+                    if (game.away.score > game.home.score) card.classList.add('winning-away');
+                    else if (game.home.score > game.away.score) card.classList.add('winning-home');
+                    else card.classList.add('tied');
+                } else if (isLive) {
+                    if (game.away.score > game.home.score) card.classList.add('winning-away');
+                    else if (game.home.score > game.away.score) card.classList.add('winning-home');
+                    else card.classList.add('tied');
+                }
+
+                // Update football-specific elements
+                if (isFootball && isLive) {
+                    // Update down & distance
+                    const downDistEl = card.querySelector('.fs-sb-down-distance');
+                    if (downDistEl) {
+                        downDistEl.textContent = game.downDistance || '';
+                    }
+
+                    // Update field position
+                    const fieldPosEl = card.querySelector('.fs-sb-ball-position');
+                    if (fieldPosEl) {
+                        fieldPosEl.textContent = game.fieldPosition || '';
+                    }
+
+                    // Update possession indicator
+                    const situationBox = card.querySelector('.fs-sb-situation');
+                    if (situationBox) {
+                        situationBox.classList.remove('possession-away', 'possession-home');
+                        if (game.possession === 'away') {
+                            situationBox.classList.add('possession-away');
+                        } else if (game.possession === 'home') {
+                            situationBox.classList.add('possession-home');
+                        }
+                    }
+
+                    // Update ball position on field visualizer
+                    if (game.fieldPosition) {
+                        updateBallPosition(card, game.fieldPosition, game.yardsToGo || 0, game.possession, game.away, game.home, game.league);
+                    }
+                }
+
+                // Update MLB-specific elements
+                if (game.league === 'mlb' && isLive) {
+                    // Update outs
+                    const outsEl = card.querySelector('.mlb-outs');
+                    if (outsEl) {
+                        const outs = game.outs || 0;
+                        outsEl.querySelectorAll('.out-dot').forEach((dot, i) => {
+                            dot.classList.toggle('active', i < outs);
+                        });
+                    }
+
+                    // Update base runners
+                    const basesEl = card.querySelector('.mlb-bases');
+                    if (basesEl) {
+                        basesEl.querySelector('.base.first')?.classList.toggle('occupied', game.onFirst);
+                        basesEl.querySelector('.base.second')?.classList.toggle('occupied', game.onSecond);
+                        basesEl.querySelector('.base.third')?.classList.toggle('occupied', game.onThird);
+                    }
+
+                    // Update hits and errors
+                    const awayHitsEl = card.querySelector('.fs-sb-score-box.away .fs-sb-hits');
+                    const homeHitsEl = card.querySelector('.fs-sb-score-box.home .fs-sb-hits');
+                    if (awayHitsEl) awayHitsEl.textContent = game.away.hits || 0;
+                    if (homeHitsEl) homeHitsEl.textContent = game.home.hits || 0;
+
+                    const awayErrorsEl = card.querySelector('.fs-sb-score-box.away .fs-sb-errors');
+                    const homeErrorsEl = card.querySelector('.fs-sb-score-box.home .fs-sb-errors');
+                    if (awayErrorsEl) awayErrorsEl.textContent = game.away.errors || 0;
+                    if (homeErrorsEl) homeErrorsEl.textContent = game.home.errors || 0;
+                }
+
+                // Update timeouts (NFL/NCAA only)
+                updateTimeoutBars(card, '.fs-sb-timeouts.away', game.away?.timeouts);
+                updateTimeoutBars(card, '.fs-sb-timeouts.home', game.home?.timeouts);
+
+                // Update last play text for replay mode
+                const lastPlayEl = card.querySelector('.replay-last-play');
+                if (lastPlayEl && game.lastPlay) {
+                    lastPlayEl.textContent = game.lastPlay;
+                }
+            });
+        }
+
+        function updateReplayProgress(gameId) {
+            const engine = replayManager?.getEngine(gameId);
+            if (!engine) return;
+
+            const progress = engine.getProgress();
+            const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+            if (!card) return;
+
+            // Update progress bar
+            const progressFill = card.querySelector('.replay-progress-fill');
+            if (progressFill) {
+                progressFill.style.width = `${progress.percentage}%`;
+            }
+
+            // Update progress text
+            const progressText = card.querySelector('.replay-progress-text');
+            if (progressText) {
+                progressText.textContent = `${progress.currentIndex + 1}/${progress.totalPlays}`;
+            }
+
+            // Update play/pause button
+            const playPauseBtn = card.querySelector('.replay-btn.play-pause');
+            if (playPauseBtn) {
+                playPauseBtn.textContent = progress.isPlaying ? '⏸' : '▶';
+                playPauseBtn.classList.toggle('playing', progress.isPlaying);
+            }
+        }
+
+        function setupReplayControls() {
+            if (!isReplayMode || !replayManager) return;
+
+            // Global controls
+            document.getElementById('global-play-all')?.addEventListener('click', () => {
+                replayManager.playAll();
+                updateAllReplayProgress();
+            });
+
+            document.getElementById('global-pause-all')?.addEventListener('click', () => {
+                replayManager.pauseAll();
+                updateAllReplayProgress();
+            });
+
+            document.getElementById('global-reset-all')?.addEventListener('click', () => {
+                replayManager.resetAll();
+                // Re-render to show initial states
+                games = replayManager.getAllGameStates();
+                renderGrid();
+                setupReplayControls();
+            });
+
+            // Speed preset buttons
+            const speedPresetBtns = document.querySelectorAll('.speed-preset-btn');
+            speedPresetBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    speedPresetBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const speed = parseInt(btn.dataset.speed);
+                    replayManager.setGlobalSpeed(speed);
+                });
+            });
+
+            // Set initial speed from sessionStorage if available
+            try {
+                const replayData = JSON.parse(sessionStorage.getItem('gridtv_replay_data') || '{}');
+                if (replayData.speed) {
+                    replayManager.setGlobalSpeed(replayData.speed);
+                    // Update active button
+                    speedPresetBtns.forEach(btn => {
+                        btn.classList.toggle('active', parseInt(btn.dataset.speed) === replayData.speed);
+                    });
+                }
+            } catch (e) {
+                console.log('No initial speed setting found');
+            }
+
+            // Per-card controls
+            document.querySelectorAll('.fullscreen-game-card').forEach(card => {
+                const gameId = card.dataset.gameId;
+                const engine = replayManager.getEngine(gameId);
+                if (!engine) return;
+
+                // Play/pause button
+                card.querySelector('.replay-btn.play-pause')?.addEventListener('click', () => {
+                    engine.togglePlayPause();
+                    updateReplayProgress(gameId);
+                });
+
+                // Previous button
+                card.querySelector('.replay-btn.prev')?.addEventListener('click', () => {
+                    engine.previousPlay();
+                });
+
+                // Next button
+                card.querySelector('.replay-btn.next')?.addEventListener('click', () => {
+                    engine.nextPlay();
+                });
+            });
+        }
+
+        function updateAllReplayProgress() {
+            replayManager?.engines.forEach((engine, gameId) => {
+                updateReplayProgress(gameId);
+            });
         }
 
         function showEmptyState() {
@@ -3000,7 +3822,8 @@
             let situationHTML = '';
             const isMLB = game.league === 'mlb';
 
-            if (isFootball && isLive && game.downDistance && !isIntermission) {
+            // For replay mode, always create situation box for NFL games (will be populated by replay updates)
+            if (isFootball && isLive && (game.downDistance || isReplayMode) && !isIntermission) {
                 const possession = game.possession === 'away' ? 'possession-away' :
                     game.possession === 'home' ? 'possession-home' : '';
                 const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
@@ -3059,7 +3882,7 @@
                         </div>
                     </div>
                 `;
-            } else if (isFootball && isLive && game.downDistance && game.fieldPosition && !isIntermission) {
+            } else if (isFootball && isLive && ((game.downDistance && game.fieldPosition) || isReplayMode) && !isIntermission) {
                 // Get team primary colors for endzones
                 const awayEndzoneColor = awayColors.primary;
                 const homeEndzoneColor = homeColors.primary;
@@ -3092,7 +3915,7 @@
             const homeHasPossession = isFootball && isLive && game.possession === 'home';
 
             return `
-                <div class="${cardClass}" data-game-id="${game.id}" data-league="${game.league}">
+                <div class="${cardClass}" data-game-id="${game.id}" data-league="${game.league}" data-is-replay="${game.isReplay || false}">
                     <img class="sport-logo-indicator" src="${leagueLogo}" alt="${game.league.toUpperCase()}">
                     <div class="fullscreen-refresh-indicator"></div>
 
@@ -3175,6 +3998,24 @@
                         </div>
                     </div>
                     ` : ''}
+
+                    <!-- Replay Mode: Last Play Text (shows on hover) -->
+                    <div class="replay-last-play">
+                        <strong>PLAY:</strong> ${game.lastPlay || 'Waiting for play...'}
+                    </div>
+
+                    <!-- Replay Mode: Per-Card Controls (shows on hover) -->
+                    <div class="replay-controls">
+                        <button class="replay-btn prev" title="Previous Play">⏮</button>
+                        <button class="replay-btn play-pause" title="Play/Pause">▶</button>
+                        <button class="replay-btn next" title="Next Play">⏭</button>
+                        <div class="replay-progress">
+                            <span class="replay-progress-text">1/1</span>
+                            <div class="replay-progress-bar">
+                                <div class="replay-progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
         }
@@ -3620,6 +4461,8 @@
                 const HALFTIME_OFF_DURATION = 120000;   // 2 minutes off between cycles during halftime
 
                 for (const game of games) {
+                    // Skip replay games - they don't have real ESPN stats
+                    if (game.isReplay) continue;
                     if (game.league !== 'nfl' || game.state !== 'in') continue;
 
                     const modal = document.querySelector(`.nfl-stats-modal[data-game-stats-id="${game.id}"]`);
@@ -3804,8 +4647,8 @@
             // Queue for animations to apply after render
             const pendingAnimations = [];
 
-            // Only refresh games that aren't finished (live or upcoming)
-            const activeGames = games.filter(g => g.state !== 'post');
+            // Only refresh games that aren't finished (live or upcoming) and not replay games
+            const activeGames = games.filter(g => g.state !== 'post' && !g.isReplay);
 
             // If all games are finished, stop refreshing
             if (activeGames.length === 0) {
@@ -3890,25 +4733,10 @@
                 }
             });
 
-            // Re-render grid with updated data
-            renderGrid();
+            // Update cards in place instead of full re-render to avoid flickering
+            updateCardsInPlace();
 
-            // Restore any active play text modals after re-render with new timeouts
-            activePlayTextModals.forEach(({ modal, remaining }, gameId) => {
-                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
-                if (card) {
-                    card.style.position = 'relative';
-                    card.appendChild(modal);
-
-                    // Set up new timeout for remaining duration
-                    setTimeout(() => {
-                        modal.classList.add('fade-out');
-                        setTimeout(() => {
-                            modal.remove();
-                        }, 1500);
-                    }, remaining);
-                }
-            });
+            // Note: No need to restore play text modals since we're not destroying cards
 
             // Apply pending animations AFTER render so cards exist in DOM
             pendingAnimations.forEach(({ gameId, game, comp, prevData, league }) => {
@@ -4264,7 +5092,14 @@
             document.addEventListener('keydown', handleKeyDown);
 
             // Click handlers
-            document.getElementById('back-btn').addEventListener('click', showExitModal);
+            document.getElementById('back-btn').addEventListener('click', () => {
+                if (isReplayMode) {
+                    // Navigate back to replay setup page
+                    window.location.href = '/replay-setup.html';
+                } else {
+                    showExitModal();
+                }
+            });
             document.getElementById('confirm-exit').addEventListener('click', confirmExit);
             document.getElementById('cancel-exit').addEventListener('click', hideExitModal);
         }
@@ -4285,7 +5120,12 @@
 
             if (isEnterKey || isBackKey) {
                 e.preventDefault();
-                showExitModal();
+                if (isReplayMode) {
+                    // Navigate back to replay setup page
+                    window.location.href = '/replay-setup.html';
+                } else {
+                    showExitModal();
+                }
             }
         }
 
