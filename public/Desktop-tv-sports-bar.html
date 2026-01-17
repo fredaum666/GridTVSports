@@ -4250,6 +4250,30 @@
             });
         }
 
+        /**
+         * Detect NHL play events (goals, penalties, etc.)
+         * Placeholder for NHL-specific animations
+         */
+        function detectNHLPlayEvents(card, game, comp, prevData) {
+            if (game.league !== 'nhl') return;
+
+            // For now, just log NHL events - can add animations later
+            const situation = comp?.situation;
+            const lastPlay = situation?.lastPlay?.text || '';
+
+            if (lastPlay && prevData.lastPlay !== lastPlay) {
+                console.log('🏒 NHL Play Event:', {
+                    gameId: game.id,
+                    lastPlay: lastPlay.substring(0, 80),
+                    homeScore: game.home.score,
+                    awayScore: game.away.score
+                });
+
+                // Update prevData to track this play
+                prevData.lastPlay = lastPlay;
+            }
+        }
+
         // ============================================
         // NFL STATS MODAL (Between Plays)
         // ============================================
