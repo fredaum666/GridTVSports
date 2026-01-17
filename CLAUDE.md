@@ -201,3 +201,81 @@ The `driveToward` property in animation data indicates drive direction (0 = towa
 - Use parameterized queries for PostgreSQL
 - Never expose API keys in frontend code
 - Verify Stripe webhook signatures
+
+## Custom Agents
+
+The following specialized agents are available in `.claude/agents/`. Use them by typing `/agent-name` or asking Claude to use a specific agent.
+
+### `/javascript-pro`
+**Purpose:** Modern JavaScript optimization and async debugging
+**Use for:**
+- ES6+ features (destructuring, modules, classes)
+- Async patterns (promises, async/await, generators)
+- Event loop and microtask queue issues
+- Node.js APIs and performance optimization
+- Browser APIs and cross-browser compatibility
+- TypeScript migration
+
+### `/frontend-developer`
+**Purpose:** React applications and responsive design
+**Use for:**
+- React component architecture (hooks, context, performance)
+- Responsive CSS with Tailwind/CSS-in-JS
+- State management (Redux, Zustand, Context API)
+- Frontend performance (lazy loading, code splitting, memoization)
+- Accessibility (WCAG compliance, ARIA labels, keyboard navigation)
+
+### `/code-reviewer`
+**Purpose:** Code quality, security, and maintainability review
+**Use for:**
+- After writing or modifying code
+- Checking for code smells and duplication
+- Security vulnerability detection
+- Ensuring proper error handling
+- Validating test coverage
+
+### `/mobile-developer`
+**Purpose:** Cross-platform mobile development
+**Use for:**
+- React Native/Flutter components
+- Native module integration (iOS/Android)
+- Offline-first data synchronization
+- Push notifications and deep linking
+- App store submission requirements
+
+### `/ios-developer`
+**Purpose:** Native iOS development with Swift/SwiftUI
+**Use for:**
+- SwiftUI declarative UI and Combine framework
+- UIKit integration and custom components
+- Core Data and CloudKit synchronization
+- App lifecycle and background processing
+- iOS Human Interface Guidelines compliance
+
+### `/react-performance-optimizer`
+**Purpose:** React performance tuning and Core Web Vitals
+**Use for:**
+- React application performance audits
+- Bundle size analysis and reduction
+- Core Web Vitals (LCP, FID, CLS) optimization
+- Advanced React patterns (Suspense, concurrent features)
+- Memory leak detection and resolution
+- Production performance monitoring
+
+### `/screenshot-ui-analyzer`
+**Purpose:** Analyze UI screenshots for component identification
+**Use for:**
+- Extracting visible UI components from screenshots
+- Layout structure analysis
+- Design pattern identification
+- Component library detection (Material, Ant Design, etc.)
+- State indicator analysis (active, loading, error states)
+
+### `/unused-code-cleaner`
+**Purpose:** Detect and remove dead code safely
+**Use for:**
+- After refactoring or removing features
+- Before production deployment
+- Cleaning unused imports, functions, and classes
+- Safe incremental removal with validation
+- Cross-file dependency analysis
