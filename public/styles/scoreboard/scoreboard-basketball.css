@@ -30,6 +30,12 @@
     text-align: center;
 }
 
+/* Increase card height for logo clearance (no timeout bars like NFL) */
+.scoreboard--basketball .scoreboard__clock-wrapper,
+.scoreboard--basketball .scoreboard__center {
+    padding-bottom: calc(var(--sb-logo-size) * 1.2);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    QUARTER/PERIOD SCORING GRID
    Regular/Compact: Below teams, centered (situation row)

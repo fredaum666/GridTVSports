@@ -365,7 +365,7 @@ export class Scoreboard {
             return {
                 className: 'scoreboard__clock--final',
                 time: detail,
-                period: 'Final'
+                period: ''
             };
         }
 

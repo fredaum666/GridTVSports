@@ -15,6 +15,12 @@
     min-height: var(--sb-height);
 }
 
+/* Increase card height for logo clearance (consistent with other sports) */
+.scoreboard--football .scoreboard__clock-wrapper,
+.scoreboard--football .scoreboard__center {
+    padding-bottom: calc(var(--sb-logo-size) * 1.2);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    TIMEOUT INDICATORS
    Three bars showing remaining timeouts per team - inline with score
@@ -105,13 +111,13 @@
 
 /* Away possession - right edge of away panel, left corner rounded */
 .scoreboard__situation-wrapper--away .scoreboard__situation {
-    transform: translateX(-82%);
+    transform: translateX(-50%);
     border-radius: 0 0 0 6px;
 }
 
 /* Home possession - left edge of home panel, right corner rounded */
 .scoreboard__situation-wrapper--home .scoreboard__situation {
-    transform: translateX(82%);
+    transform: translateX(50%);
     border-radius: 0 0 6px 0;
 }
 

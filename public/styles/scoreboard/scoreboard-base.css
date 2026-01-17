@@ -76,7 +76,7 @@
     --sb-clock-period-font: var(--sb-clock-period-font-compact);
 }
 
-/* Variant: Fullscreen (TV/Single game) - Clock stays in center */
+/* Variant: Fullscreen (TV/Single game) - Clock above teams like other variants */
 .scoreboard--fullscreen {
     --sb-height: var(--sb-fullscreen-height);
     --sb-score-font: var(--sb-fullscreen-score-font);
@@ -93,12 +93,13 @@
     --sb-clock-period-font: var(--sb-clock-period-font-fullscreen);
     box-shadow: var(--sb-shadow-lg);
 
-    /* Fullscreen: 3 columns with clock in center */
-    grid-template-columns: 1fr auto 1fr;
-    grid-template-rows: auto auto;
+    /* Fullscreen: Same layout as regular - clock above, teams meet in center */
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
     grid-template-areas:
-        "away clock home"
-        "situation situation situation";
+        "clock clock"
+        "away home"
+        "situation situation";
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -181,33 +182,9 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   FULLSCREEN: Restore angled clip-path edges for team panels
+   FULLSCREEN: Clock above teams (same layout as regular/compact)
+   Teams meet in the center with no gap
    ═══════════════════════════════════════════════════════════════════════ */
-.scoreboard--fullscreen .scoreboard__team--away {
-    padding-right: calc(var(--sb-padding) + 8px);
-    margin-right: -4px;
-}
-
-.scoreboard--fullscreen .scoreboard__team--away::before {
-    clip-path: polygon(0 0, calc(100% - var(--sb-clip-angle)) 0, 100% 100%, 0 100%);
-}
-
-.scoreboard--fullscreen .scoreboard__team--away::after {
-    clip-path: polygon(0 0, calc(100% - var(--sb-clip-angle)) 0, 100% 100%, 0 100%);
-}
-
-.scoreboard--fullscreen .scoreboard__team--home {
-    padding-left: calc(var(--sb-padding) + 8px);
-    margin-left: -4px;
-}
-
-.scoreboard--fullscreen .scoreboard__team--home::before {
-    clip-path: polygon(var(--sb-clip-angle) 0, 100% 0, 100% 100%, 0 100%);
-}
-
-.scoreboard--fullscreen .scoreboard__team--home::after {
-    clip-path: polygon(var(--sb-clip-angle) 0, 100% 0, 100% 100%, 0 100%);
-}
 
 /* ═══════════════════════════════════════════════════════════════════════
    TEAM LOGOS CONTAINER
@@ -220,9 +197,9 @@
     left: 0;
     right: 0;
     transform: translateY(calc(-100% - 8px));
-    /* Use same grid layout as scoreboard for precise alignment */
+    /* Use 2-column grid matching scoreboard layout */
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1fr 1fr;
     pointer-events: none;
     z-index: 25;
 }
@@ -244,7 +221,7 @@
 
 /* Home team logo - centered within home panel */
 .scoreboard__logo--home {
-    grid-column: 3;
+    grid-column: 2;
     justify-self: center;
 }
 
@@ -269,14 +246,14 @@
 .scoreboard__info {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 2px;
     z-index: 2;
     min-width: 0;
 }
 
 .scoreboard__team--home .scoreboard__info {
-    align-items: flex-end;
-    text-align: right;
+    align-items: center;
 }
 
 .scoreboard__name {
@@ -433,10 +410,9 @@
     background: transparent;
 }
 
-/* Fullscreen: Clock wrapper adjustments */
+/* Fullscreen: Clock wrapper - same as regular, in its own row above teams */
 .scoreboard--fullscreen .scoreboard__clock-wrapper {
-    padding: 0 8px;
-    min-width: 80px;
+    padding: 6px 12px;
 }
 
 /* Modern clock badge design */
@@ -495,8 +471,7 @@
 }
 
 .scoreboard--fullscreen .scoreboard__center {
-    padding: 0 8px;
-    min-width: 80px;
+    padding: 6px 12px;
 }
 
 .scoreboard__status {
