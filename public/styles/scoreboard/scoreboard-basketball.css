@@ -1,0 +1,413 @@
+/**
+ * GridTV Scoreboard - Basketball Styles (NBA & NCAAB)
+ * Quarter/half scoring grid, bonus indicators, shot clock
+ *
+ * Aesthetic: NBA on TNT broadcast graphics - bold, modern, dynamic
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BASKETBALL SCOREBOARD VARIANT
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--basketball {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--sb-height);
+}
+
+/* Home team: name on RIGHT side of score box (override base row-reverse) */
+.scoreboard--basketball .scoreboard__team--home {
+    flex-direction: row;
+}
+
+.scoreboard--basketball .scoreboard__team--home .scoreboard__info {
+    align-items: flex-start;
+    text-align: left;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   QUARTER/PERIOD SCORING GRID
+   Regular/Compact: Below teams, centered (situation row)
+   Fullscreen: Center column under clock
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__period-grid {
+    /* Regular/Compact: Position in situation row, span both columns */
+    grid-area: situation;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    background: var(--sb-bg-dark);
+    border-radius: 6px;
+    border: 1px solid var(--sb-border-subtle);
+    overflow: hidden;
+    min-width: 180px;
+}
+
+/* Fullscreen: Position in center column of scoreboard grid */
+.scoreboard--fullscreen .scoreboard__period-grid {
+    grid-area: 2 / 2 / 3 / 3;
+    border-radius: 0 0 6px 6px;
+    border-top: none;
+}
+
+/* Grid header row - hidden, no longer used */
+.scoreboard__period-headers {
+    display: none;
+}
+
+.scoreboard__period-header {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TEAM PERIOD SCORES
+   Scores for each quarter/half per team
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__period-scores {
+    display: flex;
+    flex-direction: column;
+}
+
+.scoreboard__period-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    gap: 4px;
+    border-bottom: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__period-row:last-child {
+    border-bottom: none;
+}
+
+.scoreboard__period-row--away {
+    background: color-mix(in srgb, var(--sb-away-primary) 15%, transparent);
+}
+
+.scoreboard__period-row--home {
+    background: color-mix(in srgb, var(--sb-home-primary) 15%, transparent);
+}
+
+/* Team identifier in period grid */
+.scoreboard__period-team {
+    width: clamp(28px, 5vmin, 44px);
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.6rem, 1.1vmin, 0.85rem);
+    font-weight: 600;
+    color: var(--sb-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.scoreboard__period-row--away .scoreboard__period-team {
+    color: var(--sb-away-primary);
+}
+
+.scoreboard__period-row--home .scoreboard__period-team {
+    color: var(--sb-home-primary);
+}
+
+/* Period score values */
+.scoreboard__period-values {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: 1px;
+}
+
+.scoreboard__period-value {
+    min-width: clamp(24px, 4vmin, 40px);
+    padding: 2px 4px;
+    text-align: center;
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.65rem, 1.2vmin, 0.9rem);
+    font-weight: 500;
+    color: var(--sb-text-secondary);
+}
+
+.scoreboard__period-value--current {
+    color: var(--sb-text-primary);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+}
+
+/* Total score in grid */
+.scoreboard__period-value--total {
+    min-width: clamp(32px, 5vmin, 50px);
+    font-weight: 700;
+    color: var(--sb-text-primary);
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+}
+
+/* Winner row highlight */
+.scoreboard__period-row--winner .scoreboard__period-value--total {
+    position: relative;
+    background: var(--sb-gold-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Soft gold glow behind winner total - fades at edges */
+.scoreboard__period-row--winner .scoreboard__period-value--total::before {
+    content: '';
+    position: absolute;
+    inset: -4px -8px;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(201, 148, 61, 0.25) 0%,
+        rgba(201, 148, 61, 0.1) 40%,
+        transparent 70%
+    );
+    border-radius: 8px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BONUS INDICATOR
+   Shows when team is in bonus/double bonus
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__bonus {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    background: linear-gradient(135deg, #b8860b 0%, #daa520 100%);
+    border-radius: 3px;
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.5rem, 0.9vmin, 0.65rem);
+    font-weight: 700;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-left: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.scoreboard__bonus--double {
+    background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+    color: #fff;
+    animation: bonus-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes bonus-pulse {
+    0%, 100% {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 68, 68, 0.5);
+    }
+}
+
+/* Bonus in team info area */
+.scoreboard__team .scoreboard__bonus {
+    position: absolute;
+    top: 4px;
+    font-size: clamp(0.45rem, 0.8vmin, 0.55rem);
+    padding: 1px 4px;
+}
+
+.scoreboard__team--away .scoreboard__bonus {
+    right: calc(var(--sb-padding) + var(--sb-clip-angle));
+}
+
+.scoreboard__team--home .scoreboard__bonus {
+    left: calc(var(--sb-padding) + var(--sb-clip-angle));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TEAM FOULS
+   Shows current team foul count
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__fouls {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.55rem, 1vmin, 0.75rem);
+    color: var(--sb-text-muted);
+}
+
+.scoreboard__fouls-label {
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.scoreboard__fouls-count {
+    font-weight: 600;
+    color: var(--sb-text-secondary);
+    min-width: 1.5ch;
+    text-align: center;
+}
+
+.scoreboard__fouls-count--danger {
+    color: var(--sb-redzone-color);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHOT CLOCK (NBA)
+   Countdown timer for shot clock
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__shotclock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 8px;
+    background: var(--sb-bg-elevated);
+    border-radius: 4px;
+    border: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__shotclock-value {
+    font-family: var(--sb-font-mono);
+    font-size: clamp(1rem, 2vmin, 1.6rem);
+    font-weight: 700;
+    color: var(--sb-text-primary);
+    line-height: 1;
+}
+
+.scoreboard__shotclock-label {
+    font-size: clamp(0.5rem, 0.9vmin, 0.65rem);
+    color: var(--sb-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Shot clock warning states */
+.scoreboard__shotclock--warning .scoreboard__shotclock-value {
+    color: var(--sb-halftime-color);
+}
+
+.scoreboard__shotclock--danger .scoreboard__shotclock-value {
+    color: var(--sb-redzone-color);
+    animation: clock-flash 0.5s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   OVERTIME INDICATOR
+   Shows OT status
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__overtime {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    border-radius: 3px;
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.55rem, 1vmin, 0.75rem);
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   NCAAB SPECIFIC - HALVES INSTEAD OF QUARTERS
+   Wider cells for fewer periods (H1, H2 vs Q1-Q4)
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--ncaab .scoreboard__period-value {
+    min-width: clamp(36px, 6vmin, 56px);
+}
+
+.scoreboard--ncaab .scoreboard__period-team {
+    min-width: clamp(32px, 5.5vmin, 48px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TIMEOUTS (Basketball)
+   Positioned below the score box
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--basketball .scoreboard__score-wrapper {
+    position: relative;
+}
+
+.scoreboard--basketball .scoreboard__timeouts {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 3px;
+    z-index: 2;
+    margin-top: 4px;
+}
+
+/* Add padding to team panel to make room for timeouts below score */
+.scoreboard--basketball .scoreboard__team {
+    padding-bottom: calc(var(--sb-padding) + 20px);
+}
+
+.scoreboard--basketball .scoreboard__timeout {
+    width: clamp(8px, 1.5vmin, 14px);
+    height: clamp(8px, 1.5vmin, 14px);
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    transition: all var(--sb-transition-fast);
+}
+
+.scoreboard--basketball .scoreboard__timeout--active {
+    background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #e0e0e0 100%
+    );
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COMPACT VARIANT
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--basketball.scoreboard--compact .scoreboard__period-grid {
+    display: none;
+}
+
+.scoreboard--basketball.scoreboard--compact .scoreboard__shotclock {
+    display: none;
+}
+
+.scoreboard--basketball.scoreboard--compact .scoreboard__timeouts {
+    display: none;
+}
+
+.scoreboard--basketball.scoreboard--compact .scoreboard__bonus {
+    font-size: 0.55rem;
+    padding: 2px 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FULLSCREEN VARIANT
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--basketball.scoreboard--fullscreen .scoreboard__team {
+    padding-bottom: calc(var(--sb-padding) + 28px);
+}
+
+.scoreboard--basketball.scoreboard--fullscreen .scoreboard__period-grid {
+    min-width: clamp(200px, 25vmin, 320px);
+    border-radius: 0 0 8px 8px;
+}
+
+.scoreboard--basketball.scoreboard--fullscreen .scoreboard__period-row {
+    padding: clamp(8px, 1.2vmin, 14px) clamp(14px, 2vmin, 24px);
+}
+
+.scoreboard--basketball.scoreboard--fullscreen .scoreboard__period-team {
+    font-size: clamp(0.7rem, 1.4vmin, 1rem);
+}
+
+.scoreboard--basketball.scoreboard--fullscreen .scoreboard__period-value {
+    font-size: clamp(0.75rem, 1.5vmin, 1.1rem);
+    min-width: clamp(28px, 5vmin, 48px);
+}
+
+.scoreboard--basketball.scoreboard--fullscreen .scoreboard__timeout {
+    width: clamp(12px, 2vmin, 20px);
+    height: clamp(12px, 2vmin, 20px);
+}
+
+.scoreboard--basketball.scoreboard--fullscreen .scoreboard__bonus {
+    font-size: clamp(0.6rem, 1vmin, 0.8rem);
+    padding: 3px 8px;
+}

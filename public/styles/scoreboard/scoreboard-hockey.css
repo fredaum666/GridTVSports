@@ -1,0 +1,445 @@
+/**
+ * GridTV Scoreboard - Hockey Styles (NHL)
+ * Period grid, power play indicator, shots on goal
+ *
+ * Aesthetic: NBC/ESPN hockey broadcast - ice blue accents, clean lines
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HOCKEY SCOREBOARD VARIANT
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--hockey {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--sb-height);
+}
+
+/* Home team: name on RIGHT side of score box (override base row-reverse) */
+.scoreboard--hockey .scoreboard__team--home {
+    flex-direction: row;
+}
+
+.scoreboard--hockey .scoreboard__team--home .scoreboard__info {
+    align-items: flex-start;
+    text-align: left;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PERIOD GRID
+   Regular/Compact: Below teams, centered (situation row)
+   Fullscreen: Center column under clock
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__hockey-grid {
+    /* Regular/Compact: Position in situation row, span both columns */
+    grid-area: situation;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    background: var(--sb-bg-dark);
+    border-radius: 6px;
+    border: 1px solid var(--sb-border-subtle);
+    overflow: hidden;
+    min-width: 180px;
+}
+
+/* Fullscreen: Position in center column of scoreboard grid */
+.scoreboard--fullscreen .scoreboard__hockey-grid {
+    grid-area: 2 / 2 / 3 / 3;
+    border-radius: 0 0 6px 6px;
+    border-top: none;
+}
+
+/* Grid header row - hidden, no longer used */
+.scoreboard__hockey-headers {
+    display: none;
+}
+
+.scoreboard__hockey-header {
+    display: none;
+}
+
+/* Team period scores */
+.scoreboard__hockey-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    gap: 4px;
+    border-bottom: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__hockey-row:last-child {
+    border-bottom: none;
+}
+
+.scoreboard__hockey-row--away {
+    background: color-mix(in srgb, var(--sb-away-primary) 15%, transparent);
+}
+
+.scoreboard__hockey-row--home {
+    background: color-mix(in srgb, var(--sb-home-primary) 15%, transparent);
+}
+
+.scoreboard__hockey-team {
+    width: clamp(36px, 6vmin, 56px);
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.55rem, 1vmin, 0.8rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.scoreboard__hockey-row--away .scoreboard__hockey-team {
+    color: var(--sb-away-primary);
+}
+
+.scoreboard__hockey-row--home .scoreboard__hockey-team {
+    color: var(--sb-home-primary);
+}
+
+.scoreboard__hockey-values {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: 1px;
+}
+
+.scoreboard__hockey-value {
+    min-width: clamp(28px, 4.5vmin, 44px);
+    padding: 2px 4px;
+    text-align: center;
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.6rem, 1.1vmin, 0.85rem);
+    color: var(--sb-text-secondary);
+}
+
+.scoreboard__hockey-value--current {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--sb-text-primary);
+    font-weight: 600;
+    border-radius: 2px;
+}
+
+.scoreboard__hockey-value--total {
+    min-width: clamp(32px, 5vmin, 50px);
+    font-weight: 700;
+    color: var(--sb-text-primary);
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+}
+
+.scoreboard__hockey-row--winner .scoreboard__hockey-value--total {
+    position: relative;
+    background: var(--sb-gold-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Soft gold glow behind winner total - fades at edges */
+.scoreboard__hockey-row--winner .scoreboard__hockey-value--total::before {
+    content: '';
+    position: absolute;
+    inset: -4px -8px;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(201, 148, 61, 0.25) 0%,
+        rgba(201, 148, 61, 0.1) 40%,
+        transparent 70%
+    );
+    border-radius: 8px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   POWER PLAY INDICATOR
+   Shows when team has man advantage
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__powerplay {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border-radius: 3px;
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.5rem, 0.9vmin, 0.7rem);
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 12px rgba(220, 38, 38, 0.4);
+    animation: powerplay-pulse 1.5s ease-in-out infinite;
+}
+
+.scoreboard__powerplay-icon {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Man advantage indicator (5v4, 5v3, etc) */
+.scoreboard__powerplay-strength {
+    font-family: var(--sb-font-mono);
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+/* Power play time remaining */
+.scoreboard__powerplay-time {
+    font-family: var(--sb-font-mono);
+    margin-left: 4px;
+    padding-left: 4px;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@keyframes powerplay-pulse {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(220, 38, 38, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(220, 38, 38, 0.7);
+    }
+}
+
+/* Penalty kill indicator (inverse styling) */
+.scoreboard__penaltykill {
+    background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+    box-shadow: 0 0 12px rgba(3, 105, 161, 0.4);
+    animation: none;
+}
+
+/* Empty net indicator */
+.scoreboard__emptynet {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    border-radius: 3px;
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.45rem, 0.8vmin, 0.6rem);
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHOTS ON GOAL
+   Display of SOG for each team
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__shots {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: var(--sb-bg-elevated);
+    border-radius: 4px;
+    border: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__shots-label {
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.5rem, 0.9vmin, 0.7rem);
+    font-weight: 600;
+    color: var(--sb-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.scoreboard__shots-values {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.scoreboard__shots-away,
+.scoreboard__shots-home {
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.7rem, 1.3vmin, 1rem);
+    font-weight: 600;
+    min-width: 2ch;
+    text-align: center;
+}
+
+.scoreboard__shots-away {
+    color: var(--sb-away-primary);
+}
+
+.scoreboard__shots-home {
+    color: var(--sb-home-primary);
+}
+
+.scoreboard__shots-divider {
+    color: var(--sb-text-muted);
+    font-size: 0.8em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SITUATION BAR
+   Period, time, power play status
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__hockey-situation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 6px var(--sb-padding);
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.7) 0%,
+        rgba(0, 0, 0, 0.9) 100%
+    );
+    border-top: 1px solid var(--sb-border-subtle);
+    gap: clamp(10px, 2vmin, 24px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   OVERTIME / SHOOTOUT INDICATORS
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__overtime-hockey {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    border-radius: 3px;
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.55rem, 1vmin, 0.75rem);
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.4);
+}
+
+.scoreboard__shootout {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+/* Shootout score display */
+.scoreboard__shootout-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--sb-bg-elevated);
+    border-radius: 4px;
+    border: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__shootout-label {
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.5rem, 0.9vmin, 0.65rem);
+    font-weight: 600;
+    color: var(--sb-text-muted);
+    text-transform: uppercase;
+}
+
+.scoreboard__shootout-values {
+    display: flex;
+    gap: 4px;
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.7rem, 1.3vmin, 1rem);
+    font-weight: 600;
+}
+
+.scoreboard__shootout-away {
+    color: var(--sb-away-primary);
+}
+
+.scoreboard__shootout-home {
+    color: var(--sb-home-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INTERMISSION INDICATOR
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__intermission {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: var(--sb-bg-elevated);
+    border-radius: 4px;
+    border: 1px solid var(--sb-border-accent);
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.55rem, 1vmin, 0.75rem);
+    font-weight: 600;
+    color: var(--sb-halftime-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TEAM INDICATORS
+   Power play/penalty kill shown on team panel
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__team .scoreboard__powerplay,
+.scoreboard__team .scoreboard__penaltykill,
+.scoreboard__team .scoreboard__emptynet {
+    position: absolute;
+    top: 4px;
+    font-size: clamp(0.4rem, 0.7vmin, 0.5rem);
+    padding: 1px 4px;
+}
+
+.scoreboard__team--away .scoreboard__powerplay,
+.scoreboard__team--away .scoreboard__penaltykill,
+.scoreboard__team--away .scoreboard__emptynet {
+    right: calc(var(--sb-padding) + var(--sb-clip-angle));
+}
+
+.scoreboard__team--home .scoreboard__powerplay,
+.scoreboard__team--home .scoreboard__penaltykill,
+.scoreboard__team--home .scoreboard__emptynet {
+    left: calc(var(--sb-padding) + var(--sb-clip-angle));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COMPACT VARIANT
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--hockey.scoreboard--compact .scoreboard__hockey-grid {
+    display: none;
+}
+
+.scoreboard--hockey.scoreboard--compact .scoreboard__hockey-situation {
+    padding: 4px var(--sb-padding);
+}
+
+.scoreboard--hockey.scoreboard--compact .scoreboard__shots {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FULLSCREEN VARIANT
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--hockey.scoreboard--fullscreen .scoreboard__hockey-situation {
+    padding: clamp(8px, 1.5vmin, 16px) var(--sb-padding);
+}
+
+.scoreboard--hockey.scoreboard--fullscreen .scoreboard__powerplay {
+    padding: 4px 12px;
+    font-size: clamp(0.6rem, 1.1vmin, 0.85rem);
+}
+
+.scoreboard--hockey.scoreboard--fullscreen .scoreboard__shots {
+    padding: 6px 16px;
+}
+
+.scoreboard--hockey.scoreboard--fullscreen .scoreboard__hockey-grid {
+    min-width: clamp(200px, 25vmin, 320px);
+    border-radius: 0 0 8px 8px;
+}
+
+.scoreboard--hockey.scoreboard--fullscreen .scoreboard__hockey-row {
+    padding: clamp(8px, 1.2vmin, 14px) clamp(14px, 2vmin, 24px);
+}
+
+.scoreboard--hockey.scoreboard--fullscreen .scoreboard__hockey-team {
+    font-size: clamp(0.7rem, 1.4vmin, 1rem);
+}
+
+.scoreboard--hockey.scoreboard--fullscreen .scoreboard__hockey-value {
+    font-size: clamp(0.75rem, 1.5vmin, 1.1rem);
+    min-width: clamp(28px, 5vmin, 48px);
+}

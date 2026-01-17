@@ -1,0 +1,421 @@
+/**
+ * GridTV Scoreboard - Football Styles (NFL & NCAA)
+ * Timeout indicators, down/distance, possession, red zone
+ *
+ * Aesthetic: Sunday Night Football broadcast graphics
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FOOTBALL SCOREBOARD VARIANT
+   Extended height to accommodate situation display
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--football {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--sb-height);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TIMEOUT INDICATORS
+   Three bars showing remaining timeouts per team - inline with score
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__timeouts {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 2;
+    padding: 0 8px;
+}
+
+/* Home team timeouts don't need to reverse - order handled in JS */
+
+.scoreboard__timeout {
+    /* Vertical bars: height > width */
+    width: clamp(4px, 0.8vmin, 6px);
+    height: clamp(16px, 3vmin, 28px);
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    transition: all var(--sb-transition-fast);
+}
+
+.scoreboard__timeout--active {
+    background: linear-gradient(180deg,
+            #ffd700 0%,
+            #ffaa00 50%,
+            #cc8800 100%);
+    box-shadow: 0 0 8px rgba(255, 200, 0, 0.5);
+}
+
+/* Compact: Smaller vertical timeouts */
+.scoreboard--compact .scoreboard__timeout {
+    width: 3px;
+    height: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SITUATION WRAPPER
+   Positions the situation box left/right based on possession
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__situation-wrapper {
+    grid-area: situation;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    min-height: 28px;
+    transition: justify-content 0.3s ease;
+    /* Wrapper is invisible - only situation box is visible */
+    background: rgba(0, 0, 0, 0.0);
+    border: none;
+    box-shadow: none;
+}
+
+/* Away team attacking - situation at RIGHT edge of away panel (inner edge near clock) */
+.scoreboard__situation-wrapper--away {
+    justify-content: center;
+}
+
+/* Home team attacking - situation at LEFT edge of home panel (inner edge near clock) */
+.scoreboard__situation-wrapper--home {
+    justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SITUATION BOX
+   Down, distance, yard line with team color background
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__situation {
+    --situation-bg: var(--sb-bg-elevated);
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: linear-gradient(135deg,
+            var(--situation-bg) 0%,
+            color-mix(in srgb, var(--situation-bg) 70%, #000) 100%);
+    border-radius: 0 0 6px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    gap: 8px;
+    font-family: var(--sb-font-display);
+    transition: all 0.3s ease;
+}
+
+/* Away possession - right edge of away panel, left corner rounded */
+.scoreboard__situation-wrapper--away .scoreboard__situation {
+    transform: translateX(-82%);
+    border-radius: 0 0 0 6px;
+}
+
+/* Home possession - left edge of home panel, right corner rounded */
+.scoreboard__situation-wrapper--home .scoreboard__situation {
+    transform: translateX(82%);
+    border-radius: 0 0 6px 0;
+}
+
+/* Inner highlight */
+.scoreboard__situation::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%);
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   POSSESSION BADGE
+   Small team logo indicator inside situation box
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__possession-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.scoreboard__possession-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Fullscreen size */
+.scoreboard--fullscreen .scoreboard__possession-badge {
+    width: clamp(32px, 4vmin, 44px);
+    height: clamp(32px, 4vmin, 44px);
+}
+
+/* Compact mode - hide possession badge */
+.scoreboard--compact .scoreboard__possession-badge {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOWN & DISTANCE
+   Bold display of current down and yards to go
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__down-distance {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--sb-text-primary);
+    white-space: nowrap;
+}
+
+.scoreboard__down {
+    font-size: clamp(0.8rem, 1.6vmin, 1.3rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Ordinal suffix styling */
+.scoreboard__down-ordinal {
+    font-size: 0.7em;
+    vertical-align: super;
+    margin-right: 2px;
+}
+
+.scoreboard__distance-separator {
+    color: var(--sb-text-muted);
+    font-weight: 400;
+}
+
+.scoreboard__distance {
+    font-size: clamp(0.75rem, 1.4vmin, 1.1rem);
+    color: var(--sb-text-secondary);
+}
+
+/* Goal line special styling */
+.scoreboard__distance--goal {
+    color: var(--sb-redzone-color);
+    font-weight: 700;
+    text-shadow: 0 0 8px var(--sb-redzone-glow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   YARD LINE / BALL POSITION
+   Shows current field position
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__yardline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: var(--sb-bg-elevated);
+    border-radius: 4px;
+    border: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__yardline-value {
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.75rem, 1.4vmin, 1.1rem);
+    font-weight: 600;
+    color: var(--sb-text-primary);
+}
+
+.scoreboard__yardline-side {
+    font-size: clamp(0.65rem, 1.2vmin, 0.9rem);
+    color: var(--sb-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RED ZONE INDICATOR
+   Dramatic warning when inside the 20
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__situation--redzone {
+    background: linear-gradient(180deg,
+            rgba(139, 0, 0, 0.6) 0%,
+            rgba(80, 0, 0, 0.8) 100%);
+    border-top-color: var(--sb-redzone-color);
+    animation: redzone-pulse 2s ease-in-out infinite;
+}
+
+.scoreboard__situation--redzone::before {
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(220, 38, 38, 0.1) 50%,
+            transparent 100%);
+}
+
+.scoreboard__redzone-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: var(--sb-redzone-color);
+    border-radius: 3px;
+    font-size: clamp(0.6rem, 1.1vmin, 0.8rem);
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 12px var(--sb-redzone-glow);
+}
+
+@keyframes redzone-pulse {
+
+    0%,
+    100% {
+        border-top-color: var(--sb-redzone-color);
+    }
+
+    50% {
+        border-top-color: #ff4444;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PLAY CLOCK
+   Optional display of play clock countdown
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__playclock {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--sb-bg-elevated);
+    border-radius: 4px;
+    border: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__playclock-value {
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.8rem, 1.5vmin, 1.2rem);
+    font-weight: 700;
+    color: var(--sb-text-primary);
+    min-width: 2ch;
+    text-align: center;
+}
+
+.scoreboard__playclock-label {
+    font-size: clamp(0.55rem, 1vmin, 0.7rem);
+    color: var(--sb-text-muted);
+    text-transform: uppercase;
+}
+
+/* Urgent play clock (under 10 seconds) */
+.scoreboard__playclock--urgent .scoreboard__playclock-value {
+    color: var(--sb-redzone-color);
+    animation: clock-flash 0.5s ease-in-out infinite;
+}
+
+@keyframes clock-flash {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   QUARTER SCORES (Optional)
+   Small grid showing scores by quarter
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__quarters {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--sb-border-subtle);
+    border-radius: 3px;
+    overflow: hidden;
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.55rem, 1vmin, 0.75rem);
+}
+
+.scoreboard__quarter-header,
+.scoreboard__quarter-score {
+    padding: 3px 6px;
+    text-align: center;
+    background: var(--sb-bg-dark);
+}
+
+.scoreboard__quarter-header {
+    color: var(--sb-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.scoreboard__quarter-score {
+    color: var(--sb-text-secondary);
+}
+
+.scoreboard__quarter-score--current {
+    background: var(--sb-bg-elevated);
+    color: var(--sb-text-primary);
+    font-weight: 600;
+}
+
+.scoreboard__quarter-score--total {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--sb-text-primary);
+    font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COMPACT VARIANT ADJUSTMENTS
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--football.scoreboard--compact .scoreboard__situation-wrapper {
+    min-height: 28px;
+}
+
+.scoreboard--football.scoreboard--compact .scoreboard__situation {
+    padding: 4px 10px;
+    gap: 6px;
+    min-width: 120px;
+    font-size: 0.85em;
+}
+
+.scoreboard--football.scoreboard--compact .scoreboard__quarters {
+    display: none;
+}
+
+.scoreboard--football.scoreboard--compact .scoreboard__playclock {
+    display: none;
+}
+
+.scoreboard--football.scoreboard--compact .scoreboard__timeouts {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FULLSCREEN VARIANT ENHANCEMENTS
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--football.scoreboard--fullscreen .scoreboard__situation-wrapper {
+    min-height: clamp(40px, 5vmin, 56px);
+}
+
+.scoreboard--football.scoreboard--fullscreen .scoreboard__situation {
+    padding: clamp(10px, 1.5vmin, 18px) clamp(16px, 2.5vmin, 28px);
+    min-width: clamp(180px, 20vmin, 280px);
+}
+
+.scoreboard--football.scoreboard--fullscreen .scoreboard__timeout {
+    /* Vertical bars: height > width */
+    width: clamp(5px, 1vmin, 8px);
+    height: clamp(24px, 4vmin, 40px);
+}
+
+.scoreboard--football.scoreboard--fullscreen .scoreboard__redzone-badge {
+    padding: 4px 12px;
+    font-size: clamp(0.7rem, 1.3vmin, 1rem);
+}

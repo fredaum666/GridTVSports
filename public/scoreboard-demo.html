@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoreboard Component Demo</title>
+    <title>GridTV Scoreboard Demo</title>
     <link rel="icon" type="image/png" href="/assets/logo.png">
+
+    <!-- Scoreboard CSS -->
+    <link rel="stylesheet" href="/styles/scoreboard/scoreboard-variables.css">
+    <link rel="stylesheet" href="/styles/scoreboard/scoreboard-base.css">
+    <link rel="stylesheet" href="/styles/scoreboard/scoreboard-football.css">
+    <link rel="stylesheet" href="/styles/scoreboard/scoreboard-basketball.css">
+    <link rel="stylesheet" href="/styles/scoreboard/scoreboard-baseball.css">
+    <link rel="stylesheet" href="/styles/scoreboard/scoreboard-hockey.css">
+
     <style>
         * {
             margin: 0;
@@ -14,1020 +22,542 @@
         }
 
         body {
-            background: #1a1f2e;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0f1118;
+            color: #fff;
             min-height: 100vh;
+            padding: 24px;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .demo-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .demo-header p {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .controls {
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            gap: 40px;
-            padding: 40px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        h1 {
-            color: white;
-            margin-bottom: 20px;
-        }
-
-        .demo-controls {
-            display: flex;
-            gap: 20px;
+            gap: 12px;
+            margin-bottom: 32px;
             flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 20px;
         }
 
-        .demo-controls button {
+        .controls button {
             padding: 10px 20px;
             border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .demo-controls button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .demo-controls button.away-btn {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .demo-controls button.home-btn {
-            background: #dc2626;
-            color: white;
-        }
-
-        .demo-controls button.reset-btn {
-            background: #6b7280;
-            color: white;
-        }
-
-        /* ============================================
-           SCOREBOARD COMPONENT STYLES
-           ============================================ */
-
-        .scoreboard {
-            /* Default fallback colors (used when team colors not available, e.g., NCAA) */
-            --sb-away-primary: #4b5563;
-            --sb-away-secondary: #374151;
-            --sb-home-primary: #6b7280;
-            --sb-home-secondary: #4b5563;
-            --sb-center-bg: #1f2937;
-            --sb-text-color: #ffffff;
-            --sb-subtext-color: rgba(255, 255, 255, 0.7);
-
-            position: relative;
-            width: 100%;
-            max-width: 620px;
-            height: 90px;
-            display: flex;
-            align-items: stretch;
-            filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.4));
-        }
-
-        /* Score boxes on sides */
-        .sb-score-box {
-            position: relative;
-            width: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-        }
-
-        .sb-score-box.away {
-            background: linear-gradient(135deg, var(--sb-away-primary) 0%, var(--sb-away-primary) 60%, var(--sb-away-secondary) 100%);
-            clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
-            padding-right: 10px;
-            /* 3D effect with inner shadow simulation */
-            box-shadow:
-                inset 0 2px 4px rgba(255, 255, 255, 0.2),
-                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
-        }
-
-        .sb-score-box.home {
-            background: linear-gradient(135deg, var(--sb-home-secondary) 0%, var(--sb-home-primary) 40%, var(--sb-home-primary) 100%);
-            clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
-            padding-left: 10px;
-            /* 3D effect with inner shadow simulation */
-            box-shadow:
-                inset 0 2px 4px rgba(255, 255, 255, 0.2),
-                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
-        }
-
-        .sb-score {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--sb-text-color);
-            /* Enhanced 3D text effect with multiple shadows */
-            text-shadow:
-                0 1px 0 rgba(255, 255, 255, 0.3),
-                0 2px 2px rgba(0, 0, 0, 0.3),
-                0 4px 4px rgba(0, 0, 0, 0.2),
-                0 6px 8px rgba(0, 0, 0, 0.15),
-                0 0 20px rgba(255, 255, 255, 0.1);
-            transition: transform 0.3s ease, text-shadow 0.3s ease;
-            /* Slight 3D text depth */
-            letter-spacing: 1px;
-        }
-
-        /* Hover effect for more depth */
-        .sb-score-box:hover .sb-score {
-            text-shadow:
-                0 1px 0 rgba(255, 255, 255, 0.4),
-                0 2px 3px rgba(0, 0, 0, 0.4),
-                0 5px 6px rgba(0, 0, 0, 0.25),
-                0 8px 12px rgba(0, 0, 0, 0.2),
-                0 0 30px rgba(255, 255, 255, 0.15);
-            transform: scale(1.05);
-        }
-
-        .sb-score.score-changed {
-            animation: scorePopAnim 0.6s ease-out;
-        }
-
-        @keyframes scorePopAnim {
-            0% {
-                transform: scale(1);
-            }
-
-            30% {
-                transform: scale(1.4);
-                color: #22c55e;
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        /* Team info sections */
-        .sb-team-section {
-            flex: 1;
-            background: var(--sb-center-bg);
-            display: flex;
-            align-items: center;
-            padding: 10px 20px;
-            position: relative;
-        }
-
-        .sb-team-section.away {
-            justify-content: flex-start;
-            padding-right: 70px;
-            /* Space for center clock */
-        }
-
-        .sb-team-section.home {
-            justify-content: flex-end;
-            padding-left: 70px;
-            /* Space for center clock */
-        }
-
-        .sb-team-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .sb-team-section.away .sb-team-info {
-            align-items: flex-start;
-        }
-
-        .sb-team-section.home .sb-team-info {
-            align-items: flex-end;
-        }
-
-        .sb-team-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--sb-text-color);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .sb-team-record {
-            font-size: 0.8rem;
-            color: var(--sb-subtext-color);
+            border-radius: 6px;
+            background: #1a1e28;
+            color: #fff;
+            font-size: 0.875rem;
             font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        /* Center time/status section */
-        .sb-center {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .controls button:hover {
+            background: #252a36;
         }
 
-        .sb-time-box {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-            padding: 8px 20px;
-            clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
-            min-width: 100px;
-            text-align: center;
-            border: 2px solid #4b5563;
+        .controls button.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         }
 
-        .sb-time-label {
-            font-size: 0.6rem;
-            color: var(--sb-subtext-color);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 2px;
-        }
-
-        .sb-time {
-            font-size: 1.3rem;
-            font-weight: 900;
-            color: var(--sb-text-color);
-            font-variant-numeric: tabular-nums;
-        }
-
-        .sb-time.time-warning {
-            color: #fbbf24;
-            animation: timePulse 1s ease-in-out infinite;
-        }
-
-        .sb-time.time-critical {
-            color: #ef4444;
-            animation: timePulse 0.5s ease-in-out infinite;
-        }
-
-        @keyframes timePulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        /* ============================================
-           SCORE CHANGE FLASH EFFECT
-           ============================================ */
-        .sb-score-box.score-flash {
-            animation: scoreFlash 0.6s ease-out;
-        }
-
-        @keyframes scoreFlash {
-            0% {
-                filter: brightness(1);
-            }
-
-            30% {
-                filter: brightness(1.5);
-            }
-
-            100% {
-                filter: brightness(1);
-            }
-        }
-
-        /* ============================================
-           COMPACT VERSION FOR SMALLER CARDS
-           ============================================ */
-        .scoreboard.compact {
-            max-width: 420px;
-            height: 65px;
-        }
-
-        .scoreboard.compact .sb-score-box {
-            width: 50px;
-        }
-
-        .scoreboard.compact .sb-score {
-            font-size: 1.6rem;
-        }
-
-        .scoreboard.compact .sb-team-section {
-            padding: 8px 15px;
-        }
-
-        .scoreboard.compact .sb-team-section.away {
-            padding-right: 55px;
-        }
-
-        .scoreboard.compact .sb-team-section.home {
-            padding-left: 55px;
-        }
-
-        .scoreboard.compact .sb-team-name {
-            font-size: 0.95rem;
-        }
-
-        .scoreboard.compact .sb-team-record {
-            font-size: 0.7rem;
-        }
-
-        .scoreboard.compact .sb-time-box {
-            padding: 5px 12px;
-            min-width: 70px;
-        }
-
-        .scoreboard.compact .sb-time {
-            font-size: 0.95rem;
-        }
-
-        .scoreboard.compact .sb-time-label {
-            font-size: 0.55rem;
-        }
-
-        /* ============================================
-           GAME OVER STATE
-           ============================================ */
-        .scoreboard.game-over .sb-time-box {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-        }
-
-        .scoreboard.game-over .sb-time {
-            color: #9ca3af;
-        }
-
-        .scoreboard.game-over .sb-score-box.winner {
-            animation: winnerGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes winnerGlow {
-
-            0%,
-            100% {
-                filter: brightness(1) drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
-            }
-
-            50% {
-                filter: brightness(1.2) drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
-            }
-        }
-
-        /* ============================================
-           GAME SITUATION BOX (NFL/NCAA Football)
-           ============================================ */
-        .sb-situation {
-            /* Default possession color (uses team color when set) */
-            --sb-possession-primary: #4b5563;
-            --sb-possession-secondary: #374151;
-
-            position: absolute;
-            bottom: -28px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, var(--sb-possession-primary) 0%, var(--sb-possession-primary) 50%, var(--sb-possession-secondary) 100%);
-            padding: 5px 16px;
-            border-radius: 0 0 8px 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-top: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 200px;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            z-index: 5;
-        }
-
-        /* Away team has possession */
-        .sb-situation.possession-away {
-            --sb-possession-primary: var(--sb-away-primary);
-            --sb-possession-secondary: var(--sb-away-secondary);
-        }
-
-        /* Home team has possession */
-        .sb-situation.possession-home {
-            --sb-possession-primary: var(--sb-home-primary);
-            --sb-possession-secondary: var(--sb-home-secondary);
-        }
-
-        .sb-down-distance {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #ffffff;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-        }
-
-        .sb-situation-divider {
-            width: 1px;
-            height: 14px;
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .sb-ball-position {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
-            white-space: nowrap;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Possession indicator in situation box */
-        .sb-possession {
-            font-size: 0.75rem;
-            color: #22c55e;
-            font-weight: 600;
-        }
-
-        /* Red zone indicator - adds red glow/border effect */
-        .sb-situation.redzone {
-            border-color: #ef4444;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 10px rgba(239, 68, 68, 0.5);
-        }
-
-        .sb-situation.redzone .sb-down-distance {
-            color: #fef2f2;
-        }
-
-        /* Goal to go - green text highlight */
-        .sb-situation.goal-to-go .sb-down-distance {
-            color: #86efac;
-        }
-
-        /* Compact version situation box */
-        .scoreboard.compact .sb-situation {
-            bottom: -22px;
-            padding: 4px 12px;
-            min-width: 160px;
-            gap: 8px;
-        }
-
-        .scoreboard.compact .sb-down-distance {
-            font-size: 0.7rem;
-        }
-
-        .scoreboard.compact .sb-ball-position {
-            font-size: 0.65rem;
-        }
-
-        .scoreboard.compact .sb-situation-divider {
-            height: 10px;
-        }
-
-        /* Hide situation box when not needed */
-        .sb-situation:empty,
-        .sb-situation.hidden {
-            display: none;
-        }
-
-        /* Demo section styling */
         .demo-section {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 30px;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+            margin-bottom: 48px;
         }
 
         .demo-section h2 {
-            color: #9ca3af;
-            font-size: 0.9rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demo-section h2 .badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .scoreboard-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .scoreboard-grid--single {
+            max-width: 600px;
+        }
+
+        /* Fullscreen variant needs more width */
+        .scoreboard-grid--single:has(.scoreboard--fullscreen) {
+            max-width: 900px;
+        }
+
+        .scoreboard-grid--dual {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .scoreboard-grid--multi {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .scoreboard-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .scoreboard-label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 0.08em;
+        }
+
+        /* Variant selector */
+        .variant-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        .variant-tab {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .variant-tab:hover {
+            color: #fff;
+        }
+
+        .variant-tab.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .scoreboard-grid--dual,
+            .scoreboard-grid--multi {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-
 <body>
-    <h1>Scoreboard Component Demo</h1>
-
-    <!-- Demo Controls -->
-    <div class="demo-controls">
-        <button class="away-btn" onclick="addAwayScore()">+1 Away Score</button>
-        <button class="home-btn" onclick="addHomeScore()">+1 Home Score</button>
-        <button class="reset-btn" onclick="resetScores()">Reset</button>
-        <button class="reset-btn" onclick="toggleClock()">Start/Stop Clock</button>
+    <div class="demo-header">
+        <h1>GridTV Scoreboard System</h1>
+        <p>Centralized, modular scoreboard components for all sports</p>
     </div>
 
-    <!-- Steelers vs Ravens -->
+    <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="regular">Regular</button>
+        <button class="variant-tab" data-variant="compact">Compact</button>
+        <button class="variant-tab" data-variant="fullscreen">Fullscreen</button>
+    </div>
+
+    <div class="controls">
+        <button id="btn-animate">Trigger Score Animation</button>
+        <button id="btn-toggle-live">Toggle Live State</button>
+        <button id="btn-random-scores">Random Scores</button>
+    </div>
+
+    <!-- NFL Section -->
     <div class="demo-section">
-        <h2>Steelers vs Ravens (with Game Situation)</h2>
-        <div class="scoreboard" id="scoreboard1"
-            style="--sb-away-primary: #FFB612; --sb-away-secondary: #101820; --sb-home-primary: #241773; --sb-home-secondary: #000000;">
-            <div class="sb-score-box away">
-                <span class="sb-score" id="sb1-away-score">0</span>
+        <h2>NFL <span class="badge">FootballScoreboard</span></h2>
+        <div class="scoreboard-grid scoreboard-grid--single">
+            <div class="scoreboard-container">
+                <div class="scoreboard-label">Live Game - 3rd Quarter</div>
+                <div id="nfl-live"></div>
             </div>
-            <div class="sb-team-section away">
-                <div class="sb-team-info">
-                    <span class="sb-team-name">Steelers</span>
-                    <span class="sb-team-record">10-6</span>
-                </div>
-            </div>
-            <div class="sb-center">
-                <div class="sb-time-box">
-                    <div class="sb-time-label">Q4</div>
-                    <div class="sb-time" id="sb1-time">12:00</div>
-                </div>
-            </div>
-            <div class="sb-team-section home">
-                <div class="sb-team-info">
-                    <span class="sb-team-name">Ravens</span>
-                    <span class="sb-team-record">12-4</span>
-                </div>
-            </div>
-            <div class="sb-score-box home">
-                <span class="sb-score" id="sb1-home-score">0</span>
-            </div>
-            <!-- Game Situation Box - Ravens have ball (home team) -->
-            <div class="sb-situation possession-home" id="sb1-situation">
-                <span class="sb-down-distance">2nd & 7</span>
-                <div class="sb-situation-divider"></div>
-                <span class="sb-ball-position">BAL 35</span>
+        </div>
+        <div class="scoreboard-grid scoreboard-grid--single" style="margin-top: 16px;">
+            <div class="scoreboard-container">
+                <div class="scoreboard-label">Final</div>
+                <div id="nfl-final"></div>
             </div>
         </div>
     </div>
 
-    <!-- Cowboys vs Eagles -->
+    <!-- NCAA Football Section -->
     <div class="demo-section">
-        <h2>Cowboys vs Eagles (Red Zone - Cowboys ball)</h2>
-        <div class="scoreboard" id="scoreboard2"
-            style="--sb-away-primary: #003594; --sb-away-secondary: #041E42; --sb-home-primary: #004C54; --sb-home-secondary: #A5ACAF;">
-            <div class="sb-score-box away">
-                <span class="sb-score">24</span>
-            </div>
-            <div class="sb-team-section away">
-                <div class="sb-team-info">
-                    <span class="sb-team-name">Cowboys</span>
-                    <span class="sb-team-record">8-8</span>
-                </div>
-            </div>
-            <div class="sb-center">
-                <div class="sb-time-box">
-                    <div class="sb-time-label">3rd</div>
-                    <div class="sb-time">05:32</div>
-                </div>
-            </div>
-            <div class="sb-team-section home">
-                <div class="sb-team-info">
-                    <span class="sb-team-name">Eagles</span>
-                    <span class="sb-team-record">11-5</span>
-                </div>
-            </div>
-            <div class="sb-score-box home">
-                <span class="sb-score">21</span>
-            </div>
-            <!-- Game Situation Box - Red Zone, Cowboys have ball (away team) -->
-            <div class="sb-situation redzone possession-away">
-                <span class="sb-down-distance">1st & Goal</span>
-                <div class="sb-situation-divider"></div>
-                <span class="sb-ball-position">PHI 8</span>
+        <h2>NCAA Football <span class="badge">FootballScoreboard</span></h2>
+        <div class="scoreboard-grid scoreboard-grid--single">
+            <div class="scoreboard-container">
+                <div class="scoreboard-label">Live Game</div>
+                <div id="ncaa-live"></div>
             </div>
         </div>
     </div>
 
-    <!-- Chiefs vs Bills -->
+    <!-- NBA Section -->
     <div class="demo-section">
-        <h2>Chiefs vs Bills (4th Down - Chiefs ball)</h2>
-        <div class="scoreboard" id="scoreboard3"
-            style="--sb-away-primary: #E31837; --sb-away-secondary: #FFB81C; --sb-home-primary: #00338D; --sb-home-secondary: #C60C30;">
-            <div class="sb-score-box away">
-                <span class="sb-score">17</span>
+        <h2>NBA <span class="badge">BasketballScoreboard</span></h2>
+        <div class="scoreboard-grid scoreboard-grid--dual">
+            <div class="scoreboard-container">
+                <div class="scoreboard-label">Live - 4th Quarter</div>
+                <div id="nba-live"></div>
             </div>
-            <div class="sb-team-section away">
-                <div class="sb-team-info">
-                    <span class="sb-team-name">Chiefs</span>
-                    <span class="sb-team-record">13-3</span>
-                </div>
-            </div>
-            <div class="sb-center">
-                <div class="sb-time-box">
-                    <div class="sb-time-label">2nd</div>
-                    <div class="sb-time time-warning">00:45</div>
-                </div>
-            </div>
-            <div class="sb-team-section home">
-                <div class="sb-team-info">
-                    <span class="sb-team-name">Bills</span>
-                    <span class="sb-team-record">12-4</span>
-                </div>
-            </div>
-            <div class="sb-score-box home">
-                <span class="sb-score">14</span>
-            </div>
-            <!-- Game Situation Box - 4th Down, Chiefs have ball (away team) -->
-            <div class="sb-situation possession-away">
-                <span class="sb-down-distance">4th & 1</span>
-                <div class="sb-situation-divider"></div>
-                <span class="sb-ball-position">KC 45</span>
+            <div class="scoreboard-container">
+                <div class="scoreboard-label">Overtime</div>
+                <div id="nba-ot"></div>
             </div>
         </div>
     </div>
 
-    <!-- 49ers vs Seahawks (Compact) -->
+    <!-- NHL Section -->
     <div class="demo-section">
-        <h2>Compact Version - 49ers vs Seahawks</h2>
-        <div class="scoreboard compact" id="scoreboard4"
-            style="--sb-away-primary: #AA0000; --sb-away-secondary: #B3995D; --sb-home-primary: #002244; --sb-home-secondary: #69BE28;">
-            <div class="sb-score-box away">
-                <span class="sb-score">31</span>
+        <h2>NHL <span class="badge">HockeyScoreboard</span></h2>
+        <div class="scoreboard-grid scoreboard-grid--dual">
+            <div class="scoreboard-container">
+                <div class="scoreboard-label">Power Play</div>
+                <div id="nhl-live"></div>
             </div>
-            <div class="sb-team-section away">
-                <div class="sb-team-info">
-                    <span class="sb-team-name">49ers</span>
-                    <span class="sb-team-record">11-5</span>
-                </div>
-            </div>
-            <div class="sb-center">
-                <div class="sb-time-box">
-                    <div class="sb-time-label">Final</div>
-                    <div class="sb-time">00:00</div>
-                </div>
-            </div>
-            <div class="sb-team-section home">
-                <div class="sb-team-info">
-                    <span class="sb-team-name">Seahawks</span>
-                    <span class="sb-team-record">9-7</span>
-                </div>
-            </div>
-            <div class="sb-score-box home winner">
-                <span class="sb-score">35</span>
+            <div class="scoreboard-container">
+                <div class="scoreboard-label">Final - Shootout</div>
+                <div id="nhl-final"></div>
             </div>
         </div>
     </div>
 
-    <script>
-        // ============================================
-        // SCOREBOARD COMPONENT CLASS
-        // ============================================
-        // Neutral gray defaults for teams without colors (e.g., NCAA)
-        const DEFAULT_COLORS = {
-            awayPrimary: '#4b5563',
-            awaySecondary: '#374151',
-            homePrimary: '#6b7280',
-            homeSecondary: '#4b5563'
+    <!-- MLB Section -->
+    <div class="demo-section">
+        <h2>MLB <span class="badge">BaseballScoreboard</span></h2>
+        <div class="scoreboard-grid scoreboard-grid--single">
+            <div class="scoreboard-container">
+                <div class="scoreboard-label">Bottom 7th - Runners On</div>
+                <div id="mlb-live"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi-Grid Demo -->
+    <div class="demo-section">
+        <h2>Multi-Game Grid <span class="badge">Compact Variant</span></h2>
+        <div class="scoreboard-grid scoreboard-grid--multi" id="multi-grid">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { createScoreboard } from '/scripts/scoreboard/index.js';
+
+        // Store all scoreboard instances
+        const scoreboards = {};
+        let currentVariant = 'regular';
+
+        // Sample game data
+        const mockGames = {
+            nflLive: {
+                id: 'nfl-1',
+                league: 'nfl',
+                state: 'in',
+                away: { abbr: 'KC', name: 'Chiefs', score: 21, record: '12-5', timeouts: 2 },
+                home: { abbr: 'BUF', name: 'Bills', score: 17, record: '11-6', timeouts: 3 },
+                possession: 'KC',
+                situation: {
+                    down: 2,
+                    distance: 7,
+                    yardLine: 35,
+                    possessionText: 'BUF 35'
+                },
+                status: {
+                    period: 3,
+                    displayClock: '8:42'
+                }
+            },
+            nflFinal: {
+                id: 'nfl-2',
+                league: 'nfl',
+                state: 'post',
+                away: { abbr: 'SF', name: '49ers', score: 27, record: '13-4', winner: false },
+                home: { abbr: 'PHI', name: 'Eagles', score: 31, record: '14-3', winner: true },
+                status: {
+                    shortDetail: 'Final'
+                }
+            },
+            ncaaLive: {
+                id: 'ncaa-1',
+                league: 'ncaa',
+                state: 'in',
+                away: { abbr: 'OSU', name: 'Ohio State', score: 28, timeouts: 1, logo: 'https://a.espncdn.com/i/teamlogos/ncaa/500/194.png' },
+                home: { abbr: 'MICH', name: 'Michigan', score: 24, timeouts: 2, logo: 'https://a.espncdn.com/i/teamlogos/ncaa/500/130.png' },
+                possession: 'OSU',
+                situation: {
+                    down: 2,
+                    distance: 8,
+                    yardLine: 35,
+                    possessionText: 'MICH 35'
+                },
+                status: {
+                    period: 4,
+                    displayClock: '2:15'
+                }
+            },
+            nbaLive: {
+                id: 'nba-1',
+                league: 'nba',
+                state: 'in',
+                away: { abbr: 'LAL', name: 'Lakers', score: 98, fouls: 4, timeouts: 3 },
+                home: { abbr: 'BOS', name: 'Celtics', score: 102, fouls: 6, timeouts: 4 },
+                linescores: {
+                    away: [24, 28, 22, 24],
+                    home: [26, 25, 28, 23]
+                },
+                status: {
+                    period: 4,
+                    displayClock: '4:32'
+                }
+            },
+            nbaOT: {
+                id: 'nba-2',
+                league: 'nba',
+                state: 'in',
+                away: { abbr: 'GSW', name: 'Warriors', score: 118 },
+                home: { abbr: 'PHX', name: 'Suns', score: 115 },
+                linescores: {
+                    away: [28, 30, 25, 25, 10],
+                    home: [32, 22, 28, 26, 7]
+                },
+                status: {
+                    period: 5,
+                    displayClock: '1:45'
+                }
+            },
+            nhlLive: {
+                id: 'nhl-1',
+                league: 'nhl',
+                state: 'in',
+                away: { abbr: 'COL', name: 'Avalanche', score: 3, shots: 28 },
+                home: { abbr: 'VGK', name: 'Golden Knights', score: 2, shots: 24 },
+                linescores: {
+                    away: [1, 1, 1],
+                    home: [0, 2, 0]
+                },
+                situation: {
+                    strength: '5v4',
+                    powerPlayTime: '1:23',
+                    powerPlay: 'away'
+                },
+                status: {
+                    period: 3,
+                    displayClock: '12:08'
+                }
+            },
+            nhlFinal: {
+                id: 'nhl-2',
+                league: 'nhl',
+                state: 'post',
+                away: { abbr: 'TOR', name: 'Maple Leafs', score: 3, winner: true },
+                home: { abbr: 'MTL', name: 'Canadiens', score: 2, winner: false },
+                linescores: {
+                    away: [1, 1, 0, 0, 1],
+                    home: [0, 2, 0, 0, 0]
+                },
+                status: {
+                    period: 5,
+                    shortDetail: 'Final/SO'
+                }
+            },
+            mlbLive: {
+                id: 'mlb-1',
+                league: 'mlb',
+                state: 'in',
+                away: { abbr: 'NYY', name: 'Yankees', score: 4, hits: 8, errors: 0 },
+                home: { abbr: 'BOS', name: 'Red Sox', score: 3, hits: 6, errors: 1 },
+                linescores: {
+                    away: [0, 1, 0, 2, 0, 1, 0],
+                    home: [1, 0, 0, 0, 2, 0, 0]
+                },
+                situation: {
+                    inning: 7,
+                    half: 'bottom',
+                    balls: 2,
+                    strikes: 1,
+                    outs: 1,
+                    first: true,
+                    second: false,
+                    third: true
+                },
+                status: {
+                    period: 7
+                }
+            }
         };
 
-        class Scoreboard {
-            constructor(element, config = {}) {
-                this.element = element;
-                this.config = {
-                    awayTeam: config.awayTeam || 'AWAY',
-                    homeTeam: config.homeTeam || 'HOME',
-                    awayLogo: config.awayLogo || '',
-                    homeLogo: config.homeLogo || '',
-                    awayRecord: config.awayRecord || '',
-                    homeRecord: config.homeRecord || '',
-                    awayScore: config.awayScore || 0,
-                    homeScore: config.homeScore || 0,
-                    period: config.period || '1st',
-                    clock: config.clock || '15:00',
-                    awayPrimaryColor: config.awayPrimaryColor || DEFAULT_COLORS.awayPrimary,
-                    awaySecondaryColor: config.awaySecondaryColor || DEFAULT_COLORS.awaySecondary,
-                    homePrimaryColor: config.homePrimaryColor || DEFAULT_COLORS.homePrimary,
-                    homeSecondaryColor: config.homeSecondaryColor || DEFAULT_COLORS.homeSecondary,
-                    ...config
-                };
+        // Initialize all scoreboards
+        function initScoreboards() {
+            // Clear existing
+            Object.values(scoreboards).forEach(sb => sb.destroy());
 
-                this.awayScoreEl = this.element.querySelector('.sb-score-box.away .sb-score');
-                this.homeScoreEl = this.element.querySelector('.sb-score-box.home .sb-score');
-                this.timeEl = this.element.querySelector('.sb-time');
-                this.periodEl = this.element.querySelector('.sb-time-label');
-            }
+            // NFL
+            scoreboards.nflLive = createScoreboard(document.getElementById('nfl-live'), {
+                league: 'nfl',
+                variant: currentVariant
+            });
+            scoreboards.nflLive.update(mockGames.nflLive);
 
-            // Update away team score with animation
-            setAwayScore(score) {
-                const prevScore = parseInt(this.awayScoreEl.textContent) || 0;
-                if (score !== prevScore) {
-                    this.awayScoreEl.textContent = score;
-                    this.animateScoreChange(this.awayScoreEl, 'away');
-                }
-            }
+            scoreboards.nflFinal = createScoreboard(document.getElementById('nfl-final'), {
+                league: 'nfl',
+                variant: currentVariant
+            });
+            scoreboards.nflFinal.update(mockGames.nflFinal);
 
-            // Update home team score with animation
-            setHomeScore(score) {
-                const prevScore = parseInt(this.homeScoreEl.textContent) || 0;
-                if (score !== prevScore) {
-                    this.homeScoreEl.textContent = score;
-                    this.animateScoreChange(this.homeScoreEl, 'home');
-                }
-            }
+            // NCAA
+            scoreboards.ncaaLive = createScoreboard(document.getElementById('ncaa-live'), {
+                league: 'ncaa',
+                variant: currentVariant
+            });
+            scoreboards.ncaaLive.update(mockGames.ncaaLive);
 
-            // Animate score change
-            animateScoreChange(scoreEl, team) {
-                // Add animation class to score
-                scoreEl.classList.add('score-changed');
+            // NBA
+            scoreboards.nbaLive = createScoreboard(document.getElementById('nba-live'), {
+                league: 'nba',
+                variant: currentVariant
+            });
+            scoreboards.nbaLive.update(mockGames.nbaLive);
 
-                // Add flash to score box
-                const scoreBox = this.element.querySelector(`.sb-score-box.${team}`);
-                scoreBox.classList.add('score-flash');
+            scoreboards.nbaOT = createScoreboard(document.getElementById('nba-ot'), {
+                league: 'nba',
+                variant: currentVariant
+            });
+            scoreboards.nbaOT.update(mockGames.nbaOT);
 
-                // Remove classes after animation
-                setTimeout(() => {
-                    scoreEl.classList.remove('score-changed');
-                    scoreBox.classList.remove('score-flash');
-                }, 600);
-            }
+            // NHL
+            scoreboards.nhlLive = createScoreboard(document.getElementById('nhl-live'), {
+                league: 'nhl',
+                variant: currentVariant
+            });
+            scoreboards.nhlLive.update(mockGames.nhlLive);
 
-            // Update clock
-            setClock(time) {
-                this.timeEl.textContent = time;
+            scoreboards.nhlFinal = createScoreboard(document.getElementById('nhl-final'), {
+                league: 'nhl',
+                variant: currentVariant
+            });
+            scoreboards.nhlFinal.update(mockGames.nhlFinal);
 
-                // Parse time to check for warnings
-                const parts = time.split(':');
-                const minutes = parseInt(parts[0]) || 0;
-                const seconds = parseInt(parts[1]) || 0;
-                const totalSeconds = minutes * 60 + seconds;
+            // MLB
+            scoreboards.mlbLive = createScoreboard(document.getElementById('mlb-live'), {
+                league: 'mlb',
+                variant: currentVariant
+            });
+            scoreboards.mlbLive.update(mockGames.mlbLive);
 
-                // Remove existing classes
-                this.timeEl.classList.remove('time-warning', 'time-critical');
-
-                // Add warning classes based on time
-                if (totalSeconds <= 30 && totalSeconds > 0) {
-                    this.timeEl.classList.add('time-critical');
-                } else if (totalSeconds <= 120 && totalSeconds > 0) {
-                    this.timeEl.classList.add('time-warning');
-                }
-            }
-
-            // Update period
-            setPeriod(period) {
-                this.periodEl.textContent = period;
-            }
-
-            // Update team names
-            setTeamNames(awayName, homeName) {
-                const awayNameEl = this.element.querySelector('.sb-team-section.away .sb-team-name');
-                const homeNameEl = this.element.querySelector('.sb-team-section.home .sb-team-name');
-                if (awayNameEl) awayNameEl.textContent = awayName;
-                if (homeNameEl) homeNameEl.textContent = homeName;
-            }
-
-            // Update team records
-            setRecords(awayRecord, homeRecord) {
-                const awayRecordEl = this.element.querySelector('.sb-team-section.away .sb-team-record');
-                const homeRecordEl = this.element.querySelector('.sb-team-section.home .sb-team-record');
-                if (awayRecordEl) awayRecordEl.textContent = awayRecord;
-                if (homeRecordEl) homeRecordEl.textContent = homeRecord;
-            }
-
-            // Update team logos
-            setLogos(awayLogo, homeLogo) {
-                const awayLogoEl = this.element.querySelector('.sb-team-section.away .sb-team-logo');
-                const homeLogoEl = this.element.querySelector('.sb-team-section.home .sb-team-logo');
-                if (awayLogoEl) awayLogoEl.src = awayLogo;
-                if (homeLogoEl) homeLogoEl.src = homeLogo;
-            }
-
-            // Set custom colors
-            setColors(awayPrimary, awaySecondary, homePrimary, homeSecondary) {
-                this.element.style.setProperty('--sb-away-primary', awayPrimary);
-                this.element.style.setProperty('--sb-away-secondary', awaySecondary);
-                this.element.style.setProperty('--sb-home-primary', homePrimary);
-                this.element.style.setProperty('--sb-home-secondary', homeSecondary);
-            }
-
-            // Set game over state
-            setGameOver(winner = null) {
-                this.element.classList.add('game-over');
-                this.setPeriod('Final');
-                this.setClock('00:00');
-                // Hide situation box on game over
-                this.hideSituation();
-
-                if (winner === 'away') {
-                    this.element.querySelector('.sb-score-box.away').classList.add('winner');
-                } else if (winner === 'home') {
-                    this.element.querySelector('.sb-score-box.home').classList.add('winner');
-                }
-            }
-
-            // Set game situation (NFL/NCAA football)
-            // possession: 'away' | 'home' | null - which team has the ball
-            setSituation(down, distance, ballPosition, isRedZone = false, possession = null) {
-                let situationEl = this.element.querySelector('.sb-situation');
-
-                // Create situation element if it doesn't exist
-                if (!situationEl) {
-                    situationEl = document.createElement('div');
-                    situationEl.className = 'sb-situation';
-                    situationEl.innerHTML = `
-                        <span class="sb-down-distance"></span>
-                        <div class="sb-situation-divider"></div>
-                        <span class="sb-ball-position"></span>
-                    `;
-                    this.element.appendChild(situationEl);
-                }
-
-                // Update content
-                const downDistanceEl = situationEl.querySelector('.sb-down-distance');
-                const ballPositionEl = situationEl.querySelector('.sb-ball-position');
-
-                // Format down and distance
-                const downText = this.formatDown(down);
-                const distanceText = distance === 'Goal' ? '& Goal' : `& ${distance}`;
-                downDistanceEl.textContent = `${downText} ${distanceText}`;
-
-                // Update ball position
-                ballPositionEl.textContent = ballPosition;
-
-                // Handle red zone styling
-                situationEl.classList.toggle('redzone', isRedZone);
-                situationEl.classList.toggle('goal-to-go', distance === 'Goal');
-
-                // Handle possession team color
-                situationEl.classList.remove('possession-away', 'possession-home');
-                if (possession === 'away') {
-                    situationEl.classList.add('possession-away');
-                } else if (possession === 'home') {
-                    situationEl.classList.add('possession-home');
-                }
-
-                situationEl.classList.remove('hidden');
-            }
-
-            // Format down number to ordinal
-            formatDown(down) {
-                const ordinals = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
-                return ordinals[down] || `${down}th`;
-            }
-
-            // Hide situation box
-            hideSituation() {
-                const situationEl = this.element.querySelector('.sb-situation');
-                if (situationEl) {
-                    situationEl.classList.add('hidden');
-                }
-            }
-
-            // Full update from game data
-            updateFromGameData(data) {
-                if (data.awayScore !== undefined) this.setAwayScore(data.awayScore);
-                if (data.homeScore !== undefined) this.setHomeScore(data.homeScore);
-                if (data.clock) this.setClock(data.clock);
-                if (data.period) this.setPeriod(data.period);
-                if (data.awayTeam) this.setTeamNames(data.awayTeam, data.homeTeam);
-                if (data.awayRecord) this.setRecords(data.awayRecord, data.homeRecord);
-                if (data.awayLogo) this.setLogos(data.awayLogo, data.homeLogo);
-                // Update situation for NFL/NCAA football
-                // possession: 'away' | 'home' | null
-                if (data.down && data.distance && data.ballPosition) {
-                    this.setSituation(data.down, data.distance, data.ballPosition, data.isRedZone || false, data.possession || null);
-                } else if (data.isGameOver) {
-                    this.hideSituation();
-                }
-            }
+            // Multi-grid (always compact)
+            initMultiGrid();
         }
 
-        // ============================================
-        // DEMO FUNCTIONALITY
-        // ============================================
-        const scoreboard1 = new Scoreboard(document.getElementById('scoreboard1'));
-        let awayScore = 0;
-        let homeScore = 0;
-        let clockRunning = false;
-        let clockInterval = null;
-        let currentTime = 720; // 12 minutes in seconds
+        // Initialize multi-game grid
+        function initMultiGrid() {
+            const container = document.getElementById('multi-grid');
+            container.innerHTML = '';
 
-        function addAwayScore() {
-            awayScore += 7;
-            scoreboard1.setAwayScore(awayScore);
+            const multiGames = [
+                { ...mockGames.nflLive, id: 'multi-1' },
+                { ...mockGames.nbaLive, id: 'multi-2' },
+                { ...mockGames.nhlLive, id: 'multi-3' },
+                { ...mockGames.mlbLive, id: 'multi-4' }
+            ];
+
+            multiGames.forEach(game => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'scoreboard-container';
+                wrapper.innerHTML = `<div class="scoreboard-label">${game.league.toUpperCase()}</div><div id="${game.id}"></div>`;
+                container.appendChild(wrapper);
+
+                const sb = createScoreboard(document.getElementById(game.id), {
+                    league: game.league,
+                    variant: 'compact'
+                });
+                sb.update(game);
+                scoreboards[game.id] = sb;
+            });
         }
 
-        function addHomeScore() {
-            homeScore += 7;
-            scoreboard1.setHomeScore(homeScore);
-        }
+        // Variant tab switching
+        document.querySelectorAll('.variant-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentVariant = tab.dataset.variant;
+                initScoreboards();
+            });
+        });
 
-        function resetScores() {
-            awayScore = 0;
-            homeScore = 0;
-            currentTime = 720;
-            scoreboard1.setAwayScore(0);
-            scoreboard1.setHomeScore(0);
-            scoreboard1.setClock('12:00');
-        }
-
-        function toggleClock() {
-            if (clockRunning) {
-                clearInterval(clockInterval);
-                clockRunning = false;
-            } else {
-                clockRunning = true;
-                clockInterval = setInterval(() => {
-                    if (currentTime > 0) {
-                        currentTime--;
-                        const minutes = Math.floor(currentTime / 60);
-                        const seconds = currentTime % 60;
-                        const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                        scoreboard1.setClock(timeStr);
-                    } else {
-                        clearInterval(clockInterval);
-                        clockRunning = false;
-                    }
-                }, 1000);
+        // Animate button
+        document.getElementById('btn-animate').addEventListener('click', () => {
+            // Trigger score animation on NFL live game
+            const nfl = scoreboards.nflLive;
+            if (nfl) {
+                const data = nfl.getData();
+                if (data) {
+                    nfl.setScore('home', parseInt(data.home.score) + 7);
+                }
             }
-        }
+        });
 
-        // ============================================
-        // HELPER FUNCTION TO CREATE SCOREBOARD HTML
-        // ============================================
-        function createScoreboardHTML(config = {}) {
-            // Neutral gray defaults for teams without colors (e.g., NCAA)
-            const DEFAULT_AWAY_PRIMARY = '#4b5563';
-            const DEFAULT_AWAY_SECONDARY = '#374151';
-            const DEFAULT_HOME_PRIMARY = '#6b7280';
-            const DEFAULT_HOME_SECONDARY = '#4b5563';
-
-            const {
-                awayTeam = 'AWAY',
-                homeTeam = 'HOME',
-                awayRecord = '',
-                homeRecord = '',
-                awayScore = 0,
-                homeScore = 0,
-                period = '1st',
-                clock = '15:00',
-                awayPrimaryColor = DEFAULT_AWAY_PRIMARY,
-                awaySecondaryColor = DEFAULT_AWAY_SECONDARY,
-                homePrimaryColor = DEFAULT_HOME_PRIMARY,
-                homeSecondaryColor = DEFAULT_HOME_SECONDARY,
-                compact = false,
-                // Game situation (NFL/NCAA football)
-                down = null,
-                distance = null,
-                ballPosition = null,
-                isRedZone = false,
-                possession = null // 'away' | 'home' | null
-            } = config;
-
-            const classes = ['scoreboard'];
-            if (compact) classes.push('compact');
-
-            // Only add style vars if colors are provided (otherwise CSS defaults apply)
-            const hasCustomColors = config.awayPrimaryColor || config.homePrimaryColor;
-            const styleVars = hasCustomColors
-                ? `--sb-away-primary: ${awayPrimaryColor}; --sb-away-secondary: ${awaySecondaryColor}; --sb-home-primary: ${homePrimaryColor}; --sb-home-secondary: ${homeSecondaryColor};`
-                : '';
-
-            // Build situation box HTML if situation data provided
-            let situationHTML = '';
-            if (down && distance && ballPosition) {
-                const ordinals = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
-                const downText = ordinals[down] || `${down}th`;
-                const distanceText = distance === 'Goal' ? '& Goal' : `& ${distance}`;
-                const situationClasses = ['sb-situation'];
-                if (isRedZone) situationClasses.push('redzone');
-                if (distance === 'Goal') situationClasses.push('goal-to-go');
-                if (possession === 'away') situationClasses.push('possession-away');
-                if (possession === 'home') situationClasses.push('possession-home');
-
-                situationHTML = `
-                    <div class="${situationClasses.join(' ')}">
-                        <span class="sb-down-distance">${downText} ${distanceText}</span>
-                        <div class="sb-situation-divider"></div>
-                        <span class="sb-ball-position">${ballPosition}</span>
-                    </div>
-                `;
+        // Toggle live state
+        document.getElementById('btn-toggle-live').addEventListener('click', () => {
+            const nfl = scoreboards.nflLive;
+            if (nfl) {
+                const data = nfl.getData();
+                if (data) {
+                    data.state = data.state === 'in' ? 'post' : 'in';
+                    nfl.update(data);
+                }
             }
+        });
 
-            return `
-                <div class="${classes.join(' ')}" style="${styleVars}">
-                    <div class="sb-score-box away">
-                        <span class="sb-score">${awayScore}</span>
-                    </div>
-                    <div class="sb-team-section away">
-                        <div class="sb-team-info">
-                            <span class="sb-team-name">${awayTeam}</span>
-                            ${awayRecord ? `<span class="sb-team-record">${awayRecord}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="sb-center">
-                        <div class="sb-time-box">
-                            <div class="sb-time-label">${period}</div>
-                            <div class="sb-time">${clock}</div>
-                        </div>
-                    </div>
-                    <div class="sb-team-section home">
-                        <div class="sb-team-info">
-                            <span class="sb-team-name">${homeTeam}</span>
-                            ${homeRecord ? `<span class="sb-team-record">${homeRecord}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="sb-score-box home">
-                        <span class="sb-score">${homeScore}</span>
-                    </div>
-                    ${situationHTML}
-                </div>
-            `;
-        }
+        // Random scores
+        document.getElementById('btn-random-scores').addEventListener('click', () => {
+            Object.values(scoreboards).forEach(sb => {
+                const data = sb.getData();
+                if (data && data.state === 'in') {
+                    const addAway = Math.random() > 0.5 ? Math.floor(Math.random() * 8) : 0;
+                    const addHome = Math.random() > 0.5 ? Math.floor(Math.random() * 8) : 0;
+                    if (addAway) sb.setScore('away', (parseInt(data.away.score) || 0) + addAway);
+                    if (addHome) sb.setScore('home', (parseInt(data.home.score) || 0) + addHome);
+                }
+            });
+        });
 
-        // Export for use in other pages
-        window.Scoreboard = Scoreboard;
-        window.createScoreboardHTML = createScoreboardHTML;
+        // Initialize on load
+        initScoreboards();
     </script>
 </body>
-
 </html>

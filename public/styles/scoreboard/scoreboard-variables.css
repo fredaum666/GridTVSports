@@ -1,0 +1,210 @@
+/**
+ * GridTV Scoreboard - CSS Variables
+ * Premium Broadcast Graphics Design System
+ *
+ * Aesthetic: ESPN primetime meets stadium Jumbotron
+ * - Bold angular geometry
+ * - Dramatic lighting and depth
+ * - Team colors as heroes
+ */
+
+:root {
+   /* ═══════════════════════════════════════════════════════════════
+       VARIANT: REGULAR (Index cards, standard display)
+       Fixed sizing for consistent card layouts
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-regular-height: 88px;
+   --sb-regular-score-font: 2.4rem;
+   --sb-regular-team-font: 0.85rem;
+   --sb-regular-status-font: 0.7rem;
+   --sb-regular-logo-size: 62px;
+   --sb-regular-padding: 12px;
+   --sb-regular-gap: 15px;
+   --sb-regular-radius: 6px;
+   --sb-regular-score-box-width: 54px;
+   --sb-regular-score-box-height: 44px;
+
+   /* ═══════════════════════════════════════════════════════════════
+       VARIANT: COMPACT (Grids 3-8, multi-game display)
+       Smaller elements for dense layouts
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-compact-height: 64px;
+   --sb-compact-score-font: 1.6rem;
+   --sb-compact-team-font: 0.75rem;
+   --sb-compact-status-font: 0.65rem;
+   --sb-compact-logo-size: 52px;
+   --sb-compact-padding: 13px;
+   --sb-compact-gap: 19px;
+   --sb-compact-radius: 4px;
+   --sb-compact-score-box-width: 42px;
+   --sb-compact-score-box-height: 34px;
+
+   /* ═══════════════════════════════════════════════════════════════
+       VARIANT: FULLSCREEN (TV sports bar, single/dual game)
+       Responsive sizing using clamp() for fluid scaling
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-fullscreen-height: clamp(80px, 12vmin, 140px);
+   --sb-fullscreen-score-font: clamp(2rem, 6vmin, 4.5rem);
+   --sb-fullscreen-team-font: clamp(0.8rem, 1.8vmin, 1.4rem);
+   --sb-fullscreen-status-font: clamp(0.65rem, 1.4vmin, 1.1rem);
+   --sb-fullscreen-logo-size: clamp(78px, 13vmin, 130px);
+   --sb-fullscreen-padding: clamp(12px, 2vmin, 24px);
+   --sb-fullscreen-gap: clamp(8px, 2.5vmin, 23px);
+   --sb-fullscreen-radius: clamp(6px, 1vmin, 12px);
+   --sb-fullscreen-score-box-width: clamp(56px, 10vmin, 110px);
+   --sb-fullscreen-score-box-height: clamp(48px, 8vmin, 90px);
+
+   /* ═══════════════════════════════════════════════════════════════
+       TEAM COLORS (Set dynamically via JavaScript)
+       Each team gets primary + secondary colors
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-away-primary: #4b5563;
+   --sb-away-secondary: #374151;
+   --sb-home-primary: #6b7280;
+   --sb-home-secondary: #4b5563;
+
+   /* Team color with alpha variations */
+   --sb-away-primary-90: color-mix(in srgb, var(--sb-away-primary) 90%, transparent);
+   --sb-away-primary-70: color-mix(in srgb, var(--sb-away-primary) 70%, transparent);
+   --sb-away-primary-50: color-mix(in srgb, var(--sb-away-primary) 50%, transparent);
+   --sb-home-primary-90: color-mix(in srgb, var(--sb-home-primary) 90%, transparent);
+   --sb-home-primary-70: color-mix(in srgb, var(--sb-home-primary) 70%, transparent);
+   --sb-home-primary-50: color-mix(in srgb, var(--sb-home-primary) 50%, transparent);
+
+   /* ═══════════════════════════════════════════════════════════════
+       CORE PALETTE - Broadcast Graphics Theme
+       Dark, dramatic backdrop with metallic accents
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-bg-dark: #0a0c10;
+   --sb-bg-panel: #12151c;
+   --sb-bg-elevated: #1a1e28;
+   --sb-border-subtle: rgba(255, 255, 255, 0.08);
+   --sb-border-accent: rgba(255, 255, 255, 0.15);
+
+   /* Text hierarchy */
+   --sb-text-primary: #ffffff;
+   --sb-text-secondary: rgba(255, 255, 255, 0.75);
+   --sb-text-muted: rgba(255, 255, 255, 0.5);
+   --sb-text-score: #ffffff;
+
+   /* Metallic accent gradients */
+   --sb-chrome-gradient: linear-gradient(135deg, #e8e8e8 0%, #b8b8b8 50%, #e0e0e0 100%);
+   --sb-gold-gradient: linear-gradient(135deg, #f0d78c 0%, #c9943d 50%, #e8c860 100%);
+   --sb-silver-gradient: linear-gradient(135deg, #d4d4d4 0%, #9a9a9a 50%, #c8c8c8 100%);
+
+   /* Status indicators */
+   --sb-live-color: #ef4444;
+   --sb-live-glow: rgba(239, 68, 68, 0.6);
+   --sb-final-color: #a1a1aa;
+   --sb-scheduled-color: #3b82f6;
+   --sb-halftime-color: #f59e0b;
+   --sb-redzone-color: #dc2626;
+   --sb-redzone-glow: rgba(220, 38, 38, 0.5);
+
+   /* ═══════════════════════════════════════════════════════════════
+       ANIMATION TIMING
+       Snappy, broadcast-quality motion
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+   --sb-transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+   --sb-transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+   --sb-transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+   /* Score update animation */
+   --sb-score-pop-duration: 400ms;
+   --sb-score-pop-scale: 1.15;
+
+   /* ═══════════════════════════════════════════════════════════════
+       GEOMETRIC ANGLES
+       Sharp, dynamic broadcast aesthetic
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-skew-angle: -4deg;
+   --sb-clip-angle: 8px;
+   --sb-divider-angle: 12deg;
+
+   /* ═══════════════════════════════════════════════════════════════
+       SHADOWS & DEPTH
+       Dramatic stadium lighting effect
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+   --sb-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+   --sb-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+   --sb-shadow-score: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
+   --sb-shadow-glow: 0 0 30px rgba(255, 255, 255, 0.1);
+
+   /* Inner highlight for depth */
+   --sb-inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+   --sb-inner-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+
+   /* ═══════════════════════════════════════════════════════════════
+       TYPOGRAPHY
+       Bold, condensed sports display fonts
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-font-score: 'Oswald', 'Impact', 'Arial Black', sans-serif;
+   --sb-font-display: 'Oswald', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+   --sb-font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+   --sb-font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+
+   --sb-score-weight: 700;
+   --sb-score-letter-spacing: -0.02em;
+   --sb-team-weight: 600;
+   --sb-team-letter-spacing: 0.04em;
+
+   /* ═══════════════════════════════════════════════════════════════
+       CLOCK STYLING
+       Game clock / time display variables
+       ═══════════════════════════════════════════════════════════════ */
+   --sb-clock-padding-regular: 8px 16px;
+   --sb-clock-padding-compact: 6px 12px;
+   --sb-clock-padding-fullscreen: clamp(10px, 1.5vmin, 16px) clamp(16px, 3vmin, 32px);
+   --sb-clock-time-font-regular: 1.1rem;
+   --sb-clock-time-font-compact: 0.9rem;
+   --sb-clock-time-font-fullscreen: clamp(1.2rem, 2.5vmin, 2rem);
+   --sb-clock-period-font-regular: 0.7rem;
+   --sb-clock-period-font-compact: 0.6rem;
+   --sb-clock-period-font-fullscreen: clamp(0.65rem, 1.2vmin, 1rem);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINT OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* TV / 4K Displays (1920px+) - Enhanced drama */
+@media (min-width: 1920px) {
+   :root {
+      --sb-fullscreen-score-font: clamp(3rem, 5vmin, 5rem);
+      --sb-fullscreen-logo-size: clamp(78px, 9vmin, 130px);
+      --sb-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.7);
+   }
+}
+
+/* Tablet (768-1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+   :root {
+      --sb-regular-height: 80px;
+      --sb-regular-score-font: 2rem;
+      --sb-regular-logo-size: 55px;
+   }
+}
+
+/* Mobile (0-567px) */
+@media (max-width: 567px) {
+   :root {
+      --sb-regular-height: 72px;
+      --sb-regular-score-font: 1.8rem;
+      --sb-regular-logo-size: 47px;
+      --sb-regular-padding: 8px;
+      --sb-skew-angle: -2deg;
+   }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+   :root {
+      --sb-transition-fast: 0ms;
+      --sb-transition-normal: 0ms;
+      --sb-transition-slow: 0ms;
+      --sb-transition-bounce: 0ms;
+      --sb-score-pop-duration: 0ms;
+   }
+}

@@ -1,0 +1,772 @@
+/**
+ * GridTV Scoreboard - Base Styles
+ * Core structure, team panels, score boxes, animations
+ *
+ * Aesthetic: Premium broadcast graphics with dramatic depth
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap');
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SCOREBOARD CONTAINER
+   The main wrapper with dramatic backdrop
+   Regular/Compact: Clock above, teams meet in center
+   Fullscreen: Clock in center between teams
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard {
+    --sb-height: var(--sb-regular-height);
+    --sb-score-font: var(--sb-regular-score-font);
+    --sb-team-font: var(--sb-regular-team-font);
+    --sb-status-font: var(--sb-regular-status-font);
+    --sb-logo-size: var(--sb-regular-logo-size);
+    --sb-padding: var(--sb-regular-padding);
+    --sb-gap: var(--sb-regular-gap);
+    --sb-radius: var(--sb-regular-radius);
+    --sb-score-box-width: var(--sb-regular-score-box-width);
+    --sb-score-box-height: var(--sb-regular-score-box-height);
+    --sb-clock-padding: var(--sb-clock-padding-regular);
+    --sb-clock-time-font: var(--sb-clock-time-font-regular);
+    --sb-clock-period-font: var(--sb-clock-period-font-regular);
+
+    position: relative;
+    display: grid;
+    /* Regular/Compact: 2 columns (teams meet in center), clock above */
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+        "clock clock"
+        "away home"
+        "situation situation";
+    width: 100%;
+    min-height: var(--sb-height);
+    background: var(--sb-bg-panel);
+    border-radius: var(--sb-radius);
+    overflow: visible;
+    box-shadow: var(--sb-shadow-md);
+    font-family: var(--sb-font-body);
+    /* Space for logos floating above */
+    margin-top: calc(var(--sb-logo-size) + 12px);
+
+    /* Subtle top highlight for depth */
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        box-shadow: var(--sb-inner-highlight);
+        pointer-events: none;
+        z-index: 10;
+    }
+}
+
+/* Variant: Compact (Grids 3-8) */
+.scoreboard--compact {
+    --sb-height: var(--sb-compact-height);
+    --sb-score-font: var(--sb-compact-score-font);
+    --sb-team-font: var(--sb-compact-team-font);
+    --sb-status-font: var(--sb-compact-status-font);
+    --sb-logo-size: var(--sb-compact-logo-size);
+    --sb-padding: var(--sb-compact-padding);
+    --sb-gap: var(--sb-compact-gap);
+    --sb-radius: var(--sb-compact-radius);
+    --sb-score-box-width: var(--sb-compact-score-box-width);
+    --sb-score-box-height: var(--sb-compact-score-box-height);
+    --sb-clock-padding: var(--sb-clock-padding-compact);
+    --sb-clock-time-font: var(--sb-clock-time-font-compact);
+    --sb-clock-period-font: var(--sb-clock-period-font-compact);
+}
+
+/* Variant: Fullscreen (TV/Single game) - Clock stays in center */
+.scoreboard--fullscreen {
+    --sb-height: var(--sb-fullscreen-height);
+    --sb-score-font: var(--sb-fullscreen-score-font);
+    --sb-team-font: var(--sb-fullscreen-team-font);
+    --sb-status-font: var(--sb-fullscreen-status-font);
+    --sb-logo-size: var(--sb-fullscreen-logo-size);
+    --sb-padding: var(--sb-fullscreen-padding);
+    --sb-gap: var(--sb-fullscreen-gap);
+    --sb-radius: var(--sb-fullscreen-radius);
+    --sb-score-box-width: var(--sb-fullscreen-score-box-width);
+    --sb-score-box-height: var(--sb-fullscreen-score-box-height);
+    --sb-clock-padding: var(--sb-clock-padding-fullscreen);
+    --sb-clock-time-font: var(--sb-clock-time-font-fullscreen);
+    --sb-clock-period-font: var(--sb-clock-period-font-fullscreen);
+    box-shadow: var(--sb-shadow-lg);
+
+    /* Fullscreen: 3 columns with clock in center */
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+        "away clock home"
+        "situation situation situation";
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TEAM PANEL
+   Away (left) and Home (right) sections with team colors
+   Regular/Compact: Teams meet in center with straight edges
+   Fullscreen: Teams have angled clip-path edges
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__team {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: var(--sb-padding);
+    gap: var(--sb-gap);
+    transition: background var(--sb-transition-normal);
+    min-height: var(--sb-height);
+}
+
+/* Away team (left side) */
+.scoreboard__team--away {
+    grid-area: away;
+    /* Content centered within panel */
+    justify-content: center;
+    /* Allow logo to extend above */
+    overflow: visible;
+}
+
+/* Away team background - straight edge in regular/compact */
+.scoreboard__team--away::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        var(--sb-away-primary) 0%,
+        color-mix(in srgb, var(--sb-away-primary) 85%, var(--sb-away-secondary)) 60%,
+        color-mix(in srgb, var(--sb-away-primary) 70%, #000) 100%
+    );
+    z-index: -1;
+}
+
+/* Home team (right side) */
+.scoreboard__team--home {
+    grid-area: home;
+    /* Content centered within panel */
+    justify-content: center;
+    flex-direction: row-reverse;
+    /* Allow logo to extend above */
+    overflow: visible;
+}
+
+/* Home team background - straight edge in regular/compact */
+.scoreboard__team--home::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--sb-home-primary) 70%, #000) 0%,
+        color-mix(in srgb, var(--sb-home-primary) 85%, var(--sb-home-secondary)) 40%,
+        var(--sb-home-primary) 100%
+    );
+    z-index: -1;
+}
+
+/* Inner glow effect on team panels */
+.scoreboard__team::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        transparent 40%,
+        transparent 60%,
+        rgba(0, 0, 0, 0.15) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FULLSCREEN: Restore angled clip-path edges for team panels
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--fullscreen .scoreboard__team--away {
+    padding-right: calc(var(--sb-padding) + 8px);
+    margin-right: -4px;
+}
+
+.scoreboard--fullscreen .scoreboard__team--away::before {
+    clip-path: polygon(0 0, calc(100% - var(--sb-clip-angle)) 0, 100% 100%, 0 100%);
+}
+
+.scoreboard--fullscreen .scoreboard__team--away::after {
+    clip-path: polygon(0 0, calc(100% - var(--sb-clip-angle)) 0, 100% 100%, 0 100%);
+}
+
+.scoreboard--fullscreen .scoreboard__team--home {
+    padding-left: calc(var(--sb-padding) + 8px);
+    margin-left: -4px;
+}
+
+.scoreboard--fullscreen .scoreboard__team--home::before {
+    clip-path: polygon(var(--sb-clip-angle) 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.scoreboard--fullscreen .scoreboard__team--home::after {
+    clip-path: polygon(var(--sb-clip-angle) 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TEAM LOGOS CONTAINER
+   Floating ABOVE the main scoreboard bar, positioned at container level
+   to avoid clip-path clipping from team panels
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__logos {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(calc(-100% - 8px));
+    /* Use same grid layout as scoreboard for precise alignment */
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    pointer-events: none;
+    z-index: 25;
+}
+
+.scoreboard__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--sb-logo-size);
+    height: var(--sb-logo-size);
+    pointer-events: auto;
+}
+
+/* Away team logo - centered within away panel */
+.scoreboard__logo--away {
+    grid-column: 1;
+    justify-self: center;
+}
+
+/* Home team logo - centered within home panel */
+.scoreboard__logo--home {
+    grid-column: 3;
+    justify-self: center;
+}
+
+.scoreboard__logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+    transition: transform var(--sb-transition-fast);
+}
+
+/* Winner highlight */
+.scoreboard__team--winner .scoreboard__logo-img {
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5))
+            drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TEAM INFO
+   Name, record, and additional details
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 2;
+    min-width: 0;
+}
+
+.scoreboard__team--home .scoreboard__info {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.scoreboard__name {
+    font-family: var(--sb-font-display);
+    font-size: var(--sb-team-font);
+    font-weight: var(--sb-team-weight);
+    color: var(--sb-text-primary);
+    text-transform: uppercase;
+    letter-spacing: var(--sb-team-letter-spacing);
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Full name / abbreviation toggle */
+.scoreboard__name-full {
+    display: inline;
+}
+
+.scoreboard__name-abbr {
+    display: none;
+}
+
+/* Use abbreviation in compact mode */
+.scoreboard--compact .scoreboard__name-full {
+    display: none;
+}
+
+.scoreboard--compact .scoreboard__name-abbr {
+    display: inline;
+}
+
+.scoreboard__record {
+    font-size: calc(var(--sb-team-font) * 0.75);
+    color: var(--sb-text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SCORE WRAPPER
+   Invisible container holding logo above and score box below
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__score-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 3;
+}
+
+/* Logo inside score wrapper - positioned above scoreboard */
+.scoreboard__score-wrapper .scoreboard__logo {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    width: var(--sb-logo-size);
+    height: var(--sb-logo-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scoreboard__score-wrapper .scoreboard__logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SCORE BOX
+   The bold, angled score display with dramatic styling
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__score {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--sb-score-box-width);
+    height: var(--sb-score-box-height);
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.7) 0%,
+        rgba(0, 0, 0, 0.85) 100%
+    );
+    border-radius: 4px;
+    z-index: 3;
+    box-shadow: var(--sb-shadow-score);
+    transform: skewX(var(--sb-skew-angle));
+    overflow: hidden;
+
+    /* Chrome edge highlight */
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--sb-chrome-gradient);
+        opacity: 0.6;
+    }
+}
+
+.scoreboard__score-value {
+    font-family: var(--sb-font-score);
+    font-size: var(--sb-score-font);
+    font-weight: var(--sb-score-weight);
+    color: var(--sb-text-score);
+    letter-spacing: var(--sb-score-letter-spacing);
+    line-height: 1;
+    transform: skewX(calc(var(--sb-skew-angle) * -1));
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: transform var(--sb-score-pop-duration) var(--sb-transition-bounce);
+}
+
+/* Winner score highlight */
+.scoreboard__team--winner .scoreboard__score {
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(0, 0, 0, 0.75) 100%
+    );
+}
+
+.scoreboard__team--winner .scoreboard__score::before {
+    background: var(--sb-gold-gradient);
+    opacity: 0.9;
+}
+
+.scoreboard__team--winner .scoreboard__score-value {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CLOCK WRAPPER / STATUS AREA
+   Regular/Compact: Clock above scoreboard, centered
+   Fullscreen: Clock in center between teams
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__clock-wrapper {
+    grid-area: clock;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    z-index: 15;
+    /* For regular/compact: sits above teams in its own row */
+    background: transparent;
+}
+
+/* Fullscreen: Clock wrapper adjustments */
+.scoreboard--fullscreen .scoreboard__clock-wrapper {
+    padding: 0 8px;
+    min-width: 80px;
+}
+
+/* Modern clock badge design */
+.scoreboard__clock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--sb-clock-padding);
+    background: linear-gradient(
+        180deg,
+        rgba(20, 25, 35, 0.95) 0%,
+        rgba(10, 12, 18, 0.98) 100%
+    );
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.scoreboard__clock-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.scoreboard__clock-time {
+    font-family: var(--sb-font-mono);
+    font-size: var(--sb-clock-time-font);
+    font-weight: 700;
+    color: var(--sb-text-primary);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.scoreboard__clock-period {
+    font-family: var(--sb-font-display);
+    font-size: var(--sb-clock-period-font);
+    font-weight: 500;
+    color: var(--sb-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Legacy support for old class names */
+.scoreboard__center {
+    grid-area: clock;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 15;
+    padding: 6px 12px;
+    background: transparent;
+}
+
+.scoreboard--fullscreen .scoreboard__center {
+    padding: 0 8px;
+    min-width: 80px;
+}
+
+.scoreboard__status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--sb-clock-padding);
+    background: linear-gradient(
+        180deg,
+        rgba(20, 25, 35, 0.95) 0%,
+        rgba(10, 12, 18, 0.98) 100%
+    );
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.scoreboard__time {
+    font-family: var(--sb-font-mono);
+    font-size: var(--sb-clock-time-font);
+    font-weight: 700;
+    color: var(--sb-text-primary);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.scoreboard__period {
+    font-family: var(--sb-font-display);
+    font-size: var(--sb-clock-period-font);
+    font-weight: 500;
+    color: var(--sb-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Live indicator with pulsing dot */
+.scoreboard__clock--live {
+    background: linear-gradient(135deg, #1a0505 0%, #2a0808 100%);
+    box-shadow: var(--sb-shadow-md), 0 0 20px var(--sb-live-glow);
+}
+
+.scoreboard__clock--live .scoreboard__clock-time {
+    color: var(--sb-live-color);
+}
+
+.scoreboard__live-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--sb-live-color);
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+/* Final state */
+.scoreboard__clock--final {
+    background: var(--sb-bg-elevated);
+}
+
+.scoreboard__clock--final .scoreboard__clock-period {
+    color: var(--sb-final-color);
+}
+
+/* Scheduled/Upcoming */
+.scoreboard__clock--scheduled .scoreboard__clock-time {
+    color: var(--sb-scheduled-color);
+}
+
+/* Halftime/Intermission */
+.scoreboard__clock--halftime {
+    background: linear-gradient(135deg, #1a1505 0%, #2a2008 100%);
+}
+
+.scoreboard__clock--halftime .scoreboard__clock-time {
+    color: var(--sb-halftime-color);
+}
+
+/* Legacy support for old status classes */
+.scoreboard__status--live {
+    background: linear-gradient(135deg, #1a0505 0%, #2a0808 100%);
+    box-shadow: var(--sb-shadow-md), 0 0 20px var(--sb-live-glow);
+}
+
+.scoreboard__status--live .scoreboard__time {
+    color: var(--sb-live-color);
+}
+
+.scoreboard__status--final {
+    background: var(--sb-bg-elevated);
+}
+
+.scoreboard__status--scheduled .scoreboard__time {
+    color: var(--sb-scheduled-color);
+}
+
+.scoreboard__status--halftime {
+    background: linear-gradient(135deg, #1a1505 0%, #2a2008 100%);
+}
+
+.scoreboard__status--halftime .scoreboard__time {
+    color: var(--sb-halftime-color);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ANIMATIONS
+   Score updates, live pulse, entrance effects
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Score pop animation */
+@keyframes score-pop {
+    0% {
+        transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1);
+    }
+    30% {
+        transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(var(--sb-score-pop-scale));
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+    100% {
+        transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1);
+    }
+}
+
+.scoreboard__score-value--updated {
+    animation: score-pop var(--sb-score-pop-duration) ease-out;
+}
+
+/* Score box glow on update */
+@keyframes score-glow {
+    0% {
+        box-shadow: var(--sb-shadow-score);
+    }
+    30% {
+        box-shadow: var(--sb-shadow-score), 0 0 30px rgba(255, 255, 255, 0.5);
+    }
+    100% {
+        box-shadow: var(--sb-shadow-score);
+    }
+}
+
+.scoreboard__score--updated {
+    animation: score-glow var(--sb-score-pop-duration) ease-out;
+}
+
+/* Live pulse */
+@keyframes live-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.3);
+    }
+}
+
+/* Entrance animation */
+@keyframes scoreboard-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scoreboard--enter {
+    animation: scoreboard-enter 400ms ease-out forwards;
+}
+
+/* Stagger children entrance */
+.scoreboard--enter .scoreboard__team--away {
+    animation: slide-in-left 300ms ease-out forwards;
+}
+
+.scoreboard--enter .scoreboard__team--home {
+    animation: slide-in-right 300ms ease-out 50ms forwards;
+}
+
+.scoreboard--enter .scoreboard__center {
+    animation: fade-in-up 300ms ease-out 100ms forwards;
+}
+
+@keyframes slide-in-left {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translate(-50%, calc(-50% + 10px));
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   VS DIVIDER (Pre-game)
+   Decorative VS element for scheduled games
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__vs {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--sb-font-score);
+    font-size: calc(var(--sb-score-font) * 0.6);
+    font-weight: 700;
+    color: var(--sb-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    z-index: 5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RESPONSIVE ADJUSTMENTS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Compact variant hides some elements */
+.scoreboard--compact .scoreboard__record {
+    display: none;
+}
+
+.scoreboard--compact .scoreboard__status {
+    padding: 4px 10px;
+}
+
+/* Mobile: Reduce angles and complexity */
+@media (max-width: 567px) {
+    .scoreboard__team--away,
+    .scoreboard__team--home {
+        clip-path: none;
+        margin: 0;
+    }
+
+    .scoreboard__score {
+        transform: none;
+    }
+
+    .scoreboard__score-value {
+        transform: none;
+    }
+
+    .scoreboard__status {
+        clip-path: none;
+        border-radius: 4px;
+    }
+}

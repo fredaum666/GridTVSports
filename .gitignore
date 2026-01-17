@@ -49,3 +49,4 @@ tv-apps/android-tv/.gradle/
 # Android TV App (in development)
 AndroidTVApp/
 
+test-results/

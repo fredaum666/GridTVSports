@@ -32,7 +32,14 @@
       "Bash(tree:*)",
       "Bash(dir:*)",
       "Bash(chmod:*)",
-      "Bash(./generate-icons.sh:*)"
+      "Bash(./generate-icons.sh:*)",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_type",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "Bash(npx playwright test:*)",
+      "mcp__plugin_playwright_playwright__browser_close",
+      "mcp__plugin_playwright_playwright__browser_resize"
     ],
     "deny": [],
     "ask": []

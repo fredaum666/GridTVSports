@@ -1,0 +1,486 @@
+/**
+ * GridTV Scoreboard - Baseball Styles (MLB)
+ * Inning grid, diamond bases, balls/strikes/outs count
+ *
+ * Aesthetic: Classic broadcast meets modern ESPN graphics
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BASEBALL SCOREBOARD VARIANT
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--baseball {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--sb-height);
+}
+
+/* Home team: name on RIGHT side of score box (override base row-reverse) */
+.scoreboard--baseball .scoreboard__team--home {
+    flex-direction: row;
+}
+
+.scoreboard--baseball .scoreboard__team--home .scoreboard__info {
+    align-items: flex-start;
+    text-align: left;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BASEBALL EXTRAS CONTAINER
+   Regular/Compact: Wraps inning grid + situation bar in situation row
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__baseball-extras {
+    grid-area: situation;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INNING GRID
+   Traditional baseball line score (1-9 + R H E)
+   Regular/Compact: Inside extras container
+   Fullscreen: Center column under clock
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__inning-grid {
+    display: flex;
+    flex-direction: column;
+    background: var(--sb-bg-dark);
+    border-radius: 6px;
+    border: 1px solid var(--sb-border-subtle);
+    overflow: visible;
+    min-width: 200px;
+}
+
+/* Fullscreen: Position in center column of scoreboard grid */
+.scoreboard--fullscreen .scoreboard__inning-grid {
+    grid-area: 2 / 2 / 3 / 3;
+    border-radius: 0 0 6px 6px;
+    border-top: none;
+}
+
+/* Inning headers row */
+.scoreboard__inning-headers {
+    display: flex;
+    border-bottom: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__inning-header {
+    min-width: clamp(20px, 3vmin, 32px);
+    padding: 3px 2px;
+    text-align: center;
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.5rem, 0.9vmin, 0.7rem);
+    font-weight: 600;
+    color: var(--sb-text-muted);
+    flex-shrink: 0;
+}
+
+.scoreboard__inning-header--current {
+    color: var(--sb-text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    position: relative;
+}
+
+.scoreboard__inning-header--current::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--sb-live-color);
+    border-radius: 50%;
+}
+
+/* R H E headers */
+.scoreboard__inning-header--stat {
+    min-width: clamp(24px, 3.5vmin, 36px);
+    color: var(--sb-text-secondary);
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 1px solid var(--sb-border-subtle);
+}
+
+/* Team inning scores row */
+.scoreboard__inning-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__inning-row:last-child {
+    border-bottom: none;
+}
+
+.scoreboard__inning-row--away {
+    background: color-mix(in srgb, var(--sb-away-primary) 15%, transparent);
+}
+
+.scoreboard__inning-row--home {
+    background: color-mix(in srgb, var(--sb-home-primary) 15%, transparent);
+}
+
+/* Team abbreviation in grid */
+.scoreboard__inning-team {
+    min-width: clamp(32px, 5vmin, 48px);
+    padding: 4px 6px;
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.55rem, 1vmin, 0.8rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+}
+
+.scoreboard__inning-row--away .scoreboard__inning-team {
+    color: var(--sb-away-primary);
+}
+
+.scoreboard__inning-row--home .scoreboard__inning-team {
+    color: var(--sb-home-primary);
+}
+
+/* Individual inning scores */
+.scoreboard__inning-value {
+    min-width: clamp(20px, 3vmin, 32px);
+    padding: 4px 2px;
+    text-align: center;
+    font-family: var(--sb-font-mono);
+    font-size: clamp(0.55rem, 1vmin, 0.75rem);
+    color: var(--sb-text-secondary);
+    flex-shrink: 0;
+}
+
+.scoreboard__inning-value--current {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--sb-text-primary);
+    font-weight: 600;
+}
+
+/* Runs, Hits, Errors columns */
+.scoreboard__inning-value--stat {
+    min-width: clamp(24px, 3.5vmin, 36px);
+    font-weight: 600;
+    color: var(--sb-text-primary);
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 1px solid var(--sb-border-subtle);
+}
+
+.scoreboard__inning-value--runs {
+    font-weight: 700;
+}
+
+/* Winner highlight on runs */
+.scoreboard__inning-row--winner .scoreboard__inning-value--runs {
+    position: relative;
+    background: var(--sb-gold-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Soft gold glow behind winner runs - fades at edges */
+.scoreboard__inning-row--winner .scoreboard__inning-value--runs::before {
+    content: '';
+    position: absolute;
+    inset: -4px -8px;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(201, 148, 61, 0.25) 0%,
+        rgba(201, 148, 61, 0.1) 40%,
+        transparent 70%
+    );
+    border-radius: 8px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SITUATION BAR
+   Count, outs, and diamond display
+   Regular/Compact: Inside extras container
+   Fullscreen: Separate grid position below inning grid
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__baseball-situation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background: var(--sb-bg-dark);
+    border-radius: 6px;
+    border: 1px solid var(--sb-border-subtle);
+    gap: clamp(12px, 3vmin, 32px);
+    min-width: 180px;
+    overflow: visible;
+}
+
+/* Fullscreen: Position below inning grid in center column */
+.scoreboard--fullscreen .scoreboard__baseball-situation {
+    grid-area: 3 / 2 / 4 / 3;
+    border-radius: 0 0 6px 6px;
+    border-top: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DIAMOND BASES
+   SVG-based diamond showing runner positions
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__diamond {
+    position: relative;
+    width: clamp(36px, 6vmin, 60px);
+    height: clamp(36px, 6vmin, 60px);
+    flex-shrink: 0;
+    overflow: visible;
+}
+
+.scoreboard__diamond-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* Base styling */
+.scoreboard__base {
+    fill: rgba(255, 255, 255, 0.15);
+    stroke: rgba(255, 255, 255, 0.3);
+    stroke-width: 1;
+    transition: all var(--sb-transition-fast);
+}
+
+.scoreboard__base--occupied {
+    fill: #fbbf24;
+    stroke: #f59e0b;
+    stroke-width: 1.5;
+    /* Layered soft glow that fades gradually */
+    filter:
+        drop-shadow(0 0 2px rgba(251, 191, 36, 0.8))
+        drop-shadow(0 0 4px rgba(251, 191, 36, 0.4))
+        drop-shadow(0 0 8px rgba(251, 191, 36, 0.2));
+}
+
+/* Home plate (pentagon) */
+.scoreboard__home-plate {
+    fill: rgba(255, 255, 255, 0.3);
+    stroke: rgba(255, 255, 255, 0.5);
+    stroke-width: 1;
+}
+
+/* Base lines */
+.scoreboard__baselines {
+    stroke: rgba(255, 255, 255, 0.15);
+    stroke-width: 1;
+    fill: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BALLS, STRIKES, OUTS COUNT
+   Classic dot indicator display
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__count {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.scoreboard__count-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.scoreboard__count-label {
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.5rem, 0.9vmin, 0.7rem);
+    font-weight: 600;
+    color: var(--sb-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-width: 14px;
+}
+
+.scoreboard__count-dots {
+    display: flex;
+    gap: 3px;
+}
+
+.scoreboard__count-dot {
+    width: clamp(8px, 1.4vmin, 12px);
+    height: clamp(8px, 1.4vmin, 12px);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    transition: all var(--sb-transition-fast);
+}
+
+/* Active dot states */
+.scoreboard__count-dot--ball.scoreboard__count-dot--active {
+    background: #22c55e;
+    border-color: #16a34a;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+
+.scoreboard__count-dot--strike.scoreboard__count-dot--active {
+    background: #ef4444;
+    border-color: #dc2626;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+}
+
+.scoreboard__count-dot--out.scoreboard__count-dot--active {
+    background: #f59e0b;
+    border-color: #d97706;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INNING INDICATOR
+   Shows current inning and top/bottom
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__inning-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.scoreboard__inning-half {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    transition: all var(--sb-transition-fast);
+}
+
+/* Top of inning - arrow pointing up */
+.scoreboard__inning-half--top {
+    border-width: 0 6px 8px 6px;
+    border-color: transparent transparent var(--sb-text-muted) transparent;
+}
+
+.scoreboard__inning-half--top.scoreboard__inning-half--active {
+    border-color: transparent transparent var(--sb-text-primary) transparent;
+}
+
+/* Bottom of inning - arrow pointing down */
+.scoreboard__inning-half--bottom {
+    border-width: 8px 6px 0 6px;
+    border-color: var(--sb-text-muted) transparent transparent transparent;
+}
+
+.scoreboard__inning-half--bottom.scoreboard__inning-half--active {
+    border-color: var(--sb-text-primary) transparent transparent transparent;
+}
+
+.scoreboard__inning-number {
+    font-family: var(--sb-font-score);
+    font-size: clamp(1rem, 2vmin, 1.6rem);
+    font-weight: 700;
+    color: var(--sb-text-primary);
+    line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PITCHER/BATTER INFO (Optional)
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__at-bat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    max-width: 120px;
+}
+
+.scoreboard__at-bat-label {
+    font-size: clamp(0.45rem, 0.8vmin, 0.6rem);
+    color: var(--sb-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.scoreboard__at-bat-name {
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.6rem, 1.1vmin, 0.85rem);
+    font-weight: 600;
+    color: var(--sb-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   EXTRA INNINGS INDICATOR
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard__extra-innings {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    border-radius: 3px;
+    font-family: var(--sb-font-display);
+    font-size: clamp(0.5rem, 0.9vmin, 0.65rem);
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COMPACT VARIANT
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--baseball.scoreboard--compact .scoreboard__inning-grid {
+    display: none;
+}
+
+.scoreboard--baseball.scoreboard--compact .scoreboard__baseball-situation {
+    padding: 6px var(--sb-padding);
+    gap: 8px;
+}
+
+.scoreboard--baseball.scoreboard--compact .scoreboard__diamond {
+    width: 28px;
+    height: 28px;
+}
+
+.scoreboard--baseball.scoreboard--compact .scoreboard__at-bat {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FULLSCREEN VARIANT
+   ═══════════════════════════════════════════════════════════════════════ */
+.scoreboard--baseball.scoreboard--fullscreen .scoreboard__inning-grid {
+    min-width: clamp(240px, 30vmin, 400px);
+    border-radius: 0 0 8px 8px;
+}
+
+.scoreboard--baseball.scoreboard--fullscreen .scoreboard__inning-row {
+    padding: clamp(6px, 1vmin, 10px) clamp(10px, 1.5vmin, 16px);
+}
+
+.scoreboard--baseball.scoreboard--fullscreen .scoreboard__inning-team {
+    font-size: clamp(0.7rem, 1.4vmin, 1rem);
+}
+
+.scoreboard--baseball.scoreboard--fullscreen .scoreboard__inning-value {
+    font-size: clamp(0.7rem, 1.3vmin, 0.95rem);
+    min-width: clamp(24px, 4vmin, 38px);
+}
+
+.scoreboard--baseball.scoreboard--fullscreen .scoreboard__baseball-situation {
+    padding: clamp(10px, 2vmin, 20px) clamp(16px, 3vmin, 32px);
+    min-width: clamp(200px, 25vmin, 320px);
+    border-radius: 0 0 8px 8px;
+}
+
+.scoreboard--baseball.scoreboard--fullscreen .scoreboard__diamond {
+    width: clamp(48px, 8vmin, 80px);
+    height: clamp(48px, 8vmin, 80px);
+}
+
+.scoreboard--baseball.scoreboard--fullscreen .scoreboard__count-dot {
+    width: clamp(10px, 1.8vmin, 16px);
+    height: clamp(10px, 1.8vmin, 16px);
+}
