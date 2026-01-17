@@ -19,9 +19,15 @@
     flex-direction: row;
 }
 
+/* Center-align team info (name + record) for both teams */
+.scoreboard--hockey .scoreboard__info {
+    align-items: center;
+    text-align: center;
+}
+
 .scoreboard--hockey .scoreboard__team--home .scoreboard__info {
-    align-items: flex-start;
-    text-align: left;
+    align-items: center;
+    text-align: center;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
