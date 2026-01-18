@@ -441,6 +441,35 @@
             color: var(--accent-orange);
         }
 
+        .swap-teams-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 8px 12px;
+            margin-top: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .swap-teams-btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .swap-teams-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
         /* Save Options */
         .save-options {
             margin-top: 16px;
@@ -1396,6 +1425,11 @@
                     detectedTeams = detectTeamsFromPlays(parsedPlays);
                 }
 
+                // Convert raw yard positions to 0-100 field positions using detected teams
+                if (detectedTeams) {
+                    convertYardPositionsToFieldPositions(parsedPlays, detectedTeams);
+                }
+
                 renderPreview();
                 renderDetectedTeams();
                 updateSaveGameButton();
@@ -1493,13 +1527,17 @@
                             continue;
                         }
 
-                        let startYard = 0;
-                        let endYard = 0;
+                        let startYard = 50;
+                        let endYard = 50;
+                        let endTeam = null;
 
                         const yardMatch = playText.match(yardGainPattern);
                         if (yardMatch) {
-                            const yard = parseInt(yardMatch[2]);
-                            endYard = yard;
+                            endTeam = yardMatch[1].toUpperCase();
+                            const rawYard = parseInt(yardMatch[2]);
+                            // Store raw yard and team for later conversion
+                            // Will be converted to 0-100 after teams are detected
+                            endYard = rawYard;
                         }
 
                         const yardsGainedMatch = playText.match(yardsPattern);
@@ -1527,6 +1565,8 @@
                             clock: clock,
                             type: detectPlayType(playText),
                             text: playText,
+                            rawEndYard: endYard,
+                            rawEndTeam: endTeam,
                             startYard: Math.max(0, Math.min(100, startYard)),
                             endYard: Math.max(0, Math.min(100, endYard)),
                             down: currentDown,
@@ -1563,6 +1603,53 @@
             if (lower.includes('sack')) return 'rush';
             if (lower.includes('penalty')) return 'penalty';
             return 'pass';
+        }
+
+        /**
+         * Convert raw yard positions to 0-100 field positions
+         * Field coordinate system: 0 = away end zone (left), 100 = home end zone (right)
+         * - Away team attacks toward 100 (right)
+         * - Home team attacks toward 0 (left)
+         * @param {Array} plays - Array of parsed plays
+         * @param {Object} teams - { away: { abbr }, home: { abbr } }
+         */
+        function convertYardPositionsToFieldPositions(plays, teams) {
+            if (!plays || !teams) return;
+
+            const awayAbbr = (teams.away?.abbr || '').toUpperCase();
+            const homeAbbr = (teams.home?.abbr || '').toUpperCase();
+
+            plays.forEach(play => {
+                if (play.rawEndTeam && play.rawEndYard !== undefined) {
+                    const teamOnSide = play.rawEndTeam.toUpperCase();
+                    const rawYard = Math.max(0, Math.min(50, play.rawEndYard));
+
+                    // Convert "TEAM YARD" to 0-100 field position
+                    // Away team's side (0-50 on field): their 20 = 20 on field
+                    // Home team's side (50-100 on field): their 20 = 100-20 = 80 on field
+                    if (teamOnSide === awayAbbr) {
+                        play.endYard = rawYard;
+                    } else if (teamOnSide === homeAbbr) {
+                        play.endYard = 100 - rawYard;
+                    } else {
+                        // Unknown team, default to midfield
+                        play.endYard = 50;
+                    }
+
+                    // Calculate startYard based on yards gained and drive direction
+                    const yardsMatch = (play.text || '').match(/for\s+(-?\d+)\s+yard/i);
+                    const yardsGained = yardsMatch ? parseInt(yardsMatch[1]) : 0;
+
+                    // Direction: away drives toward 100, home drives toward 0
+                    const driveDirection = play.possession === 'away' ? 1 : -1;
+                    play.startYard = play.endYard - (yardsGained * driveDirection);
+
+                    // Clamp to valid range
+                    play.startYard = Math.max(0, Math.min(100, play.startYard));
+                    play.endYard = Math.max(0, Math.min(100, play.endYard));
+                }
+            });
+
         }
 
         // ==========================================
@@ -1636,12 +1723,40 @@
                     </div>
                     <span class="team-label home">Home</span>
                 </div>
+                <button class="swap-teams-btn" onclick="swapTeams()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M7 16V4M7 4L3 8M7 4L11 8M17 8V20M17 20L21 16M17 20L13 16"/>
+                    </svg>
+                    Swap Home/Away
+                </button>
             `;
 
             // Auto-fill game name
             if (detectedTeams.away && detectedTeams.home && !gameName.value) {
                 gameName.value = `${detectedTeams.away.abbr} @ ${detectedTeams.home.abbr}`;
             }
+        }
+
+        function swapTeams() {
+            if (!detectedTeams) return;
+
+            // Swap the away and home teams
+            const temp = detectedTeams.away;
+            detectedTeams.away = detectedTeams.home;
+            detectedTeams.home = temp;
+
+            // Re-convert yard positions with new team assignments
+            if (parsedPlays && parsedPlays.length > 0) {
+                convertYardPositionsToFieldPositions(parsedPlays, detectedTeams);
+            }
+
+            // Update the game name
+            gameName.value = `${detectedTeams.away.abbr} @ ${detectedTeams.home.abbr}`;
+
+            // Re-render the teams display
+            renderDetectedTeams();
+
+            console.log('🔄 Teams swapped:', { away: detectedTeams.away?.abbr, home: detectedTeams.home?.abbr });
         }
 
         function renderLibrary() {

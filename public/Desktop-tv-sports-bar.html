@@ -3260,12 +3260,11 @@
             // Update scoreboard
             updateGameCardScoreboard(card, gameState);
 
-            // Update field visualizer
+            // Update field visualizer position (animations handled by analyzeAndAnimatePlay below)
             const visualizer = window.fieldVisualizers.get(gameId);
             if (visualizer && gameState.yardLine !== undefined) {
                 // Calculate ball position for SVG (0-100)
                 const ballPosition = calculateBallPositionForReplay(gameState);
-                visualizer.setBallPosition(ballPosition);
 
                 // Update first down line
                 if (gameState.yardsToGo && gameState.possession) {
@@ -3273,9 +3272,73 @@
                     visualizer.setFirstDownPosition(firstDownPos, gameState.down > 0);
                 }
 
-                // Trigger animation based on play type
-                if (prevPlay && gameState.playType) {
-                    triggerPlayAnimation(visualizer, gameState, prevPlay);
+                // Only set ball position directly if we're not animating
+                // (analyzeAndAnimatePlay will handle animation + final position)
+                if (!prevPlay || !gameState.lastPlay) {
+                    visualizer.setBallPosition(ballPosition);
+                }
+            }
+
+            // Trigger animations (UI overlays + SVG field) - same logic as live games
+            if (prevPlay && gameState.lastPlay) {
+                const awayScoreChange = (gameState.away?.score || 0) - (prevPlay.awayScore || 0);
+                const homeScoreChange = (gameState.home?.score || 0) - (prevPlay.homeScore || 0);
+                const awayAbbr = gameState.away?.abbr || '';
+                const homeAbbr = gameState.home?.abbr || '';
+
+                // Build game context for intelligent play parser
+                // For replay mode, yardLine is already in 0-100 field position format
+                const gameContext = {
+                    situation: {
+                        yardLine: gameState.yardLine,
+                        down: gameState.down,
+                        distance: gameState.yardsToGo,
+                        isFieldPosition: true // Replay data is already converted to 0-100 format
+                    },
+                    awayAbbr,
+                    homeAbbr,
+                    possession: gameState.possession,
+                    awayScore: gameState.away?.score || 0,
+                    homeScore: gameState.home?.score || 0
+                };
+
+                const prevState = {
+                    awayScore: prevPlay.awayScore || 0,
+                    homeScore: prevPlay.homeScore || 0,
+                    possession: prevPlay.possession || null,
+                    lastPlay: prevPlay.lastPlay || ''
+                };
+
+                // Execute intelligent play animation for SVG field (async, fire-and-forget)
+                if (typeof parseAndAnimateNFLPlay === 'function') {
+                    parseAndAnimateNFLPlay(gameState.lastPlay, gameContext, prevState, visualizer)
+                        .then(result => {
+                            if (result.errors.length > 0) {
+                                console.warn('🎬 Replay animation errors:', result.errors);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('🎬 parseAndAnimateNFLPlay failed in replay:', err);
+                        });
+                }
+
+                // Trigger UI overlay animations (TDs, turnovers, etc.)
+                if (typeof analyzeAndAnimatePlay === 'function') {
+                    analyzeAndAnimatePlay(card, gameState.lastPlay, {
+                        awayTeam: { team: { abbreviation: awayAbbr, displayName: gameState.away?.name, logo: gameState.away?.logo } },
+                        homeTeam: { team: { abbreviation: homeAbbr, displayName: gameState.home?.name, logo: gameState.home?.logo } },
+                        awayScoreChange,
+                        homeScoreChange,
+                        prevDown: prevPlay.down || 0,
+                        currentDown: gameState.down || 0,
+                        downDistanceText: gameState.downDistance || '',
+                        prevDownDistance: prevPlay.downDistance || '',
+                        prevPossession: prevPlay.possession,
+                        currentPossession: gameState.possession,
+                        fieldPosition: gameState.yardLine || gameState.fieldPosition || '',  // Use CURRENT field position
+                        awayAbbr,
+                        homeAbbr
+                    });
                 }
             }
 
@@ -3363,20 +3426,24 @@
             if (awayScoreEl) awayScoreEl.textContent = gameState.away.score;
             if (homeScoreEl) homeScoreEl.textContent = gameState.home.score;
 
-            // Update time/period
-            const timeEl = card.querySelector('.fs-sb-time');
-            const timeLabelEl = card.querySelector('.fs-sb-time-label');
-            if (timeEl && gameState.status) {
+            // Update time/period (update ALL clock elements - tablet-top-clock AND fs-sb-center)
+            if (gameState.status) {
                 const parts = parseGameStatus(gameState.status, 'nfl');
-                if (timeLabelEl) timeLabelEl.textContent = parts.period || '';
-                timeEl.textContent = parts.time || gameState.status;
+                card.querySelectorAll('.fs-sb-time').forEach(timeEl => {
+                    timeEl.textContent = parts.time || gameState.status;
+                });
+                card.querySelectorAll('.fs-sb-time-label').forEach(timeLabelEl => {
+                    timeLabelEl.textContent = parts.period || '';
+                });
             }
 
             // Update down & distance (handle special plays like kickoffs)
             const downDistEl = card.querySelector('.fs-sb-down-distance');
             if (downDistEl) {
                 if (gameState.downDistance) {
-                    downDistEl.textContent = gameState.downDistance;
+                    // Strip "at TEAM XX" from down distance (shown separately in ball-position)
+                    const cleanDownDist = gameState.downDistance.replace(/\s+at\s+\w+\s+\d+$/i, '').trim();
+                    downDistEl.textContent = cleanDownDist;
                 } else if (gameState.playType) {
                     // Show play type for special plays (kickoff, punt, etc.)
                     const playType = gameState.playType.toUpperCase();
@@ -3452,13 +3519,15 @@
                 if (awayScoreEl) awayScoreEl.textContent = isUpcoming ? '-' : game.away.score;
                 if (homeScoreEl) homeScoreEl.textContent = isUpcoming ? '-' : game.home.score;
 
-                // Update time/period
-                const timeEl = card.querySelector('.fs-sb-time');
-                const timeLabelEl = card.querySelector('.fs-sb-time-label');
-                if (timeEl && game.status) {
+                // Update time/period (update ALL clock elements - tablet-top-clock AND fs-sb-center)
+                if (game.status) {
                     const parts = parseGameStatus(game.status, game.league);
-                    if (timeLabelEl) timeLabelEl.textContent = parts.period || '';
-                    timeEl.textContent = parts.time || game.status;
+                    card.querySelectorAll('.fs-sb-time').forEach(timeEl => {
+                        timeEl.textContent = parts.time || game.status;
+                    });
+                    card.querySelectorAll('.fs-sb-time-label').forEach(timeLabelEl => {
+                        timeLabelEl.textContent = parts.period || '';
+                    });
                 }
 
                 // Update status text element
@@ -3490,7 +3559,9 @@
                     // Update down & distance
                     const downDistEl = card.querySelector('.fs-sb-down-distance');
                     if (downDistEl) {
-                        downDistEl.textContent = game.downDistance || '';
+                        // Strip "at TEAM XX" from down distance (shown separately in ball-position)
+                        const cleanDownDist = (game.downDistance || '').replace(/\s+at\s+\w+\s+\d+$/i, '').trim();
+                        downDistEl.textContent = cleanDownDist;
                     }
 
                     // Update field position
@@ -3828,9 +3899,11 @@
                     game.possession === 'home' ? 'possession-home' : '';
                 const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
                 const redzone = isRedZone ? 'redzone' : '';
+                // Strip "at TEAM XX" from down distance (shown separately in ball-position)
+                const cleanDownDist = (game.downDistance || '').replace(/\s+at\s+\w+\s+\d+$/i, '').trim();
                 situationHTML = `
                     <div class="fs-sb-situation ${possession} ${redzone}">
-                        <span class="fs-sb-down-distance">${game.downDistance || ''}</span>
+                        <span class="fs-sb-down-distance">${cleanDownDist}</span>
                         <div class="fs-sb-situation-divider"></div>
                         <span class="fs-sb-ball-position">${game.fieldPosition || ''}</span>
                     </div>
@@ -4172,21 +4245,14 @@
         // Initialize the centralized animation module's skip timer
         setFullscreenEnteredAt(Date.now());
 
-        // Wrapper for NFL/NCAA play detection that uses centralized analyzeAndAnimatePlay
+        // Wrapper for NFL/NCAA play detection using intelligent play parser
         function detectPlayEvents(card, game, comp, prevData) {
             if (game.league !== 'nfl' && game.league !== 'ncaa') return;
 
             const lastPlay = comp?.situation?.lastPlay?.text || '';
 
-            // Debug: Log every call to detectPlayEvents
-            console.log('🏈 detectPlayEvents:', {
-                gameId: game.id,
-                lastPlayPreview: lastPlay.substring(0, 50) + '...',
-                prevLastPlay: (prevData.lastPlay || '').substring(0, 50) + '...',
-                isDuplicate: prevData.lastPlay === lastPlay
-            });
-
-            if (!lastPlay || prevData.lastPlay === lastPlay) return;
+            // Use fuzzy duplicate detection (normalizes punctuation differences)
+            if (!lastPlay || isDuplicatePlay(lastPlay, prevData.lastPlay || '')) return;
 
             // Skip administrative events that aren't actual football plays
             // These can appear in the API but aren't shown on ESPN's gamecast
@@ -4205,7 +4271,6 @@
                 lowerPlay.match(/^(official|officials?)\s+(timeout|review)/i);
 
             if (isAdministrativeEvent) {
-                console.log('🏈 Skipping administrative event:', lastPlay.substring(0, 50));
                 return;
             }
 
@@ -4214,25 +4279,42 @@
             const awayAbbr = awayTeam?.team?.abbreviation || '';
             const homeAbbr = homeTeam?.team?.abbreviation || '';
 
-            // Check for special teams plays (kickoff/punt) and animate on field
-            const parsedSpecialTeams = parseSpecialTeamsPlay(
-                lastPlay,
-                prevData.fieldPosition,
-                { awayAbbr, homeAbbr }
-            );
+            // Get field visualizer for this game
+            const visualizer = window.fieldVisualizers?.get(game.id);
 
-            if (parsedSpecialTeams) {
-                console.log('🏈 Special teams play detected:', parsedSpecialTeams.playType);
-                animateSpecialTeamsPlay(card, parsedSpecialTeams, {
-                    awayTeam: { team: awayTeam?.team },
-                    homeTeam: { team: homeTeam?.team },
-                    awayAbbr,
-                    homeAbbr
+            // Build game context for intelligent play parser
+            // Use CURRENT situation data, not stale prevData
+            const gameContext = {
+                situation: comp?.situation || {},
+                awayAbbr,
+                homeAbbr,
+                possession: game.possession || comp?.situation?.possession?.id || null,
+                awayScore: game.away?.score || 0,
+                homeScore: game.home?.score || 0
+            };
+
+            const prevState = {
+                awayScore: prevData.awayScore || 0,
+                homeScore: prevData.homeScore || 0,
+                possession: prevData.possession || null,
+                lastPlay: prevData.lastPlay || ''
+            };
+
+            // Execute intelligent play animation for SVG field (async, fire-and-forget)
+            parseAndAnimateNFLPlay(lastPlay, gameContext, prevState, visualizer)
+                .then(result => {
+                    if (result.errors.length > 0) {
+                        console.warn('🏈 Play animation errors:', result.errors);
+                    }
+                    if (result.warnings.length > 0) {
+                        console.log('🏈 Play animation warnings:', result.warnings);
+                    }
+                })
+                .catch(err => {
+                    console.error('🏈 parseAndAnimateNFLPlay failed:', err);
                 });
-                // Continue to analyzeAndAnimatePlay for other animations (TD on return, etc.)
-            }
 
-            // Use centralized analyzeAndAnimatePlay function
+            // Use centralized analyzeAndAnimatePlay function for UI overlays (TOUCHDOWN!, etc.)
             analyzeAndAnimatePlay(card, lastPlay, {
                 awayTeam: { team: awayTeam?.team },
                 homeTeam: { team: homeTeam?.team },
@@ -4244,7 +4326,7 @@
                 prevDownDistance: prevData.downDistanceText || '',
                 prevPossession: prevData.possession || null,
                 currentPossession: game.possession || null,
-                fieldPosition: prevData.fieldPosition || '',  // Field position at START of play for animation
+                fieldPosition: comp?.situation?.yardLine || game.fieldPosition || '',  // Use CURRENT field position
                 awayAbbr,
                 homeAbbr
             });

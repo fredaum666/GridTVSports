@@ -126,10 +126,11 @@ class PlayReplayEngine {
    * Format field position string
    */
   formatFieldPosition(play) {
-    if (!play || play.yardLine === undefined) return '';
+    if (!play) return '';
 
-    const yardLine = play.yardLine;
-    const possession = play.possession;
+    // Use endYard first (from parsed data), then yardLine as fallback
+    const yardLine = play.endYard || play.yardLine;
+    if (yardLine === undefined || yardLine === null) return '';
 
     // Determine which team's side of the field
     // 0-50 = away team's side, 50-100 = home team's side
