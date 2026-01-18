@@ -11,7 +11,17 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const webpush = require('web-push');
-const { pool } = require('./db');
+const {
+  pool,
+  saveDrives,
+  savePlays,
+  getGameDrives,
+  getGamePlays,
+  getGamesWithPlays,
+  markGameHasPlays,
+  hasCompletePlays,
+  getGameForReplay
+} = require('./db');
 require('dotenv').config();
 
 // Firebase Admin SDK for FCM (Firebase Cloud Messaging)
@@ -3444,11 +3454,75 @@ async function fetchGameStatsForCache(league, gameId, isComplete = false) {
     });
 
     cacheStats.statsUpdates++;
+
+    // For football games (NFL and NCAA), save plays to database in the background
+    // This runs without blocking the cache update
+    if ((league === 'nfl' || league === 'ncaa') && data && data.drives) {
+      saveGamePlaysToDB(gameId, league, data).catch(err => {
+        // Silent fail - don't affect main functionality
+        console.error(`[Replay] Background play save failed for ${gameId}:`, err.message);
+      });
+    }
+
     return data;
   } catch (error) {
     console.error(`[Stats Cache] Failed to fetch stats for ${cacheKey}:`, error.message);
     return null;
   }
+}
+
+/**
+ * Save game plays to database in the background (non-blocking)
+ * Used during live game updates to continuously save plays
+ */
+async function saveGamePlaysToDB(gameId, sport, summaryData) {
+  if (!summaryData || !summaryData.drives) {
+    return;
+  }
+
+  // Get team abbreviations from boxscore
+  const boxscore = summaryData.boxscore;
+  const competitors = boxscore?.teams || [];
+  let awayAbbr = '';
+  let homeAbbr = '';
+
+  competitors.forEach(team => {
+    if (team.homeAway === 'away') {
+      awayAbbr = team.team?.abbreviation || '';
+    } else if (team.homeAway === 'home') {
+      homeAbbr = team.team?.abbreviation || '';
+    }
+  });
+
+  if (!awayAbbr || !homeAbbr) {
+    return;
+  }
+
+  // Parse drives and plays
+  const { drives, plays } = parseESPNDrivesToDB(summaryData, sport, awayAbbr, homeAbbr);
+
+  if (drives.length === 0 && plays.length === 0) {
+    return;
+  }
+
+  // Save drives first to get their IDs
+  const savedDrives = await saveDrives(gameId, sport, drives);
+
+  // Create map of drive_sequence -> database drive_id
+  const driveIdMap = new Map();
+  savedDrives.forEach(d => {
+    driveIdMap.set(d.drive_sequence, d.id);
+  });
+
+  // Save plays with drive references (upsert handles duplicates)
+  const playCount = await savePlays(gameId, sport, plays, driveIdMap);
+
+  // Mark game as having play data
+  if (playCount > 0) {
+    await markGameHasPlays(gameId, playCount);
+  }
+
+  console.log(`[Replay] Saved ${plays.length} plays for live game ${gameId}`);
 }
 
 // Pre-fetch stats for all live games in a scoreboard response
@@ -4746,6 +4820,519 @@ app.get('/api/ncaab/summary/:gameId', async (req, res) => {
 });
 
 // ============================================
+// API ROUTES - GAME REPLAY (Drives & Plays)
+// ============================================
+
+/**
+ * Detect play type from play text
+ */
+function detectPlayTypeFromText(text) {
+  if (!text) return 'unknown';
+  const lower = text.toLowerCase();
+  if (lower.includes('kickoff') || lower.includes('kicks off')) return 'kickoff';
+  if (lower.includes('punt')) return 'punt';
+  if (lower.includes('field goal')) return 'field_goal';
+  if (lower.includes('extra point')) return 'extra_point';
+  if (lower.includes('two-point')) return 'two_point';
+  if (lower.includes('pass') || lower.includes('incomplete') || lower.includes('sacked')) return 'pass';
+  if (lower.includes('rush') || lower.includes('up the middle') || lower.includes('left end') || lower.includes('right end') || lower.includes('left guard') || lower.includes('right guard') || lower.includes('left tackle') || lower.includes('right tackle')) return 'rush';
+  if (lower.includes('penalty')) return 'penalty';
+  if (lower.includes('timeout')) return 'timeout';
+  if (lower.includes('kneel') || lower.includes('kneels')) return 'kneel';
+  return 'unknown';
+}
+
+/**
+ * Convert ESPN yard line to 0-100 field position
+ * 0 = away team's end zone, 100 = home team's end zone
+ */
+function convertYardLineToFieldPosition(yardLine, teamAbbr, awayAbbr, homeAbbr) {
+  if (yardLine === undefined || yardLine === null) return null;
+
+  // If on away team's side (0-50 on field)
+  if (teamAbbr === awayAbbr) {
+    return yardLine;
+  }
+  // If on home team's side (50-100 on field)
+  if (teamAbbr === homeAbbr) {
+    return 100 - yardLine;
+  }
+  // Default to midfield if unknown
+  return 50;
+}
+
+/**
+ * Parse ESPN drives data into database format
+ */
+function parseESPNDrivesToDB(summaryData, sport, awayAbbr, homeAbbr) {
+  const drivesPrevious = summaryData.drives?.previous || [];
+  const drivesCurrent = summaryData.drives?.current;
+
+  // Combine previous drives with current drive if exists
+  const allDrives = drivesCurrent ? [...drivesPrevious, drivesCurrent] : drivesPrevious;
+
+  const parsedDrives = [];
+  const parsedPlays = [];
+  let globalPlaySequence = 0;
+
+  allDrives.forEach((drive, driveIndex) => {
+    const teamAbbr = drive.team?.abbreviation || null;
+    const isAwayTeam = teamAbbr === awayAbbr;
+
+    // Parse drive
+    const parsedDrive = {
+      drive_sequence: driveIndex + 1,
+      team_abbr: teamAbbr,
+      team_id: drive.team?.id || null,
+      start_period: drive.start?.period?.number || null,
+      start_clock: drive.start?.clock?.displayValue || null,
+      start_yard: convertYardLineToFieldPosition(
+        drive.start?.yardLine,
+        drive.start?.team?.abbreviation || teamAbbr,
+        awayAbbr,
+        homeAbbr
+      ),
+      end_period: drive.end?.period?.number || null,
+      end_clock: drive.end?.clock?.displayValue || null,
+      end_yard: convertYardLineToFieldPosition(
+        drive.end?.yardLine,
+        drive.end?.team?.abbreviation || teamAbbr,
+        awayAbbr,
+        homeAbbr
+      ),
+      result: drive.displayResult || drive.result || null,
+      is_scoring: drive.isScore || false,
+      play_count: drive.offensivePlays || drive.plays?.length || 0,
+      yards_gained: drive.yards || 0,
+      time_of_possession: drive.timeOfPossession?.displayValue || null,
+      raw_data: drive
+    };
+    parsedDrives.push(parsedDrive);
+
+    // Parse plays within this drive
+    const drivePlays = drive.plays || [];
+    drivePlays.forEach((play, playIndexInDrive) => {
+      globalPlaySequence++;
+
+      const playText = play.text || '';
+      const playType = detectPlayTypeFromText(playText);
+      const isTouchdown = /touchdown/i.test(playText);
+      const isInterception = /intercept/i.test(playText);
+      const isFumble = /fumble/i.test(playText);
+      const isTurnover = isInterception || isFumble;
+      const isPenalty = /penalty/i.test(playText);
+
+      // Calculate score value
+      let scoreValue = 0;
+      if (play.scoringPlay) {
+        if (isTouchdown) scoreValue = 6;
+        else if (playType === 'field_goal') scoreValue = 3;
+        else if (playType === 'extra_point') scoreValue = 1;
+        else if (playType === 'two_point') scoreValue = 2;
+        else if (/safety/i.test(playText)) scoreValue = 2;
+      }
+
+      // Compute yards gained
+      const yardsMatch = playText.match(/for\s+(-?\d+)\s+yard/i);
+      const yardsGained = yardsMatch ? parseInt(yardsMatch[1]) : null;
+
+      // Field positions
+      const startYard = convertYardLineToFieldPosition(
+        play.start?.yardLine,
+        play.start?.team?.abbreviation || teamAbbr,
+        awayAbbr,
+        homeAbbr
+      );
+      const endYard = convertYardLineToFieldPosition(
+        play.end?.yardLine,
+        play.end?.team?.abbreviation || teamAbbr,
+        awayAbbr,
+        homeAbbr
+      );
+
+      // Pre-compute animation data
+      const driveDirection = isAwayTeam ? 1 : -1; // Away drives toward 100, home toward 0
+      const animationData = {
+        type: playType,
+        fromYard: startYard,
+        toYard: endYard,
+        direction: driveDirection,
+        isTouchdown,
+        isTurnover,
+        turnoverType: isInterception ? 'interception' : (isFumble ? 'fumble' : null)
+      };
+
+      const parsedPlay = {
+        drive_sequence: driveIndex + 1,
+        espn_play_id: play.id || null,
+        play_sequence: globalPlaySequence,
+        drive_play_sequence: playIndexInDrive + 1,
+        period: play.period?.number || play.period || 1,
+        clock: play.clock?.displayValue || null,
+        start_yard: startYard,
+        end_yard: endYard,
+        yards_gained: yardsGained,
+        down: play.start?.down || null,
+        distance: play.start?.distance || null,
+        play_type: playType,
+        play_text: playText,
+        possession_team_abbr: teamAbbr,
+        possession_team_id: drive.team?.id || null,
+        is_scoring: play.scoringPlay || false,
+        score_value: scoreValue,
+        away_score: play.awayScore || 0,
+        home_score: play.homeScore || 0,
+        is_touchdown: isTouchdown,
+        is_turnover: isTurnover,
+        turnover_type: isInterception ? 'interception' : (isFumble ? 'fumble' : null),
+        is_penalty: isPenalty,
+        penalty_yards: isPenalty ? (playText.match(/(\d+)\s+yard(?:s)?\s+penalty/i)?.[1] || null) : null,
+        animation_type: playType,
+        animation_data: animationData,
+        raw_data: play
+      };
+      parsedPlays.push(parsedPlay);
+    });
+  });
+
+  return { drives: parsedDrives, plays: parsedPlays };
+}
+
+/**
+ * POST /api/replay/save-plays/:gameId
+ * Fetch and save all plays for a game from ESPN
+ */
+app.post('/api/replay/save-plays/:gameId', async (req, res) => {
+  try {
+    const gameId = req.params.gameId;
+    const sport = req.query.sport || 'nfl';
+
+    console.log(`[Replay] Saving plays for game ${gameId} (${sport})`);
+
+    // Determine ESPN endpoint based on sport
+    const sportEndpoints = {
+      'nfl': `${ESPN_BASE}/football/nfl/summary?event=${gameId}`,
+      'ncaa': `${ESPN_BASE}/football/college-football/summary?event=${gameId}`
+    };
+
+    const url = sportEndpoints[sport];
+    if (!url) {
+      return res.status(400).json({ error: 'Invalid sport. Use nfl or ncaa.' });
+    }
+
+    // Fetch game summary from ESPN
+    const summaryData = await fetchESPN(url);
+
+    if (!summaryData || !summaryData.drives) {
+      return res.status(404).json({ error: 'No drive data found for this game' });
+    }
+
+    // Get team abbreviations
+    const boxscore = summaryData.boxscore;
+    const competitors = boxscore?.teams || [];
+    let awayAbbr = '';
+    let homeAbbr = '';
+
+    competitors.forEach(team => {
+      if (team.homeAway === 'away') {
+        awayAbbr = team.team?.abbreviation || '';
+      } else if (team.homeAway === 'home') {
+        homeAbbr = team.team?.abbreviation || '';
+      }
+    });
+
+    // Parse drives and plays
+    const { drives, plays } = parseESPNDrivesToDB(summaryData, sport, awayAbbr, homeAbbr);
+
+    console.log(`[Replay] Parsed ${drives.length} drives and ${plays.length} plays for game ${gameId}`);
+
+    // Save drives first to get their IDs
+    const savedDrives = await saveDrives(gameId, sport, drives);
+
+    // Create map of drive_sequence -> database drive_id
+    const driveIdMap = new Map();
+    savedDrives.forEach(d => {
+      driveIdMap.set(d.drive_sequence, d.id);
+    });
+
+    // Save plays with drive references
+    const playCount = await savePlays(gameId, sport, plays, driveIdMap);
+
+    // Mark game as having play data
+    await markGameHasPlays(gameId, playCount);
+
+    res.json({
+      success: true,
+      gameId,
+      sport,
+      drivesCount: drives.length,
+      playsCount: playCount,
+      awayTeam: awayAbbr,
+      homeTeam: homeAbbr
+    });
+  } catch (error) {
+    console.error('[Replay] Error saving plays:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/replay/games
+ * List games that have play data saved
+ */
+app.get('/api/replay/games', async (req, res) => {
+  try {
+    const filters = {
+      sport: req.query.sport || null,
+      dateFrom: req.query.date_from || null,
+      dateTo: req.query.date_to || null,
+      team: req.query.team || null,
+      limit: req.query.limit ? parseInt(req.query.limit) : 50
+    };
+
+    const games = await getGamesWithPlays(filters);
+
+    res.json({
+      games: games.map(g => ({
+        id: g.id,
+        sport: g.sport,
+        game_date: g.game_date,
+        week_number: g.week_number,
+        status: g.status,
+        home_team: g.home_team,
+        home_team_id: g.home_team_id,
+        home_score: g.home_score,
+        away_team: g.away_team,
+        away_team_id: g.away_team_id,
+        away_score: g.away_score,
+        play_count: g.play_count || g.saved_play_count,
+        has_play_data: g.has_play_data
+      })),
+      count: games.length
+    });
+  } catch (error) {
+    console.error('[Replay] Error fetching games:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/replay/game/:gameId
+ * Get complete game data for replay (drives + plays)
+ */
+app.get('/api/replay/game/:gameId', async (req, res) => {
+  try {
+    const gameId = req.params.gameId;
+
+    const gameData = await getGameForReplay(gameId);
+
+    if (!gameData) {
+      return res.status(404).json({ error: 'Game not found or no play data saved' });
+    }
+
+    // Format plays for PlayReplayEngine compatibility
+    const formattedPlays = gameData.plays.map(play => ({
+      sequenceNumber: play.play_sequence,
+      period: play.period,
+      clock: play.clock,
+      type: play.play_type,
+      text: play.play_text,
+      startYard: play.start_yard,
+      endYard: play.end_yard,
+      yardLine: play.end_yard,
+      down: play.down,
+      distance: play.distance,
+      possession: play.possession_team_abbr === gameData.game.away_team_id ? 'away' : 'home',
+      awayScore: play.away_score,
+      homeScore: play.home_score,
+      scoringPlay: play.is_scoring,
+      isTouchdown: play.is_touchdown,
+      isTurnover: play.is_turnover,
+      turnoverType: play.turnover_type,
+      isInterception: play.turnover_type === 'interception',
+      isFumble: play.turnover_type === 'fumble',
+      animationData: play.animation_data
+    }));
+
+    // Extract team info from raw_data if available
+    const rawData = gameData.game.raw_data;
+    let awayTeamInfo = { abbr: gameData.game.away_team_id, name: gameData.game.away_team };
+    let homeTeamInfo = { abbr: gameData.game.home_team_id, name: gameData.game.home_team };
+
+    if (rawData) {
+      const parsed = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+      const competitors = parsed.competitions?.[0]?.competitors || [];
+      competitors.forEach(comp => {
+        if (comp.homeAway === 'away') {
+          awayTeamInfo = {
+            abbr: comp.team?.abbreviation || gameData.game.away_team_id,
+            name: comp.team?.displayName || gameData.game.away_team,
+            logo: comp.team?.logo || '',
+            record: comp.records?.[0]?.summary || ''
+          };
+        } else if (comp.homeAway === 'home') {
+          homeTeamInfo = {
+            abbr: comp.team?.abbreviation || gameData.game.home_team_id,
+            name: comp.team?.displayName || gameData.game.home_team,
+            logo: comp.team?.logo || '',
+            record: comp.records?.[0]?.summary || ''
+          };
+        }
+      });
+    }
+
+    res.json({
+      id: gameData.game.id,
+      type: 'game',
+      metadata: {
+        away: awayTeamInfo,
+        home: homeTeamInfo
+      },
+      plays: formattedPlays,
+      drives: gameData.drives.map(d => ({
+        sequence: d.drive_sequence,
+        team: d.team_abbr,
+        result: d.result,
+        isScoring: d.is_scoring,
+        playCount: d.play_count,
+        yards: d.yards_gained,
+        startPeriod: d.start_period,
+        startClock: d.start_clock,
+        endPeriod: d.end_period,
+        endClock: d.end_clock
+      })),
+      totalPlays: formattedPlays.length,
+      totalDrives: gameData.drives.length
+    });
+  } catch (error) {
+    console.error('[Replay] Error fetching game for replay:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/replay/game/:gameId/plays
+ * Get just plays for a game (lighter endpoint)
+ */
+app.get('/api/replay/game/:gameId/plays', async (req, res) => {
+  try {
+    const gameId = req.params.gameId;
+    const options = {
+      period: req.query.period ? parseInt(req.query.period) : null,
+      fromSequence: req.query.from ? parseInt(req.query.from) : null,
+      limit: req.query.limit ? parseInt(req.query.limit) : null
+    };
+
+    const plays = await getGamePlays(gameId, options);
+
+    res.json({
+      gameId,
+      plays: plays.map(p => ({
+        sequence: p.play_sequence,
+        period: p.period,
+        clock: p.clock,
+        type: p.play_type,
+        text: p.play_text,
+        startYard: p.start_yard,
+        endYard: p.end_yard,
+        down: p.down,
+        distance: p.distance,
+        awayScore: p.away_score,
+        homeScore: p.home_score,
+        isScoring: p.is_scoring,
+        isTouchdown: p.is_touchdown,
+        isTurnover: p.is_turnover
+      })),
+      count: plays.length
+    });
+  } catch (error) {
+    console.error('[Replay] Error fetching plays:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/replay/sync-completed
+ * Sync plays for recently completed games (background job endpoint)
+ */
+app.post('/api/replay/sync-completed', async (req, res) => {
+  try {
+    const sport = req.query.sport || 'nfl';
+    const limit = parseInt(req.query.limit) || 10;
+
+    console.log(`[Replay] Syncing completed ${sport} games...`);
+
+    // Find completed games without play data
+    const query = `
+      SELECT id, sport FROM games
+      WHERE status = 'completed'
+        AND sport = $1
+        AND (has_play_data IS NULL OR has_play_data = FALSE)
+      ORDER BY game_date DESC
+      LIMIT $2
+    `;
+
+    const result = await pool.query(query, [sport, limit]);
+    const gamesToSync = result.rows;
+
+    console.log(`[Replay] Found ${gamesToSync.length} games to sync`);
+
+    const syncResults = [];
+    for (const game of gamesToSync) {
+      try {
+        // Fetch and save plays
+        const sportEndpoints = {
+          'nfl': `${ESPN_BASE}/football/nfl/summary?event=${game.id}`,
+          'ncaa': `${ESPN_BASE}/football/college-football/summary?event=${game.id}`
+        };
+
+        const summaryData = await fetchESPN(sportEndpoints[game.sport]);
+
+        if (summaryData && summaryData.drives) {
+          const boxscore = summaryData.boxscore;
+          const competitors = boxscore?.teams || [];
+          let awayAbbr = '';
+          let homeAbbr = '';
+
+          competitors.forEach(team => {
+            if (team.homeAway === 'away') awayAbbr = team.team?.abbreviation || '';
+            else if (team.homeAway === 'home') homeAbbr = team.team?.abbreviation || '';
+          });
+
+          const { drives, plays } = parseESPNDrivesToDB(summaryData, game.sport, awayAbbr, homeAbbr);
+          const savedDrives = await saveDrives(game.id, game.sport, drives);
+
+          const driveIdMap = new Map();
+          savedDrives.forEach(d => driveIdMap.set(d.drive_sequence, d.id));
+
+          const playCount = await savePlays(game.id, game.sport, plays, driveIdMap);
+          await markGameHasPlays(game.id, playCount);
+
+          syncResults.push({ gameId: game.id, success: true, playCount });
+        } else {
+          syncResults.push({ gameId: game.id, success: false, error: 'No drive data' });
+        }
+
+        // Rate limit between API calls
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (err) {
+        console.error(`[Replay] Failed to sync game ${game.id}:`, err.message);
+        syncResults.push({ gameId: game.id, success: false, error: err.message });
+      }
+    }
+
+    res.json({
+      synced: syncResults.filter(r => r.success).length,
+      failed: syncResults.filter(r => !r.success).length,
+      results: syncResults
+    });
+  } catch (error) {
+    console.error('[Replay] Error in sync-completed:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
 // API ROUTES - MLB
 // ============================================
 
@@ -5089,6 +5676,78 @@ cron.schedule('*/15 * * * * *', async () => {
     } catch (error) {
       console.error(`[NCAAB Background] Failed to update ${date}:`, error.message);
     }
+  }
+});
+
+// ============================================
+// AUTO-SAVE PLAYS FOR COMPLETED FOOTBALL GAMES
+// ============================================
+
+// Track recently completed games that we've already saved plays for
+const savedPlayGames = new Set();
+
+// Check for completed NFL/NCAA games and save plays every 5 minutes
+cron.schedule('*/5 * * * *', async () => {
+  try {
+    // Find recently completed NFL/NCAA games without play data
+    const query = `
+      SELECT id, sport FROM games
+      WHERE status = 'completed'
+        AND sport IN ('nfl', 'ncaa')
+        AND (has_play_data IS NULL OR has_play_data = FALSE)
+        AND game_date >= NOW() - INTERVAL '7 days'
+      ORDER BY game_date DESC
+      LIMIT 5
+    `;
+
+    const result = await pool.query(query);
+    const gamesToSave = result.rows.filter(g => !savedPlayGames.has(g.id));
+
+    if (gamesToSave.length === 0) return;
+
+    console.log(`[Replay Auto-Save] Found ${gamesToSave.length} games to save plays for`);
+
+    for (const game of gamesToSave) {
+      try {
+        const sportEndpoints = {
+          'nfl': `${ESPN_BASE}/football/nfl/summary?event=${game.id}`,
+          'ncaa': `${ESPN_BASE}/football/college-football/summary?event=${game.id}`
+        };
+
+        const summaryData = await fetchESPN(sportEndpoints[game.sport]);
+
+        if (summaryData && summaryData.drives) {
+          const boxscore = summaryData.boxscore;
+          const competitors = boxscore?.teams || [];
+          let awayAbbr = '';
+          let homeAbbr = '';
+
+          competitors.forEach(team => {
+            if (team.homeAway === 'away') awayAbbr = team.team?.abbreviation || '';
+            else if (team.homeAway === 'home') homeAbbr = team.team?.abbreviation || '';
+          });
+
+          const { drives, plays } = parseESPNDrivesToDB(summaryData, game.sport, awayAbbr, homeAbbr);
+          const savedDrives = await saveDrives(game.id, game.sport, drives);
+
+          const driveIdMap = new Map();
+          savedDrives.forEach(d => driveIdMap.set(d.drive_sequence, d.id));
+
+          const playCount = await savePlays(game.id, game.sport, plays, driveIdMap);
+          await markGameHasPlays(game.id, playCount);
+
+          savedPlayGames.add(game.id);
+          console.log(`[Replay Auto-Save] Saved ${playCount} plays for ${game.sport} game ${game.id}`);
+        }
+
+        // Rate limit between API calls
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (err) {
+        console.error(`[Replay Auto-Save] Failed to save game ${game.id}:`, err.message);
+      }
+    }
+  } catch (error) {
+    console.error('[Replay Auto-Save] Error in cron job:', error.message);
   }
 });
 

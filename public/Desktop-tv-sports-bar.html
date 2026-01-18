@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GridTV Sports - Sports Bar</title>
     <link rel="icon" type="image/png" href="/assets/logo.png">
+    <!-- Scoreboard Typography -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap">
     <link rel="stylesheet" href="/styles/fullscreen-cards.css">
     <link rel="stylesheet" href="/styles/tablet-fullscreen.css">
     <link rel="stylesheet" href="/styles/play-animations.css">
@@ -34,6 +36,45 @@
             --gutter: 12px;
             --card-radius: 12px;
             --touch-target: 44px;
+
+            /* ═══════════════════════════════════════════════════════════════
+               NEW SCOREBOARD SYSTEM VARIABLES (from scoreboard-variables.css)
+               Premium Broadcast Graphics Design System
+               ═══════════════════════════════════════════════════════════════ */
+
+            /* Typography */
+            --sb-font-score: 'Oswald', 'Impact', 'Arial Black', sans-serif;
+            --sb-font-display: 'Oswald', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+            --sb-font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --sb-font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+            --sb-score-weight: 700;
+            --sb-score-letter-spacing: -0.02em;
+            --sb-team-weight: 600;
+            --sb-team-letter-spacing: 0.04em;
+
+            /* Geometric angles */
+            --sb-skew-angle: -4deg;
+
+            /* Metallic accent gradients */
+            --sb-chrome-gradient: linear-gradient(135deg, #e8e8e8 0%, #b8b8b8 50%, #e0e0e0 100%);
+            --sb-gold-gradient: linear-gradient(135deg, #f0d78c 0%, #c9943d 50%, #e8c860 100%);
+
+            /* Shadows */
+            --sb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+            --sb-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+            --sb-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+            --sb-shadow-score: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
+
+            /* Status colors */
+            --sb-live-color: #ef4444;
+            --sb-live-glow: rgba(239, 68, 68, 0.6);
+
+            /* Animation timing */
+            --sb-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --sb-transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --sb-transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            --sb-score-pop-duration: 400ms;
+            --sb-score-pop-scale: 1.15;
         }
 
         /* Tablet (768px - 1024px) */
@@ -650,52 +691,6 @@
             display: none;
         }
 
-        /* Scoreboard top section - mirrors scoreboard layout below */
-        .fs-scoreboard-top {
-            width: 90%;
-            display: flex;
-            align-items: flex-end;
-            padding: 0;
-            margin-bottom: 0;
-        }
-
-        /* Spacer to match score box width */
-        .fs-sb-logo-spacer {
-            width: clamp(50px, 8vmin, 70px);
-            flex-shrink: 0;
-        }
-
-        /* Logo box - matches team section width */
-        .fs-sb-logo-box {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: clamp(8px, 2vmin, 6px);
-            /* border: 1px solid red; */
-            /* Debug */
-        }
-
-        /* Center spacer - matches time box width */
-        .fs-sb-logo-center-spacer {
-            width: clamp(60px, 10vmin, 100px);
-            flex-shrink: 0;
-        }
-
-        .fs-card-team-logo-wrapper {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .fs-card-team-logo {
-            width: clamp(50px, 8vmin, 90px);
-            height: clamp(50px, 8vmin, 90px);
-            object-fit: contain;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
-        }
-
         /* Possession indicator - football emoji near team logo */
         .fs-possession-indicator {
             position: absolute;
@@ -803,6 +798,8 @@
             --sb-center-bg: #1f2937;
             --sb-text-color: #ffffff;
             --sb-subtext-color: rgba(255, 255, 255, 0.7);
+            /* Logo size variable for responsive sizing */
+            --sb-logo-size: clamp(50px, 8vmin, 100px);
 
             position: relative;
             width: 90%;
@@ -816,99 +813,218 @@
                 0 4px 15px rgba(0, 0, 0, 0.5),
                 0 2px 6px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            /* Space for logos floating above */
+            margin-top: calc(var(--sb-logo-size) + 12px);
         }
 
-        /* Score boxes on sides */
+        /* Score boxes on sides - NEW SCOREBOARD DESIGN */
         .fs-sb-score-box {
-            position: relative;
-            width: clamp(65px, 10vmin, 90px);
+            width: clamp(52px, 8vmin, 72px);
+            height: 80%;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 2;
+            /* New: Dark background with skew for premium broadcast look */
+            background: linear-gradient(180deg,
+                    rgba(0, 0, 0, 0.7) 0%,
+                    rgba(0, 0, 0, 0.85) 100%);
+            transform: skewX(var(--sb-skew-angle));
+            box-shadow: var(--sb-shadow-score);
+            overflow: hidden;
+        }
+
+        /* Chrome edge highlight at top */
+        .fs-sb-score-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--sb-chrome-gradient);
+            opacity: 0.6;
         }
 
         .fs-sb-score-box.away {
-            background: linear-gradient(135deg, var(--sb-away-primary) 0%, var(--sb-away-primary) 60%, var(--sb-away-secondary) 100%);
-            /*clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%);*/
-            padding-right: 6px;
-            border-radius: 6px 0 0 6px;
-            box-shadow:
-                inset 0 2px 4px rgba(255, 255, 255, 0.2),
-                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+            border-radius: 4px 0 0 4px;
+            /* Team color accent on left edge */
+            border-left: 3px solid var(--sb-away-primary);
         }
 
         .fs-sb-score-box.home {
-            background: linear-gradient(135deg, var(--sb-home-secondary) 0%, var(--sb-home-primary) 40%, var(--sb-home-primary) 100%);
-            /*clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);*/
-            padding-left: 6px;
-            border-radius: 0 6px 6px 0;
-            box-shadow:
-                inset 0 2px 4px rgba(255, 255, 255, 0.2),
-                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+            border-radius: 0 4px 4px 0;
+            /* Team color accent on right edge */
+            border-right: 3px solid var(--sb-home-primary);
         }
 
         .fs-sb-score {
+            font-family: var(--sb-font-score);
             font-size: clamp(1.5rem, 6vmin, 3.5rem);
-            font-weight: 900;
-            color: var(--sb-text-color);
-            text-shadow:
-                0 1px 0 rgba(255, 255, 255, 0.3),
-                0 2px 2px rgba(0, 0, 0, 0.3),
-                0 3px 4px rgba(0, 0, 0, 0.2),
-                0 0 12px rgba(255, 255, 255, 0.1);
-            letter-spacing: 1px;
+            font-weight: var(--sb-score-weight);
+            color: #fff;
+            letter-spacing: var(--sb-score-letter-spacing);
+            line-height: 1;
+            /* Counter-skew to keep text straight */
+            transform: skewX(calc(var(--sb-skew-angle) * -1));
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            transition: transform var(--sb-score-pop-duration) var(--sb-transition-bounce);
         }
 
-        /* Team info sections inside scoreboard - metallic grey area */
+        /* Score update animation */
+        .fs-sb-score.score-updated {
+            animation: score-pop var(--sb-score-pop-duration) ease-out;
+        }
+
+        @keyframes score-pop {
+            0% {
+                transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1);
+            }
+
+            30% {
+                transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(var(--sb-score-pop-scale));
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            }
+
+            100% {
+                transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1);
+            }
+        }
+
+        /* Score box glow on update */
+        .fs-sb-score-box.score-updated {
+            animation: score-glow var(--sb-score-pop-duration) ease-out;
+        }
+
+        @keyframes score-glow {
+            0% {
+                box-shadow: var(--sb-shadow-score);
+            }
+
+            30% {
+                box-shadow: var(--sb-shadow-score), 0 0 30px rgba(255, 255, 255, 0.5);
+            }
+
+            100% {
+                box-shadow: var(--sb-shadow-score);
+            }
+        }
+
+        /* Team info sections inside scoreboard - NEW SCOREBOARD DESIGN with team colors */
         .fs-sb-team-section {
             flex: 1;
-            background: linear-gradient(180deg,
-                    #3d4654 0%,
-                    #2d3544 15%,
-                    #1f2937 50%,
-                    #1a202c 85%,
-                    #151a23 100%);
+            align-self: stretch;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 4px 10px;
             position: relative;
-
-            box-shadow:
-                inset 0 2px 3px rgba(255, 255, 255, 0.15),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.4),
-                inset 1px 0 2px rgba(255, 255, 255, 0.05),
-                inset -1px 0 2px rgba(0, 0, 0, 0.2);
+            transition: background var(--sb-transition-normal);
         }
 
+        /* Away team - uses team color gradient */
         .fs-sb-team-section.away {
-            padding-right: 50px;
+            padding-left: clamp(60px, 10vmin, 90px);
+            padding-right: clamp(40px, 6vmin, 60px);
+            background: linear-gradient(135deg,
+                    var(--sb-away-primary) 0%,
+                    color-mix(in srgb, var(--sb-away-primary) 85%, var(--sb-away-secondary)) 60%,
+                    color-mix(in srgb, var(--sb-away-primary) 70%, #000) 100%);
         }
 
+        /* Away score box - far left */
+        .fs-sb-team-section.away .fs-sb-score-box {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) skewX(var(--sb-skew-angle));
+        }
+
+        /* Home team - uses team color gradient */
         .fs-sb-team-section.home {
-            padding-left: 50px;
+            padding-left: clamp(40px, 6vmin, 60px);
+            padding-right: clamp(60px, 10vmin, 90px);
+            background: linear-gradient(135deg,
+                    color-mix(in srgb, var(--sb-home-primary) 70%, #000) 0%,
+                    color-mix(in srgb, var(--sb-home-primary) 85%, var(--sb-home-secondary)) 40%,
+                    var(--sb-home-primary) 100%);
+        }
+
+        /* Home score box - far right */
+        .fs-sb-team-section.home .fs-sb-score-box {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) skewX(var(--sb-skew-angle));
+        }
+
+        /* Inner glow effect on team panels */
+        .fs-sb-team-section::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg,
+                    rgba(255, 255, 255, 0.12) 0%,
+                    transparent 40%,
+                    transparent 60%,
+                    rgba(0, 0, 0, 0.15) 100%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .fs-sb-team-info {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2px;
+            z-index: 2;
+        }
+
+        /* Team logo inside team-info - positioned above the scoreboard */
+        .fs-sb-team-logo {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: clamp(6px, 1vmin, 12px);
+            width: var(--sb-logo-size);
+            height: var(--sb-logo-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .fs-sb-team-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+            transition: transform var(--sb-transition-fast);
+        }
+
+        /* Winner highlight on logo */
+        .fs-sb-team-section.winner .fs-sb-team-logo-img {
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
         }
 
         .fs-sb-team-name {
+            font-family: var(--sb-font-display);
             font-size: clamp(0.8rem, 7vmin, 2.1rem);
-            font-weight: 700;
-            color: var(--sb-text-color);
+            font-weight: var(--sb-team-weight);
+            color: #fff;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: var(--sb-team-letter-spacing);
+            line-height: 1.1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .fs-sb-team-record {
             font-size: clamp(0.6rem, 2.5vmin, 1.45rem);
-            color: var(--sb-subtext-color);
+            color: rgba(255, 255, 255, 0.75);
             font-weight: 500;
+            letter-spacing: 0.02em;
         }
 
         /* Timeout bars container - positioned absolutely between team name and center */
@@ -917,10 +1033,10 @@
             top: 50%;
             transform: translateY(-50%);
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             justify-content: center;
             align-items: center;
-            gap: 7px;
+            gap: 5px;
         }
 
         .fs-sb-timeouts.away {
@@ -931,22 +1047,31 @@
             left: 100px;
         }
 
+        /* NEW SCOREBOARD DESIGN - Vertical timeout bars with gold gradient */
         .fs-sb-timeout-bar {
-            width: clamp(6px, 5vmin, 14px);
-            height: clamp(6px, 5vmin, 14px);
-            background: linear-gradient(135deg, #414541 0%, #f5e3c4 100%);
-            border-radius: 1px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-            transition: opacity 0.3s ease;
+            /* Vertical bars: height > width */
+            width: clamp(4px, 0.8vmin, 6px);
+            height: clamp(16px, 3vmin, 28px);
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            transition: all var(--sb-transition-fast);
+        }
+
+        .fs-sb-timeout-bar.active,
+        .fs-sb-timeout-bar:not(.used) {
+            background: linear-gradient(180deg,
+                    #ffd700 0%,
+                    #ffaa00 50%,
+                    #cc8800 100%);
+            box-shadow: 0 0 8px rgba(255, 200, 0, 0.5);
         }
 
         .fs-sb-timeout-bar.used {
-            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-            opacity: 0.4;
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
         }
 
-        /* Center time/status section */
+        /* Center time/status section - NEW SCOREBOARD BADGE DESIGN */
         .fs-sb-center {
             position: absolute;
             left: 50%;
@@ -959,85 +1084,141 @@
         }
 
         .fs-sb-time-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: clamp(6px, 1.2vmin, 12px) clamp(12px, 2.5vmin, 24px);
             background: linear-gradient(180deg,
-                    #252a31 0%,
-                    #000000 10%,
-                    #393c47 40%,
-                    #000000 60%,
-                    #000000 90%,
-                    #000000 100%);
-            padding: 4px 14px;
-            clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
-            min-width: 80px;
-            text-align: center;
-            border: 1px solid #5a6577;
+                    rgba(20, 25, 35, 0.95) 0%,
+                    rgba(10, 12, 18, 0.98) 100%);
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.12);
             box-shadow:
-                0 3px 8px rgba(0, 0, 0, 0.5),
-                0 1px 2px rgba(0, 0, 0, 0.3),
-                inset 0 1px 2px rgba(255, 255, 255, 0.2),
-                inset 0 -1px 2px rgba(0, 0, 0, 0.3);
+                0 4px 20px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+            min-width: clamp(60px, 10vmin, 100px);
+            text-align: center;
+        }
+
+        /* Live game indicator - red glow effect */
+        .fs-sb-time-box.live {
+            background: linear-gradient(135deg, #1a0505 0%, #2a0808 100%);
+            box-shadow: var(--sb-shadow-md), 0 0 20px var(--sb-live-glow);
+        }
+
+        .fs-sb-time-box.live .fs-sb-time {
+            color: var(--sb-live-color);
         }
 
         .fs-sb-time-label {
-            font-size: clamp(1.45rem, 2.2vmin, 1.6rem);
-            color: var(--sb-subtext-color);
+            font-family: var(--sb-font-display);
+            font-size: clamp(1.1rem, 2.5vmin, 1.8rem);
+            font-weight: 700;
+            color: #fff;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
         }
 
         .fs-sb-time {
-            font-size: clamp(0.7rem, 2vmin, 1rem);
-            font-weight: 900;
-            color: var(--sb-text-color);
+            font-family: var(--sb-font-display);
+            font-size: clamp(0.6rem, 1.2vmin, 0.9rem);
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
             font-variant-numeric: tabular-nums;
+        }
+
+        /* Live pulse dot */
+        .fs-sb-live-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--sb-live-color);
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: live-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes live-pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.3);
+            }
         }
 
         /* ============================================
            GAME SITUATION BOX (NFL/NCAA Football)
+           NEW SCOREBOARD DESIGN
            ============================================ */
         .fs-sb-situation {
             --sb-possession-primary: #4b5563;
             --sb-possession-secondary: #374151;
 
             position: absolute;
-            bottom: -20px;
+            bottom: -17%;
             left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, var(--sb-possession-primary) 0%, var(--sb-possession-primary) 50%, var(--sb-possession-secondary) 100%);
-            padding: 5px 16px;
-            border-radius: 0 0 8px 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-top: none;
+            transform: translateX(-50%) translateY(50%);
+            background: linear-gradient(135deg,
+                    var(--sb-possession-primary) 0%,
+                    color-mix(in srgb, var(--sb-possession-primary) 70%, #000) 100%);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             min-width: 160px;
             justify-content: center;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             z-index: 5;
-            transition: left 0.3s ease, transform 0.3s ease;
+            transition: all 0.3s ease;
+            font-family: var(--sb-font-display);
+        }
+
+        /* Inner highlight on situation box */
+        .fs-sb-situation::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(180deg,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    transparent 50%);
+            pointer-events: none;
         }
 
         .fs-sb-situation.possession-away {
             --sb-possession-primary: var(--sb-away-primary);
             --sb-possession-secondary: var(--sb-away-secondary);
-            left: 25%;
-            transform: translateX(-50%);
+            left: 27%;
+            transform: translateX(-50%) translateY(50%);
         }
 
         .fs-sb-situation.possession-home {
             --sb-possession-primary: var(--sb-home-primary);
             --sb-possession-secondary: var(--sb-home-secondary);
-            left: 75%;
-            transform: translateX(-50%);
+            left: 74%;
+            transform: translateX(-50%) translateY(50%);
         }
 
         .fs-sb-down-distance {
-            font-size: clamp(0.65rem, 1.8vmin, 0.85rem);
+            font-family: var(--sb-font-display);
+            font-size: clamp(0.8rem, 1.6vmin, 1.3rem);
             font-weight: 700;
             color: #ffffff;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.04em;
             white-space: nowrap;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
         }
@@ -1281,47 +1462,32 @@
         }
 
         /* Grid-specific scoreboard adjustments */
-        /* Grid 1 - largest cards */
-        .fullscreen-grid.grid-1 .fs-sb-logo-spacer {
-            width: clamp(70px, 10vmin, 100px);
-        }
-
-        .fullscreen-grid.grid-1 .fs-sb-logo-center-spacer {
-            width: clamp(80px, 12vmin, 120px);
-        }
-
-        .fullscreen-grid.grid-1 .fs-card-team-logo {
-            width: clamp(80px, 12vmin, 140px);
-            height: clamp(80px, 12vmin, 140px);
-        }
-
+        /* Grid 1 - Largest cards, biggest logos */
         .fullscreen-grid.grid-1 .fs-scoreboard {
+            --sb-logo-size: clamp(80px, 12vmin, 140px);
             height: clamp(70px, 10vmin, 100px);
         }
 
         .fullscreen-grid.grid-1 .fs-sb-score-box {
-            width: clamp(70px, 15vmin, 120px);
+            width: clamp(56px, 12vmin, 96px);
         }
 
-        /* Grid 2 */
-        .fullscreen-grid.grid-2 .fs-sb-logo-spacer {
-            width: clamp(50px, 8vmin, 70px);
+        /* Grid 2 - Large cards */
+        .fullscreen-grid.grid-2 .fs-scoreboard {
+            --sb-logo-size: clamp(60px, 10vmin, 100px);
         }
 
-        .fullscreen-grid.grid-2 .fs-sb-logo-center-spacer {
-            width: clamp(70px, 10vmin, 100px);
+        /* Grid 3-4 - Medium cards */
+        .fullscreen-grid.grid-3 .fs-scoreboard,
+        .fullscreen-grid.grid-4 .fs-scoreboard {
+            --sb-logo-size: clamp(45px, 7vmin, 70px);
         }
 
-        .fullscreen-grid.grid-2 .fs-card-team-logo {
-            width: clamp(60px, 10vmin, 100px);
-            height: clamp(60px, 10vmin, 100px);
-        }
-
-        /* Grid 3-4 timeout bars */
+        /* Grid 3-4 timeout bars - vertical bars */
         .fullscreen-grid.grid-3 .fs-sb-timeout-bar,
         .fullscreen-grid.grid-4 .fs-sb-timeout-bar {
-            width: clamp(5px, 0.9vmin, 8px);
-            height: clamp(5px, 0.9vmin, 8px);
+            width: clamp(3px, 0.6vmin, 5px);
+            height: clamp(12px, 2.5vmin, 20px);
         }
 
         .fullscreen-grid.grid-3 .fs-sb-timeouts.away,
@@ -1334,33 +1500,22 @@
             left: clamp(65px, 9vw, 90px);
         }
 
-        /* Grid 5-6 */
-        .fullscreen-grid.grid-5 .fs-sb-logo-spacer,
-        .fullscreen-grid.grid-6 .fs-sb-logo-spacer {
-            width: clamp(45px, 7vmin, 60px);
-        }
-
-        .fullscreen-grid.grid-5 .fs-sb-logo-center-spacer,
-        .fullscreen-grid.grid-6 .fs-sb-logo-center-spacer {
-            width: clamp(50px, 8vmin, 80px);
-        }
-
-        .fullscreen-grid.grid-5 .fs-card-team-logo,
-        .fullscreen-grid.grid-6 .fs-card-team-logo {
-            width: clamp(35px, 6vmin, 60px);
-            height: clamp(35px, 6vmin, 60px);
+        /* Grid 5-6 - Smaller cards */
+        .fullscreen-grid.grid-5 .fs-scoreboard,
+        .fullscreen-grid.grid-6 .fs-scoreboard {
+            --sb-logo-size: clamp(35px, 6vmin, 60px);
         }
 
         .fullscreen-grid.grid-5 .fs-sb-score-box,
         .fullscreen-grid.grid-6 .fs-sb-score-box {
-            width: clamp(45px, 7vmin, 60px);
+            width: clamp(36px, 5.5vmin, 48px);
         }
 
-        /* Grid 5-6 timeout bars */
+        /* Grid 5-6 timeout bars - vertical bars */
         .fullscreen-grid.grid-5 .fs-sb-timeout-bar,
         .fullscreen-grid.grid-6 .fs-sb-timeout-bar {
-            width: clamp(5px, 0.8vmin, 8px);
-            height: clamp(5px, 0.8vmin, 8px);
+            width: clamp(3px, 0.6vmin, 5px);
+            height: clamp(10px, 2vmin, 18px);
         }
 
         .fullscreen-grid.grid-5 .fs-sb-timeouts.away,
@@ -1376,31 +1531,19 @@
         /* ============================================
            GRID 7 - FEATURED BIG CARD (first-child, spans 3 rows)
            ============================================ */
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-logo-spacer {
-            width: clamp(45px, 6vmin, 60px);
-        }
-
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-logo-center-spacer {
-            width: clamp(50px, 7vmin, 70px);
-        }
-
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-card-team-logo {
-            width: clamp(50px, 8vmin, 80px);
-            height: clamp(50px, 8vmin, 80px);
-        }
-
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-scoreboard {
+            --sb-logo-size: clamp(50px, 8vmin, 80px);
             height: clamp(45px, 15vmin, 100px);
             width: 88%;
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score-box {
-            width: clamp(45px, 10vmin, 75px);
+            width: clamp(36px, 8vmin, 60px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeout-bar {
-            width: clamp(6px, 1.7vmin, 8px);
-            height: clamp(6px, 1.7vmin, 8px);
+            width: clamp(4px, 0.8vmin, 6px);
+            height: clamp(14px, 3vmin, 24px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts {
@@ -1453,30 +1596,18 @@
         /* ============================================
            GRID 7 - 6 SMALLER CARDS (nth-child 2-7)
            ============================================ */
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-logo-spacer {
-            width: clamp(40px, 6vmin, 55px);
-        }
-
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-logo-center-spacer {
-            width: clamp(40px, 6vmin, 60px);
-        }
-
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-card-team-logo {
-            width: clamp(30px, 5vmin, 50px);
-            height: clamp(30px, 5vmin, 50px);
-        }
-
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
+            --sb-logo-size: clamp(30px, 5vmin, 50px);
             height: clamp(40px, 10vmin, 80px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-score-box {
-            width: clamp(40px, 6vmin, 55px);
+            width: clamp(32px, 4.8vmin, 44px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeout-bar {
-            width: clamp(6px, 3.6vmin, 8px);
-            height: clamp(6px, 3.6vmin, 8px);
+            width: clamp(3px, 0.5vmin, 5px);
+            height: clamp(10px, 2vmin, 16px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts {
@@ -1500,31 +1631,16 @@
         /* ============================================
            GRID 8 - 2 BIG CARDS (first-child and nth-child(2))
            ============================================ */
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-logo-spacer,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-logo-spacer {
-            width: clamp(50px, 8vmin, 70px);
-        }
-
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-logo-center-spacer,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-logo-center-spacer {
-            width: clamp(55px, 9vmin, 80px);
-        }
-
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-card-team-logo,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-card-team-logo {
-            width: clamp(55px, 10vmin, 90px);
-            height: clamp(55px, 10vmin, 90px);
-        }
-
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-scoreboard,
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-scoreboard {
+            --sb-logo-size: clamp(55px, 10vmin, 90px);
             height: clamp(55px, 8vmin, 75px);
             width: 90%;
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-score-box,
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-score-box {
-            width: clamp(55px, 8vmin, 75px);
+            width: clamp(44px, 6.4vmin, 60px);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-score,
@@ -1544,8 +1660,8 @@
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeout-bar,
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeout-bar {
-            width: clamp(6px, 0.9vmin, 9px);
-            height: clamp(6px, 0.9vmin, 9px);
+            width: clamp(4px, 0.7vmin, 6px);
+            height: clamp(12px, 2.5vmin, 20px);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts,
@@ -1589,25 +1705,13 @@
         /* ============================================
            GRID 8 - 6 SMALLER CARDS (nth-child 3-8)
            ============================================ */
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-logo-spacer {
-            width: clamp(35px, 5vmin, 50px);
-        }
-
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-logo-center-spacer {
-            width: clamp(35px, 5vmin, 55px);
-        }
-
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-card-team-logo {
-            width: clamp(28px, 4.5vmin, 45px);
-            height: clamp(28px, 4.5vmin, 45px);
-        }
-
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-scoreboard {
+            --sb-logo-size: clamp(28px, 4.5vmin, 45px);
             height: clamp(38px, 5.5vmin, 50px);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score-box {
-            width: clamp(38px, 5.5vmin, 50px);
+            width: clamp(30px, 4.4vmin, 40px);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score {
@@ -1623,8 +1727,8 @@
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeout-bar {
-            width: clamp(6px, 0.8vmin, 9px);
-            height: clamp(6px, 0.8vmin, 9px);
+            width: clamp(3px, 0.5vmin, 5px);
+            height: clamp(8px, 1.5vmin, 14px);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts {
@@ -2092,10 +2196,6 @@
                 width: 95%;
             }
 
-            .fs-scoreboard-top {
-                width: 80%;
-            }
-
             .fs-sb-team-name {
                 font-size: clamp(0.7rem, 1.8vmin, 1rem);
             }
@@ -2121,21 +2221,13 @@
             }
 
             .fs-scoreboard {
+                --sb-logo-size: clamp(40px, 12vw, 70px);
                 width: 98%;
                 height: clamp(45px, 12vw, 65px);
             }
 
-            .fs-scoreboard-top {
-                width: 98%;
-            }
-
-            .fs-card-team-logo {
-                width: clamp(40px, 12vw, 70px);
-                height: clamp(40px, 12vw, 70px);
-            }
-
             .fs-sb-score-box {
-                width: clamp(50px, 14vw, 70px);
+                width: clamp(40px, 11vw, 56px);
             }
 
             .fs-sb-score {
@@ -2208,16 +2300,12 @@
             }
 
             .fs-scoreboard {
+                --sb-logo-size: clamp(35px, 14vw, 55px);
                 height: clamp(40px, 14vw, 55px);
             }
 
-            .fs-card-team-logo {
-                width: clamp(35px, 14vw, 55px);
-                height: clamp(35px, 14vw, 55px);
-            }
-
             .fs-sb-score-box {
-                width: clamp(40px, 16vw, 55px);
+                width: clamp(32px, 13vw, 44px);
             }
 
             .fs-sb-score {
@@ -3079,7 +3167,7 @@
 
             // FALLBACK: Use mock live NFL games when no games are selected
             // This allows testing layouts directly without selecting games
-            const USE_MOCK_DATA = false; // Set to false to disable mock fallback
+            const USE_MOCK_DATA = true; // Set to false to disable mock fallback
 
             if (USE_MOCK_DATA && games.length === 0) {
                 usingMockData = true;
@@ -3566,34 +3654,178 @@
 
                 // Update football-specific elements
                 if (isFootball && isLive) {
-                    // Update down & distance
-                    const downDistEl = card.querySelector('.fs-sb-down-distance');
-                    if (downDistEl) {
-                        // Strip "at TEAM XX" from down distance (shown separately in ball-position)
-                        const cleanDownDist = (game.downDistance || '').replace(/\s+at\s+\w+\s+\d+$/i, '').trim();
-                        downDistEl.textContent = cleanDownDist;
-                    }
+                    // Check if game is in intermission (halftime, end of quarter, etc.)
+                    const statusLower = (game.status || '').toLowerCase();
+                    const isIntermission = statusLower.includes('halftime') ||
+                        statusLower.includes('half') ||
+                        statusLower.includes('end of') ||
+                        statusLower.includes('intermission') ||
+                        (statusLower.includes('2nd') && statusLower.includes('0:00')) ||
+                        (statusLower.includes('4th') && statusLower.includes('0:00'));
 
-                    // Update field position
-                    const fieldPosEl = card.querySelector('.fs-sb-ball-position');
-                    if (fieldPosEl) {
-                        fieldPosEl.textContent = game.fieldPosition || '';
-                    }
+                    // Determine if we have valid play data to display
+                    // Show situation box if we have downDistance OR yardLine (even if fieldPosition text isn't perfect)
+                    const hasValidPlayData = !isIntermission && (
+                        game.downDistance ||
+                        (game.specialPlay && game.specialPlayText) ||
+                        (game.yardLine && game.possession)
+                    );
 
-                    // Update possession indicator
-                    const situationBox = card.querySelector('.fs-sb-situation');
-                    if (situationBox) {
-                        situationBox.classList.remove('possession-away', 'possession-home');
-                        if (game.possession === 'away') {
-                            situationBox.classList.add('possession-away');
-                        } else if (game.possession === 'home') {
-                            situationBox.classList.add('possession-home');
+                    const scoreboard = card.querySelector('.fs-scoreboard');
+                    const cardWrapper = card.querySelector('.fs-card-wrapper');
+                    let situationBox = card.querySelector('.fs-sb-situation');
+                    let fieldContainer = card.querySelector('.field-visualizer');
+
+                    if (hasValidPlayData) {
+                        // Check if we need to create the situation box (e.g., returning from halftime)
+                        if (!situationBox && scoreboard) {
+                            const possession = game.possession === 'away' ? 'possession-away' :
+                                game.possession === 'home' ? 'possession-home' : '';
+                            const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
+                            const redzone = isRedZone ? 'redzone' : '';
+
+                            if (game.downDistance) {
+                                // Normal down/distance situation (fieldPosition may or may not be available)
+                                const cleanDownDist = (game.downDistance || '').replace(/\s+at\s+\w+\s+\d+$/i, '').trim();
+                                const fieldPosText = game.fieldPosition || (game.yardLine ? `${game.yardLine}` : '');
+                                const situationHTML = `
+                                    <div class="fs-sb-situation ${possession} ${redzone}">
+                                        <span class="fs-sb-down-distance">${cleanDownDist}</span>
+                                        <div class="fs-sb-situation-divider"></div>
+                                        <span class="fs-sb-ball-position">${fieldPosText}</span>
+                                    </div>
+                                `;
+                                scoreboard.insertAdjacentHTML('beforeend', situationHTML);
+                            } else if (game.specialPlay && game.specialPlayText) {
+                                // Special play situation (kickoff, punt, etc.)
+                                const specialClass = `special-play-${game.specialPlay}`;
+                                const situationHTML = `
+                                    <div class="fs-sb-situation special-play ${specialClass}">
+                                        <span class="fs-sb-down-distance">${game.specialPlayText}</span>
+                                    </div>
+                                `;
+                                scoreboard.insertAdjacentHTML('beforeend', situationHTML);
+                            }
+                            situationBox = card.querySelector('.fs-sb-situation');
+                            if (situationBox) {
+                                console.log(`📺 Created situation box for game ${game.id} (returning from intermission)`);
+                            }
                         }
-                    }
 
-                    // Update ball position on field visualizer
-                    if (game.fieldPosition) {
-                        updateBallPosition(card, game.fieldPosition, game.yardsToGo || 0, game.possession, game.away, game.home, game.league);
+                        // Check if we need to create the field visualizer
+                        if (!fieldContainer && cardWrapper && (game.downDistance || game.yardLine)) {
+                            const awayColors = getScoreboardColors(game.league, game.away.abbr);
+                            const homeColors = getScoreboardColors(game.league, game.home.abbr);
+                            const gridCount = games.length;
+                            const isCompressed = gridCount >= 3;
+                            const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
+
+                            const fieldHTML = `
+                                <div class="${fieldClass}">
+                                    <div class="svg-field-container"
+                                         data-game-id="${game.id}"
+                                         data-compressed="${isCompressed}"
+                                         data-away-color="${awayColors.primary}"
+                                         data-home-color="${homeColors.primary}"
+                                         data-away-abbr="${game.away.abbr}"
+                                         data-home-abbr="${game.home.abbr}">
+                                    </div>
+                                </div>
+                            `;
+                            cardWrapper.insertAdjacentHTML('beforeend', fieldHTML);
+                            fieldContainer = card.querySelector('.field-visualizer');
+
+                            // Initialize the SVG field visualizer for this new container
+                            const svgContainer = card.querySelector('.svg-field-container');
+                            if (svgContainer && typeof SVGFieldVisualizer !== 'undefined') {
+                                const visualizer = new SVGFieldVisualizer(svgContainer, {
+                                    compressed: isCompressed,
+                                    showGoalPosts: true,
+                                    showYardNumbers: !isCompressed,
+                                    showOneYardLines: !isCompressed,
+                                    awayColor: awayColors.primary,
+                                    homeColor: homeColors.primary,
+                                    awayAbbr: game.away.abbr,
+                                    homeAbbr: game.home.abbr
+                                });
+                                window.fieldVisualizers.set(game.id, visualizer);
+                                console.log(`📺 Created field visualizer for game ${game.id} (returning from intermission)`);
+                            }
+                        }
+
+                        // Show elements
+                        if (situationBox) situationBox.classList.remove('hidden');
+                        if (fieldContainer) fieldContainer.style.display = '';
+
+                        // Update down & distance
+                        const downDistEl = card.querySelector('.fs-sb-down-distance');
+                        if (downDistEl) {
+                            if (game.specialPlay && game.specialPlayText) {
+                                downDistEl.textContent = game.specialPlayText;
+                            } else {
+                                const cleanDownDist = (game.downDistance || '').replace(/\s+at\s+\w+\s+\d+$/i, '').trim();
+                                downDistEl.textContent = cleanDownDist;
+                            }
+                        }
+
+                        // Update field position (use yardLine as fallback)
+                        const fieldPosEl = card.querySelector('.fs-sb-ball-position');
+                        if (fieldPosEl) {
+                            const fieldPosText = game.fieldPosition || (game.yardLine ? `${game.yardLine}` : '');
+                            fieldPosEl.textContent = fieldPosText;
+                        }
+
+                        // Update possession indicator
+                        if (situationBox) {
+                            situationBox.classList.remove('possession-away', 'possession-home', 'redzone');
+                            situationBox.classList.remove('special-play', 'special-play-kickoff', 'special-play-punt',
+                                'special-play-return', 'special-play-touchback', 'special-play-faircatch',
+                                'special-play-xp', 'special-play-fg', 'special-play-2pt');
+
+                            if (game.specialPlay && game.specialPlayText) {
+                                situationBox.classList.add('special-play', `special-play-${game.specialPlay}`);
+                            } else {
+                                if (game.possession === 'away') {
+                                    situationBox.classList.add('possession-away');
+                                } else if (game.possession === 'home') {
+                                    situationBox.classList.add('possession-home');
+                                }
+                                const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
+                                if (isRedZone) situationBox.classList.add('redzone');
+                            }
+                        }
+
+                        // Update ball position on field visualizer
+                        if (game.fieldPosition || game.yardLine) {
+                            updateBallPosition(card, game.fieldPosition, game.yardsToGo || 0, game.possession, game.away, game.home, game.league);
+                        }
+                    } else {
+                        // No valid play data or in intermission - hide the elements
+                        // BUT don't hide if there's an active animation (TD, FG, etc.)
+                        // OR if a scoring play just happened (animation is about to trigger)
+                        const hasActiveAnimation = card.querySelector('.play-animation');
+                        const visualizer = window.fieldVisualizers?.get(game.id);
+                        const isAnimating = visualizer?.state?.animating;
+
+                        // Check if last play indicates a scoring play that will trigger animation
+                        const lastPlayText = (game.lastPlay || '').toLowerCase();
+                        const isScoringPlay = lastPlayText.includes('touchdown') ||
+                            lastPlayText.includes('field goal') ||
+                            lastPlayText.includes('extra point') ||
+                            lastPlayText.includes('safety') ||
+                            lastPlayText.includes('two-point') ||
+                            lastPlayText.includes('2-pt') ||
+                            lastPlayText.includes('intercepted') ||
+                            lastPlayText.includes('fumble');
+
+                        if (!hasActiveAnimation && !isAnimating && !isScoringPlay) {
+                            if (situationBox) {
+                                situationBox.classList.add('hidden');
+                            }
+                            if (fieldContainer) {
+                                fieldContainer.style.display = 'none';
+                            }
+                        }
                     }
                 }
 
@@ -3904,18 +4136,20 @@
             const isMLB = game.league === 'mlb';
 
             // For replay mode, always create situation box for NFL games (will be populated by replay updates)
-            if (isFootball && isLive && (game.downDistance || isReplayMode) && !isIntermission) {
+            // Also show if we have valid down data (even without full fieldPosition text)
+            if (isFootball && isLive && (game.downDistance || game.yardLine || isReplayMode) && !isIntermission) {
                 const possession = game.possession === 'away' ? 'possession-away' :
                     game.possession === 'home' ? 'possession-home' : '';
                 const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
                 const redzone = isRedZone ? 'redzone' : '';
                 // Strip "at TEAM XX" from down distance (shown separately in ball-position)
                 const cleanDownDist = (game.downDistance || '').replace(/\s+at\s+\w+\s+\d+$/i, '').trim();
+                const fieldPosText = game.fieldPosition || (game.yardLine ? `${game.yardLine}` : '');
                 situationHTML = `
                     <div class="fs-sb-situation ${possession} ${redzone}">
                         <span class="fs-sb-down-distance">${cleanDownDist}</span>
                         <div class="fs-sb-situation-divider"></div>
-                        <span class="fs-sb-ball-position">${game.fieldPosition || ''}</span>
+                        <span class="fs-sb-ball-position">${fieldPosText}</span>
                     </div>
                 `;
             } else if (isFootball && isLive && game.specialPlay && game.specialPlayText && !isIntermission) {
@@ -3965,7 +4199,7 @@
                         </div>
                     </div>
                 `;
-            } else if (isFootball && isLive && ((game.downDistance && game.fieldPosition) || isReplayMode) && !isIntermission) {
+            } else if (isFootball && isLive && ((game.downDistance || game.yardLine) || isReplayMode) && !isIntermission) {
                 // Get team primary colors for endzones
                 const awayEndzoneColor = awayColors.primary;
                 const homeEndzoneColor = homeColors.primary;
@@ -4015,30 +4249,16 @@
                     </div>
 
                     <div class="fs-card-wrapper">
-                        <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
-                        <div class="fs-scoreboard-top">
-                            <div class="fs-sb-logo-spacer"></div>
-                            <div class="fs-sb-logo-box">
-                                <div class="fs-card-team-logo-wrapper">
-                                    <img class="fs-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                </div>
-                            </div>
-                            <div class="fs-sb-logo-center-spacer"></div>
-                            <div class="fs-sb-logo-box">
-                                <div class="fs-card-team-logo-wrapper">
-                                    <img class="fs-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                </div>
-                            </div>
-                            <div class="fs-sb-logo-spacer"></div>
-                        </div>
-
-                        <!-- Scoreboard -->
+                        <!-- Scoreboard with logos inside team sections -->
                         <div class="fs-scoreboard" style="--sb-away-primary: ${awayColors.primary}; --sb-away-secondary: ${awayColors.secondary}; --sb-home-primary: ${homeColors.primary}; --sb-home-secondary: ${homeColors.secondary};">
-                            <div class="fs-sb-score-box away">
-                                <span class="fs-sb-score">${awayScore}</span>
-                            </div>
                             <div class="fs-sb-team-section away">
+                                <div class="fs-sb-score-box away">
+                                    <span class="fs-sb-score">${awayScore}</span>
+                                </div>
                                 <div class="fs-sb-team-info">
+                                    <div class="fs-sb-team-logo">
+                                        <img class="fs-sb-team-logo-img" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                    </div>
                                     <span class="fs-sb-team-name">${game.away.abbr}</span>
                                     ${game.away.record ? `<span class="fs-sb-team-record">${game.away.record}</span>` : ''}
                                 </div>
@@ -4057,12 +4277,15 @@
                             <div class="fs-sb-team-section home">
                                 ${(isFootball && game.home.timeouts !== undefined) ? `<div class="fs-sb-timeouts home">${createTimeoutBars(game.home.timeouts)}</div>` : ''}
                                 <div class="fs-sb-team-info">
+                                    <div class="fs-sb-team-logo">
+                                        <img class="fs-sb-team-logo-img" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                    </div>
                                     <span class="fs-sb-team-name">${game.home.abbr}</span>
                                     ${game.home.record ? `<span class="fs-sb-team-record">${game.home.record}</span>` : ''}
                                 </div>
-                            </div>
-                            <div class="fs-sb-score-box home">
-                                <span class="fs-sb-score">${homeScore}</span>
+                                <div class="fs-sb-score-box home">
+                                    <span class="fs-sb-score">${homeScore}</span>
+                                </div>
                             </div>
                             ${situationHTML}
                         </div>
@@ -4196,7 +4419,7 @@
         function updateBallPosition(cardEl, fieldPosition, yardsToGo, possession, awayTeam, homeTeam, league) {
             // Get game ID from card
             const gameId = cardEl.dataset.gameId;
-            if (!gameId || !fieldPosition) return;
+            if (!gameId) return;
 
             // Get SVG visualizer for this game
             const visualizer = window.fieldVisualizers.get(gameId);
@@ -4214,7 +4437,8 @@
             }
 
             // Calculate ball position (0-100 represents the playable field)
-            const ballPosition = calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam);
+            // If fieldPosition is not available, default to midfield
+            const ballPosition = fieldPosition ? calculateBallPosition(fieldPosition, possession, awayTeam, homeTeam) : 50;
 
             // Update SVG visualizer
             visualizer.setBallPosition(ballPosition, teamColor);
@@ -4993,6 +5217,11 @@
                     const isValidDown = situation.down >= 1 && situation.down <= 4;
                     const isValidDistance = situation.distance > 0;
 
+                    // Yard line and field position - set these first as they're needed for fallbacks
+                    game.yardLine = situation.yardLine;
+                    game.yardsToGo = situation.distance > 0 ? situation.distance : 0;
+                    game.possessionOnOwn = situation.isRedZone === false; // Rough approximation
+
                     if (isIntermission) {
                         // Clear down/distance during intermissions
                         game.downDistance = null;
@@ -5001,18 +5230,14 @@
                         game.downDistance = situation.downDistanceText;
                     } else if (situation.shortDownDistanceText && !situation.shortDownDistanceText.includes('-1') && isValidDown) {
                         game.downDistance = situation.shortDownDistanceText;
-                    } else if (isValidDown && isValidDistance && situation.possessionText) {
-                        // Only build manual downDistance if we have possessionText (active play)
+                    } else if (isValidDown && isValidDistance) {
+                        // Build manual downDistance if we have valid down/distance (don't require possessionText)
+                        // This ensures 1st down of new drives is captured immediately
                         const downSuffix = getDownSuffix(situation.down);
                         game.downDistance = `${situation.down}${downSuffix} & ${situation.distance}`;
                     } else {
                         game.downDistance = null;
                     }
-
-                    // Yard line and field position
-                    game.yardLine = situation.yardLine;
-                    game.yardsToGo = situation.distance > 0 ? situation.distance : 0;
-                    game.possessionOnOwn = situation.isRedZone === false; // Rough approximation
 
                     // Field position text
                     if (situation.possessionText && !isIntermission) {
@@ -5025,6 +5250,25 @@
                         const atMatch = game.downDistance.match(/at\s+([A-Z]{2,4}\s+\d+)/i);
                         if (atMatch) {
                             game.fieldPosition = atMatch[1];
+                        } else if (situation.yardLine && game.possession) {
+                            // Build field position from yardLine and possession
+                            // Determine which team's side based on possession and yardLine
+                            const possessionTeam = game.possession === 'home' ? homeTeam : awayTeam;
+                            const opposingTeam = game.possession === 'home' ? awayTeam : homeTeam;
+                            const possessionAbbr = possessionTeam?.team?.abbreviation || '';
+                            const opposingAbbr = opposingTeam?.team?.abbreviation || '';
+
+                            // If yardLine > 50, we're on opponent's side; if <= 50, on our side
+                            // But API yardLine is always from 1-50, so we need isRedZone to help
+                            // If in red zone (yardLine <= 20) and NOT on own side, we're on opponent's side
+                            if (situation.yardLine <= 50) {
+                                // Determine side based on isRedZone flag
+                                // isRedZone is true when in opponent's red zone (their 20 or closer)
+                                const isOnOpponentSide = situation.isRedZone ||
+                                    (situation.yardLine <= 20 && !game.possessionOnOwn);
+                                const sideAbbr = isOnOpponentSide ? opposingAbbr : possessionAbbr;
+                                game.fieldPosition = `${sideAbbr} ${situation.yardLine}`;
+                            }
                         }
                     }
 

@@ -1220,8 +1220,11 @@
                     <div class="panel-title">My Library</div>
                 </div>
                 <div class="library-tabs">
+                    <button class="library-tab" data-tab="database">
+                        Database <span class="library-tab-count" id="dbGamesCount">0</span>
+                    </button>
                     <button class="library-tab active" data-tab="games">
-                        Games <span class="library-tab-count" id="gamesCount">0</span>
+                        Local <span class="library-tab-count" id="gamesCount">0</span>
                     </button>
                     <button class="library-tab" data-tab="plays">
                         Plays <span class="library-tab-count" id="playsCount">0</span>
@@ -1317,7 +1320,9 @@
         let selectedTag = null;
         let selectedSpeed = 3000;
         let activeLibraryTab = 'games';
-        let selectedLibraryItems = new Set(); // Format: 'games-id' or 'plays-id'
+        let selectedLibraryItems = new Set(); // Format: 'games-id', 'plays-id', or 'database-id'
+        let databaseGames = []; // Games loaded from database
+        let loadingDbGames = false;
 
         // ==========================================
         // DOM ELEMENTS
@@ -1345,6 +1350,8 @@
             loadLibrary();
             setupEventListeners();
             updateLaunchButton();
+            // Load database games in background
+            loadDatabaseGames();
         });
 
         function setupEventListeners() {
@@ -1765,8 +1772,75 @@
 
             document.getElementById('gamesCount').textContent = games.length;
             document.getElementById('playsCount').textContent = plays.length;
+            document.getElementById('dbGamesCount').textContent = databaseGames.length;
 
             const list = document.getElementById('libraryList');
+
+            // Handle database tab
+            if (activeLibraryTab === 'database') {
+                if (loadingDbGames) {
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">⏳</div>
+                            <div class="empty-title">Loading...</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (databaseGames.length === 0) {
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🗄️</div>
+                            <div class="empty-title">No Games in Database</div>
+                            <p style="color: var(--text-muted); font-size: 11px; margin-top: 8px;">Games are auto-saved when they complete</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.innerHTML = databaseGames.map(game => {
+                    const itemKey = `database-${game.id}`;
+                    const isSelected = selectedLibraryItems.has(itemKey);
+                    const gameDate = game.game_date ? new Date(game.game_date).toLocaleDateString() : '';
+
+                    return `
+                        <div class="library-item ${isSelected ? 'selected' : ''}" data-id="${game.id}" data-type="database">
+                            <div class="library-item-checkbox"></div>
+                            <div class="library-item-header">
+                                <div>
+                                    <div class="library-item-title">${game.away_team || 'Away'} @ ${game.home_team || 'Home'}</div>
+                                    <div class="library-item-meta">
+                                        ${game.away_score || 0} - ${game.home_score || 0} • ${game.play_count || 0} plays
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="library-item-tag">${game.sport?.toUpperCase() || 'NFL'}</span>
+                            <span class="library-item-tag" style="background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan);">${gameDate}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add click handlers for database items
+                list.querySelectorAll('.library-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const id = item.dataset.id;
+                        const type = item.dataset.type;
+                        const itemKey = `${type}-${id}`;
+
+                        if (selectedLibraryItems.has(itemKey)) {
+                            selectedLibraryItems.delete(itemKey);
+                            item.classList.remove('selected');
+                        } else {
+                            selectedLibraryItems.add(itemKey);
+                            item.classList.add('selected');
+                        }
+                        updateLaunchButton();
+                    });
+                });
+                return;
+            }
+
             const items = activeLibraryTab === 'games' ? games : plays;
 
             if (items.length === 0) {
@@ -1848,6 +1922,81 @@
                 return JSON.parse(localStorage.getItem('gridtv_saved_plays') || '[]');
             } catch (e) {
                 return [];
+            }
+        }
+
+        // ==========================================
+        // DATABASE FUNCTIONS
+        // ==========================================
+        async function loadDatabaseGames() {
+            if (loadingDbGames) return;
+            loadingDbGames = true;
+
+            try {
+                const response = await fetch('/api/replay/games?sport=nfl&limit=50');
+                if (!response.ok) throw new Error('Failed to fetch games');
+
+                const data = await response.json();
+                databaseGames = data.games || [];
+
+                // Also load NCAA games
+                const ncaaResponse = await fetch('/api/replay/games?sport=ncaa&limit=50');
+                if (ncaaResponse.ok) {
+                    const ncaaData = await ncaaResponse.json();
+                    databaseGames = [...databaseGames, ...(ncaaData.games || [])];
+                }
+
+                // Sort by date (newest first)
+                databaseGames.sort((a, b) => new Date(b.game_date) - new Date(a.game_date));
+
+                document.getElementById('dbGamesCount').textContent = databaseGames.length;
+                console.log(`[Database] Loaded ${databaseGames.length} games from database`);
+
+                if (activeLibraryTab === 'database') {
+                    renderLibrary();
+                }
+            } catch (error) {
+                console.error('[Database] Error loading games:', error);
+                showToast('Failed to load database games', true);
+            } finally {
+                loadingDbGames = false;
+            }
+        }
+
+        async function loadGameFromDatabase(gameId) {
+            try {
+                showToast('Loading game data...');
+                const response = await fetch(`/api/replay/game/${gameId}`);
+                if (!response.ok) throw new Error('Failed to fetch game');
+
+                const gameData = await response.json();
+                return gameData;
+            } catch (error) {
+                console.error('[Database] Error loading game:', error);
+                showToast('Failed to load game data', true);
+                return null;
+            }
+        }
+
+        async function saveGameToDatabase(gameId, sport = 'nfl') {
+            try {
+                showToast('Saving plays to database...');
+                const response = await fetch(`/api/replay/save-plays/${gameId}?sport=${sport}`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) throw new Error('Failed to save plays');
+
+                const result = await response.json();
+                showToast(`Saved ${result.playsCount} plays for ${result.awayTeam} @ ${result.homeTeam}`);
+
+                // Refresh database games list
+                await loadDatabaseGames();
+                return result;
+            } catch (error) {
+                console.error('[Database] Error saving game:', error);
+                showToast('Failed to save to database', true);
+                return null;
             }
         }
 
@@ -1989,7 +2138,7 @@
             let playsCount = 0;
 
             selectedLibraryItems.forEach(itemKey => {
-                if (itemKey.startsWith('games-')) gamesCount++;
+                if (itemKey.startsWith('games-') || itemKey.startsWith('database-')) gamesCount++;
                 else if (itemKey.startsWith('plays-')) playsCount++;
             });
 
@@ -2002,12 +2151,14 @@
         // ==========================================
         // LAUNCH
         // ==========================================
-        function launchReplay() {
+        async function launchReplay() {
             const games = getSavedGames();
             const plays = getSavedPlays();
 
             const replayItems = [];
+            const databaseItemsToLoad = [];
 
+            // First, collect all selected items
             selectedLibraryItems.forEach(itemKey => {
                 if (itemKey.startsWith('games-')) {
                     const id = itemKey.substring(6);
@@ -2032,8 +2183,34 @@
                             metadata: play.metadata
                         });
                     }
+                } else if (itemKey.startsWith('database-')) {
+                    const id = itemKey.substring(9);
+                    databaseItemsToLoad.push(id);
                 }
             });
+
+            // Load database games if any selected
+            if (databaseItemsToLoad.length > 0) {
+                showToast(`Loading ${databaseItemsToLoad.length} game(s) from database...`);
+
+                for (const gameId of databaseItemsToLoad) {
+                    try {
+                        const gameData = await loadGameFromDatabase(gameId);
+                        if (gameData) {
+                            replayItems.push({
+                                id: gameData.id,
+                                type: 'game',
+                                plays: gameData.plays,
+                                metadata: gameData.metadata,
+                                drives: gameData.drives,
+                                fromDatabase: true
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Failed to load game ${gameId}:`, error);
+                    }
+                }
+            }
 
             if (replayItems.length === 0) {
                 showToast('No items selected', true);

@@ -675,34 +675,30 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
-        /* Score boxes on sides */
+        /* Score boxes on sides - dark background with skew */
         .fs-sb-score-box {
-            position: relative;
-            width: clamp(65px, 10vmin, 90px);
+            width: clamp(52px, 8vmin, 72px);
+            height: 80%;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 2;
+            background: linear-gradient(180deg,
+                rgba(0, 0, 0, 0.7) 0%,
+                rgba(0, 0, 0, 0.85) 100%);
+            transform: skewX(var(--sb-skew-angle, -4deg));
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
         }
 
         .fs-sb-score-box.away {
-            background: linear-gradient(135deg, var(--sb-away-primary) 0%, var(--sb-away-primary) 60%, var(--sb-away-secondary) 100%);
-            /*clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%);*/
-            padding-right: 6px;
-            border-radius: 6px 0 0 6px;
-            box-shadow:
-                inset 0 2px 4px rgba(255, 255, 255, 0.2),
-                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+            border-radius: 4px 0 0 4px;
+            border-left: 3px solid var(--sb-away-primary);
         }
 
         .fs-sb-score-box.home {
-            background: linear-gradient(135deg, var(--sb-home-secondary) 0%, var(--sb-home-primary) 40%, var(--sb-home-primary) 100%);
-            /*clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);*/
-            padding-left: 6px;
-            border-radius: 0 6px 6px 0;
-            box-shadow:
-                inset 0 2px 4px rgba(255, 255, 255, 0.2),
-                inset 0 -3px 6px rgba(0, 0, 0, 0.4);
+            border-radius: 0 4px 4px 0;
+            border-right: 3px solid var(--sb-home-primary);
         }
 
         .fs-sb-score {
@@ -717,42 +713,52 @@
             letter-spacing: 1px;
         }
 
-        /* Team info sections inside scoreboard - metallic grey area */
+        /* Team info sections inside scoreboard - team color backgrounds */
         .fs-sb-team-section {
             flex: 1;
-            background: linear-gradient(180deg,
-                    #3d4654 0%,
-                    #2d3544 15%,
-                    #1f2937 50%,
-                    #1a202c 85%,
-                    #151a23 100%);
+            align-self: stretch;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4px 8px;
-            gap: 8px;
-
-            box-shadow:
-                inset 0 2px 3px rgba(255, 255, 255, 0.15),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.4),
-                inset 1px 0 2px rgba(255, 255, 255, 0.05),
-                inset -1px 0 2px rgba(0, 0, 0, 0.2);
+            padding: 4px 10px;
+            position: relative;
+            transition: background 0.25s ease;
         }
 
-        /* Away team: team-info on left, timeouts on right (towards center) */
+        /* Away team - uses team color gradient */
         .fs-sb-team-section.away {
-            flex-direction: row;
-            justify-content: center;
-            padding-right: clamp(50px, 8vmin, 80px);
-            padding-left: 10px;
+            padding-left: clamp(60px, 10vmin, 90px);
+            padding-right: clamp(40px, 6vmin, 60px);
+            background: linear-gradient(135deg,
+                var(--sb-away-primary) 0%,
+                color-mix(in srgb, var(--sb-away-primary) 85%, var(--sb-away-secondary)) 60%,
+                color-mix(in srgb, var(--sb-away-primary) 70%, #000) 100%);
         }
 
-        /* Home team: timeouts on left (towards center), team-info on right */
+        /* Away score box - far left */
+        .fs-sb-team-section.away .fs-sb-score-box {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) skewX(var(--sb-skew-angle, -4deg));
+        }
+
+        /* Home team - uses team color gradient */
         .fs-sb-team-section.home {
-            flex-direction: row;
-            justify-content: center;
-            padding-left: clamp(50px, 8vmin, 80px);
-            padding-right: 10px;
+            padding-left: clamp(40px, 6vmin, 60px);
+            padding-right: clamp(60px, 10vmin, 90px);
+            background: linear-gradient(135deg,
+                color-mix(in srgb, var(--sb-home-primary) 70%, #000) 0%,
+                color-mix(in srgb, var(--sb-home-primary) 85%, var(--sb-home-secondary)) 40%,
+                var(--sb-home-primary) 100%);
+        }
+
+        /* Home score box - far right */
+        .fs-sb-team-section.home .fs-sb-score-box {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) skewX(var(--sb-skew-angle, -4deg));
         }
 
         .fs-sb-team-info {
@@ -855,36 +861,38 @@
             --sb-possession-secondary: #374151;
 
             position: absolute;
-            bottom: -20px;
+            bottom: 0;
             left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, var(--sb-possession-primary) 0%, var(--sb-possession-primary) 50%, var(--sb-possession-secondary) 100%);
-            padding: 5px 16px;
-            border-radius: 0 0 8px 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-top: none;
+            transform: translateX(-50%) translateY(50%);
+            background: linear-gradient(135deg,
+                var(--sb-possession-primary) 0%,
+                color-mix(in srgb, var(--sb-possession-primary) 70%, #000) 100%);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             min-width: 160px;
             justify-content: center;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             z-index: 5;
-            transition: left 0.3s ease, transform 0.3s ease;
+            transition: all 0.3s ease;
+            font-family: var(--sb-font-display, 'Oswald', sans-serif);
         }
 
         .fs-sb-situation.possession-away {
             --sb-possession-primary: var(--sb-away-primary);
             --sb-possession-secondary: var(--sb-away-secondary);
-            left: 25%;
-            transform: translateX(-50%);
+            left: 22%;
+            transform: translateX(-50%) translateY(50%);
         }
 
         .fs-sb-situation.possession-home {
             --sb-possession-primary: var(--sb-home-primary);
             --sb-possession-secondary: var(--sb-home-secondary);
-            left: 75%;
-            transform: translateX(-50%);
+            left: 78%;
+            transform: translateX(-50%) translateY(50%);
         }
 
         .fs-sb-down-distance {
@@ -2116,7 +2124,7 @@
 
             // FALLBACK: Use mock live NFL games when no games are selected
             // This allows testing layouts directly without selecting games
-            const USE_MOCK_DATA = false; // Set to false to disable mock fallback
+            const USE_MOCK_DATA = true; // Set to false to disable mock fallback
 
             if (USE_MOCK_DATA && games.length === 0) {
                 usingMockData = true;
@@ -2470,10 +2478,10 @@
 
                         <!-- Scoreboard -->
                         <div class="fs-scoreboard" style="--sb-away-primary: ${awayColors.primary}; --sb-away-secondary: ${awayColors.secondary}; --sb-home-primary: ${homeColors.primary}; --sb-home-secondary: ${homeColors.secondary};">
-                            <div class="fs-sb-score-box away">
-                                <span class="fs-sb-score">${awayScore}</span>
-                            </div>
                             <div class="fs-sb-team-section away">
+                                <div class="fs-sb-score-box away">
+                                    <span class="fs-sb-score">${awayScore}</span>
+                                </div>
                                 <div class="fs-sb-team-info">
                                     <span class="fs-sb-team-name">${game.away.abbr}</span>
                                     ${game.away.record ? `<span class="fs-sb-team-record">${game.away.record}</span>` : ''}
@@ -2496,9 +2504,9 @@
                                     <span class="fs-sb-team-name">${game.home.abbr}</span>
                                     ${game.home.record ? `<span class="fs-sb-team-record">${game.home.record}</span>` : ''}
                                 </div>
-                            </div>
-                            <div class="fs-sb-score-box home">
-                                <span class="fs-sb-score">${homeScore}</span>
+                                <div class="fs-sb-score-box home">
+                                    <span class="fs-sb-score">${homeScore}</span>
+                                </div>
                             </div>
                             ${situationHTML}
                         </div>
@@ -3398,6 +3406,11 @@
                     const isValidDown = situation.down >= 1 && situation.down <= 4;
                     const isValidDistance = situation.distance > 0;
 
+                    // Yard line and field position - set these first as they're needed for fallbacks
+                    game.yardLine = situation.yardLine;
+                    game.yardsToGo = situation.distance > 0 ? situation.distance : 0;
+                    game.possessionOnOwn = situation.isRedZone === false; // Rough approximation
+
                     if (isIntermission) {
                         // Clear down/distance during intermissions
                         game.downDistance = null;
@@ -3406,18 +3419,14 @@
                         game.downDistance = situation.downDistanceText;
                     } else if (situation.shortDownDistanceText && !situation.shortDownDistanceText.includes('-1') && isValidDown) {
                         game.downDistance = situation.shortDownDistanceText;
-                    } else if (isValidDown && isValidDistance && situation.possessionText) {
-                        // Only build manual downDistance if we have possessionText (active play)
+                    } else if (isValidDown && isValidDistance) {
+                        // Build manual downDistance if we have valid down/distance (don't require possessionText)
+                        // This ensures 1st down of new drives is captured immediately
                         const downSuffix = getDownSuffix(situation.down);
                         game.downDistance = `${situation.down}${downSuffix} & ${situation.distance}`;
                     } else {
                         game.downDistance = null;
                     }
-
-                    // Yard line and field position
-                    game.yardLine = situation.yardLine;
-                    game.yardsToGo = situation.distance > 0 ? situation.distance : 0;
-                    game.possessionOnOwn = situation.isRedZone === false; // Rough approximation
 
                     // Field position text
                     if (situation.possessionText && !isIntermission) {
@@ -3430,6 +3439,19 @@
                         const atMatch = game.downDistance.match(/at\s+([A-Z]{2,4}\s+\d+)/i);
                         if (atMatch) {
                             game.fieldPosition = atMatch[1];
+                        } else if (situation.yardLine && game.possession) {
+                            // Build field position from yardLine and possession
+                            const possessionTeam = game.possession === 'home' ? homeTeam : awayTeam;
+                            const opposingTeam = game.possession === 'home' ? awayTeam : homeTeam;
+                            const possessionAbbr = possessionTeam?.team?.abbreviation || '';
+                            const opposingAbbr = opposingTeam?.team?.abbreviation || '';
+
+                            if (situation.yardLine <= 50) {
+                                const isOnOpponentSide = situation.isRedZone ||
+                                    (situation.yardLine <= 20 && !game.possessionOnOwn);
+                                const sideAbbr = isOnOpponentSide ? opposingAbbr : possessionAbbr;
+                                game.fieldPosition = `${sideAbbr} ${situation.yardLine}`;
+                            }
                         }
                     }
 

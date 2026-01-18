@@ -386,3 +386,110 @@ COMMENT ON COLUMN notification_preferences.minutes_before_game IS 'How many minu
 COMMENT ON COLUMN notification_preferences.notify_leagues IS 'JSON array of leagues to receive notifications for';
 
 COMMENT ON TABLE notification_log IS 'Tracks sent notifications for analytics and deduplication';
+
+-- ============================================
+-- GAME REPLAY TABLES (Drives & Plays)
+-- ============================================
+
+-- Add tracking columns to games table
+ALTER TABLE games ADD COLUMN IF NOT EXISTS has_play_data BOOLEAN DEFAULT FALSE;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS play_count INT DEFAULT 0;
+
+-- Game drives (groups plays by team possession)
+CREATE TABLE IF NOT EXISTS game_drives (
+  id SERIAL PRIMARY KEY,
+  game_id VARCHAR(50) NOT NULL,
+  sport VARCHAR(10) NOT NULL,           -- 'nfl', 'ncaa'
+  drive_sequence INT NOT NULL,          -- Order within game (1, 2, 3...)
+  team_abbr VARCHAR(10),
+  team_id VARCHAR(50),
+  start_period INT,
+  start_clock VARCHAR(10),
+  start_yard INT,                       -- Field position (0-100)
+  end_period INT,
+  end_clock VARCHAR(10),
+  end_yard INT,
+  result VARCHAR(50),                   -- 'TOUCHDOWN', 'FIELD GOAL', 'PUNT', 'TURNOVER', etc.
+  is_scoring BOOLEAN DEFAULT FALSE,
+  play_count INT DEFAULT 0,
+  yards_gained INT DEFAULT 0,
+  time_of_possession VARCHAR(10),
+  raw_data JSONB,                       -- Full ESPN drive data
+  created_at TIMESTAMP DEFAULT NOW(),
+
+  UNIQUE(game_id, drive_sequence)       -- Prevent duplicate drives
+);
+
+-- Create indexes for game_drives
+CREATE INDEX IF NOT EXISTS idx_drives_game ON game_drives(game_id);
+CREATE INDEX IF NOT EXISTS idx_drives_sport ON game_drives(sport);
+CREATE INDEX IF NOT EXISTS idx_drives_team ON game_drives(team_abbr);
+CREATE INDEX IF NOT EXISTS idx_drives_scoring ON game_drives(is_scoring);
+
+-- Individual plays within drives
+CREATE TABLE IF NOT EXISTS game_plays (
+  id SERIAL PRIMARY KEY,
+  game_id VARCHAR(50) NOT NULL,
+  drive_id INT REFERENCES game_drives(id) ON DELETE CASCADE,
+  espn_play_id VARCHAR(50),             -- ESPN's play identifier
+  sport VARCHAR(10) NOT NULL,
+  play_sequence INT NOT NULL,           -- Global sequence within game
+  drive_play_sequence INT,              -- Sequence within drive
+
+  -- Time & Period
+  period INT NOT NULL,
+  clock VARCHAR(10),
+
+  -- Field Position (0-100 coordinate system: 0=away endzone, 100=home endzone)
+  start_yard INT,
+  end_yard INT,
+  yards_gained INT,
+
+  -- Down & Distance
+  down INT,
+  distance INT,
+
+  -- Play Details
+  play_type VARCHAR(30),                -- 'pass', 'rush', 'kickoff', 'punt', 'field_goal', 'penalty', etc.
+  play_text TEXT,
+
+  -- Team Info
+  possession_team_abbr VARCHAR(10),
+  possession_team_id VARCHAR(50),
+
+  -- Scoring & Turnovers
+  is_scoring BOOLEAN DEFAULT FALSE,
+  score_value INT DEFAULT 0,            -- 6 for TD, 3 for FG, 2 for safety/2pt, 1 for XP
+  away_score INT DEFAULT 0,
+  home_score INT DEFAULT 0,
+  is_touchdown BOOLEAN DEFAULT FALSE,
+  is_turnover BOOLEAN DEFAULT FALSE,
+  turnover_type VARCHAR(20),            -- 'interception', 'fumble', 'downs'
+  is_penalty BOOLEAN DEFAULT FALSE,
+  penalty_yards INT,
+
+  -- Animation Data (pre-computed for replay)
+  animation_type VARCHAR(30),           -- Matches play-animations.js types
+  animation_data JSONB,                 -- { fromYard, toYard, direction, etc. }
+
+  raw_data JSONB,                       -- Full ESPN play data
+  created_at TIMESTAMP DEFAULT NOW(),
+
+  UNIQUE(game_id, play_sequence)        -- Prevent duplicate plays
+);
+
+-- Create indexes for game_plays
+CREATE INDEX IF NOT EXISTS idx_plays_game ON game_plays(game_id);
+CREATE INDEX IF NOT EXISTS idx_plays_drive ON game_plays(drive_id);
+CREATE INDEX IF NOT EXISTS idx_plays_sport ON game_plays(sport);
+CREATE INDEX IF NOT EXISTS idx_plays_type ON game_plays(play_type);
+CREATE INDEX IF NOT EXISTS idx_plays_scoring ON game_plays(is_scoring);
+CREATE INDEX IF NOT EXISTS idx_plays_period ON game_plays(period);
+CREATE INDEX IF NOT EXISTS idx_plays_sequence ON game_plays(game_id, play_sequence);
+
+COMMENT ON TABLE game_drives IS 'Stores drive data from ESPN API for NFL/NCAA games, grouped by team possession';
+COMMENT ON TABLE game_plays IS 'Stores play-by-play data with pre-computed animation info for game replay';
+COMMENT ON COLUMN game_drives.drive_sequence IS 'Order of drive within the game (1, 2, 3...)';
+COMMENT ON COLUMN game_drives.start_yard IS 'Field position 0-100 where 0=away endzone, 100=home endzone';
+COMMENT ON COLUMN game_plays.play_sequence IS 'Global play number within the game';
+COMMENT ON COLUMN game_plays.animation_data IS 'Pre-computed animation parameters for SVGFieldVisualizer';

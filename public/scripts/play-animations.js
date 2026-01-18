@@ -1231,7 +1231,7 @@ function parseYardPositionsFromPlay(playText, fieldPosition, teams) {
 
   // Parse starting position from field position
   let fromYard = 50; // Default to midfield
-  if (fieldPosition) {
+  if (fieldPosition && typeof fieldPosition === 'string') {
     const fieldMatch = fieldPosition.match(/([A-Z]{2,4})\s+(\d+)/i);
     if (fieldMatch) {
       const teamAbbr = fieldMatch[1].toUpperCase();
@@ -1428,7 +1428,13 @@ async function animatePlayOnSVGField(card, event, playText, options = {}) {
         if (playAction === 'pass') {
           await visualizer.animatePass(fromYard, toYard, 20, 1000);
         } else if (playAction === 'incomplete_pass') {
-          await visualizer.animateIncompletePass(fromYard, toYard, 1000);
+          // For incomplete passes, ensure ball travels in the drive direction
+          const incDriveDir = possession === 'away' ? 1 : -1;
+          let incTarget = toYard;
+          if (Math.abs(toYard - fromYard) < 3) {
+            incTarget = Math.max(0, Math.min(100, fromYard + (12 * incDriveDir)));
+          }
+          await visualizer.animateIncompletePass(fromYard, incTarget, 1000);
         } else if (playAction === 'rush' || playAction === 'scramble') {
           await visualizer.animateRush(fromYard, toYard, 800);
         } else if (playAction === 'sack') {
@@ -2223,7 +2229,15 @@ async function executePlayAnimation(visualizer, classification, positions) {
       }
 
       case 'incomplete_pass': {
-        await visualizer.animateIncompletePass(fromYard, toYard, 1200);
+        // For incomplete passes, ensure ball travels in the drive direction
+        // Away team drives toward 100, home team drives toward 0
+        const driveDir = getDriveDirection(possession);
+        // If toYard is same as fromYard (no target parsed), calculate a target 12 yards downfield
+        let incompleteTarget = toYard;
+        if (Math.abs(toYard - fromYard) < 3) {
+          incompleteTarget = Math.max(0, Math.min(100, fromYard + (12 * driveDir)));
+        }
+        await visualizer.animateIncompletePass(fromYard, incompleteTarget, 1200);
         visualizer.setBallPosition(fromYard); // Ball returns to LOS
         return { animated: true, type: 'incomplete_pass' };
       }
@@ -2255,7 +2269,10 @@ async function executePlayAnimation(visualizer, classification, positions) {
       }
 
       case 'spike': {
-        await visualizer.animateIncompletePass(fromYard, fromYard + 5, 500);
+        // Spike goes in the drive direction (short pass forward)
+        const spikeDir = getDriveDirection(possession);
+        const spikeTarget = Math.max(0, Math.min(100, fromYard + (5 * spikeDir)));
+        await visualizer.animateIncompletePass(fromYard, spikeTarget, 500);
         visualizer.setBallPosition(fromYard);
         return { animated: true, type: 'spike' };
       }

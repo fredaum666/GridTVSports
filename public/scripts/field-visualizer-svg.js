@@ -708,10 +708,12 @@ class SVGFieldVisualizer {
     }
 
     // Apply team color if set
-    if (this.state.possessionColor && line) {
-      line.style.stroke = this.state.possessionColor;
-    } else if (line) {
-      line.style.stroke = '';
+    if (this.state.possessionColor) {
+      if (line) line.style.stroke = this.state.possessionColor;
+      if (lineEdge) lineEdge.style.stroke = this.state.possessionColor;
+    } else {
+      if (line) line.style.stroke = '';
+      if (lineEdge) lineEdge.style.stroke = '';
     }
   }
 
