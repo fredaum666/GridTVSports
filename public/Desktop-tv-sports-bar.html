@@ -849,7 +849,7 @@
         }
 
         .fs-sb-score {
-            font-size: clamp(1.5rem, 4vmin, 2.5rem);
+            font-size: clamp(1.5rem, 6vmin, 3.5rem);
             font-weight: 900;
             color: var(--sb-text-color);
             text-shadow:
@@ -2420,7 +2420,8 @@
         .global-controls-trigger {
             position: fixed;
             top: 0;
-            left: 120px; /* Leave space for back button */
+            left: 120px;
+            /* Leave space for back button */
             right: 0;
             height: 60px;
             z-index: 100000;
@@ -2448,7 +2449,7 @@
         }
 
         /* Show controls when hovering trigger zone or the controls themselves */
-        .global-controls-trigger:hover + .global-replay-controls,
+        .global-controls-trigger:hover+.global-replay-controls,
         .global-replay-controls:hover {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
@@ -2514,7 +2515,8 @@
             font-size: 12px;
             color: var(--text-primary);
             line-height: 1.5;
-            opacity: 1; /* Always visible */
+            opacity: 1;
+            /* Always visible */
             z-index: 50;
             max-height: 100px;
             overflow: hidden;
