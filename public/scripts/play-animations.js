@@ -1381,14 +1381,14 @@ async function animatePlayOnSVGField(card, event, playText, options = {}) {
         break;
 
       case 'field-goal':
-        // Animate field goal kick
-        const fgDirection = fromYard > 50 ? 'right' : 'left';
+        // Animate field goal kick - away kicks toward right (100), home kicks toward left (0)
+        const fgDirection = possession === 'away' ? 'right' : 'left';
         await visualizer.animateFieldGoal(fromYard, fgDirection, 2500);
         break;
 
       case 'missed-kick':
-        // Animate missed field goal
-        const missDirection = fromYard > 50 ? 'right' : 'left';
+        // Animate missed field goal - away kicks toward right (100), home kicks toward left (0)
+        const missDirection = possession === 'away' ? 'right' : 'left';
         const missType = event.text.includes('WIDE') ? 'wide_right' : 'short';
         await visualizer.animateMissedFieldGoal(fromYard, missDirection, missType, 2500);
         break;
@@ -1930,7 +1930,8 @@ function calculatePlayYardPositions(playText, situation, teams, possession) {
     fromYard,
     toYard,
     yardsGained,
-    direction: fromYard < toYard ? 1 : -1
+    direction: fromYard < toYard ? 1 : -1,
+    possession // Include possession for direction-dependent plays (field goals, etc.)
   };
 }
 
@@ -2143,7 +2144,7 @@ async function executePlayAnimation(visualizer, classification, positions) {
   }
 
   const { primaryType, subtype, isNegated, events } = classification;
-  const { fromYard, toYard, yardsGained } = positions;
+  const { fromYard, toYard, yardsGained, possession } = positions;
 
   if (isNegated) {
     return { animated: false, reason: 'play_negated' };
@@ -2176,22 +2177,25 @@ async function executePlayAnimation(visualizer, classification, positions) {
       }
 
       case 'field_goal': {
-        const direction = fromYard > 50 ? 'right' : 'left';
-        await visualizer.animateFieldGoal(fromYard, direction, 2500);
+        // Away team kicks toward 100 (right), home team kicks toward 0 (left)
+        const fgDirection = possession === 'away' ? 'right' : 'left';
+        await visualizer.animateFieldGoal(fromYard, fgDirection, 2500);
         return { animated: true, type: 'field_goal' };
       }
 
       case 'missed_field_goal': {
-        const direction = fromYard > 50 ? 'right' : 'left';
-        await visualizer.animateMissedFieldGoal(fromYard, direction, 'wide_right', 2500);
+        // Away team kicks toward 100 (right), home team kicks toward 0 (left)
+        const missedFgDirection = possession === 'away' ? 'right' : 'left';
+        await visualizer.animateMissedFieldGoal(fromYard, missedFgDirection, 'wide_right', 2500);
         return { animated: true, type: 'missed_field_goal' };
       }
 
       case 'extra_point':
       case 'missed_extra_point': {
-        const direction = 'right';
+        // Extra points: away team kicks toward right (100), home kicks toward left (0)
+        const xpDirection = possession === 'away' ? 'right' : 'left';
         const good = primaryType === 'extra_point';
-        await visualizer.animateExtraPoint(direction, good, 1500);
+        await visualizer.animateExtraPoint(xpDirection, good, 1500);
         return { animated: true, type: primaryType };
       }
 

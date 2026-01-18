@@ -3311,36 +3311,44 @@
                     lastPlay: prevPlay.lastPlay || ''
                 };
 
-                // Execute intelligent play animation for SVG field (async, fire-and-forget)
+                // Execute SVG field animation FIRST, then show UI overlays after it completes
+                const overlayOptions = {
+                    awayTeam: { team: { abbreviation: awayAbbr, displayName: gameState.away?.name, logo: gameState.away?.logo } },
+                    homeTeam: { team: { abbreviation: homeAbbr, displayName: gameState.home?.name, logo: gameState.home?.logo } },
+                    awayScoreChange,
+                    homeScoreChange,
+                    prevDown: prevPlay.down || 0,
+                    currentDown: gameState.down || 0,
+                    downDistanceText: gameState.downDistance || '',
+                    prevDownDistance: prevPlay.downDistance || '',
+                    prevPossession: prevPlay.possession,
+                    currentPossession: gameState.possession,
+                    fieldPosition: gameState.yardLine || gameState.fieldPosition || '',
+                    awayAbbr,
+                    homeAbbr
+                };
+
                 if (typeof parseAndAnimateNFLPlay === 'function') {
                     parseAndAnimateNFLPlay(gameState.lastPlay, gameContext, prevState, visualizer)
                         .then(result => {
                             if (result.errors.length > 0) {
                                 console.warn('🎬 Replay animation errors:', result.errors);
                             }
+                            // Now show UI overlay AFTER field animation completes
+                            if (typeof analyzeAndAnimatePlay === 'function') {
+                                analyzeAndAnimatePlay(card, gameState.lastPlay, overlayOptions);
+                            }
                         })
                         .catch(err => {
                             console.error('🎬 parseAndAnimateNFLPlay failed in replay:', err);
+                            // Still show overlay even if field animation failed
+                            if (typeof analyzeAndAnimatePlay === 'function') {
+                                analyzeAndAnimatePlay(card, gameState.lastPlay, overlayOptions);
+                            }
                         });
-                }
-
-                // Trigger UI overlay animations (TDs, turnovers, etc.)
-                if (typeof analyzeAndAnimatePlay === 'function') {
-                    analyzeAndAnimatePlay(card, gameState.lastPlay, {
-                        awayTeam: { team: { abbreviation: awayAbbr, displayName: gameState.away?.name, logo: gameState.away?.logo } },
-                        homeTeam: { team: { abbreviation: homeAbbr, displayName: gameState.home?.name, logo: gameState.home?.logo } },
-                        awayScoreChange,
-                        homeScoreChange,
-                        prevDown: prevPlay.down || 0,
-                        currentDown: gameState.down || 0,
-                        downDistanceText: gameState.downDistance || '',
-                        prevDownDistance: prevPlay.downDistance || '',
-                        prevPossession: prevPlay.possession,
-                        currentPossession: gameState.possession,
-                        fieldPosition: gameState.yardLine || gameState.fieldPosition || '',  // Use CURRENT field position
-                        awayAbbr,
-                        homeAbbr
-                    });
+                } else if (typeof analyzeAndAnimatePlay === 'function') {
+                    // Fallback if parseAndAnimateNFLPlay not available
+                    analyzeAndAnimatePlay(card, gameState.lastPlay, overlayOptions);
                 }
             }
 
@@ -4302,7 +4310,7 @@
                 lastPlay: prevData.lastPlay || ''
             };
 
-            // Execute intelligent play animation for SVG field (async, fire-and-forget)
+            // Execute SVG field animation FIRST, then show UI overlays after it completes
             parseAndAnimateNFLPlay(lastPlay, gameContext, prevState, visualizer)
                 .then(result => {
                     if (result.errors.length > 0) {
@@ -4311,27 +4319,43 @@
                     if (result.warnings.length > 0) {
                         console.log('🏈 Play animation warnings:', result.warnings);
                     }
+
+                    // Now show UI overlay animations (TOUCHDOWN!, INTERCEPTION!, etc.) AFTER field animation
+                    analyzeAndAnimatePlay(card, lastPlay, {
+                        awayTeam: { team: awayTeam?.team },
+                        homeTeam: { team: homeTeam?.team },
+                        awayScoreChange: game.away.score - (prevData.awayScore || 0),
+                        homeScoreChange: game.home.score - (prevData.homeScore || 0),
+                        prevDown: prevData.down || 0,
+                        currentDown: comp?.situation?.down || 0,
+                        downDistanceText: comp?.situation?.downDistanceText || '',
+                        prevDownDistance: prevData.downDistanceText || '',
+                        prevPossession: prevData.possession || null,
+                        currentPossession: game.possession || null,
+                        fieldPosition: comp?.situation?.yardLine || game.fieldPosition || '',
+                        awayAbbr,
+                        homeAbbr
+                    });
                 })
                 .catch(err => {
                     console.error('🏈 parseAndAnimateNFLPlay failed:', err);
+                    // Still show overlay even if field animation failed
+                    analyzeAndAnimatePlay(card, lastPlay, {
+                        awayTeam: { team: awayTeam?.team },
+                        homeTeam: { team: homeTeam?.team },
+                        awayScoreChange: game.away.score - (prevData.awayScore || 0),
+                        homeScoreChange: game.home.score - (prevData.homeScore || 0),
+                        prevDown: prevData.down || 0,
+                        currentDown: comp?.situation?.down || 0,
+                        downDistanceText: comp?.situation?.downDistanceText || '',
+                        prevDownDistance: prevData.downDistanceText || '',
+                        prevPossession: prevData.possession || null,
+                        currentPossession: game.possession || null,
+                        fieldPosition: comp?.situation?.yardLine || game.fieldPosition || '',
+                        awayAbbr,
+                        homeAbbr
+                    });
                 });
-
-            // Use centralized analyzeAndAnimatePlay function for UI overlays (TOUCHDOWN!, etc.)
-            analyzeAndAnimatePlay(card, lastPlay, {
-                awayTeam: { team: awayTeam?.team },
-                homeTeam: { team: homeTeam?.team },
-                awayScoreChange: game.away.score - (prevData.awayScore || 0),
-                homeScoreChange: game.home.score - (prevData.homeScore || 0),
-                prevDown: prevData.down || 0,
-                currentDown: comp?.situation?.down || 0,
-                downDistanceText: comp?.situation?.downDistanceText || '',
-                prevDownDistance: prevData.downDistanceText || '',
-                prevPossession: prevData.possession || null,
-                currentPossession: game.possession || null,
-                fieldPosition: comp?.situation?.yardLine || game.fieldPosition || '',  // Use CURRENT field position
-                awayAbbr,
-                homeAbbr
-            });
         }
 
         /**
