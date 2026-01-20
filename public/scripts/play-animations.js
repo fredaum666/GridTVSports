@@ -33,7 +33,7 @@ function getFullscreenEnteredAt() {
  * @param {string} playText - The full play text from API
  * @param {number} duration - How long to show the modal in ms (default 15000)
  */
-function showPlayTextModal(card, playText, duration = 15000) {
+function showPlayTextModal(card, playText, duration = 15000, onComplete = null) {
   // Remove any existing play text modal
   const existingModal = card.querySelector('.play-text-modal');
   if (existingModal) {
@@ -48,10 +48,11 @@ function showPlayTextModal(card, playText, duration = 15000) {
   modal.dataset.createdAt = Date.now().toString();
   modal.dataset.duration = duration.toString();
 
-  // Highlight uppercase words (like player names, team abbreviations)
-  // Match sequences of 2+ uppercase letters (with optional periods/hyphens)
+  // Highlight player names and uppercase words (like team abbreviations)
+  // Pattern 1: Player names like "C.Stroud", "J.Taylor", "D.Henry Jr."
+  // Pattern 2: All-caps words like "NFL", "TD", team abbreviations
   const highlightedText = playText.replace(
-    /\b([A-Z][A-Z.'-]+[A-Z]?)\b/g,
+    /\b([A-Z]\.[A-Z][a-zA-Z'-]+(?:\s+(?:Jr\.|Sr\.|II|III|IV))?|[A-Z][A-Z.'-]+[A-Z])\b/g,
     '<span class="play-text-highlight">$1</span>'
   );
 
@@ -74,6 +75,8 @@ function showPlayTextModal(card, playText, duration = 15000) {
     modal.classList.add('fade-out');
     setTimeout(() => {
       modal.remove();
+      // Call onComplete callback when modal is fully removed
+      if (onComplete) onComplete();
     }, 1500); // Match fade-out transition duration
   }, duration);
 }
@@ -159,6 +162,30 @@ function queueAnimation(card, playType, playText, teamName = '', recoveryInfo = 
  * @param {HTMLElement} card - The game card element
  * @param {string} cardId - The card identifier
  */
+// Store per-card callbacks for when animation queue finishes
+const animationCompleteCallbacks = new Map();
+// Track cards that have turnover animations (need to wait for play text modal)
+const pendingTurnoverCallbacks = new Map();
+
+/**
+ * Set callback for when all animations complete for a card
+ * @param {string} cardId - The card identifier
+ * @param {Function} callback - Function to call when queue empties
+ */
+function setAnimationCompleteCallback(cardId, callback) {
+  animationCompleteCallbacks.set(cardId, callback);
+}
+
+/**
+ * Check if a card has any animations queued or currently playing
+ * @param {string} cardId - The card identifier
+ * @returns {boolean} True if animations are in the queue
+ */
+function hasQueuedAnimations(cardId) {
+  const queue = animationQueues.get(cardId);
+  return queue && queue.length > 0;
+}
+
 function processNextAnimation(card, cardId) {
   const queue = animationQueues.get(cardId);
   if (!queue || queue.length === 0) return;
@@ -169,6 +196,18 @@ function processNextAnimation(card, cardId) {
     queue.shift();
     if (queue.length > 0) {
       processNextAnimation(card, cardId);
+    } else {
+      // Queue is empty - all animations complete
+      // BUT if there's a pending turnover callback, wait for play text modal instead
+      if (pendingTurnoverCallbacks.has(cardId)) {
+        // Don't call callback now - play text modal's onComplete will handle it
+        return;
+      }
+      const callback = animationCompleteCallbacks.get(cardId);
+      if (callback) {
+        callback();
+        animationCompleteCallbacks.delete(cardId); // Clear callback after calling
+      }
     }
   });
 }
@@ -297,8 +336,12 @@ function showPlayAnimationDirect(card, playType, playText, teamName = '', recove
     // - 1stDown2.png behind (revealed at end)
     // - Static 1stDown1.png in center
     // - Moving 1stDown1.png slides in and overlaps, then both 1stDown1 fade out
+    // recoveryInfo contains possession ('away' or 'home') for direction
+    // Away team drives left-to-right, Home team drives right-to-left
+    const isHomePossession = recoveryInfo === 'home';
+    const directionClass = isHomePossession ? 'home-direction' : '';
     animationDiv.innerHTML = `
-      <div class="first-down-container">
+      <div class="first-down-container ${directionClass}">
         <img src="/assets/1stDown2.png" alt="Arrow" class="first-down-arrow background" onerror="this.style.display='none';">
         <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow static" onerror="this.style.display='none';">
         <img src="/assets/1stDown1.png" alt="Arrow" class="first-down-arrow moving" onerror="this.style.display='none';">
@@ -440,7 +483,15 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     currentPossession = null,
     fieldPosition = '',  // Field position at start of play, e.g., "KC 35"
     awayAbbr: providedAwayAbbr = '',
-    homeAbbr: providedHomeAbbr = ''
+    homeAbbr: providedHomeAbbr = '',
+    // Play type from replay data (more reliable than text parsing)
+    playType = '',
+    isPunt = false,
+    isKickoff = false,
+    // Previous play type - needed to detect if possession change was due to punt/kickoff
+    prevPlayType = '',
+    prevIsPunt = false,
+    prevIsKickoff = false
   } = options;
 
   // Debug: Log when this function is called
@@ -604,15 +655,20 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
 
   // 3. TOUCHDOWN detection (if not already caught by turnover)
   // Skip if this is clearly an extra point/PAT play (play text may reference "after the touchdown")
+  // BUT: if score change >= 6, this is definitely a touchdown, not just an extra point
   const isExtraPointPlay = lowerLastPlay.includes('extra point') ||
     lowerLastPlay.includes('pat ') ||
     lowerLastPlay.includes(' xp ') ||
     lowerLastPlay.includes('two-point') ||
     lowerLastPlay.includes('2-pt');
+  const hasSignificantScoreChange = awayScoreChange >= 6 || homeScoreChange >= 6;
+  const textHasTouchdown = lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td');
 
-  if ((lowerLastPlay.includes('touchdown') || lowerLastPlay.includes('for a td')) &&
+  // Prioritize explicit "touchdown" text even when play also mentions extra point
+  // ESPN often combines TD + XP in same play text with type EXTRA_POINT
+  if ((textHasTouchdown || hasSignificantScoreChange) &&
     !events.some(e => e.type === 'touchdown') &&
-    !isExtraPointPlay) {
+    (!isExtraPointPlay || hasSignificantScoreChange || textHasTouchdown)) {
     let scoringTeam = '';
     if (awayScoreChange >= 6) {
       scoringTeam = awayName;
@@ -684,6 +740,7 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   }
 
   // 7. EXTRA POINT detection (successful)
+  // Allow both TD and XP to queue when ESPN combines them in same play text
   const isXPAttempt = lowerLastPlay.includes('extra point') || lowerLastPlay.includes('pat ') || lowerLastPlay.includes(' xp ');
   const isXPGood = lowerLastPlay.includes('good') && !lowerLastPlay.includes('no good');
   const isXPMissed = lowerLastPlay.includes('missed') || lowerLastPlay.includes('no good') ||
@@ -874,8 +931,19 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
 
   // Show play text modal after fumble/interception animation completes (8 seconds)
   if (hasTurnoverAnimation && lastPlay) {
+    const cardId = card.dataset.gameId || card.id || 'unknown';
+    // Mark this card as having a pending turnover callback
+    pendingTurnoverCallbacks.set(cardId, true);
     setTimeout(() => {
-      showPlayTextModal(card, lastPlay, 15000);
+      showPlayTextModal(card, lastPlay, 15000, () => {
+        // Play text modal finished - now call the animation complete callback
+        pendingTurnoverCallbacks.delete(cardId);
+        const callback = animationCompleteCallbacks.get(cardId);
+        if (callback) {
+          callback();
+          animationCompleteCallbacks.delete(cardId);
+        }
+      });
     }, 8000); // Wait for main animation to finish
   }
 
@@ -898,9 +966,16 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     lowerLastPlay.includes('fumble') ||
     lowerLastPlay.includes('recovered by');
 
-  const isPuntOrKick = lowerLastPlay.includes('punt') ||
+  // Check for punt/kickoff using both text matching AND explicit flags from replay data
+  // Also check PREVIOUS play type - if previous play was punt/kickoff, possession change is expected
+  const isPuntOrKickPlayFromText = lowerLastPlay.includes('punt') ||
     lowerLastPlay.includes('kickoff') ||
     lowerLastPlay.includes('kicks');
+  const isPuntOrKickPlayFromType = isPunt || isKickoff ||
+    playType === 'punt' || playType === 'kickoff';
+  const prevWasPuntOrKick = prevIsPunt || prevIsKickoff ||
+    prevPlayType === 'punt' || prevPlayType === 'kickoff';
+  const isPuntOrKickPlay = isPuntOrKickPlayFromText || isPuntOrKickPlayFromType || prevWasPuntOrKick;
 
   const isScoreOrPenalty = lowerLastPlay.includes('touchdown') ||
     lowerLastPlay.includes('penalty') ||
@@ -913,7 +988,7 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
     prevPossession !== currentPossession;
 
   // Turnover on downs is specifically: 4th down + possession change + NOT a punt/kick/fumble/int
-  const isTurnoverOnDowns = was4thDown && possessionChanged && !isTurnover && !isPuntOrKick && !isScoreOrPenalty;
+  const isTurnoverOnDowns = was4thDown && possessionChanged && !isTurnover && !isPuntOrKickPlay && !isScoreOrPenalty;
 
   // Debug logging for 4th down plays
   if (was4thDown) {
@@ -923,7 +998,7 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
       prevPossession,
       currentPossession,
       possessionChanged,
-      isPuntOrKick,
+      isPuntOrKickPlay,
       isTurnover,
       isScoreOrPenalty,
       isTurnoverOnDowns,
@@ -966,11 +1041,13 @@ function analyzeAndAnimatePlay(card, lastPlay, options = {}) {
   const isNewFirstDown = (downTransitionFirstDown || sameDownNewFirstDown ||
     (playTextHasFirstDown && currentDown === 1 && card.dataset.lastPlayText !== lastPlay && !possessionChanged));
 
-  if (isNewFirstDown && !isTurnover && !isPuntOrKick && !isScoreOrPenalty) {
+  if (isNewFirstDown && !isTurnover && !isTurnoverOnDowns && !isPuntOrKickPlay && !isScoreOrPenalty) {
     // Use lastPlay as part of the key to prevent duplicate triggers
     const firstDownKey = `${downDistanceText}-${lastPlay.substring(0, 50)}`;
     if (card.dataset.lastFirstDown !== firstDownKey) {
-      showPlayAnimation(card, 'first-down', '1ST DOWN!');
+      // Pass possession as recoveryInfo to determine animation direction
+      // Away team drives left-to-right, Home team drives right-to-left
+      showPlayAnimation(card, 'first-down', '1ST DOWN!', '', currentPossession || 'away');
       card.dataset.lastFirstDown = firstDownKey;
     }
   }
@@ -1223,7 +1300,7 @@ function detectMLBPlayEvents(card, game, comp, prevData) {
  * @param {Object} teams - { awayAbbr, homeAbbr }
  * @returns {Object|null} { fromYard, toYard, yardsGained, playAction }
  */
-function parseYardPositionsFromPlay(playText, fieldPosition, teams) {
+function parseYardPositionsFromPlay(playText, fieldPosition, teams, possession = '') {
   if (!playText) return null;
 
   const { awayAbbr, homeAbbr } = teams;
@@ -1311,8 +1388,16 @@ function parseYardPositionsFromPlay(playText, fieldPosition, teams) {
     } else if (toYard < fromYard) {
       toYard = 0; // Heading toward away end zone
     } else {
-      // If no clear direction, use the closer end zone
-      toYard = fromYard > 50 ? 100 : 0;
+      // If no clear direction, use possession to determine end zone
+      // Away team scores at 100 (home end zone), Home team scores at 0 (away end zone)
+      if (possession === 'away') {
+        toYard = 100;
+      } else if (possession === 'home') {
+        toYard = 0;
+      } else {
+        // Last fallback: use the closer end zone
+        toYard = fromYard > 50 ? 100 : 0;
+      }
     }
   }
 
@@ -1343,7 +1428,7 @@ async function animatePlayOnSVGField(card, event, playText, options = {}) {
   const { awayAbbr = '', homeAbbr = '', fieldPosition = '', possession = '' } = options;
 
   // Parse yard positions from play text
-  const positions = parseYardPositionsFromPlay(playText, fieldPosition, { awayAbbr, homeAbbr });
+  const positions = parseYardPositionsFromPlay(playText, fieldPosition, { awayAbbr, homeAbbr }, possession);
   if (!positions) {
     console.log('⚠️ SVG animation skipped - could not parse positions from:', playText.substring(0, 50));
     return;
@@ -1362,46 +1447,45 @@ async function animatePlayOnSVGField(card, event, playText, options = {}) {
   try {
     switch (event.type) {
       case 'touchdown':
-        // Animate the scoring play
-        const tdPlayType = playAction === 'pass' || playAction === 'incomplete_pass' ? 'pass' : 'rush';
-        await visualizer.animateTouchdown(tdPlayType, fromYard, toYard, 1500);
+        // DISABLED: Touchdown animation - just update ball position
+        // const tdPlayType = playAction === 'pass' || playAction === 'incomplete_pass' ? 'pass' : 'rush';
+        // await visualizer.animateTouchdown(tdPlayType, fromYard, toYard, 1500);
+        visualizer.setBallPosition(toYard);
         break;
 
       case 'interception':
-        // Animate pass that gets intercepted
-        const returnYards = event.text.includes('PICK SIX') ? -1 : 15; // Pick-six or 15-yard return
-        await visualizer.animateInterception(fromYard, toYard, returnYards, 1200);
+        // DISABLED: Complex animation - just update ball position
+        // await visualizer.animateInterception(fromYard, toYard, returnYards, 1200);
+        visualizer.setBallPosition(toYard);
         break;
 
       case 'fumble':
-        // Animate rush that leads to fumble
-        const recoveryYard = toYard + (event.recoveryTeam === event.teamName ? 1 : -5);
-        const offenseRecovery = event.recoveryTeam === event.teamName;
-        await visualizer.animateFumble(fromYard, toYard, recoveryYard, offenseRecovery, 800);
+        // DISABLED: Complex animation - just update ball position
+        // await visualizer.animateFumble(fromYard, toYard, recoveryYard, offenseRecovery, 800);
+        visualizer.setBallPosition(toYard);
         break;
 
       case 'field-goal':
-        // Animate field goal kick - away kicks toward right (100), home kicks toward left (0)
-        const fgDirection = possession === 'away' ? 'right' : 'left';
-        await visualizer.animateFieldGoal(fromYard, fgDirection, 2500);
+        // DISABLED: Field goal animation - just update ball position
+        // await visualizer.animateFieldGoal(fromYard, fgDirection, 2500);
         break;
 
       case 'missed-kick':
-        // Animate missed field goal - away kicks toward right (100), home kicks toward left (0)
-        const missDirection = possession === 'away' ? 'right' : 'left';
-        const missType = event.text.includes('WIDE') ? 'wide_right' : 'short';
-        await visualizer.animateMissedFieldGoal(fromYard, missDirection, missType, 2500);
+        // DISABLED: Missed field goal animation - just update ball position
+        // await visualizer.animateMissedFieldGoal(fromYard, missDirection, missType, 2500);
         break;
 
       case 'sack':
-        // Animate sack (backwards movement)
-        const yardsLost = Math.abs(yardsGained) || 7;
-        await visualizer.animateSack(fromYard, yardsLost, 800);
+        // DISABLED: Sack animation - use simple rush animation instead
+        // await visualizer.animateSack(fromYard, yardsLost, 800);
+        await visualizer.animateRush(fromYard, toYard, 800);
         break;
 
       case 'safety':
         // Animate play that ends in safety (tackled in own end zone)
-        await visualizer.animateRush(fromYard, fromYard > 50 ? 100 : 0, 1000);
+        // Away team's end zone is at 0, Home team's end zone is at 100
+        const safetyEndZone = possession === 'away' ? 0 : 100;
+        await visualizer.animateRush(fromYard, safetyEndZone, 1000);
         break;
 
       case 'two-point':
@@ -1438,7 +1522,9 @@ async function animatePlayOnSVGField(card, event, playText, options = {}) {
         } else if (playAction === 'rush' || playAction === 'scramble') {
           await visualizer.animateRush(fromYard, toYard, 800);
         } else if (playAction === 'sack') {
-          await visualizer.animateSack(fromYard, Math.abs(yardsGained) || 7, 800);
+          // DISABLED: Sack animation - use simple rush animation instead
+          // await visualizer.animateSack(fromYard, Math.abs(yardsGained) || 7, 800);
+          await visualizer.animateRush(fromYard, toYard, 800);
         }
         break;
     }
@@ -1463,10 +1549,48 @@ async function animatePlayOnSVGField(card, event, playText, options = {}) {
  * @param {string} homeAbbr - Home team abbreviation
  * @returns {number} Field percentage (0 = away endzone, 100 = home endzone)
  */
+// Team abbreviation aliases (ESPN play text can use different abbreviations)
+// ESPN standard team abbreviations - canonical form
+// Maps all ESPN variations to the standard abbreviation used in play text
+const TEAM_ABBR_ALIASES = {
+  // Houston Texans - ESPN uses HST in play text
+  'HST': 'HOU', 'HOU': 'HOU',
+  // Jacksonville Jaguars - ESPN uses JAX in play text
+  'JAC': 'JAX', 'JAX': 'JAX',
+  // Washington Commanders
+  'WSH': 'WAS', 'WAS': 'WAS',
+  // LA Rams - ESPN uses LAR or LA
+  'LAR': 'LA', 'LA': 'LA',
+  // Las Vegas Raiders
+  'LVR': 'LV', 'LV': 'LV', 'OAK': 'LV',
+  // San Francisco 49ers
+  'SFO': 'SF', 'SF': 'SF',
+  // Green Bay Packers
+  'GNB': 'GB', 'GB': 'GB',
+  // Kansas City Chiefs
+  'KAN': 'KC', 'KC': 'KC',
+  // New England Patriots - ESPN uses NWE in some contexts
+  'NWE': 'NE', 'NE': 'NE',
+  // Tampa Bay Buccaneers
+  'TAM': 'TB', 'TB': 'TB',
+  // New Orleans Saints
+  'NOR': 'NO', 'NO': 'NO',
+  // LA Chargers
+  'SDG': 'LAC', 'LAC': 'LAC',
+  // Historical relocations
+  'STL': 'LA',
+};
+
+function normalizeTeamAbbr(abbr) {
+  const upper = (abbr || '').toUpperCase();
+  return TEAM_ABBR_ALIASES[upper] || upper;
+}
+
 function yardLineToFieldPercent(teamAbbr, yardLine, awayAbbr, homeAbbr) {
-  const upperTeam = (teamAbbr || '').toUpperCase();
-  const upperAway = (awayAbbr || '').toUpperCase();
-  const upperHome = (homeAbbr || '').toUpperCase();
+  // Normalize all team abbreviations to handle ESPN variations
+  const upperTeam = normalizeTeamAbbr(teamAbbr);
+  const upperAway = normalizeTeamAbbr(awayAbbr);
+  const upperHome = normalizeTeamAbbr(homeAbbr);
 
   // Debug logging for field position calculation
   console.log('🏈 yardLineToFieldPercent:', { teamAbbr: upperTeam, yardLine, awayAbbr: upperAway, homeAbbr: upperHome });
@@ -1556,7 +1680,10 @@ function parseSpecialTeamsPlay(playText, prevFieldPosition, teams) {
       const originTeam = kickoffEndZoneMatch[2];
 
       // Figure out which team's end zone it went to (opposite of kicking team)
-      const landingTeam = originTeam.toUpperCase() === awayAbbr.toUpperCase() ? homeAbbr : awayAbbr;
+      // Must normalize team abbreviations to handle variations like HST vs HOU
+      const normalizedOrigin = normalizeTeamAbbr(originTeam);
+      const normalizedAway = normalizeTeamAbbr(awayAbbr);
+      const landingTeam = normalizedOrigin === normalizedAway ? homeAbbr : awayAbbr;
 
       kickOrigin = {
         team: originTeam,
@@ -1854,9 +1981,14 @@ function calculatePlayYardPositions(playText, situation, teams, possession) {
   let yardsGained = 0;
   let usedTextParsing = false;
 
-  // Step 1: FIRST try to parse ending position from play text "to TEAM YARD"
+  // Step 1: FIRST try to parse ending position from play text "to TEAM YARD" or "at TEAM YARD"
   // This is most reliable as it includes team context
-  const endMatch = playText.match(NFL_PLAY_PATTERNS.endingPosition);
+  // Try "to TEAM YARD" first (e.g., "to NE 35")
+  let endMatch = playText.match(NFL_PLAY_PATTERNS.endingPosition);
+  // Also try "at TEAM YARD" (e.g., "ran ob at PIT 36", "pushed ob at NE 25")
+  if (!endMatch) {
+    endMatch = playText.match(NFL_PLAY_PATTERNS.currentPosition);
+  }
   if (endMatch && awayAbbr && homeAbbr) {
     const endTeam = endMatch[1].toUpperCase();
     const endYardLine = Math.max(0, parseInt(endMatch[2]));
@@ -1864,23 +1996,37 @@ function calculatePlayYardPositions(playText, situation, teams, possession) {
     usedTextParsing = true;
   }
 
-  // Step 2: Fallback to situation.yardLine if text parsing didn't work
-  if (!usedTextParsing && situation?.yardLine !== undefined && situation.yardLine !== null) {
+  // Step 2: Fallback to situation data if text parsing didn't work
+  if (!usedTextParsing) {
     // Check if yardLine is already in 0-100 field position format (from replay data)
-    // If isFieldPosition flag is set, use directly without conversion
-    if (situation.isFieldPosition) {
+    if (situation?.isFieldPosition && situation.yardLine !== undefined) {
       toYard = situation.yardLine;
-    } else {
-      // ESPN raw format: 0-100 where 0 = own goal line, 100 = opponent's goal
-      // Convert based on which team has possession
-      if (possession === 'away') {
-        // Away team: 0 = their goal (0%), 100 = opponent goal (100%)
-        toYard = situation.yardLine;
-      } else if (possession === 'home') {
-        // Home team: 0 = their goal (100% on our field), 100 = opponent goal (0%)
-        toYard = 100 - situation.yardLine;
+    }
+    // PREFERRED: Use possessionText which has team context (e.g., "PIT 35")
+    // ESPN's raw yardLine is just 1-50 without side information
+    else if (situation?.possessionText && awayAbbr && homeAbbr) {
+      const posMatch = situation.possessionText.match(/([A-Z]{2,4})\s+(\d+)/i);
+      if (posMatch) {
+        const posTeam = posMatch[1].toUpperCase();
+        const posYardLine = Math.max(0, parseInt(posMatch[2]));
+        toYard = convertTeamYardToFieldPosition(posTeam, posYardLine, awayAbbr, homeAbbr);
+        console.log('🏈 Using possessionText for position:', { possessionText: situation.possessionText, posTeam, posYardLine, toYard });
+      }
+    }
+    // Last resort: try to use yardLine with team context from downDistanceText
+    else if (situation?.yardLine !== undefined && situation.yardLine !== null) {
+      // Try to get team context from downDistanceText (e.g., "1st & 10 at CHI 25")
+      const ddText = situation.downDistanceText || situation.shortDownDistanceText || '';
+      const atMatch = ddText.match(/at\s+([A-Z]{2,4})\s+(\d+)/i);
+      if (atMatch && awayAbbr && homeAbbr) {
+        const atTeam = atMatch[1].toUpperCase();
+        const atYardLine = Math.max(0, parseInt(atMatch[2]));
+        toYard = convertTeamYardToFieldPosition(atTeam, atYardLine, awayAbbr, homeAbbr);
+        console.log('🏈 Using downDistanceText for position:', { ddText, atTeam, atYardLine, toYard });
       } else {
-        toYard = situation.yardLine;
+        // Cannot determine side - log warning and use midfield
+        console.warn('⚠️ Cannot determine field side from yardLine alone (no possessionText or downDistanceText team context). Using midfield fallback.');
+        toYard = 50;
       }
     }
   }
@@ -1912,8 +2058,118 @@ function calculatePlayYardPositions(playText, situation, teams, possession) {
   }
 
   // Step 5: Handle special cases
+  let kickLandingYard = null;
+  let returnYards = 0;
+  let isTouchback = false;
+  let isFairCatch = false;
+
+  // Check if this is a kickoff or punt
+  const isKickoff = NFL_PLAY_PATTERNS.kickoff.test(playText);
+  const isPunt = NFL_PLAY_PATTERNS.punt.test(lowerText);
+
+  if (isKickoff || isPunt) {
+    // Check for pre-parsed flags from replay data first
+    isTouchback = situation?.isTouchback || /touchback/i.test(playText);
+    isFairCatch = situation?.isFairCatch || /fair\s*catch/i.test(playText);
+
+    // Check for pre-parsed data from replay-setup (kickLandingYard, returnYards, startYard)
+    if (situation?.kickLandingYard !== undefined && situation.kickLandingYard !== null) {
+      kickLandingYard = situation.kickLandingYard;
+    }
+    if (situation?.returnYards !== undefined && situation.returnYards > 0) {
+      returnYards = situation.returnYards;
+    }
+    // Use pre-parsed startYard for kick origin if available
+    if (situation?.startYard !== undefined && situation.startYard !== null) {
+      fromYard = situation.startYard;
+    }
+
+    // If not pre-parsed, try to extract from text
+    if (kickLandingYard === null) {
+      if (isKickoff) {
+        // For kickoffs: "kicks X yards from TEAM Y to TEAM Z" or "to end zone"
+        const kickToMatch = playText.match(/kicks\s+\d+\s+yards?\s+from\s+[A-Z]{2,4}\s+\d+\s+to\s+([A-Z]{2,4})\s+(-?\d+)/i);
+        const kickToEndZone = /to\s+(the\s+)?end\s*zone/i.test(playText);
+
+        if (kickToMatch) {
+          const landTeam = kickToMatch[1].toUpperCase();
+          const landYard = Math.max(0, parseInt(kickToMatch[2]));
+          kickLandingYard = convertTeamYardToFieldPosition(landTeam, landYard, awayAbbr, homeAbbr);
+        } else if (kickToEndZone) {
+          // Kick to end zone - determine which end zone based on kick direction
+          // If fromYard is on away side (< 50), kick goes toward home end zone (100)
+          // If fromYard is on home side (> 50), kick goes toward away end zone (0)
+          kickLandingYard = fromYard < 50 ? 100 : 0;
+        }
+      } else if (isPunt) {
+        // For punts: "punts X yards to TEAM Y"
+        const puntToMatch = playText.match(/punts?\s+(\d+)\s+yards?\s+to\s+([A-Z]{2,4})\s+(-?\d+)/i);
+        if (puntToMatch) {
+          const puntYards = parseInt(puntToMatch[1]);
+          const landTeam = puntToMatch[2].toUpperCase();
+          const landYard = Math.max(0, parseInt(puntToMatch[3]));
+          kickLandingYard = convertTeamYardToFieldPosition(landTeam, landYard, awayAbbr, homeAbbr);
+          yardsGained = puntYards;
+
+          // FIX: Calculate fromYard (punt origin) from landing position and punt distance
+          // During replay animation, possession IS the kicking team (not receiving)
+          // Kicking team punts IN their drive direction (toward opponent's end zone)
+          // So we reverse-calculate: fromYard = kickLandingYard - (puntYards * kickingTeamDirection)
+          const kickingTeamDirection = getDriveDirection(possession);
+          fromYard = kickLandingYard - (puntYards * kickingTeamDirection);
+          console.log('🏈 Punt fromYard calculation:', { kickLandingYard, puntYards, kickingTeamDirection, fromYard, possession });
+        }
+      }
+    }
+
+    // FIX: For punts, if fromYard wasn't set from startYard or text parsing,
+    // calculate it from kickLandingYard and punt distance
+    if (isPunt && kickLandingYard !== null && !situation?.startYard) {
+      // Parse punt distance from text if not already set
+      const puntDistMatch = playText.match(/punts?\s+(\d+)\s+yards?/i);
+      if (puntDistMatch) {
+        const puntDist = parseInt(puntDistMatch[1]);
+        // During replay animation, possession IS the kicking team (not receiving)
+        // Kicking team punts in their drive direction (toward opponent's endzone)
+        // So fromYard = landingYard - (puntDist * kickingTeamDirection)
+        const kickingTeamDir = getDriveDirection(possession);
+        const calcFromYard = kickLandingYard - (puntDist * kickingTeamDir);
+        fromYard = Math.max(0, Math.min(100, Math.round(calcFromYard)));
+        yardsGained = puntDist;
+        console.log('🏈 Punt fromYard (fallback calc):', { kickLandingYard, puntDist, kickingTeamDir, fromYard, possession });
+      }
+    }
+
+    // Calculate return yards if we have landing and final position
+    if (kickLandingYard !== null && !isTouchback && !isFairCatch) {
+      // Return is from landing spot to final position (toYard)
+      const calcReturnYards = Math.abs(toYard - kickLandingYard);
+      if (calcReturnYards > 0 && returnYards === 0) {
+        returnYards = calcReturnYards;
+      }
+    }
+
+    // For touchbacks, calculate the final position
+    if (isTouchback) {
+      returnYards = 0;
+      // Kickoff touchback = 25 yard line, punt touchback = 20 yard line
+      const touchbackYard = isKickoff ? 25 : 20;
+      // Receiving team is opposite of kicking team
+      // If kick origin < 50 (away side), receiving team is home, ball at home's yard line
+      // If kick origin > 50 (home side), receiving team is away, ball at away's yard line
+      if (kickLandingYard !== null) {
+        // Ball landed in end zone, touchback
+        if (kickLandingYard >= 100) {
+          toYard = 100 - touchbackYard; // Home's 25 = position 75
+        } else if (kickLandingYard <= 0) {
+          toYard = touchbackYard; // Away's 25 = position 25
+        }
+      }
+    }
+  }
+
   // Touchdown - ensure toYard is at end zone
-  if (NFL_PLAY_PATTERNS.touchdown.test(lowerText)) {
+  if (NFL_PLAY_PATTERNS.touchdown.test(lowerText) && !isKickoff && !isPunt) {
     const driveDirection = getDriveDirection(possession);
     toYard = driveDirection > 0 ? 100 : 0;
   }
@@ -1931,13 +2187,21 @@ function calculatePlayYardPositions(playText, situation, teams, possession) {
   // Clamp to valid field positions
   fromYard = Math.max(0, Math.min(100, Math.round(fromYard)));
   toYard = Math.max(0, Math.min(100, Math.round(toYard)));
+  if (kickLandingYard !== null) {
+    kickLandingYard = Math.max(0, Math.min(100, Math.round(kickLandingYard)));
+  }
 
   return {
     fromYard,
     toYard,
     yardsGained,
     direction: fromYard < toYard ? 1 : -1,
-    possession // Include possession for direction-dependent plays (field goals, etc.)
+    possession, // Include possession for direction-dependent plays (field goals, etc.)
+    // Special teams data
+    kickLandingYard,
+    returnYards,
+    isTouchback,
+    isFairCatch
   };
 }
 
@@ -1950,9 +2214,10 @@ function calculatePlayYardPositions(playText, situation, teams, possession) {
  * @returns {number} Field position 0-100
  */
 function convertTeamYardToFieldPosition(teamAbbr, yardLine, awayAbbr, homeAbbr) {
-  const normalizedTeam = (teamAbbr || '').toUpperCase();
-  const normalizedAway = (awayAbbr || '').toUpperCase();
-  const normalizedHome = (homeAbbr || '').toUpperCase();
+  // Use normalizeTeamAbbr to handle ESPN abbreviation variations
+  const normalizedTeam = normalizeTeamAbbr(teamAbbr);
+  const normalizedAway = normalizeTeamAbbr(awayAbbr);
+  const normalizedHome = normalizeTeamAbbr(homeAbbr);
 
   // Clamp yard line to valid range
   const clampedYard = Math.max(0, Math.min(50, yardLine));
@@ -1966,6 +2231,7 @@ function convertTeamYardToFieldPosition(teamAbbr, yardLine, awayAbbr, homeAbbr) 
   }
 
   // Unknown team - return midfield
+  console.warn(`⚠️ convertTeamYardToFieldPosition: Team ${normalizedTeam} not matched to away (${normalizedAway}) or home (${normalizedHome})`);
   return 50;
 }
 
@@ -2150,7 +2416,7 @@ async function executePlayAnimation(visualizer, classification, positions) {
   }
 
   const { primaryType, subtype, isNegated, events } = classification;
-  const { fromYard, toYard, yardsGained, possession } = positions;
+  const { fromYard, toYard, yardsGained, possession, kickLandingYard, returnYards, isTouchback, isFairCatch } = positions;
 
   if (isNegated) {
     return { animated: false, reason: 'play_negated' };
@@ -2159,71 +2425,98 @@ async function executePlayAnimation(visualizer, classification, positions) {
   try {
     switch (primaryType) {
       case 'interception': {
-        const isPick6 = subtype === 'pick_six';
-        const returnYards = isPick6 ? -1 : Math.max(0, Math.abs(toYard - fromYard));
-        await visualizer.animateInterception(fromYard, toYard, returnYards, 1200);
+        // DISABLED: Complex interception animation - just update ball position
+        // const isPick6 = subtype === 'pick_six';
+        // const returnYards = isPick6 ? -1 : Math.max(0, Math.abs(toYard - fromYard));
+        // await visualizer.animateInterception(fromYard, toYard, returnYards, 1200);
         visualizer.setBallPosition(toYard);
-        return { animated: true, type: 'interception' };
+        return { animated: false, type: 'interception', reason: 'animation_disabled' };
       }
 
       case 'fumble': {
-        const event = events[0];
-        const offenseRecovery = event?.subtype === 'fumble_recovered';
-        const recoveryYard = offenseRecovery ? toYard : toYard;
-        await visualizer.animateFumble(fromYard, toYard, recoveryYard, offenseRecovery, 800);
+        // DISABLED: Complex fumble animation - just update ball position
+        // const event = events[0];
+        // const offenseRecovery = event?.subtype === 'fumble_recovered';
+        // const recoveryYard = offenseRecovery ? toYard : toYard;
+        // await visualizer.animateFumble(fromYard, toYard, recoveryYard, offenseRecovery, 800);
         visualizer.setBallPosition(toYard);
-        return { animated: true, type: 'fumble' };
+        return { animated: false, type: 'fumble', reason: 'animation_disabled' };
       }
 
       case 'touchdown': {
-        const playType = events[0]?.playType || (subtype.includes('pass') ? 'pass' : 'rush');
-        await visualizer.animateTouchdown(playType, fromYard, toYard, 1500);
+        // DISABLED: Touchdown animation - just update ball position
+        // const playType = events[0]?.playType || (subtype.includes('pass') ? 'pass' : 'rush');
+        // await visualizer.animateTouchdown(playType, fromYard, toYard, 1500);
         visualizer.setBallPosition(toYard);
-        return { animated: true, type: 'touchdown' };
+        return { animated: false, type: 'touchdown', reason: 'animation_disabled' };
       }
 
       case 'field_goal': {
-        // Away team kicks toward 100 (right), home team kicks toward 0 (left)
-        const fgDirection = possession === 'away' ? 'right' : 'left';
-        await visualizer.animateFieldGoal(fromYard, fgDirection, 2500);
-        return { animated: true, type: 'field_goal' };
+        // DISABLED: Field goal animation - just skip
+        // const fgDirection = possession === 'away' ? 'right' : 'left';
+        // await visualizer.animateFieldGoal(fromYard, fgDirection, 2500);
+        return { animated: false, type: 'field_goal', reason: 'animation_disabled' };
       }
 
       case 'missed_field_goal': {
-        // Away team kicks toward 100 (right), home team kicks toward 0 (left)
-        const missedFgDirection = possession === 'away' ? 'right' : 'left';
-        await visualizer.animateMissedFieldGoal(fromYard, missedFgDirection, 'wide_right', 2500);
-        return { animated: true, type: 'missed_field_goal' };
+        // DISABLED: Missed field goal animation - just skip
+        // const missedFgDirection = possession === 'away' ? 'right' : 'left';
+        // await visualizer.animateMissedFieldGoal(fromYard, missedFgDirection, 'wide_right', 2500);
+        return { animated: false, type: 'missed_field_goal', reason: 'animation_disabled' };
       }
 
       case 'extra_point':
       case 'missed_extra_point': {
-        // Extra points: away team kicks toward right (100), home kicks toward left (0)
-        const xpDirection = possession === 'away' ? 'right' : 'left';
-        const good = primaryType === 'extra_point';
-        await visualizer.animateExtraPoint(xpDirection, good, 1500);
-        return { animated: true, type: primaryType };
+        // DISABLED: Extra point animations - just skip
+        // const xpDirection = possession === 'away' ? 'right' : 'left';
+        // const good = primaryType === 'extra_point';
+        // await visualizer.animateExtraPoint(xpDirection, good, 1500);
+        return { animated: false, type: primaryType, reason: 'animation_disabled' };
       }
 
       case 'sack': {
-        const yardsLost = Math.abs(yardsGained) || 7;
-        await visualizer.animateSack(fromYard, yardsLost, 800);
+        // DISABLED: Sack animation - use simple rush animation instead
+        // const yardsLost = Math.abs(yardsGained) || 7;
+        // await visualizer.animateSack(fromYard, yardsLost, 800);
+        await visualizer.animateRush(fromYard, toYard, 800);
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'sack' };
       }
 
+      case 'safety': {
+        // Safety = offense tackled in their own end zone
+        // Away team's end zone is at 0, Home team's end zone is at 100
+        const safetyTargetEndZone = possession === 'away' ? 0 : 100;
+        await visualizer.animateRush(fromYard, safetyTargetEndZone, 1000);
+        visualizer.setBallPosition(safetyTargetEndZone);
+        return { animated: true, type: 'safety' };
+      }
+
       case 'kickoff': {
-        const returnMatch = classification.events[0];
-        const returnYards = returnMatch?.isTouchback ? 0 : Math.abs(yardsGained) * 0.3;
-        await visualizer.animateKickoff(fromYard, toYard, returnYards, 2500);
+        // Use kickLandingYard for the arc animation target, then return to toYard
+        // If no kickLandingYard parsed, fall back to toYard (no return animation)
+        const kickArcTarget = kickLandingYard !== null ? kickLandingYard : toYard;
+        // Calculate return distance from landing to final position
+        const kickReturnDist = (isTouchback || isFairCatch || kickLandingYard === null)
+          ? 0
+          : (returnYards > 0 ? returnYards : Math.abs(toYard - kickArcTarget));
+
+        console.log('🏈 Kickoff animation:', { fromYard, kickArcTarget, toYard, kickReturnDist, isTouchback });
+        await visualizer.animateKickoff(fromYard, kickArcTarget, kickReturnDist, 2500);
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'kickoff' };
       }
 
       case 'punt': {
-        const puntEvent = classification.events[0];
-        const returnYards = (puntEvent?.isTouchback || puntEvent?.isFairCatch) ? 0 : 10;
-        await visualizer.animatePunt(fromYard, toYard, returnYards, 2000);
+        // Use kickLandingYard for the arc animation target, then return to toYard
+        const puntArcTarget = kickLandingYard !== null ? kickLandingYard : toYard;
+        // Calculate return distance from landing to final position
+        const puntReturnDist = (isTouchback || isFairCatch || kickLandingYard === null)
+          ? 0
+          : (returnYards > 0 ? returnYards : Math.abs(toYard - puntArcTarget));
+
+        console.log('🏈 Punt animation:', { fromYard, puntArcTarget, toYard, puntReturnDist, isTouchback, isFairCatch });
+        await visualizer.animatePunt(fromYard, puntArcTarget, puntReturnDist, 2000);
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'punt' };
       }
@@ -2256,14 +2549,21 @@ async function executePlayAnimation(visualizer, classification, positions) {
       }
 
       case 'penalty': {
-        const isGain = toYard > fromYard;
+        // Away team gains toward 100, home team gains toward 0
+        // isGain = movement in the team's drive direction
+        const isGain = possession === 'away' ? toYard > fromYard : toYard < fromYard;
         await visualizer.animatePenalty(fromYard, toYard, 800, { isGain });
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'penalty' };
       }
 
       case 'kneel': {
-        await visualizer.animateRush(fromYard, Math.max(0, fromYard - 1), 500);
+        // Kneel loses 1 yard - opposite of drive direction
+        // Away team (drives toward 100) kneels toward 0
+        // Home team (drives toward 0) kneels toward 100
+        const kneelDir = getDriveDirection(possession);
+        const kneelTarget = Math.max(0, Math.min(100, fromYard - kneelDir));
+        await visualizer.animateRush(fromYard, kneelTarget, 500);
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'kneel' };
       }
@@ -2341,6 +2641,18 @@ async function parseAndAnimateNFLPlay(playData, gameContext, prevState, visualiz
 
     result.positions = calculatePlayYardPositions(playText, situation, teams, possession);
 
+    // Debug: Log position calculation details
+    console.log('🏈 Position calculation:', {
+      possession,
+      teams,
+      possessionText: situation.possessionText,
+      yardLine: situation.yardLine,
+      downDistanceText: situation.downDistanceText,
+      fromYard: result.positions.fromYard,
+      toYard: result.positions.toYard,
+      yardsGained: result.positions.yardsGained
+    });
+
     // Classify play type
     const scoreChanges = {
       away: (gameContext.awayScore || 0) - (prevState?.awayScore || 0),
@@ -2352,10 +2664,62 @@ async function parseAndAnimateNFLPlay(playData, gameContext, prevState, visualiz
 
     // Execute animation if visualizer available
     if (visualizer) {
-      const animResult = await executePlayAnimation(visualizer, result.classification, result.positions);
-      result.animated = animResult.animated;
-      if (animResult.error) {
-        result.errors.push(animResult.error);
+      // For kickoffs and punts, use the specialized parser for better accuracy
+      if (result.playType === 'kickoff' || result.playType === 'punt') {
+        // Pass ONLY the START field position (e.g., "NE 41") for punt/kickoff origin calculation
+        // Do NOT fall back to possessionText as that's the END position (wrong for kick origin)
+        // If startPossessionText is not available, pass empty string so parseSpecialTeamsPlay
+        // returns null for kickOrigin, and we use result.positions.fromYard (from startYard) instead
+        const prevFieldPos = situation.startPossessionText || '';
+        console.log('🏈 Special teams prevFieldPos lookup:', { startPossessionText: situation.startPossessionText, startYard: situation.startYard, fallbackFromYard: result.positions.fromYard, result: prevFieldPos, situation });
+        const specialTeamsData = parseSpecialTeamsPlay(playText, prevFieldPos, teams);
+        if (specialTeamsData) {
+          // Use the more accurate positions from parseSpecialTeamsPlay
+          const kickOrigin = specialTeamsData.kickOrigin?.fieldPercent ?? result.positions.fromYard;
+          const landingSpot = specialTeamsData.landingSpot?.fieldPercent ?? result.positions.toYard;
+          const returnEnd = specialTeamsData.returnEnd?.fieldPercent ?? landingSpot;
+
+          console.log(`🏈 Special teams (${result.playType}):`, {
+            prevFieldPos,
+            kickOrigin,
+            landingSpot,
+            returnEnd,
+            isTouchback: specialTeamsData.isTouchback,
+            isFairCatch: specialTeamsData.isFairCatch
+          });
+
+          // Calculate return yards (difference between landing and final position)
+          const returnYards = specialTeamsData.isTouchback || specialTeamsData.isFairCatch
+            ? 0
+            : Math.abs(returnEnd - landingSpot);
+
+          try {
+            if (result.playType === 'kickoff') {
+              await visualizer.animateKickoff(kickOrigin, landingSpot, returnYards, 2500);
+            } else {
+              await visualizer.animatePunt(kickOrigin, landingSpot, returnYards, 2000);
+            }
+            // Set final ball position
+            visualizer.setBallPosition(returnEnd);
+            result.animated = true;
+          } catch (animErr) {
+            result.errors.push(`Animation error: ${animErr.message}`);
+          }
+        } else {
+          // Fallback to standard animation
+          const animResult = await executePlayAnimation(visualizer, result.classification, result.positions);
+          result.animated = animResult.animated;
+          if (animResult.error) {
+            result.errors.push(animResult.error);
+          }
+        }
+      } else {
+        // Standard play animation
+        const animResult = await executePlayAnimation(visualizer, result.classification, result.positions);
+        result.animated = animResult.animated;
+        if (animResult.error) {
+          result.errors.push(animResult.error);
+        }
       }
     } else {
       result.warnings.push('No visualizer provided');
@@ -2371,6 +2735,12 @@ async function parseAndAnimateNFLPlay(playData, gameContext, prevState, visualiz
   return result;
 }
 
+// Export to window for browser access
+if (typeof window !== 'undefined') {
+  window.setAnimationCompleteCallback = setAnimationCompleteCallback;
+  window.hasQueuedAnimations = hasQueuedAnimations;
+}
+
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -2383,6 +2753,8 @@ if (typeof module !== 'undefined' && module.exports) {
     analyzeAndAnimatePlay,
     queueAnimation,
     processNextAnimation,
+    setAnimationCompleteCallback,
+    hasQueuedAnimations,
     showNHLAnimation,
     detectNHLPlayEvents,
     showMLBAnimation,
@@ -2400,6 +2772,8 @@ if (typeof module !== 'undefined' && module.exports) {
     executePlayAnimation,
     isDuplicatePlay,
     convertTeamYardToFieldPosition,
-    getDriveDirection
+    getDriveDirection,
+    normalizeTeamAbbr,
+    TEAM_ABBR_ALIASES
   };
 }

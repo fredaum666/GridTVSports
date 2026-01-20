@@ -2292,12 +2292,14 @@
                 const homeColor = container.dataset.homeColor;
                 const awayAbbr = container.dataset.awayAbbr;
                 const homeAbbr = container.dataset.homeAbbr;
+                const showEndZoneLogos = container.dataset.showLogos !== 'false';
 
                 const visualizer = new SVGFieldVisualizer(container, {
                     compressed: isCompressed,
                     showGoalPosts: true,
                     showYardNumbers: !isCompressed,
                     showOneYardLines: !isCompressed,
+                    showEndZoneLogos: showEndZoneLogos,
                     awayColor: awayColor,
                     homeColor: homeColor,
                     awayAbbr: awayAbbr,
@@ -2430,6 +2432,8 @@
                 const gridCount = games.length;
                 const isCompressed = gridCount >= 3;
                 const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
+                // NCAA football games only show team colors in end zones (no logos)
+                const showEndZoneLogos = game.league !== 'ncaa';
 
                 // SVG field container - SVGFieldVisualizer will populate this
                 fieldVisualizerHTML = `
@@ -2440,7 +2444,8 @@
                              data-away-color="${awayEndzoneColor}"
                              data-home-color="${homeEndzoneColor}"
                              data-away-abbr="${game.away.abbr}"
-                             data-home-abbr="${game.home.abbr}">
+                             data-home-abbr="${game.home.abbr}"
+                             data-show-logos="${showEndZoneLogos}">
                         </div>
                     </div>
                 `;

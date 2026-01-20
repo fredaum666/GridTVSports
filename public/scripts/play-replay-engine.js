@@ -11,10 +11,12 @@ class PlayReplayEngine {
     this.metadata = metadata || {};
     this.currentPlayIndex = 0;
     this.isPlaying = false;
+    this.playExecuted = false; // Track if current play animation has been shown
     this.playbackSpeed = 3000; // ms between plays
     this.playbackTimer = null;
     this.onPlayUpdate = null; // Callback function
     this.onGameEnd = null;
+    this.wasPlayingBeforeAnimation = false; // Track if we should resume after animation
   }
 
   /**
@@ -38,6 +40,16 @@ class PlayReplayEngine {
   }
 
   /**
+   * Get next play (for play list preview)
+   */
+  getNextPlay() {
+    if (this.currentPlayIndex >= this.plays.length - 1) {
+      return null;
+    }
+    return this.plays[this.currentPlayIndex + 1];
+  }
+
+  /**
    * Convert current play to game state format (mimics ESPN API response)
    */
   getCurrentGameState() {
@@ -46,8 +58,39 @@ class PlayReplayEngine {
       return this.getFinalGameState();
     }
 
+    // Determine if this is a special teams play
+    const isKickoff = play.isKickoff || play.type === 'kickoff' || /kicks\s+\d+\s+yards?\s+from/i.test(play.text || '');
+    const isPunt = play.isPunt || play.type === 'punt' || /punts\s+\d+\s+yards?/i.test(play.text || '');
+    const isSpecialTeams = isKickoff || isPunt;
+
     // Parse possession from play data
-    const possession = play.possession || 'home';
+    // For kickoffs/punts BEFORE execution, show kicking team's possession
+    // After execution, show receiving team's possession (stored in play.possession)
+    let possession = play.possession || 'home';
+    let kickingTeam = play.kickingTeam;
+
+    // If kickingTeam not set, try to infer from play text
+    if (isSpecialTeams && !kickingTeam) {
+      const awayAbbr = this.normalizeTeamAbbr(this.metadata.away?.abbr || '');
+      const homeAbbr = this.normalizeTeamAbbr(this.metadata.home?.abbr || '');
+      const playText = play.text || '';
+
+      // Parse "from TEAM YARD" to determine kicking team
+      const fromMatch = playText.match(/from\s+([A-Z]{2,4})\s+\d+/i);
+      if (fromMatch) {
+        const kickTeamAbbr = this.normalizeTeamAbbr(fromMatch[1]);
+        if (kickTeamAbbr === awayAbbr) {
+          kickingTeam = 'away';
+        } else if (kickTeamAbbr === homeAbbr) {
+          kickingTeam = 'home';
+        }
+      }
+    }
+
+    if (isSpecialTeams && !this.playExecuted && kickingTeam) {
+      // Before kick executes, the kicking team has the ball
+      possession = kickingTeam;
+    }
 
     // Get timeouts from play data or use defaults based on period
     // NFL teams get 3 timeouts per half (reset at halftime)
@@ -79,9 +122,12 @@ class PlayReplayEngine {
         timeouts: homeTimeouts
       },
       possession: possession,
-      downDistance: play.down > 0 ? `${this.ordinal(play.down)} & ${play.distance}` : '',
-      fieldPosition: this.formatFieldPosition(play),
-      yardLine: play.endYard || play.yardLine || 50,
+      // Use ESPN's downDistanceText if available, extract short form or calculate as fallback
+      downDistance: this.getDownDistance(play),
+      // Before play executes, show starting position; after, show ending position
+      fieldPosition: this.playExecuted ? this.formatFieldPosition(play) : this.formatFieldPositionStart(play),
+      yardLine: this.playExecuted ? (play.endYard || play.yardLine || 50) : (play.startYard || play.endYard || 50),
+      down: play.down || 0,
       yardsToGo: play.distance || 10,
       possessionOnOwn: this.isPossessionOnOwn(play),
       lastPlay: play.text || '',
@@ -89,9 +135,23 @@ class PlayReplayEngine {
       playType: play.type || 'unknown',
       startYard: play.startYard,
       endYard: play.endYard,
+      // ESPN's pre-formatted position text (for animation calculations)
+      possessionText: play.possessionText,
+      startPossessionText: play.startPossessionText,
       isTouchdown: play.isTouchdown || false,
       isTurnover: play.isTurnover || false,
-      turnoverType: play.turnoverType || null
+      isTurnoverOnDowns: play.isTurnoverOnDowns || false,
+      turnoverType: play.turnoverType || null,
+      // Kickoff/Punt specific data for animations
+      kickLandingYard: play.kickLandingYard,
+      returnYards: play.returnYards || 0,
+      isTouchback: play.isTouchback || /touchback/i.test(play.text || ''),
+      isFairCatch: play.isFairCatch || /fair\s*catch/i.test(play.text || ''),
+      kickingTeam: play.kickingTeam,
+      isKickoff: isKickoff,
+      isPunt: isPunt,
+      // Flag to indicate if play animation has been shown
+      playExecuted: this.playExecuted
     };
   }
 
@@ -123,12 +183,17 @@ class PlayReplayEngine {
   }
 
   /**
-   * Format field position string
+   * Format field position string (end position - after play)
    */
   formatFieldPosition(play) {
     if (!play) return '';
 
-    // Use endYard first (from parsed data), then yardLine as fallback
+    // Use ESPN's pre-formatted possessionText directly (most accurate)
+    if (play.possessionText) {
+      return play.possessionText;
+    }
+
+    // Fallback: calculate from endYard (legacy support)
     const yardLine = play.endYard || play.yardLine;
     if (yardLine === undefined || yardLine === null) return '';
 
@@ -141,6 +206,65 @@ class PlayReplayEngine {
       const homeAbbr = this.metadata.home?.abbr || 'HOME';
       return `${homeAbbr} ${100 - yardLine}`;
     }
+  }
+
+  /**
+   * Format field position string for starting position (before play)
+   */
+  formatFieldPositionStart(play) {
+    if (!play) return '';
+
+    // Use ESPN's pre-formatted startPossessionText directly (most accurate)
+    if (play.startPossessionText) {
+      return play.startPossessionText;
+    }
+
+    // Fallback: calculate from startYard (legacy support)
+    const yardLine = play.startYard;
+    if (yardLine === undefined || yardLine === null) {
+      // Fall back to end position if no start position
+      return this.formatFieldPosition(play);
+    }
+
+    // Determine which team's side of the field
+    // 0-50 = away team's side, 50-100 = home team's side
+    if (yardLine <= 50) {
+      const awayAbbr = this.metadata.away?.abbr || 'AWAY';
+      return `${awayAbbr} ${yardLine}`;
+    } else {
+      const homeAbbr = this.metadata.home?.abbr || 'HOME';
+      return `${homeAbbr} ${100 - yardLine}`;
+    }
+  }
+
+  /**
+   * Get down and distance string
+   * Uses ESPN's text when available, falls back to calculation
+   */
+  getDownDistance(play) {
+    if (!play) return '';
+
+    // If ESPN provided downDistanceText, extract short form (e.g., "1st & 10" from "1st & 10 at HOU 26")
+    if (play.downDistanceText) {
+      // Extract just the down & distance part (before " at ")
+      const match = play.downDistanceText.match(/^(\d+\w+\s*&\s*\d+)/);
+      if (match) return match[1];
+      return play.downDistanceText;
+    }
+
+    // Fallback: calculate from down and distance values
+    if (play.down > 0) {
+      return `${this.ordinal(play.down)} & ${play.distance}`;
+    }
+
+    return '';
+  }
+
+  /**
+   * Mark the current play as executed (animation has been shown)
+   */
+  markPlayExecuted() {
+    this.playExecuted = true;
   }
 
   /**
@@ -167,6 +291,44 @@ class PlayReplayEngine {
     const s = ['th', 'st', 'nd', 'rd'];
     const v = n % 100;
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  /**
+   * Normalize team abbreviations (ESPN uses different abbreviations in different places)
+   * Maps to ESPN standard abbreviations used in play text
+   */
+  normalizeTeamAbbr(abbr) {
+    if (!abbr) return '';
+    const normalized = abbr.toUpperCase();
+    const TEAM_ABBR_MAP = {
+      // Houston Texans - ESPN uses HST in play text
+      'HST': 'HOU', 'HOU': 'HOU',
+      // New England Patriots
+      'NWE': 'NE', 'NE': 'NE',
+      // Jacksonville Jaguars - ESPN uses JAX in play text
+      'JAC': 'JAX', 'JAX': 'JAX',
+      // Las Vegas Raiders
+      'LV': 'LV', 'LVR': 'LV', 'OAK': 'LV',
+      // LA Rams
+      'LAR': 'LA', 'LA': 'LA',
+      // Washington Commanders
+      'WSH': 'WAS', 'WAS': 'WAS',
+      // San Francisco 49ers
+      'SFO': 'SF', 'SF': 'SF',
+      // Green Bay Packers
+      'GNB': 'GB', 'GB': 'GB',
+      // Kansas City Chiefs
+      'KAN': 'KC', 'KC': 'KC',
+      // Tampa Bay Buccaneers
+      'TAM': 'TB', 'TB': 'TB',
+      // New Orleans Saints
+      'NOR': 'NO', 'NO': 'NO',
+      // LA Chargers
+      'SDG': 'LAC', 'LAC': 'LAC',
+      // Historical
+      'STL': 'LA'
+    };
+    return TEAM_ABBR_MAP[normalized] || normalized;
   }
 
   // ==========================================
@@ -199,6 +361,29 @@ class PlayReplayEngine {
   }
 
   /**
+   * Pause for animation overlay - remembers if we were playing to resume after
+   */
+  pauseForAnimation() {
+    this.wasPlayingBeforeAnimation = this.isPlaying;
+    if (this.isPlaying) {
+      this.pause();
+    }
+  }
+
+  /**
+   * Resume after animation overlay completes - only if we were playing before
+   * Note: We don't call play() because that would re-emit the current play
+   * Instead, just schedule the next play advancement
+   */
+  resumeFromAnimation() {
+    if (this.wasPlayingBeforeAnimation) {
+      this.wasPlayingBeforeAnimation = false;
+      this.isPlaying = true;
+      this.scheduleNextPlay(); // Just schedule next, don't re-emit current play
+    }
+  }
+
+  /**
    * Toggle play/pause
    */
   togglePlayPause() {
@@ -216,6 +401,7 @@ class PlayReplayEngine {
   nextPlay() {
     if (this.currentPlayIndex < this.plays.length - 1) {
       this.currentPlayIndex++;
+      this.playExecuted = false; // Reset for new play
       this.emitUpdate();
       return true;
     }
@@ -228,6 +414,7 @@ class PlayReplayEngine {
   previousPlay() {
     if (this.currentPlayIndex > 0) {
       this.currentPlayIndex--;
+      this.playExecuted = false; // Reset for new play
       this.emitUpdate();
       return true;
     }
@@ -240,6 +427,7 @@ class PlayReplayEngine {
   jumpToPlay(index) {
     if (index >= 0 && index < this.plays.length) {
       this.currentPlayIndex = index;
+      this.playExecuted = false; // Reset for new play
       this.emitUpdate();
       return true;
     }
@@ -265,6 +453,7 @@ class PlayReplayEngine {
   reset() {
     this.pause();
     this.currentPlayIndex = 0;
+    this.playExecuted = false; // Reset for first play
     this.emitUpdate();
   }
 
@@ -281,6 +470,7 @@ class PlayReplayEngine {
 
       if (this.currentPlayIndex < this.plays.length - 1) {
         this.currentPlayIndex++;
+        this.playExecuted = false; // Reset for new play (same as manual nextPlay())
         this.emitUpdate();
         this.scheduleNextPlay();
       } else {

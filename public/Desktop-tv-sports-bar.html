@@ -11,9 +11,9 @@
     <link rel="stylesheet" href="/styles/fullscreen-cards.css">
     <link rel="stylesheet" href="/styles/tablet-fullscreen.css">
     <link rel="stylesheet" href="/styles/play-animations.css">
-    <script src="/scripts/play-animations.js"></script>
-    <script src="/scripts/field-visualizer-svg.js"></script>
-    <script src="/scripts/play-replay-engine.js"></script>
+    <script src="/scripts/play-animations.js?v=4"></script>
+    <script src="/scripts/field-visualizer-svg.js?v=3"></script>
+    <script src="/scripts/play-replay-engine.js?v=6"></script>
     <style>
         /* ================================ */
         /* SPORTS BAR MODE - RESPONSIVE     */
@@ -935,7 +935,7 @@
         /* Away score box - far left */
         .fs-sb-team-section.away .fs-sb-score-box {
             position: absolute;
-            left: 0;
+            left: 12px;
             top: 50%;
             transform: translateY(-50%) skewX(var(--sb-skew-angle));
         }
@@ -953,7 +953,7 @@
         /* Home score box - far right */
         .fs-sb-team-section.home .fs-sb-score-box {
             position: absolute;
-            right: 0;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%) skewX(var(--sb-skew-angle));
         }
@@ -2442,6 +2442,50 @@
             transition: width 0.3s ease;
         }
 
+        /* Jump to play control */
+        .replay-jump-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-left: 12px;
+            border-left: 1px solid var(--border);
+        }
+
+        .replay-jump-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .replay-jump-input {
+            width: 55px;
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 12px;
+            text-align: center;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .replay-jump-input::-webkit-outer-spin-button,
+        .replay-jump-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .replay-jump-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .replay-jump-btn {
+            padding: 6px 10px !important;
+            font-size: 11px !important;
+        }
+
         .replay-speed-control {
             display: flex;
             align-items: center;
@@ -2590,24 +2634,162 @@
             border-color: var(--success);
         }
 
-        /* Last play text overlay - ALWAYS VISIBLE in replay mode */
-        .replay-last-play {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            right: 8px;
-            padding: 10px 14px;
+        /* Play List Container - shows prev/current/next plays */
+        .replay-play-list {
+            position: relative;
+            margin: 8px 0 0 0;
             background: rgba(10, 14, 26, 0.95);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 12px;
-            color: var(--text-primary);
-            line-height: 1.5;
-            opacity: 1;
-            /* Always visible */
-            z-index: 50;
-            max-height: 100px;
+            border-radius: 6px;
             overflow: hidden;
+            z-index: 50;
+            height: 84px;
+            /* Fixed height for 3 plays */
+        }
+
+        .replay-play-list-inner {
+            position: relative;
+        }
+
+        /* Scroll animation: slide up and fade */
+        @keyframes playListScrollUp {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            40% {
+                transform: translateY(-14px);
+                opacity: 0.3;
+            }
+
+            60% {
+                transform: translateY(-14px);
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .replay-play-list.scrolling .replay-play-list-inner {
+            animation: playListScrollUp 0.5s ease-in-out;
+        }
+
+        /* Individual play item in the list */
+        .replay-play-item {
+            padding: 4px 12px;
+            font-size: 11px;
+            color: var(--text-primary);
+            line-height: 1.3;
+            height: 28px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .replay-play-item.prev {
+            opacity: 0.4;
+            color: var(--text-muted);
+        }
+
+        .replay-play-item.current {
+            opacity: 1;
+            background: rgba(0, 240, 255, 0.08);
+            border-left: 2px solid var(--accent);
+            padding-left: 10px;
+        }
+
+        .replay-play-item.next {
+            opacity: 0.4;
+            color: var(--text-muted);
+        }
+
+        .replay-play-item .play-type {
+            color: var(--accent);
+            font-weight: 600;
+            margin-right: 6px;
+            text-transform: uppercase;
+            font-size: 9px;
+            flex-shrink: 0;
+            min-width: 50px;
+        }
+
+        .replay-play-item.prev .play-type,
+        .replay-play-item.next .play-type {
+            color: var(--text-muted);
+        }
+
+        .replay-play-item .play-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Fade gradients at top and bottom */
+        .replay-play-list::before,
+        .replay-play-list::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 16px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .replay-play-list::before {
+            top: 0;
+            background: linear-gradient(to bottom, rgba(10, 14, 26, 1), transparent);
+        }
+
+        .replay-play-list::after {
+            bottom: 0;
+            background: linear-gradient(to top, rgba(10, 14, 26, 1), transparent);
+        }
+
+        /* Pulse animation for current play on change */
+        @keyframes playPulse {
+            0% {
+                background: rgba(0, 240, 255, 0.08);
+            }
+
+            50% {
+                background: rgba(0, 240, 255, 0.2);
+            }
+
+            100% {
+                background: rgba(0, 240, 255, 0.08);
+            }
+        }
+
+        .replay-play-list.scrolling .replay-play-item.current {
+            animation: playPulse 0.4s ease;
+        }
+
+        /* Legacy single play display (keep for compatibility) */
+        .replay-last-play {
+            position: relative;
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            background: rgba(10, 14, 26, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--text-primary);
+            line-height: 1.4;
+            opacity: 1;
+            z-index: 50;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: none;
+            /* Hidden when play list is used */
         }
 
         .replay-last-play strong {
@@ -2616,11 +2798,54 @@
             margin-right: 6px;
         }
 
+        /* Down/Distance and Field Position info below play text */
+        .replay-play-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 6px 0 0 0;
+            padding: 6px 12px;
+            background: rgba(20, 28, 46, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .replay-play-info .info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .replay-play-info .info-label {
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+        }
+
+        .replay-play-info .info-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .replay-play-info .info-value.down-distance {
+            color: var(--accent);
+        }
+
+        .replay-play-info .info-value.field-position {
+            color: #4ade80;
+        }
+
         /* Hide replay elements when not in replay mode */
         body:not(.replay-mode) .replay-controls,
         body:not(.replay-mode) .global-replay-controls,
         body:not(.replay-mode) .global-controls-trigger,
-        body:not(.replay-mode) .replay-last-play {
+        body:not(.replay-mode) .replay-last-play,
+        body:not(.replay-mode) .replay-play-list,
+        body:not(.replay-mode) .replay-play-info {
             display: none !important;
         }
     </style>
@@ -2639,6 +2864,11 @@
         <button class="global-replay-btn" id="global-play-all">Play All</button>
         <button class="global-replay-btn" id="global-pause-all">Pause All</button>
         <button class="global-replay-btn" id="global-reset-all">Reset All</button>
+        <div class="replay-jump-control">
+            <span class="replay-jump-label">Jump to:</span>
+            <input type="number" class="replay-jump-input" id="global-jump-input" min="1" placeholder="#" title="Enter play number and press Enter">
+            <button class="global-replay-btn replay-jump-btn" id="global-jump-btn">Go</button>
+        </div>
         <div class="replay-speed-control">
             <span class="replay-speed-label">Speed:</span>
             <div class="speed-preset-btns">
@@ -3121,17 +3351,30 @@
             let liveGames = [];
 
             // Check for replay mode (URL parameter ?replay=true)
-            if (urlParams.get('replay') === 'true') {
+            const isReplayRequest = urlParams.get('replay') === 'true';
+            // Parallel mode allows combining replay with live games (explicit opt-in)
+            const wantParallelMode = urlParams.get('parallel') === 'true';
+
+            if (isReplayRequest) {
                 const replayLoaded = loadReplayGames();
                 if (replayLoaded) {
                     isReplayMode = true;
                     document.body.classList.add('replay-mode');
                     replayGames = [...games]; // Copy replay games
                     console.log('🎬 Replay games loaded:', replayGames.length);
+
+                    // In replay-only mode (no parallel flag), use only replay games
+                    if (!wantParallelMode) {
+                        games = replayGames;
+                        usingMockData = true; // No live games to refresh
+                        console.log('🎬 Replay-only mode with', games.length, 'games');
+                        return;
+                    }
                 }
             }
 
             // Check for live games from localStorage (user-selected games)
+            // Only load if not in replay-only mode
             const saved = localStorage.getItem('gridtv_sports_bar_games');
             if (saved) {
                 try {
@@ -3145,8 +3388,8 @@
                 }
             }
 
-            // Combine replay and live games if both exist (parallel mode)
-            if (replayGames.length > 0 && liveGames.length > 0) {
+            // Combine replay and live games if both exist (parallel mode was explicitly requested)
+            if (replayGames.length > 0 && liveGames.length > 0 && wantParallelMode) {
                 // Parallel mode: combine both types
                 games = [...replayGames, ...liveGames];
                 usingMockData = false; // Keep auto-refresh for live games
@@ -3352,27 +3595,72 @@
 
             // Update field visualizer position (animations handled by analyzeAndAnimatePlay below)
             const visualizer = window.fieldVisualizers.get(gameId);
+
+            // Ensure field is visible for replay mode
+            const fieldContainer = card.querySelector('.field-visualizer');
+            if (fieldContainer && fieldContainer.style.display === 'none') {
+                fieldContainer.style.display = '';
+            }
+
             if (visualizer && gameState.yardLine !== undefined) {
                 // Calculate ball position for SVG (0-100)
-                const ballPosition = calculateBallPositionForReplay(gameState);
+                // Use startYard if play hasn't been executed yet, endYard after
+                const ballPosition = gameState.playExecuted
+                    ? (gameState.endYard || gameState.yardLine || 50)
+                    : (gameState.startYard || gameState.yardLine || 50);
+
+                // Check if we're about to animate
+                const willAnimate = gameState.lastPlay && (!gameState.playExecuted || prevPlay);
+                const isSpecialTeams = gameState.isKickoff || gameState.isPunt;
+                const playType = gameState.playType?.toLowerCase() || '';
+                const isPassOrRush = ['pass', 'complete', 'incomplete', 'rush', 'run', 'sack'].includes(playType);
 
                 // Update first down line
-                if (gameState.yardsToGo && gameState.possession) {
-                    const firstDownPos = calculateFirstDownForReplay(ballPosition, gameState.yardsToGo, gameState.possession);
-                    visualizer.setFirstDownPosition(firstDownPos, gameState.down > 0);
+                // For pass/rush animations: keep first down line at PREVIOUS position during animation
+                // After animation completes, updateReplayDisplayAfterAnimation will set the new position
+                if (willAnimate && isPassOrRush && prevPlay && !isSpecialTeams) {
+                    // During animation: use PREVIOUS play's first down position
+                    // prevPlay.down/distance represent the situation BEFORE this play
+                    const prevDown = prevPlay.down || 0;
+                    const prevDistance = prevPlay.yardsToGo || prevPlay.distance || 10;
+                    const prevEndYard = prevPlay.endYard || prevPlay.yardLine || 50;
+                    const showFirstDown = prevDown > 0;
+                    if (prevDistance && prevPlay.possession && showFirstDown) {
+                        const firstDownPos = calculateFirstDownForReplay(prevEndYard, prevDistance, prevPlay.possession);
+                        visualizer.setFirstDownPosition(firstDownPos, showFirstDown);
+                    } else {
+                        visualizer.setFirstDownPosition(50, false);
+                    }
+                } else if (!isSpecialTeams) {
+                    // Not animating or special teams: show current first down position
+                    const showFirstDown = gameState.down > 0;
+                    if (gameState.yardsToGo && gameState.possession && showFirstDown) {
+                        const endPosition = gameState.endYard || gameState.yardLine || 50;
+                        const firstDownPos = calculateFirstDownForReplay(endPosition, gameState.yardsToGo, gameState.possession);
+                        visualizer.setFirstDownPosition(firstDownPos, showFirstDown);
+                    } else {
+                        visualizer.setFirstDownPosition(50, false);
+                    }
+                } else {
+                    visualizer.setFirstDownPosition(50, false); // Hide for special teams
                 }
 
                 // Only set ball position directly if we're not animating
-                // (analyzeAndAnimatePlay will handle animation + final position)
-                if (!prevPlay || !gameState.lastPlay) {
+                // For first play (no prevPlay), still animate if playExecuted is false
+                if (!willAnimate) {
                     visualizer.setBallPosition(ballPosition);
                 }
             }
 
             // Trigger animations (UI overlays + SVG field) - same logic as live games
-            if (prevPlay && gameState.lastPlay) {
-                const awayScoreChange = (gameState.away?.score || 0) - (prevPlay.awayScore || 0);
-                const homeScoreChange = (gameState.home?.score || 0) - (prevPlay.homeScore || 0);
+            // Also animate first play (when prevPlay is null) if playExecuted is false
+            const shouldAnimate = gameState.lastPlay && (!gameState.playExecuted || prevPlay);
+            if (shouldAnimate) {
+                // For first play, use defaults for prev values
+                const prevAwayScore = prevPlay?.awayScore || 0;
+                const prevHomeScore = prevPlay?.homeScore || 0;
+                const awayScoreChange = (gameState.away?.score || 0) - prevAwayScore;
+                const homeScoreChange = (gameState.home?.score || 0) - prevHomeScore;
                 const awayAbbr = gameState.away?.abbr || '';
                 const homeAbbr = gameState.home?.abbr || '';
 
@@ -3380,10 +3668,23 @@
                 // For replay mode, yardLine is already in 0-100 field position format
                 const gameContext = {
                     situation: {
-                        yardLine: gameState.yardLine,
+                        // Use END position for animation target (where the play ends)
+                        yardLine: gameState.endYard || gameState.yardLine,
                         down: gameState.down,
                         distance: gameState.yardsToGo,
-                        isFieldPosition: true // Replay data is already converted to 0-100 format
+                        isFieldPosition: true, // Replay data is already converted to 0-100 format
+                        // END position text (e.g., "PIT 36") - used for animation target calculation
+                        possessionText: gameState.possessionText || gameState.fieldPosition,
+                        // Field position string for display (changes based on playExecuted)
+                        fieldPosition: gameState.fieldPosition,
+                        // START position (e.g., "HOU 18") for kickoff/punt origin
+                        startPossessionText: gameState.startPossessionText,
+                        startYard: gameState.startYard,
+                        // Kickoff/Punt specific data for animations
+                        kickLandingYard: gameState.kickLandingYard,
+                        returnYards: gameState.returnYards,
+                        isTouchback: gameState.isTouchback,
+                        isFairCatch: gameState.isFairCatch
                     },
                     awayAbbr,
                     homeAbbr,
@@ -3393,10 +3694,10 @@
                 };
 
                 const prevState = {
-                    awayScore: prevPlay.awayScore || 0,
-                    homeScore: prevPlay.homeScore || 0,
-                    possession: prevPlay.possession || null,
-                    lastPlay: prevPlay.lastPlay || ''
+                    awayScore: prevAwayScore,
+                    homeScore: prevHomeScore,
+                    possession: prevPlay?.possession || null,
+                    lastPlay: prevPlay?.lastPlay || ''
                 };
 
                 // Execute SVG field animation FIRST, then show UI overlays after it completes
@@ -3405,15 +3706,23 @@
                     homeTeam: { team: { abbreviation: homeAbbr, displayName: gameState.home?.name, logo: gameState.home?.logo } },
                     awayScoreChange,
                     homeScoreChange,
-                    prevDown: prevPlay.down || 0,
+                    prevDown: prevPlay?.down || 0,
                     currentDown: gameState.down || 0,
                     downDistanceText: gameState.downDistance || '',
-                    prevDownDistance: prevPlay.downDistance || '',
-                    prevPossession: prevPlay.possession,
+                    prevDownDistance: prevPlay?.downDistance || '',
+                    prevPossession: prevPlay?.possession,
                     currentPossession: gameState.possession,
                     fieldPosition: gameState.yardLine || gameState.fieldPosition || '',
                     awayAbbr,
-                    homeAbbr
+                    homeAbbr,
+                    // Play type info for accurate overlay detection (prevents false turnover-on-downs)
+                    playType: gameState.playType || '',
+                    isPunt: gameState.isPunt || false,
+                    isKickoff: gameState.isKickoff || false,
+                    // Previous play type - needed to detect if possession change was due to punt/kickoff
+                    prevPlayType: prevPlay?.type || '',
+                    prevIsPunt: prevPlay?.isPunt || prevPlay?.type === 'punt' || false,
+                    prevIsKickoff: prevPlay?.isKickoff || prevPlay?.type === 'kickoff' || false
                 };
 
                 if (typeof parseAndAnimateNFLPlay === 'function') {
@@ -3422,28 +3731,98 @@
                             if (result.errors.length > 0) {
                                 console.warn('🎬 Replay animation errors:', result.errors);
                             }
+                            // Mark play as executed and update final position
+                            const engine = replayManager?.getEngine(gameId);
+                            if (engine) {
+                                engine.markPlayExecuted();
+                                // Update display with final position after animation
+                                updateReplayDisplayAfterAnimation(gameId, card, visualizer);
+                            }
                             // Now show UI overlay AFTER field animation completes
                             if (typeof analyzeAndAnimatePlay === 'function') {
+                                const cardId = card.dataset.gameId || card.id || 'unknown';
                                 analyzeAndAnimatePlay(card, gameState.lastPlay, overlayOptions);
+                                // Check if any overlay animations were actually queued
+                                // If so, pause auto-play and set callback to resume when complete
+                                if (typeof hasQueuedAnimations === 'function' && hasQueuedAnimations(cardId)) {
+                                    const eng = replayManager?.getEngine(gameId);
+                                    if (eng) eng.pauseForAnimation();
+                                    // Set callback to resume when overlay animations complete
+                                    if (typeof setAnimationCompleteCallback === 'function') {
+                                        setAnimationCompleteCallback(cardId, () => {
+                                            if (eng) eng.resumeFromAnimation();
+                                        });
+                                    }
+                                }
+                                // If no animations queued, auto-play continues normally
                             }
                         })
                         .catch(err => {
                             console.error('🎬 parseAndAnimateNFLPlay failed in replay:', err);
+                            // Mark play as executed even if animation failed
+                            const engine = replayManager?.getEngine(gameId);
+                            if (engine) {
+                                engine.markPlayExecuted();
+                                updateReplayDisplayAfterAnimation(gameId, card, visualizer);
+                            }
                             // Still show overlay even if field animation failed
                             if (typeof analyzeAndAnimatePlay === 'function') {
+                                const cardId = card.dataset.gameId || card.id || 'unknown';
                                 analyzeAndAnimatePlay(card, gameState.lastPlay, overlayOptions);
+                                // Check if any overlay animations were actually queued
+                                if (typeof hasQueuedAnimations === 'function' && hasQueuedAnimations(cardId)) {
+                                    const eng = replayManager?.getEngine(gameId);
+                                    if (eng) eng.pauseForAnimation();
+                                    if (typeof setAnimationCompleteCallback === 'function') {
+                                        setAnimationCompleteCallback(cardId, () => {
+                                            if (eng) eng.resumeFromAnimation();
+                                        });
+                                    }
+                                }
                             }
                         });
                 } else if (typeof analyzeAndAnimatePlay === 'function') {
                     // Fallback if parseAndAnimateNFLPlay not available
+                    const cardId = card.dataset.gameId || card.id || 'unknown';
                     analyzeAndAnimatePlay(card, gameState.lastPlay, overlayOptions);
+                    // Check if any overlay animations were actually queued
+                    if (typeof hasQueuedAnimations === 'function' && hasQueuedAnimations(cardId)) {
+                        const eng = replayManager?.getEngine(gameId);
+                        if (eng) eng.pauseForAnimation();
+                        if (typeof setAnimationCompleteCallback === 'function') {
+                            setAnimationCompleteCallback(cardId, () => {
+                                if (eng) eng.resumeFromAnimation();
+                            });
+                        }
+                    }
                 }
             }
 
-            // Update last play text
-            const lastPlayEl = card.querySelector('.replay-last-play');
-            if (lastPlayEl && gameState.lastPlay) {
-                lastPlayEl.innerHTML = `<strong>${gameState.playType?.toUpperCase() || 'PLAY'}:</strong> ${gameState.lastPlay}`;
+            // Update play list (prev/current/next)
+            const replayEngine = replayManager?.getEngine(gameId);
+            if (replayEngine) {
+                // Animate scroll when play changes (when shouldAnimate is true)
+                if (shouldAnimate) {
+                    // Animation will update content after scroll completes
+                    animatePlayListScroll(card, replayEngine, gameState);
+                } else {
+                    // No animation, just update content
+                    updateReplayPlayList(card, replayEngine, gameState);
+                }
+            }
+
+            // Update down/distance and field position info
+            const playInfoEl = card.querySelector('.replay-play-info');
+            if (playInfoEl) {
+                const downDistEl = playInfoEl.querySelector('.down-distance');
+                const fieldPosEl = playInfoEl.querySelector('.field-position');
+
+                if (downDistEl) {
+                    downDistEl.textContent = gameState.downDistance || '--';
+                }
+                if (fieldPosEl) {
+                    fieldPosEl.textContent = gameState.fieldPosition || '--';
+                }
             }
 
             // Update replay controls progress
@@ -3465,54 +3844,104 @@
             }
         }
 
+        /**
+         * Update display after animation completes to show final position
+         */
+        function updateReplayDisplayAfterAnimation(gameId, card, visualizer) {
+            const engine = replayManager?.getEngine(gameId);
+            if (!engine) return;
+
+            const gameState = engine.getCurrentGameState();
+            if (!gameState) return;
+
+            // Update ball position to end position
+            const ballPosition = gameState.endYard || gameState.yardLine || 50;
+            if (visualizer) {
+                visualizer.setBallPosition(ballPosition);
+
+                // Update first down line (keep visible after animation)
+                // Don't show first down line for kickoffs/punts
+                const isSpecialTeams = gameState.isKickoff || gameState.isPunt;
+                if (gameState.yardsToGo && gameState.possession && gameState.down > 0 && !isSpecialTeams) {
+                    // First down line calculated from END position (where down/distance come from)
+                    const endPosition = gameState.endYard || gameState.yardLine || 50;
+                    const firstDownPos = calculateFirstDownForReplay(endPosition, gameState.yardsToGo, gameState.possession);
+                    visualizer.setFirstDownPosition(firstDownPos, true);
+                } else {
+                    visualizer.setFirstDownPosition(50, false); // Hide for special teams
+                }
+            }
+
+            // Update field position display to show end position
+            const playInfoEl = card?.querySelector('.replay-play-info');
+            if (playInfoEl) {
+                const fieldPosEl = playInfoEl.querySelector('.field-position');
+                if (fieldPosEl) {
+                    fieldPosEl.textContent = gameState.fieldPosition || '--';
+                }
+            }
+        }
+
         function triggerPlayAnimation(visualizer, gameState, prevPlay) {
             const playType = gameState.playType?.toLowerCase();
-            const startYard = prevPlay.endYard || prevPlay.yardLine || 50;
+            // For most plays, use previous play's end position as start
+            const defaultStartYard = prevPlay?.endYard || prevPlay?.yardLine || 50;
             const endYard = gameState.endYard || gameState.yardLine || 50;
 
+            // For kickoffs/punts, use the current play's startYard (where the kick originates)
+            const kickStartYard = gameState.startYard || defaultStartYard;
+
             if (!playType || visualizer.state.animating) return;
+
+            console.log(`[Replay Animation] Type: ${playType}, Start: ${kickStartYard}, End: ${endYard}`);
 
             switch (playType) {
                 case 'pass':
                 case 'complete':
-                    visualizer.animatePass(startYard, endYard, 25, 1200);
+                    visualizer.animatePass(defaultStartYard, endYard, 25, 1800);
                     break;
                 case 'incomplete':
-                    visualizer.animateIncompletePass(startYard, endYard, 1000);
+                    visualizer.animateIncompletePass(defaultStartYard, endYard, 1500);
                     break;
                 case 'rush':
                 case 'run':
-                    visualizer.animateRush(startYard, endYard, 800);
+                    visualizer.animateRush(defaultStartYard, endYard, 1200);
                     break;
                 case 'sack':
-                    visualizer.animateSack(startYard, Math.abs(endYard - startYard), 700);
+                    // Sack field animation disabled - only card overlay animation is shown
+                    // Just move ball to end position without animation
+                    visualizer.setBallPosition(endYard);
                     break;
                 case 'kickoff':
-                    visualizer.animateKickoff(startYard, endYard, 0, 2000);
+                    // Kickoff uses current play's startYard (kick origin), not previous play's endYard
+                    visualizer.animateKickoff(kickStartYard, endYard, 0, 2000);
                     break;
                 case 'punt':
-                    visualizer.animatePunt(startYard, endYard, 0, 1800);
+                    // Punt uses current play's startYard (punt origin), not previous play's endYard
+                    visualizer.animatePunt(kickStartYard, endYard, 0, 1800);
                     break;
                 case 'field goal':
                 case 'fg':
-                    const direction = startYard > 50 ? 'right' : 'left';
-                    visualizer.animateFieldGoal(startYard, direction, 2000);
+                case 'field_goal':
+                    // Field goal uses kick start position
+                    const direction = kickStartYard > 50 ? 'right' : 'left';
+                    visualizer.animateFieldGoal(kickStartYard, direction, 2000);
                     break;
                 case 'touchdown':
                 case 'td':
-                    const tdType = prevPlay.type?.toLowerCase()?.includes('pass') ? 'pass' : 'rush';
-                    visualizer.animateTouchdown(tdType, startYard, endYard, 1500);
+                    const tdType = prevPlay?.type?.toLowerCase()?.includes('pass') ? 'pass' : 'rush';
+                    visualizer.animateTouchdown(tdType, defaultStartYard, endYard, 1500);
                     break;
                 case 'interception':
                 case 'int':
-                    visualizer.animateInterception(startYard, endYard, 0, 1200);
+                    visualizer.animateInterception(defaultStartYard, endYard, 0, 1200);
                     break;
                 case 'fumble':
                 case 'fum':
-                    visualizer.animateFumble(startYard, endYard, null, gameState.possession === prevPlay.possession, 1000);
+                    visualizer.animateFumble(defaultStartYard, endYard, null, gameState.possession === prevPlay?.possession, 1000);
                     break;
                 case 'penalty':
-                    visualizer.animatePenalty(startYard, endYard, 800);
+                    visualizer.animatePenalty(defaultStartYard, endYard, 800);
                     break;
             }
         }
@@ -3656,16 +4085,36 @@
                 if (isFootball && isLive) {
                     // Check if game is in intermission (halftime, end of quarter, etc.)
                     const statusLower = (game.status || '').toLowerCase();
-                    const isIntermission = statusLower.includes('halftime') ||
+                    let isIntermission = statusLower.includes('halftime') ||
                         statusLower.includes('half') ||
                         statusLower.includes('end of') ||
                         statusLower.includes('intermission') ||
                         (statusLower.includes('2nd') && statusLower.includes('0:00')) ||
                         (statusLower.includes('4th') && statusLower.includes('0:00'));
 
+                    // IMPORTANT: Check if a NEW play has arrived even though status still shows intermission
+                    // ESPN sometimes sends the kickoff play before updating the game status
+                    // In this case, we should show the field and situation box immediately
+                    let forceShowField = false;
+                    if (isIntermission && game.lastPlay) {
+                        const prevData = prevGameData.get(game.id);
+                        const prevLastPlay = prevData?.lastPlay || '';
+                        // Normalize for comparison (ignore punctuation differences)
+                        const normalizeText = (t) => (t || '').toLowerCase().replace(/[.,!?]/g, '').trim();
+                        const hasNewPlay = normalizeText(game.lastPlay) !== normalizeText(prevLastPlay);
+                        if (hasNewPlay) {
+                            // New play arrived - game is active even if status hasn't updated
+                            console.log(`🏈 New play arrived during intermission for ${game.id}, showing field`);
+                            isIntermission = false;
+                            forceShowField = true; // Force show even if downDistance isn't set yet
+                        }
+                    }
+
                     // Determine if we have valid play data to display
                     // Show situation box if we have downDistance OR yardLine (even if fieldPosition text isn't perfect)
+                    // Also show if a new play just arrived (forceShowField) to prevent missing kickoff animations
                     const hasValidPlayData = !isIntermission && (
+                        forceShowField ||
                         game.downDistance ||
                         (game.specialPlay && game.specialPlayText) ||
                         (game.yardLine && game.possession)
@@ -3705,6 +4154,24 @@
                                     </div>
                                 `;
                                 scoreboard.insertAdjacentHTML('beforeend', situationHTML);
+                            } else if (forceShowField && game.lastPlay) {
+                                // Kickoff/new play arriving without down/distance yet
+                                // Create a minimal situation box showing the play type
+                                const playText = game.lastPlay.toLowerCase();
+                                let specialPlayText = '';
+                                if (playText.includes('kickoff') || playText.includes('kicks')) {
+                                    specialPlayText = 'KICKOFF';
+                                } else if (playText.includes('punt')) {
+                                    specialPlayText = 'PUNT';
+                                } else {
+                                    specialPlayText = 'IN PLAY';
+                                }
+                                const situationHTML = `
+                                    <div class="fs-sb-situation special-play">
+                                        <span class="fs-sb-down-distance">${specialPlayText}</span>
+                                    </div>
+                                `;
+                                scoreboard.insertAdjacentHTML('beforeend', situationHTML);
                             }
                             situationBox = card.querySelector('.fs-sb-situation');
                             if (situationBox) {
@@ -3713,12 +4180,15 @@
                         }
 
                         // Check if we need to create the field visualizer
-                        if (!fieldContainer && cardWrapper && (game.downDistance || game.yardLine)) {
+                        // Also create if forceShowField to handle kickoff animations
+                        if (!fieldContainer && cardWrapper && (forceShowField || game.downDistance || game.yardLine)) {
                             const awayColors = getScoreboardColors(game.league, game.away.abbr);
                             const homeColors = getScoreboardColors(game.league, game.home.abbr);
                             const gridCount = games.length;
                             const isCompressed = gridCount >= 3;
                             const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
+                            // NCAA football games only show team colors in end zones (no logos)
+                            const showEndZoneLogos = game.league !== 'ncaa';
 
                             const fieldHTML = `
                                 <div class="${fieldClass}">
@@ -3728,7 +4198,8 @@
                                          data-away-color="${awayColors.primary}"
                                          data-home-color="${homeColors.primary}"
                                          data-away-abbr="${game.away.abbr}"
-                                         data-home-abbr="${game.home.abbr}">
+                                         data-home-abbr="${game.home.abbr}"
+                                         data-show-logos="${showEndZoneLogos}">
                                     </div>
                                 </div>
                             `;
@@ -3743,6 +4214,7 @@
                                     showGoalPosts: true,
                                     showYardNumbers: !isCompressed,
                                     showOneYardLines: !isCompressed,
+                                    showEndZoneLogos: showEndZoneLogos,
                                     awayColor: awayColors.primary,
                                     homeColor: homeColors.primary,
                                     awayAbbr: game.away.abbr,
@@ -3807,16 +4279,25 @@
                         const visualizer = window.fieldVisualizers?.get(game.id);
                         const isAnimating = visualizer?.state?.animating;
 
-                        // Check if last play indicates a scoring play that will trigger animation
+                        // Check BOTH current AND previous play text for scoring plays
+                        // This handles the case where game.lastPlay already moved to the next play (kickoff)
+                        // but the field goal animation hasn't triggered yet
                         const lastPlayText = (game.lastPlay || '').toLowerCase();
-                        const isScoringPlay = lastPlayText.includes('touchdown') ||
-                            lastPlayText.includes('field goal') ||
-                            lastPlayText.includes('extra point') ||
-                            lastPlayText.includes('safety') ||
-                            lastPlayText.includes('two-point') ||
-                            lastPlayText.includes('2-pt') ||
-                            lastPlayText.includes('intercepted') ||
-                            lastPlayText.includes('fumble');
+                        const prevData = prevGameData.get(game.id);
+                        const prevPlayText = (prevData?.lastPlay || '').toLowerCase();
+
+                        const checkScoringPlay = (text) => {
+                            return text.includes('touchdown') ||
+                                text.includes('field goal') ||
+                                text.includes('extra point') ||
+                                text.includes('safety') ||
+                                text.includes('two-point') ||
+                                text.includes('2-pt') ||
+                                text.includes('intercepted') ||
+                                text.includes('fumble');
+                        };
+
+                        const isScoringPlay = checkScoringPlay(lastPlayText) || checkScoringPlay(prevPlayText);
 
                         if (!hasActiveAnimation && !isAnimating && !isScoringPlay) {
                             if (situationBox) {
@@ -3864,12 +4345,91 @@
                 updateTimeoutBars(card, '.fs-sb-timeouts.away', game.away?.timeouts);
                 updateTimeoutBars(card, '.fs-sb-timeouts.home', game.home?.timeouts);
 
-                // Update last play text for replay mode
-                const lastPlayEl = card.querySelector('.replay-last-play');
-                if (lastPlayEl && game.lastPlay) {
-                    lastPlayEl.textContent = game.lastPlay;
+                // Update play list for replay mode
+                const engine = replayManager?.getEngine(game.id);
+                if (engine) {
+                    updateReplayPlayList(card, engine);
                 }
             });
+        }
+
+        /**
+         * Update the play list display showing prev/current/next plays
+         */
+        function updateReplayPlayList(card, engine, gameState = null) {
+            const playList = card.querySelector('.replay-play-list');
+            if (!playList) return;
+
+            const prevPlay = engine.getPreviousPlay();
+            const currentPlay = engine.getCurrentPlay();
+            const nextPlay = engine.getNextPlay();
+            const state = gameState || engine.getCurrentGameState();
+
+            const prevItem = playList.querySelector('.replay-play-item.prev');
+            const currentItem = playList.querySelector('.replay-play-item.current');
+            const nextItem = playList.querySelector('.replay-play-item.next');
+
+            // Helper to get play type label
+            const getPlayType = (play) => {
+                if (!play) return '--';
+                return (play.type || 'play').toUpperCase();
+            };
+
+            // Helper to get play text
+            const getPlayText = (play) => {
+                if (!play) return '--';
+                return play.text || 'No play data';
+            };
+
+            // Update previous play
+            if (prevItem) {
+                const typeEl = prevItem.querySelector('.play-type');
+                const textEl = prevItem.querySelector('.play-text');
+                if (typeEl) typeEl.textContent = prevPlay ? getPlayType(prevPlay) + ':' : '';
+                if (textEl) textEl.textContent = prevPlay ? getPlayText(prevPlay) : '';
+            }
+
+            // Update current play
+            if (currentItem) {
+                const typeEl = currentItem.querySelector('.play-type');
+                const textEl = currentItem.querySelector('.play-text');
+                if (typeEl) typeEl.textContent = state?.playType?.toUpperCase() + ':' || getPlayType(currentPlay) + ':';
+                if (textEl) textEl.textContent = state?.lastPlay || getPlayText(currentPlay);
+            }
+
+            // Update next play
+            if (nextItem) {
+                const typeEl = nextItem.querySelector('.play-type');
+                const textEl = nextItem.querySelector('.play-text');
+                if (typeEl) typeEl.textContent = nextPlay ? getPlayType(nextPlay) + ':' : '';
+                if (textEl) textEl.textContent = nextPlay ? getPlayText(nextPlay) : '';
+            }
+        }
+
+        /**
+         * Animate the play list scroll when play changes
+         * Uses CSS keyframe animation for smooth slide+fade effect
+         */
+        function animatePlayListScroll(card, engine, gameState) {
+            const playList = card.querySelector('.replay-play-list');
+            if (!playList) {
+                // Fallback: just update without animation
+                updateReplayPlayList(card, engine, gameState);
+                return;
+            }
+
+            // Start the CSS animation
+            playList.classList.add('scrolling');
+
+            // Update content at the midpoint of animation (when faded out)
+            setTimeout(() => {
+                updateReplayPlayList(card, engine, gameState);
+            }, 250);
+
+            // Remove scrolling class after animation completes
+            setTimeout(() => {
+                playList.classList.remove('scrolling');
+            }, 500);
         }
 
         function updateReplayProgress(gameId) {
@@ -3920,6 +4480,55 @@
                 games = replayManager.getAllGameStates();
                 renderGrid();
                 setupReplayControls();
+            });
+
+            // Jump to play control
+            const jumpInput = document.getElementById('global-jump-input');
+            const jumpBtn = document.getElementById('global-jump-btn');
+
+            const jumpToPlay = () => {
+                const playNumber = parseInt(jumpInput.value);
+                if (!playNumber || playNumber < 1) return;
+
+                // Jump all engines to the specified play (index is playNumber - 1)
+                const targetIndex = playNumber - 1;
+                let jumped = false;
+
+                replayManager.engines.forEach((engine, gameId) => {
+                    if (targetIndex < engine.plays.length) {
+                        engine.jumpToPlay(targetIndex);
+                        jumped = true;
+                    }
+                });
+
+                if (jumped) {
+                    // Update all displays
+                    games = replayManager.getAllGameStates();
+                    renderGrid();
+                    setupReplayControls();
+                    console.log(`Jumped to play #${playNumber}`);
+                } else {
+                    console.warn(`Play #${playNumber} out of range`);
+                }
+
+                // Clear input after jump
+                jumpInput.value = '';
+            };
+
+            jumpBtn?.addEventListener('click', jumpToPlay);
+            jumpInput?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    jumpToPlay();
+                }
+            });
+
+            // Keyboard shortcut: Press 'g' to focus jump input (when not already in an input)
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'g' && document.activeElement.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    jumpInput?.focus();
+                    jumpInput?.select();
+                }
             });
 
             // Speed preset buttons
@@ -4064,12 +4673,14 @@
                 const homeColor = container.dataset.homeColor;
                 const awayAbbr = container.dataset.awayAbbr;
                 const homeAbbr = container.dataset.homeAbbr;
+                const showEndZoneLogos = container.dataset.showLogos !== 'false';
 
                 const visualizer = new SVGFieldVisualizer(container, {
                     compressed: isCompressed,
                     showGoalPosts: true,
                     showYardNumbers: !isCompressed,
                     showOneYardLines: !isCompressed,
+                    showEndZoneLogos: showEndZoneLogos,
                     awayColor: awayColor,
                     homeColor: homeColor,
                     awayAbbr: awayAbbr,
@@ -4210,6 +4821,8 @@
                 const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
 
                 // SVG field container - SVGFieldVisualizer will populate this
+                // NCAA football games only show team colors in end zones (no logos)
+                const showEndZoneLogos = game.league !== 'ncaa';
                 fieldVisualizerHTML = `
                     <div class="${fieldClass}">
                         <div class="svg-field-container"
@@ -4218,7 +4831,8 @@
                              data-away-color="${awayEndzoneColor}"
                              data-home-color="${homeEndzoneColor}"
                              data-away-abbr="${game.away.abbr}"
-                             data-home-abbr="${game.home.abbr}">
+                             data-home-abbr="${game.home.abbr}"
+                             data-show-logos="${showEndZoneLogos}">
                         </div>
                     </div>
                 `;
@@ -4291,6 +4905,36 @@
                         </div>
 
                         ${fieldVisualizerHTML}
+
+                        <!-- Replay Mode: Play List (shows prev/current/next plays) -->
+                        <div class="replay-play-list" data-game-id="${game.id}">
+                            <div class="replay-play-list-inner">
+                                <div class="replay-play-item prev">
+                                    <span class="play-type">--</span>
+                                    <span class="play-text">--</span>
+                                </div>
+                                <div class="replay-play-item current">
+                                    <span class="play-type">PLAY:</span>
+                                    <span class="play-text">${game.lastPlay || 'Waiting for play...'}</span>
+                                </div>
+                                <div class="replay-play-item next">
+                                    <span class="play-type">--</span>
+                                    <span class="play-text">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Replay Mode: Down/Distance and Field Position Info -->
+                        <div class="replay-play-info">
+                            <div class="info-item">
+                                <span class="info-label">Down:</span>
+                                <span class="info-value down-distance">${game.downDistance || '--'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Ball:</span>
+                                <span class="info-value field-position">${game.fieldPosition || '--'}</span>
+                            </div>
+                        </div>
                     </div>
 
                     ${(game.league === 'nfl' && isLive) ? `
@@ -4304,11 +4948,6 @@
                         </div>
                     </div>
                     ` : ''}
-
-                    <!-- Replay Mode: Last Play Text (shows on hover) -->
-                    <div class="replay-last-play">
-                        <strong>PLAY:</strong> ${game.lastPlay || 'Waiting for play...'}
-                    </div>
 
                     <!-- Replay Mode: Per-Card Controls (shows on hover) -->
                     <div class="replay-controls">
@@ -4515,6 +5154,14 @@
 
             // Get field visualizer for this game
             const visualizer = window.fieldVisualizers?.get(game.id);
+
+            // IMPORTANT: Ensure field container is visible before animating
+            // This prevents the race condition where field is hidden before animation starts
+            const fieldContainer = card.querySelector('.field-visualizer');
+            if (fieldContainer && fieldContainer.style.display === 'none') {
+                fieldContainer.style.display = '';
+                console.log(`🏈 Restored field visibility for animation: ${game.id}`);
+            }
 
             // Build game context for intelligent play parser
             // Use CURRENT situation data, not stale prevData
@@ -5044,22 +5691,33 @@
                             // Update game from event
                             updateGameFromEvent(game, updated);
 
-                            // Store current state for next comparison
-                            const comp = updated.competitions?.[0];
-                            prevGameData.set(game.id, {
-                                awayScore: game.away.score,
-                                homeScore: game.home.score,
-                                lastPlay: comp?.situation?.lastPlay?.text || '',
-                                down: comp?.situation?.down || 0,
-                                possession: game.possession || null,
-                                fieldPosition: game.fieldPosition || null,
-                                downDistanceText: comp?.situation?.downDistanceText || ''
-                            });
-
                             // Queue animation detection for after render (NFL, NCAA football, and NHL)
                             // Skip on first refresh to avoid triggering animations for old plays
+                            const comp = updated.competitions?.[0];
                             if (!isFirstRefresh && (league === 'nfl' || league === 'ncaa' || league === 'nhl')) {
-                                pendingAnimations.push({ gameId: game.id, game, comp, prevData, league });
+                                // Capture new state for later storage (after updateCardsInPlace)
+                                // This delay allows updateCardsInPlace to see the OLD state for new play detection
+                                const newState = {
+                                    awayScore: game.away.score,
+                                    homeScore: game.home.score,
+                                    lastPlay: comp?.situation?.lastPlay?.text || '',
+                                    down: comp?.situation?.down || 0,
+                                    possession: game.possession || null,
+                                    fieldPosition: game.fieldPosition || null,
+                                    downDistanceText: comp?.situation?.downDistanceText || ''
+                                };
+                                pendingAnimations.push({ gameId: game.id, game, comp, prevData, league, newState });
+                            } else if (!isFirstRefresh) {
+                                // For other leagues (NBA, MLB), store state immediately
+                                prevGameData.set(game.id, {
+                                    awayScore: game.away.score,
+                                    homeScore: game.home.score,
+                                    lastPlay: comp?.situation?.lastPlay?.text || '',
+                                    down: comp?.situation?.down || 0,
+                                    possession: game.possession || null,
+                                    fieldPosition: game.fieldPosition || null,
+                                    downDistanceText: comp?.situation?.downDistanceText || ''
+                                });
                             }
                         }
                     });
@@ -5095,7 +5753,8 @@
             // Note: No need to restore play text modals since we're not destroying cards
 
             // Apply pending animations AFTER render so cards exist in DOM
-            pendingAnimations.forEach(({ gameId, game, comp, prevData, league }) => {
+            // Also store the new state after processing (so updateCardsInPlace can see old state)
+            pendingAnimations.forEach(({ gameId, game, comp, prevData, league, newState }) => {
                 const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
                 if (card) {
                     if (league === 'nhl') {
@@ -5103,6 +5762,10 @@
                     } else {
                         detectPlayEvents(card, game, comp, prevData);
                     }
+                }
+                // Store new state for next comparison (delayed from game loop)
+                if (newState) {
+                    prevGameData.set(gameId, newState);
                 }
             });
 

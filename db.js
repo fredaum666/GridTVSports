@@ -321,7 +321,9 @@ async function savePlays(gameId, sport, playsData, driveIdMap = new Map()) {
         INSERT INTO game_plays (
           game_id, drive_id, espn_play_id, sport, play_sequence, drive_play_sequence,
           period, clock, start_yard, end_yard, yards_gained,
-          down, distance, play_type, play_text,
+          down, distance, down_distance_text, possession_text,
+          start_down_distance_text, start_possession_text,
+          play_type, play_text,
           possession_team_abbr, possession_team_id,
           is_scoring, score_value, away_score, home_score,
           is_touchdown, is_turnover, turnover_type,
@@ -329,13 +331,20 @@ async function savePlays(gameId, sport, playsData, driveIdMap = new Map()) {
           animation_type, animation_data, raw_data
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
-          $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29
+          $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33
         )
         ON CONFLICT (game_id, play_sequence)
         DO UPDATE SET
           play_text = EXCLUDED.play_text,
+          start_yard = EXCLUDED.start_yard,
           end_yard = EXCLUDED.end_yard,
           yards_gained = EXCLUDED.yards_gained,
+          down = EXCLUDED.down,
+          distance = EXCLUDED.distance,
+          down_distance_text = EXCLUDED.down_distance_text,
+          possession_text = EXCLUDED.possession_text,
+          start_down_distance_text = EXCLUDED.start_down_distance_text,
+          start_possession_text = EXCLUDED.start_possession_text,
           away_score = EXCLUDED.away_score,
           home_score = EXCLUDED.home_score,
           is_scoring = EXCLUDED.is_scoring,
@@ -360,6 +369,10 @@ async function savePlays(gameId, sport, playsData, driveIdMap = new Map()) {
         play.yards_gained || null,
         play.down || null,
         play.distance || null,
+        play.down_distance_text || null,
+        play.possession_text || null,
+        play.start_down_distance_text || null,
+        play.start_possession_text || null,
         play.play_type || null,
         play.play_text || null,
         play.possession_team_abbr || null,

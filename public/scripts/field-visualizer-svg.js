@@ -57,6 +57,7 @@ class SVGFieldVisualizer {
       showGoalPosts: true,
       showYardNumbers: true,
       showOneYardLines: true,
+      showEndZoneLogos: true,
       awayColor: '#1f2937',
       homeColor: '#1f2937',
       awayAbbr: 'AWAY',
@@ -100,8 +101,8 @@ class SVGFieldVisualizer {
       ${this.options.showGoalPosts ? this.getGoalPosts() : ''}
       ${this.getEndZoneText()}
       ${this.options.compressed ? this.getCompactYardMarkers() : ''}
-      ${this.getFirstDownMarker()}
       ${this.getScrimmageMarker()}
+      ${this.getFirstDownMarker()}
       ${this.getAnimationLayer()}
     `;
 
@@ -139,14 +140,8 @@ class SVGFieldVisualizer {
         .first-down-line-edge { stroke: #f59e0b; stroke-width: 2.5; }
         .first-down-marker { transition: transform 0.6s ease-out; }
         .first-down-marker.hidden { display: none; }
-        .first-down-flag { fill: #fcd34d; }
-        .first-down-text {
-          font-family: sans-serif;
-          font-size: 5px;
-          font-weight: 800;
-          fill: #000;
-          text-anchor: middle;
-        }
+        .first-down-image { pointer-events: none; }
+        .scrimmage-image { pointer-events: none; }
 
         /* End zone logos */
         .endzone-logo {
@@ -195,9 +190,20 @@ class SVGFieldVisualizer {
           100% { offset-distance: 100%; transform: rotate(-720deg); }
         }
 
+        /* Ball positioning for path animations - center on path and rotate around center */
+        .ball-animated {
+          offset-anchor: center;
+          transform-origin: center;
+          transform-box: fill-box;
+        }
+
         @keyframes spiralLaces {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          /* Simulate ball rotating around its long axis - laces appear to oscillate */
+          0% { transform: scaleX(1); opacity: 1; }
+          25% { transform: scaleX(0.3); opacity: 0.7; }
+          50% { transform: scaleX(1); opacity: 1; }
+          75% { transform: scaleX(0.3); opacity: 0.7; }
+          100% { transform: scaleX(1); opacity: 1; }
         }
 
         @keyframes drawLine {
@@ -210,7 +216,7 @@ class SVGFieldVisualizer {
         }
 
         .BallDefs__Laces--spiraling {
-          animation: spiralLaces 0.15s linear infinite;
+          animation: spiralLaces 0.12s linear infinite;
           transform-origin: center;
         }
       </style>
@@ -438,6 +444,11 @@ class SVGFieldVisualizer {
   }
 
   getEndZoneLogos() {
+    // If showEndZoneLogos is false, don't display logos (just show team colors)
+    if (!this.options.showEndZoneLogos) {
+      return '';
+    }
+
     const awayAbbr = this.options.awayAbbr || 'AWAY';
     const homeAbbr = this.options.homeAbbr || 'HOME';
 
@@ -538,8 +549,7 @@ class SVGFieldVisualizer {
       <g data-name="First Down" class="first-down-marker">
         <line class="first-down-line" x1="300" y1="26" x2="300" y2="86"/>
         <line class="first-down-line-edge" x1="300" y1="86" x2="300" y2="90"/>
-        <rect class="first-down-flag" x="292" y="22" width="16" height="8" rx="1"/>
-        <text class="first-down-text" x="300" y="28.5">1ST</text>
+        <image class="first-down-image" href="/assets/1stDown2.png" x="272" y="-23" width="56" height="49" preserveAspectRatio="xMidYMid meet"/>
       </g>
     `;
   }
@@ -549,6 +559,7 @@ class SVGFieldVisualizer {
       <g data-name="Scrimmage" class="scrimmage-marker">
         <line class="scrimmage-line" x1="300" y1="26" x2="300" y2="86"/>
         <line class="scrimmage-line-edge" x1="300" y1="86" x2="300" y2="90"/>
+        <image class="scrimmage-image" href="/assets/1stDown1.png" x="272" y="-23" width="56" height="49" preserveAspectRatio="xMidYMid meet"/>
         <use href="#ball-static" class="ball-indicator" x="295" y="53" width="10" height="6"/>
       </g>
     `;
@@ -693,6 +704,7 @@ class SVGFieldVisualizer {
     const line = marker.querySelector('.scrimmage-line');
     const lineEdge = marker.querySelector('.scrimmage-line-edge');
     const ball = marker.querySelector('.ball-indicator');
+    const image = marker.querySelector('.scrimmage-image');
 
     if (line) {
       line.setAttribute('x1', topX);
@@ -705,6 +717,9 @@ class SVGFieldVisualizer {
     if (ball) {
       const midX = this.yardToX(this.state.ballPosition, 56);
       ball.setAttribute('x', midX - 5);
+    }
+    if (image) {
+      image.setAttribute('x', topX - 28);
     }
 
     // Apply team color if set
@@ -731,8 +746,7 @@ class SVGFieldVisualizer {
 
     const line = marker.querySelector('.first-down-line');
     const lineEdge = marker.querySelector('.first-down-line-edge');
-    const flag = marker.querySelector('.first-down-flag');
-    const text = marker.querySelector('.first-down-text');
+    const image = marker.querySelector('.first-down-image');
 
     if (line) {
       line.setAttribute('x1', topX);
@@ -742,11 +756,8 @@ class SVGFieldVisualizer {
       lineEdge.setAttribute('x1', bottomX);
       lineEdge.setAttribute('x2', bottomX);
     }
-    if (flag) {
-      flag.setAttribute('x', topX - 8);
-    }
-    if (text) {
-      text.setAttribute('x', topX);
+    if (image) {
+      image.setAttribute('x', topX - 28);
     }
   }
 
@@ -848,6 +859,7 @@ class SVGFieldVisualizer {
     ball.setAttribute('href', '#ball-static');
     ball.setAttribute('width', '10');
     ball.setAttribute('height', '6');
+    ball.setAttribute('class', 'ball-animated');
     ball.style.offsetPath = `path('${pathD}')`;
     ball.style.animation = `moveBallKick ${duration}ms ease-out forwards`;
 
@@ -916,6 +928,7 @@ class SVGFieldVisualizer {
     ball.setAttribute('href', type === 'pass' ? '#ball-spiral' : '#ball-static');
     ball.setAttribute('width', '10');
     ball.setAttribute('height', '6');
+    ball.setAttribute('class', 'ball-animated');
     ball.style.offsetPath = `path('${pathD}')`;
 
     // Set animation
@@ -990,6 +1003,7 @@ class SVGFieldVisualizer {
     ball.setAttribute('href', '#ball-spiral');
     ball.setAttribute('width', '10');
     ball.setAttribute('height', '6');
+    ball.setAttribute('class', 'ball-animated');
     ball.style.offsetPath = `path('${pathD}')`;
     ball.style.animation = `moveBallPass ${duration}ms ease-out forwards`;
     ball.style.offsetRotate = 'reverse';
@@ -1262,6 +1276,7 @@ class SVGFieldVisualizer {
     ball.setAttribute('href', '#ball-static');
     ball.setAttribute('width', '10');
     ball.setAttribute('height', '6');
+    ball.setAttribute('class', 'ball-animated');
     ball.style.offsetPath = `path('${pathD}')`;
     ball.style.animation = `moveBallKick ${duration}ms ease-out forwards`;
 
@@ -1356,6 +1371,7 @@ class SVGFieldVisualizer {
     ball.setAttribute('href', '#ball-spiral');
     ball.setAttribute('width', '10');
     ball.setAttribute('height', '6');
+    ball.setAttribute('class', 'ball-animated');
     ball.style.offsetPath = `path('${pathD}')`;
     ball.style.animation = `moveBallPass ${duration}ms ease-out forwards`;
     ball.style.offsetRotate = 'reverse';
@@ -1450,6 +1466,7 @@ class SVGFieldVisualizer {
     ball.setAttribute('href', '#ball-static');
     ball.setAttribute('width', '10');
     ball.setAttribute('height', '6');
+    ball.setAttribute('class', 'ball-animated');
     ball.style.offsetPath = `path('${bouncePath}')`;
     ball.style.animation = `moveBallKick 600ms ease-out forwards`;
 

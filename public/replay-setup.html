@@ -1468,23 +1468,35 @@
         }
 
         function formatPlay(play, index) {
+            // Extract possession team abbreviation from various formats
+            // ESPN raw JSON uses start.team.abbreviation, database returns possession directly
+            const possessionTeamAbbr = play.possessionTeamAbbr ||
+                                       play.possession_team_abbr ||
+                                       play.start?.team?.abbreviation ||
+                                       null;
+
+            // ESPN API sometimes uses fullText instead of text
+            const playText = play.text || play.fullText || '';
+
             return {
                 sequenceNumber: play.sequenceNumber || index + 1,
                 period: play.period?.number || play.period || 1,
                 clock: play.clock?.displayValue || play.clock || '--:--',
-                type: detectPlayType(play.type?.text || play.text || ''),
-                text: play.text || '',
+                type: detectPlayType(play.type?.text || playText || ''),
+                text: playText,
                 startYard: play.start?.yardLine || play.startYard || play.yardLine || 0,
                 endYard: play.end?.yardLine || play.endYard || play.yardLine || 0,
                 down: play.down || 0,
                 distance: play.distance || 0,
                 awayScore: play.awayScore || 0,
                 homeScore: play.homeScore || 0,
-                possession: play.possession || 'home',
+                // Use existing possession if already 'away'/'home', otherwise store abbr for later conversion
+                possession: play.possession || 'unknown',
+                possessionTeamAbbr: possessionTeamAbbr,
                 scoringPlay: play.scoringPlay || false,
-                isTouchdown: play.isTouchdown || /touchdown/i.test(play.text || ''),
-                isInterception: play.isInterception || /intercept/i.test(play.text || ''),
-                isFumble: play.isFumble || /fumble/i.test(play.text || '')
+                isTouchdown: play.isTouchdown || /touchdown/i.test(playText),
+                isInterception: play.isInterception || /intercept/i.test(playText),
+                isFumble: play.isFumble || /fumble/i.test(playText)
             };
         }
 
@@ -1555,6 +1567,16 @@
                         const isFieldGoal = /field goal is GOOD/i.test(playText);
                         const isInterception = /INTERCEPTED/i.test(playText);
                         const isFumble = /FUMBLE/i.test(playText);
+                        const isKickoff = /kicks off|kickoff/i.test(playText);
+                        const isPunt = /punts/i.test(playText);
+
+                        // For kickoffs, the receiving team gets possession
+                        // The kicking team is the one "kicking off", receiving team gets the ball
+                        if (isKickoff) {
+                            // After a score, the team that scored kicks off
+                            // So receiving team (other team) gets possession
+                            // Don't change possession here - it will be set correctly after the score
+                        }
 
                         if (isTouchdown) {
                             const hasXP = /extra point is GOOD/i.test(playText);
@@ -1584,10 +1606,23 @@
                             scoringPlay: isTouchdown || isFieldGoal,
                             isInterception: isInterception,
                             isFumble: isFumble,
-                            isTouchdown: isTouchdown
+                            isTouchdown: isTouchdown,
+                            isKickoff: isKickoff,
+                            isPunt: isPunt
                         });
 
+                        // Handle possession changes
                         if (isInterception || isFumble) {
+                            possession = possession === 'away' ? 'home' : 'away';
+                        } else if (isTouchdown || isFieldGoal) {
+                            // After a score, possession changes (other team receives kickoff)
+                            possession = possession === 'away' ? 'home' : 'away';
+                        } else if (isKickoff) {
+                            // After kickoff return, receiving team has possession
+                            // The kickoff itself means the other team will have the ball
+                            possession = possession === 'away' ? 'home' : 'away';
+                        } else if (isPunt) {
+                            // After punt, receiving team has possession
                             possession = possession === 'away' ? 'home' : 'away';
                         }
 
@@ -1601,19 +1636,24 @@
 
         function detectPlayType(text) {
             const lower = text.toLowerCase();
-            if (lower.includes('kickoff') || lower.includes('kicks off')) return 'kickoff';
-            if (lower.includes('punt')) return 'punt';
+            // Kickoff patterns: "kicks off", "kickoff", or "kicks X yards from" (opening kickoff)
+            if (lower.includes('kickoff') || lower.includes('kicks off') || /kicks\s+\d+\s+yards?\s+from/i.test(text)) return 'kickoff';
+            // Punt patterns: "punts X yards"
+            if (lower.includes('punt') || /punts\s+\d+\s+yards?/i.test(text)) return 'punt';
             if (lower.includes('field goal')) return 'fieldgoal';
             if (lower.includes('touchdown')) return 'touchdown';
             if (lower.includes('pass') || lower.includes('incomplete') || lower.includes('complete')) return 'pass';
             if (lower.includes('rush') || lower.includes('up the middle') || lower.includes('left end') || lower.includes('right end')) return 'rush';
             if (lower.includes('sack')) return 'rush';
             if (lower.includes('penalty')) return 'penalty';
-            return 'pass';
+            if (lower.includes('kneel') || lower.includes('knee')) return 'kneel';
+            if (lower.includes('spike')) return 'spike';
+            return 'unknown';
         }
 
         /**
          * Convert raw yard positions to 0-100 field positions
+         * Also converts possession from team abbreviation to 'away'/'home'
          * Field coordinate system: 0 = away end zone (left), 100 = home end zone (right)
          * - Away team attacks toward 100 (right)
          * - Home team attacks toward 0 (left)
@@ -1626,25 +1666,193 @@
             const awayAbbr = (teams.away?.abbr || '').toUpperCase();
             const homeAbbr = (teams.home?.abbr || '').toUpperCase();
 
-            plays.forEach(play => {
-                if (play.rawEndTeam && play.rawEndYard !== undefined) {
-                    const teamOnSide = play.rawEndTeam.toUpperCase();
-                    const rawYard = Math.max(0, Math.min(50, play.rawEndYard));
+            // Helper to convert "TEAM YARD" to 0-100 field position
+            const teamYardToFieldPos = (teamAbbr, yardLine) => {
+                const normalizedTeam = normalizeTeamAbbr(teamAbbr);
+                const clampedYard = Math.max(0, Math.min(50, yardLine));
+                if (normalizedTeam === awayAbbr) {
+                    return clampedYard; // Away's 35 = position 35
+                } else if (normalizedTeam === homeAbbr) {
+                    return 100 - clampedYard; // Home's 35 = position 65
+                }
+                return 50; // Unknown team, default to midfield
+            };
 
-                    // Convert "TEAM YARD" to 0-100 field position
-                    // Away team's side (0-50 on field): their 20 = 20 on field
-                    // Home team's side (50-100 on field): their 20 = 100-20 = 80 on field
-                    if (teamOnSide === awayAbbr) {
-                        play.endYard = rawYard;
-                    } else if (teamOnSide === homeAbbr) {
-                        play.endYard = 100 - rawYard;
+            // Helper to normalize team abbreviations (ESPN uses variations)
+            // Maps to ESPN standard abbreviations used in play text
+            function normalizeTeamAbbr(abbr) {
+                const aliases = {
+                    // Houston Texans - ESPN uses HST in play text
+                    'HST': 'HOU', 'HOU': 'HOU',
+                    // Jacksonville Jaguars - ESPN uses JAX
+                    'JAC': 'JAX', 'JAX': 'JAX',
+                    // Washington Commanders
+                    'WSH': 'WAS', 'WAS': 'WAS',
+                    // LA Rams
+                    'LAR': 'LA', 'LA': 'LA',
+                    // Las Vegas Raiders
+                    'LVR': 'LV', 'LV': 'LV', 'OAK': 'LV',
+                    // San Francisco 49ers
+                    'SFO': 'SF', 'SF': 'SF',
+                    // Green Bay Packers
+                    'GNB': 'GB', 'GB': 'GB',
+                    // Kansas City Chiefs
+                    'KAN': 'KC', 'KC': 'KC',
+                    // New England Patriots
+                    'NWE': 'NE', 'NE': 'NE',
+                    // Tampa Bay Buccaneers
+                    'TAM': 'TB', 'TB': 'TB',
+                    // New Orleans Saints
+                    'NOR': 'NO', 'NO': 'NO',
+                    // LA Chargers
+                    'SDG': 'LAC', 'LAC': 'LAC',
+                    // Historical
+                    'STL': 'LA'
+                };
+                const upper = (abbr || '').toUpperCase();
+                return aliases[upper] || upper;
+            }
+
+            plays.forEach(play => {
+                const playText = play.text || '';
+                const isKickoff = play.type === 'kickoff' || /kicks\s+\d+\s+yards?\s+from/i.test(playText);
+                const isPunt = play.type === 'punt' || /punts\s+\d+\s+yards?/i.test(playText);
+
+                // Convert possession from team abbreviation to 'away'/'home'
+                if (play.possession !== 'away' && play.possession !== 'home') {
+                    if (play.possessionTeamAbbr) {
+                        const possAbbr = normalizeTeamAbbr(play.possessionTeamAbbr);
+                        if (possAbbr === awayAbbr) {
+                            play.possession = 'away';
+                        } else if (possAbbr === homeAbbr) {
+                            play.possession = 'home';
+                        } else {
+                            play.possession = detectPossessionFromPlayText(playText, awayAbbr, homeAbbr) || 'away';
+                        }
                     } else {
-                        // Unknown team, default to midfield
-                        play.endYard = 50;
+                        play.possession = detectPossessionFromPlayText(playText, awayAbbr, homeAbbr) || 'away';
+                    }
+                }
+
+                // Handle kickoffs specially
+                // Example: "K.Fairbairn kicks 65 yards from HST 35 to end zone, Touchback."
+                if (isKickoff) {
+                    // Parse kick origin: "from TEAM YARD"
+                    const fromMatch = playText.match(/from\s+([A-Z]{2,4})\s+(\d+)/i);
+                    // Parse kick landing: "to TEAM YARD" or "to end zone"
+                    const toLandingMatch = playText.match(/to\s+([A-Z]{2,4})\s+(-?\d+)/i);
+                    const toEndZone = /to\s+(the\s+)?end\s*zone/i.test(playText);
+                    // Parse touchback position: "Touchback" or final "to the TEAM YARD"
+                    const isTouchback = /touchback/i.test(playText);
+                    // Parse return: "to TEAM YARD for X yards" at end
+                    const returnMatch = playText.match(/(?:touchback\s+)?to\s+(?:the\s+)?([A-Z]{2,4})\s+(\d+)\.?\s*$/i);
+
+                    if (fromMatch) {
+                        const kickTeam = fromMatch[1];
+                        const kickYard = parseInt(fromMatch[2]);
+                        play.startYard = teamYardToFieldPos(kickTeam, kickYard);
+                        play.kickOriginTeam = normalizeTeamAbbr(kickTeam);
+
+                        // Determine kicking team's possession status
+                        // The kicking team does NOT have possession after kickoff
+                        const kickingTeamIsAway = normalizeTeamAbbr(kickTeam) === awayAbbr;
+                        play.kickingTeam = kickingTeamIsAway ? 'away' : 'home';
+                        // Receiving team gets possession
+                        play.possession = kickingTeamIsAway ? 'home' : 'away';
                     }
 
+                    if (toLandingMatch) {
+                        const landTeam = toLandingMatch[1];
+                        const landYard = parseInt(toLandingMatch[2]);
+                        play.kickLandingYard = teamYardToFieldPos(landTeam, Math.max(0, landYard));
+                    } else if (toEndZone) {
+                        // Kick to end zone - receiving team's end zone
+                        // If away kicks, ball lands at home's end zone (100)
+                        // If home kicks, ball lands at away's end zone (0)
+                        play.kickLandingYard = play.kickingTeam === 'away' ? 100 : 0;
+                    }
+
+                    // Determine final ball position (endYard)
+                    if (returnMatch) {
+                        const returnTeam = returnMatch[1];
+                        const returnYard = parseInt(returnMatch[2]);
+                        play.endYard = teamYardToFieldPos(returnTeam, returnYard);
+                    } else if (isTouchback) {
+                        // Touchback: ball at receiving team's 25 (or 35 for kickoff touchback in end zone)
+                        // Kickoff touchback = 25 yard line of receiving team
+                        const touchbackYard = 25;
+                        play.endYard = play.possession === 'away' ? touchbackYard : (100 - touchbackYard);
+                    } else {
+                        // No return info, use landing spot
+                        play.endYard = play.kickLandingYard || play.startYard;
+                    }
+
+                    // Calculate return yards if any
+                    if (play.kickLandingYard !== undefined && play.endYard !== undefined) {
+                        play.returnYards = Math.abs(play.endYard - play.kickLandingYard);
+                    }
+
+                    return; // Skip normal processing for kickoffs
+                }
+
+                // Handle punts specially
+                // Example: "C.Waitman punts 44 yards to HST 7"
+                if (isPunt) {
+                    // Parse punt distance and landing
+                    const puntMatch = playText.match(/punts?\s+(\d+)\s+yards?\s+to\s+([A-Z]{2,4})\s+(-?\d+)/i);
+                    const puntEndZone = /to\s+(the\s+)?end\s*zone/i.test(playText);
+                    const isTouchback = /touchback/i.test(playText);
+                    const isFairCatch = /fair\s*catch/i.test(playText);
+
+                    if (puntMatch) {
+                        const puntYards = parseInt(puntMatch[1]);
+                        const landTeam = puntMatch[2];
+                        const landYard = parseInt(puntMatch[3]);
+                        play.puntLandingYard = teamYardToFieldPos(landTeam, Math.max(0, landYard));
+                        play.puntYards = puntYards;
+                    }
+
+                    // For punts, startYard is where punter kicked from
+                    // Use previous play's ending position or calculate from punt distance
+                    if (play.puntLandingYard !== undefined && play.puntYards) {
+                        // Punting team drives in one direction, punt goes opposite
+                        const puntDirection = play.possession === 'away' ? 1 : -1;
+                        play.startYard = play.puntLandingYard - (play.puntYards * puntDirection);
+                        play.startYard = Math.max(0, Math.min(100, play.startYard));
+                    }
+
+                    // Parse return
+                    const returnMatch = playText.match(/(?:to|at)\s+([A-Z]{2,4})\s+(\d+)\s+for\s+(\d+)\s+yard/i);
+                    if (returnMatch) {
+                        const returnTeam = returnMatch[1];
+                        const returnYard = parseInt(returnMatch[2]);
+                        play.endYard = teamYardToFieldPos(returnTeam, returnYard);
+                        play.returnYards = parseInt(returnMatch[3]);
+                    } else if (isTouchback) {
+                        // Punt touchback = 20 yard line of receiving team
+                        const receivingTeam = play.possession === 'away' ? 'home' : 'away';
+                        play.endYard = receivingTeam === 'away' ? 20 : 80;
+                    } else if (isFairCatch && play.puntLandingYard !== undefined) {
+                        play.endYard = play.puntLandingYard;
+                    } else {
+                        play.endYard = play.puntLandingYard || 50;
+                    }
+
+                    // Punt results in possession change
+                    play.possession = play.possession === 'away' ? 'home' : 'away';
+
+                    return; // Skip normal processing for punts
+                }
+
+                // Normal plays (pass, rush, etc.)
+                if (play.rawEndTeam && play.rawEndYard !== undefined) {
+                    const teamOnSide = normalizeTeamAbbr(play.rawEndTeam);
+                    const rawYard = Math.max(0, Math.min(50, play.rawEndYard));
+
+                    play.endYard = teamYardToFieldPos(teamOnSide, rawYard);
+
                     // Calculate startYard based on yards gained and drive direction
-                    const yardsMatch = (play.text || '').match(/for\s+(-?\d+)\s+yard/i);
+                    const yardsMatch = playText.match(/for\s+(-?\d+)\s+yard/i);
                     const yardsGained = yardsMatch ? parseInt(yardsMatch[1]) : 0;
 
                     // Direction: away drives toward 100, home drives toward 0
@@ -1656,7 +1864,29 @@
                     play.endYard = Math.max(0, Math.min(100, play.endYard));
                 }
             });
+        }
 
+        /**
+         * Try to detect possession from play text by looking for team abbreviations
+         * in offensive play patterns (rush, pass, etc.)
+         */
+        function detectPossessionFromPlayText(playText, awayAbbr, homeAbbr) {
+            if (!playText) return null;
+
+            // Look for patterns like "NE 35" at start (field position indicates possession)
+            // Or player names that might include team context
+            const text = playText.toUpperCase();
+
+            // Kickoff: "TEAM kicks" - kicking team does NOT have possession (receiving team does)
+            const kickoffMatch = text.match(/(\w{2,3})\s+\d+[,.]?\s*[A-Z]/);
+            if (kickoffMatch) {
+                const fieldTeam = kickoffMatch[1];
+                // If ball is on away team's side, possession could be either team
+                // Need more context from kickoff patterns
+            }
+
+            // For now, return null and let caller use default
+            return null;
         }
 
         // ==========================================

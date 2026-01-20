@@ -13,6 +13,7 @@ const nodemailer = require('nodemailer');
 const webpush = require('web-push');
 const {
   pool,
+  saveGame,
   saveDrives,
   savePlays,
   getGameDrives,
@@ -2676,6 +2677,8 @@ app.use((req, res, next) => {
     req.path.startsWith('/api/final-games/') ||
     // TV authentication APIs (must be public for QR code flow)
     req.path.startsWith('/api/tv/') ||
+    // Replay APIs (for game replay testing)
+    req.path.startsWith('/api/replay/') ||
     req.method === 'OPTIONS') {
     return next();
   }
@@ -3480,26 +3483,63 @@ async function saveGamePlaysToDB(gameId, sport, summaryData) {
     return;
   }
 
-  // Get team abbreviations from boxscore
+  // Get team info from boxscore
   const boxscore = summaryData.boxscore;
   const competitors = boxscore?.teams || [];
-  let awayAbbr = '';
-  let homeAbbr = '';
+  let awayTeam = null;
+  let homeTeam = null;
 
   competitors.forEach(team => {
     if (team.homeAway === 'away') {
-      awayAbbr = team.team?.abbreviation || '';
+      awayTeam = {
+        abbr: team.team?.abbreviation || '',
+        id: team.team?.id || '',
+        name: team.team?.displayName || team.team?.name || '',
+        score: team.score || 0
+      };
     } else if (team.homeAway === 'home') {
-      homeAbbr = team.team?.abbreviation || '';
+      homeTeam = {
+        abbr: team.team?.abbreviation || '',
+        id: team.team?.id || '',
+        name: team.team?.displayName || team.team?.name || '',
+        score: team.score || 0
+      };
     }
   });
 
-  if (!awayAbbr || !homeAbbr) {
+  if (!awayTeam?.abbr || !homeTeam?.abbr) {
     return;
   }
 
+  // Extract game date and status from header if available
+  const header = summaryData.header;
+  const competition = header?.competitions?.[0];
+  const gameDate = competition?.date || new Date().toISOString();
+  const status = competition?.status?.type?.description || 'in';
+
+  // Ensure game exists in games table (upsert)
+  try {
+    await saveGame({
+      id: gameId,
+      sport: sport,
+      game_date: gameDate,
+      week_number: null,
+      season: new Date().getFullYear(),
+      status: status,
+      home_team: homeTeam.name || homeTeam.abbr,
+      home_team_id: homeTeam.id,
+      home_score: parseInt(homeTeam.score) || 0,
+      away_team: awayTeam.name || awayTeam.abbr,
+      away_team_id: awayTeam.id,
+      away_score: parseInt(awayTeam.score) || 0,
+      raw_data: { boxscore: summaryData.boxscore, header: summaryData.header }
+    });
+  } catch (err) {
+    console.error(`[Replay] Failed to save game record for ${gameId}:`, err.message);
+  }
+
   // Parse drives and plays
-  const { drives, plays } = parseESPNDrivesToDB(summaryData, sport, awayAbbr, homeAbbr);
+  const { drives, plays } = parseESPNDrivesToDB(summaryData, sport, awayTeam.abbr, homeTeam.abbr);
 
   if (drives.length === 0 && plays.length === 0) {
     return;
@@ -4829,7 +4869,8 @@ app.get('/api/ncaab/summary/:gameId', async (req, res) => {
 function detectPlayTypeFromText(text) {
   if (!text) return 'unknown';
   const lower = text.toLowerCase();
-  if (lower.includes('kickoff') || lower.includes('kicks off')) return 'kickoff';
+  // Kickoff detection: "kickoff", "kicks off", or "kicks X yards from" pattern
+  if (lower.includes('kickoff') || lower.includes('kicks off') || /kicks\s+\d+\s+yards?\s+from/i.test(text)) return 'kickoff';
   if (lower.includes('punt')) return 'punt';
   if (lower.includes('field goal')) return 'field_goal';
   if (lower.includes('extra point')) return 'extra_point';
@@ -4843,18 +4884,80 @@ function detectPlayTypeFromText(text) {
 }
 
 /**
- * Convert ESPN yard line to 0-100 field position
+ * Normalize team abbreviations (ESPN uses different abbreviations in different places)
+ */
+function normalizeTeamAbbr(abbr) {
+  if (!abbr) return '';
+  const normalized = abbr.toUpperCase();
+  const TEAM_ABBR_MAP = {
+    'HST': 'HOU', 'HOU': 'HOU',
+    'NWE': 'NE', 'NE': 'NE',
+    'JAC': 'JAX', 'JAX': 'JAX',
+    'LV': 'LV', 'LVR': 'LV', 'OAK': 'LV',
+    'LAR': 'LA', 'LA': 'LA',
+    'WSH': 'WAS', 'WAS': 'WAS',
+    'SFO': 'SF', 'SF': 'SF',
+    'GNB': 'GB', 'GB': 'GB',
+    'KAN': 'KC', 'KC': 'KC',
+    'TAM': 'TB', 'TB': 'TB',
+    'NOR': 'NO', 'NO': 'NO',
+    'SDG': 'LAC', 'LAC': 'LAC',
+    'STL': 'LA'
+  };
+  return TEAM_ABBR_MAP[normalized] || normalized;
+}
+
+/**
+ * Parse ESPN possessionText (e.g., "NE 31", "HOU 15") to 0-100 field position
+ * 0 = away team's end zone, 100 = home team's end zone
+ */
+function parsePossessionTextToFieldPosition(possessionText, awayAbbr, homeAbbr) {
+  if (!possessionText) return null;
+
+  // Parse "TEAM YARD" format (e.g., "NE 31", "HOU 15", "50" for midfield)
+  const match = possessionText.match(/^([A-Z]{2,4})\s+(\d+)$/i);
+  if (!match) {
+    // Handle special case "50" for midfield
+    if (possessionText.trim() === '50') return 50;
+    return null;
+  }
+
+  const teamAbbr = normalizeTeamAbbr(match[1]);
+  const yardLine = parseInt(match[2]);
+  const normalizedAway = normalizeTeamAbbr(awayAbbr);
+  const normalizedHome = normalizeTeamAbbr(homeAbbr);
+
+  // If on away team's side (0-50 on field)
+  if (teamAbbr === normalizedAway) {
+    return yardLine;
+  }
+  // If on home team's side (50-100 on field)
+  if (teamAbbr === normalizedHome) {
+    return 100 - yardLine;
+  }
+
+  // Unknown team, return null
+  console.warn(`[Parser] Unknown team in possessionText: ${possessionText} (away: ${awayAbbr}, home: ${homeAbbr})`);
+  return null;
+}
+
+/**
+ * Convert ESPN yard line to 0-100 field position (fallback when possessionText unavailable)
  * 0 = away team's end zone, 100 = home team's end zone
  */
 function convertYardLineToFieldPosition(yardLine, teamAbbr, awayAbbr, homeAbbr) {
   if (yardLine === undefined || yardLine === null) return null;
 
+  const normalizedTeam = normalizeTeamAbbr(teamAbbr);
+  const normalizedAway = normalizeTeamAbbr(awayAbbr);
+  const normalizedHome = normalizeTeamAbbr(homeAbbr);
+
   // If on away team's side (0-50 on field)
-  if (teamAbbr === awayAbbr) {
+  if (normalizedTeam === normalizedAway) {
     return yardLine;
   }
   // If on home team's side (50-100 on field)
-  if (teamAbbr === homeAbbr) {
+  if (normalizedTeam === normalizedHome) {
     return 100 - yardLine;
   }
   // Default to midfield if unknown
@@ -4922,6 +5025,17 @@ function parseESPNDrivesToDB(summaryData, sport, awayAbbr, homeAbbr) {
       const isTurnover = isInterception || isFumble;
       const isPenalty = /penalty/i.test(playText);
 
+      // Detect possession change by comparing start and end teams
+      const startTeamAbbr = normalizeTeamAbbr(play.start?.team?.abbreviation || teamAbbr);
+      const endTeamAbbr = normalizeTeamAbbr(play.end?.team?.abbreviation || teamAbbr);
+      const possessionChanged = startTeamAbbr !== endTeamAbbr;
+
+      // Turnover on downs: possession changed on non-fumble/interception play (typically 4th down failure)
+      const isTurnoverOnDowns = possessionChanged && !isTurnover && !isTouchdown && playType !== 'punt' && playType !== 'kickoff';
+
+      // Use END team for possession if possession changed (turnover of any kind)
+      const actualPossessionTeam = possessionChanged ? endTeamAbbr : teamAbbr;
+
       // Calculate score value
       let scoreValue = 0;
       if (play.scoringPlay) {
@@ -4936,14 +5050,23 @@ function parseESPNDrivesToDB(summaryData, sport, awayAbbr, homeAbbr) {
       const yardsMatch = playText.match(/for\s+(-?\d+)\s+yard/i);
       const yardsGained = yardsMatch ? parseInt(yardsMatch[1]) : null;
 
-      // Field positions
-      const startYard = convertYardLineToFieldPosition(
+      // Field positions - prefer possessionText which is always accurate
+      // Fall back to yardLine calculation only if possessionText unavailable
+      const startYard = parsePossessionTextToFieldPosition(
+        play.start?.possessionText,
+        awayAbbr,
+        homeAbbr
+      ) ?? convertYardLineToFieldPosition(
         play.start?.yardLine,
         play.start?.team?.abbreviation || teamAbbr,
         awayAbbr,
         homeAbbr
       );
-      const endYard = convertYardLineToFieldPosition(
+      const endYard = parsePossessionTextToFieldPosition(
+        play.end?.possessionText,
+        awayAbbr,
+        homeAbbr
+      ) ?? convertYardLineToFieldPosition(
         play.end?.yardLine,
         play.end?.team?.abbreviation || teamAbbr,
         awayAbbr,
@@ -4972,11 +5095,19 @@ function parseESPNDrivesToDB(summaryData, sport, awayAbbr, homeAbbr) {
         start_yard: startYard,
         end_yard: endYard,
         yards_gained: yardsGained,
-        down: play.start?.down || null,
-        distance: play.start?.distance || null,
+        // Use play.end for state AFTER the play (correct down & distance for display)
+        down: play.end?.down || null,
+        distance: play.end?.distance || null,
+        // Store ESPN's pre-formatted text directly (e.g., "1st & 10 at HOU 26", "HOU 26")
+        down_distance_text: play.end?.downDistanceText || play.end?.shortDownDistanceText || null,
+        possession_text: play.end?.possessionText || null,
+        // Store START position text for pre-play display (during animation)
+        start_down_distance_text: play.start?.downDistanceText || play.start?.shortDownDistanceText || null,
+        start_possession_text: play.start?.possessionText || null,
         play_type: playType,
         play_text: playText,
-        possession_team_abbr: teamAbbr,
+        // Use actualPossessionTeam which reflects END state (important for turnovers/turnover on downs)
+        possession_team_abbr: actualPossessionTeam,
         possession_team_id: drive.team?.id || null,
         is_scoring: play.scoringPlay || false,
         score_value: scoreValue,
@@ -4984,6 +5115,7 @@ function parseESPNDrivesToDB(summaryData, sport, awayAbbr, homeAbbr) {
         home_score: play.homeScore || 0,
         is_touchdown: isTouchdown,
         is_turnover: isTurnover,
+        is_turnover_on_downs: isTurnoverOnDowns,
         turnover_type: isInterception ? 'interception' : (isFumble ? 'fumble' : null),
         is_penalty: isPenalty,
         penalty_yards: isPenalty ? (playText.match(/(\d+)\s+yard(?:s)?\s+penalty/i)?.[1] || null) : null,
@@ -5130,6 +5262,68 @@ app.get('/api/replay/game/:gameId', async (req, res) => {
       return res.status(404).json({ error: 'Game not found or no play data saved' });
     }
 
+    // Determine away/home team abbreviations for possession detection
+    // Try to get abbreviations from raw_data first (most reliable source)
+    let awayTeamAbbr = null;
+    let homeTeamAbbr = null;
+
+    // Try raw_data which has actual team abbreviations
+    let rawData = gameData.game.raw_data;
+    if (rawData) {
+      try {
+        const parsed = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+        // Try boxscore teams format
+        const boxscoreTeams = parsed.boxscore?.teams || [];
+        boxscoreTeams.forEach(team => {
+          if (team.homeAway === 'away' && team.team?.abbreviation) {
+            awayTeamAbbr = team.team.abbreviation;
+          } else if (team.homeAway === 'home' && team.team?.abbreviation) {
+            homeTeamAbbr = team.team.abbreviation;
+          }
+        });
+        // Try header competitions format as fallback
+        if (!awayTeamAbbr || !homeTeamAbbr) {
+          const competitors = parsed.header?.competitions?.[0]?.competitors || [];
+          competitors.forEach(comp => {
+            if (comp.homeAway === 'away' && comp.team?.abbreviation) {
+              awayTeamAbbr = awayTeamAbbr || comp.team.abbreviation;
+            } else if (comp.homeAway === 'home' && comp.team?.abbreviation) {
+              homeTeamAbbr = homeTeamAbbr || comp.team.abbreviation;
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('[Replay] Failed to parse raw_data for team abbreviations:', e.message);
+      }
+    }
+
+    // Fallback: get unique team abbreviations from drives
+    if (!awayTeamAbbr || !homeTeamAbbr) {
+      const driveTeams = new Set();
+      gameData.drives.forEach(drive => {
+        if (drive.team_abbr) driveTeams.add(drive.team_abbr);
+      });
+      const teamAbbrs = Array.from(driveTeams);
+      if (teamAbbrs.length >= 2) {
+        // Convention: first team alphabetically is away (fallback heuristic)
+        const sorted = teamAbbrs.sort();
+        awayTeamAbbr = awayTeamAbbr || sorted[0];
+        homeTeamAbbr = homeTeamAbbr || sorted[1];
+      }
+    }
+
+    // Final fallback: use possession_team_abbr from first play
+    if (!awayTeamAbbr && gameData.plays.length > 0) {
+      const uniqueTeams = new Set(gameData.plays.map(p => p.possession_team_abbr).filter(Boolean));
+      const teamAbbrs = Array.from(uniqueTeams);
+      if (teamAbbrs.length >= 2) {
+        awayTeamAbbr = teamAbbrs[0];
+        homeTeamAbbr = teamAbbrs[1];
+      }
+    }
+
+    console.log(`[Replay] Game ${gameId} - Away: ${awayTeamAbbr}, Home: ${homeTeamAbbr}`);
+
     // Format plays for PlayReplayEngine compatibility
     const formattedPlays = gameData.plays.map(play => ({
       sequenceNumber: play.play_sequence,
@@ -5142,43 +5336,111 @@ app.get('/api/replay/game/:gameId', async (req, res) => {
       yardLine: play.end_yard,
       down: play.down,
       distance: play.distance,
-      possession: play.possession_team_abbr === gameData.game.away_team_id ? 'away' : 'home',
+      // ESPN's pre-formatted text (preferred for display) - END position
+      downDistanceText: play.down_distance_text,
+      possessionText: play.possession_text,
+      // ESPN's pre-formatted text - START position (for during animation)
+      startDownDistanceText: play.start_down_distance_text,
+      startPossessionText: play.start_possession_text,
+      possession: play.possession_team_abbr === awayTeamAbbr ? 'away' :
+                  play.possession_team_abbr === homeTeamAbbr ? 'home' : 'away',
       awayScore: play.away_score,
       homeScore: play.home_score,
       scoringPlay: play.is_scoring,
       isTouchdown: play.is_touchdown,
       isTurnover: play.is_turnover,
+      isTurnoverOnDowns: play.is_turnover_on_downs,
       turnoverType: play.turnover_type,
       isInterception: play.turnover_type === 'interception',
       isFumble: play.turnover_type === 'fumble',
       animationData: play.animation_data
     }));
 
-    // Extract team info from raw_data if available
-    const rawData = gameData.game.raw_data;
-    let awayTeamInfo = { abbr: gameData.game.away_team_id, name: gameData.game.away_team };
-    let homeTeamInfo = { abbr: gameData.game.home_team_id, name: gameData.game.home_team };
+    // Extract team info from raw_data if available, or use stored team names
+    // Note: rawData was already parsed above for team abbreviation detection
 
-    if (rawData) {
-      const parsed = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
-      const competitors = parsed.competitions?.[0]?.competitors || [];
-      competitors.forEach(comp => {
-        if (comp.homeAway === 'away') {
+    // Default team info using the abbreviations we already extracted
+    const awayAbbr = awayTeamAbbr || gameData.game.away_team || 'AWAY';
+    const homeAbbr = homeTeamAbbr || gameData.game.home_team || 'HOME';
+    let awayTeamInfo = { abbr: awayAbbr, name: gameData.game.away_team || awayAbbr, logo: '', record: '' };
+    let homeTeamInfo = { abbr: homeAbbr, name: gameData.game.home_team || homeAbbr, logo: '', record: '' };
+
+    // Helper to extract team info from parsed data
+    const extractTeamInfoFromData = (parsed) => {
+      // Try boxscore teams format first
+      const boxscoreTeams = parsed.boxscore?.teams || [];
+      boxscoreTeams.forEach(team => {
+        if (team.homeAway === 'away') {
           awayTeamInfo = {
-            abbr: comp.team?.abbreviation || gameData.game.away_team_id,
-            name: comp.team?.displayName || gameData.game.away_team,
-            logo: comp.team?.logo || '',
-            record: comp.records?.[0]?.summary || ''
+            abbr: team.team?.abbreviation || awayAbbr,
+            name: team.team?.displayName || team.team?.name || gameData.game.away_team,
+            logo: team.team?.logo || '',
+            record: ''
           };
-        } else if (comp.homeAway === 'home') {
+        } else if (team.homeAway === 'home') {
           homeTeamInfo = {
-            abbr: comp.team?.abbreviation || gameData.game.home_team_id,
-            name: comp.team?.displayName || gameData.game.home_team,
-            logo: comp.team?.logo || '',
-            record: comp.records?.[0]?.summary || ''
+            abbr: team.team?.abbreviation || homeAbbr,
+            name: team.team?.displayName || team.team?.name || gameData.game.home_team,
+            logo: team.team?.logo || '',
+            record: ''
           };
         }
       });
+
+      // Try header competitions format for records
+      const competitors = parsed.header?.competitions?.[0]?.competitors || [];
+      if (competitors.length > 0) {
+        competitors.forEach(comp => {
+          if (comp.homeAway === 'away') {
+            awayTeamInfo.logo = awayTeamInfo.logo || comp.team?.logo || '';
+            awayTeamInfo.record = comp.record?.[0]?.summary || comp.records?.[0]?.summary || '';
+          } else if (comp.homeAway === 'home') {
+            homeTeamInfo.logo = homeTeamInfo.logo || comp.team?.logo || '';
+            homeTeamInfo.record = comp.record?.[0]?.summary || comp.records?.[0]?.summary || '';
+          }
+        });
+      }
+    };
+
+    if (rawData) {
+      const parsed = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+      extractTeamInfoFromData(parsed);
+    }
+
+    // If logos are still missing, fetch fresh data from ESPN
+    if (!awayTeamInfo.logo || !homeTeamInfo.logo) {
+      console.log(`[Replay] Missing team logos for game ${gameId}, fetching from ESPN...`);
+      try {
+        const sport = gameData.game.sport || 'nfl';
+        const endpoint = sport === 'ncaa'
+          ? `${ESPN_BASE}/football/college-football/summary?event=${gameId}`
+          : `${ESPN_BASE}/football/nfl/summary?event=${gameId}`;
+
+        const summaryData = await fetchESPN(endpoint);
+
+        if (summaryData) {
+          // Build fresh raw_data
+          const freshRawData = {
+            boxscore: summaryData.boxscore,
+            header: summaryData.header
+          };
+
+          extractTeamInfoFromData(freshRawData);
+
+          // Update database with fresh raw_data for future requests
+          try {
+            await pool.query(
+              'UPDATE games SET raw_data = $1 WHERE id = $2',
+              [JSON.stringify(freshRawData), gameId]
+            );
+            console.log(`[Replay] Updated raw_data for game ${gameId}`);
+          } catch (updateErr) {
+            console.error(`[Replay] Failed to update raw_data for game ${gameId}:`, updateErr.message);
+          }
+        }
+      } catch (fetchErr) {
+        console.error(`[Replay] Failed to fetch fresh data for game ${gameId}:`, fetchErr.message);
+      }
     }
 
     res.json({
@@ -5237,11 +5499,18 @@ app.get('/api/replay/game/:gameId/plays', async (req, res) => {
         endYard: p.end_yard,
         down: p.down,
         distance: p.distance,
+        // ESPN's pre-formatted text (preferred for display) - END position
+        downDistanceText: p.down_distance_text,
+        possessionText: p.possession_text,
+        // ESPN's pre-formatted text - START position (for during animation)
+        startDownDistanceText: p.start_down_distance_text,
+        startPossessionText: p.start_possession_text,
         awayScore: p.away_score,
         homeScore: p.home_score,
         isScoring: p.is_scoring,
         isTouchdown: p.is_touchdown,
-        isTurnover: p.is_turnover
+        isTurnover: p.is_turnover,
+        isTurnoverOnDowns: p.is_turnover_on_downs
       })),
       count: plays.length
     });
