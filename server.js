@@ -3633,52 +3633,70 @@ async function initializeCache() {
     console.error('[Cache] Failed to initialize NCAA:', e.message);
   }
 
+  // Use Promise.allSettled to ensure partial failures don't block entire sport initialization
+  // Also add small delays between sports to avoid ESPN rate limiting
+
   try {
     // NBA - fetch today, yesterday, tomorrow
-    const [nbaToday] = await Promise.all([
+    const nbaResults = await Promise.allSettled([
       fetchNBADataForCache(today),
       fetchNBADataForCache(yesterday),
       fetchNBADataForCache(tomorrow)
     ]);
-    nbaData = nbaToday;
-    console.log('[Cache] NBA initialized: today, yesterday, tomorrow');
+    const nbaSuccess = nbaResults.filter(r => r.status === 'fulfilled').length;
+    if (nbaResults[0].status === 'fulfilled') nbaData = nbaResults[0].value;
+    console.log(`[Cache] NBA initialized: ${nbaSuccess}/3 dates fetched`);
   } catch (e) {
     console.error('[Cache] Failed to initialize NBA:', e.message);
   }
 
+  // Small delay to avoid rate limiting
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   try {
-    // NHL - fetch today, yesterday
-    const [nhlToday] = await Promise.all([
+    // NHL - fetch today, yesterday, tomorrow
+    const nhlResults = await Promise.allSettled([
       fetchNHLDataForCache(today),
-      fetchNHLDataForCache(yesterday)
+      fetchNHLDataForCache(yesterday),
+      fetchNHLDataForCache(tomorrow)
     ]);
-    nhlData = nhlToday;
-    console.log('[Cache] NHL initialized: today, yesterday');
+    const nhlSuccess = nhlResults.filter(r => r.status === 'fulfilled').length;
+    if (nhlResults[0].status === 'fulfilled') nhlData = nhlResults[0].value;
+    console.log(`[Cache] NHL initialized: ${nhlSuccess}/3 dates fetched`);
   } catch (e) {
     console.error('[Cache] Failed to initialize NHL:', e.message);
   }
 
+  // Small delay to avoid rate limiting
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   try {
-    // MLB - fetch today, yesterday
-    const [mlbToday] = await Promise.all([
+    // MLB - fetch today, yesterday, tomorrow
+    const mlbResults = await Promise.allSettled([
       fetchMLBDataForCache(today),
-      fetchMLBDataForCache(yesterday)
+      fetchMLBDataForCache(yesterday),
+      fetchMLBDataForCache(tomorrow)
     ]);
-    mlbData = mlbToday;
-    console.log('[Cache] MLB initialized: today, yesterday');
+    const mlbSuccess = mlbResults.filter(r => r.status === 'fulfilled').length;
+    if (mlbResults[0].status === 'fulfilled') mlbData = mlbResults[0].value;
+    console.log(`[Cache] MLB initialized: ${mlbSuccess}/3 dates fetched`);
   } catch (e) {
     console.error('[Cache] Failed to initialize MLB:', e.message);
   }
 
+  // Small delay to avoid rate limiting
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   try {
     // NCAAB - fetch today, yesterday, tomorrow
-    const [ncaabToday] = await Promise.all([
+    const ncaabResults = await Promise.allSettled([
       fetchNCAABDataForCache(today),
       fetchNCAABDataForCache(yesterday),
       fetchNCAABDataForCache(tomorrow)
     ]);
-    ncaabData = ncaabToday;
-    console.log('[Cache] NCAAB initialized: today, yesterday, tomorrow');
+    const ncaabSuccess = ncaabResults.filter(r => r.status === 'fulfilled').length;
+    if (ncaabResults[0].status === 'fulfilled') ncaabData = ncaabResults[0].value;
+    console.log(`[Cache] NCAAB initialized: ${ncaabSuccess}/3 dates fetched`);
   } catch (e) {
     console.error('[Cache] Failed to initialize NCAAB:', e.message);
   }
@@ -5610,6 +5628,7 @@ app.get('/api/mlb/scoreboard', async (req, res) => {
     const requestedDate = req.query.date;
     const today = getTodayDate();
     const yesterday = getYesterdayDate();
+    const tomorrow = getTomorrowDate();
 
     if (requestedDate) {
       // Specific date requested - serve from cache only
@@ -5636,18 +5655,21 @@ app.get('/api/mlb/scoreboard', async (req, res) => {
       });
     }
 
-    // No specific date - combine yesterday and today from cache
+    // No specific date - combine yesterday, today, tomorrow from cache
     const cachedYesterday = sportsCache.mlb.data.get(`date-${yesterday}`);
     const cachedToday = sportsCache.mlb.data.get(`date-${today}`);
+    const cachedTomorrow = sportsCache.mlb.data.get(`date-${tomorrow}`);
 
     const allGames = [
       ...(cachedYesterday?.data?.events || []),
-      ...(cachedToday?.data?.events || [])
+      ...(cachedToday?.data?.events || []),
+      ...(cachedTomorrow?.data?.events || [])
     ];
 
     const oldestTimestamp = Math.min(
       cachedYesterday?.timestamp || Date.now(),
-      cachedToday?.timestamp || Date.now()
+      cachedToday?.timestamp || Date.now(),
+      cachedTomorrow?.timestamp || Date.now()
     );
 
     cacheStats.hits++;
@@ -5659,7 +5681,7 @@ app.get('/api/mlb/scoreboard', async (req, res) => {
         hit: true,
         age: cacheAge,
         ageSeconds: Math.round(cacheAge / 1000),
-        sources: { yesterday, today }
+        sources: { yesterday, today, tomorrow }
       }
     });
   } catch (error) {
@@ -5720,6 +5742,7 @@ app.get('/api/nhl/scoreboard', async (req, res) => {
     const requestedDate = req.query.date;
     const today = getTodayDate();
     const yesterday = getYesterdayDate();
+    const tomorrow = getTomorrowDate();
 
     if (requestedDate) {
       // Specific date requested - serve from cache only
@@ -5746,18 +5769,21 @@ app.get('/api/nhl/scoreboard', async (req, res) => {
       });
     }
 
-    // No specific date - combine yesterday and today from cache
+    // No specific date - combine yesterday, today, tomorrow from cache
     const cachedYesterday = sportsCache.nhl.data.get(`date-${yesterday}`);
     const cachedToday = sportsCache.nhl.data.get(`date-${today}`);
+    const cachedTomorrow = sportsCache.nhl.data.get(`date-${tomorrow}`);
 
     const allGames = [
       ...(cachedYesterday?.data?.events || []),
-      ...(cachedToday?.data?.events || [])
+      ...(cachedToday?.data?.events || []),
+      ...(cachedTomorrow?.data?.events || [])
     ];
 
     const oldestTimestamp = Math.min(
       cachedYesterday?.timestamp || Date.now(),
-      cachedToday?.timestamp || Date.now()
+      cachedToday?.timestamp || Date.now(),
+      cachedTomorrow?.timestamp || Date.now()
     );
 
     cacheStats.hits++;
@@ -5769,7 +5795,7 @@ app.get('/api/nhl/scoreboard', async (req, res) => {
         hit: true,
         age: cacheAge,
         ageSeconds: Math.round(cacheAge / 1000),
-        sources: { yesterday, today }
+        sources: { yesterday, today, tomorrow }
       }
     });
   } catch (error) {

@@ -3802,6 +3802,61 @@
             const isEnterKey = e.key === 'Enter' || e.key === ' ' ||
                 e.keyCode === 13 || e.keyCode === 66 || e.keyCode === 23;
 
+            // Get current focused element
+            const currentRow = rows[currentRowIndex];
+            const currentEl = currentRow ? currentRow.elements[currentColIndex] : null;
+            const isSelectElement = currentEl && currentEl.tagName === 'SELECT';
+
+            // Special handling for select elements (mock-game-selector)
+            if (isSelectElement) {
+                const selectEl = currentEl;
+
+                if (e.key === 'ArrowUp' || e.key === 'Up') {
+                    e.preventDefault();
+                    // Move to previous option
+                    if (selectEl.selectedIndex > 0) {
+                        selectEl.selectedIndex--;
+                        selectEl.dispatchEvent(new Event('change'));
+                    }
+                    return;
+                }
+
+                if (e.key === 'ArrowDown' || e.key === 'Down') {
+                    e.preventDefault();
+                    // Move to next option
+                    if (selectEl.selectedIndex < selectEl.options.length - 1) {
+                        selectEl.selectedIndex++;
+                        selectEl.dispatchEvent(new Event('change'));
+                    }
+                    return;
+                }
+
+                // Left/Right arrows navigate away from select
+                if (e.key === 'ArrowLeft' || e.key === 'Left') {
+                    e.preventDefault();
+                    if (currentColIndex > 0) {
+                        currentColIndex--;
+                        setHomeFocus();
+                    }
+                    return;
+                }
+
+                if (e.key === 'ArrowRight' || e.key === 'Right') {
+                    e.preventDefault();
+                    if (currentColIndex < currentRow.elements.length - 1) {
+                        currentColIndex++;
+                        setHomeFocus();
+                    }
+                    return;
+                }
+
+                // Enter on select does nothing special (value already selected)
+                if (isEnterKey) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+
             if (isEnterKey) {
                 e.preventDefault();
                 selectCurrentHomeItem();
