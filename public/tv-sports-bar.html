@@ -3659,6 +3659,16 @@
             /* Positive = down, Negative = up */
             --g8-small-field-offset-y: 20px;
             /* Positive = down, Negative = up */
+
+            /* ========================================
+               CARD 2 SPECIFIC OVERRIDES
+               ======================================== */
+
+            /* Scoreboard & Field Vertical Position - CARD 2 ONLY */
+            --g8-card2-scoreboard-offset-y: 12px;
+            /* Positive = down, Negative = up */
+            --g8-card2-field-offset-y: 5px;
+            /* Positive = down, Negative = up */
         }
 
         /* Grid 8 Element Rules */
@@ -4021,6 +4031,15 @@
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .field-visualizer {
             transform: translateY(var(--g8-small-field-offset-y));
+        }
+
+        /* Grid 8 Card 2 - Individual Overrides */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-scoreboard {
+            transform: translateY(var(--g8-card2-scoreboard-offset-y));
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .field-visualizer {
+            transform: translateY(var(--g8-card2-field-offset-y));
         }
 
         /* ============================================
