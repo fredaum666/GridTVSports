@@ -3428,6 +3428,11 @@ async function fetchNHLDataForCache(date) {
 async function fetchGameStatsForCache(league, gameId, isComplete = false) {
   const cacheKey = `${league}-${gameId}`;
 
+  // Skip mock games used for testing
+  if (gameId.toString().startsWith('mock')) {
+    return null;
+  }
+
   // Determine the correct ESPN endpoint based on league
   const leagueEndpoints = {
     'nfl': `${ESPN_BASE}/football/nfl/summary?event=${gameId}`,
@@ -3806,6 +3811,12 @@ app.get('/api/nfl/scoreboard', async (req, res) => {
 app.get('/api/nfl/summary/:gameId', async (req, res) => {
   try {
     const gameId = req.params.gameId;
+
+    // Return empty data for mock games used in testing
+    if (gameId.startsWith('mock')) {
+      return res.json({ _isMock: true });
+    }
+
     const cacheKey = `nfl-${gameId}`;
     const cached = gameStatsCache.data.get(cacheKey);
 
@@ -4427,6 +4438,12 @@ app.get('/api/ncaa/scoreboard', async (req, res) => {
 app.get('/api/ncaa/summary/:gameId', async (req, res) => {
   try {
     const gameId = req.params.gameId;
+
+    // Return empty data for mock games used in testing
+    if (gameId.startsWith('mock')) {
+      return res.json({ _isMock: true });
+    }
+
     const cacheKey = `ncaa-${gameId}`;
     const cached = gameStatsCache.data.get(cacheKey);
 
@@ -4722,6 +4739,12 @@ app.get('/api/nba/scoreboard', async (req, res) => {
 app.get('/api/nba/summary/:gameId', async (req, res) => {
   try {
     const gameId = req.params.gameId;
+
+    // Return empty data for mock games used in testing
+    if (gameId.startsWith('mock')) {
+      return res.json({ _isMock: true });
+    }
+
     const cacheKey = `nba-${gameId}`;
     const cached = gameStatsCache.data.get(cacheKey);
 
@@ -4836,6 +4859,11 @@ app.get('/api/ncaab/scoreboard', async (req, res) => {
 app.get('/api/ncaab/summary/:gameId', async (req, res) => {
   try {
     const gameId = req.params.gameId;
+
+    // Return empty data for mock games used in testing
+    if (gameId.startsWith('mock')) {
+      return res.json({ _isMock: true });
+    }
     const cacheKey = `ncaab-${gameId}`;
     const cached = gameStatsCache.data.get(cacheKey);
 
@@ -5692,6 +5720,12 @@ app.get('/api/mlb/scoreboard', async (req, res) => {
 app.get('/api/mlb/summary/:gameId', async (req, res) => {
   try {
     const gameId = req.params.gameId;
+
+    // Return empty data for mock games used in testing
+    if (gameId.startsWith('mock')) {
+      return res.json({ _isMock: true });
+    }
+
     const cacheKey = `mlb-${gameId}`;
     const cached = gameStatsCache.data.get(cacheKey);
 
@@ -5806,6 +5840,11 @@ app.get('/api/nhl/scoreboard', async (req, res) => {
 app.get('/api/nhl/summary/:gameId', async (req, res) => {
   try {
     const gameId = req.params.gameId;
+
+    // Return empty data for mock games used in testing
+    if (gameId.startsWith('mock')) {
+      return res.json({ _isMock: true });
+    }
     const cacheKey = `nhl-${gameId}`;
     const cached = gameStatsCache.data.get(cacheKey);
 
