@@ -5647,6 +5647,42 @@ app.post('/api/replay/sync-completed', async (req, res) => {
   }
 });
 
+/**
+ * DELETE /api/replay/game/:gameId
+ * Delete a game and all its related replay data (drives and plays)
+ */
+app.delete('/api/replay/game/:gameId', async (req, res) => {
+  try {
+    const gameId = req.params.gameId;
+
+    console.log(`[Replay] Deleting game ${gameId} and its replay data`);
+
+    // Delete plays first (foreign key constraint)
+    await pool.query('DELETE FROM game_plays WHERE game_id = $1', [gameId]);
+
+    // Delete drives
+    await pool.query('DELETE FROM game_drives WHERE game_id = $1', [gameId]);
+
+    // Delete game
+    const result = await pool.query('DELETE FROM games WHERE id = $1 RETURNING *', [gameId]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Game not found' });
+    }
+
+    console.log(`[Replay] Successfully deleted game ${gameId}`);
+
+    res.json({
+      success: true,
+      gameId,
+      message: 'Game and replay data deleted successfully'
+    });
+  } catch (error) {
+    console.error('[Replay] Error deleting game:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============================================
 // API ROUTES - MLB
 // ============================================

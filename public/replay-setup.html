@@ -247,6 +247,48 @@
             padding: 20px;
         }
 
+        /* Collapsible Panels */
+        .panel.collapsible .panel-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .panel.collapsible .panel-header:hover {
+            background: rgba(0, 240, 255, 0.02);
+        }
+
+        .panel-collapse-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-cyan);
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .panel.collapsed .panel-collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .panel.collapsible .panel-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.3s ease;
+        }
+
+        .panel.collapsed .panel-content {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+        }
+
+        .panel.collapsed {
+            border-color: rgba(36, 48, 82, 0.5);
+        }
+
         /* Input Section */
         .input-section {
             margin-bottom: 16px;
@@ -704,7 +746,28 @@
 
         /* Library Panel */
         .library-panel {
-            grid-row: 1 / 4;
+            grid-column: 1 / 3;
+            grid-row: 1;
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+        }
+
+        .library-panel .panel-title {
+            font-size: 16px;
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        .library-panel .panel-title::before {
+            width: 5px;
+            height: 18px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+
+        /* Collapsible panels at bottom - span all columns */
+        .panel.collapsible {
+            grid-column: 1 / 4;
         }
 
         .library-tabs {
@@ -871,11 +934,16 @@
 
         /* Launch Section */
         .launch-section {
-            grid-column: 1 / 4;
+            grid-column: 3;
+            grid-row: 1;
             background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--accent-green);
             border-radius: 16px;
-            padding: 24px;
+            padding: 28px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -895,13 +963,14 @@
 
         .launch-info h3 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             background: linear-gradient(90deg, var(--text-primary), var(--accent-green));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: 1px;
         }
 
         .launch-info p {
@@ -931,7 +1000,7 @@
 
         .launch-controls {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 16px;
         }
 
@@ -940,6 +1009,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .speed-label {
@@ -974,6 +1044,7 @@
         }
 
         .btn-launch {
+            width: 100%;
             padding: 14px 32px;
             background: linear-gradient(135deg, var(--accent-green), #00d970);
             color: var(--bg-primary);
@@ -1083,20 +1154,21 @@
         /* Responsive */
         @media (max-width: 1200px) {
             .main-layout {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr;
             }
 
             .library-panel {
-                grid-column: 1 / 3;
+                grid-column: 1;
                 grid-row: auto;
             }
 
-            .preview-panel {
-                grid-column: 1 / 3;
+            .launch-section {
+                grid-column: 1;
+                grid-row: auto;
             }
 
-            .launch-section {
-                grid-column: 1 / 3;
+            .panel.collapsible {
+                grid-column: 1;
             }
         }
 
@@ -1148,82 +1220,16 @@
 
         <!-- Main Layout -->
         <div class="main-layout">
-            <!-- Data Input Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    <div class="panel-title">ESPN Data Input</div>
-                    <span class="panel-badge">PASTE DATA</span>
-                </div>
-                <div class="panel-content">
-                    <div class="input-section">
-                        <label class="input-label">Play-by-Play Data</label>
-                        <textarea
-                            class="data-textarea"
-                            id="dataInput"
-                            placeholder="Paste ESPN play-by-play JSON or text here..."
-                        ></textarea>
-                        <div class="textarea-counter" id="charCounter">0 chars</div>
-                    </div>
-                    <div class="button-group">
-                        <button class="btn btn-primary" id="parseBtn">Parse Data</button>
-                        <button class="btn btn-secondary" id="clearBtn">Clear</button>
-                    </div>
-
-                    <!-- Detected Teams -->
-                    <div class="detected-teams" id="detectedTeams" style="display: none;">
-                        <div class="teams-header">Detected Teams</div>
-                        <div id="teamsDisplay"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Save Options Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    <div class="panel-title">Save Options</div>
-                    <span class="panel-badge">LIBRARY</span>
-                </div>
-                <div class="panel-content">
-                    <div class="save-options">
-                        <div class="save-option-group">
-                            <label class="save-option-label">Save as Game</label>
-                            <input type="text" class="save-input" id="gameName" placeholder="e.g., GB @ CHI - Week 5">
-                            <div class="button-group">
-                                <button class="btn btn-success" id="saveGameBtn" disabled>Save as Game</button>
-                            </div>
-                        </div>
-
-                        <div style="text-align: center; color: var(--text-muted); margin: 16px 0; font-size: 12px;">— OR —</div>
-
-                        <div class="save-option-group">
-                            <label class="save-option-label">Save Selected as Play</label>
-                            <input type="text" class="save-input" id="playName" placeholder="e.g., Hail Mary TD">
-                            <label class="save-option-label" style="margin-top: 10px;">Play Tag</label>
-                            <div class="tag-selector" id="tagSelector">
-                                <button class="tag-btn" data-tag="touchdown">Touchdown</button>
-                                <button class="tag-btn" data-tag="turnover">Turnover</button>
-                                <button class="tag-btn" data-tag="big-play">Big Play</button>
-                                <button class="tag-btn" data-tag="scoring">Scoring</button>
-                                <button class="tag-btn" data-tag="highlight">Highlight</button>
-                            </div>
-                            <div class="button-group">
-                                <button class="btn btn-orange" id="savePlayBtn" disabled>Save as Play</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Library Panel -->
             <div class="panel library-panel">
                 <div class="panel-header">
                     <div class="panel-title">My Library</div>
                 </div>
                 <div class="library-tabs">
-                    <button class="library-tab" data-tab="database">
+                    <button class="library-tab active" data-tab="database">
                         Database <span class="library-tab-count" id="dbGamesCount">0</span>
                     </button>
-                    <button class="library-tab active" data-tab="games">
+                    <button class="library-tab" data-tab="games">
                         Local <span class="library-tab-count" id="gamesCount">0</span>
                     </button>
                     <button class="library-tab" data-tab="plays">
@@ -1240,23 +1246,6 @@
                     <button class="library-action-btn" id="selectAllBtn">Select All</button>
                     <button class="library-action-btn" id="clearSelectionBtn">Clear</button>
                     <button class="library-action-btn" id="deleteSelectedBtn" style="color: var(--accent-red);">Delete</button>
-                </div>
-            </div>
-
-            <!-- Preview Panel -->
-            <div class="panel preview-panel">
-                <div class="panel-header preview-header">
-                    <div class="panel-title">Parsed Plays</div>
-                    <div class="play-count" id="playCount">0 <span>plays</span></div>
-                </div>
-                <div class="panel-content">
-                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Click plays to select for "Save as Play"</div>
-                    <div class="preview-grid" id="previewGrid">
-                        <div class="empty-state">
-                            <div class="empty-icon">📋</div>
-                            <div class="empty-title">No Plays Loaded</div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -1289,6 +1278,98 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Data Input Panel (Collapsible) -->
+            <div class="panel collapsible collapsed">
+                <div class="panel-header">
+                    <div class="panel-title">ESPN Data Input</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="panel-badge">PASTE DATA</span>
+                        <div class="panel-collapse-icon">▼</div>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="input-section">
+                        <label class="input-label">Play-by-Play Data</label>
+                        <textarea
+                            class="data-textarea"
+                            id="dataInput"
+                            placeholder="Paste ESPN play-by-play JSON or text here..."
+                        ></textarea>
+                        <div class="textarea-counter" id="charCounter">0 chars</div>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="parseBtn">Parse Data</button>
+                        <button class="btn btn-secondary" id="clearBtn">Clear</button>
+                    </div>
+
+                    <!-- Detected Teams -->
+                    <div class="detected-teams" id="detectedTeams" style="display: none;">
+                        <div class="teams-header">Detected Teams</div>
+                        <div id="teamsDisplay"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parsed Plays Panel (Collapsible) -->
+            <div class="panel preview-panel collapsible collapsed">
+                <div class="panel-header preview-header">
+                    <div class="panel-title">Parsed Plays</div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="play-count" id="playCount">0 <span>plays</span></div>
+                        <div class="panel-collapse-icon">▼</div>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Click plays to select for "Save as Play"</div>
+                    <div class="preview-grid" id="previewGrid">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <div class="empty-title">No Plays Loaded</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Options Panel (Collapsible) -->
+            <div class="panel collapsible collapsed">
+                <div class="panel-header">
+                    <div class="panel-title">Save Options</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="panel-badge">LIBRARY</span>
+                        <div class="panel-collapse-icon">▼</div>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="save-options">
+                        <div class="save-option-group">
+                            <label class="save-option-label">Save as Game</label>
+                            <input type="text" class="save-input" id="gameName" placeholder="e.g., GB @ CHI - Week 5">
+                            <div class="button-group">
+                                <button class="btn btn-success" id="saveGameBtn" disabled>Save as Game</button>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; color: var(--text-muted); margin: 16px 0; font-size: 12px;">— OR —</div>
+
+                        <div class="save-option-group">
+                            <label class="save-option-label">Save Selected as Play</label>
+                            <input type="text" class="save-input" id="playName" placeholder="e.g., Hail Mary TD">
+                            <label class="save-option-label" style="margin-top: 10px;">Play Tag</label>
+                            <div class="tag-selector" id="tagSelector">
+                                <button class="tag-btn" data-tag="touchdown">Touchdown</button>
+                                <button class="tag-btn" data-tag="turnover">Turnover</button>
+                                <button class="tag-btn" data-tag="big-play">Big Play</button>
+                                <button class="tag-btn" data-tag="scoring">Scoring</button>
+                                <button class="tag-btn" data-tag="highlight">Highlight</button>
+                            </div>
+                            <div class="button-group">
+                                <button class="btn btn-orange" id="savePlayBtn" disabled>Save as Play</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1319,10 +1400,11 @@
         let selectedPlayIndices = new Set();
         let selectedTag = null;
         let selectedSpeed = 3000;
-        let activeLibraryTab = 'games';
+        let activeLibraryTab = 'database';
         let selectedLibraryItems = new Set(); // Format: 'games-id', 'plays-id', or 'database-id'
         let databaseGames = []; // Games loaded from database
         let loadingDbGames = false;
+        let initialDatabaseLoad = true; // Track if this is the first database load
 
         // ==========================================
         // DOM ELEMENTS
@@ -1347,10 +1429,10 @@
         // INITIALIZATION
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
-            loadLibrary();
+            loadLibrary(); // Render initial state (will show "Loading..." for database tab)
             setupEventListeners();
             updateLaunchButton();
-            // Load database games in background
+            // Load database games (will re-render when complete)
             loadDatabaseGames();
         });
 
@@ -1412,6 +1494,14 @@
             // Input change handlers
             gameName.addEventListener('input', updateSaveGameButton);
             playName.addEventListener('input', updateSavePlayButton);
+
+            // Collapsible panels
+            document.querySelectorAll('.panel.collapsible .panel-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const panel = header.closest('.panel');
+                    panel.classList.toggle('collapsed');
+                });
+            });
         }
 
         // ==========================================
@@ -2008,7 +2098,8 @@
 
             // Handle database tab
             if (activeLibraryTab === 'database') {
-                if (loadingDbGames) {
+                // Show loading state if currently loading OR if this is the initial load and we haven't loaded yet
+                if (loadingDbGames || (initialDatabaseLoad && databaseGames.length === 0)) {
                     list.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-icon">⏳</div>
@@ -2182,14 +2273,18 @@
                 document.getElementById('dbGamesCount').textContent = databaseGames.length;
                 console.log(`[Database] Loaded ${databaseGames.length} games from database`);
 
+                // Clear loading flags BEFORE re-rendering
+                loadingDbGames = false;
+                initialDatabaseLoad = false;
+
                 if (activeLibraryTab === 'database') {
                     renderLibrary();
                 }
             } catch (error) {
                 console.error('[Database] Error loading games:', error);
                 showToast('Failed to load database games', true);
-            } finally {
                 loadingDbGames = false;
+                initialDatabaseLoad = false;
             }
         }
 
@@ -2327,9 +2422,10 @@
             document.getElementById('deleteModal').classList.remove('show');
         }
 
-        function deleteSelectedItems() {
+        async function deleteSelectedItems() {
             let games = getSavedGames();
             let plays = getSavedPlays();
+            const databaseItemsToDelete = [];
 
             selectedLibraryItems.forEach(itemKey => {
                 const [type, id] = itemKey.split('-');
@@ -2337,13 +2433,40 @@
 
                 if (type === 'games') {
                     games = games.filter(g => g.id !== fullId);
-                } else {
+                } else if (type === 'plays') {
                     plays = plays.filter(p => p.id !== fullId);
+                } else if (type === 'database') {
+                    databaseItemsToDelete.push(fullId);
                 }
             });
 
+            // Save local storage changes
             localStorage.setItem('gridtv_saved_games', JSON.stringify(games));
             localStorage.setItem('gridtv_saved_plays', JSON.stringify(plays));
+
+            // Delete database items via API
+            if (databaseItemsToDelete.length > 0) {
+                const deletePromises = databaseItemsToDelete.map(async (gameId) => {
+                    try {
+                        const response = await fetch(`/api/replay/game/${gameId}`, {
+                            method: 'DELETE'
+                        });
+                        if (!response.ok) {
+                            console.error(`Failed to delete game ${gameId}`);
+                            return false;
+                        }
+                        return true;
+                    } catch (error) {
+                        console.error(`Error deleting game ${gameId}:`, error);
+                        return false;
+                    }
+                });
+
+                await Promise.all(deletePromises);
+
+                // Reload database games after deletion
+                await loadDatabaseGames();
+            }
 
             selectedLibraryItems.clear();
             hideDeleteModal();
