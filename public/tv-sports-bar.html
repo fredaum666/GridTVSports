@@ -1808,6 +1808,12 @@
             --g1-situation-margin-bottom: -11px;
             --g1-situation-bottom-offset: 0;
             /* Adjusts translateY offset */
+
+            /* Scoreboard & Field Vertical Position */
+            --g1-scoreboard-offset-y: 0;
+            /* Positive = down, Negative = up */
+            --g1-field-offset-y: 0;
+            /* Positive = down, Negative = up */
         }
 
         /* Grid 1 Element Rules */
@@ -1879,11 +1885,13 @@
         .fullscreen-grid.grid-1 .field-visualizer {
             margin-top: var(--g1-field-margin-top);
             max-height: var(--g1-field-max-height);
+            transform: translateY(var(--g1-field-offset-y));
         }
 
         .fullscreen-grid.grid-1 .fs-scoreboard {
             width: var(--g1-scoreboard-width);
             height: var(--g1-scoreboard-height);
+            transform: translateY(var(--g1-scoreboard-offset-y));
         }
 
         .fullscreen-grid.grid-1 .fs-scoreboard-top {
@@ -2033,6 +2041,12 @@
             --g2-situation-padding-bottom: 6px;
             --g2-situation-margin-bottom: -11px;
             --g2-situation-bottom-offset: 0;
+
+            /* Scoreboard & Field Vertical Position */
+            --g2-scoreboard-offset-y: 0;
+            /* Positive = down, Negative = up */
+            --g2-field-offset-y: 0;
+            /* Positive = down, Negative = up */
         }
 
         /* Grid 2 Element Rules */
@@ -2104,11 +2118,13 @@
         .fullscreen-grid.grid-2 .field-visualizer {
             margin-top: var(--g2-field-margin-top);
             max-height: var(--g2-field-max-height);
+            transform: translateY(var(--g2-field-offset-y));
         }
 
         .fullscreen-grid.grid-2 .fs-scoreboard {
             width: var(--g2-scoreboard-width);
             height: var(--g2-scoreboard-height);
+            transform: translateY(var(--g2-scoreboard-offset-y));
         }
 
         .fullscreen-grid.grid-2 .fs-scoreboard-top {
@@ -2258,6 +2274,12 @@
             --g3-situation-padding-bottom: 6px;
             --g3-situation-margin-bottom: -11px;
             --g3-situation-bottom-offset: 0;
+
+            /* Scoreboard & Field Vertical Position */
+            --g3-scoreboard-offset-y: 0;
+            /* Positive = down, Negative = up */
+            --g3-field-offset-y: 0;
+            /* Positive = down, Negative = up */
         }
 
         /* Grid 3 Element Rules */
@@ -2329,11 +2351,13 @@
         .fullscreen-grid.grid-3 .field-visualizer {
             margin-top: var(--g3-field-margin-top);
             max-height: var(--g3-field-max-height);
+            transform: translateY(var(--g3-field-offset-y));
         }
 
         .fullscreen-grid.grid-3 .fs-scoreboard {
             width: var(--g3-scoreboard-width);
             height: var(--g3-scoreboard-height);
+            transform: translateY(var(--g3-scoreboard-offset-y));
         }
 
         .fullscreen-grid.grid-3 .fs-scoreboard-top {
@@ -2483,6 +2507,12 @@
             --g4-situation-padding-bottom: 6px;
             --g4-situation-margin-bottom: -11px;
             --g4-situation-bottom-offset: 0;
+
+            /* Scoreboard & Field Vertical Position */
+            --g4-scoreboard-offset-y: 0;
+            /* Positive = down, Negative = up */
+            --g4-field-offset-y: 0;
+            /* Positive = down, Negative = up */
         }
 
         /* Grid 4 Element Rules */
@@ -2554,11 +2584,13 @@
         .fullscreen-grid.grid-4 .field-visualizer {
             margin-top: var(--g4-field-margin-top);
             max-height: var(--g4-field-max-height);
+            transform: translateY(var(--g4-field-offset-y));
         }
 
         .fullscreen-grid.grid-4 .fs-scoreboard {
             width: var(--g4-scoreboard-width);
             height: var(--g4-scoreboard-height);
+            transform: translateY(var(--g4-scoreboard-offset-y));
         }
 
         .fullscreen-grid.grid-4 .fs-scoreboard-top {
@@ -2709,6 +2741,12 @@
             --g5-big-situation-margin-bottom: -12px;
             --g5-big-situation-bottom-offset: 0;
 
+            /* Scoreboard & Field Vertical Position - BIG CARDS */
+            --g5-big-scoreboard-offset-y: 0;
+            /* Positive = down, Negative = up */
+            --g5-big-field-offset-y: 0;
+            /* Positive = down, Negative = up */
+
             /* ========================================
                INDIVIDUAL ELEMENT CONTROL VARIABLES - SMALL CARDS (3-5)
                ======================================== */
@@ -2740,6 +2778,12 @@
             --g5-small-situation-padding-bottom: 4px;
             --g5-small-situation-margin-bottom: -12px;
             --g5-small-situation-bottom-offset: 0;
+
+            /* Scoreboard & Field Vertical Position - SMALL CARDS */
+            --g5-small-scoreboard-offset-y: 0;
+            /* Positive = down, Negative = up */
+            --g5-small-field-offset-y: 0;
+            /* Positive = down, Negative = up */
         }
 
         /* Grid 5 Element Rules */
@@ -2873,6 +2917,14 @@
             margin-bottom: var(--g5-big-situation-margin-bottom);
         }
 
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-scoreboard {
+            transform: translateY(var(--g5-big-scoreboard-offset-y));
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .field-visualizer {
+            transform: translateY(var(--g5-big-field-offset-y));
+        }
+
         /* Grid 5 - Individual Element Control Rules - SMALL CARDS (3-5) */
         .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-logo {
             width: var(--g5-small-team-logo-width);
@@ -2914,6 +2966,14 @@
         .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-situation {
             padding-bottom: var(--g5-small-situation-padding-bottom);
             margin-bottom: var(--g5-small-situation-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-scoreboard {
+            transform: translateY(var(--g5-small-scoreboard-offset-y));
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .field-visualizer {
+            transform: translateY(var(--g5-small-field-offset-y));
         }
 
         /* ============================================
@@ -2962,7 +3022,7 @@
             --g6-situation-gap: 4px;
 
             /* Field Visualizer */
-            --g6-field-margin-top: 20px;
+            --g6-field-margin-top: 30px;
             --g6-field-max-height: 100px;
 
             /* Scoreboard Container */
@@ -3008,6 +3068,12 @@
             --g6-situation-padding-bottom: 6px;
             --g6-situation-margin-bottom: -11px;
             --g6-situation-bottom-offset: 0;
+
+            /* Scoreboard & Field Vertical Position */
+            --g6-scoreboard-offset-y: 40px;
+            /* Positive = down, Negative = up */
+            --g6-field-offset-y: 40px;
+            /* Positive = down, Negative = up */
         }
 
         /* Grid 6 Element Rules */
@@ -3079,11 +3145,13 @@
         .fullscreen-grid.grid-6 .field-visualizer {
             margin-top: var(--g6-field-margin-top);
             max-height: var(--g6-field-max-height);
+            transform: translateY(var(--g6-field-offset-y));
         }
 
         .fullscreen-grid.grid-6 .fs-scoreboard {
             width: var(--g6-scoreboard-width);
             height: var(--g6-scoreboard-height);
+            transform: translateY(var(--g6-scoreboard-offset-y));
         }
 
         .fullscreen-grid.grid-6 .fs-scoreboard-top {

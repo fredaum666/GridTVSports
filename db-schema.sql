@@ -290,7 +290,7 @@ CREATE TABLE IF NOT EXISTS tv_sessions (
   device_id VARCHAR(64) UNIQUE NOT NULL,
   user_id INT REFERENCES users(id) ON DELETE CASCADE,
   device_name VARCHAR(100) DEFAULT 'TV Receiver',
-  session_token VARCHAR(64) UNIQUE NOT NULL,
+  session_token VARCHAR(128) UNIQUE NOT NULL,
   is_active BOOLEAN DEFAULT TRUE,
   last_seen_at TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW(),

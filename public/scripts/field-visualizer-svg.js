@@ -153,7 +153,7 @@ class SVGFieldVisualizer {
           fill: rgba(255,255,255,0.85);
           font-family: 'Courier New', Courier, monospace;
           font-weight: bold;
-          font-size: 8px;
+          font-size: 20px;
           text-anchor: middle;
         }
 
@@ -166,7 +166,7 @@ class SVGFieldVisualizer {
           fill: rgba(255,255,255,0.85);
           font-family: Arial, sans-serif;
           font-weight: bold;
-          font-size: 8px;
+          font-size: 20px;
           text-anchor: middle;
         }
 
@@ -1133,8 +1133,8 @@ class SVGFieldVisualizer {
         // Update arrow position
         const arrowX = currentX;
         const arrowPoints = arrowDirection > 0
-          ? `${arrowX},${lineY} ${arrowX - arrowSize},${lineY - arrowSize/2} ${arrowX - arrowSize},${lineY + arrowSize/2}`
-          : `${arrowX},${lineY} ${arrowX + arrowSize},${lineY - arrowSize/2} ${arrowX + arrowSize},${lineY + arrowSize/2}`;
+          ? `${arrowX},${lineY} ${arrowX - arrowSize},${lineY - arrowSize / 2} ${arrowX - arrowSize},${lineY + arrowSize / 2}`
+          : `${arrowX},${lineY} ${arrowX + arrowSize},${lineY - arrowSize / 2} ${arrowX + arrowSize},${lineY + arrowSize / 2}`;
         arrow.setAttribute('points', arrowPoints);
 
         if (progress >= 0.3) {
