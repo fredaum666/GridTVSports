@@ -6633,8 +6633,10 @@ app.post('/api/tv/generate-qr-token', tvAuthLimiter, async (req, res) => {
       [token, deviceId, deviceName || 'TV Receiver', expiresAt]
     );
 
-    // Build QR code URL
-    const appUrl = process.env.APP_URL || `http://localhost:${PORT}`;
+    // Build QR code URL - auto-detect from request
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const host = req.get('host');
+    const appUrl = process.env.APP_URL || `${protocol}://${host}`;
     const authUrl = `${appUrl}/tv-auth?token=${token}`;
 
     console.log(`📺 QR token generated for device: ${deviceId.substring(0, 8)}...`);
