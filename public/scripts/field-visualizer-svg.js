@@ -92,6 +92,10 @@ class SVGFieldVisualizer {
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
+    // Set CSS custom properties directly on SVG element for end zone colors
+    svg.style.setProperty('--away-color', this.options.awayColor);
+    svg.style.setProperty('--home-color', this.options.homeColor);
+
     svg.innerHTML = `
       ${this.getStyles()}
       ${this.getDefs()}

@@ -4246,6 +4246,7 @@
             'KC': { primary: '#E31837', secondary: '#FFB81C' },
             'LAC': { primary: '#0080C6', secondary: '#FFC20E' },
             'LAR': { primary: '#003594', secondary: '#FFA300' },
+            'LA': { primary: '#003594', secondary: '#FFA300' }, // ESPN uses LA for Rams
             'LV': { primary: '#000000', secondary: '#A5ACAF' },
             'MIA': { primary: '#008E97', secondary: '#FC4C02' },
             'MIN': { primary: '#4F2683', secondary: '#FFC62F' },
@@ -4259,7 +4260,8 @@
             'SEA': { primary: '#002244', secondary: '#69BE28' },
             'TB': { primary: '#D50A0A', secondary: '#FF7900' },
             'TEN': { primary: '#0C2340', secondary: '#4B92DB' },
-            'WSH': { primary: '#5A1414', secondary: '#FFB612' }
+            'WSH': { primary: '#5A1414', secondary: '#FFB612' },
+            'WAS': { primary: '#5A1414', secondary: '#FFB612' } // ESPN uses WAS for Washington
         };
 
         // NCAA Football Team Colors (College)
@@ -4899,6 +4901,7 @@
                 fieldVisualizerHTML = `
                     <div class="${fieldClass}">
                         <div class="svg-field-container"
+                             style="--away-color: ${awayEndzoneColor}; --home-color: ${homeEndzoneColor};"
                              data-game-id="${game.id}"
                              data-compressed="${isCompressed}"
                              data-away-color="${awayEndzoneColor}"

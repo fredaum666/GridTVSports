@@ -27,6 +27,7 @@ export const NFL_TEAM_COLORS = {
     'KC': { primary: '#E31837', secondary: '#FFB81C' },
     'LAC': { primary: '#0080C6', secondary: '#FFC20E' },
     'LAR': { primary: '#003594', secondary: '#FFA300' },
+    'LA': { primary: '#003594', secondary: '#FFA300' }, // Alias for LAR (ESPN API uses LA)
     'LV': { primary: '#000000', secondary: '#A5ACAF' },
     'MIA': { primary: '#008E97', secondary: '#FC4C02' },
     'MIN': { primary: '#4F2683', secondary: '#FFC62F' },
@@ -40,7 +41,8 @@ export const NFL_TEAM_COLORS = {
     'SEA': { primary: '#002244', secondary: '#69BE28' },
     'TB': { primary: '#D50A0A', secondary: '#FF7900' },
     'TEN': { primary: '#0C2340', secondary: '#4B92DB' },
-    'WSH': { primary: '#5A1414', secondary: '#FFB612' }
+    'WSH': { primary: '#5A1414', secondary: '#FFB612' },
+    'WAS': { primary: '#5A1414', secondary: '#FFB612' } // Alias for WSH (ESPN API uses WAS)
 };
 
 // NCAA Football/Basketball Team Colors (100+ teams)
