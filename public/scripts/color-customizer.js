@@ -666,7 +666,7 @@ const ColorCustomizer = {
 
         <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px;">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-            <img src="/assets/NFL-logo.png" alt="MIN" style="width: 50px; height: 50px; object-fit: contain;">
+            <img src="/assets/nfl-logo.png" alt="MIN" style="width: 50px; height: 50px; object-fit: contain;">
             <div style="font-size: 16px; font-weight: 700; color: var(--card-team-name, #e5e7eb); line-height: 1.1; text-align: center;">MIN</div>
             <div style="font-size: 11px; color: #9ca3af; font-weight: 600; text-align: center;">3-3</div>
           </div>
@@ -675,7 +675,7 @@ const ColorCustomizer = {
           <div style="font-size: 48px; font-weight: 700; color: var(--card-winning-score, #10b981); min-width: 60px; text-align: center; line-height: 1;">37</div>
           <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
             <div style="position: relative;">
-              <img src="/assets/NFL-logo.png" alt="LAC" style="width: 50px; height: 50px; object-fit: contain;">
+              <img src="/assets/nfl-logo.png" alt="LAC" style="width: 50px; height: 50px; object-fit: contain;">
               <span style="position: absolute; top: -5px; right: -5px; font-size: 20px; line-height: 1; animation: blink 1.5s infinite; filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.8));">🏈</span>
             </div>
             <div style="font-size: 16px; font-weight: 700; color: var(--card-winning-name, #10b981); line-height: 1.1; text-align: center;">LAC</div>
@@ -709,7 +709,7 @@ const ColorCustomizer = {
         <!-- Away Team Row -->
         <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 8px; background: var(--card-bg, rgba(26, 31, 46, 0.6)); border-radius: 8px;">
           <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
-            <img src="/assets/NFL-logo.png" alt="MIN" style="width: 30px; height: 30px; object-fit: contain;">
+            <img src="/assets/nfl-logo.png" alt="MIN" style="width: 30px; height: 30px; object-fit: contain;">
             <span style="color: var(--card-team-name, #e5e7eb); font-size: 13px; font-weight: 600;">MIN</span>
           </div>
           <div style="display: flex; gap: 20px;">
@@ -724,7 +724,7 @@ const ColorCustomizer = {
         <!-- Home Team Row (Winning) -->
         <div style="display: flex; align-items: center; padding: 8px; background: var(--card-bg, rgba(26, 31, 46, 0.6)); border-radius: 8px;">
           <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
-            <img src="/assets/NFL-logo.png" alt="LAC" style="width: 30px; height: 30px; object-fit: contain;">
+            <img src="/assets/nfl-logo.png" alt="LAC" style="width: 30px; height: 30px; object-fit: contain;">
             <span style="color: var(--card-winning-name, #10b981); font-size: 13px; font-weight: 600;">LAC</span>
           </div>
           <div style="display: flex; gap: 20px;">
@@ -749,7 +749,7 @@ const ColorCustomizer = {
           <div class="fullscreen-team-header">
             <div class="fullscreen-team-record">10-2</div>
             <div style="position: relative; display: inline-block;">
-              <img src="/assets/NFL-logo.png" alt="Patriots" class="fullscreen-team-logo">
+              <img src="/assets/nfl-logo.png" alt="Patriots" class="fullscreen-team-logo">
               <span style="position: absolute; top: -8px; right: -8px; font-size: 24px; line-height: 1; animation: blink 1.5s infinite; filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.8));">🏈</span>
             </div>
             <div class="fullscreen-team-name">Patriots</div>
@@ -767,7 +767,7 @@ const ColorCustomizer = {
         <div class="fullscreen-team">
           <div class="fullscreen-team-header">
             <div class="fullscreen-team-record">9-3</div>
-            <img src="/assets/NFL-logo.png" alt="Chiefs" class="fullscreen-team-logo">
+            <img src="/assets/nfl-logo.png" alt="Chiefs" class="fullscreen-team-logo">
             <div class="fullscreen-team-name">Chiefs</div>
           </div>
           <div class="fullscreen-timeouts">
@@ -796,14 +796,14 @@ const ColorCustomizer = {
       <div class="teams">
         <div class="team winning">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="/assets/NBA-Logo.png" alt="Lakers" class="team-logo">
+            <img src="/assets/nba-logo.png" alt="Lakers" class="team-logo">
             <span class="team-name">Lakers</span>
           </div>
           <span class="team-score">89</span>
         </div>
         <div class="team">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="/assets/NBA-Logo.png" alt="Celtics" class="team-logo">
+            <img src="/assets/nba-logo.png" alt="Celtics" class="team-logo">
             <span class="team-name">Celtics</span>
           </div>
           <span class="team-score">76</span>
@@ -826,7 +826,7 @@ const ColorCustomizer = {
         <div class="fullscreen-team winning">
           <div class="fullscreen-team-header">
             <div class="fullscreen-team-record">25-10</div>
-            <img src="/assets/NBA-Logo.png" alt="Lakers" class="fullscreen-team-logo">
+            <img src="/assets/nba-logo.png" alt="Lakers" class="fullscreen-team-logo">
             <div class="fullscreen-team-name">Lakers</div>
           </div>
           <div class="fullscreen-score">89</div>
@@ -837,7 +837,7 @@ const ColorCustomizer = {
         <div class="fullscreen-team">
           <div class="fullscreen-team-header">
             <div class="fullscreen-team-record">22-12</div>
-            <img src="/assets/NBA-Logo.png" alt="Celtics" class="fullscreen-team-logo">
+            <img src="/assets/nba-logo.png" alt="Celtics" class="fullscreen-team-logo">
             <div class="fullscreen-team-name">Celtics</div>
           </div>
           <div class="fullscreen-score">76</div>
@@ -865,14 +865,14 @@ const ColorCustomizer = {
       <div class="teams">
         <div class="team winning">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="/assets/NHL-Logo.png" alt="Bruins" class="team-logo">
+            <img src="/assets/nhl-logo.png" alt="Bruins" class="team-logo">
             <span class="team-name">Bruins</span>
           </div>
           <span class="team-score">3</span>
         </div>
         <div class="team">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="/assets/NHL-Logo.png" alt="Rangers" class="team-logo">
+            <img src="/assets/nhl-logo.png" alt="Rangers" class="team-logo">
             <span class="team-name">Rangers</span>
           </div>
           <span class="team-score">2</span>
@@ -895,7 +895,7 @@ const ColorCustomizer = {
         <div class="fullscreen-team winning">
           <div class="fullscreen-team-header">
             <div class="fullscreen-team-record">28-8-3</div>
-            <img src="/assets/NHL-Logo.png" alt="Bruins" class="fullscreen-team-logo">
+            <img src="/assets/nhl-logo.png" alt="Bruins" class="fullscreen-team-logo">
             <div class="fullscreen-team-name">Bruins</div>
           </div>
           <div class="fullscreen-score">3</div>
@@ -906,7 +906,7 @@ const ColorCustomizer = {
         <div class="fullscreen-team">
           <div class="fullscreen-team-header">
             <div class="fullscreen-team-record">24-11-4</div>
-            <img src="/assets/NHL-Logo.png" alt="Rangers" class="fullscreen-team-logo">
+            <img src="/assets/nhl-logo.png" alt="Rangers" class="fullscreen-team-logo">
             <div class="fullscreen-team-name">Rangers</div>
           </div>
           <div class="fullscreen-score">2</div>
@@ -934,7 +934,7 @@ const ColorCustomizer = {
           <!-- Away Team -->
           <div style="display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
-              <img src="/assets/MLB-Logo.png" alt="Yankees" style="width: 35px; height: 35px; object-fit: contain;">
+              <img src="/assets/mlb-logo.png" alt="Yankees" style="width: 35px; height: 35px; object-fit: contain;">
               <div style="color: var(--card-team-name, #e5e7eb); font-size: 13px; font-weight: 600;">Yankees</div>
             </div>
             <div style="color: var(--card-winning-score, #10b981); font-size: 32px; font-weight: 700; min-width: 40px; text-align: right;">5</div>
@@ -948,7 +948,7 @@ const ColorCustomizer = {
             <div style="color: var(--card-score, #e5e7eb); font-size: 32px; font-weight: 700; min-width: 40px; text-align: left;">3</div>
             <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end;">
               <div style="color: var(--card-team-name, #e5e7eb); font-size: 13px; font-weight: 600;">Red Sox</div>
-              <img src="/assets/MLB-Logo.png" alt="Red Sox" style="width: 35px; height: 35px; object-fit: contain;">
+              <img src="/assets/mlb-logo.png" alt="Red Sox" style="width: 35px; height: 35px; object-fit: contain;">
             </div>
           </div>
         </div>
@@ -983,7 +983,7 @@ const ColorCustomizer = {
   // MLB Fullscreen Card HTML
   getMLBFullscreenCard() {
     return `
-      <img src="/assets/MLB-logo.png" alt="MLB" style="position: absolute; top: 10px; left: 10px; width: 35px; height: 35px; opacity: 0.7;">
+      <img src="/assets/mlb-logo.png" alt="MLB" style="position: absolute; top: 10px; left: 10px; width: 35px; height: 35px; opacity: 0.7;">
       
       <!-- Game Title -->
       <div style="color: var(--fullscreen-game-note, #94a3b8); font-size: 14px; font-weight: 700; text-align: center; margin-bottom: 15px; text-transform: uppercase;">
@@ -1003,7 +1003,7 @@ const ColorCustomizer = {
         <!-- Away Team (Winning) -->
         <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 20px;">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="/assets/MLB-Logo.png" alt="Yankees" style="width: 50px; height: 50px; object-fit: contain;">
+            <img src="/assets/mlb-logo.png" alt="Yankees" style="width: 50px; height: 50px; object-fit: contain;">
             <div style="color: var(--fullscreen-winning-name, #10b981); font-size: 22px; font-weight: 700;">Yankees</div>
           </div>
           <div style="color: var(--fullscreen-winning-score, #10b981); font-size: 48px; font-weight: 700;">5</div>
@@ -1017,7 +1017,7 @@ const ColorCustomizer = {
           <div style="color: var(--fullscreen-score, #e5e7eb); font-size: 48px; font-weight: 700;">3</div>
           <div style="display: flex; align-items: center; gap: 12px;">
             <div style="color: var(--fullscreen-team-name, #e5e7eb); font-size: 22px; font-weight: 700;">Red Sox</div>
-            <img src="/assets/MLB-Logo.png" alt="Red Sox" style="width: 50px; height: 50px; object-fit: contain;">
+            <img src="/assets/mlb-logo.png" alt="Red Sox" style="width: 50px; height: 50px; object-fit: contain;">
           </div>
         </div>
       </div>
