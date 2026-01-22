@@ -1508,17 +1508,9 @@
                     const [sport, actualGameId] = parts;
                     console.log(`Fetching ${sport} game ${actualGameId} for ${slot}`);
 
-                    // Determine the correct API endpoint based on sport
-                    let apiUrl;
-                    if (sport === 'nfl' || sport === 'ncaa') {
-                        // NFL and NCAA need week parameter
-                        const weekResponse = await fetch(`/api/${sport}/current-week`);
-                        const weekData = await weekResponse.json();
-                        apiUrl = `/api/${sport}/scoreboard?week=${weekData.week}`;
-                    } else {
-                        // NBA, MLB, NHL use date-based scoreboard
-                        apiUrl = `/api/${sport}/scoreboard`;
-                    }
+                    // Use the summary endpoint to fetch the specific game by ID
+                    // This works regardless of week/date, so we can fetch games from any week
+                    const apiUrl = `/api/${sport}/summary/${actualGameId}`;
 
                     console.log(`Fetching from: ${apiUrl}`);
                     const response = await fetch(apiUrl);
@@ -1530,13 +1522,10 @@
                     const data = await response.json();
                     console.log(`API response for ${sport}:`, data);
 
-                    // Find the specific game - check both data.games and data.events
-                    const games = data.games || data.events || [];
-                    const game = games.find(g => g.id === actualGameId);
-
-                    if (game) {
-                        console.log(`Found game:`, game);
-                        cardElement.innerHTML = renderGameCard(game, sport);
+                    // The summary endpoint returns the game data directly
+                    if (data && data.id === actualGameId) {
+                        console.log(`Found game:`, data);
+                        cardElement.innerHTML = renderGameCard(data, sport);
                     } else {
                         console.warn(`Game ${actualGameId} not found in API response`);
                         cardElement.innerHTML = `<div style="color: #94a3b8; text-align: center;">Game not found</div>`;
