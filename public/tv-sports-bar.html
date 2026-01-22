@@ -170,13 +170,13 @@
         }
 
         .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-section.away {
-            padding-right: clamp(35px, 6vmin, 55px);
-            padding-left: 8px;
+            padding-right: clamp(0px, 0vmin, 55px);
+            padding-left: 50px;
         }
 
         .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-section.home {
-            padding-left: clamp(35px, 6vmin, 55px);
-            padding-right: 8px;
+            padding-left: clamp(0px, 0vmin, 55px);
+            padding-right: 46px;
         }
 
         .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-card-team-logo {
@@ -503,7 +503,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 12px;
+            padding: 3px;
             gap: 8px;
         }
 
@@ -684,8 +684,8 @@
             justify-content: center;
             z-index: 2;
             background: linear-gradient(180deg,
-                rgba(0, 0, 0, 0.7) 0%,
-                rgba(0, 0, 0, 0.85) 100%);
+                    rgba(0, 0, 0, 0.7) 0%,
+                    rgba(0, 0, 0, 0.85) 100%);
             transform: skewX(var(--sb-skew-angle, -4deg));
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
             overflow: hidden;
@@ -727,12 +727,12 @@
 
         /* Away team - uses team color gradient */
         .fs-sb-team-section.away {
-            padding-left: clamp(60px, 10vmin, 90px);
-            padding-right: clamp(40px, 6vmin, 60px);
+            padding-left: clamp(58px, 7vmin, 90px);
+            padding-right: clamp(36px, 3vmin, 60px);
             background: linear-gradient(135deg,
-                var(--sb-away-primary) 0%,
-                color-mix(in srgb, var(--sb-away-primary) 85%, var(--sb-away-secondary)) 60%,
-                color-mix(in srgb, var(--sb-away-primary) 70%, #000) 100%);
+                    var(--sb-away-primary) 0%,
+                    color-mix(in srgb, var(--sb-away-primary) 85%, var(--sb-away-secondary)) 60%,
+                    color-mix(in srgb, var(--sb-away-primary) 70%, #000) 100%);
         }
 
         /* Away score box - far left */
@@ -745,12 +745,12 @@
 
         /* Home team - uses team color gradient */
         .fs-sb-team-section.home {
-            padding-left: clamp(40px, 6vmin, 60px);
+            padding-left: clamp(23px, 2vmin, 60px);
             padding-right: clamp(60px, 10vmin, 90px);
             background: linear-gradient(135deg,
-                color-mix(in srgb, var(--sb-home-primary) 70%, #000) 0%,
-                color-mix(in srgb, var(--sb-home-primary) 85%, var(--sb-home-secondary)) 40%,
-                var(--sb-home-primary) 100%);
+                    color-mix(in srgb, var(--sb-home-primary) 70%, #000) 0%,
+                    color-mix(in srgb, var(--sb-home-primary) 85%, var(--sb-home-secondary)) 40%,
+                    var(--sb-home-primary) 100%);
         }
 
         /* Home score box - far right */
@@ -762,10 +762,40 @@
         }
 
         .fs-sb-team-info {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2px;
+            z-index: 2;
+        }
+
+        /* Team logo inside team-info - positioned above the scoreboard */
+        .fs-sb-team-logo {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: clamp(6px, 1vmin, 12px);
+            width: clamp(50px, 8vmin, 90px);
+            height: clamp(50px, 8vmin, 90px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .fs-sb-team-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+            transition: transform 0.2s ease;
+        }
+
+        /* Winner highlight on logo */
+        .fs-sb-team-section.winner .fs-sb-team-logo-img {
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
         }
 
         .fs-sb-team-name {
@@ -865,8 +895,8 @@
             left: 50%;
             transform: translateX(-50%) translateY(50%);
             background: linear-gradient(135deg,
-                var(--sb-possession-primary) 0%,
-                color-mix(in srgb, var(--sb-possession-primary) 70%, #000) 100%);
+                    var(--sb-possession-primary) 0%,
+                    color-mix(in srgb, var(--sb-possession-primary) 70%, #000) 100%);
             padding: 6px 12px;
             border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1282,7 +1312,7 @@
 
         .fullscreen-grid.grid-7 .fs-sb-situation,
         .fullscreen-grid.grid-8 .fs-sb-situation {
-            bottom: -16px;
+            bottom: -9px;
             min-width: 100px;
             padding: 2px 8px;
         }
@@ -1677,6 +1707,2349 @@
         .fullscreen-grid.grid-7 .nfl-stats-player,
         .fullscreen-grid.grid-8 .nfl-stats-player {
             padding: clamp(2px, 0.5vmin, 4px) 0;
+        }
+
+        /* ============================================
+           TV SPORTS BAR - PER-GRID ELEMENT CUSTOMIZATION
+           Edit these variables to adjust element sizes and positions
+           for each grid layout (1-8 games)
+           ============================================ */
+
+        /* ============================================
+           GRID 1 - Single Game (Fullscreen)
+           ============================================ */
+        .fullscreen-grid.grid-1 {
+            /* Sport Logo (top-right corner) */
+            --g1-sport-logo-width: 80px;
+            --g1-sport-logo-height: 80px;
+            --g1-sport-logo-top: 20px;
+            --g1-sport-logo-right: 20px;
+
+            /* Team Logos */
+            --g1-team-logo-size: 110px;
+            --g1-team-logo-margin: 0;
+
+            /* Score Box */
+            --g1-score-box-width: 90px;
+            --g1-score-box-height: 85%;
+
+            /* Score Text */
+            --g1-score-font-size: 4rem;
+
+            /* Team Name */
+            --g1-team-name-font-size: 1.5rem;
+            --g1-team-name-margin: 0;
+
+            /* Team Record */
+            --g1-team-record-font-size: 1rem;
+            --g1-team-record-margin: 0;
+
+            /* Timeouts */
+            --g1-timeout-size: 12px;
+            --g1-timeout-gap: 4px;
+
+            /* Center Time Box */
+            --g1-time-box-min-width: 90px;
+            --g1-time-box-padding: 6px 16px;
+            --g1-time-label-font-size: 0.8rem;
+            --g1-time-font-size: 1.2rem;
+
+            /* Situation Box */
+            --g1-situation-padding: 8px 16px;
+            --g1-situation-font-size: 1rem;
+            --g1-situation-min-width: 180px;
+            --g1-situation-gap: 10px;
+
+            /* Field Visualizer */
+            --g1-field-margin-top: 50px;
+            --g1-field-max-height: 280px;
+
+            /* Scoreboard Container */
+            --g1-scoreboard-width: 90%;
+            --g1-scoreboard-height: 90px;
+
+            /* Possession Indicator */
+            --g1-possession-font-size: 28px;
+            --g1-possession-offset: -12px;
+
+            /* Logo Spacers */
+            --g1-logo-spacer-width: 90px;
+            --g1-logo-center-spacer-width: 120px;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) */
+            --g1-team-logo-width: clamp(50px, 8vmin, 90px);
+            --g1-team-logo-height: clamp(50px, 8vmin, 90px);
+            --g1-team-logo-margin-bottom: clamp(6px, 1vmin, 12px);
+
+            /* Team Info Container Position (fs-sb-team-info) */
+            --g1-team-info-gap: 2px;
+            --g1-team-info-padding-top: 0;
+            --g1-team-info-padding-bottom: 0;
+            --g1-team-info-margin-left: 0;
+            /* For away team */
+            --g1-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) */
+            --g1-timeout-bar-width: clamp(6px, 1vmin, 10px);
+            --g1-timeout-bar-height: clamp(6px, 1vmin, 10px);
+            --g1-timeout-gap-spacing: 3px;
+            --g1-timeout-margin-left: 15px;
+            /* For away team */
+            --g1-timeout-margin-right: 15px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) */
+            --g1-situation-padding-bottom: 6px;
+            --g1-situation-margin-bottom: -11px;
+            --g1-situation-bottom-offset: 0;
+            /* Adjusts translateY offset */
+        }
+
+        /* Grid 1 Element Rules */
+        .fullscreen-grid.grid-1 .sport-logo-indicator {
+            width: var(--g1-sport-logo-width);
+            height: var(--g1-sport-logo-height);
+            top: var(--g1-sport-logo-top);
+            right: var(--g1-sport-logo-right);
+        }
+
+        .fullscreen-grid.grid-1 .fs-card-team-logo {
+            width: var(--g1-team-logo-size);
+            height: var(--g1-team-logo-size);
+            margin: var(--g1-team-logo-margin);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-score-box {
+            width: var(--g1-score-box-width);
+            height: var(--g1-score-box-height);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-score {
+            font-size: var(--g1-score-font-size);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-team-name {
+            font-size: var(--g1-team-name-font-size);
+            margin: var(--g1-team-name-margin);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-team-record {
+            font-size: var(--g1-team-record-font-size);
+            margin: var(--g1-team-record-margin);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-timeout-bar {
+            width: var(--g1-timeout-size);
+            height: var(--g1-timeout-size);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-timeouts {
+            gap: var(--g1-timeout-gap);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-time-box {
+            min-width: var(--g1-time-box-min-width);
+            padding: var(--g1-time-box-padding);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-time-label {
+            font-size: var(--g1-time-label-font-size);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-time {
+            font-size: var(--g1-time-font-size);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-situation {
+            padding: var(--g1-situation-padding);
+            min-width: var(--g1-situation-min-width);
+            gap: var(--g1-situation-gap);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-down-distance,
+        .fullscreen-grid.grid-1 .fs-sb-ball-position {
+            font-size: var(--g1-situation-font-size);
+        }
+
+        .fullscreen-grid.grid-1 .field-visualizer {
+            margin-top: var(--g1-field-margin-top);
+            max-height: var(--g1-field-max-height);
+        }
+
+        .fullscreen-grid.grid-1 .fs-scoreboard {
+            width: var(--g1-scoreboard-width);
+            height: var(--g1-scoreboard-height);
+        }
+
+        .fullscreen-grid.grid-1 .fs-scoreboard-top {
+            width: var(--g1-scoreboard-width);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-logo-spacer {
+            width: var(--g1-logo-spacer-width);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-logo-center-spacer {
+            width: var(--g1-logo-center-spacer-width);
+        }
+
+        /* Grid 1 - Individual Element Control Rules */
+        .fullscreen-grid.grid-1 .fs-sb-team-logo {
+            width: var(--g1-team-logo-width);
+            height: var(--g1-team-logo-height);
+            margin-bottom: var(--g1-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-team-info {
+            gap: var(--g1-team-info-gap);
+            padding-top: var(--g1-team-info-padding-top);
+            padding-bottom: var(--g1-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g1-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g1-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-timeout-bar {
+            width: var(--g1-timeout-bar-width);
+            height: var(--g1-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-timeouts {
+            gap: var(--g1-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g1-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g1-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-1 .fs-sb-situation {
+            padding-bottom: var(--g1-situation-padding-bottom);
+            margin-bottom: var(--g1-situation-margin-bottom);
+        }
+
+        /* ============================================
+           GRID 2 - Two Games (Side by Side)
+           ============================================ */
+        .fullscreen-grid.grid-2 {
+            /* Sport Logo */
+            --g2-sport-logo-width: 60px;
+            --g2-sport-logo-height: 60px;
+            --g2-sport-logo-top: 15px;
+            --g2-sport-logo-right: 15px;
+
+            /* Team Logos */
+            --g2-team-logo-size: 85px;
+            --g2-team-logo-margin: 0;
+
+            /* Score Box */
+            --g2-score-box-width: 75px;
+            --g2-score-box-height: 82%;
+
+            /* Score Text */
+            --g2-score-font-size: 3rem;
+
+            /* Team Name */
+            --g2-team-name-font-size: 1.2rem;
+            --g2-team-name-margin: 0;
+
+            /* Team Record */
+            --g2-team-record-font-size: 0.85rem;
+            --g2-team-record-margin: 0;
+
+            /* Timeouts */
+            --g2-timeout-size: 10px;
+            --g2-timeout-gap: 3px;
+
+            /* Center Time Box */
+            --g2-time-box-min-width: 75px;
+            --g2-time-box-padding: 4px 12px;
+            --g2-time-label-font-size: 0.65rem;
+            --g2-time-font-size: 1rem;
+
+            /* Situation Box */
+            --g2-situation-padding: 6px 14px;
+            --g2-situation-font-size: 0.9rem;
+            --g2-situation-min-width: 160px;
+            --g2-situation-gap: 8px;
+
+            /* Field Visualizer */
+            --g2-field-margin-top: 40px;
+            --g2-field-max-height: 220px;
+
+            /* Scoreboard Container */
+            --g2-scoreboard-width: 90%;
+            --g2-scoreboard-height: 75px;
+
+            /* Possession Indicator */
+            --g2-possession-font-size: 24px;
+            --g2-possession-offset: -10px;
+
+            /* Logo Spacers */
+            --g2-logo-spacer-width: 75px;
+            --g2-logo-center-spacer-width: 100px;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) */
+            --g2-team-logo-width: clamp(50px, 8vmin, 90px);
+            --g2-team-logo-height: clamp(50px, 8vmin, 90px);
+            --g2-team-logo-margin-bottom: clamp(6px, 1vmin, 12px);
+
+            /* Team Info Container Position (fs-sb-team-info) */
+            --g2-team-info-gap: 2px;
+            --g2-team-info-padding-top: 0;
+            --g2-team-info-padding-bottom: 0;
+            --g2-team-info-margin-left: 0;
+            /* For away team */
+            --g2-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) */
+            --g2-timeout-bar-width: clamp(6px, 1vmin, 10px);
+            --g2-timeout-bar-height: clamp(6px, 1vmin, 10px);
+            --g2-timeout-gap-spacing: 3px;
+            --g2-timeout-margin-left: 15px;
+            /* For away team */
+            --g2-timeout-margin-right: 15px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) */
+            --g2-situation-padding-bottom: 6px;
+            --g2-situation-margin-bottom: -11px;
+            --g2-situation-bottom-offset: 0;
+        }
+
+        /* Grid 2 Element Rules */
+        .fullscreen-grid.grid-2 .sport-logo-indicator {
+            width: var(--g2-sport-logo-width);
+            height: var(--g2-sport-logo-height);
+            top: var(--g2-sport-logo-top);
+            right: var(--g2-sport-logo-right);
+        }
+
+        .fullscreen-grid.grid-2 .fs-card-team-logo {
+            width: var(--g2-team-logo-size);
+            height: var(--g2-team-logo-size);
+            margin: var(--g2-team-logo-margin);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-score-box {
+            width: var(--g2-score-box-width);
+            height: var(--g2-score-box-height);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-score {
+            font-size: var(--g2-score-font-size);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-team-name {
+            font-size: var(--g2-team-name-font-size);
+            margin: var(--g2-team-name-margin);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-team-record {
+            font-size: var(--g2-team-record-font-size);
+            margin: var(--g2-team-record-margin);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-timeout-bar {
+            width: var(--g2-timeout-size);
+            height: var(--g2-timeout-size);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-timeouts {
+            gap: var(--g2-timeout-gap);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-time-box {
+            min-width: var(--g2-time-box-min-width);
+            padding: var(--g2-time-box-padding);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-time-label {
+            font-size: var(--g2-time-label-font-size);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-time {
+            font-size: var(--g2-time-font-size);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-situation {
+            padding: var(--g2-situation-padding);
+            min-width: var(--g2-situation-min-width);
+            gap: var(--g2-situation-gap);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-down-distance,
+        .fullscreen-grid.grid-2 .fs-sb-ball-position {
+            font-size: var(--g2-situation-font-size);
+        }
+
+        .fullscreen-grid.grid-2 .field-visualizer {
+            margin-top: var(--g2-field-margin-top);
+            max-height: var(--g2-field-max-height);
+        }
+
+        .fullscreen-grid.grid-2 .fs-scoreboard {
+            width: var(--g2-scoreboard-width);
+            height: var(--g2-scoreboard-height);
+        }
+
+        .fullscreen-grid.grid-2 .fs-scoreboard-top {
+            width: var(--g2-scoreboard-width);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-logo-spacer {
+            width: var(--g2-logo-spacer-width);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-logo-center-spacer {
+            width: var(--g2-logo-center-spacer-width);
+        }
+
+        /* Grid 2 - Individual Element Control Rules */
+        .fullscreen-grid.grid-2 .fs-sb-team-logo {
+            width: var(--g2-team-logo-width);
+            height: var(--g2-team-logo-height);
+            margin-bottom: var(--g2-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-team-info {
+            gap: var(--g2-team-info-gap);
+            padding-top: var(--g2-team-info-padding-top);
+            padding-bottom: var(--g2-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g2-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g2-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-timeout-bar {
+            width: var(--g2-timeout-bar-width);
+            height: var(--g2-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-timeouts {
+            gap: var(--g2-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g2-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g2-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-situation {
+            padding-bottom: var(--g2-situation-padding-bottom);
+            margin-bottom: var(--g2-situation-margin-bottom);
+        }
+
+        /* ============================================
+           GRID 3 - Three Games (2 top, 1 bottom centered)
+           ============================================ */
+        .fullscreen-grid.grid-3 {
+            /* Sport Logo */
+            --g3-sport-logo-width: 50px;
+            --g3-sport-logo-height: 50px;
+            --g3-sport-logo-top: 12px;
+            --g3-sport-logo-right: 12px;
+
+            /* Team Logos */
+            --g3-team-logo-size: 70px;
+            --g3-team-logo-margin: 0;
+
+            /* Score Box */
+            --g3-score-box-width: 65px;
+            --g3-score-box-height: 80%;
+
+            /* Score Text */
+            --g3-score-font-size: 2.2rem;
+
+            /* Team Name */
+            --g3-team-name-font-size: 1rem;
+            --g3-team-name-margin: 0;
+
+            /* Team Record */
+            --g3-team-record-font-size: 0.75rem;
+            --g3-team-record-margin: 0;
+
+            /* Timeouts */
+            --g3-timeout-size: 8px;
+            --g3-timeout-gap: 2px;
+
+            /* Center Time Box */
+            --g3-time-box-min-width: 65px;
+            --g3-time-box-padding: 3px 10px;
+            --g3-time-label-font-size: 0.55rem;
+            --g3-time-font-size: 0.85rem;
+
+            /* Situation Box */
+            --g3-situation-padding: 5px 12px;
+            --g3-situation-font-size: 0.8rem;
+            --g3-situation-min-width: 140px;
+            --g3-situation-gap: 6px;
+
+            /* Field Visualizer */
+            --g3-field-margin-top: 30px;
+            --g3-field-max-height: 160px;
+
+            /* Scoreboard Container */
+            --g3-scoreboard-width: 92%;
+            --g3-scoreboard-height: 65px;
+
+            /* Possession Indicator */
+            --g3-possession-font-size: 18px;
+            --g3-possession-offset: -8px;
+
+            /* Logo Spacers */
+            --g3-logo-spacer-width: 65px;
+            --g3-logo-center-spacer-width: 85px;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) */
+            --g3-team-logo-width: clamp(50px, 8vmin, 90px);
+            --g3-team-logo-height: clamp(50px, 8vmin, 90px);
+            --g3-team-logo-margin-bottom: clamp(6px, 1vmin, 12px);
+
+            /* Team Info Container Position (fs-sb-team-info) */
+            --g3-team-info-gap: 2px;
+            --g3-team-info-padding-top: 0;
+            --g3-team-info-padding-bottom: 0;
+            --g3-team-info-margin-left: 0;
+            /* For away team */
+            --g3-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) */
+            --g3-timeout-bar-width: clamp(6px, 1vmin, 10px);
+            --g3-timeout-bar-height: clamp(6px, 1vmin, 10px);
+            --g3-timeout-gap-spacing: 3px;
+            --g3-timeout-margin-left: 15px;
+            /* For away team */
+            --g3-timeout-margin-right: 15px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) */
+            --g3-situation-padding-bottom: 6px;
+            --g3-situation-margin-bottom: -11px;
+            --g3-situation-bottom-offset: 0;
+        }
+
+        /* Grid 3 Element Rules */
+        .fullscreen-grid.grid-3 .sport-logo-indicator {
+            width: var(--g3-sport-logo-width);
+            height: var(--g3-sport-logo-height);
+            top: var(--g3-sport-logo-top);
+            right: var(--g3-sport-logo-right);
+        }
+
+        .fullscreen-grid.grid-3 .fs-card-team-logo {
+            width: var(--g3-team-logo-size);
+            height: var(--g3-team-logo-size);
+            margin: var(--g3-team-logo-margin);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-score-box {
+            width: var(--g3-score-box-width);
+            height: var(--g3-score-box-height);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-score {
+            font-size: var(--g3-score-font-size);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-team-name {
+            font-size: var(--g3-team-name-font-size);
+            margin: var(--g3-team-name-margin);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-team-record {
+            font-size: var(--g3-team-record-font-size);
+            margin: var(--g3-team-record-margin);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-timeout-bar {
+            width: var(--g3-timeout-size);
+            height: var(--g3-timeout-size);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-timeouts {
+            gap: var(--g3-timeout-gap);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-time-box {
+            min-width: var(--g3-time-box-min-width);
+            padding: var(--g3-time-box-padding);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-time-label {
+            font-size: var(--g3-time-label-font-size);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-time {
+            font-size: var(--g3-time-font-size);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-situation {
+            padding: var(--g3-situation-padding);
+            min-width: var(--g3-situation-min-width);
+            gap: var(--g3-situation-gap);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-down-distance,
+        .fullscreen-grid.grid-3 .fs-sb-ball-position {
+            font-size: var(--g3-situation-font-size);
+        }
+
+        .fullscreen-grid.grid-3 .field-visualizer {
+            margin-top: var(--g3-field-margin-top);
+            max-height: var(--g3-field-max-height);
+        }
+
+        .fullscreen-grid.grid-3 .fs-scoreboard {
+            width: var(--g3-scoreboard-width);
+            height: var(--g3-scoreboard-height);
+        }
+
+        .fullscreen-grid.grid-3 .fs-scoreboard-top {
+            width: var(--g3-scoreboard-width);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-logo-spacer {
+            width: var(--g3-logo-spacer-width);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-logo-center-spacer {
+            width: var(--g3-logo-center-spacer-width);
+        }
+
+        /* Grid 3 - Individual Element Control Rules */
+        .fullscreen-grid.grid-3 .fs-sb-team-logo {
+            width: var(--g3-team-logo-width);
+            height: var(--g3-team-logo-height);
+            margin-bottom: var(--g3-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-team-info {
+            gap: var(--g3-team-info-gap);
+            padding-top: var(--g3-team-info-padding-top);
+            padding-bottom: var(--g3-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g3-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g3-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-timeout-bar {
+            width: var(--g3-timeout-bar-width);
+            height: var(--g3-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-timeouts {
+            gap: var(--g3-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g3-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g3-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-situation {
+            padding-bottom: var(--g3-situation-padding-bottom);
+            margin-bottom: var(--g3-situation-margin-bottom);
+        }
+
+        /* ============================================
+           GRID 4 - Four Games (2x2)
+           ============================================ */
+        .fullscreen-grid.grid-4 {
+            /* Sport Logo */
+            --g4-sport-logo-width: 45px;
+            --g4-sport-logo-height: 45px;
+            --g4-sport-logo-top: 10px;
+            --g4-sport-logo-right: 10px;
+
+            /* Team Logos */
+            --g4-team-logo-size: 65px;
+            --g4-team-logo-margin: 0;
+
+            /* Score Box */
+            --g4-score-box-width: 60px;
+            --g4-score-box-height: 80%;
+
+            /* Score Text */
+            --g4-score-font-size: 2rem;
+
+            /* Team Name */
+            --g4-team-name-font-size: 0.95rem;
+            --g4-team-name-margin: 0;
+
+            /* Team Record */
+            --g4-team-record-font-size: 0.7rem;
+            --g4-team-record-margin: 0;
+
+            /* Timeouts */
+            --g4-timeout-size: 7px;
+            --g4-timeout-gap: 2px;
+
+            /* Center Time Box */
+            --g4-time-box-min-width: 60px;
+            --g4-time-box-padding: 3px 8px;
+            --g4-time-label-font-size: 0.5rem;
+            --g4-time-font-size: 0.8rem;
+
+            /* Situation Box */
+            --g4-situation-padding: 4px 10px;
+            --g4-situation-font-size: 0.75rem;
+            --g4-situation-min-width: 130px;
+            --g4-situation-gap: 5px;
+
+            /* Field Visualizer */
+            --g4-field-margin-top: 26px;
+            --g4-field-max-height: 140px;
+
+            /* Scoreboard Container */
+            --g4-scoreboard-width: 94%;
+            --g4-scoreboard-height: 60px;
+
+            /* Possession Indicator */
+            --g4-possession-font-size: 16px;
+            --g4-possession-offset: -6px;
+
+            /* Logo Spacers */
+            --g4-logo-spacer-width: 60px;
+            --g4-logo-center-spacer-width: 80px;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) */
+            --g4-team-logo-width: clamp(50px, 8vmin, 90px);
+            --g4-team-logo-height: clamp(50px, 8vmin, 90px);
+            --g4-team-logo-margin-bottom: clamp(6px, 1vmin, 12px);
+
+            /* Team Info Container Position (fs-sb-team-info) */
+            --g4-team-info-gap: 2px;
+            --g4-team-info-padding-top: 0;
+            --g4-team-info-padding-bottom: 0;
+            --g4-team-info-margin-left: 0;
+            /* For away team */
+            --g4-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) */
+            --g4-timeout-bar-width: clamp(6px, 1vmin, 10px);
+            --g4-timeout-bar-height: clamp(6px, 1vmin, 10px);
+            --g4-timeout-gap-spacing: 3px;
+            --g4-timeout-margin-left: 15px;
+            /* For away team */
+            --g4-timeout-margin-right: 15px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) */
+            --g4-situation-padding-bottom: 6px;
+            --g4-situation-margin-bottom: -11px;
+            --g4-situation-bottom-offset: 0;
+        }
+
+        /* Grid 4 Element Rules */
+        .fullscreen-grid.grid-4 .sport-logo-indicator {
+            width: var(--g4-sport-logo-width);
+            height: var(--g4-sport-logo-height);
+            top: var(--g4-sport-logo-top);
+            right: var(--g4-sport-logo-right);
+        }
+
+        .fullscreen-grid.grid-4 .fs-card-team-logo {
+            width: var(--g4-team-logo-size);
+            height: var(--g4-team-logo-size);
+            margin: var(--g4-team-logo-margin);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-score-box {
+            width: var(--g4-score-box-width);
+            height: var(--g4-score-box-height);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-score {
+            font-size: var(--g4-score-font-size);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-team-name {
+            font-size: var(--g4-team-name-font-size);
+            margin: var(--g4-team-name-margin);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-team-record {
+            font-size: var(--g4-team-record-font-size);
+            margin: var(--g4-team-record-margin);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-timeout-bar {
+            width: var(--g4-timeout-size);
+            height: var(--g4-timeout-size);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-timeouts {
+            gap: var(--g4-timeout-gap);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-time-box {
+            min-width: var(--g4-time-box-min-width);
+            padding: var(--g4-time-box-padding);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-time-label {
+            font-size: var(--g4-time-label-font-size);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-time {
+            font-size: var(--g4-time-font-size);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-situation {
+            padding: var(--g4-situation-padding);
+            min-width: var(--g4-situation-min-width);
+            gap: var(--g4-situation-gap);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-down-distance,
+        .fullscreen-grid.grid-4 .fs-sb-ball-position {
+            font-size: var(--g4-situation-font-size);
+        }
+
+        .fullscreen-grid.grid-4 .field-visualizer {
+            margin-top: var(--g4-field-margin-top);
+            max-height: var(--g4-field-max-height);
+        }
+
+        .fullscreen-grid.grid-4 .fs-scoreboard {
+            width: var(--g4-scoreboard-width);
+            height: var(--g4-scoreboard-height);
+        }
+
+        .fullscreen-grid.grid-4 .fs-scoreboard-top {
+            width: var(--g4-scoreboard-width);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-logo-spacer {
+            width: var(--g4-logo-spacer-width);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-logo-center-spacer {
+            width: var(--g4-logo-center-spacer-width);
+        }
+
+        /* Grid 4 - Individual Element Control Rules */
+        .fullscreen-grid.grid-4 .fs-sb-team-logo {
+            width: var(--g4-team-logo-width);
+            height: var(--g4-team-logo-height);
+            margin-bottom: var(--g4-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-team-info {
+            gap: var(--g4-team-info-gap);
+            padding-top: var(--g4-team-info-padding-top);
+            padding-bottom: var(--g4-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g4-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g4-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-timeout-bar {
+            width: var(--g4-timeout-bar-width);
+            height: var(--g4-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-timeouts {
+            gap: var(--g4-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g4-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g4-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-situation {
+            padding-bottom: var(--g4-situation-padding-bottom);
+            margin-bottom: var(--g4-situation-margin-bottom);
+        }
+
+        /* ============================================
+           GRID 5 - Five Games (2 big top, 3 small bottom)
+           ============================================ */
+        .fullscreen-grid.grid-5 {
+            /* Sport Logo */
+            --g5-sport-logo-width: 45px;
+            --g5-sport-logo-height: 45px;
+            --g5-sport-logo-top: 10px;
+            --g5-sport-logo-right: 10px;
+
+            /* Team Logos */
+            --g5-team-logo-size: 60px;
+            --g5-team-logo-margin: 0;
+
+            /* Score Box */
+            --g5-score-box-width: 58px;
+            --g5-score-box-height: 80%;
+
+            /* Score Text */
+            --g5-score-font-size: 1.8rem;
+
+            /* Team Name */
+            --g5-team-name-font-size: 0.9rem;
+            --g5-team-name-margin: 0;
+
+            /* Team Record */
+            --g5-team-record-font-size: 0.65rem;
+            --g5-team-record-margin: 0;
+
+            /* Timeouts */
+            --g5-timeout-size: 6px;
+            --g5-timeout-gap: 2px;
+
+            /* Center Time Box */
+            --g5-time-box-min-width: 55px;
+            --g5-time-box-padding: 2px 8px;
+            --g5-time-label-font-size: 0.45rem;
+            --g5-time-font-size: 0.75rem;
+
+            /* Situation Box */
+            --g5-situation-padding: 4px 8px;
+            --g5-situation-font-size: 0.7rem;
+            --g5-situation-min-width: 120px;
+            --g5-situation-gap: 4px;
+
+            /* Field Visualizer */
+            --g5-field-margin-top: 24px;
+            --g5-field-max-height: 120px;
+
+            /* Scoreboard Container */
+            --g5-scoreboard-width: 95%;
+            --g5-scoreboard-height: 55px;
+
+            /* Possession Indicator */
+            --g5-possession-font-size: 14px;
+            --g5-possession-offset: -5px;
+
+            /* Logo Spacers */
+            --g5-logo-spacer-width: 58px;
+            --g5-logo-center-spacer-width: 70px;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES - BIG CARDS (1-2)
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) - BIG CARDS */
+            --g5-big-team-logo-width: clamp(50px, 8vmin, 90px);
+            --g5-big-team-logo-height: clamp(50px, 8vmin, 90px);
+            --g5-big-team-logo-margin-bottom: clamp(6px, 1vmin, 12px);
+
+            /* Team Info Container Position (fs-sb-team-info) - BIG CARDS */
+            --g5-big-team-info-gap: 2px;
+            --g5-big-team-info-padding-top: 0;
+            --g5-big-team-info-padding-bottom: 0;
+            --g5-big-team-info-margin-left: 0;
+            /* For away team */
+            --g5-big-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) - BIG CARDS */
+            --g5-big-timeout-bar-width: clamp(6px, 1vmin, 10px);
+            --g5-big-timeout-bar-height: clamp(6px, 1vmin, 10px);
+            --g5-big-timeout-gap-spacing: 3px;
+            --g5-big-timeout-margin-left: 20px;
+            /* For away team */
+            --g5-big-timeout-margin-right: 20px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) - BIG CARDS */
+            --g5-big-situation-padding-bottom: 6px;
+            --g5-big-situation-margin-bottom: -12px;
+            --g5-big-situation-bottom-offset: 0;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES - SMALL CARDS (3-5)
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) - SMALL CARDS */
+            --g5-small-team-logo-width: clamp(40px, 6vmin, 70px);
+            --g5-small-team-logo-height: clamp(40px, 6vmin, 70px);
+            --g5-small-team-logo-margin-bottom: clamp(4px, 0.8vmin, 8px);
+
+            /* Team Info Container Position (fs-sb-team-info) - SMALL CARDS */
+            --g5-small-team-info-gap: 1px;
+            --g5-small-team-info-padding-top: 0;
+            --g5-small-team-info-padding-bottom: 0;
+            --g5-small-team-info-margin-left: 0;
+            /* For away team */
+            --g5-small-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) - SMALL CARDS */
+            --g5-small-timeout-bar-width: clamp(4px, 0.7vmin, 7px);
+            --g5-small-timeout-bar-height: clamp(4px, 0.7vmin, 7px);
+            --g5-small-timeout-gap-spacing: 2px;
+            --g5-small-timeout-margin-left: 10px;
+            /* For away team */
+            --g5-small-timeout-margin-right: 10px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) - SMALL CARDS */
+            --g5-small-situation-padding-bottom: 4px;
+            --g5-small-situation-margin-bottom: -12px;
+            --g5-small-situation-bottom-offset: 0;
+        }
+
+        /* Grid 5 Element Rules */
+        .fullscreen-grid.grid-5 .sport-logo-indicator {
+            width: var(--g5-sport-logo-width);
+            height: var(--g5-sport-logo-height);
+            top: var(--g5-sport-logo-top);
+            right: var(--g5-sport-logo-right);
+        }
+
+        .fullscreen-grid.grid-5 .fs-card-team-logo {
+            width: var(--g5-team-logo-size);
+            height: var(--g5-team-logo-size);
+            margin: var(--g5-team-logo-margin);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-score-box {
+            width: var(--g5-score-box-width);
+            height: var(--g5-score-box-height);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-score {
+            font-size: var(--g5-score-font-size);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-team-name {
+            font-size: var(--g5-team-name-font-size);
+            margin: var(--g5-team-name-margin);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-team-record {
+            font-size: var(--g5-team-record-font-size);
+            margin: var(--g5-team-record-margin);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-timeout-bar {
+            width: var(--g5-timeout-size);
+            height: var(--g5-timeout-size);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-timeouts {
+            gap: var(--g5-timeout-gap);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-time-box {
+            min-width: var(--g5-time-box-min-width);
+            padding: var(--g5-time-box-padding);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-time-label {
+            font-size: var(--g5-time-label-font-size);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-time {
+            font-size: var(--g5-time-font-size);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-situation {
+            padding: var(--g5-situation-padding);
+            min-width: var(--g5-situation-min-width);
+            gap: var(--g5-situation-gap);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-down-distance,
+        .fullscreen-grid.grid-5 .fs-sb-ball-position {
+            font-size: var(--g5-situation-font-size);
+        }
+
+        .fullscreen-grid.grid-5 .field-visualizer {
+            margin-top: var(--g5-field-margin-top);
+            max-height: var(--g5-field-max-height);
+        }
+
+        .fullscreen-grid.grid-5 .fs-scoreboard {
+            width: var(--g5-scoreboard-width);
+            height: var(--g5-scoreboard-height);
+        }
+
+        .fullscreen-grid.grid-5 .fs-scoreboard-top {
+            width: var(--g5-scoreboard-width);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-logo-spacer {
+            width: var(--g5-logo-spacer-width);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-logo-center-spacer {
+            width: var(--g5-logo-center-spacer-width);
+        }
+
+        /* Grid 5 - Individual Element Control Rules - BIG CARDS (1-2) */
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-team-logo {
+            width: var(--g5-big-team-logo-width);
+            height: var(--g5-big-team-logo-height);
+            margin-bottom: var(--g5-big-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-team-info {
+            gap: var(--g5-big-team-info-gap);
+            padding-top: var(--g5-big-team-info-padding-top);
+            padding-bottom: var(--g5-big-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g5-big-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g5-big-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-timeout-bar {
+            width: var(--g5-big-timeout-bar-width);
+            height: var(--g5-big-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-timeouts {
+            gap: var(--g5-big-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g5-big-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g5-big-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-situation {
+            padding-bottom: var(--g5-big-situation-padding-bottom);
+            margin-bottom: var(--g5-big-situation-margin-bottom);
+        }
+
+        /* Grid 5 - Individual Element Control Rules - SMALL CARDS (3-5) */
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-logo {
+            width: var(--g5-small-team-logo-width);
+            height: var(--g5-small-team-logo-height);
+            margin-bottom: var(--g5-small-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-info {
+            gap: var(--g5-small-team-info-gap);
+            padding-top: var(--g5-small-team-info-padding-top);
+            padding-bottom: var(--g5-small-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g5-small-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g5-small-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeout-bar {
+            width: var(--g5-small-timeout-bar-width);
+            height: var(--g5-small-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts {
+            gap: var(--g5-small-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g5-small-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g5-small-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-situation {
+            padding-bottom: var(--g5-small-situation-padding-bottom);
+            margin-bottom: var(--g5-small-situation-margin-bottom);
+        }
+
+        /* ============================================
+           GRID 6 - Six Games (3x2)
+           ============================================ */
+        .fullscreen-grid.grid-6 {
+            /* Sport Logo */
+            --g6-sport-logo-width: 40px;
+            --g6-sport-logo-height: 40px;
+            --g6-sport-logo-top: 8px;
+            --g6-sport-logo-right: 8px;
+
+            /* Team Logos */
+            --g6-team-logo-size: 55px;
+            --g6-team-logo-margin: 0;
+
+            /* Score Box */
+            --g6-score-box-width: 52px;
+            --g6-score-box-height: 80%;
+
+            /* Score Text */
+            --g6-score-font-size: 1.6rem;
+
+            /* Team Name */
+            --g6-team-name-font-size: 0.85rem;
+            --g6-team-name-margin: 0;
+
+            /* Team Record */
+            --g6-team-record-font-size: 0.6rem;
+            --g6-team-record-margin: 0;
+
+            /* Timeouts */
+            --g6-timeout-size: 5px;
+            --g6-timeout-gap: 2px;
+
+            /* Center Time Box */
+            --g6-time-box-min-width: 50px;
+            --g6-time-box-padding: 2px 6px;
+            --g6-time-label-font-size: 0.4rem;
+            --g6-time-font-size: 0.7rem;
+
+            /* Situation Box */
+            --g6-situation-padding: 3px 7px;
+            --g6-situation-font-size: 0.65rem;
+            --g6-situation-min-width: 110px;
+            --g6-situation-gap: 4px;
+
+            /* Field Visualizer */
+            --g6-field-margin-top: 20px;
+            --g6-field-max-height: 100px;
+
+            /* Scoreboard Container */
+            --g6-scoreboard-width: 96%;
+            --g6-scoreboard-height: 50px;
+
+            /* Possession Indicator */
+            --g6-possession-font-size: 12px;
+            --g6-possession-offset: -5px;
+
+            /* Logo Spacers */
+            --g6-logo-spacer-width: 52px;
+            --g6-logo-center-spacer-width: 65px;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) */
+            --g6-team-logo-width: clamp(50px, 8vmin, 90px);
+            --g6-team-logo-height: clamp(50px, 8vmin, 90px);
+            --g6-team-logo-margin-bottom: clamp(6px, 1vmin, 12px);
+
+            /* Team Info Container Position (fs-sb-team-info) */
+            --g6-team-info-gap: 2px;
+            --g6-team-info-padding-top: 0;
+            --g6-team-info-padding-bottom: 0;
+            --g6-team-info-margin-left: 0;
+            /* For away team */
+            --g6-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) */
+            --g6-timeout-bar-width: clamp(6px, 1vmin, 10px);
+            --g6-timeout-bar-height: clamp(6px, 1vmin, 10px);
+            --g6-timeout-gap-spacing: 3px;
+            --g6-timeout-margin-left: 15px;
+            /* For away team */
+            --g6-timeout-margin-right: 15px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) */
+            --g6-situation-padding-bottom: 6px;
+            --g6-situation-margin-bottom: -11px;
+            --g6-situation-bottom-offset: 0;
+        }
+
+        /* Grid 6 Element Rules */
+        .fullscreen-grid.grid-6 .sport-logo-indicator {
+            width: var(--g6-sport-logo-width);
+            height: var(--g6-sport-logo-height);
+            top: var(--g6-sport-logo-top);
+            right: var(--g6-sport-logo-right);
+        }
+
+        .fullscreen-grid.grid-6 .fs-card-team-logo {
+            width: var(--g6-team-logo-size);
+            height: var(--g6-team-logo-size);
+            margin: var(--g6-team-logo-margin);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-score-box {
+            width: var(--g6-score-box-width);
+            height: var(--g6-score-box-height);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-score {
+            font-size: var(--g6-score-font-size);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-team-name {
+            font-size: var(--g6-team-name-font-size);
+            margin: var(--g6-team-name-margin);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-team-record {
+            font-size: var(--g6-team-record-font-size);
+            margin: var(--g6-team-record-margin);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-timeout-bar {
+            width: var(--g6-timeout-size);
+            height: var(--g6-timeout-size);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-timeouts {
+            gap: var(--g6-timeout-gap);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-time-box {
+            min-width: var(--g6-time-box-min-width);
+            padding: var(--g6-time-box-padding);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-time-label {
+            font-size: var(--g6-time-label-font-size);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-time {
+            font-size: var(--g6-time-font-size);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-situation {
+            padding: var(--g6-situation-padding);
+            min-width: var(--g6-situation-min-width);
+            gap: var(--g6-situation-gap);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-down-distance,
+        .fullscreen-grid.grid-6 .fs-sb-ball-position {
+            font-size: var(--g6-situation-font-size);
+        }
+
+        .fullscreen-grid.grid-6 .field-visualizer {
+            margin-top: var(--g6-field-margin-top);
+            max-height: var(--g6-field-max-height);
+        }
+
+        .fullscreen-grid.grid-6 .fs-scoreboard {
+            width: var(--g6-scoreboard-width);
+            height: var(--g6-scoreboard-height);
+        }
+
+        .fullscreen-grid.grid-6 .fs-scoreboard-top {
+            width: var(--g6-scoreboard-width);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-logo-spacer {
+            width: var(--g6-logo-spacer-width);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-logo-center-spacer {
+            width: var(--g6-logo-center-spacer-width);
+        }
+
+        /* Grid 6 - Individual Element Control Rules */
+        .fullscreen-grid.grid-6 .fs-sb-team-logo {
+            width: var(--g6-team-logo-width);
+            height: var(--g6-team-logo-height);
+            margin-bottom: var(--g6-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-team-info {
+            gap: var(--g6-team-info-gap);
+            padding-top: var(--g6-team-info-padding-top);
+            padding-bottom: var(--g6-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g6-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g6-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-timeout-bar {
+            width: var(--g6-timeout-bar-width);
+            height: var(--g6-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-timeouts {
+            gap: var(--g6-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g6-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g6-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-situation {
+            padding-bottom: var(--g6-situation-padding-bottom);
+            margin-bottom: var(--g6-situation-margin-bottom);
+        }
+
+        /* ============================================
+           GRID 7 - Seven Games (Mixed layout)
+           ============================================ */
+        .fullscreen-grid.grid-7 {
+            /* Sport Logo */
+            --g7-sport-logo-width: 35px;
+            --g7-sport-logo-height: 35px;
+            --g7-sport-logo-top: 6px;
+            --g7-sport-logo-right: 6px;
+
+            /* Team Logos */
+            --g7-team-logo-size: 48px;
+            --g7-team-logo-margin: 0;
+
+            /* Score Box */
+            --g7-score-box-width: 45px;
+            --g7-score-box-height: 78%;
+
+            /* Score Text */
+            --g7-score-font-size: 1.4rem;
+
+            /* Team Name */
+            --g7-team-name-font-size: 0.75rem;
+            --g7-team-name-margin: 0;
+
+            /* Team Record */
+            --g7-team-record-font-size: 0.55rem;
+            --g7-team-record-margin: 0;
+
+            /* Timeouts */
+            --g7-timeout-size: 4px;
+            --g7-timeout-gap: 1px;
+
+            /* Center Time Box */
+            --g7-time-box-min-width: 45px;
+            --g7-time-box-padding: 2px 5px;
+            --g7-time-label-font-size: 0.35rem;
+            --g7-time-font-size: 0.6rem;
+
+            /* Situation Box */
+            --g7-situation-padding: 3px 6px;
+            --g7-situation-font-size: 0.55rem;
+            --g7-situation-min-width: 95px;
+            --g7-situation-gap: 3px;
+
+            /* Field Visualizer */
+            --g7-field-margin-top: 16px;
+            --g7-field-max-height: 85px;
+
+            /* Scoreboard Container */
+            --g7-scoreboard-width: 97%;
+            --g7-scoreboard-height: 45px;
+
+            /* Possession Indicator */
+            --g7-possession-font-size: 10px;
+            --g7-possession-offset: -4px;
+
+            /* Logo Spacers */
+            --g7-logo-spacer-width: 45px;
+            --g7-logo-center-spacer-width: 55px;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES - BIG CARD (1)
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) - BIG CARD */
+            --g7-big-team-logo-width: clamp(50px, 8vmin, 90px);
+            --g7-big-team-logo-height: clamp(50px, 8vmin, 90px);
+            --g7-big-team-logo-margin-bottom: clamp(6px, 1vmin, 12px);
+
+            /* Team Info Container Position (fs-sb-team-info) - BIG CARD */
+            --g7-big-team-info-gap: 2px;
+            --g7-big-team-info-padding-top: 0;
+            --g7-big-team-info-padding-bottom: 0;
+            --g7-big-team-info-margin-left: 0;
+            /* For away team */
+            --g7-big-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) - BIG CARD */
+            --g7-big-timeout-bar-width: clamp(6px, 1vmin, 10px);
+            --g7-big-timeout-bar-height: clamp(6px, 1vmin, 10px);
+            --g7-big-timeout-gap-spacing: 3px;
+            --g7-big-timeout-margin-left: 10px;
+            /* For away team */
+            --g7-big-timeout-margin-right: 10px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) - BIG CARD */
+            --g7-big-situation-padding-bottom: 6px;
+            --g7-big-situation-margin-bottom: 0;
+            --g7-big-situation-bottom-offset: 0;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES - SMALL CARDS (2-7)
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) - SMALL CARDS */
+            --g7-small-team-logo-width: clamp(35px, 5vmin, 60px);
+            --g7-small-team-logo-height: clamp(35px, 5vmin, 60px);
+            --g7-small-team-logo-margin-bottom: clamp(3px, 0.6vmin, 6px);
+
+            /* Team Info Container Position (fs-sb-team-info) - SMALL CARDS */
+            --g7-small-team-info-gap: 1px;
+            --g7-small-team-info-padding-top: 0;
+            --g7-small-team-info-padding-bottom: 0;
+            --g7-small-team-info-margin-left: 0;
+            /* For away team */
+            --g7-small-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) - SMALL CARDS */
+            --g7-small-timeout-bar-width: clamp(3px, 0.5vmin, 5px);
+            --g7-small-timeout-bar-height: clamp(3px, 0.5vmin, 5px);
+            --g7-small-timeout-gap-spacing: 1px;
+            --g7-small-timeout-margin-left: 15px;
+            /* For away team */
+            --g7-small-timeout-margin-right: 15px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) - SMALL CARDS */
+            --g7-small-situation-padding-bottom: 3px;
+            --g7-small-situation-margin-bottom: 0;
+            --g7-small-situation-bottom-offset: 0;
+
+            /* Scoreboard & Field Vertical Position - SMALL CARDS */
+            --g7-small-scoreboard-offset-y: 30px;
+            /* Positive = down, Negative = up */
+            --g7-small-field-offset-y: 35px;
+            /* Positive = down, Negative = up */
+        }
+
+        /* Grid 7 Element Rules */
+        .fullscreen-grid.grid-7 .sport-logo-indicator {
+            width: var(--g7-sport-logo-width);
+            height: var(--g7-sport-logo-height);
+            top: var(--g7-sport-logo-top);
+            right: var(--g7-sport-logo-right);
+        }
+
+        .fullscreen-grid.grid-7 .fs-card-team-logo {
+            width: var(--g7-team-logo-size);
+            height: var(--g7-team-logo-size);
+            margin: var(--g7-team-logo-margin);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-score-box {
+            width: var(--g7-score-box-width);
+            height: var(--g7-score-box-height);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-score {
+            font-size: var(--g7-score-font-size);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-team-name {
+            font-size: var(--g7-team-name-font-size);
+            margin: var(--g7-team-name-margin);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-team-record {
+            font-size: var(--g7-team-record-font-size);
+            margin: var(--g7-team-record-margin);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-timeout-bar {
+            width: var(--g7-timeout-size);
+            height: var(--g7-timeout-size);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-timeouts {
+            gap: var(--g7-timeout-gap);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-time-box {
+            min-width: var(--g7-time-box-min-width);
+            padding: var(--g7-time-box-padding);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-time-label {
+            font-size: var(--g7-time-label-font-size);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-time {
+            font-size: var(--g7-time-font-size);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-situation {
+            padding: var(--g7-situation-padding);
+            min-width: var(--g7-situation-min-width);
+            gap: var(--g7-situation-gap);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-down-distance,
+        .fullscreen-grid.grid-7 .fs-sb-ball-position {
+            font-size: var(--g7-situation-font-size);
+        }
+
+        .fullscreen-grid.grid-7 .field-visualizer {
+            margin-top: var(--g7-field-margin-top);
+            max-height: var(--g7-field-max-height);
+        }
+
+        .fullscreen-grid.grid-7 .fs-scoreboard {
+            width: var(--g7-scoreboard-width);
+            height: var(--g7-scoreboard-height);
+        }
+
+        .fullscreen-grid.grid-7 .fs-scoreboard-top {
+            width: var(--g7-scoreboard-width);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-logo-spacer {
+            width: var(--g7-logo-spacer-width);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-logo-center-spacer {
+            width: var(--g7-logo-center-spacer-width);
+        }
+
+        /* Grid 7 - Individual Element Control Rules - BIG CARD (1) */
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-team-logo {
+            width: var(--g7-big-team-logo-width);
+            height: var(--g7-big-team-logo-height);
+            margin-bottom: var(--g7-big-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-team-info {
+            gap: var(--g7-big-team-info-gap);
+            padding-top: var(--g7-big-team-info-padding-top);
+            padding-bottom: var(--g7-big-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g7-big-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g7-big-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-timeout-bar {
+            width: var(--g7-big-timeout-bar-width);
+            height: var(--g7-big-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts {
+            gap: var(--g7-big-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g7-big-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g7-big-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-situation {
+            padding-bottom: var(--g7-big-situation-padding-bottom);
+            margin-bottom: var(--g7-big-situation-margin-bottom);
+        }
+
+        /* Grid 7 - Individual Element Control Rules - SMALL CARDS (2-7) */
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-logo {
+            width: var(--g7-small-team-logo-width);
+            height: var(--g7-small-team-logo-height);
+            margin-bottom: var(--g7-small-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-info {
+            gap: var(--g7-small-team-info-gap);
+            padding-top: var(--g7-small-team-info-padding-top);
+            padding-bottom: var(--g7-small-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g7-small-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g7-small-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeout-bar {
+            width: var(--g7-small-timeout-bar-width);
+            height: var(--g7-small-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts {
+            gap: var(--g7-small-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g7-small-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g7-small-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-situation {
+            padding-bottom: var(--g7-small-situation-padding-bottom);
+            margin-bottom: var(--g7-small-situation-margin-bottom);
+        }
+
+        /* Grid 7 Small Cards - Scoreboard & Field Vertical Position */
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
+            transform: translateY(var(--g7-small-scoreboard-offset-y));
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .field-visualizer {
+            transform: translateY(var(--g7-small-field-offset-y));
+        }
+
+        /* ============================================
+           GRID 8 - Eight Games (4x2 or mixed)
+           Card 1 is larger, Cards 2-8 are smaller
+           ============================================ */
+        .fullscreen-grid.grid-8 {
+            /* Sport Logo */
+            --g8-sport-logo-width: 32px;
+            --g8-sport-logo-height: 32px;
+            --g8-sport-logo-top: 5px;
+            --g8-sport-logo-right: 5px;
+
+            /* Team Logos */
+            --g8-team-logo-size: 42px;
+            --g8-team-logo-margin: 0;
+
+            /* Score Box */
+            --g8-score-box-width: 40px;
+            --g8-score-box-height: 76%;
+
+            /* Score Text */
+            --g8-score-font-size: 1.2rem;
+
+            /* Team Name */
+            --g8-team-name-font-size: 0.7rem;
+            --g8-team-name-margin: 0;
+
+            /* Team Record */
+            --g8-team-record-font-size: 0.5rem;
+            --g8-team-record-margin: 0;
+
+            /* Timeouts */
+            --g8-timeout-size: 4px;
+            --g8-timeout-gap: 1px;
+
+            /* Center Time Box */
+            --g8-time-box-min-width: 40px;
+            --g8-time-box-padding: 1px 4px;
+            --g8-time-label-font-size: 0.3rem;
+            --g8-time-font-size: 0.55rem;
+
+            /* Situation Box */
+            --g8-situation-padding: 2px 5px;
+            --g8-situation-font-size: 0.5rem;
+            --g8-situation-min-width: 85px;
+            --g8-situation-gap: 3px;
+
+            /* Field Visualizer */
+            --g8-field-margin-top: 14px;
+            --g8-field-max-height: 75px;
+
+            /* Scoreboard Container */
+            --g8-scoreboard-width: 98%;
+            --g8-scoreboard-height: 40px;
+
+            /* Possession Indicator */
+            --g8-possession-font-size: 9px;
+            --g8-possession-offset: -3px;
+
+            /* Logo Spacers */
+            --g8-logo-spacer-width: 40px;
+            --g8-logo-center-spacer-width: 50px;
+
+            /* Team Section Padding (for smaller cards) */
+            --g8-team-section-padding-outer: 32px;
+            --g8-team-section-padding-inner: 6px;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES - BIG CARD (1)
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) - BIG CARD */
+            --g8-big-team-logo-width: clamp(50px, 8vmin, 90px);
+            --g8-big-team-logo-height: clamp(50px, 8vmin, 90px);
+            --g8-big-team-logo-margin-bottom: clamp(6px, 1vmin, 12px);
+
+            /* Team Info Container Position (fs-sb-team-info) - BIG CARD */
+            --g8-big-team-info-gap: 2px;
+            --g8-big-team-info-padding-top: 0;
+            --g8-big-team-info-padding-bottom: 0;
+            --g8-big-team-info-margin-left: 0;
+            /* For away team */
+            --g8-big-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) - BIG CARD */
+            --g8-big-timeout-bar-width: clamp(6px, 1vmin, 10px);
+            --g8-big-timeout-bar-height: clamp(6px, 1vmin, 10px);
+            --g8-big-timeout-gap-spacing: 3px;
+            --g8-big-timeout-margin-left: 15px;
+            /* For away team */
+            --g8-big-timeout-margin-right: 15px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) - BIG CARD */
+            --g8-big-situation-padding-bottom: 6px;
+            --g8-big-situation-margin-bottom: 0;
+            --g8-big-situation-bottom-offset: 0;
+
+            /* ========================================
+               INDIVIDUAL ELEMENT CONTROL VARIABLES - SMALL CARDS (2-8)
+               ======================================== */
+
+            /* Team Logo Size & Spacing (fs-sb-team-logo) - SMALL CARDS */
+            --g8-small-team-logo-width: clamp(30px, 4vmin, 50px);
+            --g8-small-team-logo-height: clamp(30px, 4vmin, 50px);
+            --g8-small-team-logo-margin-bottom: clamp(2px, 0.5vmin, 5px);
+
+            /* Team Info Container Position (fs-sb-team-info) - SMALL CARDS */
+            --g8-small-team-info-gap: 0;
+            --g8-small-team-info-padding-top: 0;
+            --g8-small-team-info-padding-bottom: 0;
+            --g8-small-team-info-margin-left: 0;
+            /* For away team */
+            --g8-small-team-info-margin-right: 0;
+            /* For home team */
+
+            /* Timeout Bars Position & Size (fs-sb-timeouts) - SMALL CARDS */
+            --g8-small-timeout-bar-width: clamp(3px, 0.4vmin, 4px);
+            --g8-small-timeout-bar-height: clamp(3px, 0.4vmin, 4px);
+            --g8-small-timeout-gap-spacing: 1px;
+            --g8-small-timeout-margin-left: 15px;
+            /* For away team */
+            --g8-small-timeout-margin-right: 15px;
+            /* For home team */
+
+            /* Situation Box Bottom Spacing (fs-sb-situation) - SMALL CARDS */
+            --g8-small-situation-padding-bottom: 2px;
+            --g8-small-situation-margin-bottom: 0;
+            --g8-small-situation-bottom-offset: 0;
+
+            /* Scoreboard & Field Vertical Position - SMALL CARDS */
+            --g8-small-scoreboard-offset-y: 17px;
+            /* Positive = down, Negative = up */
+            --g8-small-field-offset-y: 24px;
+            /* Positive = down, Negative = up */
+        }
+
+        /* Grid 8 Element Rules */
+        .fullscreen-grid.grid-8 .sport-logo-indicator {
+            width: var(--g8-sport-logo-width);
+            height: var(--g8-sport-logo-height);
+            top: var(--g8-sport-logo-top);
+            right: var(--g8-sport-logo-right);
+        }
+
+        .fullscreen-grid.grid-8 .fs-card-team-logo {
+            width: var(--g8-team-logo-size);
+            height: var(--g8-team-logo-size);
+            margin: var(--g8-team-logo-margin);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-score-box {
+            width: var(--g8-score-box-width);
+            height: var(--g8-score-box-height);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-score {
+            font-size: var(--g8-score-font-size);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-team-name {
+            font-size: var(--g8-team-name-font-size);
+            margin: var(--g8-team-name-margin);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-team-record {
+            font-size: var(--g8-team-record-font-size);
+            margin: var(--g8-team-record-margin);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-timeout-bar {
+            width: var(--g8-timeout-size);
+            height: var(--g8-timeout-size);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-timeouts {
+            gap: var(--g8-timeout-gap);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-time-box {
+            min-width: var(--g8-time-box-min-width);
+            padding: var(--g8-time-box-padding);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-time-label {
+            font-size: var(--g8-time-label-font-size);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-time {
+            font-size: var(--g8-time-font-size);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-situation {
+            padding: var(--g8-situation-padding);
+            min-width: var(--g8-situation-min-width);
+            gap: var(--g8-situation-gap);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-down-distance,
+        .fullscreen-grid.grid-8 .fs-sb-ball-position {
+            font-size: var(--g8-situation-font-size);
+        }
+
+        .fullscreen-grid.grid-8 .field-visualizer {
+            margin-top: var(--g8-field-margin-top);
+            max-height: var(--g8-field-max-height);
+        }
+
+        .fullscreen-grid.grid-8 .fs-scoreboard {
+            width: var(--g8-scoreboard-width);
+            height: var(--g8-scoreboard-height);
+        }
+
+        .fullscreen-grid.grid-8 .fs-scoreboard-top {
+            width: var(--g8-scoreboard-width);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-logo-spacer {
+            width: var(--g8-logo-spacer-width);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-logo-center-spacer {
+            width: var(--g8-logo-center-spacer-width);
+        }
+
+        /* ============================================
+           GRID 8 - Smaller Cards (2-8) Overrides
+           These cards need reduced padding and tighter spacing
+           ============================================ */
+
+        /* Team section padding - reduced for smaller cards */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.away {
+            padding-left: var(--g8-team-section-padding-outer);
+            padding-right: var(--g8-team-section-padding-inner);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.home {
+            padding-left: var(--g8-team-section-padding-inner);
+            padding-right: var(--g8-team-section-padding-outer);
+        }
+
+        /* Smaller logos for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-card-team-logo {
+            width: 36px;
+            height: 36px;
+        }
+
+        /* Smaller scoreboard for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
+            height: 36px;
+        }
+
+        /* Smaller score box for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-score-box {
+            width: 34px;
+        }
+
+        /* Smaller score for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-score {
+            font-size: 1rem;
+        }
+
+        /* Smaller logo spacers for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-logo-spacer {
+            width: 34px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-logo-center-spacer {
+            width: 42px;
+        }
+
+        /* Tighter team info for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-info {
+            gap: 0;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-name {
+            font-size: 0.6rem;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-record {
+            font-size: 0.4rem;
+        }
+
+        /* Smaller time box for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-time-box {
+            min-width: 36px;
+            padding: 1px 3px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-time-label {
+            font-size: 0.25rem;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-time {
+            font-size: 0.45rem;
+        }
+
+        /* Smaller situation box for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-situation {
+            padding: 2px 4px;
+            min-width: 70px;
+            gap: 2px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-down-distance,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-ball-position {
+            font-size: 0.4rem;
+        }
+
+        /* Smaller timeouts for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeout-bar {
+            width: 3px;
+            height: 3px;
+        }
+
+        /* Smaller field for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .field-visualizer {
+            margin-top: 10px;
+            max-height: 60px;
+        }
+
+        /* Smaller sport logo for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .sport-logo-indicator {
+            width: 24px;
+            height: 24px;
+            top: 4px;
+            right: 4px;
+        }
+
+        /* Smaller possession indicator for cards 2-8 */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-possession-indicator {
+            font-size: 8px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-possession-indicator.away {
+            top: -3px;
+            right: -3px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-possession-indicator.home {
+            top: -3px;
+            left: -3px;
+        }
+
+        /* ============================================
+           GRID-8 CARDS 2-8: COMPACT TIME BOX IN SCOREBOARD
+           ============================================ */
+
+        /* Make time box more compact - keep it in scoreboard center */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-center {
+            min-width: 50px;
+            max-width: 70px;
+            padding: 2px 4px;
+            gap: 0;
+        }
+
+        /* Compact time display - show quarter and time on same line */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-center .fs-sb-time-label {
+            font-size: 0.65rem;
+            margin-bottom: 0;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-center .fs-sb-time {
+            font-size: 0.7rem;
+            line-height: 1;
+        }
+
+        /* Reduce center spacer width to give more room to team sections */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-logo-center-spacer {
+            width: 50px;
+            min-width: 50px;
+            flex-shrink: 1;
+        }
+
+        /* Vertically align home team section - align logo with team name */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.home {
+            /*align-items: flex-end;*/
+        }
+
+        /* Align home logo box to match team name vertical positioning */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.home .fs-sb-logo-box {
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        /* Away team section alignment */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.away .fs-sb-logo-box {
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        /* Adjust scoreboard for better space distribution */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
+            justify-content: space-between;
+            padding: 0 4px;
+        }
+
+        /* Scoreboard-top alignment */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard-top {
+            align-items: center;
+            margin-bottom: -20px;
+        }
+
+        /* Grid 8 - Individual Element Control Rules - BIG CARD (1) */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-logo {
+            width: var(--g8-big-team-logo-width);
+            height: var(--g8-big-team-logo-height);
+            margin-bottom: var(--g8-big-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-info {
+            gap: var(--g8-big-team-info-gap);
+            padding-top: var(--g8-big-team-info-padding-top);
+            padding-bottom: var(--g8-big-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g8-big-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g8-big-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeout-bar {
+            width: var(--g8-big-timeout-bar-width);
+            height: var(--g8-big-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts {
+            gap: var(--g8-big-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g8-big-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g8-big-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-situation {
+            padding-bottom: var(--g8-big-situation-padding-bottom);
+            margin-bottom: var(--g8-big-situation-margin-bottom);
+        }
+
+        /* Grid 8 - Individual Element Control Rules - SMALL CARDS (2-8) */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-logo {
+            width: var(--g8-small-team-logo-width);
+            height: var(--g8-small-team-logo-height);
+            margin-bottom: var(--g8-small-team-logo-margin-bottom);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-info {
+            gap: var(--g8-small-team-info-gap);
+            padding-top: var(--g8-small-team-info-padding-top);
+            padding-bottom: var(--g8-small-team-info-padding-bottom);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.away .fs-sb-team-info {
+            margin-left: var(--g8-small-team-info-margin-left);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.home .fs-sb-team-info {
+            margin-right: var(--g8-small-team-info-margin-right);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeout-bar {
+            width: var(--g8-small-timeout-bar-width);
+            height: var(--g8-small-timeout-bar-height);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts {
+            gap: var(--g8-small-timeout-gap-spacing);
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.away .fs-sb-timeouts {
+            transform: translateX(var(--g8-small-timeout-margin-left));
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-team-section.home .fs-sb-timeouts {
+            transform: translateX(calc(-1 * var(--g8-small-timeout-margin-right)));
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-situation {
+            padding-bottom: var(--g8-small-situation-padding-bottom);
+            margin-bottom: var(--g8-small-situation-margin-bottom);
+        }
+
+        /* Grid 8 Small Cards - Scoreboard & Field Vertical Position */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
+            transform: translateY(var(--g8-small-scoreboard-offset-y));
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .field-visualizer {
+            transform: translateY(var(--g8-small-field-offset-y));
+        }
+
+        /* ============================================
+           TOP CLOCK FOR GRID-5, 6, 7 & 8 SMALLER CARDS
+           Hide scoreboard center clock and show top clock
+           ============================================ */
+
+        /* Hide the scoreboard center clock for smaller cards (grid-6 all cards) */
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-center,
+        .fullscreen-grid.grid-6 .fullscreen-game-card .fs-sb-center,
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-center,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-center {
+            display: none;
+        }
+
+        /* Top clock element - appears above scoreboard */
+        .fs-top-clock {
+            display: none;
+            /* Hidden by default for all grids */
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            background: linear-gradient(180deg,
+                    #252a31 0%,
+                    #000000 10%,
+                    #393c47 40%,
+                    #000000 60%,
+                    #000000 90%,
+                    #000000 100%);
+            padding: 4px 12px;
+            border-radius: 4px;
+            border: 1px solid #5a6577;
+            box-shadow:
+                0 3px 8px rgba(0, 0, 0, 0.5),
+                0 1px 2px rgba(0, 0, 0, 0.3),
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.3);
+            font-family: var(--sb-font-display, 'Oswald', sans-serif);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Show top clock for grid-5 cards 3+, grid-6 all cards, grid-7/8 cards 2+ */
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-top-clock,
+        .fullscreen-grid.grid-6 .fullscreen-game-card .fs-top-clock,
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-top-clock,
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-top-clock {
+            display: block;
+        }
+
+        /* Top clock text styling */
+        .fs-top-clock-text {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Size variations per grid - larger grids have smaller clocks */
+
+        /* Grid-5: Cards 3+ (smaller cards), larger top clock */
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-top-clock {
+            padding: 4px 14px;
+        }
+
+        .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-top-clock-text {
+            font-size: 0.8rem;
+        }
+
+        /* Grid-6: All cards have top clock */
+        .fullscreen-grid.grid-6 .fullscreen-game-card .fs-top-clock {
+            padding: 3px 12px;
+        }
+
+        .fullscreen-grid.grid-6 .fullscreen-game-card .fs-top-clock-text {
+            font-size: 0.7rem;
+        }
+
+        /* Grid-7: Medium cards */
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-top-clock {
+            padding: 3px 10px;
+        }
+
+        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-top-clock-text {
+            font-size: 0.65rem;
+        }
+
+        /* Grid-8: Smallest cards, smallest top clock */
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-top-clock {
+            padding: 2px 8px;
+        }
+
+        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-top-clock-text {
+            font-size: 0.55rem;
         }
     </style>
 </head>
@@ -2458,36 +4831,42 @@
             const awayHasPossession = isFootball && isLive && game.possession === 'away';
             const homeHasPossession = isFootball && isLive && game.possession === 'home';
 
+            // Top clock text for grid-7 and grid-8 smaller cards
+            let topClockText = '';
+            if (isFinal) {
+                topClockText = 'FINAL';
+            } else if (isUpcoming) {
+                topClockText = displayStatus;
+            } else {
+                // Live game - show period and time on one line
+                if (statusParts.period && statusParts.time) {
+                    topClockText = `${statusParts.period} ${statusParts.time}`;
+                } else {
+                    topClockText = statusParts.time || displayStatus;
+                }
+            }
+
             return `
                 <div class="${cardClass}" data-game-id="${game.id}" data-league="${game.league}">
                     <img class="sport-logo-indicator" src="${leagueLogo}" alt="${game.league.toUpperCase()}">
                     <div class="fullscreen-refresh-indicator"></div>
 
                     <div class="fs-card-wrapper">
-                        <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
-                        <div class="fs-scoreboard-top">
-                            <div class="fs-sb-logo-spacer"></div>
-                            <div class="fs-sb-logo-box">
-                                <div class="fs-card-team-logo-wrapper">
-                                    <img class="fs-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                </div>
-                            </div>
-                            <div class="fs-sb-logo-center-spacer"></div>
-                            <div class="fs-sb-logo-box">
-                                <div class="fs-card-team-logo-wrapper">
-                                    <img class="fs-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                </div>
-                            </div>
-                            <div class="fs-sb-logo-spacer"></div>
+                        <!-- Top Clock (only visible for grid-7/8 smaller cards) -->
+                        <div class="fs-top-clock">
+                            <span class="fs-top-clock-text">${topClockText}</span>
                         </div>
 
-                        <!-- Scoreboard -->
+                        <!-- Scoreboard with logos inside team sections -->
                         <div class="fs-scoreboard" style="--sb-away-primary: ${awayColors.primary}; --sb-away-secondary: ${awayColors.secondary}; --sb-home-primary: ${homeColors.primary}; --sb-home-secondary: ${homeColors.secondary};">
                             <div class="fs-sb-team-section away">
                                 <div class="fs-sb-score-box away">
                                     <span class="fs-sb-score">${awayScore}</span>
                                 </div>
                                 <div class="fs-sb-team-info">
+                                    <div class="fs-sb-team-logo">
+                                        <img class="fs-sb-team-logo-img" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                    </div>
                                     <span class="fs-sb-team-name">${game.away.abbr}</span>
                                     ${game.away.record ? `<span class="fs-sb-team-record">${game.away.record}</span>` : ''}
                                 </div>
@@ -2506,6 +4885,9 @@
                             <div class="fs-sb-team-section home">
                                 ${isFootball ? `<div class="fs-sb-timeouts home">${createTimeoutBars(game.home.timeouts ?? 3)}</div>` : ''}
                                 <div class="fs-sb-team-info">
+                                    <div class="fs-sb-team-logo">
+                                        <img class="fs-sb-team-logo-img" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                    </div>
                                     <span class="fs-sb-team-name">${game.home.abbr}</span>
                                     ${game.home.record ? `<span class="fs-sb-team-record">${game.home.record}</span>` : ''}
                                 </div>

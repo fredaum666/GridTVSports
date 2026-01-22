@@ -5303,7 +5303,7 @@
                 }
 
                 return `
-                    <div class="game-card live-card ${leagueClass} focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card live-card ${leagueClass} focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         <div class="live-card-wrapper">
                             <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
                             <div class="live-scoreboard-top">
@@ -5356,7 +5356,7 @@
                 const homeColor = getNbaTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card nba-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card nba-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         <div class="nba-upcoming-inner">
                             <div class="nba-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nba-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -5380,7 +5380,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card nba-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card nba-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         ${winnerLogo ? `<img class="nba-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -5407,7 +5407,7 @@
                 const homeColor = getNflTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card nfl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card nfl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         <div class="nfl-upcoming-inner">
                             <div class="nfl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nfl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -5431,7 +5431,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card nfl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card nfl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         ${winnerLogo ? `<img class="nfl-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -5458,7 +5458,7 @@
                 const homeColor = getNhlTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card nhl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card nhl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         <div class="nhl-upcoming-inner">
                             <div class="nhl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nhl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -5482,7 +5482,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card nhl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card nhl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         ${winnerLogo ? `<img class="nhl-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -5509,7 +5509,7 @@
                 const homeColor = getMlbTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card mlb-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card mlb-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         <div class="mlb-upcoming-inner">
                             <div class="mlb-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="mlb-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -5533,7 +5533,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card mlb-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card mlb-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         ${winnerLogo ? `<img class="mlb-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -5559,7 +5559,7 @@
                 const defaultColor = '#6366f1';
 
                 return `
-                    <div class="game-card ncaa-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card ncaa-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         <div class="ncaa-upcoming-inner">
                             <div class="ncaa-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
                                 <img class="ncaa-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -5583,7 +5583,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card ncaa-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card ncaa-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         ${winnerLogo ? `<img class="ncaa-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -5609,7 +5609,7 @@
                 const defaultColor = '#6366f1';
 
                 return `
-                    <div class="game-card ncaab-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card ncaab-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         <div class="ncaab-upcoming-inner">
                             <div class="ncaab-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
                                 <img class="ncaab-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -5633,7 +5633,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card ncaab-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                    <div class="game-card ncaab-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                         ${winnerLogo ? `<img class="ncaab-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -5659,7 +5659,7 @@
             const footerHtml = isUpcoming ? `<div class="game-card-footer-time">${statusText}</div>` : '';
 
             return `
-                <div class="game-card focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}'>
+                <div class="game-card focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
                     <div class="game-card-header">
                         <span class="game-card-status ${statusClass}">${isUpcoming ? '' : statusText}</span>
                     </div>

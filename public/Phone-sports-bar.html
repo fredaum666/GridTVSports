@@ -864,8 +864,8 @@
             justify-content: center;
             z-index: 2;
             background: linear-gradient(180deg,
-                rgba(0, 0, 0, 0.7) 0%,
-                rgba(0, 0, 0, 0.85) 100%);
+                    rgba(0, 0, 0, 0.7) 0%,
+                    rgba(0, 0, 0, 0.85) 100%);
             transform: skewX(var(--sb-skew-angle, -4deg));
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
             overflow: hidden;
@@ -909,9 +909,9 @@
             padding-left: clamp(60px, 10vmin, 90px);
             padding-right: clamp(40px, 6vmin, 60px);
             background: linear-gradient(135deg,
-                var(--sb-away-primary) 0%,
-                color-mix(in srgb, var(--sb-away-primary) 85%, var(--sb-away-secondary)) 60%,
-                color-mix(in srgb, var(--sb-away-primary) 70%, #000) 100%);
+                    var(--sb-away-primary) 0%,
+                    color-mix(in srgb, var(--sb-away-primary) 85%, var(--sb-away-secondary)) 60%,
+                    color-mix(in srgb, var(--sb-away-primary) 70%, #000) 100%);
         }
 
         /* Away score box - far left */
@@ -926,9 +926,9 @@
             padding-left: clamp(40px, 6vmin, 60px);
             padding-right: clamp(60px, 10vmin, 90px);
             background: linear-gradient(135deg,
-                color-mix(in srgb, var(--sb-home-primary) 70%, #000) 0%,
-                color-mix(in srgb, var(--sb-home-primary) 85%, var(--sb-home-secondary)) 40%,
-                var(--sb-home-primary) 100%);
+                    color-mix(in srgb, var(--sb-home-primary) 70%, #000) 0%,
+                    color-mix(in srgb, var(--sb-home-primary) 85%, var(--sb-home-secondary)) 40%,
+                    var(--sb-home-primary) 100%);
         }
 
         /* Home score box - far right */
@@ -940,10 +940,40 @@
         }
 
         .fs-sb-team-info {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2px;
+            z-index: 2;
+        }
+
+        /* Team logo inside team-info - positioned above the scoreboard */
+        .fs-sb-team-logo {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: clamp(6px, 1vmin, 12px);
+            width: clamp(50px, 8vmin, 90px);
+            height: clamp(50px, 8vmin, 90px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .fs-sb-team-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+            transition: transform 0.2s ease;
+        }
+
+        /* Winner highlight on logo */
+        .fs-sb-team-section.winner .fs-sb-team-logo-img {
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
         }
 
         .fs-sb-team-name {
@@ -1053,8 +1083,8 @@
             left: 50%;
             transform: translateX(-50%) translateY(50%);
             background: linear-gradient(135deg,
-                var(--sb-possession-primary) 0%,
-                color-mix(in srgb, var(--sb-possession-primary) 70%, #000) 100%);
+                    var(--sb-possession-primary) 0%,
+                    color-mix(in srgb, var(--sb-possession-primary) 70%, #000) 100%);
             padding: 6px 12px;
             border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1351,7 +1381,7 @@
         }
 
         .fullscreen-grid.grid-1 .fs-sb-score-box {
-            width: clamp(80px, 10vmin, 100px);
+            width: clamp(50px, 10vmin, 100px);
         }
 
         /* Grid 2 */
@@ -1749,11 +1779,12 @@
         /* Phone: Bigger yard markers for readability */
         .svg-field-container .compact-yard-number {
             font-size: 12px !important;
-            fill: rgba(255,255,255,0.95) !important;
+            fill: rgba(255, 255, 255, 0.95) !important;
         }
+
         .svg-field-container .compact-yard-tick {
             stroke-width: 2 !important;
-            stroke: rgba(255,255,255,0.8) !important;
+            stroke: rgba(255, 255, 255, 0.8) !important;
         }
 
         /* ================================ */
@@ -2566,11 +2597,11 @@
             }
 
             .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-timeouts.away {
-                right: clamp(18px, 16vw, 90px) !important;
+                right: clamp(18px, 10vw, 90px) !important;
             }
 
             .fullscreen-container.mobile-paging .fullscreen-page-grid.single-card .fs-sb-timeouts.home {
-                left: clamp(18px, 16vw, 90px) !important;
+                left: clamp(18px, 10vw, 90px) !important;
             }
         }
 
@@ -3357,6 +3388,42 @@
                         yardLine: 40,
                         yardsToGo: 5,
                         possessionOnOwn: true
+                    },
+                    {
+                        id: 'mock6',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '2nd 3:15',
+                        away: { abbr: 'LA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png', score: 10, record: '12-5', timeouts: 2 },
+                        home: { abbr: 'CAR', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/car.png', score: 7, record: '8-9', timeouts: 3 },
+                        possession: 'away',
+                        downDistance: '3rd & 3',
+                        fieldPosition: 'CAR 42',
+                        yardLine: 42,
+                        yardsToGo: 3,
+                        possessionOnOwn: false
+                    },
+                    {
+                        id: 'mock7',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: 'Half',
+                        away: { abbr: 'DEN', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/den.png', score: 14, record: '10-7', timeouts: 3 },
+                        home: { abbr: 'LV', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png', score: 14, record: '9-8', timeouts: 3 }
+                    },
+                    {
+                        id: 'mock8',
+                        league: 'nfl',
+                        state: 'in', // LIVE
+                        status: '4th 0:30',
+                        away: { abbr: 'NYG', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png', score: 20, record: '6-11', timeouts: 0 },
+                        home: { abbr: 'WAS', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png', score: 24, record: '11-6', timeouts: 1 },
+                        possession: 'away',
+                        downDistance: '4th & 15',
+                        fieldPosition: 'NYG 25',
+                        yardLine: 25,
+                        yardsToGo: 15,
+                        possessionOnOwn: true
                     }
                 ];
 
@@ -3624,30 +3691,16 @@
                     </div>
 
                     <div class="fs-card-wrapper">
-                        <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
-                        <div class="fs-scoreboard-top">
-                            <div class="fs-sb-logo-spacer"></div>
-                            <div class="fs-sb-logo-box">
-                                <div class="fs-card-team-logo-wrapper">
-                                    <img class="fs-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                </div>
-                            </div>
-                            <div class="fs-sb-logo-center-spacer"></div>
-                            <div class="fs-sb-logo-box">
-                                <div class="fs-card-team-logo-wrapper">
-                                    <img class="fs-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                </div>
-                            </div>
-                            <div class="fs-sb-logo-spacer"></div>
-                        </div>
-
-                        <!-- Scoreboard -->
+                        <!-- Scoreboard with logos inside team sections -->
                         <div class="fs-scoreboard" style="--sb-away-primary: ${awayColors.primary}; --sb-away-secondary: ${awayColors.secondary}; --sb-home-primary: ${homeColors.primary}; --sb-home-secondary: ${homeColors.secondary};">
                             <div class="fs-sb-team-section away">
                                 <div class="fs-sb-score-box away">
                                     <span class="fs-sb-score">${awayScore}</span>
                                 </div>
                                 <div class="fs-sb-team-info">
+                                    <div class="fs-sb-team-logo">
+                                        <img class="fs-sb-team-logo-img" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                    </div>
                                     <span class="fs-sb-team-name">${game.away.abbr}</span>
                                     ${game.away.record ? `<span class="fs-sb-team-record">${game.away.record}</span>` : ''}
                                 </div>
@@ -3666,6 +3719,9 @@
                             <div class="fs-sb-team-section home">
                                 ${(isFootball && game.home.timeouts !== undefined) ? `<div class="fs-sb-timeouts home">${createTimeoutBars(game.home.timeouts)}</div>` : ''}
                                 <div class="fs-sb-team-info">
+                                    <div class="fs-sb-team-logo">
+                                        <img class="fs-sb-team-logo-img" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                    </div>
                                     <span class="fs-sb-team-name">${game.home.abbr}</span>
                                     ${game.home.record ? `<span class="fs-sb-team-record">${game.home.record}</span>` : ''}
                                 </div>

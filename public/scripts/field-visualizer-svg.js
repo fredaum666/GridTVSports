@@ -87,7 +87,7 @@ class SVGFieldVisualizer {
   createSVG() {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'field-svg');
-    svg.setAttribute('viewBox', this.options.compressed ? '0 0 600 115' : '0 -40 600 130');
+    svg.setAttribute('viewBox', this.options.compressed ? '0 -30 600 145' : '0 -40 600 130');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
@@ -1549,7 +1549,7 @@ class SVGFieldVisualizer {
    */
   setCompressed(compressed) {
     this.options.compressed = compressed;
-    this.svg.setAttribute('viewBox', compressed ? '0 20 600 88' : '0 -40 600 130');
+    this.svg.setAttribute('viewBox', compressed ? '0 -30 600 145' : '0 -40 600 130');
   }
 
   /**

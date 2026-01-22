@@ -30,8 +30,8 @@
             --tv-border: #334155;
 
             /* Spacing (5% overscan margins for 960x540) */
-            --tv-margin-h: 48px;
-            --tv-margin-v: 27px;
+            --tv-margin-h: 20px;
+            --tv-margin-v: 20px;
             --tv-gutter: 20px;
             --tv-row-gap: 24px;
 
@@ -53,8 +53,8 @@
 
         html,
         body {
-            width: 100%;
-            height: 100%;
+            width: 102%;
+            height: 102%;
             overflow: hidden;
             background: var(--tv-bg-primary);
             font-family: var(--tv-font-family);
@@ -2032,7 +2032,7 @@
             left: 0;
             right: 0;
             height: 50%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
             pointer-events: none;
         }
 
@@ -2064,6 +2064,31 @@
         .sports-mode-btn .selection-count {
             opacity: 0.9;
             font-weight: 500;
+        }
+
+        /* Mock game selector - only visible in mock mode */
+        .mock-game-selector {
+            display: none;
+            padding: 12px 16px;
+            min-height: 48px;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+            font-size: 15px;
+            font-weight: 600;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mock-game-selector:hover,
+        .mock-game-selector.focused {
+            background: linear-gradient(180deg, #fcd34d 0%, #fbbf24 100%);
+            transform: translateY(-2px);
+        }
+
+        .mock-game-selector.visible {
+            display: block;
         }
 
         /* Clear Selections button - Gray when inactive, Red when active (has selections) */
@@ -2912,6 +2937,18 @@
                     <span>Enter Sports Bar Mode</span>
                     <span class="selection-count" id="selection-count">(0 games)</span>
                 </button>
+                <!-- Mock data game count selector (only visible in mock mode with no selections) -->
+                <select class="mock-game-selector focusable" id="mock-game-selector" data-row="sports-mode"
+                    tabindex="0">
+                    <option value="1">1 Game</option>
+                    <option value="2">2 Games</option>
+                    <option value="3">3 Games</option>
+                    <option value="4">4 Games</option>
+                    <option value="5">5 Games</option>
+                    <option value="6">6 Games</option>
+                    <option value="7">7 Games</option>
+                    <option value="8" selected>8 Games</option>
+                </select>
                 <button class="clear-selections-btn focusable" id="clear-selections-btn" data-row="sports-mode"
                     tabindex="0">
                     <span>Clear</span>
@@ -3250,9 +3287,10 @@
         });
 
         // ============================================
-        // MOCK DATA MODE
+        // MOCK DATA MODE - When true, shows "Enter Sports Bar Mode" button even with no selections
+        // This allows testing layouts directly since mock data loads when no games are selected
         // ============================================
-        const USE_MOCK_DATA = true; // Set to false for production
+        const USE_MOCK_DATA_MODE = true; // Set to false for production
 
         // ============================================
         // SESSION VALIDATION
@@ -3331,6 +3369,10 @@
             }
 
             initHomeNavigation();
+
+            // Show sports mode button if mock data mode is enabled (for testing layouts)
+            updateSportsModeButton();
+
             fetchAllGames().then(() => {
                 // After games are loaded, restore selections if returning from Sports Bar
                 if (restoreSelections) {
@@ -3893,16 +3935,28 @@
         function updateSportsModeButton() {
             const container = document.getElementById('sports-mode-container');
             const countEl = document.getElementById('selection-count');
+            const mockSelector = document.getElementById('mock-game-selector');
             const clearBtn = document.getElementById('clear-selections-btn');
 
             if (selectedGamesForSportsBar.length > 0) {
                 container.classList.add('visible');
                 const plural = selectedGamesForSportsBar.length === 1 ? 'game' : 'games';
                 countEl.textContent = `(${selectedGamesForSportsBar.length} ${plural})`;
+                // Hide mock selector when real games are selected
+                mockSelector.classList.remove('visible');
                 // Make clear button red (active) when games are selected
                 clearBtn.classList.add('active');
+            } else if (USE_MOCK_DATA_MODE) {
+                // Show button with mock data indicator when no games selected but mock mode is on
+                container.classList.add('visible');
+                countEl.textContent = '(Mock Data)';
+                // Show mock selector to choose number of games
+                mockSelector.classList.add('visible');
+                // Clear button is gray when no selections
+                clearBtn.classList.remove('active');
             } else {
                 container.classList.remove('visible');
+                mockSelector.classList.remove('visible');
                 // Clear button is gray when no selections
                 clearBtn.classList.remove('active');
             }
@@ -3943,10 +3997,20 @@
         }
 
         function enterSportsBarMode() {
-            if (selectedGamesForSportsBar.length === 0) return;
+            // Allow entering with no selections when mock data mode is enabled
+            if (selectedGamesForSportsBar.length === 0 && !USE_MOCK_DATA_MODE) return;
 
-            // Save selections to localStorage for sports-bar page
-            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(selectedGamesForSportsBar));
+            // Save selections to localStorage for sports-bar page (or clear if using mock data)
+            if (selectedGamesForSportsBar.length > 0) {
+                localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(selectedGamesForSportsBar));
+                localStorage.removeItem('gridtv_mock_game_count'); // Clear mock count when using real selections
+            } else {
+                // Clear localStorage so mock data will load in tv-sports-bar
+                localStorage.removeItem('gridtv_sports_bar_games');
+                // Save the selected mock game count
+                const mockSelector = document.getElementById('mock-game-selector');
+                localStorage.setItem('gridtv_mock_game_count', mockSelector.value);
+            }
 
             // Navigate to sports bar page
             window.location.href = '/tv-sports-bar';
@@ -4197,96 +4261,6 @@
         // FETCH ALL GAMES
         // ============================================
         async function fetchAllGames() {
-            // MOCK DATA MODE - Return mock live NFL games for testing
-            if (USE_MOCK_DATA) {
-                console.log('📺 Using mock data mode');
-                allGamesUnfiltered = {
-                    live: [
-                        {
-                            id: 'mock1',
-                            league: 'nfl',
-                            name: 'GB @ CHI',
-                            state: 'in',
-                            status: '3rd 8:42',
-                            away: { abbr: 'GB', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png', score: 21, record: '9-7-1', timeouts: 2 },
-                            home: { abbr: 'CHI', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png', score: 17, record: '11-6', timeouts: 1 },
-                            possession: 'away',
-                            downDistance: '2nd & 7',
-                            fieldPosition: 'CHI 35',
-                            yardLine: 35,
-                            yardsToGo: 7,
-                            possessionOnOwn: false
-                        },
-                        {
-                            id: 'mock2',
-                            league: 'nfl',
-                            name: 'BUF @ JAX',
-                            state: 'in',
-                            status: '4th 2:00',
-                            away: { abbr: 'BUF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png', score: 28, record: '12-5', timeouts: 0 },
-                            home: { abbr: 'JAX', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png', score: 24, record: '13-4', timeouts: 3 },
-                            possession: 'home',
-                            downDistance: '1st & 10',
-                            fieldPosition: 'BUF 15',
-                            yardLine: 15,
-                            yardsToGo: 10,
-                            possessionOnOwn: false
-                        },
-                        {
-                            id: 'mock3',
-                            league: 'nfl',
-                            name: 'KC @ MIA',
-                            state: 'in',
-                            status: '2nd 5:30',
-                            away: { abbr: 'KC', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png', score: 14, record: '10-7', timeouts: 3 },
-                            home: { abbr: 'MIA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png', score: 10, record: '8-9', timeouts: 2 },
-                            possession: 'away',
-                            downDistance: '3rd & Goal',
-                            fieldPosition: 'MIA 5',
-                            yardLine: 5,
-                            yardsToGo: 5,
-                            possessionOnOwn: false
-                        },
-                        {
-                            id: 'mock4',
-                            league: 'nfl',
-                            name: 'SF @ SEA',
-                            state: 'in',
-                            status: '1st 12:00',
-                            away: { abbr: 'SF', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png', score: 7, record: '11-6', timeouts: 3 },
-                            home: { abbr: 'SEA', logo: 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png', score: 0, record: '9-8', timeouts: 3 },
-                            possession: 'home',
-                            downDistance: '2nd & 5',
-                            fieldPosition: 'SEA 40',
-                            yardLine: 40,
-                            yardsToGo: 5,
-                            possessionOnOwn: true
-                        },
-                        {
-                            id: 'mock5',
-                            league: 'nba',
-                            name: 'LAL @ BOS',
-                            state: 'in',
-                            status: '3rd 4:22',
-                            away: { abbr: 'LAL', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/lal.png', score: 78, record: '25-15' },
-                            home: { abbr: 'BOS', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/bos.png', score: 82, record: '30-10' }
-                        },
-                        {
-                            id: 'mock6',
-                            league: 'nba',
-                            name: 'GSW @ PHX',
-                            state: 'in',
-                            status: '2nd 8:15',
-                            away: { abbr: 'GSW', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/gs.png', score: 45, record: '22-18' },
-                            home: { abbr: 'PHX', logo: 'https://a.espncdn.com/i/teamlogos/nba/500/phx.png', score: 51, record: '24-16' }
-                        }
-                    ],
-                    upcoming: [],
-                    final: []
-                };
-                return;
-            }
-
             const leagues = [
                 { id: 'nfl', endpoint: '/api/nfl/scoreboard' },
                 { id: 'nba', endpoint: '/api/nba/scoreboard' },
@@ -4648,7 +4622,7 @@
                 }
 
                 return `
-                    <div class="game-card live-card ${leagueClass} focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card live-card ${leagueClass} focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         <div class="live-card-wrapper">
                             <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
                             <div class="live-scoreboard-top">
@@ -4701,7 +4675,7 @@
                 const homeColor = getNbaTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card nba-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nba-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         <div class="nba-upcoming-inner">
                             <div class="nba-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nba-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4725,7 +4699,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card nba-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nba-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         ${winnerLogo ? `<img class="nba-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4752,7 +4726,7 @@
                 const homeColor = getNflTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card nfl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nfl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         <div class="nfl-upcoming-inner">
                             <div class="nfl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nfl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4776,7 +4750,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card nfl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nfl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         ${winnerLogo ? `<img class="nfl-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4803,7 +4777,7 @@
                 const homeColor = getNhlTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card nhl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nhl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         <div class="nhl-upcoming-inner">
                             <div class="nhl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nhl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4827,7 +4801,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card nhl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card nhl-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         ${winnerLogo ? `<img class="nhl-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4854,7 +4828,7 @@
                 const homeColor = getMlbTeamColor(game.home.abbr);
 
                 return `
-                    <div class="game-card mlb-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card mlb-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         <div class="mlb-upcoming-inner">
                             <div class="mlb-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="mlb-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4878,7 +4852,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card mlb-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card mlb-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         ${winnerLogo ? `<img class="mlb-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4904,7 +4878,7 @@
                 const defaultColor = '#6366f1';
 
                 return `
-                    <div class="game-card ncaa-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card ncaa-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         <div class="ncaa-upcoming-inner">
                             <div class="ncaa-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
                                 <img class="ncaa-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4928,7 +4902,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card ncaa-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card ncaa-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         ${winnerLogo ? `<img class="ncaa-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -4954,7 +4928,7 @@
                 const defaultColor = '#6366f1';
 
                 return `
-                    <div class="game-card ncaab-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card ncaab-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         <div class="ncaab-upcoming-inner">
                             <div class="ncaab-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
                                 <img class="ncaab-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
@@ -4978,7 +4952,7 @@
                 const winnerLogo = game.away.winner ? game.away.logo : game.home.winner ? game.home.logo : null;
 
                 return `
-                    <div class="game-card ncaab-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                    <div class="game-card ncaab-final focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                         ${winnerLogo ? `<img class="ncaab-final-watermark" src="${winnerLogo}" alt="Winner">` : ''}
                         <div class="game-card-header">
                             <span class="game-card-status final">${statusText}</span>
@@ -5004,7 +4978,7 @@
             const footerHtml = isUpcoming ? `<div class="game-card-footer-time">${statusText}</div>` : '';
 
             return `
-                <div class="game-card focusable" data-row="${rowName}" data-game='${JSON.stringify(game)}' tabindex="0">
+                <div class="game-card focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
                     <div class="game-card-header">
                         <span class="game-card-status ${statusClass}">${isUpcoming ? '' : statusText}</span>
                     </div>

@@ -683,7 +683,39 @@
             align-items: center;
             justify-content: center;
             padding: 2px;
-            gap: 8px;
+        }
+
+        /* Individual gap for each grid option */
+        .fullscreen-grid.grid-1 .fs-card-wrapper {
+            gap: 28px;
+        }
+
+        .fullscreen-grid.grid-2 .fs-card-wrapper {
+            gap: 28px;
+        }
+
+        .fullscreen-grid.grid-3 .fs-card-wrapper {
+            gap: 28px;
+        }
+
+        .fullscreen-grid.grid-4 .fs-card-wrapper {
+            gap: 28px;
+        }
+
+        .fullscreen-grid.grid-5 .fs-card-wrapper {
+            gap: 28px;
+        }
+
+        .fullscreen-grid.grid-6 .fs-card-wrapper {
+            gap: 28px;
+        }
+
+        .fullscreen-grid.grid-7 .fs-card-wrapper {
+            gap: 0px;
+        }
+
+        .fullscreen-grid.grid-8 .fs-card-wrapper {
+            gap: 28px;
         }
 
         /* Tablet top clock - hidden by default, shown only via tablet-fullscreen.css for tablet portrait grid-4 */
@@ -860,7 +892,6 @@
 
         .fs-sb-score {
             font-family: var(--sb-font-score);
-            font-size: clamp(1.5rem, 6vmin, 3.5rem);
             font-weight: var(--sb-score-weight);
             color: #fff;
             letter-spacing: var(--sb-score-letter-spacing);
@@ -869,6 +900,39 @@
             transform: skewX(calc(var(--sb-skew-angle) * -1));
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
             transition: transform var(--sb-score-pop-duration) var(--sb-transition-bounce);
+        }
+
+        /* Individual font-size for each grid option */
+        .fullscreen-grid.grid-1 .fs-sb-score {
+            font-size: clamp(1.5rem, 6vmin, 3.5rem);
+        }
+
+        .fullscreen-grid.grid-2 .fs-sb-score {
+            font-size: clamp(1.5rem, 6vmin, 3.5rem);
+        }
+
+        .fullscreen-grid.grid-3 .fs-sb-score {
+            font-size: clamp(1.5rem, 6vmin, 3.5rem);
+        }
+
+        .fullscreen-grid.grid-4 .fs-sb-score {
+            font-size: clamp(1.5rem, 6vmin, 3.5rem);
+        }
+
+        .fullscreen-grid.grid-5 .fs-sb-score {
+            font-size: clamp(1.5rem, 6vmin, 3.5rem);
+        }
+
+        .fullscreen-grid.grid-6 .fs-sb-score {
+            font-size: clamp(1.5rem, 6vmin, 3.5rem);
+        }
+
+        .fullscreen-grid.grid-7 .fs-sb-score {
+            font-size: clamp(1.5rem, 5vmin, 3.5rem);
+        }
+
+        .fullscreen-grid.grid-8 .fs-sb-score {
+            font-size: clamp(1.5rem, 6vmin, 3.5rem);
         }
 
         /* Score update animation */
@@ -1419,7 +1483,7 @@
 
         /* League logo position adjustment for scoreboard layout */
         .fullscreen-game-card.has-scoreboard .sport-logo-indicator {
-            top: 15px;
+            top: 1px;
             right: 15px;
             width: clamp(50px, 8vmin, 70px);
             height: clamp(50px, 8vmin, 70px);
@@ -1508,7 +1572,7 @@
 
         .fullscreen-grid.grid-5 .fs-sb-score-box,
         .fullscreen-grid.grid-6 .fs-sb-score-box {
-            width: clamp(36px, 5.5vmin, 48px);
+            width: clamp(36px, 8.5vmin, 75px);
         }
 
         /* Grid 5-6 timeout bars - vertical bars */
@@ -1520,12 +1584,12 @@
 
         .fullscreen-grid.grid-5 .fs-sb-timeouts.away,
         .fullscreen-grid.grid-6 .fs-sb-timeouts.away {
-            right: clamp(55px, 8vw, 80px);
+            right: clamp(55px, 8vw, 60px);
         }
 
         .fullscreen-grid.grid-5 .fs-sb-timeouts.home,
         .fullscreen-grid.grid-6 .fs-sb-timeouts.home {
-            left: clamp(55px, 8vw, 80px);
+            left: clamp(55px, 8vw, 60px);
         }
 
         /* ============================================
@@ -1551,11 +1615,11 @@
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts.away {
-            right: 28%;
+            right: 20%;
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts.home {
-            left: 28%;
+            left: 20%;
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score {
@@ -1597,12 +1661,12 @@
            GRID 7 - 6 SMALLER CARDS (nth-child 2-7)
            ============================================ */
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
-            --sb-logo-size: clamp(30px, 5vmin, 50px);
-            height: clamp(40px, 10vmin, 80px);
+            --sb-logo-size: clamp(30px, 8vmin, 60px);
+            height: clamp(40px, 10vmin, 66px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-score-box {
-            width: clamp(32px, 4.8vmin, 44px);
+            width: clamp(32px, 8.8vmin, 70px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeout-bar {
@@ -1615,11 +1679,11 @@
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.away {
-            right: clamp(50px, 8vw, 70px);
+            right: clamp(50px, 8vw, 60px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.home {
-            left: clamp(50px, 8vw, 70px);
+            left: clamp(50px, 8vw, 60px);
         }
 
         .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-situation {
@@ -1707,11 +1771,11 @@
            ============================================ */
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-scoreboard {
             --sb-logo-size: clamp(28px, 4.5vmin, 45px);
-            height: clamp(38px, 5.5vmin, 50px);
+            height: clamp(42px, 6vmin, 54px);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score-box {
-            width: clamp(30px, 4.4vmin, 40px);
+            width: clamp(32px, 4.8vmin, 42px);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score {
@@ -1719,11 +1783,11 @@
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-name {
-            font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
+            font-size: clamp(0.65rem, 1.6vmin, 0.9rem);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-record {
-            font-size: clamp(0.5rem, 1.1vmin, 0.7rem);
+            font-size: clamp(0.52rem, 1.2vmin, 0.72rem);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeout-bar {
@@ -1744,16 +1808,17 @@
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time-label {
-            font-size: clamp(0.8rem, 1.8vmin, 1rem);
+            font-size: clamp(0.85rem, 2vmin, 1.1rem);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time {
-            font-size: clamp(0.5rem, 1.1vmin, 0.65rem);
+            font-size: clamp(0.7rem, 1.6vmin, 0.85rem);
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time-box {
-            min-width: 55px;
-            padding: 2px 6px;
+            min-width: 65px;
+            padding: 4px 8px;
+            gap: 1px;
         }
 
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-situation {
@@ -2866,7 +2931,8 @@
         <button class="global-replay-btn" id="global-reset-all">Reset All</button>
         <div class="replay-jump-control">
             <span class="replay-jump-label">Jump to:</span>
-            <input type="number" class="replay-jump-input" id="global-jump-input" min="1" placeholder="#" title="Enter play number and press Enter">
+            <input type="number" class="replay-jump-input" id="global-jump-input" min="1" placeholder="#"
+                title="Enter play number and press Enter">
             <button class="global-replay-btn replay-jump-btn" id="global-jump-btn">Go</button>
         </div>
         <div class="replay-speed-control">
@@ -3375,17 +3441,23 @@
 
             // Check for live games from localStorage (user-selected games)
             // Only load if not in replay-only mode
-            const saved = localStorage.getItem('gridtv_sports_bar_games');
-            if (saved) {
-                try {
-                    const parsedGames = JSON.parse(saved);
-                    if (parsedGames.length > 0) {
-                        liveGames = parsedGames;
-                        console.log('📺 Live games loaded:', liveGames.length);
+            // Skip if ?mock=true URL parameter is set (forces mock data)
+            const forceMock = urlParams.get('mock') === 'true';
+            if (!forceMock) {
+                const saved = localStorage.getItem('gridtv_sports_bar_games');
+                if (saved) {
+                    try {
+                        const parsedGames = JSON.parse(saved);
+                        if (parsedGames.length > 0) {
+                            liveGames = parsedGames;
+                            console.log('📺 Live games loaded:', liveGames.length);
+                        }
+                    } catch (e) {
+                        liveGames = [];
                     }
-                } catch (e) {
-                    liveGames = [];
                 }
+            } else {
+                console.log('🎭 Mock mode forced via URL parameter');
             }
 
             // Combine replay and live games if both exist (parallel mode was explicitly requested)
