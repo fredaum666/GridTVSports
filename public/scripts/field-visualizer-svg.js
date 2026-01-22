@@ -153,7 +153,7 @@ class SVGFieldVisualizer {
           fill: rgba(255,255,255,0.85);
           font-family: 'Courier New', Courier, monospace;
           font-weight: bold;
-          font-size: 20px;
+          font-size: 16px;
           text-anchor: middle;
         }
 
@@ -166,7 +166,7 @@ class SVGFieldVisualizer {
           fill: rgba(255,255,255,0.85);
           font-family: Arial, sans-serif;
           font-weight: bold;
-          font-size: 20px;
+          font-size: 16px;
           text-anchor: middle;
         }
 

@@ -2276,9 +2276,9 @@
             --g3-situation-bottom-offset: 0;
 
             /* Scoreboard & Field Vertical Position */
-            --g3-scoreboard-offset-y: 0;
+            --g3-scoreboard-offset-y: 20px;
             /* Positive = down, Negative = up */
-            --g3-field-offset-y: 0;
+            --g3-field-offset-y: 20px;
             /* Positive = down, Negative = up */
         }
 
@@ -2509,9 +2509,9 @@
             --g4-situation-bottom-offset: 0;
 
             /* Scoreboard & Field Vertical Position */
-            --g4-scoreboard-offset-y: 0;
+            --g4-scoreboard-offset-y: 20px;
             /* Positive = down, Negative = up */
-            --g4-field-offset-y: 0;
+            --g4-field-offset-y: 20px;
             /* Positive = down, Negative = up */
         }
 
@@ -4888,9 +4888,9 @@
                 const awayEndzoneColor = awayColors.primary;
                 const homeEndzoneColor = homeColors.primary;
 
-                // Determine if compressed field (grid 3-8)
+                // Always use compressed field for all grids
                 const gridCount = games.length;
-                const isCompressed = gridCount >= 3;
+                const isCompressed = true;
                 const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
                 // NCAA football games only show team colors in end zones (no logos)
                 const showEndZoneLogos = game.league !== 'ncaa';

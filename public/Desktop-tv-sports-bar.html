@@ -2913,6 +2913,22 @@
         body:not(.replay-mode) .replay-play-info {
             display: none !important;
         }
+
+        /* Hide replay play elements for grids 3-8 */
+        .fullscreen-grid.grid-3 .replay-play-list,
+        .fullscreen-grid.grid-3 .replay-play-info,
+        .fullscreen-grid.grid-4 .replay-play-list,
+        .fullscreen-grid.grid-4 .replay-play-info,
+        .fullscreen-grid.grid-5 .replay-play-list,
+        .fullscreen-grid.grid-5 .replay-play-info,
+        .fullscreen-grid.grid-6 .replay-play-list,
+        .fullscreen-grid.grid-6 .replay-play-info,
+        .fullscreen-grid.grid-7 .replay-play-list,
+        .fullscreen-grid.grid-7 .replay-play-info,
+        .fullscreen-grid.grid-8 .replay-play-list,
+        .fullscreen-grid.grid-8 .replay-play-info {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -4257,7 +4273,7 @@
                             const awayColors = getScoreboardColors(game.league, game.away.abbr);
                             const homeColors = getScoreboardColors(game.league, game.home.abbr);
                             const gridCount = games.length;
-                            const isCompressed = gridCount >= 3;
+                            const isCompressed = true;
                             const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
                             // NCAA football games only show team colors in end zones (no logos)
                             const showEndZoneLogos = game.league !== 'ncaa';
@@ -4715,7 +4731,7 @@
             grid.className = `fullscreen-grid grid-${count}`;
 
             // Render cards
-            grid.innerHTML = games.map((game, index) => createGameCard(game, index)).join('');
+            grid.innerHTML = games.map((game, index) => createGameCard(game, index, count)).join('');
 
             // Initialize SVG field visualizers for football games
             initFieldVisualizers();
@@ -4763,7 +4779,7 @@
             });
         }
 
-        function createGameCard(game, index) {
+        function createGameCard(game, index, gridCount) {
             const isFootball = game.league === 'nfl' || game.league === 'ncaa';
             const isLive = game.state === 'in';
             const isFinal = game.state === 'post';
@@ -4887,9 +4903,8 @@
                 const awayEndzoneColor = awayColors.primary;
                 const homeEndzoneColor = homeColors.primary;
 
-                // Determine if compressed field (grid 3-8)
-                const gridCount = games.length;
-                const isCompressed = gridCount >= 3;
+                // Always use compressed field for all grids (gridCount passed as parameter)
+                const isCompressed = true;
                 const fieldClass = isCompressed ? 'field-visualizer field-compressed' : 'field-visualizer';
 
                 // SVG field container - SVGFieldVisualizer will populate this
@@ -4978,7 +4993,8 @@
 
                         ${fieldVisualizerHTML}
 
-                        <!-- Replay Mode: Play List (shows prev/current/next plays) -->
+                        ${gridCount < 3 ? `
+                        <!-- Replay Mode: Play List (shows prev/current/next plays) - Hidden for grids 3-8 -->
                         <div class="replay-play-list" data-game-id="${game.id}">
                             <div class="replay-play-list-inner">
                                 <div class="replay-play-item prev">
@@ -4996,7 +5012,7 @@
                             </div>
                         </div>
 
-                        <!-- Replay Mode: Down/Distance and Field Position Info -->
+                        <!-- Replay Mode: Down/Distance and Field Position Info - Hidden for grids 3-8 -->
                         <div class="replay-play-info">
                             <div class="info-item">
                                 <span class="info-label">Down:</span>
@@ -5007,6 +5023,7 @@
                                 <span class="info-value field-position">${game.fieldPosition || '--'}</span>
                             </div>
                         </div>
+                        ` : ''}
                     </div>
 
                     ${(game.league === 'nfl' && isLive) ? `
