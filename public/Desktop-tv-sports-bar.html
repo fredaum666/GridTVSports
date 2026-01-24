@@ -185,12 +185,12 @@
             padding: 16px;
         }
 
-        .fullscreen-grid.grid-7 {
+        .fullscreen-grid.grid-7:not([data-page]) {
             gap: 14px;
             padding: 16px;
         }
 
-        .fullscreen-grid.grid-8 {
+        .fullscreen-grid.grid-8:not([data-page]) {
             gap: 12px;
             padding: 14px;
             /* 2 big cards on left (narrower), 6 small cards on right (wider) */
@@ -199,50 +199,51 @@
         }
 
         /* Grid 8 - First big card (top-left, spans 2 cols x 3 rows) */
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) {
             grid-column: 1 / 3;
             grid-row: 1 / 4;
         }
 
         /* Grid 8 - Second big card (bottom-left, spans 2 cols x 3 rows) */
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) {
             grid-column: 1 / 3;
             grid-row: 4 / 7;
         }
 
         /* Grid 8 - Small cards 3-8 on the right side (2 columns x 3 rows) */
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(3) {
+        /* Desktop only - tablets use uniform grid layout */
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(3) {
             grid-column: 3;
             grid-row: 1 / 3;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(4) {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(4) {
             grid-column: 4;
             grid-row: 1 / 3;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(5) {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(5) {
             grid-column: 3;
             grid-row: 3 / 5;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(6) {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(6) {
             grid-column: 4;
             grid-row: 3 / 5;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(7) {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(7) {
             grid-column: 3;
             grid-row: 5 / 7;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(8) {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(8) {
             grid-column: 4;
             grid-row: 5 / 7;
         }
 
-        /* Tablet (768px - 1024px) */
-        @media (max-width: 1024px) and (min-width: 768px) {
+        /* Tablet (900x500 to 1400x1024 resolution range) */
+        @media (min-width: 900px) and (max-width: 1400px) and (min-height: 500px) and (max-height: 1024px) {
             .fullscreen-grid {
                 padding: 16px;
             }
@@ -265,34 +266,592 @@
                 gap: 10px;
             }
 
-            .fullscreen-grid.grid-7 {
+            .fullscreen-grid.grid-7:not([data-page]) {
                 gap: 12px;
                 padding: 14px;
             }
 
-            .fullscreen-grid.grid-8 {
+            .fullscreen-grid.grid-8:not([data-page]) {
                 gap: 10px;
                 padding: 12px;
             }
 
             /* Tablet - Adjust grid layouts for better viewing */
-            .fullscreen-grid.grid-7 {
+
+            /* Grid 5: 2 big cards on top, 3 small cards on bottom */
+            .fullscreen-grid.grid-5 {
                 grid-template-columns: repeat(3, 1fr);
                 grid-template-rows: repeat(3, 1fr);
             }
 
-            .fullscreen-grid.grid-8 {
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(1) {
+                grid-column: 1 / 3;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(2) {
+                grid-column: 3 / 4;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(3) {
+                grid-column: 1 / 2;
+                grid-row: 3 / 4;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(4) {
+                grid-column: 2 / 3;
+                grid-row: 3 / 4;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(5) {
+                grid-column: 3 / 4;
+                grid-row: 3 / 4;
+            }
+
+            /* Grid 5 small cards, Grid 6 all cards, Grid 7 page 1 & Grid 8 page 1: Show clock on top */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .tablet-top-clock,
+            .fullscreen-grid.grid-6 .fullscreen-game-card .tablet-top-clock,
+            .fullscreen-grid.grid-7[data-page="1"] .fullscreen-game-card .tablet-top-clock,
+            .fullscreen-grid.grid-8[data-page="1"] .fullscreen-game-card .tablet-top-clock {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                top: 16px;
+                left: 0;
+                right: 0;
+                height: clamp(24px, 4vmin, 36px);
+                z-index: 10;
+                padding: 4px 8px;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .tablet-top-clock .fs-sb-time-box,
+            .fullscreen-grid.grid-6 .fullscreen-game-card .tablet-top-clock .fs-sb-time-box,
+            .fullscreen-grid.grid-7[data-page="1"] .fullscreen-game-card .tablet-top-clock .fs-sb-time-box,
+            .fullscreen-grid.grid-8[data-page="1"] .fullscreen-game-card .tablet-top-clock .fs-sb-time-box {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .tablet-top-clock .fs-sb-time-label,
+            .fullscreen-grid.grid-6 .fullscreen-game-card .tablet-top-clock .fs-sb-time-label,
+            .fullscreen-grid.grid-7[data-page="1"] .fullscreen-game-card .tablet-top-clock .fs-sb-time-label,
+            .fullscreen-grid.grid-8[data-page="1"] .fullscreen-game-card .tablet-top-clock .fs-sb-time-label {
+                font-size: clamp(0.6rem, 1.4vmin, 0.75rem);
+                font-weight: 600;
+                color: #94a3b8;
+                letter-spacing: 0.05em;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .tablet-top-clock .fs-sb-time,
+            .fullscreen-grid.grid-6 .fullscreen-game-card .tablet-top-clock .fs-sb-time,
+            .fullscreen-grid.grid-7[data-page="1"] .fullscreen-game-card .tablet-top-clock .fs-sb-time,
+            .fullscreen-grid.grid-8[data-page="1"] .fullscreen-game-card .tablet-top-clock .fs-sb-time {
+                font-size: clamp(0.75rem, 1.8vmin, 1rem);
+                font-weight: 700;
+                color: #ffffff;
+            }
+
+            /* Grid 5 small cards & Grid 6 all cards: Hide center clock (clock is now on top) */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-center,
+            .fullscreen-grid.grid-6 .fullscreen-game-card .fs-sb-center,
+            .fullscreen-grid.grid-7[data-page="1"] .fullscreen-game-card .fs-sb-center,
+            .fullscreen-grid.grid-8[data-page="1"] .fullscreen-game-card .fs-sb-center {
+                display: none;
+            }
+
+            /* Grid 5 small cards & Grid 6 all cards: Adjust card wrapper padding to accommodate top clock */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-card-wrapper,
+            .fullscreen-grid.grid-6 .fullscreen-game-card .fs-card-wrapper,
+            .fullscreen-grid.grid-7[data-page="1"] .fullscreen-game-card .fs-card-wrapper {
+                padding-top: clamp(28px, 5vmin, 40px);
+            }
+
+            /* Grid 8: Show clock on top for small cards (3-8) */
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .tablet-top-clock {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: clamp(20px, 3.5vmin, 30px);
+                background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%);
+                border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+                z-index: 10;
+                padding: 3px 6px;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .tablet-top-clock .fs-sb-time-box {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1px;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .tablet-top-clock .fs-sb-time-label {
+                font-size: clamp(0.45rem, 1vmin, 0.6rem);
+                font-weight: 600;
+                color: #94a3b8;
+                letter-spacing: 0.05em;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .tablet-top-clock .fs-sb-time {
+                font-size: clamp(0.6rem, 1.4vmin, 0.8rem);
+                font-weight: 700;
+                color: #ffffff;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-center {
+                display: none;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-card-wrapper {
+                padding-top: clamp(22px, 4.2vmin, 34px);
+            }
+
+            /* Grid 5 all cards & Grid 6 all cards: Make all card elements smaller */
+            .fullscreen-grid.grid-5 .fs-card-wrapper,
+            .fullscreen-grid.grid-6 .fs-card-wrapper,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-card-wrapper,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-card-wrapper {
+                gap: 16px !important;
+                padding: 8px;
+            }
+
+            .fullscreen-grid.grid-5 .fs-scoreboard,
+            .fullscreen-grid.grid-6 .fs-scoreboard,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-scoreboard,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-scoreboard {
+                padding: 0px 0px;
+                gap: 0px;
+            }
+
+            .fullscreen-grid.grid-5 .fs-sb-team-logo img,
+            .fullscreen-grid.grid-6 .fs-sb-team-logo img,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-team-logo img,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-team-logo img {
+                max-width: 35px;
+                max-height: 35px;
+            }
+
+            .fullscreen-grid.grid-5 .fs-sb-team-abbr,
+            .fullscreen-grid.grid-6 .fs-sb-team-abbr,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-team-abbr,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-team-abbr {
+                font-size: clamp(0.7rem, 1.6vmin, 0.9rem);
+            }
+
+            .fullscreen-grid.grid-5 .fs-sb-score,
+            .fullscreen-grid.grid-6 .fs-sb-score,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-score,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-score {
+                font-size: clamp(1.2rem, 3vmin, 1.8rem);
+            }
+
+            .fullscreen-grid.grid-5 .fs-sb-time-label,
+            .fullscreen-grid.grid-6 .fs-sb-time-label,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-time-label,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-time-label {
+                font-size: clamp(0.55rem, 1.2vmin, 0.7rem);
+            }
+
+            .fullscreen-grid.grid-5 .fs-sb-time,
+            .fullscreen-grid.grid-6 .fs-sb-time,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-time,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-time {
+                font-size: clamp(0.7rem, 1.6vmin, 0.9rem);
+            }
+
+            .fullscreen-grid.grid-5 .fs-sb-timeouts,
+            .fullscreen-grid.grid-6 .fs-sb-timeouts,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-timeouts,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-timeouts {
+                gap: 2px;
+            }
+
+            .fullscreen-grid.grid-5 .fs-sb-timeout-bar,
+            .fullscreen-grid.grid-6 .fs-sb-timeout-bar,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-timeout-bar,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-timeout-bar {
+                width: 4px;
+                height: 10px;
+            }
+
+            .fullscreen-grid.grid-5 .fs-down-distance,
+            .fullscreen-grid.grid-6 .fs-down-distance,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-down-distance,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-down-distance {
+                font-size: clamp(0.65rem, 1.4vmin, 0.8rem);
+                padding: 3px 6px;
+            }
+
+            .fullscreen-grid.grid-5 .fs-ball-position,
+            .fullscreen-grid.grid-6 .fs-ball-position,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-ball-position,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-ball-position {
+                font-size: clamp(0.6rem, 1.3vmin, 0.75rem);
+                padding: 3px 6px;
+            }
+
+            .fullscreen-grid.grid-5 .fs-possession-indicator,
+            .fullscreen-grid.grid-6 .fs-possession-indicator,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-possession-indicator,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-possession-indicator {
+                font-size: clamp(10px, 1.6vmin, 16px);
+            }
+
+            .fullscreen-grid.grid-5 .league-logo,
+            .fullscreen-grid.grid-6 .league-logo,
+            .fullscreen-grid.grid-7[data-page="1"] .league-logo,
+            .fullscreen-grid.grid-8[data-page="1"] .league-logo {
+                max-width: 32px;
+                max-height: 32px;
+            }
+
+            .fullscreen-grid.grid-5 .field-container svg,
+            .fullscreen-grid.grid-6 .field-container svg,
+            .fullscreen-grid.grid-7[data-page="1"] .field-container svg,
+            .fullscreen-grid.grid-8[data-page="1"] .field-container svg {
+                max-height: 80px;
+            }
+
+            /* Grid 5-8: Custom .fs-sb-situation styling for tablet with possession-based positioning */
+
+            /* Grid 5: Big cards (1-2) - Base sizing */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-situation {
+                bottom: -31%;
+                padding: 6px 12px;
+                border-radius: 6px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                gap: 8px;
+                min-width: 120px;
+            }
+
+            /* Grid 5: Big cards - Away possession (left side) */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-situation.possession-away {
+                left: 27%;
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            /* Grid 5: Big cards - Home possession (right side) */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-situation.possession-home {
+                left: 73%;
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            /* Grid 5 small cards & Grid 6 all cards - Base sizing */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-situation,
+            .fullscreen-grid.grid-6 .fs-sb-situation,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-situation,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-situation {
+                bottom: -26%;
+                padding: 4px 8px;
+                border-radius: 4px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                gap: 6px;
+                min-width: 120px;
+                font-size: 0.75rem;
+            }
+
+            /* Grid 5 small cards & Grid 6 all cards - Away possession (left side) */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-situation.possession-away,
+            .fullscreen-grid.grid-6 .fs-sb-situation.possession-away,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-situation.possession-away,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-situation.possession-away {
+                left: 25%;
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            /* Grid 5 small cards & Grid 6 all cards - Home possession (right side) */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-situation.possession-home,
+            .fullscreen-grid.grid-6 .fs-sb-situation.possession-home,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-situation.possession-home,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-situation.possession-home {
+                left: 75%;
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            /* Grid 8: Big cards (1-2) - Base sizing */
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(-n+2) .fs-sb-situation {
+                bottom: -17%;
+                padding: 5px 10px;
+                border-radius: 5px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                gap: 7px;
+                min-width: 140px;
+                font-size: 0.85rem;
+            }
+
+            /* Grid 8: Big cards - Away possession */
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(-n+2) .fs-sb-situation.possession-away {
+                left: 26%;
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            /* Grid 8: Big cards - Home possession */
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(-n+2) .fs-sb-situation.possession-home {
+                left: 74%;
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            /* Grid 8: Small cards (3-8) - Base sizing */
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-situation {
+                bottom: -17%;
+                padding: 3px 6px;
+                border-radius: 4px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                gap: 5px;
+                min-width: 100px;
+                font-size: 0.65rem;
+            }
+
+            /* Grid 8: Small cards - Away possession */
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-situation.possession-away {
+                left: 23%;
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            /* Grid 8: Small cards - Home possession */
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-situation.possession-home {
+                left: 77%;
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            /* Grid 5-8: Timeout bars positioning for tablet */
+
+            /* Grid 5: Big cards (1-2) */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-timeouts.away {
+                right: clamp(25px, 4vw, 45px) !important;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(-n+2) .fs-sb-timeouts.home {
+                left: clamp(25px, 4vw, 45px) !important;
+            }
+
+            /* Grid 5 small cards & Grid 6 all cards */
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.away,
+            .fullscreen-grid.grid-6 .fs-sb-timeouts.away,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-timeouts.away,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-timeouts.away {
+                right: clamp(14px, 0vw, 32px) !important;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.home,
+            .fullscreen-grid.grid-6 .fs-sb-timeouts.home,
+            .fullscreen-grid.grid-7[data-page="1"] .fs-sb-timeouts.home,
+            .fullscreen-grid.grid-8[data-page="1"] .fs-sb-timeouts.home {
+                left: clamp(14px, 0vw, 32px) !important;
+            }
+
+            /* Grid 8: Big cards (1-2) */
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(-n+2) .fs-sb-timeouts.away {
+                right: clamp(22px, 3.5vw, 40px) !important;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(-n+2) .fs-sb-timeouts.home {
+                left: clamp(22px, 3.5vw, 40px) !important;
+            }
+
+            /* Grid 8: Small cards (3-8) */
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.away {
+                right: clamp(12px, 2vw, 24px) !important;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.home {
+                left: clamp(12px, 2vw, 24px) !important;
+            }
+
+            .fullscreen-grid.grid-7:not([data-page]) {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) {
                 grid-template-columns: repeat(4, 1fr);
                 grid-template-rows: repeat(2, 1fr);
             }
 
-            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) {
                 grid-column: span 2;
                 grid-row: span 1;
             }
 
-            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) {
                 grid-column: span 2;
+            }
+        }
+
+        /* Small Tablet Landscape (960x540 and similar resolutions) */
+        @media (max-width: 900px) and (min-width: 500px) and (max-height: 500px) {
+            .fullscreen-grid {
+                padding: 8px;
+            }
+
+            /* Grid 5: 2 big + 3 small - Optimized proportions */
+            .fullscreen-grid.grid-5 {
+                gap: 8px;
+                padding: 8px;
+                grid-template-columns: 1fr 1fr 0.85fr 0.85fr;
+                grid-template-rows: repeat(4, 1fr);
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(1) {
+                grid-column: 1 / 3;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(2) {
+                grid-column: 1 / 3;
+                grid-row: 3 / 5;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(3) {
+                grid-column: 3 / 5;
+                grid-row: 1 / 2;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(4) {
+                grid-column: 3 / 5;
+                grid-row: 2 / 3;
+            }
+
+            .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(5) {
+                grid-column: 3 / 5;
+                grid-row: 3 / 5;
+            }
+
+            /* Grid 6: 2 big + 4 small - Optimized proportions */
+            .fullscreen-grid.grid-6 {
+                gap: 8px;
+                padding: 8px;
+                grid-template-columns: 1fr 1fr 0.85fr 0.85fr;
+                grid-template-rows: repeat(4, 1fr);
+            }
+
+            .fullscreen-grid.grid-6 .fullscreen-game-card:nth-child(1) {
+                grid-column: 1 / 3;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-6 .fullscreen-game-card:nth-child(2) {
+                grid-column: 1 / 3;
+                grid-row: 3 / 5;
+            }
+
+            .fullscreen-grid.grid-6 .fullscreen-game-card:nth-child(3) {
+                grid-column: 3 / 5;
+                grid-row: 1 / 2;
+            }
+
+            .fullscreen-grid.grid-6 .fullscreen-game-card:nth-child(4) {
+                grid-column: 3 / 5;
+                grid-row: 2 / 3;
+            }
+
+            .fullscreen-grid.grid-6 .fullscreen-game-card:nth-child(5) {
+                grid-column: 3 / 5;
+                grid-row: 3 / 4;
+            }
+
+            .fullscreen-grid.grid-6 .fullscreen-game-card:nth-child(6) {
+                grid-column: 3 / 5;
+                grid-row: 4 / 5;
+            }
+
+            /* Grid 7: 2 big + 5 small - Better width distribution */
+            .fullscreen-grid.grid-7:not([data-page]) {
+                gap: 6px;
+                padding: 8px;
+                grid-template-columns: 1fr 1fr 0.75fr 0.75fr 0.75fr;
+                grid-template-rows: repeat(4, 1fr);
+            }
+
+            .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(1) {
+                grid-column: 1 / 3;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(2) {
+                grid-column: 1 / 3;
+                grid-row: 3 / 5;
+            }
+
+            .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(3) {
+                grid-column: 3;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(4) {
+                grid-column: 4;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(5) {
+                grid-column: 5;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(6) {
+                grid-column: 3 / 5;
+                grid-row: 3 / 5;
+            }
+
+            .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(7) {
+                grid-column: 5;
+                grid-row: 3 / 5;
+            }
+
+            /* Grid 8: 2 big + 6 small - Better width distribution */
+            .fullscreen-grid.grid-8:not([data-page]) {
+                gap: 6px;
+                padding: 8px;
+                grid-template-columns: 1fr 1fr 0.75fr 0.75fr 0.75fr;
+                grid-template-rows: repeat(4, 1fr);
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) {
+                grid-column: 1 / 3;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) {
+                grid-column: 1 / 3;
+                grid-row: 3 / 5;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(3) {
+                grid-column: 3;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(4) {
+                grid-column: 4;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(5) {
+                grid-column: 5;
+                grid-row: 1 / 3;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(6) {
+                grid-column: 3;
+                grid-row: 3 / 5;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(7) {
+                grid-column: 4;
+                grid-row: 3 / 5;
+            }
+
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(8) {
+                grid-column: 5;
+                grid-row: 3 / 5;
             }
         }
 
@@ -343,20 +902,20 @@
                 grid-column: span 1;
             }
 
-            .fullscreen-grid.grid-7,
-            .fullscreen-grid.grid-8 {
+            .fullscreen-grid.grid-7:not([data-page]),
+            .fullscreen-grid.grid-8:not([data-page]) {
                 grid-template-columns: repeat(4, 1fr);
                 grid-template-rows: repeat(2, 1fr);
                 gap: 6px;
             }
 
-            .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1),
-            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+            .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) {
                 grid-column: span 1;
                 grid-row: span 1;
             }
 
-            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) {
                 grid-column: span 1;
             }
         }
@@ -416,20 +975,20 @@
                 grid-column: span 1;
             }
 
-            .fullscreen-grid.grid-7,
-            .fullscreen-grid.grid-8 {
+            .fullscreen-grid.grid-7:not([data-page]),
+            .fullscreen-grid.grid-8:not([data-page]) {
                 grid-template-columns: repeat(2, 1fr);
                 grid-template-rows: repeat(4, 1fr);
                 gap: 6px;
             }
 
-            .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1),
-            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+            .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(1),
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) {
                 grid-column: span 1;
                 grid-row: span 1;
             }
 
-            .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+            .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) {
                 grid-column: span 1;
             }
         }
@@ -452,8 +1011,8 @@
 
             .fullscreen-grid.grid-5,
             .fullscreen-grid.grid-6,
-            .fullscreen-grid.grid-7,
-            .fullscreen-grid.grid-8 {
+            .fullscreen-grid.grid-7:not([data-page]),
+            .fullscreen-grid.grid-8:not([data-page]) {
                 gap: 4px;
             }
         }
@@ -710,11 +1269,11 @@
             gap: 28px;
         }
 
-        .fullscreen-grid.grid-7 .fs-card-wrapper {
+        .fullscreen-grid.grid-7:not([data-page]) .fs-card-wrapper {
             gap: 0px;
         }
 
-        .fullscreen-grid.grid-8 .fs-card-wrapper {
+        .fullscreen-grid.grid-8:not([data-page]) .fs-card-wrapper {
             gap: 28px;
         }
 
@@ -803,19 +1362,19 @@
             left: -6px;
         }
 
-        .fullscreen-grid.grid-7 .fs-possession-indicator,
-        .fullscreen-grid.grid-8 .fs-possession-indicator {
+        .fullscreen-grid.grid-7:not([data-page]) .fs-possession-indicator,
+        .fullscreen-grid.grid-8:not([data-page]) .fs-possession-indicator {
             font-size: clamp(10px, 1.5vmin, 14px);
         }
 
-        .fullscreen-grid.grid-7 .fs-possession-indicator.away,
-        .fullscreen-grid.grid-8 .fs-possession-indicator.away {
+        .fullscreen-grid.grid-7:not([data-page]) .fs-possession-indicator.away,
+        .fullscreen-grid.grid-8:not([data-page]) .fs-possession-indicator.away {
             top: -4px;
             right: -4px;
         }
 
-        .fullscreen-grid.grid-7 .fs-possession-indicator.home,
-        .fullscreen-grid.grid-8 .fs-possession-indicator.home {
+        .fullscreen-grid.grid-7:not([data-page]) .fs-possession-indicator.home,
+        .fullscreen-grid.grid-8:not([data-page]) .fs-possession-indicator.home {
             top: -4px;
             left: -4px;
         }
@@ -927,11 +1486,11 @@
             font-size: clamp(1.5rem, 6vmin, 3.5rem);
         }
 
-        .fullscreen-grid.grid-7 .fs-sb-score {
+        .fullscreen-grid.grid-7:not([data-page]) .fs-sb-score {
             font-size: clamp(1.5rem, 5vmin, 3.5rem);
         }
 
-        .fullscreen-grid.grid-8 .fs-sb-score {
+        .fullscreen-grid.grid-8:not([data-page]) .fs-sb-score {
             font-size: clamp(1.5rem, 6vmin, 3.5rem);
         }
 
@@ -999,7 +1558,7 @@
         /* Away score box - far left */
         .fs-sb-team-section.away .fs-sb-score-box {
             position: absolute;
-            left: 12px;
+            left: 4px;
             top: 50%;
             transform: translateY(-50%) skewX(var(--sb-skew-angle));
         }
@@ -1017,7 +1576,7 @@
         /* Home score box - far right */
         .fs-sb-team-section.home .fs-sb-score-box {
             position: absolute;
-            right: 12px;
+            right: 4px;
             top: 50%;
             transform: translateY(-50%) skewX(var(--sb-skew-angle));
         }
@@ -1085,7 +1644,7 @@
         }
 
         .fs-sb-team-record {
-            font-size: clamp(0.6rem, 2.5vmin, 1.45rem);
+            font-size: clamp(0.6rem, 1.5vmin, 1.45rem);
             color: rgba(255, 255, 255, 0.75);
             font-weight: 500;
             letter-spacing: 0.02em;
@@ -1594,99 +2153,100 @@
 
         /* ============================================
            GRID 7 - FEATURED BIG CARD (first-child, spans 3 rows)
+           Desktop only - tablets use uniform grid layout
            ============================================ */
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-scoreboard {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-scoreboard {
             --sb-logo-size: clamp(50px, 8vmin, 80px);
             height: clamp(45px, 15vmin, 100px);
             width: 88%;
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score-box {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-score-box {
             width: clamp(36px, 8vmin, 60px);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeout-bar {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-timeout-bar {
             width: clamp(4px, 0.8vmin, 6px);
             height: clamp(14px, 3vmin, 24px);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-timeouts {
             gap: 3px;
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts.away {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-timeouts.away {
             right: 20%;
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-timeouts.home {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-timeouts.home {
             left: 20%;
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-score {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-score {
             font-size: clamp(1.2rem, 8vmin, 2.8rem);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-team-name {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-team-name {
             font-size: clamp(0.7rem, 3.8vmin, 2rem);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-team-record {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-team-record {
             font-size: clamp(0.55rem, 5.2vmin, 1.0rem);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time-label {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-time-label {
             font-size: clamp(0.9rem, 2vmin, 1.2rem);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-time {
             font-size: clamp(0.55rem, 1.3vmin, 0.75rem);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-time-box {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-time-box {
             min-width: 60px;
             padding: 2px 8px;
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-situation {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-situation {
             bottom: -16px;
             min-width: 100px;
             padding: 2px 8px;
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fs-sb-down-distance {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fs-sb-down-distance {
             font-size: clamp(0.5rem, 1.2vmin, 0.7rem);
         }
 
         /* ============================================
            GRID 7 - 6 SMALLER CARDS (nth-child 2-7)
            ============================================ */
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(n+2) .fs-scoreboard {
             --sb-logo-size: clamp(30px, 8vmin, 60px);
             height: clamp(40px, 10vmin, 66px);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-score-box {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(n+2) .fs-sb-score-box {
             width: clamp(32px, 8.8vmin, 70px);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeout-bar {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(n+2) .fs-sb-timeout-bar {
             width: clamp(3px, 0.5vmin, 5px);
             height: clamp(10px, 2vmin, 16px);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts {
             gap: 3px;
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.away {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.away {
             right: clamp(50px, 8vw, 60px);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.home {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(n+2) .fs-sb-timeouts.home {
             left: clamp(50px, 8vw, 60px);
         }
 
-        .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(n+2) .fs-sb-situation {
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(n+2) .fs-sb-situation {
             bottom: -16px;
             min-width: 100px;
             padding: 2px 8px;
@@ -1695,72 +2255,72 @@
         /* ============================================
            GRID 8 - 2 BIG CARDS (first-child and nth-child(2))
            ============================================ */
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-scoreboard,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-scoreboard {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-scoreboard,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-scoreboard {
             --sb-logo-size: clamp(55px, 10vmin, 90px);
             height: clamp(55px, 8vmin, 75px);
             width: 90%;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-score-box,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-score-box {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-score-box,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-score-box {
             width: clamp(44px, 6.4vmin, 60px);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-score,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-score {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-score,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-score {
             font-size: clamp(1.4rem, 3.5vmin, 2rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-name,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-team-name {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-team-name,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-team-name {
             font-size: clamp(0.8rem, 2vmin, 1.1rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-team-record,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-team-record {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-team-record,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-team-record {
             font-size: clamp(0.6rem, 1.4vmin, 0.85rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeout-bar,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeout-bar {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-timeout-bar,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-timeout-bar {
             width: clamp(4px, 0.7vmin, 6px);
             height: clamp(12px, 2.5vmin, 20px);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeouts {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-timeouts,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-timeouts {
             gap: 3px;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts.away,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeouts.away {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-timeouts.away,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-timeouts.away {
             right: 25%;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-timeouts.home,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-timeouts.home {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-timeouts.home,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-timeouts.home {
             left: 25%;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-time-label,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-time-label {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-time-label,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-time-label {
             font-size: clamp(1rem, 2.5vmin, 1.4rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-time,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-time {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-time,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-time {
             font-size: clamp(0.6rem, 1.5vmin, 0.85rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-time-box,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-time-box {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-time-box,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-time-box {
             min-width: 70px;
             padding: 3px 10px;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fs-sb-situation,
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fs-sb-situation {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) .fs-sb-situation,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) .fs-sb-situation {
             bottom: -18px;
             min-width: 120px;
             padding: 3px 10px;
@@ -1769,59 +2329,59 @@
         /* ============================================
            GRID 8 - 6 SMALLER CARDS (nth-child 3-8)
            ============================================ */
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-scoreboard {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-scoreboard {
             --sb-logo-size: clamp(28px, 4.5vmin, 45px);
             height: clamp(42px, 6vmin, 54px);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score-box {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-score-box {
             width: clamp(32px, 4.8vmin, 42px);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-score {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-score {
             font-size: clamp(1rem, 2.5vmin, 1.4rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-name {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-team-name {
             font-size: clamp(0.65rem, 1.6vmin, 0.9rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-team-record {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-team-record {
             font-size: clamp(0.52rem, 1.2vmin, 0.72rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeout-bar {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-timeout-bar {
             width: clamp(3px, 0.5vmin, 5px);
             height: clamp(8px, 1.5vmin, 14px);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts {
             gap: 3px;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.away {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.away {
             right: clamp(30px, 4vw, 45px);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.home {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-timeouts.home {
             left: clamp(30px, 4vw, 45px);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time-label {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-time-label {
             font-size: clamp(0.85rem, 2vmin, 1.1rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-time {
             font-size: clamp(0.7rem, 1.6vmin, 0.85rem);
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-time-box {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-time-box {
             min-width: 65px;
             padding: 4px 8px;
             gap: 1px;
         }
 
-        .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+3) .fs-sb-situation {
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(n+3) .fs-sb-situation {
             bottom: -14px;
             min-width: 90px;
             padding: 2px 6px;
@@ -1845,8 +2405,8 @@
             margin-top: clamp(20px, 3vmin, 32px);
         }
 
-        .fullscreen-grid.grid-7 .fs-card-wrapper .field-visualizer,
-        .fullscreen-grid.grid-8 .fs-card-wrapper .field-visualizer {
+        .fullscreen-grid.grid-7:not([data-page]) .fs-card-wrapper .field-visualizer,
+        .fullscreen-grid.grid-8:not([data-page]) .fs-card-wrapper .field-visualizer {
             margin-top: clamp(16px, 2.5vmin, 26px);
         }
 
@@ -2100,45 +2660,45 @@
         }
 
         /* Grid 7-8 - smallest but still readable */
-        .fullscreen-grid.grid-7 .nfl-stats-modal-title,
-        .fullscreen-grid.grid-8 .nfl-stats-modal-title {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-modal-title,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-modal-title {
             font-size: clamp(0.7rem, 1.6vmin, 1rem);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-team-score,
-        .fullscreen-grid.grid-8 .nfl-stats-team-score {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-team-score,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-team-score {
             font-size: clamp(1rem, 2.8vmin, 2rem);
             min-width: clamp(28px, 4vmin, 50px);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-team,
-        .fullscreen-grid.grid-8 .nfl-stats-team {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-team,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-team {
             padding: clamp(6px, 1.5vmin, 12px);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-team-logo,
-        .fullscreen-grid.grid-8 .nfl-stats-team-logo {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-team-logo,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-team-logo {
             width: clamp(24px, 4vmin, 40px);
             height: clamp(24px, 4vmin, 40px);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-team-name,
-        .fullscreen-grid.grid-8 .nfl-stats-team-name {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-team-name,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-team-name {
             font-size: clamp(0.6rem, 1.4vmin, 0.85rem);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-category-title,
-        .fullscreen-grid.grid-8 .nfl-stats-category-title {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-category-title,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-category-title {
             font-size: clamp(0.55rem, 1.2vmin, 0.75rem);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-player-name,
-        .fullscreen-grid.grid-8 .nfl-stats-player-name {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-player-name,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-player-name {
             font-size: clamp(0.5rem, 1.1vmin, 0.7rem);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-player-value,
-        .fullscreen-grid.grid-8 .nfl-stats-player-value {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-player-value,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-player-value {
             font-size: clamp(0.45rem, 1vmin, 0.65rem);
         }
 
@@ -2171,51 +2731,51 @@
         }
 
         /* Grid 7-8: Hide receiving category, show only 1 player, minimal spacing */
-        .fullscreen-grid.grid-7 .nfl-stats-category:nth-child(3),
-        .fullscreen-grid.grid-8 .nfl-stats-category:nth-child(3) {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-category:nth-child(3),
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-category:nth-child(3) {
             display: none;
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-player:nth-child(n+2),
-        .fullscreen-grid.grid-8 .nfl-stats-player:nth-child(n+2) {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-player:nth-child(n+2),
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-player:nth-child(n+2) {
             display: none;
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-category,
-        .fullscreen-grid.grid-8 .nfl-stats-category {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-category,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-category {
             margin-bottom: clamp(2px, 0.5vmin, 4px);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-category-title,
-        .fullscreen-grid.grid-8 .nfl-stats-category-title {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-category-title,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-category-title {
             margin-bottom: clamp(2px, 0.5vmin, 4px);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-team-header,
-        .fullscreen-grid.grid-8 .nfl-stats-team-header {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-team-header,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-team-header {
             margin-bottom: clamp(4px, 1vmin, 8px);
             padding-bottom: clamp(2px, 0.5vmin, 4px);
             gap: clamp(6px, 1.5vmin, 10px);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-modal-header,
-        .fullscreen-grid.grid-8 .nfl-stats-modal-header {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-modal-header,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-modal-header {
             margin-bottom: clamp(2px, 0.5vmin, 4px);
             padding-bottom: clamp(1px, 0.3vmin, 2px);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-modal,
-        .fullscreen-grid.grid-8 .nfl-stats-modal {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-modal,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-modal {
             padding: clamp(4px, 1vmin, 8px);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-content,
-        .fullscreen-grid.grid-8 .nfl-stats-content {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-content,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-content {
             gap: clamp(6px, 1.5vmin, 12px);
         }
 
-        .fullscreen-grid.grid-7 .nfl-stats-player,
-        .fullscreen-grid.grid-8 .nfl-stats-player {
+        .fullscreen-grid.grid-7:not([data-page]) .nfl-stats-player,
+        .fullscreen-grid.grid-8:not([data-page]) .nfl-stats-player {
             padding: clamp(2px, 0.5vmin, 4px) 0;
         }
 
@@ -2923,10 +3483,10 @@
         .fullscreen-grid.grid-5 .replay-play-info,
         .fullscreen-grid.grid-6 .replay-play-list,
         .fullscreen-grid.grid-6 .replay-play-info,
-        .fullscreen-grid.grid-7 .replay-play-list,
-        .fullscreen-grid.grid-7 .replay-play-info,
-        .fullscreen-grid.grid-8 .replay-play-list,
-        .fullscreen-grid.grid-8 .replay-play-info {
+        .fullscreen-grid.grid-7:not([data-page]) .replay-play-list,
+        .fullscreen-grid.grid-7:not([data-page]) .replay-play-info,
+        .fullscreen-grid.grid-8:not([data-page]) .replay-play-list,
+        .fullscreen-grid.grid-8:not([data-page]) .replay-play-info {
             display: none !important;
         }
     </style>
@@ -4699,10 +5259,8 @@
         function isTabletDevice() {
             const width = window.innerWidth;
             const height = window.innerHeight;
-            const minDimension = Math.min(width, height);
-            const maxDimension = Math.max(width, height);
-            // Tablet: 768px - 1366px range
-            return minDimension >= 768 && maxDimension <= 1366;
+            // Tablet: 900x500 to 1400x1024 range
+            return width >= 900 && width <= 1400 && height >= 500 && height <= 1024;
         }
 
         function isLandscapeOrientation() {
@@ -4713,16 +5271,16 @@
             const grid = document.getElementById('fullscreen-grid');
             let count = games.length;
 
-            // Tablet restrictions: max 7 games, grids 5-7 only in landscape
+            // Tablet restrictions: max 8 games (with pagination for Grid 7-8), grids 5-8 only in landscape
             const isTablet = isTabletDevice();
             if (isTablet) {
-                // Limit to max 7 games for tablet
-                if (count > 7) {
-                    count = 7;
-                    games = games.slice(0, 7);
+                // Limit to max 8 games for tablet (Grid 7 and Grid 8 use pagination)
+                if (count > 8) {
+                    count = 8;
+                    games = games.slice(0, 8);
                 }
 
-                // Grids 5, 6, 7 only work in landscape on tablet
+                // Grids 5, 6, 7, 8 only work in landscape on tablet
                 // In portrait, cap at 4 games
                 if (!isLandscapeOrientation() && count >= 5) {
                     count = 4;
@@ -4730,11 +5288,164 @@
                 }
             }
 
+            // Reset to page 1 if grid count changed
+            if (window.lastGridCount !== count) {
+                window.currentGridPage = 1;
+                window.lastGridCount = count;
+            }
+
             // Set grid class based on count
             grid.className = `fullscreen-grid grid-${count}`;
 
-            // Render cards
-            grid.innerHTML = games.map((game, index) => createGameCard(game, index, count)).join('');
+            // Page-based rendering for Grid 7 and Grid 8 on tablet
+            if (isTablet && (count === 7 || count === 8)) {
+                // Initialize current page if not set
+                if (!window.currentGridPage) {
+                    window.currentGridPage = 1;
+                }
+
+                // Determine page split
+                const page1Count = 6; // Both Grid 7 and Grid 8 show 6 cards on page 1
+                const page2Count = count - page1Count; // Grid 7: 1 card, Grid 8: 2 cards
+                const totalPages = 2;
+
+                // Set data-page attribute
+                grid.setAttribute('data-page', String(window.currentGridPage));
+
+                // Get games for current page
+                let pageGames;
+                if (window.currentGridPage === 1) {
+                    pageGames = games.slice(0, page1Count);
+                } else {
+                    pageGames = games.slice(page1Count);
+                }
+
+                // Render cards for current page
+                grid.innerHTML = pageGames.map((game, index) => {
+                    // Adjust index for page 2 to maintain proper styling
+                    const actualIndex = window.currentGridPage === 1 ? index : index + page1Count;
+                    return createGameCard(game, actualIndex, count);
+                }).join('');
+
+                // Add page indicators
+                const pageIndicatorsHTML = `
+                    <div class="grid-page-indicators" style="
+                        position: fixed;
+                        bottom: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        display: flex;
+                        gap: 12px;
+                        z-index: 10000;
+                        background: rgba(17, 24, 39, 0.9);
+                        padding: 10px 20px;
+                        border-radius: 20px;
+                        backdrop-filter: blur(10px);
+                    ">
+                        ${Array.from({ length: totalPages }, (_, i) => `
+                            <div class="page-dot ${i + 1 === window.currentGridPage ? 'active' : ''}"
+                                 data-page="${i + 1}"
+                                 style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    background: ${i + 1 === window.currentGridPage ? '#3b82f6' : 'rgba(156, 163, 175, 0.5)'};
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                 "
+                                 onmouseover="this.style.transform='scale(1.3)'"
+                                 onmouseout="this.style.transform='scale(1)'"
+                            ></div>
+                        `).join('')}
+                    </div>
+                `;
+                grid.insertAdjacentHTML('afterend', pageIndicatorsHTML);
+
+                // Add click handlers for page dots
+                setTimeout(() => {
+                    document.querySelectorAll('.page-dot').forEach(dot => {
+                        dot.addEventListener('click', function() {
+                            const newPage = parseInt(this.dataset.page);
+                            if (newPage !== window.currentGridPage) {
+                                window.currentGridPage = newPage;
+                                renderGrid();
+                            }
+                        });
+                    });
+
+                    // Add keyboard navigation (arrow keys)
+                    const keyHandler = (e) => {
+                        if (e.key === 'ArrowLeft' && window.currentGridPage > 1) {
+                            window.currentGridPage--;
+                            renderGrid();
+                            e.preventDefault();
+                        } else if (e.key === 'ArrowRight' && window.currentGridPage < totalPages) {
+                            window.currentGridPage++;
+                            renderGrid();
+                            e.preventDefault();
+                        }
+                    };
+
+                    // Remove old handler if exists
+                    if (window.gridPageKeyHandler) {
+                        document.removeEventListener('keydown', window.gridPageKeyHandler);
+                    }
+                    window.gridPageKeyHandler = keyHandler;
+                    document.addEventListener('keydown', keyHandler);
+
+                    // Add swipe/touch navigation
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+
+                    const handleSwipe = () => {
+                        const swipeThreshold = 50;
+                        const diff = touchStartX - touchEndX;
+
+                        if (Math.abs(diff) > swipeThreshold) {
+                            if (diff > 0 && window.currentGridPage < totalPages) {
+                                // Swipe left - go to next page
+                                window.currentGridPage++;
+                                renderGrid();
+                            } else if (diff < 0 && window.currentGridPage > 1) {
+                                // Swipe right - go to previous page
+                                window.currentGridPage--;
+                                renderGrid();
+                            }
+                        }
+                    };
+
+                    grid.addEventListener('touchstart', (e) => {
+                        touchStartX = e.changedTouches[0].screenX;
+                    });
+
+                    grid.addEventListener('touchend', (e) => {
+                        touchEndX = e.changedTouches[0].screenX;
+                        handleSwipe();
+                    });
+                }, 0);
+            } else {
+                // Regular rendering for other grids
+                // Remove data-page attribute if present
+                grid.removeAttribute('data-page');
+
+                // Remove any existing page indicators
+                const existingIndicators = document.querySelector('.grid-page-indicators');
+                if (existingIndicators) {
+                    existingIndicators.remove();
+                }
+
+                // Remove keyboard handler if exists
+                if (window.gridPageKeyHandler) {
+                    document.removeEventListener('keydown', window.gridPageKeyHandler);
+                    window.gridPageKeyHandler = null;
+                }
+
+                // Reset current page
+                window.currentGridPage = null;
+
+                // Render all cards
+                grid.innerHTML = games.map((game, index) => createGameCard(game, index, count)).join('');
+            }
 
             // Initialize SVG field visualizers for football games
             initFieldVisualizers();
@@ -4742,7 +5453,19 @@
             // Update ball positions for football games
             games.forEach((game, index) => {
                 if ((game.league === 'nfl' || game.league === 'ncaa') && game.state === 'in' && game.fieldPosition) {
-                    const card = grid.children[index];
+                    // For paginated grids, adjust the card index
+                    let cardIndex = index;
+                    if (isTablet && (count === 7 || count === 8) && window.currentGridPage === 2) {
+                        // On page 2, the card index is offset by page 1 count (6 cards)
+                        cardIndex = index - 6;
+                        // Only update if this game is on the current page
+                        if (cardIndex < 0) return;
+                    } else if (isTablet && (count === 7 || count === 8) && window.currentGridPage === 1) {
+                        // On page 1, only update if within first 6 games
+                        if (index >= 6) return;
+                    }
+
+                    const card = grid.children[cardIndex];
                     if (card) {
                         updateBallPosition(card, game.fieldPosition, game.yardsToGo || 0, game.possession, game.away, game.home, game.league);
                     }

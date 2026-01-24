@@ -337,29 +337,31 @@ body.tv-mode .fullscreen-game-card.focused {
 }
 
 /* 7 Games - Large left (spans 3 rows), 6 small right (2x3) */
-.fullscreen-grid.grid-7 {
+/* Desktop only - tablets use page-based layouts */
+.fullscreen-grid.grid-7:not([data-page]) {
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: repeat(3, 1fr);
   gap: 10px;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:nth-child(1) {
   grid-row: span 3;
 }
 
 /* 8 Games - Asymmetric: 2 large left, 6 small right */
-.fullscreen-grid.grid-8 {
+/* Desktop only - tablets use page-based layouts */
+.fullscreen-grid.grid-8:not([data-page]) {
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: repeat(3, 1fr);
   gap: 8px;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(1) {
   grid-column: span 2;
   grid-row: span 2;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) {
   grid-column: span 2;
 }
 
@@ -391,11 +393,11 @@ body.tv-mode .fullscreen-game-card.focused {
   max-width: var(--fs-field-width-grid-6, 88%);
 }
 
-.fullscreen-grid.grid-7 .field-visualizer {
+.fullscreen-grid.grid-7:not([data-page]) .field-visualizer {
   max-width: var(--fs-field-width-grid-7, 85%);
 }
 
-.fullscreen-grid.grid-8 .field-visualizer {
+.fullscreen-grid.grid-8:not([data-page]) .field-visualizer {
   max-width: var(--fs-field-width-grid-8, 85%);
 }
 
@@ -1137,13 +1139,13 @@ body.tv-mode .fullscreen-game-card.focused {
 }
 
 /* Grid 7 */
-.fullscreen-grid.grid-7 .numbers-row {
+.fullscreen-grid.grid-7:not([data-page]) .numbers-row {
   font-size: clamp(4px, 1.4vmin, 10px);
   margin-top: 40px;
 }
 
 /* Grid 8 (smallest cards) */
-.fullscreen-grid.grid-8 .numbers-row {
+.fullscreen-grid.grid-8:not([data-page]) .numbers-row {
   font-size: clamp(4px, 1.2vmin, 9px);
   margin-top: 40px;
 }
@@ -1270,8 +1272,8 @@ body.tv-mode .fullscreen-game-card.focused {
   max-height: 10vh;
 }
 
-.fullscreen-grid.grid-7 .football-field-container,
-.fullscreen-grid.grid-8 .football-field-container {
+.fullscreen-grid.grid-7:not([data-page]) .football-field-container,
+.fullscreen-grid.grid-8:not([data-page]) .football-field-container {
   max-height: 8vh;
 }
 
@@ -1291,8 +1293,8 @@ body.tv-mode .fullscreen-game-card.focused {
   height: 50px;
 }
 
-.fullscreen-grid.grid-7 .goal-post,
-.fullscreen-grid.grid-8 .goal-post {
+.fullscreen-grid.grid-7:not([data-page]) .goal-post,
+.fullscreen-grid.grid-8:not([data-page]) .goal-post {
   height: 40px;
 }
 
@@ -1629,185 +1631,185 @@ body.tv-mode .fullscreen-game-card.focused {
 }
 
 /* Grid 7 - Featured left + 6 small right */
-.fullscreen-grid.grid-7 .sport-logo-indicator {
+.fullscreen-grid.grid-7:not([data-page]) .sport-logo-indicator {
   width: 35px;
   height: 35px;
   top: 10px;
   left: 10px;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-team-logo {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-team-logo {
   width: 40px;
   height: 40px;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-live-team-name {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-live-team-name {
   font-size: 1.1rem;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-team-score {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-team-score {
   font-size: 2rem;
   min-width: 40px;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-team-record {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-team-record {
   font-size: 0.7rem;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-status-text {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-status-text {
   font-size: 0.85rem;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-situation-info {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-situation-info {
   font-size: 0.75rem;
 }
 
-.fullscreen-grid.grid-7 .field-container {
+.fullscreen-grid.grid-7:not([data-page]) .field-container {
   height: 22px;
 }
 
-.fullscreen-grid.grid-7 .yard-label {
+.fullscreen-grid.grid-7:not([data-page]) .yard-label {
   font-size: 7px !important;
   margin-top: 0px;
   /* Adjust: negative = up, positive = down */
 }
 
-.fullscreen-grid.grid-7 .playing-field .ball-indicator::before {
+.fullscreen-grid.grid-7:not([data-page]) .playing-field .ball-indicator::before {
   font-size: 13px !important;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-vs-divider-live {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-vs-divider-live {
   font-size: 0.8rem;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-live-score-header {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-live-score-header {
   gap: 10px;
 }
 
 /* Grid 7 - Featured (first) card gets larger styling */
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .sport-logo-indicator {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .sport-logo-indicator {
   width: 55px;
   height: 55px;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fullscreen-team-logo {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fullscreen-team-logo {
   width: 65px;
   height: 65px;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fullscreen-live-team-name {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fullscreen-live-team-name {
   font-size: 1.6rem;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fullscreen-team-score {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fullscreen-team-score {
   font-size: 3.5rem;
   min-width: 65px;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fullscreen-team-record {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fullscreen-team-record {
   font-size: 0.9rem;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .fullscreen-status-text {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .fullscreen-status-text {
   font-size: 1.1rem;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .field-container {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .field-container {
   height: 35px;
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .yard-label {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .yard-label {
   font-size: 10px !important;
   margin-top: 0px;
   /* Adjust: negative = up, positive = down */
 }
 
-.fullscreen-grid.grid-7 .fullscreen-game-card:first-child .playing-field .ball-indicator::before {
+.fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .playing-field .ball-indicator::before {
   font-size: 18px !important;
 }
 
 /* Grid 8 - Asymmetric layout (featured + stacked) */
-.fullscreen-grid.grid-8 .sport-logo-indicator {
+.fullscreen-grid.grid-8:not([data-page]) .sport-logo-indicator {
   width: 30px;
   height: 30px;
   top: 8px;
   left: 8px;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-game-card {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card {
   padding: var(--g8-card-padding);
   border-radius: 8px;
   border-width: 2px;
 }
 
 /* Grid 8 Card 2 - Individual padding override */
-.fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:nth-child(2) {
   padding: var(--g8-card2-padding);
 }
 
-.fullscreen-grid.grid-8 .fullscreen-team-logo {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-team-logo {
   width: 35px;
   height: 35px;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-live-team-name {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-live-team-name {
   font-size: 0.95rem;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-team-score {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-team-score {
   font-size: 1.8rem;
   min-width: 35px;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-team-record {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-team-record {
   font-size: 0.65rem;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-status-text {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-status-text {
   font-size: 0.75rem;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-situation-info {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-situation-info {
   font-size: 0.7rem;
 }
 
-.fullscreen-grid.grid-8 .field-container {
+.fullscreen-grid.grid-8:not([data-page]) .field-container {
   height: 20px;
 }
 
-.fullscreen-grid.grid-8 .yard-label {
+.fullscreen-grid.grid-8:not([data-page]) .yard-label {
   font-size: 7px !important;
   margin-top: 0px;
   /* Adjust: negative = up, positive = down */
 }
 
-.fullscreen-grid.grid-8 .playing-field .ball-indicator::before {
+.fullscreen-grid.grid-8:not([data-page]) .playing-field .ball-indicator::before {
   font-size: 12px !important;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-vs-divider-live {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-vs-divider-live {
   font-size: 0.7rem;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-possession {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-possession {
   font-size: 0.7rem;
   right: -12px;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-live-score-header {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-live-score-header {
   gap: 8px;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-card-content {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-card-content {
   gap: 5px;
 }
 
-.fullscreen-grid.grid-8 .timeout-bar {
+.fullscreen-grid.grid-8:not([data-page]) .timeout-bar {
   width: 12px;
   height: 4px;
 }
 
-.fullscreen-grid.grid-8 .fullscreen-timeouts {
+.fullscreen-grid.grid-8:not([data-page]) .fullscreen-timeouts {
   gap: 2px;
 }
 
@@ -1856,7 +1858,7 @@ body.tv-mode .fullscreen-game-card.focused {
   }
 
   /* 8 Games - 2x4 */
-  .fullscreen-grid.grid-8 {
+  .fullscreen-grid.grid-8:not([data-page]) {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(4, 1fr);
   }
@@ -2246,58 +2248,58 @@ body.tv-mode .fullscreen-game-card.focused {
   }
 
   /* Mobile 8 Games - Each ~25vh, 50vw */
-  .fullscreen-grid.grid-8 .fullscreen-team-logo {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-team-logo {
     width: 7vw;
     height: 7vw;
     max-width: 32px;
     max-height: 32px;
   }
 
-  .fullscreen-grid.grid-8 .fullscreen-live-team-name {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-live-team-name {
     font-size: clamp(0.7rem, 3.5vw, 1.1rem);
   }
 
-  .fullscreen-grid.grid-8 .fullscreen-team-score {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-team-score {
     font-size: clamp(1.3rem, 6.5vw, 2.2rem);
     min-width: auto;
   }
 
-  .fullscreen-grid.grid-8 .fullscreen-team-record {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-team-record {
     font-size: clamp(0.5rem, 1.8vw, 0.75rem);
   }
 
-  .fullscreen-grid.grid-8 .fullscreen-status-text {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-status-text {
     font-size: clamp(0.65rem, 2.8vw, 0.95rem);
   }
 
-  .fullscreen-grid.grid-8 .fullscreen-situation-info {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-situation-info {
     font-size: clamp(0.6rem, 2.5vw, 0.85rem);
   }
 
-  .fullscreen-grid.grid-8 .field-container {
+  .fullscreen-grid.grid-8:not([data-page]) .field-container {
     height: 16px;
   }
 
-  .fullscreen-grid.grid-8 .sport-logo-indicator {
+  .fullscreen-grid.grid-8:not([data-page]) .sport-logo-indicator {
     width: 7vw;
     height: 7vw;
     max-width: 30px;
     max-height: 30px;
   }
 
-  .fullscreen-grid.grid-8 .fullscreen-timeouts {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-timeouts {
     display: none;
   }
 
-  .fullscreen-grid.grid-8 .fullscreen-upcoming-status-text {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-upcoming-status-text {
     font-size: clamp(0.65rem, 2.8vw, 0.95rem);
   }
 
-  .fullscreen-grid.grid-8 .fullscreen-vs-divider-live {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-vs-divider-live {
     font-size: clamp(0.55rem, 2vw, 0.8rem);
   }
 
-  .fullscreen-grid.grid-8 .fullscreen-field-position {
+  .fullscreen-grid.grid-8:not([data-page]) .fullscreen-field-position {
     font-size: clamp(0.5rem, 1.8vw, 0.7rem);
   }
 
@@ -2342,12 +2344,12 @@ body.tv-mode .fullscreen-game-card.focused {
     font-size: 12px !important;
   }
 
-  .fullscreen-grid.grid-8 .yard-label {
+  .fullscreen-grid.grid-8:not([data-page]) .yard-label {
     font-size: 5px !important;
     margin-top: 0px;
   }
 
-  .fullscreen-grid.grid-8 .playing-field .ball-indicator::before {
+  .fullscreen-grid.grid-8:not([data-page]) .playing-field .ball-indicator::before {
     font-size: 10px !important;
   }
 
@@ -2376,7 +2378,7 @@ body.tv-mode .fullscreen-game-card.focused {
     margin-top: 0px;
   }
 
-  .fullscreen-grid.grid-8 .numbers-row {
+  .fullscreen-grid.grid-8:not([data-page]) .numbers-row {
     font-size: 5px !important;
     margin-top: 0px;
   }
@@ -2445,12 +2447,12 @@ body.tv-mode .fullscreen-game-card.focused {
     font-size: 13px !important;
   }
 
-  .fullscreen-grid.grid-8 .yard-label {
+  .fullscreen-grid.grid-8:not([data-page]) .yard-label {
     font-size: 6px !important;
     margin-top: 0px;
   }
 
-  .fullscreen-grid.grid-8 .playing-field .ball-indicator::before {
+  .fullscreen-grid.grid-8:not([data-page]) .playing-field .ball-indicator::before {
     font-size: 11px !important;
   }
 
@@ -2479,7 +2481,7 @@ body.tv-mode .fullscreen-game-card.focused {
     margin-top: 0px;
   }
 
-  .fullscreen-grid.grid-8 .numbers-row {
+  .fullscreen-grid.grid-8:not([data-page]) .numbers-row {
     font-size: 6px !important;
     margin-top: 0px;
   }

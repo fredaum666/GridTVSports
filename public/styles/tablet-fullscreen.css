@@ -28,7 +28,7 @@
 /* ============================================
    1. BASE TABLET STYLES (Shared)
    ============================================ */
-@media screen and (min-width: 768px) and (max-width: 1366px) {
+@media screen and (min-width: 900px) and (max-width: 1400px) and (min-height: 500px) and (max-height: 1024px) {
 
   :root {
     --tablet-card-gap: 12px;
@@ -63,10 +63,11 @@
     max-width: none !important;
   }
 
-  /* Timeout bars base */
+  /* Timeout bars base 
   .fs-sb-timeouts {
     gap: 10px !important;
-  }
+  } 
+  */
 
   .fs-sb-timeout-pip {
     width: clamp(14px, 2vw, 24px) !important;
@@ -95,7 +96,7 @@
 /* ============================================
    2. TABLET PORTRAIT MODE - All Grids
    ============================================ */
-@media screen and (min-width: 768px) and (max-width: 1366px) and (orientation: portrait) {
+@media screen and (min-width: 900px) and (max-width: 1400px) and (min-height: 500px) and (max-height: 1024px) and (orientation: portrait) {
 
   /* Back button portrait - ensure consistent positioning after orientation change */
   .back-btn {
@@ -119,59 +120,72 @@
     grid-template-rows: 1fr !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-game-card {
+  .fullscreen-grid.grid-1 .fullscreen-game-card,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-game-card {
     max-width: 95% !important;
     max-height: 70vh !important;
     margin: auto !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-team-logo {
+  .fullscreen-grid.grid-1 .fullscreen-team-logo,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-team-logo {
     width: clamp(90px, 18vw, 160px) !important;
     height: clamp(90px, 18vw, 160px) !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-team-score {
+  .fullscreen-grid.grid-1 .fullscreen-team-score,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-team-score {
     font-size: clamp(4rem, 12vw, 7rem) !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-live-team-name {
+  .fullscreen-grid.grid-1 .fullscreen-live-team-name,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-live-team-name {
     font-size: clamp(1.4rem, 4vw, 2.2rem) !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-team-record {
+  .fullscreen-grid.grid-1 .fullscreen-team-record,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-team-record {
     font-size: clamp(1rem, 2.5vw, 1.5rem) !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-status-text {
+  .fullscreen-grid.grid-1 .fullscreen-status-text,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-status-text {
     font-size: clamp(1.8rem, 4vw, 2.8rem) !important;
   }
 
-  .fullscreen-grid.grid-1 .sport-logo-indicator {
+  .fullscreen-grid.grid-1 .sport-logo-indicator,
+  .fullscreen-grid.grid-7[data-page="2"] .sport-logo-indicator {
     width: clamp(36px, 6vw, 56px) !important;
     height: clamp(36px, 6vw, 56px) !important;
   }
 
-  .fullscreen-grid.grid-1 .fs-scoreboard {
+  .fullscreen-grid.grid-1 .fs-scoreboard,
+  .fullscreen-grid.grid-7[data-page="2"] .fs-scoreboard {
     height: clamp(90px, 18vh, 140px) !important;
   }
 
-  .fullscreen-grid.grid-1 .field-container {
+  .fullscreen-grid.grid-1 .field-container,
+  .fullscreen-grid.grid-7[data-page="2"] .field-container {
     height: clamp(var(--fs-field-height-grid-1-min, 45px), var(--fs-field-height-grid-1-preferred, 9vh), var(--fs-field-height-grid-1-max, 75px)) !important;
   }
 
-  .fullscreen-grid.grid-1 .field-visualizer {
+  .fullscreen-grid.grid-1 .field-visualizer,
+  .fullscreen-grid.grid-7[data-page="2"] .field-visualizer {
     max-width: var(--fs-field-width-tablet-portrait-grid-1, 90%) !important;
   }
 
-  .fullscreen-grid.grid-1 .fs-sb-time-box {
+  .fullscreen-grid.grid-1 .fs-sb-time-box,
+  .fullscreen-grid.grid-7[data-page="2"] .fs-sb-time-box {
     top: clamp(6px, 1.5vh, 12px) !important;
   }
 
-  .fullscreen-grid.grid-1 .fs-sb-timeouts.away {
+  .fullscreen-grid.grid-1 .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-7[data-page="2"] .fs-sb-timeouts.away {
     right: clamp(80px, 10vw, 140px) !important;
   }
 
-  .fullscreen-grid.grid-1 .fs-sb-timeouts.home {
+  .fullscreen-grid.grid-1 .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-7[data-page="2"] .fs-sb-timeouts.home {
     left: clamp(80px, 10vw, 140px) !important;
   }
 
@@ -200,37 +214,46 @@
     grid-row: 2 !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-team-logo {
+  /* Grid 2 all cards & Grid 8 page 2: Portrait mode */
+  .fullscreen-grid.grid-2 .fullscreen-team-logo,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-team-logo {
     width: clamp(70px, 14vw, 120px) !important;
     height: clamp(70px, 14vw, 120px) !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-team-score {
+  .fullscreen-grid.grid-2 .fullscreen-team-score,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-team-score {
     font-size: clamp(3rem, 9vw, 5.5rem) !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-live-team-name {
+  .fullscreen-grid.grid-2 .fullscreen-live-team-name,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-live-team-name {
     font-size: clamp(1.2rem, 3vw, 1.8rem) !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-team-record {
+  .fullscreen-grid.grid-2 .fullscreen-team-record,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-team-record {
     font-size: clamp(0.9rem, 2vw, 1.3rem) !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-status-text {
+  .fullscreen-grid.grid-2 .fullscreen-status-text,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-status-text {
     font-size: clamp(1.4rem, 3vw, 2.2rem) !important;
   }
 
-  .fullscreen-grid.grid-2 .sport-logo-indicator {
+  .fullscreen-grid.grid-2 .sport-logo-indicator,
+  .fullscreen-grid.grid-8[data-page="2"] .sport-logo-indicator {
     width: clamp(60px, 12vw, 100px) !important;
     height: clamp(60px, 12vw, 100px) !important;
   }
 
-  .fullscreen-grid.grid-2 .fs-scoreboard {
+  .fullscreen-grid.grid-2 .fs-scoreboard,
+  .fullscreen-grid.grid-8[data-page="2"] .fs-scoreboard {
     height: clamp(70px, 14vh, 110px) !important;
   }
 
-  .fullscreen-grid.grid-2 .field-container {
+  .fullscreen-grid.grid-2 .field-container,
+  .fullscreen-grid.grid-8[data-page="2"] .field-container {
     height: clamp(35px, 6vh, 50px) !important;
   }
 
@@ -238,15 +261,22 @@
     max-width: var(--fs-field-width-tablet-portrait-grid-2, 95%) !important;
   }
 
-  .fullscreen-grid.grid-2 .fs-sb-time-box {
+  .fullscreen-grid.grid-8[data-page="2"] .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-8-page-2, 95%) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fs-sb-time-box,
+  .fullscreen-grid.grid-8[data-page="2"] .fs-sb-time-box {
     top: clamp(5px, 1.2vh, 10px) !important;
   }
 
-  .fullscreen-grid.grid-2 .fs-sb-timeouts.away {
+  .fullscreen-grid.grid-2 .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-8[data-page="2"] .fs-sb-timeouts.away {
     right: clamp(60px, 12vw, 110px) !important;
   }
 
-  .fullscreen-grid.grid-2 .fs-sb-timeouts.home {
+  .fullscreen-grid.grid-2 .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-8[data-page="2"] .fs-sb-timeouts.home {
     left: clamp(60px, 12vw, 110px) !important;
   }
 
@@ -460,37 +490,62 @@
     grid-column: span 2 !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-team-logo {
+  /* Grid 5 all cards, Grid 6 all cards, Grid 7 page 1 & Grid 8 page 1: Shared element sizing for portrait mode */
+  .fullscreen-grid.grid-5 .fullscreen-team-logo,
+  .fullscreen-grid.grid-6 .fullscreen-team-logo,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-team-logo,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-team-logo {
     width: clamp(42px, 7vw, 65px) !important;
     height: clamp(42px, 7vw, 65px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-team-score {
+  .fullscreen-grid.grid-5 .fullscreen-team-score,
+  .fullscreen-grid.grid-6 .fullscreen-team-score,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-team-score,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-team-score {
     font-size: clamp(1.6rem, 4.5vw, 2.8rem) !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-live-team-name {
+  .fullscreen-grid.grid-5 .fullscreen-live-team-name,
+  .fullscreen-grid.grid-6 .fullscreen-live-team-name,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-live-team-name,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-live-team-name {
     font-size: clamp(0.8rem, 1.8vw, 1.2rem) !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-team-record {
+  .fullscreen-grid.grid-5 .fullscreen-team-record,
+  .fullscreen-grid.grid-6 .fullscreen-team-record,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-team-record,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-team-record {
     font-size: clamp(0.6rem, 1.1vw, 0.9rem) !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-status-text {
+  .fullscreen-grid.grid-5 .fullscreen-status-text,
+  .fullscreen-grid.grid-6 .fullscreen-status-text,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-status-text,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-status-text {
     font-size: clamp(0.9rem, 1.8vw, 1.3rem) !important;
   }
 
-  .fullscreen-grid.grid-5 .sport-logo-indicator {
+  .fullscreen-grid.grid-5 .sport-logo-indicator,
+  .fullscreen-grid.grid-6 .sport-logo-indicator,
+  .fullscreen-grid.grid-7[data-page="1"] .sport-logo-indicator,
+  .fullscreen-grid.grid-8[data-page="1"] .sport-logo-indicator {
     width: clamp(20px, 3vw, 30px) !important;
     height: clamp(20px, 3vw, 30px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-scoreboard {
+  .fullscreen-grid.grid-5 .fs-scoreboard,
+  .fullscreen-grid.grid-6 .fs-scoreboard,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-scoreboard,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-scoreboard {
     height: clamp(48px, 9vh, 70px) !important;
   }
 
-  .fullscreen-grid.grid-5 .field-container {
+  .fullscreen-grid.grid-5 .field-container,
+  .fullscreen-grid.grid-6 .field-container,
+  .fullscreen-grid.grid-7[data-page="1"] .field-container,
+  .fullscreen-grid.grid-8[data-page="1"] .field-container {
     height: clamp(22px, 4vh, 34px) !important;
   }
 
@@ -498,232 +553,84 @@
     max-width: var(--fs-field-width-tablet-portrait-grid-5, 90%) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-sb-time-box {
+  .fullscreen-grid.grid-6 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-6, 90%) !important;
+  }
+
+  .fullscreen-grid.grid-7[data-page="1"] .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-7-page-1, 90%) !important;
+  }
+
+  .fullscreen-grid.grid-8[data-page="1"] .field-visualizer {
+    max-width: var(--fs-field-width-tablet-portrait-grid-8-page-1, 90%) !important;
+  }
+
+  .fullscreen-grid.grid-5 .fs-sb-time-box,
+  .fullscreen-grid.grid-6 .fs-sb-time-box,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-sb-time-box,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-sb-time-box {
     top: clamp(2px, 0.6vh, 6px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-sb-timeouts.away {
+  .fullscreen-grid.grid-5 .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-6 .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-sb-timeouts.away {
     right: clamp(28px, 5.5vw, 52px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-sb-timeouts.home {
+  .fullscreen-grid.grid-5 .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-6 .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-sb-timeouts.home {
     left: clamp(28px, 5.5vw, 52px) !important;
   }
 
   /* ----------------------------------------
-     PORTRAIT: GRID-6 (2x3 Grid)
+     PORTRAIT: GRID-6 (2x3 Grid) - Grid template configuration only
+     Also used by Grid 7 page 1 and Grid 8 page 1
      ---------------------------------------- */
-  .fullscreen-grid.grid-6 {
+  .fullscreen-grid.grid-6,
+  .fullscreen-grid.grid-7[data-page="1"],
+  .fullscreen-grid.grid-8[data-page="1"] {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     grid-template-rows: repeat(3, 1fr) !important;
   }
 
-  .fullscreen-grid.grid-6 .fullscreen-team-logo {
-    width: clamp(40px, 6.5vw, 60px) !important;
-    height: clamp(40px, 6.5vw, 60px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fullscreen-team-score {
-    font-size: clamp(1.5rem, 4vw, 2.5rem) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fullscreen-live-team-name {
-    font-size: clamp(0.75rem, 1.6vw, 1.1rem) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fullscreen-team-record {
-    font-size: clamp(0.55rem, 1vw, 0.85rem) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fullscreen-status-text {
-    font-size: clamp(0.85rem, 1.6vw, 1.2rem) !important;
-  }
-
-  .fullscreen-grid.grid-6 .sport-logo-indicator {
-    width: clamp(18px, 2.8vw, 28px) !important;
-    height: clamp(18px, 2.8vw, 28px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-scoreboard {
-    height: clamp(45px, 8vh, 65px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .field-container {
-    height: clamp(20px, 3.5vh, 30px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .field-visualizer {
-    max-width: var(--fs-field-width-tablet-portrait-grid-6, 90%) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-sb-time-box {
-    top: clamp(2px, 0.5vh, 5px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-sb-timeouts.away {
-    right: clamp(25px, 5vw, 48px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-sb-timeouts.home {
-    left: clamp(25px, 5vw, 48px) !important;
+  /* ----------------------------------------
+     PORTRAIT: GRID-7 Page 2 (Single Card)
+     Uses Grid 1 layout
+     ---------------------------------------- */
+  .fullscreen-grid.grid-7[data-page="2"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
   }
 
   /* ----------------------------------------
-     PORTRAIT: GRID-7 (1 Large Top, 3x2 Below)
+     PORTRAIT: GRID-8 Page 2 (2 Cards Stacked Vertically)
+     Uses Grid 2 layout
      ---------------------------------------- */
-  .fullscreen-grid.grid-7 {
+  .fullscreen-grid.grid-8[data-page="2"] {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    grid-template-rows: 1.5fr 1fr 1fr !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    grid-auto-flow: row !important;
   }
 
-  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) {
-    grid-column: 1 / -1 !important;
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-game-card {
+    grid-column: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-game-card:nth-child(1) {
     grid-row: 1 !important;
   }
 
-  /* First card (large) styling */
-  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fullscreen-team-logo {
-    width: clamp(60px, 10vw, 95px) !important;
-    height: clamp(60px, 10vw, 95px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fullscreen-team-score {
-    font-size: clamp(2.5rem, 6vw, 4rem) !important;
-  }
-
-  /* Other cards styling */
-  .fullscreen-grid.grid-7 .fullscreen-team-logo {
-    width: clamp(32px, 5vw, 48px) !important;
-    height: clamp(32px, 5vw, 48px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-team-score {
-    font-size: clamp(1.2rem, 3vw, 2rem) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-live-team-name {
-    font-size: clamp(0.7rem, 1.3vw, 1rem) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-team-record {
-    font-size: clamp(0.5rem, 0.9vw, 0.75rem) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-status-text {
-    font-size: clamp(0.8rem, 1.4vw, 1.1rem) !important;
-  }
-
-  .fullscreen-grid.grid-7 .sport-logo-indicator {
-    width: clamp(16px, 2.5vw, 24px) !important;
-    height: clamp(16px, 2.5vw, 24px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-scoreboard {
-    height: clamp(42px, 7vh, 58px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .field-container {
-    height: clamp(18px, 3vh, 28px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .field-visualizer {
-    max-width: var(--fs-field-width-tablet-portrait-grid-7, 88%) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-sb-time-box {
-    top: clamp(2px, 0.4vh, 5px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-sb-timeouts.away {
-    right: clamp(22px, 4vw, 42px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-sb-timeouts.home {
-    left: clamp(22px, 4vw, 42px) !important;
-  }
-
-  /* ----------------------------------------
-     PORTRAIT: GRID-8 (2 Large Top, 3x2 Below)
-     ---------------------------------------- */
-  .fullscreen-grid.grid-8 {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    grid-template-rows: 1.3fr 1fr 1fr !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
-    grid-column: span 2 !important;
-    grid-row: 1 !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
-    grid-column: 3 !important;
-    grid-row: 1 !important;
-  }
-
-  /* Large cards styling */
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fullscreen-team-logo,
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fullscreen-team-logo {
-    width: clamp(45px, 7vw, 70px) !important;
-    height: clamp(45px, 7vw, 70px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fullscreen-team-score,
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fullscreen-team-score {
-    font-size: clamp(1.8rem, 4.5vw, 3rem) !important;
-  }
-
-  /* Other cards styling */
-  .fullscreen-grid.grid-8 .fullscreen-team-logo {
-    width: clamp(28px, 4.5vw, 42px) !important;
-    height: clamp(28px, 4.5vw, 42px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-team-score {
-    font-size: clamp(1.1rem, 2.8vw, 1.8rem) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-live-team-name {
-    font-size: clamp(0.65rem, 1.2vw, 0.95rem) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-team-record {
-    font-size: clamp(0.5rem, 0.85vw, 0.7rem) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-status-text {
-    font-size: clamp(0.75rem, 1.3vw, 1rem) !important;
-  }
-
-  .fullscreen-grid.grid-8 .sport-logo-indicator {
-    width: clamp(14px, 2.2vw, 22px) !important;
-    height: clamp(14px, 2.2vw, 22px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fs-scoreboard {
-    height: clamp(38px, 6.5vh, 52px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .field-container {
-    height: clamp(16px, 2.8vh, 25px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .field-visualizer {
-    max-width: var(--fs-field-width-tablet-portrait-grid-8, 88%) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fs-sb-time-box {
-    top: clamp(1px, 0.3vh, 4px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fs-sb-timeouts.away {
-    right: clamp(18px, 3.5vw, 36px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fs-sb-timeouts.home {
-    left: clamp(18px, 3.5vw, 36px) !important;
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-game-card:nth-child(2) {
+    grid-row: 2 !important;
   }
 
 }
@@ -731,7 +638,7 @@
 /* ============================================
    3. TABLET LANDSCAPE MODE - All Grids
    ============================================ */
-@media screen and (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
+@media screen and (min-width: 900px) and (max-width: 1400px) and (min-height: 500px) and (max-height: 1024px) and (orientation: landscape) {
 
   .fullscreen-grid {
     padding: 10px !important;
@@ -759,59 +666,72 @@
     grid-template-rows: 1fr !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-game-card {
+  .fullscreen-grid.grid-1 .fullscreen-game-card,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-game-card {
     max-width: 80% !important;
     max-height: 90% !important;
     margin: auto !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-team-logo {
+  .fullscreen-grid.grid-1 .fullscreen-team-logo,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-team-logo {
     width: clamp(80px, 12vh, 140px) !important;
     height: clamp(80px, 12vh, 140px) !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-team-score {
+  .fullscreen-grid.grid-1 .fullscreen-team-score,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-team-score {
     font-size: clamp(3.5rem, 10vh, 6rem) !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-live-team-name {
+  .fullscreen-grid.grid-1 .fullscreen-live-team-name,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-live-team-name {
     font-size: clamp(1.3rem, 3vh, 2rem) !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-team-record {
+  .fullscreen-grid.grid-1 .fullscreen-team-record,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-team-record {
     font-size: clamp(0.9rem, 2vh, 1.4rem) !important;
   }
 
-  .fullscreen-grid.grid-1 .fullscreen-status-text {
+  .fullscreen-grid.grid-1 .fullscreen-status-text,
+  .fullscreen-grid.grid-7[data-page="2"] .fullscreen-status-text {
     font-size: clamp(1.6rem, 4vh, 2.5rem) !important;
   }
 
-  .fullscreen-grid.grid-1 .sport-logo-indicator {
+  .fullscreen-grid.grid-1 .sport-logo-indicator,
+  .fullscreen-grid.grid-7[data-page="2"] .sport-logo-indicator {
     width: clamp(60px, 12vw, 100px) !important;
     height: clamp(60px, 12vw, 100px) !important;
   }
 
-  .fullscreen-grid.grid-1 .fs-scoreboard {
+  .fullscreen-grid.grid-1 .fs-scoreboard,
+  .fullscreen-grid.grid-7[data-page="2"] .fs-scoreboard {
     height: clamp(75px, 18vh, 120px) !important;
   }
 
-  .fullscreen-grid.grid-1 .field-container {
+  .fullscreen-grid.grid-1 .field-container,
+  .fullscreen-grid.grid-7[data-page="2"] .field-container {
     height: clamp(var(--fs-field-height-grid-1-min, 45px), var(--fs-field-height-grid-1-preferred, 9vh), var(--fs-field-height-grid-1-max, 75px)) !important;
   }
 
-  .fullscreen-grid.grid-1 .field-visualizer {
+  .fullscreen-grid.grid-1 .field-visualizer,
+  .fullscreen-grid.grid-7[data-page="2"] .field-visualizer {
     max-width: var(--fs-field-width-tablet-landscape-grid-1, 85%) !important;
   }
 
-  .fullscreen-grid.grid-1 .fs-sb-time-box {
+  .fullscreen-grid.grid-1 .fs-sb-time-box,
+  .fullscreen-grid.grid-7[data-page="2"] .fs-sb-time-box {
     top: clamp(6px, 1.5vh, 12px) !important;
   }
 
-  .fullscreen-grid.grid-1 .fs-sb-timeouts.away {
+  .fullscreen-grid.grid-1 .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-7[data-page="2"] .fs-sb-timeouts.away {
     right: clamp(70px, 12vw, 100px) !important;
   }
 
-  .fullscreen-grid.grid-1 .fs-sb-timeouts.home {
+  .fullscreen-grid.grid-1 .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-7[data-page="2"] .fs-sb-timeouts.home {
     left: clamp(70px, 12vw, 100px) !important;
   }
 
@@ -824,37 +744,46 @@
     grid-template-rows: 1fr !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-team-logo {
+  /* Grid 2 all cards & Grid 8 page 2: Landscape mode */
+  .fullscreen-grid.grid-2 .fullscreen-team-logo,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-team-logo {
     width: clamp(60px, 10vh, 100px) !important;
     height: clamp(60px, 10vh, 100px) !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-team-score {
+  .fullscreen-grid.grid-2 .fullscreen-team-score,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-team-score {
     font-size: clamp(2.8rem, 8vh, 5rem) !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-live-team-name {
+  .fullscreen-grid.grid-2 .fullscreen-live-team-name,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-live-team-name {
     font-size: clamp(1.1rem, 2.5vh, 1.7rem) !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-team-record {
+  .fullscreen-grid.grid-2 .fullscreen-team-record,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-team-record {
     font-size: clamp(0.8rem, 1.8vh, 1.2rem) !important;
   }
 
-  .fullscreen-grid.grid-2 .fullscreen-status-text {
+  .fullscreen-grid.grid-2 .fullscreen-status-text,
+  .fullscreen-grid.grid-8[data-page="2"] .fullscreen-status-text {
     font-size: clamp(1.3rem, 3vh, 2rem) !important;
   }
 
-  .fullscreen-grid.grid-2 .sport-logo-indicator {
+  .fullscreen-grid.grid-2 .sport-logo-indicator,
+  .fullscreen-grid.grid-8[data-page="2"] .sport-logo-indicator {
     width: clamp(60px, 12vw, 100px) !important;
     height: clamp(60px, 12vw, 100px) !important;
   }
 
-  .fullscreen-grid.grid-2 .fs-scoreboard {
+  .fullscreen-grid.grid-2 .fs-scoreboard,
+  .fullscreen-grid.grid-8[data-page="2"] .fs-scoreboard {
     height: clamp(65px, 15vh, 100px) !important;
   }
 
-  .fullscreen-grid.grid-2 .field-container {
+  .fullscreen-grid.grid-2 .field-container,
+  .fullscreen-grid.grid-8[data-page="2"] .field-container {
     height: clamp(30px, 7vh, 48px) !important;
   }
 
@@ -862,16 +791,23 @@
     max-width: var(--fs-field-width-tablet-landscape-grid-2, 92%) !important;
   }
 
-  .fullscreen-grid.grid-2 .fs-sb-time-box {
+  .fullscreen-grid.grid-8[data-page="2"] .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-8-page-2, 92%) !important;
+  }
+
+  .fullscreen-grid.grid-2 .fs-sb-time-box,
+  .fullscreen-grid.grid-8[data-page="2"] .fs-sb-time-box {
     top: clamp(5px, 1.2vh, 10px) !important;
   }
 
-  .fullscreen-grid.grid-2 .fs-sb-timeouts.away {
-    right: clamp(55px, 10vw, 60px) !important;
+  .fullscreen-grid.grid-2 .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-8[data-page="2"] .fs-sb-timeouts.away {
+    right: clamp(45px, 10vw, 45px) !important;
   }
 
-  .fullscreen-grid.grid-2 .fs-sb-timeouts.home {
-    left: clamp(55px, 10vw, 60px) !important;
+  .fullscreen-grid.grid-2 .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-8[data-page="2"] .fs-sb-timeouts.home {
+    left: clamp(45px, 10vw, 45px) !important;
   }
 
   /* ----------------------------------------
@@ -1035,37 +971,64 @@
     grid-column: span 2 !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-team-logo {
-    width: clamp(35px, 5.5vh, 58px) !important;
-    height: clamp(35px, 5.5vh, 58px) !important;
+
+
+  /* Grid 5 all cards, Grid 6 all cards, Grid 7 page 1 & Grid 8 page 1: Shared element sizing for landscape mode */
+  .fullscreen-grid.grid-5 .fullscreen-team-logo,
+  .fullscreen-grid.grid-6 .fullscreen-team-logo,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-team-logo,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-team-logo {
+    width: clamp(38px, 6vh, 60px) !important;
+    height: clamp(38px, 6vh, 60px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-team-score {
+  .fullscreen-grid.grid-5 .fullscreen-team-score,
+  .fullscreen-grid.grid-6 .fullscreen-team-score,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-team-score,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-team-score {
     font-size: clamp(1.5rem, 4vh, 2.6rem) !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-live-team-name {
+  .fullscreen-grid.grid-5 .fullscreen-live-team-name,
+  .fullscreen-grid.grid-6 .fullscreen-live-team-name,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-live-team-name,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-live-team-name {
     font-size: clamp(0.75rem, 1.5vh, 1.15rem) !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-team-record {
+  .fullscreen-grid.grid-5 .fullscreen-team-record,
+  .fullscreen-grid.grid-6 .fullscreen-team-record,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-team-record,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-team-record {
     font-size: clamp(0.55rem, 1.1vh, 0.9rem) !important;
   }
 
-  .fullscreen-grid.grid-5 .fullscreen-status-text {
+  .fullscreen-grid.grid-5 .fullscreen-status-text,
+  .fullscreen-grid.grid-6 .fullscreen-status-text,
+  .fullscreen-grid.grid-7[data-page="1"] .fullscreen-status-text,
+  .fullscreen-grid.grid-8[data-page="1"] .fullscreen-status-text {
     font-size: clamp(0.85rem, 1.7vh, 1.3rem) !important;
   }
 
-  .fullscreen-grid.grid-5 .sport-logo-indicator {
-    width: clamp(18px, 2.8vh, 28px) !important;
-    height: clamp(18px, 2.8vh, 28px) !important;
+  .fullscreen-grid.grid-5 .sport-logo-indicator,
+  .fullscreen-grid.grid-6 .sport-logo-indicator,
+  .fullscreen-grid.grid-7[data-page="1"] .sport-logo-indicator,
+  .fullscreen-grid.grid-8[data-page="1"] .sport-logo-indicator {
+    width: clamp(16px, 2.5vh, 26px) !important;
+    height: clamp(16px, 2.5vh, 26px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-scoreboard {
+  .fullscreen-grid.grid-5 .fs-scoreboard,
+  .fullscreen-grid.grid-6 .fs-scoreboard,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-scoreboard,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-scoreboard {
     height: clamp(42px, 10vh, 65px) !important;
   }
 
-  .fullscreen-grid.grid-5 .field-container {
+  .fullscreen-grid.grid-5 .field-container,
+  .fullscreen-grid.grid-6 .field-container,
+  .fullscreen-grid.grid-7[data-page="1"] .field-container,
+  .fullscreen-grid.grid-8[data-page="1"] .field-container {
     height: clamp(20px, 4.5vh, 32px) !important;
   }
 
@@ -1073,357 +1036,124 @@
     max-width: var(--fs-field-width-tablet-landscape-grid-5, 88%) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-sb-time-box {
+  .fullscreen-grid.grid-6 .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-6, 88%) !important;
+  }
+
+  .fullscreen-grid.grid-7[data-page="1"] .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-7-page-1, 88%) !important;
+  }
+
+  .fullscreen-grid.grid-8[data-page="1"] .field-visualizer {
+    max-width: var(--fs-field-width-tablet-landscape-grid-8-page-1, 88%) !important;
+  }
+
+  .fullscreen-grid.grid-5 .fs-sb-time-box,
+  .fullscreen-grid.grid-6 .fs-sb-time-box,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-sb-time-box,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-sb-time-box {
     top: clamp(2px, 0.6vh, 6px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-sb-timeouts.away {
+  .fullscreen-grid.grid-5 .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-6 .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-sb-timeouts.away,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-sb-timeouts.away {
     right: clamp(25px, 4vw, 45px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-sb-timeouts.home {
+  .fullscreen-grid.grid-5 .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-6 .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-sb-timeouts.home,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-sb-timeouts.home {
     left: clamp(25px, 4vw, 45px) !important;
   }
 
-  /* Grid-5 Logo center spacer */
-  .fullscreen-grid.grid-5 .fs-sb-logo-center-spacer {
+  /* Grid 5, Grid 6, Grid 7 page 1 & Grid 8 page 1: Logo center spacer */
+  .fullscreen-grid.grid-5 .fs-sb-logo-center-spacer,
+  .fullscreen-grid.grid-6 .fs-sb-logo-center-spacer,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-sb-logo-center-spacer,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-sb-logo-center-spacer {
     width: clamp(30px, 5vmin, 60px) !important;
   }
 
-  /* Grid-5 Team info positioning */
-  .fullscreen-grid.grid-5 .fs-sb-team-section.away .fs-sb-team-info {
+  /* Grid 5, Grid 6, Grid 7 page 1 & Grid 8 page 1: Team info positioning */
+  .fullscreen-grid.grid-5 .fs-sb-team-section.away .fs-sb-team-info,
+  .fullscreen-grid.grid-6 .fs-sb-team-section.away .fs-sb-team-info,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-sb-team-section.away .fs-sb-team-info,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-sb-team-section.away .fs-sb-team-info {
+    position: relative !important;
+    left: clamp(5px, 5vw, 0px) !important;
+  }
+
+  .fullscreen-grid.grid-5 .fs-sb-team-section.home .fs-sb-team-info,
+  .fullscreen-grid.grid-6 .fs-sb-team-section.home .fs-sb-team-info,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-sb-team-section.home .fs-sb-team-info,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-sb-team-section.home .fs-sb-team-info {
+    position: relative !important;
+    left: clamp(-5px, -5vw, 0px) !important;
+  }
+
+  /* Grid 5, Grid 6, Grid 7 page 1 & Grid 8 page 1: Team logo positioning */
+  .fullscreen-grid.grid-5 .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper,
+  .fullscreen-grid.grid-6 .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
 
-  .fullscreen-grid.grid-5 .fs-sb-team-section.home .fs-sb-team-info {
+  .fullscreen-grid.grid-5 .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper,
+  .fullscreen-grid.grid-6 .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper,
+  .fullscreen-grid.grid-7[data-page="1"] .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper,
+  .fullscreen-grid.grid-8[data-page="1"] .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
 
-  /* Grid-5 Team logo positioning */
-  .fullscreen-grid.grid-5 .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  .fullscreen-grid.grid-5 .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  /* Grid-5 Score box positioning */
+  /* Grid-5 Score box positioning
   .fullscreen-grid.grid-5 .fs-sb-score-box.away {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
 
+
   .fullscreen-grid.grid-5 .fs-sb-score-box.home {
     position: relative !important;
     left: clamp(0px, 0vw, 0px) !important;
   }
+    */
 
   /* ----------------------------------------
-     LANDSCAPE: GRID-6 (6 in a Row or 3x2)
+     LANDSCAPE: GRID-6 (3x2 Grid) - Grid template configuration only
+     Also used by Grid 7 page 1 and Grid 8 page 1
      ---------------------------------------- */
-  .fullscreen-grid.grid-6 {
+  .fullscreen-grid.grid-6,
+  .fullscreen-grid.grid-7[data-page="1"],
+  .fullscreen-grid.grid-8[data-page="1"] {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
     grid-template-rows: 1fr 1fr !important;
   }
 
-  .fullscreen-grid.grid-6 .fullscreen-team-logo {
-    width: clamp(32px, 5vh, 52px) !important;
-    height: clamp(32px, 5vh, 52px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fullscreen-team-score {
-    font-size: clamp(1.3rem, 3.5vh, 2.3rem) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fullscreen-live-team-name {
-    font-size: clamp(0.7rem, 1.4vh, 1.05rem) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fullscreen-team-record {
-    font-size: clamp(0.5rem, 1vh, 0.85rem) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fullscreen-status-text {
-    font-size: clamp(0.8rem, 1.5vh, 1.2rem) !important;
-  }
-
-  .fullscreen-grid.grid-6 .sport-logo-indicator {
-    width: clamp(16px, 2.5vh, 26px) !important;
-    height: clamp(16px, 2.5vh, 26px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-scoreboard {
-    height: clamp(40px, 9vh, 60px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .field-container {
-    height: clamp(18px, 4vh, 28px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .field-visualizer {
-    max-width: var(--fs-field-width-tablet-landscape-grid-6, 88%) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-sb-time-box {
-    top: clamp(2px, 0.5vh, 5px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-sb-timeouts.away {
-    right: clamp(22px, 3.5vw, 40px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-sb-timeouts.home {
-    left: clamp(22px, 3.5vw, 40px) !important;
-  }
-
-  /* Grid-6 Logo center spacer */
-  .fullscreen-grid.grid-6 .fs-sb-logo-center-spacer {
-    width: clamp(25px, 4vmin, 50px) !important;
-  }
-
-  /* Grid-6 Team info positioning */
-  .fullscreen-grid.grid-6 .fs-sb-team-section.away .fs-sb-team-info {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-sb-team-section.home .fs-sb-team-info {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  /* Grid-6 Team logo positioning */
-  .fullscreen-grid.grid-6 .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  /* Grid-6 Score box positioning */
-  .fullscreen-grid.grid-6 .fs-sb-score-box.away {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  .fullscreen-grid.grid-6 .fs-sb-score-box.home {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
+  /* ----------------------------------------
+     LANDSCAPE: GRID-7 Page 2 (Single Card Centered)
+     Uses Grid 1 layout
+     ---------------------------------------- */
+  .fullscreen-grid.grid-7[data-page="2"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
   }
 
   /* ----------------------------------------
-     LANDSCAPE: GRID-7 (1 Large Left, 6 Right)
+     LANDSCAPE: GRID-8 Page 2 (2 Cards Side by Side)
+     Uses Grid 2 layout
      ---------------------------------------- */
-  .fullscreen-grid.grid-7 {
+  .fullscreen-grid.grid-8[data-page="2"] {
     display: grid !important;
-    grid-template-columns: 1.5fr 1fr 1fr !important;
-    grid-template-rows: repeat(3, 1fr) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) {
-    grid-row: 1 / -1 !important;
-    grid-column: 1 !important;
-  }
-
-  /* Large card styling */
-  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fullscreen-team-logo {
-    width: clamp(55px, 9vh, 90px) !important;
-    height: clamp(55px, 9vh, 90px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fullscreen-team-score {
-    font-size: clamp(2.2rem, 6vh, 4rem) !important;
-  }
-
-  /* Small cards styling */
-  .fullscreen-grid.grid-7 .fullscreen-team-logo {
-    width: clamp(28px, 4.2vh, 45px) !important;
-    height: clamp(28px, 4.2vh, 45px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-team-score {
-    font-size: clamp(1.1rem, 2.8vh, 1.9rem) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-live-team-name {
-    font-size: clamp(0.65rem, 1.2vh, 0.95rem) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-team-record {
-    font-size: clamp(0.48rem, 0.9vh, 0.75rem) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-status-text {
-    font-size: clamp(0.75rem, 1.4vh, 1.1rem) !important;
-  }
-
-  .fullscreen-grid.grid-7 .sport-logo-indicator {
-    width: clamp(14px, 2.2vh, 24px) !important;
-    height: clamp(14px, 2.2vh, 24px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-scoreboard {
-    height: clamp(38px, 8vh, 55px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .field-container {
-    height: clamp(16px, 3.5vh, 26px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .field-visualizer {
-    max-width: var(--fs-field-width-tablet-landscape-grid-7, 85%) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-sb-time-box {
-    top: clamp(2px, 0.4vh, 5px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-sb-timeouts.away {
-    right: clamp(18px, 3vw, 35px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-sb-timeouts.home {
-    left: clamp(18px, 3vw, 35px) !important;
-  }
-
-  /* Grid-7 Logo center spacer */
-  .fullscreen-grid.grid-7 .fs-sb-logo-center-spacer {
-    width: clamp(20px, 3vmin, 40px) !important;
-  }
-
-  /* Grid-7 Team info positioning */
-  .fullscreen-grid.grid-7 .fs-sb-team-section.away .fs-sb-team-info {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-sb-team-section.home .fs-sb-team-info {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  /* Grid-7 Team logo positioning */
-  .fullscreen-grid.grid-7 .fs-scoreboard-top> :nth-child(2) .fs-card-team-logo-wrapper {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-scoreboard-top> :nth-child(4) .fs-card-team-logo-wrapper {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  /* Grid-7 Score box positioning */
-  .fullscreen-grid.grid-7 .fs-sb-score-box.away {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fs-sb-score-box.home {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  /* Grid-7 Large card (first card) specific positioning */
-  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-logo-center-spacer {
-    width: clamp(40px, 6vmin, 70px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.away .fs-sb-team-info {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  .fullscreen-grid.grid-7 .fullscreen-game-card:nth-child(1) .fs-sb-team-section.home .fs-sb-team-info {
-    position: relative !important;
-    left: clamp(0px, 0vw, 0px) !important;
-  }
-
-  /* ----------------------------------------
-     LANDSCAPE: GRID-8 (2 Large Left, 6 Right)
-     ---------------------------------------- */
-  .fullscreen-grid.grid-8 {
-    display: grid !important;
-    grid-template-columns: 1.3fr 1fr 1fr !important;
-    grid-template-rows: repeat(3, 1fr) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) {
-    grid-row: span 2 !important;
-    grid-column: 1 !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) {
-    grid-row: 3 !important;
-    grid-column: 1 !important;
-  }
-
-  /* Large cards styling */
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fullscreen-team-logo,
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fullscreen-team-logo {
-    width: clamp(42px, 6.5vh, 68px) !important;
-    height: clamp(42px, 6.5vh, 68px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(1) .fullscreen-team-score,
-  .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(2) .fullscreen-team-score {
-    font-size: clamp(1.7rem, 4.5vh, 3rem) !important;
-  }
-
-  /* Small cards styling */
-  .fullscreen-grid.grid-8 .fullscreen-team-logo {
-    width: clamp(26px, 3.8vh, 42px) !important;
-    height: clamp(26px, 3.8vh, 42px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-team-score {
-    font-size: clamp(1rem, 2.5vh, 1.7rem) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-live-team-name {
-    font-size: clamp(0.6rem, 1.1vh, 0.9rem) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-team-record {
-    font-size: clamp(0.45rem, 0.85vh, 0.7rem) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fullscreen-status-text {
-    font-size: clamp(0.7rem, 1.3vh, 1rem) !important;
-  }
-
-  .fullscreen-grid.grid-8 .sport-logo-indicator {
-    width: clamp(13px, 2vh, 22px) !important;
-    height: clamp(13px, 2vh, 22px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fs-scoreboard {
-    height: clamp(35px, 7.5vh, 52px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .field-container {
-    height: clamp(15px, 3.2vh, 24px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fs-sb-time-box {
-    top: clamp(1px, 0.3vh, 4px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fs-sb-timeouts.away {
-    right: clamp(15px, 2.5vw, 30px) !important;
-  }
-
-  .fullscreen-grid.grid-8 .fs-sb-timeouts.home {
-    left: clamp(15px, 2.5vw, 30px) !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr !important;
   }
 
 }
@@ -1481,7 +1211,7 @@
 /* ============================================
    5. TOUCH-FRIENDLY ENHANCEMENTS
    ============================================ */
-@media screen and (min-width: 768px) and (max-width: 1366px) and (hover: none) and (pointer: coarse) {
+@media screen and (min-width: 900px) and (max-width: 1400px) and (min-height: 500px) and (max-height: 1024px) and (hover: none) and (pointer: coarse) {
 
   .fullscreen-game-card {
     min-height: 100px !important;
