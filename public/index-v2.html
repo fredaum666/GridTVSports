@@ -2470,6 +2470,54 @@
            SCOREBOARD COMPONENT STYLES (Live Cards)
            ============================================ */
 
+        /* Live card container needs position relative for top clock */
+        .live-card {
+            position: relative;
+        }
+
+        /* Top clock - positioned at top of card */
+        .live-card-top-clock {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 8px;
+            left: 0;
+            right: 0;
+            height: clamp(20px, 5vmin, 30px);
+            z-index: 10;
+            padding: 4px 8px;
+        }
+
+        .live-card-top-clock .live-sb-time-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 4px 12px;
+            min-width: 60px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .live-card-top-clock .live-sb-time-label {
+            font-size: clamp(0.5rem, 1.2vmin, 0.65rem);
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            order: 1;
+        }
+
+        .live-card-top-clock .live-sb-time {
+            font-size: clamp(0.65rem, 1.6vmin, 0.85rem);
+            font-weight: 700;
+            color: #ffffff;
+            order: 2;
+        }
+
         /* Wrapper for entire live card content */
         .live-card-wrapper {
             width: 100%;
@@ -2478,45 +2526,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 8px;
+            padding: 38px 8px 8px 8px;
             gap: 6px;
-        }
-
-        /* Scoreboard top section - mirrors scoreboard layout below */
-        .live-scoreboard-top {
-            width: 95%;
-            display: flex;
-            align-items: flex-end;
-            padding: 0;
-            margin-bottom: 0;
-        }
-
-        /* Spacer to match score box width (42px) */
-        .live-sb-logo-spacer {
-            width: 42px;
-            flex-shrink: 0;
-        }
-
-        /* Logo box - matches team section width with flex: 1 */
-        .live-sb-logo-box {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-        }
-
-        /* Center spacer - matches time box width (60px) */
-        .live-sb-logo-center-spacer {
-            width: 60px;
-            flex-shrink: 0;
-        }
-
-        .live-card-team-logo {
-            width: 45px;
-            height: 45px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6));
         }
 
         /* The scoreboard itself */
@@ -2637,6 +2648,7 @@
         }
 
         .live-sb-team-info {
+            position: relative;
             display: flex;
             flex-direction: column;
             gap: 1px;
@@ -2648,6 +2660,28 @@
 
         .live-sb-team-section.home .live-sb-team-info {
             align-items: center;
+        }
+
+        /* Team logo inside team-info - positioned above the scoreboard */
+        .live-sb-team-logo {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 6px;
+            width: clamp(32px, 8.4vw, 49px);
+            height: clamp(32px, 8.4vw, 49px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .live-sb-team-logo .live-card-team-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
         }
 
         .live-sb-team-name {
@@ -2665,16 +2699,9 @@
             display: block;
         }
 
-        /* Center time/status section */
+        /* Center time/status section - hidden (clock moved to top) */
         .live-sb-center {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: none;
         }
 
         .live-sb-time-box {
@@ -5304,38 +5331,34 @@
 
                 return `
                     <div class="game-card live-card ${leagueClass} focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
-                        <div class="live-card-wrapper">
-                            <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
-                            <div class="live-scoreboard-top">
-                                <div class="live-sb-logo-spacer"></div>
-                                <div class="live-sb-logo-box">
-                                    <img class="live-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                </div>
-                                <div class="live-sb-logo-center-spacer"></div>
-                                <div class="live-sb-logo-box">
-                                    <img class="live-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                </div>
-                                <div class="live-sb-logo-spacer"></div>
+                        <!-- Top clock -->
+                        <div class="live-card-top-clock">
+                            <div class="live-sb-time-box">
+                                <div class="live-sb-time-label">${statusParts.period}</div>
+                                <div class="live-sb-time">${statusParts.time}</div>
                             </div>
-                            <!-- Scoreboard -->
+                        </div>
+
+                        <div class="live-card-wrapper">
+                            <!-- Scoreboard with logos inside team sections -->
                             <div class="live-scoreboard" style="--sb-away-primary: ${awayColors.primary}; --sb-away-secondary: ${awayColors.secondary}; --sb-home-primary: ${homeColors.primary}; --sb-home-secondary: ${homeColors.secondary};">
                                 <div class="live-sb-score-box away">
                                     <span class="live-sb-score">${awayScore}</span>
                                 </div>
                                 <div class="live-sb-team-section away">
                                     <div class="live-sb-team-info">
+                                        <div class="live-sb-team-logo">
+                                            <img class="live-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                        </div>
                                         <span class="live-sb-team-name">${game.away.abbr}</span>
                                         ${game.away.record ? `<span class="live-sb-team-record">${game.away.record}</span>` : ''}
                                     </div>
                                 </div>
-                                <div class="live-sb-center">
-                                    <div class="live-sb-time-box">
-                                        <div class="live-sb-time-label">${statusParts.period}</div>
-                                        <div class="live-sb-time">${statusParts.time}</div>
-                                    </div>
-                                </div>
                                 <div class="live-sb-team-section home">
                                     <div class="live-sb-team-info">
+                                        <div class="live-sb-team-logo">
+                                            <img class="live-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                        </div>
                                         <span class="live-sb-team-name">${game.home.abbr}</span>
                                         ${game.home.record ? `<span class="live-sb-team-record">${game.home.record}</span>` : ''}
                                     </div>

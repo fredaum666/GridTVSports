@@ -3455,6 +3455,125 @@
         // Mobile paging instance
         let mobilePaging = null;
 
+        // Update all game cards in place without destroying/recreating DOM
+        function updateCardsInPlace() {
+            // Check if number of cards matches number of games
+            const grid = document.getElementById('fullscreen-grid');
+            const existingCards = grid.querySelectorAll('.fullscreen-game-card');
+            const count = Math.min(games.length, 8);
+
+            // If count doesn't match, we need a full re-render
+            if (existingCards.length !== count) {
+                console.log('📱 Game count changed, doing full re-render');
+                renderGrid();
+                return;
+            }
+
+            games.slice(0, count).forEach((game, index) => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${game.id}"]`);
+                if (!card) return;
+
+                const isFootball = game.league === 'nfl' || game.league === 'ncaa';
+                const isLive = game.state === 'in';
+                const isFinal = game.state === 'post';
+                const isUpcoming = game.state === 'pre';
+
+                // Update scores
+                const awayScoreEl = card.querySelector('.fs-sb-score-box.away .fs-sb-score');
+                const homeScoreEl = card.querySelector('.fs-sb-score-box.home .fs-sb-score');
+                if (awayScoreEl) awayScoreEl.textContent = isUpcoming ? '-' : game.away.score;
+                if (homeScoreEl) homeScoreEl.textContent = isUpcoming ? '-' : game.home.score;
+
+                // Update time/period
+                if (game.status) {
+                    const parts = parseGameStatus(game.status, game.league);
+                    const timeEl = card.querySelector('.fs-sb-time');
+                    const timeLabelEl = card.querySelector('.fs-sb-time-label');
+                    if (timeEl) timeEl.textContent = parts.time || game.status;
+                    if (timeLabelEl) timeLabelEl.textContent = parts.period || '';
+                }
+
+                // Update status text element
+                const statusTextEl = card.querySelector('.fs-status-text');
+                if (statusTextEl) {
+                    statusTextEl.textContent = game.status || '';
+                    statusTextEl.className = 'fs-status-text';
+                    if (isUpcoming) statusTextEl.classList.add('upcoming');
+                    else if (isFinal) statusTextEl.classList.add('final');
+                }
+
+                // Update card classes for win/loss state
+                card.classList.remove('winning-away', 'winning-home', 'tied', 'upcoming-game', 'final-game');
+                if (isUpcoming) {
+                    card.classList.add('upcoming-game');
+                } else if (isFinal) {
+                    card.classList.add('final-game');
+                    if (game.away.score > game.home.score) card.classList.add('winning-away');
+                    else if (game.home.score > game.away.score) card.classList.add('winning-home');
+                    else card.classList.add('tied');
+                } else if (isLive) {
+                    if (game.away.score > game.home.score) card.classList.add('winning-away');
+                    else if (game.home.score > game.away.score) card.classList.add('winning-home');
+                    else card.classList.add('tied');
+                }
+
+                // Update football-specific elements
+                if (isFootball && isLive) {
+                    const downDistEl = card.querySelector('.fs-sb-down-distance');
+                    const fieldPosEl = card.querySelector('.fs-sb-ball-position');
+                    if (downDistEl) downDistEl.textContent = game.downDistance || '';
+                    if (fieldPosEl) fieldPosEl.textContent = game.fieldPosition || '';
+
+                    // Update possession indicator
+                    const situationBox = card.querySelector('.fs-sb-situation');
+                    if (situationBox) {
+                        situationBox.classList.remove('possession-away', 'possession-home', 'redzone');
+                        if (game.possession === 'away') situationBox.classList.add('possession-away');
+                        else if (game.possession === 'home') situationBox.classList.add('possession-home');
+
+                        const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
+                        if (isRedZone) situationBox.classList.add('redzone');
+                    }
+
+                    // Update ball position on field visualizer
+                    if (game.fieldPosition) {
+                        updateBallPosition(card, game.fieldPosition, game.yardsToGo || 0, game.possession, game.away, game.home, game.league);
+                    }
+                }
+
+                // Update MLB-specific elements
+                if (game.league === 'mlb' && isLive) {
+                    // Update outs
+                    const outsEl = card.querySelector('.mlb-outs');
+                    if (outsEl) {
+                        const outs = game.outs || 0;
+                        outsEl.querySelectorAll('.out-dot').forEach((dot, i) => {
+                            dot.classList.toggle('active', i < outs);
+                        });
+                    }
+
+                    // Update base runners
+                    const basesEl = card.querySelector('.mlb-bases');
+                    if (basesEl) {
+                        basesEl.querySelector('.base.first')?.classList.toggle('occupied', game.onFirst);
+                        basesEl.querySelector('.base.second')?.classList.toggle('occupied', game.onSecond);
+                        basesEl.querySelector('.base.third')?.classList.toggle('occupied', game.onThird);
+                    }
+
+                    // Update hits and errors
+                    const awayHitsEl = card.querySelector('.fs-sb-score-box.away .fs-sb-hits');
+                    const homeHitsEl = card.querySelector('.fs-sb-score-box.home .fs-sb-hits');
+                    if (awayHitsEl) awayHitsEl.textContent = game.away.hits || 0;
+                    if (homeHitsEl) homeHitsEl.textContent = game.home.hits || 0;
+
+                    const awayErrorsEl = card.querySelector('.fs-sb-score-box.away .fs-sb-errors');
+                    const homeErrorsEl = card.querySelector('.fs-sb-score-box.home .fs-sb-errors');
+                    if (awayErrorsEl) awayErrorsEl.textContent = game.away.errors || 0;
+                    if (homeErrorsEl) homeErrorsEl.textContent = game.home.errors || 0;
+                }
+            });
+        }
+
         function renderGrid() {
             const grid = document.getElementById('fullscreen-grid');
             const count = Math.min(games.length, 8); // Cap at 8 games max
@@ -4487,10 +4606,11 @@
                 }
             });
 
-            // Re-render grid with updated data
-            renderGrid();
+            // Update cards in place instead of full re-render to avoid flickering
+            updateCardsInPlace();
 
-            // Restore any active play text modals after re-render with new timeouts
+            // Note: No need to restore play text modals since we're not destroying cards
+            // But keep restoration logic as fallback if renderGrid() was called
             activePlayTextModals.forEach(({ modal, remaining }, gameId) => {
                 const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
                 if (card) {

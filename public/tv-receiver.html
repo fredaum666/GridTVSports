@@ -1188,38 +1188,10 @@
         }
 
         function initCastingSystem() {
-            // Check if we have saved games from a previous session
-            const savedGames = localStorage.getItem('gridtv_current_games');
-            const savedLayout = localStorage.getItem('gridtv_current_layout');
-
-            if (savedGames) {
-                try {
-                    const games = JSON.parse(savedGames);
-                    if (Object.keys(games).length > 0) {
-                        console.log('Restoring saved games from localStorage:', games);
-                        window.currentGames = games;
-
-                        // Restore the TV display with saved games
-                        document.getElementById('pin-display').classList.add('hidden');
-                        document.getElementById('tv-display').classList.add('active');
-                        document.getElementById('device-name').textContent = 'Restored Session';
-
-                        // Update display with saved state
-                        updateTVDisplay({
-                            layout: parseInt(savedLayout) || 2,
-                            games: games,
-                            isActive: true
-                        });
-
-                        // Start auto-refresh
-                        startAutoRefresh();
-                    }
-                } catch (e) {
-                    console.error('Failed to restore saved games:', e);
-                    localStorage.removeItem('gridtv_current_games');
-                    localStorage.removeItem('gridtv_current_layout');
-                }
-            }
+            // Clear any old saved games - tv-receiver no longer displays games directly
+            // All game display is handled by tv-sports-bar.html
+            localStorage.removeItem('gridtv_current_games');
+            localStorage.removeItem('gridtv_current_layout');
 
             // Initialize Socket.IO if not already connected
             if (!socket) {
@@ -1233,22 +1205,19 @@
                 handleSocketConnect();
             }
 
-            // Set up casting event listeners
             socket.on('cast:receiver-connected', ({ deviceName }) => {
                 console.log('Controller connected:', deviceName);
-
-                // Switch to TV display mode
-                document.getElementById('pin-display').classList.add('hidden');
-                document.getElementById('tv-display').classList.add('active');
-                document.getElementById('device-name').textContent = deviceName;
-
-                // Start auto-refresh for live scores
-                startAutoRefresh();
+                showStatus('✓ Controller connected! Waiting for games...');
             });
 
             socket.on('cast:state-updated', ({ state }) => {
                 console.log('State updated:', state);
-                updateTVDisplay(state);
+
+                // If games are selected, redirect to tv-sports-bar to display them
+                if (state.games && Object.keys(state.games).length > 0) {
+                    console.log('Games received, redirecting to tv-sports-bar with sessionId:', sessionId);
+                    window.location.href = `/tv-sports-bar.html?mode=receiver&sessionId=${sessionId}`;
+                }
             });
 
             socket.on('cast:controller-disconnected', () => {
@@ -1321,7 +1290,7 @@
 
                     console.log('Session created:', sessionId, 'PIN:', pin);
 
-                    // Display PIN on screen
+                    // Display PIN on screen (keep tv-receiver UI)
                     document.getElementById('pin-code').textContent = pin;
                     showStatus('✓ Ready! Waiting for controller to connect...');
                 } else {

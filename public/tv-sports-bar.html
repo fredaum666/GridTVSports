@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="/assets/logo.png">
     <link rel="stylesheet" href="/styles/fullscreen-cards.css">
     <link rel="stylesheet" href="/styles/play-animations.css">
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/scripts/play-animations.js"></script>
     <script src="/scripts/field-visualizer-svg.js"></script>
     <style>
@@ -132,7 +133,7 @@
         }
 
         .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-score-box {
-            width: clamp(45px, 7vmin, 60px);
+            width: clamp(55px, 8vmin, 70px);
         }
 
         .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-sb-score {
@@ -738,7 +739,7 @@
         /* Away score box - far left */
         .fs-sb-team-section.away .fs-sb-score-box {
             position: absolute;
-            left: 0;
+            left: 7px;
             top: 50%;
             transform: translateY(-50%) skewX(var(--sb-skew-angle, -4deg));
         }
@@ -756,7 +757,7 @@
         /* Home score box - far right */
         .fs-sb-team-section.home .fs-sb-score-box {
             position: absolute;
-            right: 0;
+            right: 7px;
             top: 50%;
             transform: translateY(-50%) skewX(var(--sb-skew-angle, -4deg));
         }
@@ -1730,7 +1731,7 @@
             --g1-team-logo-margin: 0;
 
             /* Score Box */
-            --g1-score-box-width: 90px;
+            --g1-score-box-width: 110px;
             --g1-score-box-height: 85%;
 
             /* Score Text */
@@ -1964,7 +1965,7 @@
             --g2-team-logo-margin: 0;
 
             /* Score Box */
-            --g2-score-box-width: 75px;
+            --g2-score-box-width: 80px;
             --g2-score-box-height: 82%;
 
             /* Score Text */
@@ -2197,7 +2198,7 @@
             --g3-team-logo-margin: 0;
 
             /* Score Box */
-            --g3-score-box-width: 65px;
+            --g3-score-box-width: 80px;
             --g3-score-box-height: 80%;
 
             /* Score Text */
@@ -2430,7 +2431,7 @@
             --g4-team-logo-margin: 0;
 
             /* Score Box */
-            --g4-score-box-width: 60px;
+            --g4-score-box-width: 80px;
             --g4-score-box-height: 80%;
 
             /* Score Text */
@@ -2663,7 +2664,7 @@
             --g5-team-logo-margin: 0;
 
             /* Score Box */
-            --g5-score-box-width: 58px;
+            --g5-score-box-width: 75px;
             --g5-score-box-height: 80%;
 
             /* Score Text */
@@ -2742,9 +2743,9 @@
             --g5-big-situation-bottom-offset: 0;
 
             /* Scoreboard & Field Vertical Position - BIG CARDS */
-            --g5-big-scoreboard-offset-y: 0;
+            --g5-big-scoreboard-offset-y: 25px;
             /* Positive = down, Negative = up */
-            --g5-big-field-offset-y: 0;
+            --g5-big-field-offset-y: 25px;
             /* Positive = down, Negative = up */
 
             /* ========================================
@@ -2780,9 +2781,9 @@
             --g5-small-situation-bottom-offset: 0;
 
             /* Scoreboard & Field Vertical Position - SMALL CARDS */
-            --g5-small-scoreboard-offset-y: 0;
+            --g5-small-scoreboard-offset-y: 28px;
             /* Positive = down, Negative = up */
-            --g5-small-field-offset-y: 0;
+            --g5-small-field-offset-y: 28px;
             /* Positive = down, Negative = up */
         }
 
@@ -2991,7 +2992,7 @@
             --g6-team-logo-margin: 0;
 
             /* Score Box */
-            --g6-score-box-width: 52px;
+            --g6-score-box-width: 58px;
             --g6-score-box-height: 80%;
 
             /* Score Text */
@@ -3224,7 +3225,7 @@
             --g7-team-logo-margin: 0;
 
             /* Score Box */
-            --g7-score-box-width: 45px;
+            --g7-score-box-width: 55px;
             --g7-score-box-height: 78%;
 
             /* Score Text */
@@ -3540,7 +3541,7 @@
             --g8-team-logo-margin: 0;
 
             /* Score Box */
-            --g8-score-box-width: 40px;
+            --g8-score-box-width: 50px;
             --g8-score-box-height: 76%;
 
             /* Score Text */
@@ -3788,7 +3789,7 @@
 
         /* Smaller score box for cards 2-8 */
         .fullscreen-grid.grid-8 .fullscreen-game-card:nth-child(n+2) .fs-sb-score-box {
-            width: 34px;
+            width: 42px;
         }
 
         /* Smaller score for cards 2-8 */
@@ -4165,12 +4166,24 @@
 
     <script>
         // ============================================
+        // RECEIVER MODE DETECTION
+        // ============================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const isReceiverMode = urlParams.get('mode') === 'receiver';
+        const receiverSessionId = urlParams.get('sessionId');
+        const receiverPIN = urlParams.get('pin');
+
+        // ============================================
         // STATE
         // ============================================
         let games = [];
         let refreshInterval = null;
         let isModalOpen = false;
         let modalFocusIndex = 0; // 0 = confirm, 1 = cancel
+
+        // Receiver mode state
+        let receiverSocket = null;
+        let receiverConnected = false;
 
         // SVG Field Visualizers map (gameId -> SVGFieldVisualizer instance)
         // Exposed globally so play-animations.js can access visualizers
@@ -4536,9 +4549,225 @@
         }
 
         // ============================================
+        // RECEIVER MODE FUNCTIONS
+        // ============================================
+        function initReceiverMode() {
+            console.log('📺 Initializing TV Receiver Mode with session:', receiverSessionId);
+
+            // Connect to Socket.IO
+            console.log('🔌 Creating Socket.IO connection...');
+            receiverSocket = io();
+
+            console.log('📡 Socket object created:', receiverSocket);
+
+            receiverSocket.on('connect', () => {
+                console.log('✅ Receiver Socket.IO connected, socket ID:', receiverSocket.id);
+                receiverConnected = true;
+
+                // Reconnect to the existing casting session
+                if (receiverSessionId) {
+                    console.log('📺 Reconnecting to session:', receiverSessionId);
+
+                    let callbackReceived = false;
+
+                    receiverSocket.emit('cast:receiver-reconnect', {
+                        sessionId: receiverSessionId
+                    }, (response) => {
+                        callbackReceived = true;
+                        console.log('📥 Reconnect callback received:', response);
+                        if (response && response.success) {
+                            console.log('✅ Reconnected successfully, state:', response.state);
+                            // If there's already state, load it
+                            if (response.state && response.state.games && Object.keys(response.state.games).length > 0) {
+                                console.log('📥 Loading initial state with games:', response.state.games);
+                                handleReceiverStateUpdate(response.state);
+                            } else {
+                                console.log('⏳ No games in initial state, waiting for sync...');
+                                showEmptyState();
+                            }
+                        } else {
+                            console.error('❌ Failed to reconnect:', response ? response.error : 'No response');
+                            showEmptyState();
+                        }
+                    });
+
+                    // Timeout after 5 seconds
+                    setTimeout(() => {
+                        if (!callbackReceived) {
+                            console.error('⏱️ Reconnect timeout - no response from server after 5s');
+                            console.error('Session ID:', receiverSessionId);
+                            showEmptyState();
+                        }
+                    }, 5000);
+                }
+            });
+
+            receiverSocket.on('connect_error', (error) => {
+                console.error('❌ Socket connect_error:', error);
+            });
+
+            receiverSocket.on('error', (error) => {
+                console.error('❌ Socket error:', error);
+            });
+
+            // Listen for game state updates from controller
+            receiverSocket.on('cast:state-updated', ({ state }) => {
+                console.log('📥 Received state update:', state);
+                handleReceiverStateUpdate(state);
+            });
+
+            receiverSocket.on('cast:session-ended', () => {
+                console.log('⚠️ Casting session ended');
+                // Keep showing games, just log it
+            });
+
+            receiverSocket.on('disconnect', () => {
+                console.log('⚠️ Receiver socket disconnected');
+                receiverConnected = false;
+            });
+
+            // Set up back button to end cast and return to TV home
+            document.getElementById('back-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('End casting session and return to TV Home?')) {
+                    window.location.href = '/tv-home';
+                }
+            });
+        }
+
+        function handleReceiverStateUpdate(state) {
+            // Convert the state.games object to our games array format
+            // state.games is like { slot1: "nfl:401547643", slot2: "nfl:401547644" }
+
+            const slotCount = state.layout || 2;
+            const gameIds = [];
+
+            for (let i = 1; i <= slotCount; i++) {
+                const gameId = state.games[`slot${i}`];
+                if (gameId) {
+                    gameIds.push(gameId);
+                }
+            }
+
+            console.log('📋 Processing game IDs:', gameIds);
+
+            // Fetch game data for each ID and update display
+            Promise.all(gameIds.map(fetchGameData)).then(fetchedGames => {
+                // Filter out null/failed fetches
+                games = fetchedGames.filter(g => g !== null);
+
+                console.log('✅ Loaded games:', games);
+
+                if (games.length > 0) {
+                    renderGrid();
+
+                    // Start auto-refresh
+                    if (!refreshInterval) {
+                        refreshGameData();
+                        startAutoRefresh();
+                    }
+                } else {
+                    showEmptyState();
+                }
+            });
+        }
+
+        async function fetchGameData(gameId) {
+            try {
+                // gameId format: "sport:actualGameId" (e.g., "nfl:401547643")
+                const [sport, actualGameId] = gameId.split(':');
+
+                console.log(`🔍 Fetching ${sport} game ${actualGameId}`);
+
+                const response = await fetch(`/api/${sport}/summary/${actualGameId}`);
+                if (!response.ok) throw new Error(`API returned ${response.status}`);
+
+                const data = await response.json();
+
+                // Transform ESPN API data to our internal format
+                return transformGameData(data, sport);
+            } catch (error) {
+                console.error(`❌ Failed to fetch game ${gameId}:`, error);
+                return null;
+            }
+        }
+
+        function transformGameData(apiData, league) {
+            // The summary endpoint returns data in header.competitions
+            const comp = apiData.header?.competitions?.[0];
+            if (!comp) {
+                console.error('❌ No competition data found in API response');
+                return null;
+            }
+
+            const awayTeam = comp.competitors?.[1];
+            const homeTeam = comp.competitors?.[0];
+            if (!awayTeam || !homeTeam) {
+                console.error('❌ Missing team data in competition');
+                return null;
+            }
+
+            const statusState = comp.status?.type?.state || 'pre';
+            const situation = comp.situation;
+
+            const gameData = {
+                id: `${league}:${apiData.header?.id || apiData.id}`,
+                league: league,
+                state: statusState === 'post' ? 'post' : (statusState === 'in' ? 'in' : 'pre'),
+                status: comp.status?.type?.shortDetail || 'Scheduled',
+                away: {
+                    abbr: awayTeam.team?.abbreviation || '',
+                    logo: awayTeam.team?.logos?.[0]?.href || awayTeam.team?.logo || '',
+                    score: parseInt(awayTeam.score || 0),
+                    record: awayTeam.record?.[0]?.displayValue || '',
+                    timeouts: awayTeam.timeoutsRemaining
+                },
+                home: {
+                    abbr: homeTeam.team?.abbreviation || '',
+                    logo: homeTeam.team?.logos?.[0]?.href || homeTeam.team?.logo || '',
+                    score: parseInt(homeTeam.score || 0),
+                    record: homeTeam.record?.[0]?.displayValue || '',
+                    timeouts: homeTeam.timeoutsRemaining
+                },
+                possession: situation?.possession || null,
+                downDistance: situation?.shortDownDistanceText || '',
+                fieldPosition: situation?.possessionText || '',
+                yardLine: situation?.yardLine || 0,
+                yardsToGo: situation?.distance || 0,
+                possessionOnOwn: false
+            };
+
+            console.log('✅ Transformed game data:', gameData);
+            return gameData;
+        }
+
+        // ============================================
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
+            // Check if in receiver mode
+            if (isReceiverMode) {
+                console.log('📺 Starting in receiver mode');
+
+                // Update back button text for receiver mode
+                const backBtn = document.getElementById('back-btn');
+                if (backBtn) {
+                    backBtn.textContent = 'Return to TV Home';
+                }
+
+                initReceiverMode();
+                setupKeyboardNavigation();
+                // Show loading state while connecting to session
+                document.getElementById('fullscreen-grid').innerHTML = `
+                    <div class="empty-state">
+                        <h2>Loading Games...</h2>
+                        <p style="color: #94a3b8;">Connecting to your casting session...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Normal mode (direct access from tv-home)
             loadGames();
 
             if (games.length === 0) {
@@ -4703,19 +4932,141 @@
             document.getElementById('fullscreen-grid').innerHTML = `
                 <div class="empty-state">
                     <h2>No Games Selected</h2>
-                    <p>Return to TV Home and select games to watch.</p>
+                    <p>${isReceiverMode ? 'Waiting for controller to select games...' : 'Return to TV Home and select games to watch.'}</p>
                 </div>
             `;
 
-            // Auto-redirect after 3 seconds
-            setTimeout(() => {
-                window.location.href = '/tv-home';
-            }, 3000);
+            // Only auto-redirect in normal mode (not receiver mode)
+            if (!isReceiverMode) {
+                setTimeout(() => {
+                    window.location.href = '/tv-home';
+                }, 3000);
+            }
         }
 
         // ============================================
         // RENDER GRID
         // ============================================
+        // Update all game cards in place without destroying/recreating DOM
+        function updateCardsInPlace() {
+            // Check if number of cards matches number of games
+            const grid = document.getElementById('fullscreen-grid');
+            const existingCards = grid.querySelectorAll('.fullscreen-game-card');
+
+            // If count doesn't match, we need a full re-render
+            if (existingCards.length !== games.length) {
+                console.log('📺 Game count changed, doing full re-render');
+                renderGrid();
+                return;
+            }
+
+            games.forEach((game, index) => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${game.id}"]`);
+                if (!card) return;
+
+                const isFootball = game.league === 'nfl' || game.league === 'ncaa';
+                const isLive = game.state === 'in';
+                const isFinal = game.state === 'post';
+                const isUpcoming = game.state === 'pre';
+
+                // Update scores
+                const awayScoreEl = card.querySelector('.fs-sb-score-box.away .fs-sb-score');
+                const homeScoreEl = card.querySelector('.fs-sb-score-box.home .fs-sb-score');
+                if (awayScoreEl) awayScoreEl.textContent = isUpcoming ? '-' : game.away.score;
+                if (homeScoreEl) homeScoreEl.textContent = isUpcoming ? '-' : game.home.score;
+
+                // Update time/period (update ALL clock elements)
+                if (game.status) {
+                    const parts = parseGameStatus(game.status, game.league);
+                    card.querySelectorAll('.fs-sb-time').forEach(timeEl => {
+                        timeEl.textContent = parts.time || game.status;
+                    });
+                    card.querySelectorAll('.fs-sb-time-label').forEach(timeLabelEl => {
+                        timeLabelEl.textContent = parts.period || '';
+                    });
+                }
+
+                // Update status text element
+                const statusTextEl = card.querySelector('.fs-status-text');
+                if (statusTextEl) {
+                    statusTextEl.textContent = game.status || '';
+                    statusTextEl.className = 'fs-status-text';
+                    if (isUpcoming) statusTextEl.classList.add('upcoming');
+                    else if (isFinal) statusTextEl.classList.add('final');
+                }
+
+                // Update card classes for win/loss state
+                card.classList.remove('winning-away', 'winning-home', 'tied', 'upcoming-game', 'final-game');
+                if (isUpcoming) {
+                    card.classList.add('upcoming-game');
+                } else if (isFinal) {
+                    card.classList.add('final-game');
+                    if (game.away.score > game.home.score) card.classList.add('winning-away');
+                    else if (game.home.score > game.away.score) card.classList.add('winning-home');
+                    else card.classList.add('tied');
+                } else if (isLive) {
+                    if (game.away.score > game.home.score) card.classList.add('winning-away');
+                    else if (game.home.score > game.away.score) card.classList.add('winning-home');
+                    else card.classList.add('tied');
+                }
+
+                // Update football-specific elements
+                if (isFootball && isLive) {
+                    const downDistEl = card.querySelector('.fs-sb-down-distance');
+                    const fieldPosEl = card.querySelector('.fs-sb-ball-position');
+                    if (downDistEl) downDistEl.textContent = game.downDistance || '';
+                    if (fieldPosEl) fieldPosEl.textContent = game.fieldPosition || '';
+
+                    // Update possession indicator
+                    const situationBox = card.querySelector('.fs-sb-situation');
+                    if (situationBox) {
+                        situationBox.classList.remove('possession-away', 'possession-home', 'redzone');
+                        if (game.possession === 'away') situationBox.classList.add('possession-away');
+                        else if (game.possession === 'home') situationBox.classList.add('possession-home');
+
+                        const isRedZone = game.yardLine && game.yardLine <= 20 && !game.possessionOnOwn;
+                        if (isRedZone) situationBox.classList.add('redzone');
+                    }
+
+                    // Update ball position on field visualizer
+                    if (game.fieldPosition) {
+                        updateBallPosition(card, game.fieldPosition, game.yardsToGo || 0, game.possession, game.away, game.home, game.league);
+                    }
+                }
+
+                // Update MLB-specific elements
+                if (game.league === 'mlb' && isLive) {
+                    // Update outs
+                    const outsEl = card.querySelector('.mlb-outs');
+                    if (outsEl) {
+                        const outs = game.outs || 0;
+                        outsEl.querySelectorAll('.out-dot').forEach((dot, i) => {
+                            dot.classList.toggle('active', i < outs);
+                        });
+                    }
+
+                    // Update base runners
+                    const basesEl = card.querySelector('.mlb-bases');
+                    if (basesEl) {
+                        basesEl.querySelector('.base.first')?.classList.toggle('occupied', game.onFirst);
+                        basesEl.querySelector('.base.second')?.classList.toggle('occupied', game.onSecond);
+                        basesEl.querySelector('.base.third')?.classList.toggle('occupied', game.onThird);
+                    }
+
+                    // Update hits and errors
+                    const awayHitsEl = card.querySelector('.fs-sb-score-box.away .fs-sb-hits');
+                    const homeHitsEl = card.querySelector('.fs-sb-score-box.home .fs-sb-hits');
+                    if (awayHitsEl) awayHitsEl.textContent = game.away.hits || 0;
+                    if (homeHitsEl) homeHitsEl.textContent = game.home.hits || 0;
+
+                    const awayErrorsEl = card.querySelector('.fs-sb-score-box.away .fs-sb-errors');
+                    const homeErrorsEl = card.querySelector('.fs-sb-score-box.home .fs-sb-errors');
+                    if (awayErrorsEl) awayErrorsEl.textContent = game.away.errors || 0;
+                    if (homeErrorsEl) homeErrorsEl.textContent = game.home.errors || 0;
+                }
+            });
+        }
+
         function renderGrid() {
             const grid = document.getElementById('fullscreen-grid');
             const count = games.length;
@@ -5687,7 +6038,9 @@
 
                     // Update game objects with fresh data
                     gamesByLeague[league].forEach(game => {
-                        const updated = events.find(e => e.id === game.id);
+                        // Extract numeric ID from game (handles both "401547643" and "nfl:401547643" formats)
+                        const gameNumericId = game.id.includes(':') ? game.id.split(':')[1] : game.id;
+                        const updated = events.find(e => e.id === gameNumericId);
                         if (updated) {
                             // Store previous data for animation detection
                             const prevData = prevGameData.get(game.id) || {};
@@ -5740,10 +6093,11 @@
                 }
             });
 
-            // Re-render grid with updated data
-            renderGrid();
+            // Update cards in place instead of full re-render to avoid flickering
+            updateCardsInPlace();
 
-            // Restore any active play text modals after re-render with new timeouts
+            // Note: No need to restore play text modals since we're not destroying cards
+            // But keep restoration logic as fallback if renderGrid() was called
             activePlayTextModals.forEach(({ modal, remaining }, gameId) => {
                 const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
                 if (card) {
@@ -6127,10 +6481,12 @@
         function setupKeyboardNavigation() {
             document.addEventListener('keydown', handleKeyDown);
 
-            // Click handlers
-            document.getElementById('back-btn').addEventListener('click', showExitModal);
-            document.getElementById('confirm-exit').addEventListener('click', confirmExit);
-            document.getElementById('cancel-exit').addEventListener('click', hideExitModal);
+            // Click handlers (skip in receiver mode - handled by initReceiverMode)
+            if (!isReceiverMode) {
+                document.getElementById('back-btn').addEventListener('click', showExitModal);
+                document.getElementById('confirm-exit').addEventListener('click', confirmExit);
+                document.getElementById('cancel-exit').addEventListener('click', hideExitModal);
+            }
         }
 
         function handleKeyDown(e) {

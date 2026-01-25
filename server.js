@@ -7342,6 +7342,44 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Receiver reconnects to update socket ID (e.g., after redirect to tv-sports-bar)
+  socket.on('cast:receiver-reconnect', (data, callback) => {
+    try {
+      const { sessionId } = data;
+
+      if (!sessionId) {
+        return callback({ success: false, error: 'Session ID required' });
+      }
+
+      const session = castingSessions.get(sessionId);
+      if (!session) {
+        return callback({ success: false, error: 'Session not found' });
+      }
+
+      // Update receiver socket ID to this new socket
+      session.receiverSocketId = socket.id;
+      socket.join(sessionId);
+
+      console.log(`📺 Receiver reconnected to session ${sessionId} with new socket ${socket.id}`);
+
+      // Notify controller that receiver reconnected (so it can re-sync state)
+      if (session.controllerSocketId) {
+        io.to(session.controllerSocketId).emit('cast:receiver-reconnected', {
+          sessionId: sessionId
+        });
+      }
+
+      // Send current state to the new receiver socket
+      callback({
+        success: true,
+        state: session.state
+      });
+    } catch (error) {
+      console.error('Error reconnecting receiver:', error);
+      callback({ success: false, error: error.message });
+    }
+  });
+
   // Sync state from controller to TV
   socket.on('cast:sync-state', (data) => {
     const { sessionId, state } = data;

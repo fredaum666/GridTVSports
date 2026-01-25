@@ -564,18 +564,24 @@
             flex-direction: column;
             justify-content: center;
             gap: 8px;
+            position: relative;
+            z-index: 2;
         }
 
         .game-card-team {
             display: flex;
             align-items: center;
             gap: 12px;
+            position: relative;
+            z-index: 2;
         }
 
         .game-card-team img {
             width: 32px;
             height: 32px;
             object-fit: contain;
+            position: relative;
+            z-index: 2;
         }
 
         .game-card-team-name {
@@ -586,6 +592,8 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            position: relative;
+            z-index: 1;
         }
 
         .game-card-team-score {
@@ -594,6 +602,8 @@
             color: var(--text-primary);
             min-width: 36px;
             text-align: right;
+            position: relative;
+            z-index: 1;
         }
 
         .game-card-team.winner .game-card-team-name,
@@ -604,7 +614,7 @@
         /* ===== LIVE GAME CARD - VS Layout ===== */
         .game-card.live-card {
             padding: 0;
-            overflow: hidden;
+            overflow: visible;
             background: linear-gradient(180deg, #1a2235 0%, #0f1525 100%);
             border: 3px solid #000;
             position: relative;
@@ -2379,6 +2389,54 @@
            SCOREBOARD COMPONENT STYLES (Live Cards)
            ============================================ */
 
+        /* Live card container needs position relative for top clock */
+        .live-card {
+            position: relative;
+        }
+
+        /* Top clock - positioned at top of card */
+        .live-card-top-clock {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 8px;
+            left: 0;
+            right: 0;
+            height: clamp(20px, 5vmin, 30px);
+            z-index: 10;
+            padding: 4px 8px;
+        }
+
+        .live-card-top-clock .live-sb-time-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 4px 12px;
+            min-width: 60px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .live-card-top-clock .live-sb-time-label {
+            font-size: clamp(0.5rem, 1.2vmin, 0.65rem);
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            order: 1;
+        }
+
+        .live-card-top-clock .live-sb-time {
+            font-size: clamp(0.65rem, 1.6vmin, 0.85rem);
+            font-weight: 700;
+            color: #ffffff;
+            order: 2;
+        }
+
         /* Wrapper for entire live card content */
         .live-card-wrapper {
             width: 100%;
@@ -2387,45 +2445,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 8px;
+            padding: 38px 8px 8px 8px;
             gap: 6px;
-        }
-
-        /* Scoreboard top section - mirrors scoreboard layout below */
-        .live-scoreboard-top {
-            width: 95%;
-            display: flex;
-            align-items: flex-end;
-            padding: 0;
-            margin-bottom: 0;
-        }
-
-        /* Spacer to match score box width (42px) */
-        .live-sb-logo-spacer {
-            width: 42px;
-            flex-shrink: 0;
-        }
-
-        /* Logo box - matches team section width with flex: 1 */
-        .live-sb-logo-box {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-        }
-
-        /* Center spacer - matches time box width (60px) */
-        .live-sb-logo-center-spacer {
-            width: 60px;
-            flex-shrink: 0;
-        }
-
-        .live-card-team-logo {
-            width: 45px;
-            height: 45px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6));
         }
 
         /* The scoreboard itself */
@@ -2528,6 +2549,8 @@
             align-items: center;
             padding: 4px 8px;
             position: relative;
+            z-index: 3;
+            overflow: visible;
             box-shadow:
                 inset 0 2px 3px rgba(255, 255, 255, 0.12),
                 inset 0 -2px 4px rgba(0, 0, 0, 0.35),
@@ -2546,9 +2569,11 @@
         }
 
         .live-sb-team-info {
+            position: relative;
             display: flex;
             flex-direction: column;
             gap: 1px;
+            overflow: visible;
         }
 
         .live-sb-team-section.away .live-sb-team-info {
@@ -2557,6 +2582,31 @@
 
         .live-sb-team-section.home .live-sb-team-info {
             align-items: center;
+        }
+
+        /* Team logo inside team-info - positioned above the scoreboard */
+        .live-sb-team-logo {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 6px;
+            width: clamp(32px, 8.4vw, 49px);
+            height: clamp(32px, 8.4vw, 49px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .live-sb-team-logo .live-card-team-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+            position: relative;
+            z-index: 1;
         }
 
         .live-sb-team-name {
@@ -2574,16 +2624,9 @@
             display: block;
         }
 
-        /* Center time/status section */
+        /* Center time/status section - hidden (clock moved to top) */
         .live-sb-center {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: none;
         }
 
         .live-sb-time-box {
@@ -3102,6 +3145,372 @@
         }
 
         /* ================================ */
+        /* MODERN ELEVATED CAST MODAL       */
+        /* ================================ */
+        .cast-modal-overlay {
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        .cast-modal-content {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 100%);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 24px;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 0 80px rgba(249, 115, 22, 0.2);
+            backdrop-filter: blur(40px);
+            position: relative;
+            overflow: hidden;
+            max-width: 440px;
+        }
+
+        .cast-modal-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float-orb 8s ease-in-out infinite;
+        }
+
+        @keyframes float-orb {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(-20px, -20px);
+            }
+        }
+
+        .cast-modal-header {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            padding-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cast-modal-title {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .cast-info-box {
+            background: rgba(249, 115, 22, 0.08);
+            border: 1px solid rgba(251, 146, 60, 0.25);
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(10px);
+        }
+
+        .cast-info-text {
+            color: #fed7aa;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .cast-pin-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .cast-pin-input-enhanced {
+            width: 56px;
+            height: 68px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: #f1f5f9;
+            text-align: center;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .cast-pin-input-enhanced:focus {
+            outline: none;
+            border-color: #fb923c;
+            background: rgba(249, 115, 22, 0.1);
+            box-shadow:
+                0 0 0 4px rgba(249, 115, 22, 0.12),
+                0 4px 12px rgba(249, 115, 22, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .cast-pin-input-enhanced::placeholder {
+            color: rgba(148, 163, 184, 0.3);
+        }
+
+        .cast-connect-btn-enhanced {
+            width: 100%;
+            padding: 16px 28px;
+            background: linear-gradient(135deg, #f97316 0%, #ef4444 50%, #dc2626 100%);
+            border: none;
+            border-radius: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 10px 25px rgba(249, 115, 22, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .cast-connect-btn-enhanced::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .cast-connect-btn-enhanced:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow:
+                0 15px 35px rgba(249, 115, 22, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+        }
+
+        .cast-connect-btn-enhanced:hover:not(:disabled)::before {
+            opacity: 1;
+        }
+
+        .cast-connect-btn-enhanced:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .cast-connect-btn-enhanced:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .cast-status-enhanced {
+            text-align: center;
+        }
+
+        .cast-status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 28px;
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 14px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .cast-status-pulse {
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border-radius: 50%;
+            box-shadow:
+                0 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: status-pulse-modern 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes status-pulse-modern {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+
+        .cast-status-text-enhanced {
+            color: #86efac;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .cast-end-btn-enhanced {
+            padding: 14px 32px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fca5a5;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .cast-end-btn-enhanced:hover {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: rgba(239, 68, 68, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.15);
+        }
+
+        .cast-label {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+        }
+
+        /* Mobile phone responsive styles */
+        @media (max-width: 640px) {
+            .modal-overlay {
+                padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+                align-items: flex-start;
+                overflow-y: auto;
+            }
+
+            .cast-modal-overlay {
+                padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+            }
+
+            .cast-modal-content {
+                max-width: 100%;
+                margin: 20px auto;
+                border-radius: 20px;
+                padding: 0;
+            }
+
+            .modal-header {
+                padding: 20px 20px 16px;
+            }
+
+            .modal-body {
+                padding: 0 20px 20px;
+            }
+
+            .cast-modal-title {
+                font-size: 1.5rem;
+            }
+
+            .cast-info-box {
+                padding: 12px 16px;
+                margin-bottom: 24px;
+            }
+
+            .cast-info-text {
+                font-size: 0.8125rem;
+            }
+
+            .cast-label {
+                font-size: 0.875rem;
+                margin-bottom: 16px;
+            }
+
+            .cast-pin-container {
+                gap: 8px;
+                margin-bottom: 24px;
+            }
+
+            .cast-pin-input-enhanced {
+                width: 48px;
+                height: 60px;
+                font-size: 28px;
+                border-radius: 12px;
+            }
+
+            .cast-connect-btn-enhanced {
+                padding: 14px 24px;
+                font-size: 0.9375rem;
+            }
+
+            .cast-status-indicator {
+                padding: 14px 24px;
+                margin-bottom: 20px;
+            }
+
+            .cast-status-text-enhanced {
+                font-size: 0.9375rem;
+            }
+
+            .cast-end-btn-enhanced {
+                padding: 12px 28px;
+                font-size: 0.875rem;
+            }
+
+            .modal-close {
+                width: 36px;
+                height: 36px;
+                font-size: 28px;
+            }
+
+            /* Reduce orb size on mobile for performance */
+            .cast-modal-content::before {
+                width: 200px;
+                height: 200px;
+                opacity: 0.7;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 380px) {
+            .cast-modal-content {
+                max-width: 95%;
+                margin: 10px auto;
+            }
+
+            .modal-header {
+                padding: 16px 16px 12px;
+            }
+
+            .modal-body {
+                padding: 0 16px 16px;
+            }
+
+            .cast-modal-title {
+                font-size: 1.375rem;
+            }
+
+            .cast-pin-container {
+                gap: 6px;
+            }
+
+            .cast-pin-input-enhanced {
+                width: 44px;
+                height: 56px;
+                font-size: 26px;
+            }
+
+            .cast-connect-btn-enhanced {
+                padding: 12px 20px;
+            }
+        }
+
+        /* ================================ */
         /* TOUCH-FRIENDLY ENHANCEMENTS      */
         /* ================================ */
         @media (hover: none) and (pointer: coarse) {
@@ -3208,51 +3617,44 @@
     </div>
 
     <!-- Cast to TV Modal -->
-    <div class="modal-overlay" id="castModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h2 class="modal-title">📺 Cast to TV</h2>
+    <div class="modal-overlay cast-modal-overlay" id="castModal">
+        <div class="modal-content cast-modal-content">
+            <div class="modal-header cast-modal-header">
+                <h2 class="modal-title cast-modal-title">Cast to TV</h2>
                 <button class="modal-close" id="closeCastModal">&times;</button>
             </div>
             <div class="modal-body">
                 <!-- PIN Entry Section -->
                 <div id="cast-pin-entry-section" style="text-align: center;">
-                    <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 1rem;">
+                    <div class="cast-info-box">
+                        <p class="cast-info-text">
+                            📱 Download the GridTV app on your TV to get the code
+                        </p>
+                    </div>
+                    <p class="cast-label">
                         Enter the 6-digit code shown on your TV:
                     </p>
-                    <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 1.5rem;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin1"
-                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin2"
-                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin3"
-                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin4"
-                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin5"
-                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
-                        <input type="text" maxlength="1" class="cast-pin-input" id="cast-pin6"
-                            style="width: 45px; height: 55px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 2px solid #334155; background: #1e293b; color: white;">
+                    <div class="cast-pin-container">
+                        <input type="text" maxlength="1" class="cast-pin-input cast-pin-input-enhanced" id="cast-pin1">
+                        <input type="text" maxlength="1" class="cast-pin-input cast-pin-input-enhanced" id="cast-pin2">
+                        <input type="text" maxlength="1" class="cast-pin-input cast-pin-input-enhanced" id="cast-pin3">
+                        <input type="text" maxlength="1" class="cast-pin-input cast-pin-input-enhanced" id="cast-pin4">
+                        <input type="text" maxlength="1" class="cast-pin-input cast-pin-input-enhanced" id="cast-pin5">
+                        <input type="text" maxlength="1" class="cast-pin-input cast-pin-input-enhanced" id="cast-pin6">
                     </div>
-                    <button id="cast-connect-btn" class="modal-btn modal-btn-primary"
-                        style="width: 100%; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);" disabled>
+                    <button id="cast-connect-btn" class="modal-btn modal-btn-primary cast-connect-btn-enhanced"
+                        disabled>
                         Connect to TV
                     </button>
                 </div>
 
                 <!-- Connection Status (shown after connecting) -->
-                <div id="cast-status-section" style="display: none; text-align: center;">
-                    <div id="cast-status-box"
-                        style="padding: 15px; border-radius: 8px; margin-bottom: 1rem; background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308;">
-                        <div style="display: inline-flex; align-items: center; gap: 10px;">
-                            <div class="cast-pulse-dot"
-                                style="width: 10px; height: 10px; border-radius: 50%; background: #eab308; animation: pulse 1.5s infinite;">
-                            </div>
-                            <span id="cast-status-text">Connecting to TV...</span>
-                        </div>
+                <div id="cast-status-section" class="cast-status-enhanced" style="display: none;">
+                    <div id="cast-status-box" class="cast-status-indicator">
+                        <div class="cast-status-pulse"></div>
+                        <span id="cast-status-text" class="cast-status-text-enhanced">Connecting to TV...</span>
                     </div>
-                    <button id="cast-end-btn" class="modal-btn"
-                        style="width: 100%; background: #ef4444; color: white; display: none;">
+                    <button id="cast-end-btn" class="modal-btn cast-end-btn-enhanced" style="display: none;">
                         End Casting
                     </button>
                 </div>
@@ -3360,12 +3762,6 @@
                         <img src="/assets/ncaa-basketball.png" alt="NCAA Basketball">
                         <span class="league-name">NCAAB</span>
                         <span class="league-status" id="ncaab-status">Loading...</span>
-                    </div>
-                    <!-- Phone Connect Card -->
-                    <div class="league-card focusable" data-row="leagues" data-action="phone-connect">
-                        <span class="phone-icon">&#128241;</span>
-                        <span class="league-name">Phone</span>
-                        <span class="league-status">Connect</span>
                     </div>
                 </div>
             </section>
@@ -3997,9 +4393,6 @@
             } else if (el.id === 'clear-selections-btn') {
                 // Clear all selections
                 clearSportsBarSelections();
-            } else if (action === 'phone-connect') {
-                // Navigate to live games page
-                openPage('/LiveGames.html');
             } else if (league) {
                 // League card - filter games
                 selectLeague(league);
@@ -4163,7 +4556,8 @@
         let castingActive = false;
 
         function openCastModal() {
-            if (selectedGamesForSportsBar.length === 0) return;
+            // Only allow modal to open if casting is active or at least one game is selected
+            if (!castingActive && selectedGamesForSportsBar.length === 0) return;
 
             const modal = document.getElementById('castModal');
             if (castingActive) {
@@ -4208,8 +4602,10 @@
             // Hide floating indicator
             document.getElementById('casting-indicator').style.display = 'none';
 
+            // Disconnect and clear socket to allow fresh connection next time
             if (castSocket) {
                 castSocket.disconnect();
+                castSocket = null;
             }
         }
 
@@ -4376,12 +4772,37 @@
                         }, 1500);
                     });
 
+                    castSocket.on('cast:receiver-reconnected', ({ sessionId }) => {
+                        console.log('TV receiver reconnected, re-syncing state');
+
+                        // Update UI to show connected again
+                        document.getElementById('cast-status-box').style.background = 'rgba(34, 197, 94, 0.1)';
+                        document.getElementById('cast-status-box').style.border = '1px solid #22c55e';
+                        document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#22c55e';
+                        document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
+
+                        // Close modal if it's showing disconnection message
+                        closeCastModal();
+                        showCastingIndicator();
+
+                        syncCastingState();
+                    });
+
                     castSocket.on('cast:receiver-disconnected', () => {
                         console.log('TV receiver disconnected');
-                        document.getElementById('cast-status-box').style.background = 'rgba(234, 179, 8, 0.1)';
-                        document.getElementById('cast-status-box').style.border = '1px solid #eab308';
-                        document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#eab308';
-                        document.getElementById('cast-status-text').textContent = 'TV disconnected. Waiting for reconnection...';
+
+                        // Add a 2-second delay before showing disconnect message
+                        // This avoids showing "disconnected" during brief redirects (tv-receiver → tv-sports-bar)
+                        setTimeout(() => {
+                            // Check if still disconnected after 2 seconds
+                            const currentStatus = document.getElementById('cast-status-text').textContent;
+                            if (!currentStatus.includes('✓ TV Connected')) {
+                                document.getElementById('cast-status-box').style.background = 'rgba(234, 179, 8, 0.1)';
+                                document.getElementById('cast-status-box').style.border = '1px solid #eab308';
+                                document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#eab308';
+                                document.getElementById('cast-status-text').textContent = 'TV disconnected. Waiting for reconnection...';
+                            }
+                        }, 2000);
                     });
 
                     castSocket.on('cast:session-ended', () => {
@@ -5219,38 +5640,34 @@
 
                 return `
                     <div class="game-card live-card ${leagueClass} focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}' tabindex="0">
-                        <div class="live-card-wrapper">
-                            <!-- Top section mirrors scoreboard layout: [spacer][logo-box][center-spacer][logo-box][spacer] -->
-                            <div class="live-scoreboard-top">
-                                <div class="live-sb-logo-spacer"></div>
-                                <div class="live-sb-logo-box">
-                                    <img class="live-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                </div>
-                                <div class="live-sb-logo-center-spacer"></div>
-                                <div class="live-sb-logo-box">
-                                    <img class="live-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                </div>
-                                <div class="live-sb-logo-spacer"></div>
+                        <!-- Top clock -->
+                        <div class="live-card-top-clock">
+                            <div class="live-sb-time-box">
+                                <div class="live-sb-time-label">${statusParts.period}</div>
+                                <div class="live-sb-time">${statusParts.time}</div>
                             </div>
-                            <!-- Scoreboard -->
+                        </div>
+
+                        <div class="live-card-wrapper">
+                            <!-- Scoreboard with logos inside team sections -->
                             <div class="live-scoreboard" style="--sb-away-primary: ${awayColors.primary}; --sb-away-secondary: ${awayColors.secondary}; --sb-home-primary: ${homeColors.primary}; --sb-home-secondary: ${homeColors.secondary};">
                                 <div class="live-sb-score-box away">
                                     <span class="live-sb-score">${awayScore}</span>
                                 </div>
                                 <div class="live-sb-team-section away">
                                     <div class="live-sb-team-info">
+                                        <div class="live-sb-team-logo">
+                                            <img class="live-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                        </div>
                                         <span class="live-sb-team-name">${game.away.abbr}</span>
                                         ${game.away.record ? `<span class="live-sb-team-record">${game.away.record}</span>` : ''}
                                     </div>
                                 </div>
-                                <div class="live-sb-center">
-                                    <div class="live-sb-time-box">
-                                        <div class="live-sb-time-label">${statusParts.period}</div>
-                                        <div class="live-sb-time">${statusParts.time}</div>
-                                    </div>
-                                </div>
                                 <div class="live-sb-team-section home">
                                     <div class="live-sb-team-info">
+                                        <div class="live-sb-team-logo">
+                                            <img class="live-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                        </div>
                                         <span class="live-sb-team-name">${game.home.abbr}</span>
                                         ${game.home.record ? `<span class="live-sb-team-record">${game.home.record}</span>` : ''}
                                     </div>
@@ -5795,10 +6212,7 @@
             const leagueCard = e.target.closest('.league-card');
             if (leagueCard) {
                 const league = leagueCard.dataset.league;
-                const action = leagueCard.dataset.action;
-                if (action === 'phone-connect') {
-                    openPage('/LiveGames.html');
-                } else if (league) {
+                if (league) {
                     selectLeague(league);
                 }
                 return;
