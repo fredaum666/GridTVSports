@@ -6,43 +6,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GridTV Sports</title>
     <link rel="icon" type="image/png" href="/assets/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <script src="/scripts/qrcode.min.js"></script>
     <style>
         /* ================================ */
-        /* TV DESIGN SYSTEM                 */
-        /* Based on Android TV Guidelines   */
+        /* BROADCAST CONTROL ROOM THEME     */
+        /* V2 - Angular, Neon, Premium Dark */
         /* ================================ */
         :root {
-            /* Colors */
-            --tv-bg-primary: #0a0e1a;
-            --tv-bg-secondary: #111827;
-            --tv-bg-card: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            --tv-bg-card-hover: linear-gradient(135deg, #252b3d 0%, #2f3649 100%);
-            --tv-accent: #6366f1;
-            --tv-accent-light: #818cf8;
-            --tv-accent-glow: rgba(99, 102, 241, 0.4);
-            --tv-text-primary: #ffffff;
-            --tv-text-secondary: #94a3b8;
-            --tv-text-muted: #64748b;
-            --tv-live-red: #ef4444;
-            --tv-success: #22c55e;
-            --tv-border: #334155;
+            /* V2 Color Palette - Deep void with electric accents */
+            --bg-primary: #05080f;
+            --bg-secondary: #0a1019;
+            --bg-card: linear-gradient(135deg, #0f1520 0%, #151d2d 100%);
+            --bg-card-hover: linear-gradient(135deg, #151d2d 0%, #1a2438 100%);
+            --accent: #00f0ff;
+            --accent-light: #66f7ff;
+            --accent-glow: rgba(0, 240, 255, 0.4);
+            --accent-magenta: #ff0066;
+            --accent-magenta-dim: rgba(255, 0, 102, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: #8892a4;
+            --text-muted: #4a5568;
+            --live-red: #ff0066;
+            --success: #00ff88;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(0, 240, 255, 0.3);
 
-            /* Spacing (5% overscan margins for 960x540) */
-            --tv-margin-h: 20px;
-            --tv-margin-v: 20px;
-            --tv-gutter: 20px;
-            --tv-row-gap: 24px;
+            /* Desktop defaults */
+            --margin-h: 40px;
+            --margin-v: 24px;
+            --gutter: 16px;
+            --row-gap: 20px;
 
-            /* Cards */
-            --tv-card-radius: 16px;
-            --tv-focus-outline: 3px;
-            --tv-focus-scale: 1.05;
-            --tv-focus-glow: 0 0 30px var(--tv-accent-glow);
+            /* Cards - Angular geometry */
+            --card-radius: 4px;
+            --clip-corner: 12px;
+            --hover-scale: 1.02;
+            --hover-shadow: 0 8px 32px rgba(0, 240, 255, 0.15);
 
-            /* Typography - System fonts for Android TV compatibility */
-            --tv-font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            /* Touch targets - minimum 44px for accessibility */
+            --touch-target: 44px;
+
+            /* V2 Typography */
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-family: var(--font-body);
+        }
+
+        /* Tablet (768px - 1024px) */
+        @media (max-width: 1024px) {
+            :root {
+                --margin-h: 24px;
+                --margin-v: 20px;
+                --gutter: 12px;
+                --row-gap: 16px;
+                --card-radius: 10px;
+            }
+        }
+
+        /* Mobile (up to 767px) */
+        @media (max-width: 767px) {
+            :root {
+                --margin-h: 16px;
+                --margin-v: 12px;
+                --gutter: 8px;
+                --row-gap: 12px;
+                --card-radius: 8px;
+            }
         }
 
         * {
@@ -53,12 +86,33 @@
 
         html,
         body {
-            width: 102%;
-            height: 102%;
-            overflow: hidden;
-            background: var(--tv-bg-primary);
-            font-family: var(--tv-font-family);
-            color: var(--tv-text-primary);
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* V2 Scanline effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9998;
         }
 
         .hidden {
@@ -66,397 +120,15 @@
         }
 
         /* ================================ */
-        /* LOGIN SCREEN STYLES              */
+        /* MAIN HOME - RESPONSIVE LAYOUT    */
         /* ================================ */
-        .login-screen {
+        .home {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: clamp(20px, 4vh, 60px);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: clamp(25px, 5vh, 60px);
-        }
-
-        .login-header img {
-            height: clamp(50px, 8vh, 100px);
-            margin-bottom: clamp(10px, 2vh, 25px);
-        }
-
-        .login-header h1 {
-            font-size: clamp(28px, 5vw, 60px);
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: clamp(5px, 1vh, 15px);
-        }
-
-        .login-header p {
-            font-size: clamp(14px, 2vw, 26px);
-            color: #94a3b8;
-        }
-
-        .login-options {
-            display: flex;
-            gap: clamp(30px, 4vw, 80px);
-            align-items: stretch;
-        }
-
-        .login-option {
-            width: clamp(280px, 22vw, 500px);
-            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            border: 3px solid transparent;
-            border-radius: clamp(16px, 1.5vw, 30px);
-            padding: clamp(25px, 3vw, 50px);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .login-option.focused {
-            border-color: #6366f1;
-            transform: scale(1.02);
-            box-shadow: 0 0 50px rgba(99, 102, 241, 0.4);
-        }
-
-        .login-option h2 {
-            font-size: clamp(18px, 1.8vw, 34px);
-            margin-bottom: clamp(10px, 1.5vh, 20px);
-            color: #fff;
-        }
-
-        .login-option p {
-            font-size: clamp(12px, 1.2vw, 20px);
-            color: #94a3b8;
-            margin-bottom: clamp(15px, 2.5vh, 35px);
-        }
-
-        .login-option .icon {
-            font-size: clamp(40px, 5vw, 80px);
-            margin-bottom: clamp(12px, 2vh, 25px);
-            display: block;
-        }
-
-        .login-divider {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            font-size: clamp(14px, 1.3vw, 24px);
-            font-weight: 600;
-        }
-
-        .login-divider::before,
-        .login-divider::after {
-            content: '';
-            width: 2px;
-            height: clamp(50px, 8vh, 100px);
-            background: #334155;
-        }
-
-        .login-divider span {
-            padding: clamp(12px, 2vh, 25px) 0;
-        }
-
-        /* Password Login Form */
-        .password-login-screen {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: clamp(60px, 8vw, 150px);
-            padding: clamp(20px, 4vh, 60px);
-        }
-
-        .password-login-screen .login-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .password-login-screen .login-content .back-link,
-        .qr-login-screen .login-content .back-link {
-            margin-top: clamp(20px, 3vh, 40px);
-            color: #6366f1;
-            font-size: clamp(14px, 1.3vw, 22px);
-            cursor: pointer;
-            padding: clamp(10px, 1.5vh, 20px) clamp(20px, 2vw, 40px);
-            border: 2px solid #334155;
-            border-radius: clamp(6px, 0.8vw, 12px);
-            transition: all 0.3s;
-            text-align: center;
-            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-        }
-
-        .password-login-screen .login-logo {
-            text-align: center;
-        }
-
-        .password-login-screen .login-logo img {
-            height: clamp(80px, 15vh, 180px);
-            margin-bottom: clamp(15px, 2vh, 30px);
-        }
-
-        .password-login-screen .login-logo h1 {
-            font-size: clamp(32px, 4vw, 70px);
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .login-form {
-            width: clamp(320px, 30vw, 600px);
-            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            border-radius: clamp(16px, 1.5vw, 30px);
-            padding: clamp(30px, 4vw, 60px);
-        }
-
-        .login-form h2 {
-            font-size: clamp(22px, 2.2vw, 40px);
-            margin-bottom: clamp(6px, 1vh, 15px);
-            text-align: center;
-        }
-
-        .login-form .subtitle {
-            color: #94a3b8;
-            text-align: center;
-            margin-bottom: clamp(25px, 4vh, 50px);
-            font-size: clamp(12px, 1.2vw, 20px);
-        }
-
-        .form-group {
-            margin-bottom: clamp(15px, 2.5vh, 30px);
-        }
-
-        .form-group label {
-            display: block;
-            font-size: clamp(12px, 1.2vw, 20px);
-            color: #94a3b8;
-            margin-bottom: clamp(6px, 1vh, 12px);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: clamp(12px, 1.5vw, 22px) clamp(14px, 1.5vw, 24px);
-            font-size: clamp(14px, 1.4vw, 24px);
-            background: #0f172a;
-            border: 3px solid #334155;
-            border-radius: clamp(8px, 1vw, 16px);
-            color: #fff;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group input.focused {
-            border-color: #6366f1;
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-        }
-
-        .form-group input::placeholder {
-            color: #64748b;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: clamp(14px, 1.8vw, 24px);
-            font-size: clamp(16px, 1.6vw, 26px);
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            border: 3px solid transparent;
-            border-radius: clamp(8px, 1vw, 16px);
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: clamp(12px, 2vh, 25px);
-        }
-
-        .login-btn:focus,
-        .login-btn.focused {
-            border-color: #fff;
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .back-link {
-            margin-top: clamp(20px, 3vh, 40px);
-            color: #6366f1;
-            font-size: clamp(14px, 1.3vw, 22px);
-            cursor: pointer;
-            padding: clamp(10px, 1.5vh, 20px) clamp(20px, 2vw, 40px);
-            border: 2px solid transparent;
-            border-radius: clamp(6px, 0.8vw, 12px);
-            transition: all 0.3s;
-        }
-
-        .back-link:focus,
-        .back-link.focused {
-            border-color: #6366f1;
-            background: rgba(99, 102, 241, 0.1);
-        }
-
-        .login-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            border-radius: clamp(6px, 0.8vw, 12px);
-            padding: clamp(10px, 1.5vh, 20px);
-            color: #ef4444;
-            margin-bottom: clamp(12px, 2vh, 25px);
-            text-align: center;
-            font-size: clamp(12px, 1.1vw, 18px);
-            display: none;
-        }
-
-        .login-error.show {
-            display: block;
-        }
-
-        /* QR Code Login Screen */
-        .qr-login-screen {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: clamp(60px, 8vw, 150px);
-            padding: clamp(20px, 4vh, 60px);
-        }
-
-        .qr-login-screen .login-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .qr-login-screen .login-logo {
-            text-align: center;
-        }
-
-        .qr-login-screen .login-logo img {
-            height: clamp(80px, 15vh, 180px);
-            margin-bottom: clamp(15px, 2vh, 30px);
-        }
-
-        .qr-login-screen .login-logo h1 {
-            font-size: clamp(32px, 4vw, 70px);
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .qr-login-box {
-            width: clamp(320px, 30vw, 600px);
-            background: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            border-radius: clamp(16px, 1.5vw, 30px);
-            padding: clamp(30px, 4vw, 60px);
-            text-align: center;
-        }
-
-        .qr-login-box h2 {
-            font-size: clamp(22px, 2.2vw, 40px);
-            margin-bottom: clamp(6px, 1vh, 15px);
-        }
-
-        .qr-login-box .subtitle {
-            color: #94a3b8;
-            margin-bottom: clamp(20px, 3vh, 40px);
-            font-size: clamp(12px, 1.2vw, 20px);
-        }
-
-        .qr-container {
-            background: #fff;
-            border-radius: clamp(10px, 1.2vw, 20px);
-            padding: clamp(15px, 2vw, 30px);
-            display: inline-block;
-            margin: clamp(12px, 2vh, 25px) 0;
-        }
-
-        .qr-container canvas,
-        .qr-container img {
-            display: block;
-            width: clamp(150px, 15vw, 250px) !important;
-            height: clamp(150px, 15vw, 250px) !important;
-        }
-
-        #login-qr-code {
-            display: inline-block;
-        }
-
-        .qr-loading {
-            width: clamp(150px, 15vw, 250px);
-            height: clamp(150px, 15vw, 250px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6366f1;
-            font-size: clamp(12px, 1.2vw, 20px);
-        }
-
-        .qr-timer {
-            color: #94a3b8;
-            font-size: clamp(12px, 1.2vw, 20px);
-            margin-top: clamp(10px, 1.5vh, 20px);
-        }
-
-        .qr-timer span:last-child {
-            color: #6366f1;
-            font-weight: 700;
-        }
-
-        .qr-status {
-            margin-top: clamp(12px, 2vh, 25px);
-            padding: clamp(8px, 1vh, 15px) clamp(14px, 1.5vw, 25px);
-            border-radius: clamp(6px, 0.8vw, 12px);
-            font-size: clamp(12px, 1.2vw, 20px);
-        }
-
-        .qr-status.success {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid #22c55e;
-            color: #22c55e;
-        }
-
-        .qr-status.error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #ef4444;
-        }
-
-        .qr-status.info {
-
-            color: #6366f1;
-        }
-
-        /* ================================ */
-        /* MAIN TV HOME - STREAMING LAYOUT  */
-        /* ================================ */
-        .tv-home {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: var(--tv-margin-v) var(--tv-margin-h);
-            overflow: hidden;
+            padding: var(--margin-v) var(--margin-h);
+            overflow-y: auto;
             position: relative;
         }
 
@@ -502,12 +174,15 @@
         }
 
         .tv-logo h1 {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--tv-accent) 0%, #8b5cf6 100%);
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 0 30px var(--accent-glow);
         }
 
         .tv-header-right {
@@ -518,7 +193,7 @@
 
         .tv-time {
             font-size: 18px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
@@ -526,7 +201,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
             font-size: 14px;
         }
 
@@ -534,18 +209,20 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: var(--font-display);
             font-size: 16px;
             font-weight: 700;
-            color: #fff;
+            color: var(--bg-primary);
             text-transform: uppercase;
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
         .sign-out-link {
-            color: var(--tv-accent);
+            color: var(--accent);
             cursor: pointer;
             padding: 8px 16px;
             border: 2px solid transparent;
@@ -554,7 +231,7 @@
         }
 
         .sign-out-link.focused {
-            border-color: var(--tv-accent);
+            border-color: var(--accent);
             background: rgba(99, 102, 241, 0.1);
             transform: scale(1.05);
         }
@@ -589,9 +266,12 @@
         }
 
         .tv-row-title {
+            font-family: var(--font-display);
             font-size: 18px;
-            font-weight: 600;
-            color: var(--tv-text-primary);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: var(--text-primary);
         }
 
         .tv-row-badge {
@@ -605,7 +285,7 @@
         }
 
         .tv-row-badge.live {
-            background: var(--tv-live-red);
+            background: var(--live-red);
             color: white;
         }
 
@@ -632,8 +312,14 @@
 
         .tv-row-count {
             font-size: 14px;
-            color: var(--tv-text-muted);
+            color: var(--text-muted);
             margin-left: 8px;
+        }
+
+        /* Row Scroll Container Wrapper */
+        .tv-row-scroll-wrapper {
+            position: relative;
+            width: 100%;
         }
 
         /* Horizontal Scroll Container */
@@ -652,14 +338,104 @@
             display: none;
         }
 
-        /* League Cards (2:3 aspect ratio) */
+        /* Scroll Navigation Handles - matches game card dimensions */
+        .scroll-handle {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-52%);
+            width: 40px;
+            height: 180px;
+            background: linear-gradient(135deg, rgba(15, 21, 32, 0.9) 0%, rgba(10, 16, 25, 0.95) 100%);
+            border: 1px solid var(--border);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-handle.active {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-handle:hover {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(15, 21, 32, 0.95) 100%);
+            border-color: var(--accent);
+        }
+
+        .scroll-handle.handle-prev {
+            left: 0;
+            border-radius: 0 var(--card-radius) var(--card-radius) 0;
+            border-left: none;
+        }
+
+        .scroll-handle.handle-next {
+            right: 0;
+            border-radius: var(--card-radius) 0 0 var(--card-radius);
+            border-right: none;
+        }
+
+        .scroll-handle .handle-icon {
+            font-size: 48px;
+            color: var(--text-primary);
+            font-weight: bold;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .scroll-handle:hover .handle-icon {
+            color: var(--accent-light);
+        }
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .scroll-handle {
+                width: 36px;
+                height: 160px;
+            }
+
+            .scroll-handle .handle-icon {
+                font-size: 40px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 767px) {
+            .scroll-handle {
+                width: 32px;
+                height: 140px;
+            }
+
+            .scroll-handle .handle-icon {
+                font-size: 36px;
+            }
+        }
+
+        /* Small mobile */
+        @media (max-width: 375px) {
+            .scroll-handle {
+                width: 28px;
+                height: 130px;
+            }
+
+            .scroll-handle .handle-icon {
+                font-size: 32px;
+            }
+        }
+
+        /* League Cards (2:3 aspect ratio) - V2 Magenta Design */
         .league-card {
             flex-shrink: 0;
             width: 120px;
             height: 160px;
-            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
-            border: 3px solid #000;
-            border-radius: var(--tv-card-radius);
+            background: linear-gradient(180deg, #0f1520 0%, #10081a 50%, #05080f 100%);
+            border: 1px solid rgba(255, 0, 102, 0.15);
+            border-radius: var(--card-radius);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -668,18 +444,25 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
             box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+                0 4px 16px rgba(255, 0, 102, 0.06),
+                inset 0 1px 0 rgba(255, 0, 102, 0.08);
+        }
+
+        .league-card:hover {
+            border-color: rgba(255, 0, 102, 0.35);
+            box-shadow:
+                0 6px 28px rgba(255, 0, 102, 0.12);
+            transform: translateY(-2px);
         }
 
         .league-card.focused {
-            border: 3px solid var(--tv-accent);
-            transform: scale(var(--tv-focus-scale));
+            border: 1px solid var(--accent-magenta);
+            transform: scale(var(--hover-scale));
             box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
+                0 0 0 1px rgba(255, 0, 102, 0.4),
+                0 6px 28px rgba(255, 0, 102, 0.2);
             z-index: 10;
         }
 
@@ -690,14 +473,16 @@
         }
 
         .league-card .league-name {
+            font-family: var(--font-display);
             font-size: 14px;
-            font-weight: 600;
-            color: var(--tv-text-primary);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: var(--text-primary);
         }
 
         .league-card .league-status {
             font-size: 10px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
             text-align: center;
             line-height: 1.3;
         }
@@ -711,7 +496,7 @@
             position: absolute;
             top: 8px;
             right: 8px;
-            background: var(--tv-live-red);
+            background: var(--live-red);
             color: white;
             font-size: 9px;
             font-weight: 600;
@@ -733,7 +518,7 @@
 
         /* Selected league filter */
         .league-card.selected {
-            border-color: var(--tv-accent);
+            border-color: var(--accent);
             background: linear-gradient(180deg, #2d2050 0%, #1f1540 50%, #150f30 100%);
             box-shadow:
                 0 4px 16px rgba(99, 102, 241, 0.2),
@@ -749,36 +534,57 @@
             transform: translateX(-50%);
             width: 24px;
             height: 3px;
-            background: var(--tv-accent);
+            background: var(--accent);
             border-radius: 2px;
         }
 
-        /* Game Cards (16:9 aspect ratio) */
+        /* Game Cards (16:9 aspect ratio) - V2 Magenta Design */
         .game-card {
             flex-shrink: 0;
             width: 320px;
             height: 180px;
-            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
-            border: 3px solid #000;
-            border-radius: var(--tv-card-radius);
-            padding: 16px;
+            background: linear-gradient(135deg, #0f1520 0%, #12081a 100%);
+            border: 1px solid rgba(255, 0, 102, 0.2);
+            border-radius: var(--card-radius);
+            padding: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             display: flex;
             flex-direction: column;
+            clip-path: polygon(var(--clip-corner) 0, 100% 0, 100% calc(100% - var(--clip-corner)), calc(100% - var(--clip-corner)) 100%, 0 100%, 0 var(--clip-corner));
             box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+                0 4px 24px rgba(255, 0, 102, 0.08),
+                inset 0 1px 0 rgba(255, 0, 102, 0.1);
+            overflow: hidden;
+        }
+
+        /* Diagonal accent stripe */
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 0, 102, 0.08) 100%);
+            pointer-events: none;
+        }
+
+        .game-card:hover {
+            border-color: rgba(255, 0, 102, 0.4);
+            box-shadow:
+                0 8px 40px rgba(255, 0, 102, 0.15),
+                inset 0 1px 0 rgba(255, 0, 102, 0.15);
+            transform: translateY(-2px);
         }
 
         .game-card.focused {
-            border: 3px solid var(--tv-accent);
-            transform: scale(var(--tv-focus-scale));
+            border: 1px solid var(--accent-magenta);
+            transform: scale(var(--hover-scale));
             box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
+                0 0 0 1px rgba(255, 0, 102, 0.5),
+                0 8px 40px rgba(255, 0, 102, 0.25);
             z-index: 10;
         }
 
@@ -790,33 +596,45 @@
         }
 
         .game-card-league {
+            font-family: var(--font-display);
             font-size: 10px;
-            font-weight: 600;
-            color: var(--tv-accent);
+            font-weight: 700;
+            color: var(--accent-magenta);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.08em;
         }
 
         .game-card-status {
+            font-family: var(--font-display);
             font-size: 10px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 6px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 2px;
+            letter-spacing: 0.04em;
+            clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
         }
 
         .game-card-status.live {
-            background: var(--tv-live-red);
+            background: var(--accent-magenta);
             color: white;
+            box-shadow: 0 0 16px rgba(255, 0, 102, 0.5);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 12px rgba(255, 0, 102, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(255, 0, 102, 0.6); }
         }
 
         .game-card-status.upcoming {
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--tv-accent-light);
+            background: rgba(255, 0, 102, 0.12);
+            color: var(--accent-magenta);
+            border: 1px solid rgba(255, 0, 102, 0.3);
         }
 
         .game-card-status.final {
-            background: rgba(100, 116, 139, 0.2);
-            color: var(--tv-text-secondary);
+            background: rgba(74, 85, 104, 0.15);
+            color: var(--text-muted);
         }
 
         .game-card-teams {
@@ -840,65 +658,70 @@
         }
 
         .game-card-team-name {
+            font-family: var(--font-display);
             flex: 1;
             font-size: 14px;
-            font-weight: 500;
-            color: var(--tv-text-primary);
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: var(--text-primary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .game-card-team-score {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--tv-text-primary);
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
             min-width: 36px;
             text-align: right;
         }
 
         .game-card-team.winner .game-card-team-name,
         .game-card-team.winner .game-card-team-score {
-            color: var(--tv-success);
+            color: var(--accent-magenta);
+            text-shadow: 0 0 12px rgba(255, 0, 102, 0.3);
         }
 
         /* ===== LIVE GAME CARD - VS Layout ===== */
         .game-card.live-card {
             padding: 0;
             overflow: hidden;
-            background: linear-gradient(180deg, #1a2235 0%, #0f1525 100%);
-            border: 3px solid #000;
+            background: linear-gradient(180deg, #0f1520 0%, #05080f 100%);
+            border: 1px solid var(--border-accent);
             position: relative;
         }
 
         /* League-specific watermark backgrounds */
         .game-card.live-card.live-nfl {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NFL-Field.jpg') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-ncaa {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NCAAF-Field.jpg') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-nba {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NBACourt.png') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-ncaab {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NCAABCourt.png') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-nhl {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NHLIceRink.png') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-mlb {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/MLBFiled.png') center center / cover no-repeat;
         }
 
@@ -935,14 +758,16 @@
         }
 
         .live-card-team-abbr {
+            font-family: var(--font-display);
             font-size: 13px;
             font-weight: 700;
-            color: var(--tv-text-primary);
+            letter-spacing: 0.02em;
+            color: var(--text-primary);
         }
 
         .live-card-team-record {
             font-size: 9px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         .live-card-scores {
@@ -952,25 +777,27 @@
         }
 
         .live-card-score {
+            font-family: var(--font-display);
             font-size: 32px;
             font-weight: 800;
-            color: var(--tv-text-primary);
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
             min-width: 36px;
             text-align: center;
         }
 
         .live-card-score.winning {
-            color: var(--tv-success);
+            color: var(--success);
         }
 
         .live-card-score.losing {
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         .live-card-vs {
             font-size: 14px;
             font-weight: 600;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         .live-card-footer {
@@ -981,7 +808,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             background: rgba(99, 102, 241, 0.15);
             padding: 4px 12px;
             border-radius: 10px;
@@ -989,8 +816,8 @@
         }
 
         .game-card.live-card.focused {
-            border: 3px solid var(--tv-accent);
-            transform: scale(var(--tv-focus-scale));
+            border: 3px solid var(--accent);
+            transform: scale(var(--hover-scale));
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1092,7 +919,7 @@
         }
 
         .game-card.nba-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1106,7 +933,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1220,7 +1047,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1230,7 +1057,7 @@
         }
 
         .game-card.nfl-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1341,7 +1168,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1351,7 +1178,7 @@
         }
 
         .game-card.nhl-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1462,7 +1289,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1472,7 +1299,7 @@
         }
 
         .game-card.mlb-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1583,7 +1410,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1593,7 +1420,7 @@
         }
 
         .game-card.ncaa-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1704,7 +1531,7 @@
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             z-index: 4;
             background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
             padding: 6px 14px;
@@ -1714,7 +1541,7 @@
         }
 
         .game-card.ncaab-upcoming.focused {
-            border: 3px solid var(--tv-accent);
+            border: 3px solid var(--accent);
             box-shadow:
                 0 0 0 2px rgba(99, 102, 241, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -1748,14 +1575,14 @@
         .game-card-footer {
             margin-top: 8px;
             font-size: 11px;
-            color: var(--tv-text-muted);
+            color: var(--text-muted);
         }
 
         .game-card-footer-time {
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tv-accent-light);
+            color: var(--accent-light);
             padding-top: 8px;
             margin-top: auto;
         }
@@ -1766,7 +1593,7 @@
             align-items: center;
             justify-content: center;
             padding: 24px;
-            color: var(--tv-text-muted);
+            color: var(--text-muted);
             font-size: 14px;
         }
 
@@ -1796,8 +1623,8 @@
         .loading-spinner {
             width: 48px;
             height: 48px;
-            border: 4px solid var(--tv-border);
-            border-top-color: var(--tv-accent);
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -1811,7 +1638,7 @@
         .loading-text {
             margin-top: 16px;
             font-size: 16px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         /* ================================ */
@@ -1823,11 +1650,11 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: var(--tv-bg-primary);
+            background: var(--bg-primary);
             z-index: 2000;
             display: none;
             flex-direction: column;
-            padding: var(--tv-margin-v) var(--tv-margin-h);
+            padding: var(--margin-v) var(--margin-h);
         }
 
         .fullscreen-game-overlay.active {
@@ -1848,12 +1675,12 @@
             align-items: center;
             justify-content: space-between;
             padding: 16px 0;
-            border-bottom: 2px solid var(--tv-border);
+            border-bottom: 2px solid var(--border);
             margin-bottom: 24px;
         }
 
         .fullscreen-league-badge {
-            background: var(--tv-accent);
+            background: var(--accent);
             color: white;
             padding: 8px 20px;
             border-radius: 8px;
@@ -1865,17 +1692,17 @@
         .fullscreen-game-status {
             font-size: 24px;
             font-weight: 600;
-            color: var(--tv-text-primary);
+            color: var(--text-primary);
         }
 
         .fullscreen-game-status.live {
-            color: var(--tv-live-red);
+            color: var(--live-red);
         }
 
         .fullscreen-close-btn {
             background: transparent;
-            border: 2px solid var(--tv-border);
-            color: var(--tv-text-secondary);
+            border: 2px solid var(--border);
+            color: var(--text-secondary);
             padding: 12px 24px;
             border-radius: 8px;
             font-size: 16px;
@@ -1887,9 +1714,9 @@
         .fullscreen-close-btn:hover,
         .fullscreen-close-btn:focus {
             background: rgba(99, 102, 241, 0.2);
-            border-color: var(--tv-accent);
-            color: var(--tv-text-primary);
-            outline: 3px solid var(--tv-accent);
+            border-color: var(--accent);
+            color: var(--text-primary);
+            outline: 3px solid var(--accent);
             transform: scale(1.05);
         }
 
@@ -1918,36 +1745,36 @@
         .fullscreen-team-name {
             font-size: 28px;
             font-weight: 600;
-            color: var(--tv-text-primary);
+            color: var(--text-primary);
             text-align: center;
         }
 
         .fullscreen-team-score {
             font-size: 80px;
             font-weight: 700;
-            color: var(--tv-text-primary);
+            color: var(--text-primary);
             line-height: 1;
         }
 
         .fullscreen-team.winner .fullscreen-team-score {
-            color: var(--tv-success);
+            color: var(--success);
         }
 
         .fullscreen-vs {
             font-size: 32px;
             font-weight: 700;
-            color: var(--tv-text-muted);
+            color: var(--text-muted);
         }
 
         .fullscreen-game-footer {
             text-align: center;
             padding: 24px 0;
-            border-top: 2px solid var(--tv-border);
+            border-top: 2px solid var(--border);
         }
 
         .fullscreen-game-name {
             font-size: 20px;
-            color: var(--tv-text-secondary);
+            color: var(--text-secondary);
         }
 
         /* ================================ */
@@ -2004,6 +1831,7 @@
 
         /* Base action button styles */
         .sports-mode-btn,
+        .cast-to-tv-btn,
         .clear-selections-btn {
             display: inline-flex;
             align-items: center;
@@ -2025,6 +1853,7 @@
 
         /* Subtle shine effect on all buttons */
         .sports-mode-btn::before,
+        .cast-to-tv-btn::before,
         .clear-selections-btn::before {
             content: '';
             position: absolute;
@@ -2032,32 +1861,36 @@
             left: 0;
             right: 0;
             height: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
             pointer-events: none;
         }
 
-        /* Enter Sports Mode button - Green */
+        /* Enter Sports Mode button - V2 Cyan */
         .sports-mode-btn {
-            background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
-            color: #ffffff;
+            background: linear-gradient(180deg, var(--accent) 0%, #00c4cc 100%);
+            color: var(--bg-primary);
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
             box-shadow:
-                0 4px 14px rgba(34, 197, 94, 0.4),
+                0 4px 20px rgba(0, 240, 255, 0.4),
                 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .sports-mode-btn:hover,
         .sports-mode-btn.focused {
-            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            background: linear-gradient(180deg, #66f7ff 0%, var(--accent) 100%);
             transform: translateY(-2px);
             box-shadow:
-                0 6px 20px rgba(34, 197, 94, 0.5),
+                0 6px 30px rgba(0, 240, 255, 0.5),
                 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .sports-mode-btn:active {
             transform: translateY(0);
             box-shadow:
-                0 2px 8px rgba(34, 197, 94, 0.4),
+                0 2px 12px rgba(0, 240, 255, 0.4),
                 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
@@ -2073,22 +1906,46 @@
             min-height: 48px;
             border: 2px solid #f59e0b;
             border-radius: 12px;
-            background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
             font-size: 15px;
             font-weight: 600;
+            background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
             color: #000;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
-        .mock-game-selector:hover,
-        .mock-game-selector.focused {
+        .mock-game-selector:hover {
             background: linear-gradient(180deg, #fcd34d 0%, #fbbf24 100%);
             transform: translateY(-2px);
         }
 
         .mock-game-selector.visible {
             display: block;
+        }
+
+        /* Cast to TV button - Blue/Purple */
+        .cast-to-tv-btn {
+            background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+            color: #ffffff;
+            box-shadow:
+                0 4px 14px rgba(99, 102, 241, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .cast-to-tv-btn:hover,
+        .cast-to-tv-btn.focused {
+            background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
+            transform: translateY(-2px);
+            box-shadow:
+                0 6px 20px rgba(99, 102, 241, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .cast-to-tv-btn:active {
+            transform: translateY(0);
+            box-shadow:
+                0 2px 8px rgba(99, 102, 241, 0.4),
+                0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         /* Clear Selections button - Gray when inactive, Red when active (has selections) */
@@ -2136,14 +1993,9 @@
         }
 
         /* ================================ */
-        /* ANDROID TV WEBVIEW VIEWPORT      */
+        /* TABLET RESPONSIVE (768px-1024px) */
         /* ================================ */
-        @media screen and (min-width: 900px) and (max-width: 1100px) and (min-height: 480px) and (max-height: 600px) {
-            :root {
-                --tv-margin-h: 24px;
-                --tv-margin-v: 15px;
-            }
-
+        @media screen and (max-width: 1024px) {
             .tv-header {
                 margin-bottom: 12px;
             }
@@ -2158,16 +2010,6 @@
 
             .tv-time {
                 font-size: 14px;
-            }
-
-            .tv-user-info {
-                font-size: 11px;
-                gap: 8px;
-            }
-
-            .sign-out-link {
-                padding: 6px 12px;
-                font-size: 11px;
             }
 
             .tv-content {
@@ -2189,13 +2031,13 @@
 
             .tv-row-scroll {
                 gap: 12px;
-                padding: 6px 4px 12px 4px;
+                padding: 6px 8px 12px 8px;
             }
 
             .league-card {
                 width: 100px;
                 height: 130px;
-                border-radius: 12px;
+                border-radius: 10px;
             }
 
             .league-card img {
@@ -2210,15 +2052,180 @@
                 font-size: 9px;
             }
 
-            .league-card .phone-icon {
-                font-size: 32px;
+            /* Game cards - tablet size */
+            .game-card {
+                width: 300px;
+                height: 170px;
+                min-height: 170px;
+                padding: 14px;
+                border-radius: 10px;
             }
 
+            .game-card.live-card {
+                width: 310px;
+                height: 175px;
+            }
+
+            .game-card-team-name {
+                font-size: 13px;
+            }
+
+            .game-card-team-score {
+                font-size: 18px;
+            }
+
+            /* Live card scoreboard - tablet */
+            .live-card-team-logo {
+                width: 42px;
+                height: 42px;
+            }
+
+            .live-scoreboard {
+                height: 40px;
+            }
+
+            .live-sb-score-box {
+                width: 40px;
+            }
+
+            .live-sb-score {
+                font-size: 1.2rem;
+            }
+
+            .live-sb-team-name {
+                font-size: 11px;
+            }
+
+            .live-sb-time-box {
+                min-width: 56px;
+            }
+
+            .live-sb-time {
+                font-size: 12px;
+            }
+
+            .sports-mode-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                border-radius: 10px;
+            }
+
+            .clear-selections-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                border-radius: 10px;
+            }
+        }
+
+        /* ================================ */
+        /* MOBILE RESPONSIVE (up to 767px)  */
+        /* ================================ */
+        @media screen and (max-width: 767px) {
+            .home {
+                padding: 12px 16px;
+            }
+
+            /* Keep header on single row - logo left, user right */
+            .tv-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+
+            .tv-header-right {
+                gap: 12px;
+            }
+
+            /* Hide time on mobile to save space */
+            .tv-time {
+                display: none;
+            }
+
+            .tv-logo img {
+                height: 28px;
+            }
+
+            .tv-logo h1 {
+                font-size: 16px;
+            }
+
+            .user-menu-trigger {
+                padding: 4px 8px;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .tv-content {
+                gap: 16px;
+            }
+
+            .tv-row-header {
+                margin-bottom: 8px;
+            }
+
+            .tv-row-title {
+                font-size: 13px;
+            }
+
+            .tv-row-badge {
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+
+            /* Mobile horizontal scroll - snap scrolling */
+            .tv-row-scroll {
+                gap: 12px;
+                padding: 8px 16px 16px 16px;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* League cards - smaller for mobile */
+            .league-card {
+                width: 80px;
+                height: 100px;
+                border-radius: 8px;
+                min-height: 44px;
+                scroll-snap-align: start;
+            }
+
+            .league-card img {
+                height: 32px;
+            }
+
+            .league-card .league-name {
+                font-size: 11px;
+            }
+
+            .league-card .league-status {
+                font-size: 8px;
+            }
+
+            .league-card .phone-icon {
+                font-size: 28px;
+            }
+
+            /* Game cards - optimized for mobile horizontal scroll */
             .game-card {
-                width: 260px;
-                height: 146px;
+                width: 280px;
+                height: 160px;
+                min-height: 160px;
                 padding: 12px;
-                border-radius: 12px;
+                border-radius: 10px;
+                scroll-snap-align: start;
+                flex-shrink: 0;
+            }
+
+            /* Live cards - slightly larger for better readability */
+            .game-card.live-card {
+                width: 290px;
+                height: 165px;
             }
 
             .game-card-header {
@@ -2226,11 +2233,185 @@
             }
 
             .game-card-league {
-                font-size: 9px;
+                font-size: 10px;
             }
 
             .game-card-status {
                 font-size: 9px;
+                padding: 3px 8px;
+            }
+
+            .game-card-team img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .game-card-team-name {
+                font-size: 13px;
+            }
+
+            .game-card-team-score {
+                font-size: 18px;
+            }
+
+            .game-card-footer {
+                font-size: 10px;
+            }
+
+            /* Live card scoreboard optimizations */
+            .live-card-wrapper {
+                padding: 6px;
+                gap: 4px;
+            }
+
+            .live-card-team-logo {
+                width: 38px;
+                height: 38px;
+            }
+
+            .live-scoreboard {
+                width: 96%;
+                height: 38px;
+            }
+
+            .live-sb-score-box {
+                width: 38px;
+            }
+
+            .live-sb-score {
+                font-size: 1.1rem;
+            }
+
+            .live-sb-team-name {
+                font-size: 10px;
+            }
+
+            .live-sb-team-record {
+                font-size: 7px;
+            }
+
+            .live-sb-time-box {
+                min-width: 52px;
+            }
+
+            .live-sb-time-label {
+                font-size: 7px;
+            }
+
+            .live-sb-time {
+                font-size: 11px;
+            }
+
+            .live-sb-logo-center-spacer {
+                width: 52px;
+            }
+
+            /* Sports mode buttons - larger touch targets */
+            .sports-mode-container {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px 16px;
+            }
+
+            .sports-mode-btn {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 14px;
+                border-radius: 8px;
+                min-height: 48px;
+            }
+
+            .clear-selections-btn {
+                width: 100%;
+                padding: 12px 16px;
+                font-size: 13px;
+                border-radius: 8px;
+                min-height: 44px;
+            }
+
+            /* Cast to TV button - full width on mobile */
+            .cast-to-tv-btn {
+                width: 100%;
+                min-height: 48px;
+            }
+
+            /* Selection number on mobile */
+            .game-card .selection-number {
+                font-size: 40px;
+            }
+
+            /* User dropdown adjustments */
+            .user-dropdown {
+                min-width: 260px;
+                right: -10px;
+            }
+
+            .dropdown-item {
+                padding: 14px 20px;
+                min-height: 48px;
+            }
+
+            /* Modal adjustments */
+            .modal-content {
+                max-width: 100%;
+                margin: 16px;
+                border-radius: 16px;
+            }
+
+            .modal-form-group input {
+                padding: 16px;
+                font-size: 16px;
+                /* Prevents zoom on iOS */
+            }
+
+            .modal-btn {
+                padding: 16px;
+                min-height: 48px;
+            }
+
+            /* Hide scroll handles on mobile - use native touch scroll */
+            .scroll-handle {
+                display: none !important;
+            }
+        }
+
+        /* ================================ */
+        /* SMALL MOBILE (up to 375px)       */
+        /* ================================ */
+        @media screen and (max-width: 375px) {
+            .home {
+                padding: 10px 12px;
+            }
+
+            .tv-logo h1 {
+                font-size: 16px;
+            }
+
+            .tv-row-scroll {
+                gap: 10px;
+                padding: 6px 12px 12px 12px;
+            }
+
+            .league-card {
+                width: 70px;
+                height: 90px;
+            }
+
+            .league-card img {
+                height: 28px;
+            }
+
+            /* Game cards - compact for small phones */
+            .game-card {
+                width: 250px;
+                height: 145px;
+                min-height: 145px;
+                padding: 10px;
+            }
+
+            .game-card.live-card {
+                width: 260px;
+                height: 150px;
             }
 
             .game-card-team img {
@@ -2239,161 +2420,50 @@
             }
 
             .game-card-team-name {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .game-card-team-score {
                 font-size: 16px;
             }
 
-            .game-card-footer {
+            /* Live card adjustments for small screens */
+            .live-card-team-logo {
+                width: 32px;
+                height: 32px;
+            }
+
+            .live-scoreboard {
+                height: 34px;
+            }
+
+            .live-sb-score-box {
+                width: 34px;
+            }
+
+            .live-sb-score {
+                font-size: 1rem;
+            }
+
+            .live-sb-team-name {
                 font-size: 9px;
             }
 
-            /* Selected league for WebView */
-            .league-card.selected::after {
-                width: 18px;
-                height: 2px;
-                bottom: 6px;
+            .live-sb-time-box {
+                min-width: 48px;
             }
 
-            /* Login screens for WebView viewport */
-            .login-header img {
-                height: 50px;
+            .live-sb-time {
+                font-size: 10px;
             }
 
-            .login-header h1 {
-                font-size: 28px;
+            .live-sb-logo-center-spacer {
+                width: 48px;
             }
 
-            .login-header p {
-                font-size: 14px;
-            }
-
-            .login-options {
-                gap: 30px;
-            }
-
-            .login-option {
-                width: 220px;
-                padding: 20px;
-                border-radius: 14px;
-            }
-
-            .login-option h2 {
-                font-size: 16px;
-            }
-
-            .login-option p {
-                font-size: 11px;
-                margin-bottom: 15px;
-            }
-
-            .login-option .icon {
-                font-size: 36px;
-                margin-bottom: 10px;
-            }
-
-            .login-divider {
-                font-size: 12px;
-            }
-
-            .login-divider::before,
-            .login-divider::after {
-                height: 50px;
-            }
-
-            .qr-login-box {
-                width: 280px;
-                padding: 25px;
-            }
-
-            .qr-login-box h2 {
-                font-size: 20px;
-            }
-
-            .qr-login-box .subtitle {
-                font-size: 12px;
-                margin-bottom: 15px;
-            }
-
-            .qr-container {
-                padding: 12px;
-            }
-
-            .qr-container canvas,
-            .qr-container img {
-                width: 130px !important;
-                height: 130px !important;
-            }
-
-            .qr-timer {
-                font-size: 11px;
-                margin-top: 8px;
-            }
-
-            .qr-status {
-                font-size: 11px;
-                padding: 6px 12px;
-                margin-top: 10px;
-            }
-
-            .login-form {
-                width: 280px;
-                padding: 25px;
-            }
-
-            .login-form h2 {
-                font-size: 20px;
-            }
-
-            .login-form .subtitle {
-                font-size: 11px;
-                margin-bottom: 20px;
-            }
-
-            .form-group {
-                margin-bottom: 12px;
-            }
-
-            .form-group label {
-                font-size: 11px;
-                margin-bottom: 5px;
-            }
-
-            .form-group input {
-                padding: 10px 12px;
-                font-size: 13px;
-                border-radius: 6px;
-            }
-
-            .login-btn {
-                padding: 12px;
-                font-size: 14px;
-                margin-top: 10px;
-            }
-
-            .back-link {
-                font-size: 12px;
-                margin-top: 15px;
-                padding: 8px 16px;
-            }
-
-            /* Sports Bar Mode for WebView */
+            /* Selection number smaller */
             .game-card .selection-number {
-                font-size: 48px;
-            }
-
-            .sports-mode-btn {
-                padding: 10px 18px;
-                font-size: 13px;
-                border-radius: 10px;
-            }
-
-            .clear-selections-btn {
-                padding: 10px 14px;
-                font-size: 12px;
-                border-radius: 10px;
+                font-size: 36px;
             }
         }
 
@@ -2509,7 +2579,7 @@
         .live-sb-score-box.home {
             background: linear-gradient(135deg, var(--sb-home-secondary) 0%, var(--sb-home-primary) 40%, var(--sb-home-primary) 100%);
             clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
-            padding-left: 4px;
+            padding: 0 0 0 4px;
             border-radius: 0 4px 4px 0;
             box-shadow:
                 inset 0 2px 4px rgba(255, 255, 255, 0.2),
@@ -2786,6 +2856,453 @@
         .live-sb-situation:empty,
         .live-sb-situation.hidden {
             display: none;
+        }
+
+        /* Desktop hover states */
+        .league-card:hover,
+        .league-card.hovered {
+            transform: scale(1.05);
+            border-color: var(--accent, #6366f1);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .game-card:hover,
+        .game-card.hovered {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Button hover states are defined in the standardized button section above */
+
+        /* Cursor pointer for clickable elements */
+        .league-card,
+        .game-card,
+        .sports-mode-btn,
+        .clear-selections-btn,
+        .sign-out-link,
+        .login-option,
+        .login-btn,
+        .back-link {
+            cursor: pointer;
+        }
+
+        /* ================================ */
+        /* USER MENU DROPDOWN               */
+        /* ================================ */
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .user-menu-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .user-menu-trigger:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .user-menu-trigger:hover .user-avatar {
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* Dropdown Menu */
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: rgba(26, 26, 46, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            min-width: 280px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dropdown-user-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .dropdown-user-email {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .dropdown-menu {
+            padding: 10px 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: #ffffff;
+        }
+
+        .dropdown-item-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+        }
+
+        .dropdown-item.logout {
+            color: #f87171;
+        }
+
+        .dropdown-item.logout:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .subscription-status-row {
+            padding: 8px 20px 12px 56px;
+        }
+
+        .subscription-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .subscription-badge.trial {
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+        }
+
+        .subscription-badge.active {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+
+        .subscription-badge.expired {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        /* ================================ */
+        /* PROFILE MODAL                    */
+        /* ================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(5, 8, 15, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(180deg, #0f1520 0%, #0a1019 100%);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--card-radius);
+            width: 100%;
+            max-width: 450px;
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(0, 240, 255, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: #ffffff;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .modal-form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .modal-form-group input {
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            background: rgba(255, 255, 255, 0.03);
+            color: #ffffff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .modal-form-group input:focus {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+
+        .modal-form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-form-group input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .modal-btn {
+            padding: 14px;
+            border: none;
+            border-radius: var(--card-radius);
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
+            color: var(--bg-primary);
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4);
+        }
+
+        .modal-btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal-message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .modal-message.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            display: block;
+        }
+
+        .modal-message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            display: block;
+        }
+
+        /* ================================ */
+        /* TOUCH-FRIENDLY ENHANCEMENTS      */
+        /* ================================ */
+        @media (hover: none) and (pointer: coarse) {
+
+            /* Ensure minimum 44-48px touch targets */
+            .league-card {
+                min-width: 80px;
+                min-height: 100px;
+            }
+
+            .game-card {
+                min-height: 140px;
+            }
+
+            .sports-mode-btn,
+            .clear-selections-btn {
+                min-height: 48px;
+                padding: 14px 24px;
+            }
+
+            .user-menu-trigger {
+                min-width: 48px;
+                min-height: 48px;
+            }
+
+            .user-avatar {
+                width: 44px;
+                height: 44px;
+            }
+
+            .dropdown-item {
+                min-height: 48px;
+                padding: 14px 16px;
+            }
+
+            /* Modal buttons */
+            .modal-close {
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            .modal-button {
+                min-height: 48px;
+            }
+
+            /* Improve tap feel */
+            .league-card,
+            .game-card,
+            .sports-mode-btn,
+            .dropdown-item {
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: rgba(99, 102, 241, 0.3);
+            }
+
+            /* Active states for touch feedback */
+            .league-card:active,
+            .game-card:active {
+                transform: scale(0.98);
+            }
+
+            .dropdown-item:active {
+                background: rgba(99, 102, 241, 0.4);
+            }
+            /* Button :active states defined in standardized button section */
+        }
+
+        /* Prevent text selection on interactive elements */
+        .league-card,
+        .game-card,
+        .sports-mode-btn,
+        .user-menu-trigger {
+            -webkit-user-select: none;
+            user-select: none;
         }
     </style>
 </head>

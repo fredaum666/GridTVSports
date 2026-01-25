@@ -6,27 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GridTV Sports</title>
     <link rel="icon" type="image/png" href="/assets/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <style>
         /* ================================ */
-        /* RESPONSIVE DESIGN SYSTEM         */
-        /* Desktop, Tablet & Mobile         */
+        /* BROADCAST CONTROL ROOM THEME     */
+        /* V2 - Angular, Neon, Premium Dark */
         /* ================================ */
         :root {
-            /* Colors */
-            --bg-primary: #0a0e1a;
-            --bg-secondary: #111827;
-            --bg-card: linear-gradient(135deg, #1a1f2e 0%, #252b3d 100%);
-            --bg-card-hover: linear-gradient(135deg, #252b3d 0%, #2f3649 100%);
-            --accent: #6366f1;
-            --accent-light: #818cf8;
-            --accent-glow: rgba(99, 102, 241, 0.4);
+            /* V2 Color Palette - Deep void with electric accents */
+            --bg-primary: #05080f;
+            --bg-secondary: #0a1019;
+            --bg-card: linear-gradient(135deg, #0f1520 0%, #151d2d 100%);
+            --bg-card-hover: linear-gradient(135deg, #151d2d 0%, #1a2438 100%);
+            --accent: #00f0ff;
+            --accent-light: #66f7ff;
+            --accent-glow: rgba(0, 240, 255, 0.4);
+            --accent-magenta: #ff0066;
+            --accent-magenta-dim: rgba(255, 0, 102, 0.15);
             --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --live-red: #ef4444;
-            --success: #22c55e;
-            --border: #334155;
+            --text-secondary: #8892a4;
+            --text-muted: #4a5568;
+            --live-red: #ff0066;
+            --success: #00ff88;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(0, 240, 255, 0.3);
 
             /* Desktop defaults */
             --margin-h: 40px;
@@ -34,16 +40,19 @@
             --gutter: 16px;
             --row-gap: 20px;
 
-            /* Cards */
-            --card-radius: 12px;
+            /* Cards - Angular geometry */
+            --card-radius: 4px;
+            --clip-corner: 12px;
             --hover-scale: 1.02;
-            --hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            --hover-shadow: 0 8px 32px rgba(0, 240, 255, 0.15);
 
             /* Touch targets - minimum 44px for accessibility */
             --touch-target: 44px;
 
-            /* Typography */
-            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            /* V2 Typography */
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-family: var(--font-body);
         }
 
         /* Tablet (768px - 1024px) */
@@ -84,6 +93,25 @@
             font-family: var(--font-family);
             color: var(--text-primary);
             -webkit-overflow-scrolling: touch;
+        }
+
+        /* V2 Scanline effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9998;
         }
 
         .hidden {
@@ -145,12 +173,15 @@
         }
 
         .tv-logo h1 {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 0 30px var(--accent-glow);
         }
 
         .tv-header-right {
@@ -177,14 +208,16 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: var(--font-display);
             font-size: 16px;
             font-weight: 700;
-            color: #fff;
+            color: var(--bg-primary);
             text-transform: uppercase;
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
         .sign-out-link {
@@ -232,8 +265,11 @@
         }
 
         .tv-row-title {
+            font-family: var(--font-display);
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
             color: var(--text-primary);
         }
 
@@ -308,8 +344,8 @@
             transform: translateY(-52%);
             width: 40px;
             height: 180px;
-            background: linear-gradient(135deg, rgba(30, 35, 50, 0.85) 0%, rgba(20, 25, 40, 0.9) 100%);
-            border: 3px solid var(--border);
+            background: linear-gradient(135deg, rgba(15, 21, 32, 0.9) 0%, rgba(10, 16, 25, 0.95) 100%);
+            border: 1px solid var(--border);
             display: none;
             align-items: center;
             justify-content: center;
@@ -327,7 +363,7 @@
         }
 
         .scroll-handle:hover {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.4) 0%, rgba(30, 35, 50, 0.95) 100%);
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(15, 21, 32, 0.95) 100%);
             border-color: var(--accent);
         }
 
@@ -391,13 +427,13 @@
             }
         }
 
-        /* League Cards (2:3 aspect ratio) */
+        /* League Cards (2:3 aspect ratio) - V2 Magenta Design */
         .league-card {
             flex-shrink: 0;
             width: 120px;
             height: 160px;
-            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
-            border: 3px solid #000;
+            background: linear-gradient(180deg, #0f1520 0%, #10081a 50%, #05080f 100%);
+            border: 1px solid rgba(255, 0, 102, 0.15);
             border-radius: var(--card-radius);
             display: flex;
             flex-direction: column;
@@ -407,18 +443,25 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
             box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+                0 4px 16px rgba(255, 0, 102, 0.06),
+                inset 0 1px 0 rgba(255, 0, 102, 0.08);
+        }
+
+        .league-card:hover {
+            border-color: rgba(255, 0, 102, 0.35);
+            box-shadow:
+                0 6px 28px rgba(255, 0, 102, 0.12);
+            transform: translateY(-2px);
         }
 
         .league-card.focused {
-            border: 3px solid var(--accent);
+            border: 1px solid var(--accent-magenta);
             transform: scale(var(--hover-scale));
             box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
+                0 0 0 1px rgba(255, 0, 102, 0.4),
+                0 6px 28px rgba(255, 0, 102, 0.2);
             z-index: 10;
         }
 
@@ -429,8 +472,10 @@
         }
 
         .league-card .league-name {
+            font-family: var(--font-display);
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.02em;
             color: var(--text-primary);
         }
 
@@ -492,32 +537,53 @@
             border-radius: 2px;
         }
 
-        /* Game Cards (16:9 aspect ratio) */
+        /* Game Cards (16:9 aspect ratio) - V2 Magenta Design */
         .game-card {
             flex-shrink: 0;
             width: 320px;
             height: 180px;
-            background: linear-gradient(180deg, #252a3a 0%, #1a1e2a 50%, #12151d 100%);
-            border: 3px solid #000;
+            background: linear-gradient(135deg, #0f1520 0%, #12081a 100%);
+            border: 1px solid rgba(255, 0, 102, 0.2);
             border-radius: var(--card-radius);
-            padding: 16px;
+            padding: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             display: flex;
             flex-direction: column;
+            clip-path: polygon(var(--clip-corner) 0, 100% 0, 100% calc(100% - var(--clip-corner)), calc(100% - var(--clip-corner)) 100%, 0 100%, 0 var(--clip-corner));
             box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+                0 4px 24px rgba(255, 0, 102, 0.08),
+                inset 0 1px 0 rgba(255, 0, 102, 0.1);
+            overflow: hidden;
+        }
+
+        /* Diagonal accent stripe */
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 0, 102, 0.08) 100%);
+            pointer-events: none;
+        }
+
+        .game-card:hover {
+            border-color: rgba(255, 0, 102, 0.4);
+            box-shadow:
+                0 8px 40px rgba(255, 0, 102, 0.15),
+                inset 0 1px 0 rgba(255, 0, 102, 0.15);
+            transform: translateY(-2px);
         }
 
         .game-card.focused {
-            border: 3px solid var(--accent);
+            border: 1px solid var(--accent-magenta);
             transform: scale(var(--hover-scale));
             box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
+                0 0 0 1px rgba(255, 0, 102, 0.5),
+                0 8px 40px rgba(255, 0, 102, 0.25);
             z-index: 10;
         }
 
@@ -529,33 +595,45 @@
         }
 
         .game-card-league {
+            font-family: var(--font-display);
             font-size: 10px;
-            font-weight: 600;
-            color: var(--accent);
+            font-weight: 700;
+            color: var(--accent-magenta);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.08em;
         }
 
         .game-card-status {
+            font-family: var(--font-display);
             font-size: 10px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 6px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 2px;
+            letter-spacing: 0.04em;
+            clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
         }
 
         .game-card-status.live {
-            background: var(--live-red);
+            background: var(--accent-magenta);
             color: white;
+            box-shadow: 0 0 16px rgba(255, 0, 102, 0.5);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 12px rgba(255, 0, 102, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(255, 0, 102, 0.6); }
         }
 
         .game-card-status.upcoming {
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--accent-light);
+            background: rgba(255, 0, 102, 0.12);
+            color: var(--accent-magenta);
+            border: 1px solid rgba(255, 0, 102, 0.3);
         }
 
         .game-card-status.final {
-            background: rgba(100, 116, 139, 0.2);
-            color: var(--text-secondary);
+            background: rgba(74, 85, 104, 0.15);
+            color: var(--text-muted);
         }
 
         .game-card-teams {
@@ -564,90 +642,85 @@
             flex-direction: column;
             justify-content: center;
             gap: 8px;
-            position: relative;
-            z-index: 2;
         }
 
         .game-card-team {
             display: flex;
             align-items: center;
             gap: 12px;
-            position: relative;
-            z-index: 2;
         }
 
         .game-card-team img {
             width: 32px;
             height: 32px;
             object-fit: contain;
-            position: relative;
-            z-index: 2;
         }
 
         .game-card-team-name {
+            font-family: var(--font-display);
             flex: 1;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
+            letter-spacing: 0.01em;
             color: var(--text-primary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            position: relative;
-            z-index: 1;
         }
 
         .game-card-team-score {
-            font-size: 20px;
-            font-weight: 700;
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
             color: var(--text-primary);
             min-width: 36px;
             text-align: right;
-            position: relative;
-            z-index: 1;
         }
 
         .game-card-team.winner .game-card-team-name,
         .game-card-team.winner .game-card-team-score {
-            color: var(--success);
+            color: var(--accent-magenta);
+            text-shadow: 0 0 12px rgba(255, 0, 102, 0.3);
         }
 
         /* ===== LIVE GAME CARD - VS Layout ===== */
         .game-card.live-card {
             padding: 0;
-            overflow: visible;
-            background: linear-gradient(180deg, #1a2235 0%, #0f1525 100%);
-            border: 3px solid #000;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0f1520 0%, #05080f 100%);
+            border: 1px solid var(--border-accent);
             position: relative;
         }
 
         /* League-specific watermark backgrounds */
         .game-card.live-card.live-nfl {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NFL-Field.jpg') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-ncaa {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NCAAF-Field.jpg') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-nba {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NBACourt.png') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-ncaab {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NCAABCourt.png') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-nhl {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/NHLIceRink.png') center center / cover no-repeat;
         }
 
         .game-card.live-card.live-mlb {
-            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+            background: linear-gradient(180deg, rgba(15, 21, 32, 0.88) 0%, rgba(5, 8, 15, 0.92) 100%),
                 url('/assets/MLBFiled.png') center center / cover no-repeat;
         }
 
@@ -684,8 +757,10 @@
         }
 
         .live-card-team-abbr {
+            font-family: var(--font-display);
             font-size: 13px;
             font-weight: 700;
+            letter-spacing: 0.02em;
             color: var(--text-primary);
         }
 
@@ -701,8 +776,10 @@
         }
 
         .live-card-score {
+            font-family: var(--font-display);
             font-size: 32px;
             font-weight: 800;
+            letter-spacing: -0.02em;
             color: var(--text-primary);
             min-width: 36px;
             text-align: center;
@@ -1783,32 +1860,36 @@
             left: 0;
             right: 0;
             height: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
             pointer-events: none;
         }
 
-        /* Enter Sports Mode button - Green */
+        /* Enter Sports Mode button - V2 Cyan */
         .sports-mode-btn {
-            background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
-            color: #ffffff;
+            background: linear-gradient(180deg, var(--accent) 0%, #00c4cc 100%);
+            color: var(--bg-primary);
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
             box-shadow:
-                0 4px 14px rgba(34, 197, 94, 0.4),
+                0 4px 20px rgba(0, 240, 255, 0.4),
                 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .sports-mode-btn:hover,
         .sports-mode-btn.focused {
-            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            background: linear-gradient(180deg, #66f7ff 0%, var(--accent) 100%);
             transform: translateY(-2px);
             box-shadow:
-                0 6px 20px rgba(34, 197, 94, 0.5),
+                0 6px 30px rgba(0, 240, 255, 0.5),
                 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .sports-mode-btn:active {
             transform: translateY(0);
             box-shadow:
-                0 2px 8px rgba(34, 197, 94, 0.4),
+                0 2px 12px rgba(0, 240, 255, 0.4),
                 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
@@ -2505,7 +2586,7 @@
         }
 
         .live-sb-score {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: 900;
             color: var(--sb-text-color);
             text-shadow:
@@ -2549,8 +2630,6 @@
             align-items: center;
             padding: 4px 8px;
             position: relative;
-            z-index: 3;
-            overflow: visible;
             box-shadow:
                 inset 0 2px 3px rgba(255, 255, 255, 0.12),
                 inset 0 -2px 4px rgba(0, 0, 0, 0.35),
@@ -2573,7 +2652,6 @@
             display: flex;
             flex-direction: column;
             gap: 1px;
-            overflow: visible;
         }
 
         .live-sb-team-section.away .live-sb-team-info {
@@ -2597,7 +2675,6 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            z-index: 5;
         }
 
         .live-sb-team-logo .live-card-team-logo {
@@ -2605,8 +2682,6 @@
             height: 100%;
             object-fit: contain;
             filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
-            position: relative;
-            z-index: 1;
         }
 
         .live-sb-team-name {
@@ -2984,8 +3059,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
+            background: rgba(5, 8, 15, 0.85);
+            backdrop-filter: blur(8px);
             z-index: 1000;
             display: flex;
             align-items: center;
@@ -3002,14 +3077,17 @@
         }
 
         .modal-content {
-            background: rgba(26, 26, 46, 0.98);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            background: linear-gradient(180deg, #0f1520 0%, #0a1019 100%);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--card-radius);
             width: 100%;
             max-width: 450px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(0, 240, 255, 0.1);
             transform: scale(0.9);
             transition: transform 0.3s ease;
+            clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
         }
 
         .modal-overlay.show .modal-content {
@@ -3021,12 +3099,14 @@
             align-items: center;
             justify-content: space-between;
             padding: 20px 25px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border);
         }
 
         .modal-title {
+            font-family: var(--font-display);
             font-size: 20px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.02em;
             color: #ffffff;
         }
 
@@ -3074,9 +3154,9 @@
 
         .modal-form-group input {
             padding: 14px 16px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            background: rgba(255, 255, 255, 0.03);
             color: #ffffff;
             font-size: 16px;
             transition: all 0.3s ease;
@@ -3084,8 +3164,9 @@
         }
 
         .modal-form-group input:focus {
-            border-color: #6366f1;
-            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
         }
 
         .modal-form-group input::placeholder {
@@ -3100,21 +3181,24 @@
         .modal-btn {
             padding: 14px;
             border: none;
-            border-radius: 12px;
+            border-radius: var(--card-radius);
+            font-family: var(--font-display);
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.02em;
             cursor: pointer;
             transition: all 0.3s ease;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
         }
 
         .modal-btn-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: #ffffff;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
+            color: var(--bg-primary);
         }
 
         .modal-btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4);
         }
 
         .modal-btn-primary:disabled {
@@ -3142,372 +3226,6 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
             color: #f87171;
             display: block;
-        }
-
-        /* ================================ */
-        /* MODERN ELEVATED CAST MODAL       */
-        /* ================================ */
-        .cast-modal-overlay {
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(20px) saturate(180%);
-        }
-
-        .cast-modal-content {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 100%);
-            border: 1px solid rgba(249, 115, 22, 0.3);
-            border-radius: 24px;
-            box-shadow:
-                0 25px 50px -12px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.05),
-                0 0 80px rgba(249, 115, 22, 0.2);
-            backdrop-filter: blur(40px);
-            position: relative;
-            overflow: hidden;
-            max-width: 440px;
-        }
-
-        .cast-modal-content::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -30%;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: float-orb 8s ease-in-out infinite;
-        }
-
-        @keyframes float-orb {
-
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-
-            50% {
-                transform: translate(-20px, -20px);
-            }
-        }
-
-        .cast-modal-header {
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-            padding-bottom: 20px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .cast-modal-title {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 1.75rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ef4444 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.02em;
-        }
-
-        .cast-info-box {
-            background: rgba(249, 115, 22, 0.08);
-            border: 1px solid rgba(251, 146, 60, 0.25);
-            border-radius: 14px;
-            padding: 14px 18px;
-            margin-bottom: 28px;
-            backdrop-filter: blur(10px);
-        }
-
-        .cast-info-text {
-            color: #fed7aa;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        .cast-pin-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 32px;
-        }
-
-        .cast-pin-input-enhanced {
-            width: 56px;
-            height: 68px;
-            background: rgba(30, 41, 59, 0.6);
-            border: 2px solid rgba(148, 163, 184, 0.2);
-            border-radius: 14px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 32px;
-            font-weight: 600;
-            color: #f1f5f9;
-            text-align: center;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .cast-pin-input-enhanced:focus {
-            outline: none;
-            border-color: #fb923c;
-            background: rgba(249, 115, 22, 0.1);
-            box-shadow:
-                0 0 0 4px rgba(249, 115, 22, 0.12),
-                0 4px 12px rgba(249, 115, 22, 0.25);
-            transform: translateY(-2px);
-        }
-
-        .cast-pin-input-enhanced::placeholder {
-            color: rgba(148, 163, 184, 0.3);
-        }
-
-        .cast-connect-btn-enhanced {
-            width: 100%;
-            padding: 16px 28px;
-            background: linear-gradient(135deg, #f97316 0%, #ef4444 50%, #dc2626 100%);
-            border: none;
-            border-radius: 14px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow:
-                0 10px 25px rgba(249, 115, 22, 0.35),
-                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-        }
-
-        .cast-connect-btn-enhanced::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 100%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .cast-connect-btn-enhanced:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow:
-                0 15px 35px rgba(249, 115, 22, 0.45),
-                0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-        }
-
-        .cast-connect-btn-enhanced:hover:not(:disabled)::before {
-            opacity: 1;
-        }
-
-        .cast-connect-btn-enhanced:active:not(:disabled) {
-            transform: translateY(-1px);
-        }
-
-        .cast-connect-btn-enhanced:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .cast-status-enhanced {
-            text-align: center;
-        }
-
-        .cast-status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            padding: 16px 28px;
-            background: rgba(34, 197, 94, 0.08);
-            border: 1px solid rgba(34, 197, 94, 0.2);
-            border-radius: 14px;
-            margin-bottom: 24px;
-            backdrop-filter: blur(10px);
-        }
-
-        .cast-status-pulse {
-            width: 10px;
-            height: 10px;
-            background: #22c55e;
-            border-radius: 50%;
-            box-shadow:
-                0 0 0 0 rgba(34, 197, 94, 0.7);
-            animation: status-pulse-modern 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        @keyframes status-pulse-modern {
-            0% {
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-            }
-
-            50% {
-                box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-            }
-        }
-
-        .cast-status-text-enhanced {
-            color: #86efac;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .cast-end-btn-enhanced {
-            padding: 14px 32px;
-            background: rgba(239, 68, 68, 0.12);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #fca5a5;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .cast-end-btn-enhanced:hover {
-            background: rgba(239, 68, 68, 0.18);
-            border-color: rgba(239, 68, 68, 0.4);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.15);
-        }
-
-        .cast-label {
-            color: #cbd5e1;
-            font-size: 0.95rem;
-            font-weight: 500;
-            margin-bottom: 20px;
-            letter-spacing: -0.01em;
-        }
-
-        /* Mobile phone responsive styles */
-        @media (max-width: 640px) {
-            .modal-overlay {
-                padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
-                align-items: flex-start;
-                overflow-y: auto;
-            }
-
-            .cast-modal-overlay {
-                padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
-            }
-
-            .cast-modal-content {
-                max-width: 100%;
-                margin: 20px auto;
-                border-radius: 20px;
-                padding: 0;
-            }
-
-            .modal-header {
-                padding: 20px 20px 16px;
-            }
-
-            .modal-body {
-                padding: 0 20px 20px;
-            }
-
-            .cast-modal-title {
-                font-size: 1.5rem;
-            }
-
-            .cast-info-box {
-                padding: 12px 16px;
-                margin-bottom: 24px;
-            }
-
-            .cast-info-text {
-                font-size: 0.8125rem;
-            }
-
-            .cast-label {
-                font-size: 0.875rem;
-                margin-bottom: 16px;
-            }
-
-            .cast-pin-container {
-                gap: 8px;
-                margin-bottom: 24px;
-            }
-
-            .cast-pin-input-enhanced {
-                width: 48px;
-                height: 60px;
-                font-size: 28px;
-                border-radius: 12px;
-            }
-
-            .cast-connect-btn-enhanced {
-                padding: 14px 24px;
-                font-size: 0.9375rem;
-            }
-
-            .cast-status-indicator {
-                padding: 14px 24px;
-                margin-bottom: 20px;
-            }
-
-            .cast-status-text-enhanced {
-                font-size: 0.9375rem;
-            }
-
-            .cast-end-btn-enhanced {
-                padding: 12px 28px;
-                font-size: 0.875rem;
-            }
-
-            .modal-close {
-                width: 36px;
-                height: 36px;
-                font-size: 28px;
-            }
-
-            /* Reduce orb size on mobile for performance */
-            .cast-modal-content::before {
-                width: 200px;
-                height: 200px;
-                opacity: 0.7;
-            }
-        }
-
-        /* Very small phones */
-        @media (max-width: 380px) {
-            .cast-modal-content {
-                max-width: 95%;
-                margin: 10px auto;
-            }
-
-            .modal-header {
-                padding: 16px 16px 12px;
-            }
-
-            .modal-body {
-                padding: 0 16px 16px;
-            }
-
-            .cast-modal-title {
-                font-size: 1.375rem;
-            }
-
-            .cast-pin-container {
-                gap: 6px;
-            }
-
-            .cast-pin-input-enhanced {
-                width: 44px;
-                height: 56px;
-                font-size: 26px;
-            }
-
-            .cast-connect-btn-enhanced {
-                padding: 12px 20px;
-            }
         }
 
         /* ================================ */
@@ -3574,7 +3292,6 @@
             .dropdown-item:active {
                 background: rgba(99, 102, 241, 0.4);
             }
-
             /* Button :active states defined in standardized button section */
         }
 
