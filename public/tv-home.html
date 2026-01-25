@@ -8,7 +8,9 @@
     <link rel="icon" type="image/png" href="/assets/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <script src="/scripts/qrcode.min.js"></script>
     <style>
@@ -79,7 +81,7 @@
         }
 
         * {
-            margin: 0;
+            margin: 3px;
             padding: 0;
             box-sizing: border-box;
         }
@@ -104,13 +106,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 0, 0, 0.03) 2px,
-                rgba(0, 0, 0, 0.03) 4px
-            );
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.03) 2px,
+                    rgba(0, 0, 0, 0.03) 4px);
             pointer-events: none;
             z-index: 9998;
         }
@@ -622,8 +622,15 @@
         }
 
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 12px rgba(255, 0, 102, 0.4); }
-            50% { box-shadow: 0 0 20px rgba(255, 0, 102, 0.6); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 12px rgba(255, 0, 102, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(255, 0, 102, 0.6);
+            }
         }
 
         .game-card-status.upcoming {
@@ -1861,7 +1868,7 @@
             left: 0;
             right: 0;
             height: 50%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
             pointer-events: none;
         }
 
@@ -3293,6 +3300,7 @@
             .dropdown-item:active {
                 background: rgba(99, 102, 241, 0.4);
             }
+
             /* Button :active states defined in standardized button section */
         }
 
