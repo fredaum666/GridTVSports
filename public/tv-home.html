@@ -81,7 +81,7 @@
         }
 
         * {
-            margin: 3px;
+            margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
@@ -120,9 +120,417 @@
         }
 
         /* ================================ */
+        /* LOGIN SCREEN STYLES              */
+        /* ================================ */
+        .login-screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(20px, 4vh, 60px);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: clamp(25px, 5vh, 60px);
+        }
+
+        .login-header img {
+            height: clamp(50px, 8vh, 100px);
+            margin-bottom: clamp(10px, 2vh, 25px);
+        }
+
+        .login-header h1 {
+            font-size: clamp(28px, 5vw, 60px);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: clamp(5px, 1vh, 15px);
+        }
+
+        .login-header p {
+            font-size: clamp(14px, 2vw, 26px);
+            color: var(--text-secondary);
+        }
+
+        .login-options {
+            display: flex;
+            gap: clamp(30px, 4vw, 80px);
+            align-items: stretch;
+        }
+
+        .login-option {
+            width: clamp(280px, 22vw, 500px);
+            background: var(--bg-card);
+            border: 3px solid transparent;
+            border-radius: clamp(16px, 1.5vw, 30px);
+            padding: clamp(25px, 3vw, 50px);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-option.focused {
+            border-color: var(--accent);
+            transform: scale(1.02);
+            box-shadow: 0 0 50px var(--accent-glow);
+        }
+
+        .login-option h2 {
+            font-size: clamp(18px, 1.8vw, 34px);
+            margin-bottom: clamp(10px, 1.5vh, 20px);
+            color: #fff;
+        }
+
+        .login-option p {
+            font-size: clamp(12px, 1.2vw, 20px);
+            color: var(--text-secondary);
+            margin-bottom: clamp(15px, 2.5vh, 35px);
+        }
+
+        .login-option .icon {
+            font-size: clamp(40px, 5vw, 80px);
+            margin-bottom: clamp(12px, 2vh, 25px);
+            display: block;
+        }
+
+        .login-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: clamp(14px, 1.3vw, 24px);
+            font-weight: 600;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            content: '';
+            width: 2px;
+            height: clamp(50px, 8vh, 100px);
+            background: var(--border);
+        }
+
+        .login-divider span {
+            padding: clamp(12px, 2vh, 25px) 0;
+        }
+
+        /* Password Login Form */
+        .password-login-screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(60px, 8vw, 150px);
+            padding: clamp(20px, 4vh, 60px);
+        }
+
+        .password-login-screen .login-logo {
+            text-align: center;
+        }
+
+        .password-login-screen .login-logo img {
+            height: clamp(80px, 15vh, 180px);
+            margin-bottom: clamp(15px, 2vh, 30px);
+        }
+
+        .password-login-screen .login-logo h1 {
+            font-size: clamp(32px, 4vw, 70px);
+            font-weight: 700;
+            font-family: var(--font-display);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .password-login-screen .login-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .password-login-screen .login-content .back-link {
+            margin-top: clamp(20px, 3vh, 40px);
+            color: var(--accent);
+            font-size: clamp(14px, 1.3vw, 22px);
+            cursor: pointer;
+            padding: clamp(10px, 1.5vh, 20px) clamp(20px, 2vw, 40px);
+            border: 2px solid var(--border);
+            border-radius: clamp(6px, 0.8vw, 12px);
+            transition: all 0.3s;
+            text-align: center;
+            background: var(--bg-card);
+        }
+
+        .login-form {
+            width: clamp(320px, 30vw, 600px);
+            background: var(--bg-card);
+            border-radius: clamp(16px, 1.5vw, 30px);
+            padding: clamp(30px, 4vw, 60px);
+        }
+
+        .login-form h2 {
+            font-size: clamp(22px, 2.2vw, 40px);
+            margin-bottom: clamp(6px, 1vh, 15px);
+            text-align: center;
+        }
+
+        .login-form .subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: clamp(25px, 4vh, 50px);
+            font-size: clamp(12px, 1.2vw, 20px);
+        }
+
+        .form-group {
+            margin-bottom: clamp(15px, 2.5vh, 30px);
+        }
+
+        .form-group label {
+            display: block;
+            font-size: clamp(12px, 1.2vw, 20px);
+            color: var(--text-secondary);
+            margin-bottom: clamp(6px, 1vh, 12px);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: clamp(12px, 1.5vw, 22px) clamp(14px, 1.5vw, 24px);
+            font-size: clamp(14px, 1.4vw, 24px);
+            background: var(--bg-secondary);
+            border: 3px solid var(--border);
+            border-radius: clamp(8px, 1vw, 16px);
+            color: #fff;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group input.focused {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: clamp(14px, 1.8vw, 24px);
+            font-size: clamp(16px, 1.6vw, 26px);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
+            color: white;
+            border: 3px solid transparent;
+            border-radius: clamp(8px, 1vw, 16px);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: clamp(12px, 2vh, 25px);
+        }
+
+        .login-btn:focus,
+        .login-btn.focused {
+            border-color: #fff;
+            transform: scale(1.02);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .back-link {
+            margin-top: clamp(20px, 3vh, 40px);
+            color: var(--accent);
+            font-size: clamp(14px, 1.3vw, 22px);
+            cursor: pointer;
+            padding: clamp(10px, 1.5vh, 20px) clamp(20px, 2vw, 40px);
+            border: 2px solid transparent;
+            border-radius: clamp(6px, 0.8vw, 12px);
+            transition: all 0.3s;
+        }
+
+        .back-link:focus,
+        .back-link.focused {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .login-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: clamp(6px, 0.8vw, 12px);
+            padding: clamp(10px, 1.5vh, 20px);
+            color: #ef4444;
+            margin-bottom: clamp(12px, 2vh, 25px);
+            text-align: center;
+            font-size: clamp(12px, 1.1vw, 18px);
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        /* QR Code Login Screen */
+        .qr-login-screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(60px, 8vw, 150px);
+            padding: clamp(20px, 4vh, 60px);
+        }
+
+        .qr-login-screen .login-logo {
+            text-align: center;
+        }
+
+        .qr-login-screen .login-logo img {
+            height: clamp(80px, 15vh, 180px);
+            margin-bottom: clamp(15px, 2vh, 30px);
+        }
+
+        .qr-login-screen .login-logo h1 {
+            font-size: clamp(32px, 4vw, 70px);
+            font-weight: 700;
+            font-family: var(--font-display);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .qr-login-screen .login-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .qr-login-screen .login-content .back-link {
+            margin-top: clamp(20px, 3vh, 40px);
+            color: var(--accent);
+            font-size: clamp(14px, 1.3vw, 22px);
+            cursor: pointer;
+            padding: clamp(10px, 1.5vh, 20px) clamp(20px, 2vw, 40px);
+            border: 2px solid var(--border);
+            border-radius: clamp(6px, 0.8vw, 12px);
+            transition: all 0.3s;
+            text-align: center;
+            background: var(--bg-card);
+        }
+
+        .qr-login-box {
+            width: clamp(320px, 30vw, 600px);
+            background: var(--bg-card);
+            border-radius: clamp(16px, 1.5vw, 30px);
+            padding: clamp(30px, 4vw, 60px);
+            text-align: center;
+        }
+
+        .qr-login-box h2 {
+            font-size: clamp(22px, 2.2vw, 40px);
+            margin-bottom: clamp(6px, 1vh, 15px);
+        }
+
+        .qr-login-box .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: clamp(20px, 3vh, 40px);
+            font-size: clamp(12px, 1.2vw, 20px);
+        }
+
+        .qr-container {
+            background: #fff;
+            border-radius: clamp(10px, 1.2vw, 20px);
+            padding: clamp(15px, 2vw, 30px);
+            display: inline-block;
+            margin: clamp(12px, 2vh, 25px) 0;
+        }
+
+        .qr-container canvas,
+        .qr-container img {
+            display: block;
+            width: clamp(150px, 15vw, 250px) !important;
+            height: clamp(150px, 15vw, 250px) !important;
+        }
+
+        #login-qr-code {
+            display: inline-block;
+        }
+
+        .qr-loading {
+            width: clamp(150px, 15vw, 250px);
+            height: clamp(150px, 15vw, 250px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: clamp(12px, 1.2vw, 20px);
+        }
+
+        .qr-timer {
+            color: var(--text-secondary);
+            font-size: clamp(12px, 1.2vw, 20px);
+            margin-top: clamp(10px, 1.5vh, 20px);
+        }
+
+        .qr-timer span:last-child {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .qr-status {
+            margin-top: clamp(12px, 2vh, 25px);
+            padding: clamp(8px, 1vh, 15px) clamp(14px, 1.5vw, 25px);
+            border-radius: clamp(6px, 0.8vw, 12px);
+            font-size: clamp(12px, 1.2vw, 20px);
+        }
+
+        .qr-status.success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .qr-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .qr-status.info {
+            /* background: var(--accent-glow);*/
+            /*border: 1px solid var(--accent);*/
+            color: var(--accent);
+        }
+
+        /* ================================ */
         /* MAIN HOME - RESPONSIVE LAYOUT    */
         /* ================================ */
         .home {
+            width: 100%;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: var(--margin-v) var(--margin-h);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* TV HOME CONTAINER - Same responsive padding as index.html */
+        .tv-home {
             width: 100%;
             min-height: 100%;
             display: flex;
@@ -695,7 +1103,7 @@
         /* ===== LIVE GAME CARD - VS Layout ===== */
         .game-card.live-card {
             padding: 0;
-            overflow: hidden;
+            overflow: visible;
             background: linear-gradient(180deg, #0f1520 0%, #05080f 100%);
             border: 1px solid var(--border-accent);
             position: relative;
@@ -2638,6 +3046,7 @@
             align-items: center;
             padding: 4px 8px;
             position: relative;
+            z-index: 3;
             box-shadow:
                 inset 0 2px 3px rgba(255, 255, 255, 0.12),
                 inset 0 -2px 4px rgba(0, 0, 0, 0.35),
@@ -2648,11 +3057,13 @@
         .live-sb-team-section.away {
             justify-content: center;
             padding-right: 30px;
+            overflow: visible;
         }
 
         .live-sb-team-section.home {
             justify-content: center;
             padding-left: 30px;
+            overflow: visible;
         }
 
         .live-sb-team-info {
@@ -2660,6 +3071,7 @@
             display: flex;
             flex-direction: column;
             gap: 1px;
+            overflow: visible;
         }
 
         .live-sb-team-section.away .live-sb-team-info {
@@ -2683,6 +3095,7 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
+            z-index: 15;
         }
 
         .live-sb-team-logo .live-card-team-logo {
@@ -3842,7 +4255,7 @@
         // MOCK DATA MODE - When true, shows "Enter Sports Bar Mode" button even with no selections
         // This allows testing layouts directly since mock data loads when no games are selected
         // ============================================
-        const USE_MOCK_DATA_MODE = true; // Set to false for production
+        const USE_MOCK_DATA_MODE = false; // Set to false for production
 
         // ============================================
         // SESSION VALIDATION
@@ -5477,12 +5890,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5528,12 +5941,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5579,12 +5992,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5630,12 +6043,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5680,12 +6093,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5730,12 +6143,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5755,12 +6168,12 @@
                         <span class="game-card-status ${statusClass}">${isUpcoming ? '' : statusText}</span>
                     </div>
                     <div class="game-card-teams">
-                        <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                        <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                             <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                             <span class="game-card-team-name">${game.away.name}</span>
                             <span class="game-card-team-score">${game.state !== 'pre' ? game.away.score : ''}</span>
                         </div>
-                        <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                        <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                             <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                             <span class="game-card-team-name">${game.home.name}</span>
                             <span class="game-card-team-score">${game.state !== 'pre' ? game.home.score : ''}</span>

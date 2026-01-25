@@ -687,7 +687,7 @@
         /* ===== LIVE GAME CARD - VS Layout ===== */
         .game-card.live-card {
             padding: 0;
-            overflow: hidden;
+            overflow: visible;
             background: linear-gradient(180deg, #0f1520 0%, #05080f 100%);
             border: 1px solid var(--border-accent);
             position: relative;
@@ -2630,6 +2630,7 @@
             align-items: center;
             padding: 4px 8px;
             position: relative;
+            z-index: 3;
             box-shadow:
                 inset 0 2px 3px rgba(255, 255, 255, 0.12),
                 inset 0 -2px 4px rgba(0, 0, 0, 0.35),
@@ -2640,11 +2641,13 @@
         .live-sb-team-section.away {
             justify-content: center;
             padding-right: 30px;
+            overflow: visible;
         }
 
         .live-sb-team-section.home {
             justify-content: center;
             padding-left: 30px;
+            overflow: visible;
         }
 
         .live-sb-team-info {
@@ -2652,6 +2655,7 @@
             display: flex;
             flex-direction: column;
             gap: 1px;
+            overflow: visible;
         }
 
         .live-sb-team-section.away .live-sb-team-info {
@@ -2675,6 +2679,7 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
+            z-index: 15;
         }
 
         .live-sb-team-logo .live-card-team-logo {
@@ -3229,6 +3234,340 @@
         }
 
         /* ================================ */
+        /* MODERN ELEVATED CAST MODAL       */
+        /* ================================ */
+        .cast-modal-overlay {
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        .cast-modal-content {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 100%);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 24px;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 0 80px rgba(249, 115, 22, 0.2);
+            backdrop-filter: blur(40px);
+            position: relative;
+            overflow: hidden;
+            max-width: 440px;
+        }
+
+        .cast-modal-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float-orb 8s ease-in-out infinite;
+        }
+
+        @keyframes float-orb {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(-20px, -20px);
+            }
+        }
+
+        .cast-modal-header {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            padding-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cast-modal-title {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .cast-info-box {
+            background: rgba(249, 115, 22, 0.08);
+            border: 1px solid rgba(251, 146, 60, 0.25);
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(10px);
+        }
+
+        .cast-info-text {
+            color: #fed7aa;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .cast-pin-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .cast-pin-input-enhanced {
+            width: 56px;
+            height: 68px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: #f1f5f9;
+            text-align: center;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .cast-pin-input-enhanced:focus {
+            outline: none;
+            border-color: #fb923c;
+            background: rgba(249, 115, 22, 0.1);
+            box-shadow:
+                0 0 0 4px rgba(249, 115, 22, 0.12),
+                0 4px 12px rgba(249, 115, 22, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .cast-pin-input-enhanced::placeholder {
+            color: rgba(148, 163, 184, 0.3);
+        }
+
+        .cast-connect-btn-enhanced {
+            width: 100%;
+            padding: 16px 28px;
+            background: linear-gradient(135deg, #f97316 0%, #ef4444 50%, #dc2626 100%);
+            border: none;
+            border-radius: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 10px 25px rgba(249, 115, 22, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .cast-connect-btn-enhanced::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .cast-connect-btn-enhanced:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow:
+                0 15px 35px rgba(249, 115, 22, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+        }
+
+        .cast-connect-btn-enhanced:hover:not(:disabled)::before {
+            opacity: 1;
+        }
+
+        .cast-connect-btn-enhanced:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .cast-connect-btn-enhanced:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .cast-status-enhanced {
+            text-align: center;
+        }
+
+        .cast-status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 28px;
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 14px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .cast-status-pulse {
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: status-pulse-modern 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes status-pulse-modern {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+
+        .cast-status-text-enhanced {
+            color: #86efac;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .cast-end-btn-enhanced {
+            padding: 14px 32px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fca5a5;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .cast-end-btn-enhanced:hover {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: rgba(239, 68, 68, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.15);
+        }
+
+        .cast-label {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+        }
+
+        /* Mobile phone responsive styles for Cast Modal */
+        @media (max-width: 640px) {
+            .cast-modal-overlay {
+                padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+            }
+
+            .cast-modal-content {
+                max-width: 100%;
+                margin: 20px auto;
+                border-radius: 20px;
+                padding: 0;
+            }
+
+            .cast-modal-title {
+                font-size: 1.5rem;
+            }
+
+            .cast-info-box {
+                padding: 12px 16px;
+                margin-bottom: 24px;
+            }
+
+            .cast-info-text {
+                font-size: 0.8125rem;
+            }
+
+            .cast-label {
+                font-size: 0.875rem;
+                margin-bottom: 16px;
+            }
+
+            .cast-pin-container {
+                gap: 8px;
+                margin-bottom: 24px;
+            }
+
+            .cast-pin-input-enhanced {
+                width: 48px;
+                height: 60px;
+                font-size: 28px;
+                border-radius: 12px;
+            }
+
+            .cast-connect-btn-enhanced {
+                padding: 14px 24px;
+                font-size: 0.9375rem;
+                border-radius: 12px;
+            }
+
+            .cast-status-indicator {
+                padding: 14px 24px;
+                margin-bottom: 20px;
+            }
+
+            .cast-end-btn-enhanced {
+                padding: 12px 28px;
+                font-size: 0.875rem;
+            }
+
+            /* Reduce orb size on mobile for performance */
+            .cast-modal-content::before {
+                width: 200px;
+                height: 200px;
+                opacity: 0.7;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 380px) {
+            .cast-modal-content {
+                max-width: 95%;
+                margin: 10px auto;
+                border-radius: 18px;
+            }
+
+            .cast-modal-title {
+                font-size: 1.375rem;
+            }
+
+            .cast-pin-input-enhanced {
+                width: 44px;
+                height: 56px;
+                font-size: 24px;
+            }
+
+            .cast-connect-btn-enhanced {
+                padding: 12px 20px;
+                font-size: 0.875rem;
+            }
+
+            /* Further reduce orb on very small screens */
+            .cast-modal-content::before {
+                width: 150px;
+                height: 150px;
+                opacity: 0.5;
+            }
+        }
+
+        /* ================================ */
         /* TOUCH-FRIENDLY ENHANCEMENTS      */
         /* ================================ */
         @media (hover: none) and (pointer: coarse) {
@@ -3654,7 +3993,7 @@
 
         // MOCK DATA MODE - When true, shows "Enter Sports Bar Mode" button even with no selections
         // This allows testing layouts directly since mock data loads when no games are selected
-        const USE_MOCK_DATA_MODE = true; // Set to false for production
+        const USE_MOCK_DATA_MODE = false; // Set to false for production
 
         // ============================================
         // HELPER FUNCTIONS
@@ -4428,7 +4767,7 @@
                 document.getElementById('cast-status-section').style.display = 'block';
                 document.getElementById('cast-status-box').style.background = 'rgba(234, 179, 8, 0.1)';
                 document.getElementById('cast-status-box').style.border = '1px solid #eab308';
-                document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#eab308';
+                document.querySelector('#cast-status-box .cast-status-pulse').style.background = '#eab308';
                 document.getElementById('cast-status-text').textContent = 'Connecting to TV...';
 
                 // Initialize Socket.IO if not already
@@ -4450,7 +4789,7 @@
                                 // Update status to connected
                                 document.getElementById('cast-status-box').style.background = 'rgba(34, 197, 94, 0.1)';
                                 document.getElementById('cast-status-box').style.border = '1px solid #22c55e';
-                                document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#22c55e';
+                                document.querySelector('#cast-status-box .cast-status-pulse').style.background = '#22c55e';
                                 document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
                                 document.getElementById('cast-end-btn').style.display = 'block';
 
@@ -4477,7 +4816,7 @@
                         console.log('TV receiver connected');
                         document.getElementById('cast-status-box').style.background = 'rgba(34, 197, 94, 0.1)';
                         document.getElementById('cast-status-box').style.border = '1px solid #22c55e';
-                        document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#22c55e';
+                        document.querySelector('#cast-status-box .cast-status-pulse').style.background = '#22c55e';
                         document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
                         document.getElementById('cast-end-btn').style.display = 'block';
 
@@ -4495,7 +4834,7 @@
                         // Update UI to show connected again
                         document.getElementById('cast-status-box').style.background = 'rgba(34, 197, 94, 0.1)';
                         document.getElementById('cast-status-box').style.border = '1px solid #22c55e';
-                        document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#22c55e';
+                        document.querySelector('#cast-status-box .cast-status-pulse').style.background = '#22c55e';
                         document.getElementById('cast-status-text').textContent = '✓ TV Connected!';
 
                         // Close modal if it's showing disconnection message
@@ -4516,7 +4855,7 @@
                             if (!currentStatus.includes('✓ TV Connected')) {
                                 document.getElementById('cast-status-box').style.background = 'rgba(234, 179, 8, 0.1)';
                                 document.getElementById('cast-status-box').style.border = '1px solid #eab308';
-                                document.querySelector('#cast-status-box .cast-pulse-dot').style.background = '#eab308';
+                                document.querySelector('#cast-status-box .cast-status-pulse').style.background = '#eab308';
                                 document.getElementById('cast-status-text').textContent = 'TV disconnected. Waiting for reconnection...';
                             }
                         }, 2000);
@@ -5435,12 +5774,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5486,12 +5825,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5537,12 +5876,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5588,12 +5927,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5638,12 +5977,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5688,12 +6027,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -5713,12 +6052,12 @@
                         <span class="game-card-status ${statusClass}">${isUpcoming ? '' : statusText}</span>
                     </div>
                     <div class="game-card-teams">
-                        <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
+                        <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                             <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                             <span class="game-card-team-name">${game.away.name}</span>
                             <span class="game-card-team-score">${game.state !== 'pre' ? game.away.score : ''}</span>
                         </div>
-                        <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
+                        <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                             <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                             <span class="game-card-team-name">${game.home.name}</span>
                             <span class="game-card-team-score">${game.state !== 'pre' ? game.home.score : ''}</span>
