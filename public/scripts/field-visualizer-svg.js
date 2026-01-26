@@ -956,8 +956,8 @@ class SVGFieldVisualizer {
         path.remove();
         ball.remove();
 
-        // Update final position
-        this.setBallPosition(toYard);
+        // Don't update position here - let caller handle it after animation completes
+        // This ensures proper sequencing: ball animation finishes, THEN lines move
         this.state.animating = false;
         resolve();
       }, duration);
@@ -1424,11 +1424,9 @@ class SVGFieldVisualizer {
       }
 
       await this.animateBall('rush', interceptYard, returnEnd, Math.abs(returnEnd - interceptYard) * 40 + 500);
-      this.setBallPosition(returnEnd);
       return returnEnd;
     } else {
       setTimeout(() => intText.remove(), 500);
-      this.setBallPosition(interceptYard);
       return interceptYard;
     }
   }
@@ -1492,7 +1490,6 @@ class SVGFieldVisualizer {
         ball.remove();
         fumbleText.remove();
         this.state.animating = false;
-        this.setBallPosition(recoverY);
         resolve();
       }, 800);
     });

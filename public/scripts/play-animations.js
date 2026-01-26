@@ -1478,39 +1478,39 @@ async function animatePlayOnSVGField(card, event, playText, options = {}) {
       case 'sack':
         // DISABLED: Sack animation - use simple rush animation instead
         // await visualizer.animateSack(fromYard, yardsLost, 800);
-        await visualizer.animateRush(fromYard, toYard, 800);
+        await visualizer.animateRush(fromYard, toYard, 1800);
         break;
 
       case 'safety':
         // Animate play that ends in safety (tackled in own end zone)
         // Away team's end zone is at 0, Home team's end zone is at 100
         const safetyEndZone = possession === 'away' ? 0 : 100;
-        await visualizer.animateRush(fromYard, safetyEndZone, 1000);
+        await visualizer.animateRush(fromYard, safetyEndZone, 2000);
         break;
 
       case 'two-point':
         // Animate two-point conversion attempt
         const twoPointType = playAction === 'pass' ? 'pass' : 'rush';
         if (twoPointType === 'pass') {
-          await visualizer.animatePass(fromYard, toYard, 15, 1000);
+          await visualizer.animatePass(fromYard, toYard, 15, 2000);
         } else {
-          await visualizer.animateRush(fromYard, toYard, 800);
+          await visualizer.animateRush(fromYard, toYard, 1800);
         }
         break;
 
       case 'first-down':
         // Animate the play that resulted in first down
         if (playAction === 'pass' || playAction === 'incomplete_pass') {
-          await visualizer.animatePass(fromYard, toYard, 20, 1000);
+          await visualizer.animatePass(fromYard, toYard, 20, 2000);
         } else {
-          await visualizer.animateRush(fromYard, toYard, 800);
+          await visualizer.animateRush(fromYard, toYard, 1800);
         }
         break;
 
       default:
         // Generic animation based on play action
         if (playAction === 'pass') {
-          await visualizer.animatePass(fromYard, toYard, 20, 1000);
+          await visualizer.animatePass(fromYard, toYard, 20, 2000);
         } else if (playAction === 'incomplete_pass') {
           // For incomplete passes, ensure ball travels in the drive direction
           const incDriveDir = possession === 'away' ? 1 : -1;
@@ -1518,16 +1518,19 @@ async function animatePlayOnSVGField(card, event, playText, options = {}) {
           if (Math.abs(toYard - fromYard) < 3) {
             incTarget = Math.max(0, Math.min(100, fromYard + (12 * incDriveDir)));
           }
-          await visualizer.animateIncompletePass(fromYard, incTarget, 1000);
+          await visualizer.animateIncompletePass(fromYard, incTarget, 2000);
         } else if (playAction === 'rush' || playAction === 'scramble') {
-          await visualizer.animateRush(fromYard, toYard, 800);
+          await visualizer.animateRush(fromYard, toYard, 1800);
         } else if (playAction === 'sack') {
           // DISABLED: Sack animation - use simple rush animation instead
           // await visualizer.animateSack(fromYard, Math.abs(yardsGained) || 7, 800);
-          await visualizer.animateRush(fromYard, toYard, 800);
+          await visualizer.animateRush(fromYard, toYard, 1800);
         }
         break;
     }
+
+    // Small delay before updating markers for better visual sequencing
+    await new Promise(r => setTimeout(r, 200));
 
     // Update ball position after animation
     visualizer.setBallPosition(toYard);
@@ -1813,7 +1816,7 @@ async function animateSpecialTeamsPlay(card, parsedPlay, options) {
 
   // Calculate animation durations based on distance
   const kickDistance = Math.abs(toYard - fromYard);
-  const kickDuration = Math.max(1200, Math.min(2500, kickDistance * 25)); // 1.2s - 2.5s
+  const kickDuration = Math.max(2200, Math.min(3500, kickDistance * 25)); // 2.2s - 3.5s
 
   // Determine label text
   let labelText = playType === 'kickoff' ? 'KICKOFF' : 'PUNT';
@@ -1838,17 +1841,23 @@ async function animateSpecialTeamsPlay(card, parsedPlay, options) {
     if (playType === 'kickoff') {
       // Kickoff with return animation
       const result = await visualizer.animateKickoff(fromYard, toYard, returnYards, kickDuration);
+      // Small delay before updating markers for better visual sequencing
+      await new Promise(r => setTimeout(r, 200));
       visualizer.setBallPosition(result);
       console.log(`🏈 Kickoff animation complete: landed at ${toYard}, final position ${result}`);
     } else if (playType === 'punt') {
       // Punt with optional return
       const returnAmount = isTouchback || isFairCatch ? 0 : returnYards;
       const result = await visualizer.animatePunt(fromYard, toYard, returnAmount, kickDuration);
+      // Small delay before updating markers for better visual sequencing
+      await new Promise(r => setTimeout(r, 200));
       visualizer.setBallPosition(result);
       console.log(`🏈 Punt animation complete: landed at ${toYard}, final position ${result}`);
     } else {
       // Generic kick animation
       await visualizer.animateKick(fromYard, toYard, kickDuration);
+      // Small delay before updating markers for better visual sequencing
+      await new Promise(r => setTimeout(r, 200));
       visualizer.setBallPosition(toYard);
     }
 
@@ -2478,7 +2487,9 @@ async function executePlayAnimation(visualizer, classification, positions) {
         // DISABLED: Sack animation - use simple rush animation instead
         // const yardsLost = Math.abs(yardsGained) || 7;
         // await visualizer.animateSack(fromYard, yardsLost, 800);
-        await visualizer.animateRush(fromYard, toYard, 800);
+        await visualizer.animateRush(fromYard, toYard, 1800);
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'sack' };
       }
@@ -2487,7 +2498,9 @@ async function executePlayAnimation(visualizer, classification, positions) {
         // Safety = offense tackled in their own end zone
         // Away team's end zone is at 0, Home team's end zone is at 100
         const safetyTargetEndZone = possession === 'away' ? 0 : 100;
-        await visualizer.animateRush(fromYard, safetyTargetEndZone, 1000);
+        await visualizer.animateRush(fromYard, safetyTargetEndZone, 2000);
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(safetyTargetEndZone);
         return { animated: true, type: 'safety' };
       }
@@ -2502,7 +2515,9 @@ async function executePlayAnimation(visualizer, classification, positions) {
           : (returnYards > 0 ? returnYards : Math.abs(toYard - kickArcTarget));
 
         console.log('🏈 Kickoff animation:', { fromYard, kickArcTarget, toYard, kickReturnDist, isTouchback });
-        await visualizer.animateKickoff(fromYard, kickArcTarget, kickReturnDist, 2500);
+        await visualizer.animateKickoff(fromYard, kickArcTarget, kickReturnDist, 3500);
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'kickoff' };
       }
@@ -2516,7 +2531,9 @@ async function executePlayAnimation(visualizer, classification, positions) {
           : (returnYards > 0 ? returnYards : Math.abs(toYard - puntArcTarget));
 
         console.log('🏈 Punt animation:', { fromYard, puntArcTarget, toYard, puntReturnDist, isTouchback, isFairCatch });
-        await visualizer.animatePunt(fromYard, puntArcTarget, puntReturnDist, 2000);
+        await visualizer.animatePunt(fromYard, puntArcTarget, puntReturnDist, 3000);
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'punt' };
       }
@@ -2530,20 +2547,26 @@ async function executePlayAnimation(visualizer, classification, positions) {
         if (Math.abs(toYard - fromYard) < 3) {
           incompleteTarget = Math.max(0, Math.min(100, fromYard + (12 * driveDir)));
         }
-        await visualizer.animateIncompletePass(fromYard, incompleteTarget, 1200);
+        await visualizer.animateIncompletePass(fromYard, incompleteTarget, 2200);
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(fromYard); // Ball returns to LOS
         return { animated: true, type: 'incomplete_pass' };
       }
 
       case 'pass': {
         const arcHeight = Math.min(30, Math.max(15, Math.abs(yardsGained) * 0.8));
-        await visualizer.animatePass(fromYard, toYard, arcHeight, 1000);
+        await visualizer.animatePass(fromYard, toYard, arcHeight, 2000);
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'pass' };
       }
 
       case 'rush': {
-        await visualizer.animateRush(fromYard, toYard, 800);
+        await visualizer.animateRush(fromYard, toYard, 1800);
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'rush' };
       }
@@ -2552,7 +2575,9 @@ async function executePlayAnimation(visualizer, classification, positions) {
         // Away team gains toward 100, home team gains toward 0
         // isGain = movement in the team's drive direction
         const isGain = possession === 'away' ? toYard > fromYard : toYard < fromYard;
-        await visualizer.animatePenalty(fromYard, toYard, 800, { isGain });
+        await visualizer.animatePenalty(fromYard, toYard, 1800, { isGain });
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'penalty' };
       }
@@ -2563,7 +2588,9 @@ async function executePlayAnimation(visualizer, classification, positions) {
         // Home team (drives toward 0) kneels toward 100
         const kneelDir = getDriveDirection(possession);
         const kneelTarget = Math.max(0, Math.min(100, fromYard - kneelDir));
-        await visualizer.animateRush(fromYard, kneelTarget, 500);
+        await visualizer.animateRush(fromYard, kneelTarget, 1500);
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(toYard);
         return { animated: true, type: 'kneel' };
       }
@@ -2572,7 +2599,9 @@ async function executePlayAnimation(visualizer, classification, positions) {
         // Spike goes in the drive direction (short pass forward)
         const spikeDir = getDriveDirection(possession);
         const spikeTarget = Math.max(0, Math.min(100, fromYard + (5 * spikeDir)));
-        await visualizer.animateIncompletePass(fromYard, spikeTarget, 500);
+        await visualizer.animateIncompletePass(fromYard, spikeTarget, 1500);
+        // Small delay before updating markers for better visual sequencing
+        await new Promise(r => setTimeout(r, 200));
         visualizer.setBallPosition(fromYard);
         return { animated: true, type: 'spike' };
       }
@@ -2695,10 +2724,12 @@ async function parseAndAnimateNFLPlay(playData, gameContext, prevState, visualiz
 
           try {
             if (result.playType === 'kickoff') {
-              await visualizer.animateKickoff(kickOrigin, landingSpot, returnYards, 2500);
+              await visualizer.animateKickoff(kickOrigin, landingSpot, returnYards, 3500);
             } else {
-              await visualizer.animatePunt(kickOrigin, landingSpot, returnYards, 2000);
+              await visualizer.animatePunt(kickOrigin, landingSpot, returnYards, 3000);
             }
+            // Small delay before updating markers for better visual sequencing
+            await new Promise(r => setTimeout(r, 200));
             // Set final ball position
             visualizer.setBallPosition(returnEnd);
             result.animated = true;
