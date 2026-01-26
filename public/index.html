@@ -642,40 +642,46 @@
             flex-direction: column;
             justify-content: center;
             gap: 8px;
+            position: relative;
+            z-index: 2;
         }
 
         .game-card-team {
             display: flex;
             align-items: center;
             gap: 12px;
+            position: relative;
+            z-index: 2;
         }
 
         .game-card-team img {
             width: 32px;
             height: 32px;
             object-fit: contain;
+            position: relative;
+            z-index: 2;
         }
 
         .game-card-team-name {
-            font-family: var(--font-display);
             flex: 1;
             font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 0.01em;
+            font-weight: 500;
             color: var(--text-primary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            position: relative;
+            z-index: 1;
         }
 
         .game-card-team-score {
-            font-family: var(--font-display);
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
+            font-size: 20px;
+            font-weight: 700;
             color: var(--text-primary);
             min-width: 36px;
             text-align: right;
+            position: relative;
+            z-index: 1;
         }
 
         .game-card-team.winner .game-card-team-name,
@@ -2640,13 +2646,13 @@
 
         .live-sb-team-section.away {
             justify-content: center;
-            padding-right: 30px;
+            padding-right: 12px;
             overflow: visible;
         }
 
         .live-sb-team-section.home {
             justify-content: center;
-            padding-left: 30px;
+            padding-left: 12px;
             overflow: visible;
         }
 
@@ -2695,6 +2701,7 @@
             color: var(--sb-text-color);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         .live-sb-team-record {
@@ -5715,7 +5722,7 @@
                                         <div class="live-sb-team-logo">
                                             <img class="live-card-team-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                         </div>
-                                        <span class="live-sb-team-name">${game.away.abbr}</span>
+                                        <span class="live-sb-team-name">${game.away.name.split(' ').pop()}</span>
                                         ${game.away.record ? `<span class="live-sb-team-record">${game.away.record}</span>` : ''}
                                     </div>
                                 </div>
@@ -5724,7 +5731,7 @@
                                         <div class="live-sb-team-logo">
                                             <img class="live-card-team-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                         </div>
-                                        <span class="live-sb-team-name">${game.home.abbr}</span>
+                                        <span class="live-sb-team-name">${game.home.name.split(' ').pop()}</span>
                                         ${game.home.record ? `<span class="live-sb-team-record">${game.home.record}</span>` : ''}
                                     </div>
                                 </div>
@@ -5748,16 +5755,144 @@
                         <div class="nba-upcoming-inner">
                             <div class="nba-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
                                 <img class="nba-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                <span class="nba-upcoming-abbr">${game.away.abbr}</span>
+                                <span class="nba-upcoming-abbr">${game.away.name.split(" ").pop()}</span>
                             </div>
                             <div class="nba-upcoming-vs-container">
                                 <img class="nba-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
                             </div>
                             <div class="nba-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
                                 <img class="nba-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                <span class="nba-upcoming-abbr">${game.home.abbr}</span>
+                                <span class="nba-upcoming-abbr">${game.home.name.split(" ").pop()}</span>
                             </div>
                             <div class="nba-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+
+            // Special NFL upcoming card with VS lightning design
+            if (game.league === 'nfl' && game.state === 'pre') {
+                const awayColor = getNflTeamColor(game.away.abbr);
+                const homeColor = getNflTeamColor(game.home.abbr);
+
+                return `
+                    <div class="game-card nfl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
+                        <div class="nfl-upcoming-inner">
+                            <div class="nfl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
+                                <img class="nfl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="nfl-upcoming-abbr">${game.away.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="nfl-upcoming-vs-container">
+                                <img class="nfl-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
+                            </div>
+                            <div class="nfl-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
+                                <img class="nfl-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="nfl-upcoming-abbr">${game.home.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="nfl-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+
+            // Special NHL upcoming card with VS lightning design
+            if (game.league === 'nhl' && game.state === 'pre') {
+                const awayColor = getNhlTeamColor(game.away.abbr);
+                const homeColor = getNhlTeamColor(game.home.abbr);
+
+                return `
+                    <div class="game-card nhl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
+                        <div class="nhl-upcoming-inner">
+                            <div class="nhl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
+                                <img class="nhl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="nhl-upcoming-abbr">${game.away.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="nhl-upcoming-vs-container">
+                                <img class="nhl-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
+                            </div>
+                            <div class="nhl-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
+                                <img class="nhl-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="nhl-upcoming-abbr">${game.home.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="nhl-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+
+            // Special MLB upcoming card with team colors and VS divider
+            if (game.league === 'mlb' && game.state === 'pre') {
+                const awayColor = getMlbTeamColor(game.away.abbr);
+                const homeColor = getMlbTeamColor(game.home.abbr);
+
+                return `
+                    <div class="game-card mlb-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
+                        <div class="mlb-upcoming-inner">
+                            <div class="mlb-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
+                                <img class="mlb-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="mlb-upcoming-abbr">${game.away.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="mlb-upcoming-vs-container">
+                                <img class="mlb-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
+                            </div>
+                            <div class="mlb-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
+                                <img class="mlb-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="mlb-upcoming-abbr">${game.home.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="mlb-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+
+            // Special NCAA Football upcoming card with VS divider (default color)
+            if (game.league === 'ncaa' && game.state === 'pre') {
+                const defaultColor = '#6366f1';
+
+                return `
+                    <div class="game-card ncaa-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
+                        <div class="ncaa-upcoming-inner">
+                            <div class="ncaa-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
+                                <img class="ncaa-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="ncaa-upcoming-abbr">${game.away.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="ncaa-upcoming-vs-container">
+                                <img class="ncaa-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
+                            </div>
+                            <div class="ncaa-upcoming-half home" style="background: linear-gradient(270deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
+                                <img class="ncaa-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="ncaa-upcoming-abbr">${game.home.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="ncaa-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+
+            // Special NCAAB upcoming card with VS divider (default color)
+            if (game.league === 'ncaab' && game.state === 'pre') {
+                const defaultColor = '#6366f1';
+
+                return `
+                    <div class="game-card ncaab-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
+                        <div class="ncaab-upcoming-inner">
+                            <div class="ncaab-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
+                                <img class="ncaab-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                <span class="ncaab-upcoming-abbr">${game.away.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="ncaab-upcoming-vs-container">
+                                <img class="ncaab-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
+                            </div>
+                            <div class="ncaab-upcoming-half home" style="background: linear-gradient(270deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
+                                <img class="ncaab-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                <span class="ncaab-upcoming-abbr">${game.home.name.split(" ").pop()}</span>
+                            </div>
+                            <div class="ncaab-upcoming-footer">${statusText}</div>
                         </div>
                     </div>
                 `;
@@ -5774,41 +5909,16 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
                             </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Special NFL upcoming card with VS lightning design
-            if (game.league === 'nfl' && game.state === 'pre') {
-                const awayColor = getNflTeamColor(game.away.abbr);
-                const homeColor = getNflTeamColor(game.home.abbr);
-
-                return `
-                    <div class="game-card nfl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
-                        <div class="nfl-upcoming-inner">
-                            <div class="nfl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
-                                <img class="nfl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                <span class="nfl-upcoming-abbr">${game.away.abbr}</span>
-                            </div>
-                            <div class="nfl-upcoming-vs-container">
-                                <img class="nfl-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
-                            </div>
-                            <div class="nfl-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
-                                <img class="nfl-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                <span class="nfl-upcoming-abbr">${game.home.abbr}</span>
-                            </div>
-                            <div class="nfl-upcoming-footer">${statusText}</div>
                         </div>
                     </div>
                 `;
@@ -5825,41 +5935,16 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
                             </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Special NHL upcoming card with VS lightning design
-            if (game.league === 'nhl' && game.state === 'pre') {
-                const awayColor = getNhlTeamColor(game.away.abbr);
-                const homeColor = getNhlTeamColor(game.home.abbr);
-
-                return `
-                    <div class="game-card nhl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
-                        <div class="nhl-upcoming-inner">
-                            <div class="nhl-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
-                                <img class="nhl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                <span class="nhl-upcoming-abbr">${game.away.abbr}</span>
-                            </div>
-                            <div class="nhl-upcoming-vs-container">
-                                <img class="nhl-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
-                            </div>
-                            <div class="nhl-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
-                                <img class="nhl-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                <span class="nhl-upcoming-abbr">${game.home.abbr}</span>
-                            </div>
-                            <div class="nhl-upcoming-footer">${statusText}</div>
                         </div>
                     </div>
                 `;
@@ -5876,41 +5961,16 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
                             </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Special MLB upcoming card with team colors and VS divider
-            if (game.league === 'mlb' && game.state === 'pre') {
-                const awayColor = getMlbTeamColor(game.away.abbr);
-                const homeColor = getMlbTeamColor(game.home.abbr);
-
-                return `
-                    <div class="game-card mlb-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
-                        <div class="mlb-upcoming-inner">
-                            <div class="mlb-upcoming-half away" style="background: linear-gradient(90deg, ${awayColor} 0%, ${awayColor}cc 50%, transparent 100%);">
-                                <img class="mlb-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                <span class="mlb-upcoming-abbr">${game.away.abbr}</span>
-                            </div>
-                            <div class="mlb-upcoming-vs-container">
-                                <img class="mlb-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
-                            </div>
-                            <div class="mlb-upcoming-half home" style="background: linear-gradient(270deg, ${homeColor} 0%, ${homeColor}cc 50%, transparent 100%);">
-                                <img class="mlb-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                <span class="mlb-upcoming-abbr">${game.home.abbr}</span>
-                            </div>
-                            <div class="mlb-upcoming-footer">${statusText}</div>
                         </div>
                     </div>
                 `;
@@ -5927,40 +5987,16 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
                             </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Special NCAA Football upcoming card with VS divider (default color)
-            if (game.league === 'ncaa' && game.state === 'pre') {
-                const defaultColor = '#6366f1';
-
-                return `
-                    <div class="game-card ncaa-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
-                        <div class="ncaa-upcoming-inner">
-                            <div class="ncaa-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
-                                <img class="ncaa-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                <span class="ncaa-upcoming-abbr">${game.away.abbr}</span>
-                            </div>
-                            <div class="ncaa-upcoming-vs-container">
-                                <img class="ncaa-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
-                            </div>
-                            <div class="ncaa-upcoming-half home" style="background: linear-gradient(270deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
-                                <img class="ncaa-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                <span class="ncaa-upcoming-abbr">${game.home.abbr}</span>
-                            </div>
-                            <div class="ncaa-upcoming-footer">${statusText}</div>
                         </div>
                     </div>
                 `;
@@ -5977,40 +6013,16 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
                             </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Special NCAAB upcoming card with VS divider (default color)
-            if (game.league === 'ncaab' && game.state === 'pre') {
-                const defaultColor = '#6366f1';
-
-                return `
-                    <div class="game-card ncaab-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
-                        <div class="ncaab-upcoming-inner">
-                            <div class="ncaab-upcoming-half away" style="background: linear-gradient(90deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
-                                <img class="ncaab-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                                <span class="ncaab-upcoming-abbr">${game.away.abbr}</span>
-                            </div>
-                            <div class="ncaab-upcoming-vs-container">
-                                <img class="ncaab-upcoming-vs-img" src="/assets/VSdivide.svg" alt="VS">
-                            </div>
-                            <div class="ncaab-upcoming-half home" style="background: linear-gradient(270deg, ${defaultColor} 0%, ${defaultColor}cc 50%, transparent 100%);">
-                                <img class="ncaab-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                                <span class="ncaab-upcoming-abbr">${game.home.abbr}</span>
-                            </div>
-                            <div class="ncaab-upcoming-footer">${statusText}</div>
                         </div>
                     </div>
                 `;
@@ -6027,12 +6039,12 @@
                             <span class="game-card-status final">${statusText}</span>
                         </div>
                         <div class="game-card-teams">
-                            <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.away.winner ? 'winner' : ''}">
                                 <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.away.name}</span>
                                 <span class="game-card-team-score">${game.away.score}</span>
                             </div>
-                            <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
+                            <div class="game-card-team ${game.home.winner ? 'winner' : ''}">
                                 <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
                                 <span class="game-card-team-name">${game.home.name}</span>
                                 <span class="game-card-team-score">${game.home.score}</span>
@@ -6054,12 +6066,12 @@
                     <div class="game-card-teams">
                         <div class="game-card-team away ${game.away.winner ? 'winner' : ''}">
                             <img src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
-                            <span class="game-card-team-name">${game.away.name}</span>
+                            <span class="game-card-team-name">${game.away.name.split(" ").pop()}</span>
                             <span class="game-card-team-score">${game.state !== 'pre' ? game.away.score : ''}</span>
                         </div>
                         <div class="game-card-team home ${game.home.winner ? 'winner' : ''}">
                             <img src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
-                            <span class="game-card-team-name">${game.home.name}</span>
+                            <span class="game-card-team-name">${game.home.name.split(" ").pop()}</span>
                             <span class="game-card-team-score">${game.state !== 'pre' ? game.home.score : ''}</span>
                         </div>
                     </div>
