@@ -2968,6 +2968,62 @@ const cacheStats = {
 };
 
 // ============================================
+// CRON JOB HEALTH MONITORING
+// ============================================
+
+// Track cron job heartbeats to detect if they stop running
+const cronHealthMonitor = {
+  nfl: { lastRun: null, lastSuccess: null, consecutiveFailures: 0, totalRuns: 0 },
+  ncaa: { lastRun: null, lastSuccess: null, consecutiveFailures: 0, totalRuns: 0 },
+  nba: { lastRun: null, lastSuccess: null, consecutiveFailures: 0, totalRuns: 0 },
+  mlb: { lastRun: null, lastSuccess: null, consecutiveFailures: 0, totalRuns: 0 },
+  nhl: { lastRun: null, lastSuccess: null, consecutiveFailures: 0, totalRuns: 0 },
+  ncaab: { lastRun: null, lastSuccess: null, consecutiveFailures: 0, totalRuns: 0 }
+};
+
+// Helper to update heartbeat
+function recordCronRun(sport, success = true) {
+  const now = Date.now();
+  cronHealthMonitor[sport].lastRun = now;
+  cronHealthMonitor[sport].totalRuns++;
+
+  if (success) {
+    cronHealthMonitor[sport].lastSuccess = now;
+    cronHealthMonitor[sport].consecutiveFailures = 0;
+  } else {
+    cronHealthMonitor[sport].consecutiveFailures++;
+  }
+}
+
+// Check if cron jobs are healthy (ran within last 2 minutes)
+function getCronHealth() {
+  const now = Date.now();
+  const maxAge = 120000; // 2 minutes
+  const health = {};
+
+  for (const [sport, data] of Object.entries(cronHealthMonitor)) {
+    const age = data.lastRun ? now - data.lastRun : null;
+    const successAge = data.lastSuccess ? now - data.lastSuccess : null;
+
+    health[sport] = {
+      status: age && age < maxAge ? 'healthy' : 'stale',
+      lastRunAgo: age ? Math.round(age / 1000) + 's' : 'never',
+      lastSuccessAgo: successAge ? Math.round(successAge / 1000) + 's' : 'never',
+      consecutiveFailures: data.consecutiveFailures,
+      totalRuns: data.totalRuns,
+      isActive: (sport === 'nfl' && sportsCache.nfl.activeWeeks.size > 0) ||
+                (sport === 'ncaa' && sportsCache.ncaa.activeWeeks.size > 0) ||
+                (sport === 'nba' && sportsCache.nba.activeDates.size > 0) ||
+                (sport === 'mlb' && sportsCache.mlb.activeDates.size > 0) ||
+                (sport === 'nhl' && sportsCache.nhl.activeDates.size > 0) ||
+                (sport === 'ncaab' && sportsCache.ncaab.activeDates.size > 0)
+    };
+  }
+
+  return health;
+}
+
+// ============================================
 // FINAL GAMES STORAGE (In-Memory)
 // ============================================
 
@@ -3129,11 +3185,10 @@ function getNFLSeasonInfo() {
       postseasonWeek = 1; // Wild Card
     } else if (month === 1 && day <= 21) {
       postseasonWeek = 2; // Divisional
-    } else if (month === 1) {
+    } else if (month === 1 && day <= 27) {
       postseasonWeek = 3; // Conference Championships
-    } else if (month === 2 && day <= 2) {
-      postseasonWeek = 3; // Still Conference week window
     } else {
+      // Late January (28+) through early February = Super Bowl week
       postseasonWeek = 5; // Super Bowl (skip Pro Bowl week 4)
     }
 
@@ -5930,6 +5985,11 @@ app.get('/api/nhl/summary/:gameId', async (req, res) => {
 
 // Update NFL cache every 30 seconds for active weeks
 cron.schedule('*/30 * * * * *', async () => {
+  if (sportsCache.nfl.activeWeeks.size === 0) return;
+
+  let hadSuccess = false;
+  let hadFailure = false;
+
   for (const cacheKey of sportsCache.nfl.activeWeeks) {
     try {
       const isPostseason = cacheKey.startsWith('postseason-');
@@ -5945,14 +6005,24 @@ cron.schedule('*/30 * * * * *', async () => {
         // Pre-fetch stats for live games
         prefetchLiveGameStats('nfl', data).catch(() => {});
       }
+      hadSuccess = true;
     } catch (error) {
       console.error(`[NFL Background] Failed to update ${cacheKey}:`, error.message);
+      hadFailure = true;
     }
   }
+
+  // Record heartbeat
+  recordCronRun('nfl', hadSuccess && !hadFailure);
 });
 
 // Update NCAA (college football) cache every 30 seconds for active weeks
 cron.schedule('*/30 * * * * *', async () => {
+  if (sportsCache.ncaa.activeWeeks.size === 0) return;
+
+  let hadSuccess = false;
+  let hadFailure = false;
+
   for (const cacheKey of sportsCache.ncaa.activeWeeks) {
     try {
       // Check for bowl season - cache key is 'bowl-season' (not 'bowls-')
@@ -5971,14 +6041,23 @@ cron.schedule('*/30 * * * * *', async () => {
         // Pre-fetch stats for live games
         prefetchLiveGameStats('ncaa', data).catch(() => {});
       }
+      hadSuccess = true;
     } catch (error) {
       console.error(`[NCAA Background] Failed to update ${cacheKey}:`, error.message);
+      hadFailure = true;
     }
   }
+
+  recordCronRun('ncaa', hadSuccess && !hadFailure);
 });
 
 // Update NBA cache every 30 seconds for active dates
 cron.schedule('*/30 * * * * *', async () => {
+  if (sportsCache.nba.activeDates.size === 0) return;
+
+  let hadSuccess = false;
+  let hadFailure = false;
+
   for (const date of sportsCache.nba.activeDates) {
     try {
       const data = await fetchNBADataForCache(date);
@@ -5989,14 +6068,23 @@ cron.schedule('*/30 * * * * *', async () => {
         // Pre-fetch stats for live games
         prefetchLiveGameStats('nba', data).catch(() => {});
       }
+      hadSuccess = true;
     } catch (error) {
       console.error(`[NBA Background] Failed to update ${date}:`, error.message);
+      hadFailure = true;
     }
   }
+
+  recordCronRun('nba', hadSuccess && !hadFailure);
 });
 
 // Update MLB cache every 30 seconds for active dates
 cron.schedule('*/30 * * * * *', async () => {
+  if (sportsCache.mlb.activeDates.size === 0) return;
+
+  let hadSuccess = false;
+  let hadFailure = false;
+
   for (const date of sportsCache.mlb.activeDates) {
     try {
       const data = await fetchMLBDataForCache(date);
@@ -6007,14 +6095,23 @@ cron.schedule('*/30 * * * * *', async () => {
         // Pre-fetch stats for live games
         prefetchLiveGameStats('mlb', data).catch(() => {});
       }
+      hadSuccess = true;
     } catch (error) {
       console.error(`[MLB Background] Failed to update ${date}:`, error.message);
+      hadFailure = true;
     }
   }
+
+  recordCronRun('mlb', hadSuccess && !hadFailure);
 });
 
 // Update NHL cache every 30 seconds for active dates
 cron.schedule('*/30 * * * * *', async () => {
+  if (sportsCache.nhl.activeDates.size === 0) return;
+
+  let hadSuccess = false;
+  let hadFailure = false;
+
   for (const date of sportsCache.nhl.activeDates) {
     try {
       const data = await fetchNHLDataForCache(date);
@@ -6025,14 +6122,23 @@ cron.schedule('*/30 * * * * *', async () => {
         // Pre-fetch stats for live games
         prefetchLiveGameStats('nhl', data).catch(() => {});
       }
+      hadSuccess = true;
     } catch (error) {
       console.error(`[NHL Background] Failed to update ${date}:`, error.message);
+      hadFailure = true;
     }
   }
+
+  recordCronRun('nhl', hadSuccess && !hadFailure);
 });
 
 // Update NCAAB cache every 15 seconds for active dates
 cron.schedule('*/15 * * * * *', async () => {
+  if (sportsCache.ncaab.activeDates.size === 0) return;
+
+  let hadSuccess = false;
+  let hadFailure = false;
+
   for (const date of sportsCache.ncaab.activeDates) {
     try {
       const data = await fetchNCAABDataForCache(date);
@@ -6043,11 +6149,113 @@ cron.schedule('*/15 * * * * *', async () => {
         // Pre-fetch stats for live games
         prefetchLiveGameStats('ncaab', data).catch(() => {});
       }
+      hadSuccess = true;
     } catch (error) {
       console.error(`[NCAAB Background] Failed to update ${date}:`, error.message);
+      hadFailure = true;
     }
   }
+
+  recordCronRun('ncaab', hadSuccess && !hadFailure);
 });
+
+// Log cron job initialization
+console.log('');
+console.log('🔄 ====== BACKGROUND CRON JOBS INITIALIZED ======');
+console.log('✅ NFL cache updater: 30-second interval');
+console.log('✅ NCAA cache updater: 30-second interval');
+console.log('✅ NBA cache updater: 30-second interval');
+console.log('✅ MLB cache updater: 30-second interval');
+console.log('✅ NHL cache updater: 30-second interval');
+console.log('✅ NCAAB cache updater: 15-second interval');
+console.log('📊 Heartbeat monitoring: ACTIVE');
+console.log('🔄 ==================================================');
+console.log('');
+
+// ============================================
+// WATCHDOG TIMER - AUTO RECOVERY
+// ============================================
+// Monitors cron job health every minute and triggers manual refresh if stale
+
+let watchdogEnabled = true;
+let watchdogRecoveryAttempts = 0;
+const MAX_WATCHDOG_RECOVERIES = 10; // Prevent infinite recovery loop
+
+setInterval(async () => {
+  if (!watchdogEnabled) return;
+
+  const now = Date.now();
+  const maxAge = 90000; // 90 seconds - cron runs every 30s, so 90s is concerning
+
+  // Check each sport's cron health
+  for (const [sport, monitor] of Object.entries(cronHealthMonitor)) {
+    const cache = sportsCache[sport];
+    const hasActiveData = (cache.activeWeeks?.size > 0) || (cache.activeDates?.size > 0);
+
+    // Only check if this sport has active data to fetch
+    if (!hasActiveData) continue;
+
+    const age = monitor.lastSuccess ? now - monitor.lastSuccess : null;
+
+    // If cron hasn't run successfully in 90+ seconds, trigger manual refresh
+    if (!age || age > maxAge) {
+      const ageStr = age ? Math.round(age / 1000) + 's' : 'never';
+      console.warn(`⚠️ [Watchdog] ${sport.toUpperCase()} cron appears stale (last success: ${ageStr})`);
+
+      if (watchdogRecoveryAttempts < MAX_WATCHDOG_RECOVERIES) {
+        watchdogRecoveryAttempts++;
+        console.log(`🔧 [Watchdog] Attempting recovery ${watchdogRecoveryAttempts}/${MAX_WATCHDOG_RECOVERIES} for ${sport.toUpperCase()}...`);
+
+        try {
+          // Trigger manual cache refresh
+          if (sport === 'nfl' || sport === 'ncaa') {
+            for (const cacheKey of cache.activeWeeks) {
+              const isPostseason = cacheKey.startsWith('postseason-');
+              const weekMatch = cacheKey.match(/week-(\d+)/);
+              const weekNum = parseInt(weekMatch ? weekMatch[1] : '1');
+              const seasonType = isPostseason ? 3 : 2;
+
+              if (sport === 'nfl') {
+                await fetchNFLDataForCache(cacheKey, seasonType, weekNum);
+              } else {
+                await fetchNCAADataForCache(cacheKey, seasonType, weekNum);
+              }
+              console.log(`✅ [Watchdog] Manually refreshed ${sport.toUpperCase()} ${cacheKey}`);
+            }
+          } else {
+            // NBA, MLB, NHL, NCAAB use dates
+            for (const date of cache.activeDates) {
+              if (sport === 'nba') await fetchNBADataForCache(date);
+              else if (sport === 'mlb') await fetchMLBDataForCache(date);
+              else if (sport === 'nhl') await fetchNHLDataForCache(date);
+              else if (sport === 'ncaab') await fetchNCAABDataForCache(date);
+
+              console.log(`✅ [Watchdog] Manually refreshed ${sport.toUpperCase()} ${date}`);
+            }
+          }
+
+          // Update monitor to reflect successful recovery
+          recordCronRun(sport, true);
+        } catch (error) {
+          console.error(`❌ [Watchdog] Recovery failed for ${sport.toUpperCase()}:`, error.message);
+        }
+      } else {
+        console.error(`❌ [Watchdog] Max recovery attempts reached. Manual intervention required.`);
+        console.error(`Run 'watchdogRecoveryAttempts = 0' in Node REPL to reset.`);
+      }
+    }
+  }
+
+  // Reset recovery counter if all sports are healthy
+  const health = getCronHealth();
+  const allHealthy = Object.values(health).every(h => h.status === 'healthy' || !h.isActive);
+  if (allHealthy && watchdogRecoveryAttempts > 0) {
+    console.log(`✅ [Watchdog] All cron jobs healthy. Resetting recovery counter.`);
+    watchdogRecoveryAttempts = 0;
+  }
+}, 60000); // Check every minute
+
+console.log('✅ Watchdog timer initialized (60s interval)');
 
 // ============================================
 // AUTO-SAVE PLAYS FOR COMPLETED FOOTBALL GAMES
@@ -6611,8 +6819,14 @@ app.get('/api/health', async (req, res) => {
       ? ((espnMetrics.successCalls / espnMetrics.totalCalls) * 100)
       : 100;
 
+    // Check cron job health
+    const cronHealth = getCronHealth();
+    const activeCronJobs = Object.entries(cronHealth).filter(([_, data]) => data.isActive);
+    const staleCronJobs = activeCronJobs.filter(([_, data]) => data.status === 'stale');
+    const cronHealthy = staleCronJobs.length === 0;
+
     const overallStatus =
-      dbHealthy && espnSuccessRate > 95 ? 'healthy' :
+      dbHealthy && espnSuccessRate > 95 && cronHealthy ? 'healthy' :
         dbHealthy && espnSuccessRate > 80 ? 'degraded' : 'unhealthy';
 
     res.json({
@@ -6621,7 +6835,8 @@ app.get('/api/health', async (req, res) => {
       components: {
         database: dbHealthy ? 'healthy' : 'unhealthy',
         espnAPI: espnSuccessRate > 95 ? 'healthy' : espnSuccessRate > 80 ? 'degraded' : 'unhealthy',
-        cache: 'healthy'
+        cache: 'healthy',
+        cronJobs: cronHealthy ? 'healthy' : 'stale'
       },
       metrics: {
         espnAPISuccessRate: `${espnSuccessRate.toFixed(2)}%`,
@@ -6633,7 +6848,13 @@ app.get('/api/health', async (req, res) => {
           sportsCache.ncaab.activeDates.size > 0 ? 'NCAAB' : null,
           sportsCache.mlb.activeDates.size > 0 ? 'MLB' : null,
           sportsCache.nhl.activeDates.size > 0 ? 'NHL' : null
-        ].filter(Boolean)
+        ].filter(Boolean),
+        cronJobs: cronHealth,
+        watchdog: {
+          enabled: watchdogEnabled,
+          recoveryAttempts: watchdogRecoveryAttempts,
+          maxRecoveries: MAX_WATCHDOG_RECOVERIES
+        }
       }
     });
   } catch (error) {
@@ -7099,6 +7320,20 @@ const httpServer = app.listen(PORT, '0.0.0.0', async () => {
   console.log('🔄 Initializing server cache...');
   await initializeCache();
   console.log('✅ Server cache initialized - clients will now receive cached data');
+
+  // Display health monitoring status
+  console.log('');
+  console.log('🏥 ====== HEALTH MONITORING ACTIVE ======');
+  console.log('📊 Cron heartbeat tracking: ENABLED');
+  console.log('🔧 Auto-recovery watchdog: ENABLED (60s checks)');
+  console.log('🌐 Health endpoints:');
+  console.log(`   • /api/health - Overall system health`);
+  console.log(`   • /api/health/cache - Cache status`);
+  console.log(`   • /api/health/espn - ESPN API metrics`);
+  console.log('🏥 ========================================');
+  console.log('');
+  console.log('🎉 GridTV Sports server is fully operational!');
+  console.log('');
 });
 
 // ============================================

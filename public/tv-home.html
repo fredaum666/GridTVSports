@@ -1993,6 +1993,182 @@
             z-index: 1;
         }
 
+        /* Super Bowl Upcoming Card - Premium Gold/Trophy Design */
+        .game-card.superbowl-upcoming {
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1410 0%, #2d1f0f 50%, #1a1410 100%);
+            border: 3px solid #d4af37;
+            box-shadow:
+                0 0 20px rgba(212, 175, 55, 0.3),
+                inset 0 0 30px rgba(212, 175, 55, 0.1);
+            position: relative;
+        }
+
+        .superbowl-upcoming::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #d4af37, #f4e5b8, #d4af37, #f4e5b8);
+            background-size: 400% 400%;
+            animation: goldShimmer 3s ease infinite;
+            border-radius: 10px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        @keyframes goldShimmer {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .superbowl-upcoming-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .superbowl-upcoming-header {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.3) 50%, rgba(212, 175, 55, 0.2) 100%);
+            padding: 8px 12px;
+            text-align: center;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+            position: relative;
+            z-index: 2;
+        }
+
+        .superbowl-title {
+            font-size: 14px;
+            font-weight: 900;
+            font-family: var(--font-display);
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #d4af37 0%, #f4e5b8 50%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
+            filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5));
+        }
+
+        .superbowl-upcoming-matchup {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            position: relative;
+        }
+
+        .superbowl-upcoming-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .superbowl-upcoming-half.away {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
+        }
+
+        .superbowl-upcoming-half.home {
+            background: linear-gradient(270deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
+        }
+
+        .superbowl-upcoming-logo {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(212, 175, 55, 0.4));
+            z-index: 2;
+            transition: transform 0.3s ease;
+        }
+
+        .game-card.superbowl-upcoming:hover .superbowl-upcoming-logo {
+            transform: scale(1.1);
+        }
+
+        .superbowl-upcoming-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #d4af37;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+            z-index: 2;
+        }
+
+        .superbowl-upcoming-team-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+            margin-top: 2px;
+            z-index: 2;
+        }
+
+        .superbowl-upcoming-vs-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 100%;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .superbowl-upcoming-vs-img {
+            width: 75px;
+            height: auto;
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+        }
+
+        .superbowl-upcoming-vs-text {
+            font-size: 24px;
+            font-weight: 900;
+            color: #d4af37;
+            text-shadow:
+                0 0 10px rgba(212, 175, 55, 0.8),
+                0 0 20px rgba(212, 175, 55, 0.5),
+                0 2px 4px rgba(0, 0, 0, 0.8);
+            letter-spacing: 2px;
+        }
+
+        .superbowl-upcoming-footer {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.3) 50%, rgba(212, 175, 55, 0.2) 100%);
+            padding: 0px 12px 4px 12px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #f4e5b8;
+            z-index: 4;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .game-card.superbowl-upcoming.focused {
+            border: 3px solid #f4e5b8;
+            box-shadow:
+                0 0 0 2px rgba(212, 175, 55, 0.5),
+                0 0 30px rgba(212, 175, 55, 0.5);
+        }
+
         .game-card-footer {
             margin-top: 8px;
             font-size: 11px;
@@ -5366,7 +5542,8 @@
                                 record: getTeamRecord(awayTeam),
                                 timeouts: 3
                             },
-                            startTime: event.date
+                            startTime: event.date,
+                            notes: comp.notes || [] // Include notes for Super Bowl detection
                         };
 
                         // Add football-specific data for NFL and NCAA
@@ -5764,6 +5941,65 @@
         function createGameCard(game, rowName) {
             const statusClass = game.state === 'in' ? 'live' : game.state === 'pre' ? 'upcoming' : 'final';
             const statusText = game.state === 'in' ? game.status : game.state === 'pre' ? formatStartTime(game.startTime) : 'Final';
+
+            // ===== SUPER BOWL SPECIAL CARD =====
+            // Detect Super Bowl by checking game notes/headline (ESPN stores it in notes array)
+            const isSuperBowl = game.league === 'nfl' && (
+                game.name?.includes('Super Bowl') ||
+                game.shortName?.includes('Super Bowl') ||
+                game.notes?.some(note => note.headline?.includes('Super Bowl'))
+            );
+
+            // Debug logging for Super Bowl detection
+            if (game.league === 'nfl' && game.state === 'pre') {
+                console.log('🏈 NFL Upcoming Game:', {
+                    name: game.name,
+                    shortName: game.shortName,
+                    notes: game.notes,
+                    notesDetail: game.notes?.map(n => ({ type: n.type, headline: n.headline })),
+                    isSuperBowl: isSuperBowl,
+                    away: game.away?.abbr,
+                    home: game.home?.abbr
+                });
+            }
+
+            if (isSuperBowl && game.state === 'pre') {
+                // Special upcoming Super Bowl card with gold/trophy theme
+                const awayColor = getNflTeamColor(game.away.abbr);
+                const homeColor = getNflTeamColor(game.home.abbr);
+
+                // Check if teams are determined (not TBD/conference logos)
+                const awayLabel = game.away.abbr?.includes('AFC') || game.away.abbr?.includes('NFC') ||
+                    game.away.name?.includes('TBD') ? 'AFC Champion' : game.away.name.split(" ").pop();
+                const homeLabel = game.home.abbr?.includes('AFC') || game.home.abbr?.includes('NFC') ||
+                    game.home.name?.includes('TBD') ? 'NFC Champion' : game.home.name.split(" ").pop();
+
+                return `
+                    <div class="game-card superbowl-upcoming focusable" data-row="${rowName}" data-game='${JSON.stringify(game).replace(/'/g, "&#39;")}'>
+                        <div class="superbowl-upcoming-inner">
+                            <div class="superbowl-upcoming-header">
+                                <div class="superbowl-title">SUPER BOWL LX</div>
+                            </div>
+                            <div class="superbowl-upcoming-matchup">
+                                <div class="superbowl-upcoming-half away">
+                                    <img class="superbowl-upcoming-logo" src="${game.away.logo}" alt="${game.away.abbr}" onerror="this.style.display='none'">
+                                    <span class="superbowl-upcoming-label">${awayLabel.includes('Champion') ? awayLabel : 'AFC'}</span>
+                                    ${!awayLabel.includes('Champion') ? `<span class="superbowl-upcoming-team-name">${awayLabel}</span>` : ''}
+                                </div>
+                                <div class="superbowl-upcoming-vs-container">
+                                    <span class="superbowl-upcoming-vs-text">VS</span>
+                                </div>
+                                <div class="superbowl-upcoming-half home">
+                                    <img class="superbowl-upcoming-logo" src="${game.home.logo}" alt="${game.home.abbr}" onerror="this.style.display='none'">
+                                    <span class="superbowl-upcoming-label">${homeLabel.includes('Champion') ? homeLabel : 'NFC'}</span>
+                                    ${!homeLabel.includes('Champion') ? `<span class="superbowl-upcoming-team-name">${homeLabel}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="superbowl-upcoming-footer">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }
 
             // ===== LIVE GAME CARD - Scoreboard Layout for all leagues =====
             if (game.state === 'in') {
