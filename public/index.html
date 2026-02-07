@@ -12,6 +12,7 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap"
         rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/scripts/game-socket.js"></script>
     <style>
         /* ================================ */
         /* BROADCAST CONTROL ROOM THEME     */
@@ -4516,7 +4517,184 @@
                     restoreGameSelections();
                 }
             });
-            setInterval(fetchAllGames, 30000);
+
+            // Initialize real-time updates via Socket.io (only once)
+            initGameSocketForHome();
+        }
+
+        // Track if GameSocket is initialized for home screen
+        let homeGameSocketInitialized = false;
+
+        /**
+         * Initialize GameSocket for real-time game updates on home screen
+         */
+        async function initGameSocketForHome() {
+            if (homeGameSocketInitialized) return;
+            homeGameSocketInitialized = true;
+
+            try {
+                await gameSocket.connect();
+
+                // Subscribe to all sports
+                await gameSocket.subscribe(['nfl', 'ncaa', 'nba', 'ncaab', 'mlb', 'nhl']);
+
+                // Handle updates - refresh the specific sport's data
+                gameSocket.onUpdate('all', (sport, data, cacheKey, timestamp) => {
+                    console.log(`[Home] Received ${sport} update`);
+                    updateSportGamesFromPush(sport, data);
+                });
+
+                // Fallback polling handler
+                window.addEventListener('gamesocket:fallback-poll', () => {
+                    console.log('[Home] Fallback polling triggered');
+                    fetchAllGames();
+                });
+
+                console.log('[Home] GameSocket initialized for real-time updates');
+
+            } catch (error) {
+                console.error('[Home] GameSocket init failed, using polling fallback:', error);
+                // Fall back to polling if Socket.io completely fails
+                setInterval(fetchAllGames, 60000);
+            }
+
+            // Safety net polling (every 2 minutes) - only runs if Socket.io misses updates
+            setInterval(() => {
+                if (!gameSocket.isConnected()) {
+                    fetchAllGames();
+                }
+            }, 120000);
+        }
+
+        /**
+         * Update games for a specific sport from pushed data
+         * Without clearing all other sports' data
+         */
+        function updateSportGamesFromPush(sport, data) {
+            const events = data.events || [];
+
+            // Remove existing games for this sport from all categories
+            ['live', 'upcoming', 'final'].forEach(category => {
+                allGamesUnfiltered[category] = allGamesUnfiltered[category].filter(g => g.league !== sport);
+            });
+
+            // Process and add new games
+            events.forEach(event => {
+                const comp = event.competitions?.[0];
+                if (!comp) return;
+
+                const state = comp.status?.type?.state || event.status?.type?.state;
+                const homeTeam = comp.competitors?.find(c => c.homeAway === 'home') || comp.competitors?.[0];
+                const awayTeam = comp.competitors?.find(c => c.homeAway === 'away') || comp.competitors?.[1];
+
+                const getTeamRecord = (team) => {
+                    if (!team?.records) return '';
+                    const overallRecord = team.records.find(r => r.type === 'total' || r.name === 'overall');
+                    if (overallRecord?.summary) return overallRecord.summary;
+                    if (team.records[0]?.summary) return team.records[0].summary;
+                    return '';
+                };
+
+                const gameInfo = {
+                    id: event.id,
+                    league: sport,
+                    name: event.name || event.shortName,
+                    status: comp.status?.type?.shortDetail || '',
+                    state: state,
+                    home: {
+                        id: homeTeam?.id || homeTeam?.team?.id,
+                        name: homeTeam?.team?.displayName || homeTeam?.team?.shortDisplayName || '',
+                        abbr: homeTeam?.team?.abbreviation || '',
+                        logo: homeTeam?.team?.logo || '',
+                        score: parseInt(homeTeam?.score || 0),
+                        winner: homeTeam?.winner || false,
+                        record: getTeamRecord(homeTeam),
+                        timeouts: 3
+                    },
+                    away: {
+                        id: awayTeam?.id || awayTeam?.team?.id,
+                        name: awayTeam?.team?.displayName || awayTeam?.team?.shortDisplayName || '',
+                        abbr: awayTeam?.team?.abbreviation || '',
+                        logo: awayTeam?.team?.logo || '',
+                        score: parseInt(awayTeam?.score || 0),
+                        winner: awayTeam?.winner || false,
+                        record: getTeamRecord(awayTeam),
+                        timeouts: 3
+                    },
+                    startTime: event.date,
+                    notes: comp.notes || []
+                };
+
+                // Add football-specific data
+                if ((sport === 'nfl' || sport === 'ncaa') && state === 'in') {
+                    const situation = comp.situation;
+                    if (situation) {
+                        const possessionTeamId = situation.possession;
+                        if (possessionTeamId) {
+                            if (possessionTeamId === gameInfo.home.id) {
+                                gameInfo.possession = 'home';
+                            } else if (possessionTeamId === gameInfo.away.id) {
+                                gameInfo.possession = 'away';
+                            }
+                        }
+
+                        const isValidDown = situation.down >= 1 && situation.down <= 4;
+                        const isValidDistance = situation.distance > 0;
+
+                        if (situation.downDistanceText && !situation.downDistanceText.includes('-1') && isValidDown) {
+                            gameInfo.downDistance = situation.downDistanceText;
+                        } else if (situation.shortDownDistanceText && !situation.shortDownDistanceText.includes('-1') && isValidDown) {
+                            gameInfo.downDistance = situation.shortDownDistanceText;
+                        } else if (isValidDown && isValidDistance) {
+                            const suffix = situation.down === 1 ? 'st' : situation.down === 2 ? 'nd' : situation.down === 3 ? 'rd' : 'th';
+                            gameInfo.downDistance = `${situation.down}${suffix} & ${situation.distance}`;
+                        }
+
+                        gameInfo.yardLine = situation.yardLine;
+                        gameInfo.yardsToGo = situation.distance;
+                        gameInfo.fieldPosition = situation.possessionText;
+                        gameInfo.possessionOnOwn = situation.isRedZone === false;
+
+                        if (situation.homeTimeouts !== undefined) {
+                            gameInfo.home.timeouts = situation.homeTimeouts;
+                        }
+                        if (situation.awayTimeouts !== undefined) {
+                            gameInfo.away.timeouts = situation.awayTimeouts;
+                        }
+                    }
+                }
+
+                if (state === 'in') {
+                    allGamesUnfiltered.live.push(gameInfo);
+                } else if (state === 'pre') {
+                    allGamesUnfiltered.upcoming.push(gameInfo);
+                } else if (state === 'post') {
+                    allGamesUnfiltered.final.push(gameInfo);
+                }
+            });
+
+            // Update league status
+            updateLeagueStatus(sport, events);
+
+            // Sort upcoming games
+            allGamesUnfiltered.upcoming.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+            // Update "All" status
+            const allStatusEl = document.getElementById('all-status');
+            const totalLive = allGamesUnfiltered.live.length;
+            const totalUpcoming = allGamesUnfiltered.upcoming.length;
+            if (totalLive > 0) {
+                allStatusEl.textContent = `${totalLive} live`;
+            } else if (totalUpcoming > 0) {
+                allStatusEl.textContent = `${totalUpcoming} upcoming`;
+            } else {
+                allStatusEl.textContent = 'All leagues';
+            }
+
+            // Re-render if on home screen
+            if (currentScreen === 'home') {
+                filterAndRenderGames();
+            }
         }
 
         // ============================================

@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="/styles/fullscreen-cards.css">
     <link rel="stylesheet" href="/styles/tablet-fullscreen.css">
     <link rel="stylesheet" href="/styles/play-animations.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/scripts/game-socket.js"></script>
     <script src="/scripts/play-animations.js?v=4"></script>
     <script src="/scripts/field-visualizer-svg.js?v=3"></script>
     <script src="/scripts/play-replay-engine.js?v=6"></script>
@@ -6450,7 +6452,169 @@
         let isFirstRefresh = true; // Skip animations on first refresh (data baseline)
 
         function startAutoRefresh() {
-            refreshInterval = setInterval(refreshGameData, 10000); // 10 seconds - read from server cache
+            // Initialize Socket.io for real-time updates
+            initGameSocketForSportsBar();
+
+            // Keep a slow polling fallback (every 60 seconds) as safety net
+            refreshInterval = setInterval(() => {
+                if (!gameSocket.isConnected()) {
+                    refreshGameData();
+                }
+            }, 60000);
+        }
+
+        // Track if GameSocket is initialized for Sports Bar
+        let sportsBarGameSocketInitialized = false;
+
+        /**
+         * Initialize GameSocket for real-time game updates on Sports Bar
+         */
+        async function initGameSocketForSportsBar() {
+            if (sportsBarGameSocketInitialized) return;
+            sportsBarGameSocketInitialized = true;
+
+            try {
+                await gameSocket.connect();
+
+                // Get unique leagues from displayed games (excluding replay games)
+                const displayedLeagues = [...new Set(games.filter(g => !g.isReplay).map(g => g.league))];
+                await gameSocket.subscribe(displayedLeagues);
+
+                // Handle updates
+                gameSocket.onUpdate('all', (sport, data, cacheKey, timestamp) => {
+                    console.log(`[Desktop SportsBar] Received ${sport} update`);
+                    handlePushedGameUpdate(sport, data);
+                });
+
+                // Fallback handler
+                window.addEventListener('gamesocket:fallback-poll', () => {
+                    console.log('[Desktop SportsBar] Fallback polling triggered');
+                    refreshGameData();
+                });
+
+                console.log('[Desktop SportsBar] GameSocket initialized for real-time updates');
+
+            } catch (error) {
+                console.error('[Desktop SportsBar] GameSocket failed, using polling:', error);
+                refreshInterval = setInterval(refreshGameData, 10000);
+            }
+        }
+
+        /**
+         * Handle pushed game updates for a specific sport
+         */
+        function handlePushedGameUpdate(sport, data) {
+            const events = data.events || [];
+
+            // Queue for animations to apply after render
+            const pendingAnimations = [];
+
+            // Filter to only games we're displaying for this sport (excluding replay and finished)
+            const displayedGamesOfSport = games.filter(g => g.league === sport && g.state !== 'post' && !g.isReplay);
+
+            if (displayedGamesOfSport.length === 0) {
+                return; // No active games of this sport to update
+            }
+
+            displayedGamesOfSport.forEach(game => {
+                const updated = events.find(e => e.id === game.id);
+
+                if (updated) {
+                    // Store previous data for animation detection
+                    const prevData = prevGameData.get(game.id) || {};
+
+                    // Update game from event
+                    updateGameFromEvent(game, updated);
+
+                    // Queue animation detection for after render (NFL, NCAA football, and NHL)
+                    const comp = updated.competitions?.[0];
+                    if (!isFirstRefresh && (sport === 'nfl' || sport === 'ncaa' || sport === 'nhl')) {
+                        const newState = {
+                            awayScore: game.away.score,
+                            homeScore: game.home.score,
+                            lastPlay: comp?.situation?.lastPlay?.text || '',
+                            down: comp?.situation?.down || 0,
+                            possession: game.possession || null,
+                            fieldPosition: game.fieldPosition || null,
+                            downDistanceText: comp?.situation?.downDistanceText || ''
+                        };
+                        pendingAnimations.push({ gameId: game.id, game, comp, prevData, league: sport, newState });
+                    } else if (!isFirstRefresh) {
+                        // For other leagues (NBA, MLB), store state immediately
+                        prevGameData.set(game.id, {
+                            awayScore: game.away.score,
+                            homeScore: game.home.score,
+                            lastPlay: comp?.situation?.lastPlay?.text || '',
+                            down: comp?.situation?.down || 0,
+                            possession: game.possession || null,
+                            fieldPosition: game.fieldPosition || null,
+                            downDistanceText: comp?.situation?.downDistanceText || ''
+                        });
+                    }
+                }
+            });
+
+            // After first update, enable animations
+            if (isFirstRefresh) {
+                isFirstRefresh = false;
+                console.log('[Desktop SportsBar] First update complete - animations now enabled');
+            }
+
+            // Preserve any active play text modals before re-render
+            const activePlayTextModals = new Map();
+            document.querySelectorAll('.play-text-modal').forEach(modal => {
+                const card = modal.closest('.fullscreen-game-card');
+                if (card && !modal.classList.contains('fade-out')) {
+                    const gameId = card.dataset.gameId;
+                    const createdAt = parseInt(modal.dataset.createdAt) || 0;
+                    const duration = parseInt(modal.dataset.duration) || 15000;
+                    const elapsed = Date.now() - createdAt;
+                    const remaining = duration - elapsed;
+
+                    if (remaining > 1000) {
+                        activePlayTextModals.set(gameId, {
+                            modal: modal.cloneNode(true),
+                            remaining: remaining
+                        });
+                    }
+                }
+            });
+
+            // Update cards in place
+            updateCardsInPlace();
+
+            // Apply pending animations and store new state
+            pendingAnimations.forEach(({ gameId, game, comp, prevData, league, newState }) => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+                if (card) {
+                    if (league === 'nhl') {
+                        detectNHLPlayEvents(card, game, comp, prevData);
+                    } else {
+                        detectPlayEvents(card, game, comp, prevData);
+                    }
+                }
+                // Store new state for next comparison
+                if (newState) {
+                    prevGameData.set(gameId, newState);
+                }
+            });
+
+            // Update stats modals
+            updateStatsModals();
+
+            // Update localStorage
+            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));
+
+            // Check if all games are finished
+            const activeGames = games.filter(g => g.state !== 'post' && !g.isReplay);
+            if (activeGames.length === 0) {
+                console.log('[Desktop SportsBar] All games finished - stopping updates');
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                    refreshInterval = null;
+                }
+                gameSocket.disconnect();
+            }
         }
 
         async function refreshGameData() {

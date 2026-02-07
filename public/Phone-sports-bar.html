@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="/styles/mobile-fullscreen.css">
     <link rel="stylesheet" href="/styles/mobile-fullscreen-paging.css?v=3">
     <link rel="stylesheet" href="/styles/play-animations.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/scripts/game-socket.js"></script>
     <script src="/scripts/play-animations.js"></script>
     <script src="/scripts/field-visualizer-svg.js"></script>
     <style>
@@ -4504,7 +4506,172 @@
         let isFirstRefresh = true; // Skip animations on first refresh (data baseline)
 
         function startAutoRefresh() {
-            refreshInterval = setInterval(refreshGameData, 10000); // 10 seconds - read from server cache
+            // Initialize Socket.io for real-time updates
+            initGameSocketForSportsBar();
+
+            // Keep a slow polling fallback (every 60 seconds) as safety net
+            refreshInterval = setInterval(() => {
+                if (!gameSocket.isConnected()) {
+                    refreshGameData();
+                }
+            }, 60000);
+        }
+
+        // Track if GameSocket is initialized for Sports Bar
+        let sportsBarGameSocketInitialized = false;
+
+        /**
+         * Initialize GameSocket for real-time game updates on Sports Bar
+         */
+        async function initGameSocketForSportsBar() {
+            if (sportsBarGameSocketInitialized) return;
+            sportsBarGameSocketInitialized = true;
+
+            try {
+                await gameSocket.connect();
+
+                // Get unique leagues from displayed games
+                const displayedLeagues = [...new Set(games.map(g => g.league))];
+                await gameSocket.subscribe(displayedLeagues);
+
+                // Handle updates
+                gameSocket.onUpdate('all', (sport, data, cacheKey, timestamp) => {
+                    console.log(`[Phone SportsBar] Received ${sport} update`);
+                    handlePushedGameUpdate(sport, data);
+                });
+
+                // Fallback handler
+                window.addEventListener('gamesocket:fallback-poll', () => {
+                    console.log('[Phone SportsBar] Fallback polling triggered');
+                    refreshGameData();
+                });
+
+                console.log('[Phone SportsBar] GameSocket initialized for real-time updates');
+
+            } catch (error) {
+                console.error('[Phone SportsBar] GameSocket failed, using polling:', error);
+                refreshInterval = setInterval(refreshGameData, 10000);
+            }
+        }
+
+        /**
+         * Handle pushed game updates for a specific sport
+         */
+        function handlePushedGameUpdate(sport, data) {
+            const events = data.events || [];
+
+            // Queue for animations to apply after render
+            const pendingAnimations = [];
+
+            // Filter to only games we're displaying for this sport
+            const displayedGamesOfSport = games.filter(g => g.league === sport && g.state !== 'post');
+
+            if (displayedGamesOfSport.length === 0) {
+                return; // No active games of this sport to update
+            }
+
+            displayedGamesOfSport.forEach(game => {
+                const updated = events.find(e => e.id === game.id);
+
+                if (updated) {
+                    // Store previous data for animation detection
+                    const prevData = prevGameData.get(game.id) || {};
+
+                    // Update game from event
+                    updateGameFromEvent(game, updated);
+
+                    // Store current state for next comparison
+                    const comp = updated.competitions?.[0];
+                    prevGameData.set(game.id, {
+                        awayScore: game.away.score,
+                        homeScore: game.home.score,
+                        lastPlay: comp?.situation?.lastPlay?.text || '',
+                        down: comp?.situation?.down || 0,
+                        possession: game.possession || null,
+                        downDistanceText: comp?.situation?.downDistanceText || '',
+                        fieldPosition: game.fieldPosition || null
+                    });
+
+                    // Queue animation detection for after render (NFL, NCAA football, and NHL)
+                    if (!isFirstRefresh && (sport === 'nfl' || sport === 'ncaa' || sport === 'nhl')) {
+                        pendingAnimations.push({ gameId: game.id, game, comp, prevData, league: sport });
+                    }
+                }
+            });
+
+            // After first update, enable animations
+            if (isFirstRefresh) {
+                isFirstRefresh = false;
+                console.log('[Phone SportsBar] First update complete - animations now enabled');
+            }
+
+            // Preserve any active play text modals before re-render
+            const activePlayTextModals = new Map();
+            document.querySelectorAll('.play-text-modal').forEach(modal => {
+                const card = modal.closest('.fullscreen-game-card');
+                if (card && !modal.classList.contains('fade-out')) {
+                    const gameId = card.dataset.gameId;
+                    const createdAt = parseInt(modal.dataset.createdAt) || 0;
+                    const duration = parseInt(modal.dataset.duration) || 15000;
+                    const elapsed = Date.now() - createdAt;
+                    const remaining = duration - elapsed;
+
+                    if (remaining > 1000) {
+                        activePlayTextModals.set(gameId, {
+                            modal: modal.cloneNode(true),
+                            remaining: remaining
+                        });
+                    }
+                }
+            });
+
+            // Update cards in place
+            updateCardsInPlace();
+
+            // Restore play text modals
+            activePlayTextModals.forEach(({ modal, remaining }, gameId) => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+                if (card) {
+                    card.style.position = 'relative';
+                    card.appendChild(modal);
+
+                    setTimeout(() => {
+                        modal.classList.add('fade-out');
+                        setTimeout(() => {
+                            modal.remove();
+                        }, 1500);
+                    }, remaining);
+                }
+            });
+
+            // Apply pending animations
+            pendingAnimations.forEach(({ gameId, game, comp, prevData, league }) => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+                if (card) {
+                    if (league === 'nhl') {
+                        detectNHLPlayEvents(card, game, comp, prevData);
+                    } else {
+                        detectPlayEvents(card, game, comp, prevData);
+                    }
+                }
+            });
+
+            // Update stats modals
+            updateStatsModals();
+
+            // Update localStorage
+            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));
+
+            // Check if all games are finished
+            const activeGames = games.filter(g => g.state !== 'post');
+            if (activeGames.length === 0) {
+                console.log('[Phone SportsBar] All games finished - stopping updates');
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                    refreshInterval = null;
+                }
+                gameSocket.disconnect();
+            }
         }
 
         async function refreshGameData() {

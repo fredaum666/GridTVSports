@@ -2968,6 +2968,70 @@ const cacheStats = {
 };
 
 // ============================================
+// SOCKET.IO GAME UPDATE BROADCASTING
+// ============================================
+
+// Track last broadcast data hash per sport/cacheKey for change detection
+const broadcastHashes = new Map();
+
+/**
+ * Generate a simple hash of game scores for change detection
+ * Only broadcasts when scores or game states actually change
+ */
+function generateScoreboardHash(data) {
+  if (!data?.events) return '';
+  return data.events.map(e => {
+    const comp = e.competitions?.[0];
+    const home = comp?.competitors?.find(c => c.homeAway === 'home');
+    const away = comp?.competitors?.find(c => c.homeAway === 'away');
+    const status = e.status?.type?.state || 'pre';
+    const clock = e.status?.displayClock || '';
+    const period = e.status?.period || 0;
+    return `${e.id}:${away?.score || 0}-${home?.score || 0}:${status}:${period}:${clock}`;
+  }).join('|');
+}
+
+/**
+ * Broadcast game update to subscribed clients
+ * Only sends if data has actually changed
+ */
+function broadcastGameUpdate(sport, cacheKey, data) {
+  if (!global.io) return false;
+
+  const hashKey = `${sport}:${cacheKey}`;
+  const newHash = generateScoreboardHash(data);
+  const oldHash = broadcastHashes.get(hashKey);
+
+  // Skip broadcast if nothing changed
+  if (newHash === oldHash) {
+    return false;
+  }
+
+  broadcastHashes.set(hashKey, newHash);
+
+  // Broadcast to sport-level room
+  const roomName = `games:${sport}`;
+  const payload = {
+    sport,
+    cacheKey,
+    data,
+    timestamp: Date.now()
+  };
+
+  global.io.to(roomName).emit('games:update', payload);
+
+  // Count connected clients for logging
+  const room = global.io.sockets.adapter.rooms.get(roomName);
+  const clientCount = room ? room.size : 0;
+
+  if (clientCount > 0) {
+    console.log(`[Socket.io] Broadcast ${sport}/${cacheKey} to ${clientCount} clients`);
+  }
+
+  return true;
+}
+
+// ============================================
 // CRON JOB HEALTH MONITORING
 // ============================================
 
@@ -3355,6 +3419,9 @@ async function fetchNFLDataForCache(cacheKey, seasonType, week) {
   cacheStats.backgroundUpdates++;
   cacheStats.lastBackgroundUpdate = now;
 
+  // Broadcast to subscribed clients
+  broadcastGameUpdate('nfl', cacheKey, data);
+
   if (isComplete) {
     sportsCache.nfl.activeWeeks.delete(cacheKey);
   } else {
@@ -3382,6 +3449,9 @@ async function fetchNCAADataForCache(cacheKey, seasonType, week) {
   cacheStats.backgroundUpdates++;
   cacheStats.lastBackgroundUpdate = now;
 
+  // Broadcast to subscribed clients
+  broadcastGameUpdate('ncaa', cacheKey, data);
+
   if (isComplete) {
     sportsCache.ncaa.activeWeeks.delete(cacheKey);
   } else {
@@ -3402,6 +3472,9 @@ async function fetchNBADataForCache(date) {
   sportsCache.nba.data.set(`date-${date}`, { data, timestamp: now, isComplete });
   cacheStats.backgroundUpdates++;
   cacheStats.lastBackgroundUpdate = now;
+
+  // Broadcast to subscribed clients
+  broadcastGameUpdate('nba', `date-${date}`, data);
 
   if (isComplete) {
     sportsCache.nba.activeDates.delete(date);
@@ -3424,6 +3497,9 @@ async function fetchNCAABDataForCache(date) {
   cacheStats.backgroundUpdates++;
   cacheStats.lastBackgroundUpdate = now;
 
+  // Broadcast to subscribed clients
+  broadcastGameUpdate('ncaab', `date-${date}`, data);
+
   if (isComplete) {
     sportsCache.ncaab.activeDates.delete(date);
   } else {
@@ -3445,6 +3521,9 @@ async function fetchMLBDataForCache(date) {
   cacheStats.backgroundUpdates++;
   cacheStats.lastBackgroundUpdate = now;
 
+  // Broadcast to subscribed clients
+  broadcastGameUpdate('mlb', `date-${date}`, data);
+
   if (isComplete) {
     sportsCache.mlb.activeDates.delete(date);
   } else {
@@ -3465,6 +3544,9 @@ async function fetchNHLDataForCache(date) {
   sportsCache.nhl.data.set(`date-${date}`, { data, timestamp: now, isComplete });
   cacheStats.backgroundUpdates++;
   cacheStats.lastBackgroundUpdate = now;
+
+  // Broadcast to subscribed clients
+  broadcastGameUpdate('nhl', `date-${date}`, data);
 
   if (isComplete) {
     sportsCache.nhl.activeDates.delete(date);
@@ -7380,6 +7462,85 @@ setInterval(() => {
 // Socket.IO connection handler
 io.on('connection', (socket) => {
   console.log(`🔌 WebSocket connected: ${socket.id}`);
+
+  // ============================================
+  // GAME UPDATE SUBSCRIPTIONS
+  // ============================================
+
+  // Subscribe to game updates for specific sports
+  socket.on('games:subscribe', (data, callback) => {
+    try {
+      const { sports } = data; // Array of sport names: ['nfl', 'nba', ...]
+
+      if (!Array.isArray(sports) || sports.length === 0) {
+        return callback?.({ success: false, error: 'Invalid sports array' });
+      }
+
+      const validSports = ['nfl', 'ncaa', 'nba', 'ncaab', 'mlb', 'nhl'];
+      const joinedRooms = [];
+
+      sports.forEach(sport => {
+        if (validSports.includes(sport)) {
+          const roomName = `games:${sport}`;
+          socket.join(roomName);
+          joinedRooms.push(roomName);
+        }
+      });
+
+      console.log(`[Socket.io] Client ${socket.id} subscribed to: ${joinedRooms.join(', ')}`);
+      callback?.({ success: true, rooms: joinedRooms });
+    } catch (error) {
+      console.error('[Socket.io] Subscribe error:', error);
+      callback?.({ success: false, error: error.message });
+    }
+  });
+
+  // Unsubscribe from game updates
+  socket.on('games:unsubscribe', (data, callback) => {
+    try {
+      const { sports } = data;
+
+      if (!Array.isArray(sports)) {
+        return callback?.({ success: false, error: 'Invalid sports array' });
+      }
+
+      sports.forEach(sport => {
+        const roomName = `games:${sport}`;
+        socket.leave(roomName);
+      });
+
+      console.log(`[Socket.io] Client ${socket.id} unsubscribed from: ${sports.join(', ')}`);
+      callback?.({ success: true });
+    } catch (error) {
+      callback?.({ success: false, error: error.message });
+    }
+  });
+
+  // Request immediate data for subscribed sports (on reconnect)
+  socket.on('games:request-current', (data, callback) => {
+    try {
+      const { sports } = data;
+      const results = {};
+
+      sports.forEach(sport => {
+        const cache = sportsCache[sport];
+        if (cache && cache.data) {
+          results[sport] = {};
+          for (const [key, value] of cache.data.entries()) {
+            results[sport][key] = value.data;
+          }
+        }
+      });
+
+      callback?.({ success: true, data: results });
+    } catch (error) {
+      callback?.({ success: false, error: error.message });
+    }
+  });
+
+  // ============================================
+  // TV CASTING
+  // ============================================
 
   // TV Receiver creates a session and displays PIN (NO LOGIN REQUIRED)
   // The TV just displays a PIN and waits for an authenticated controller to connect
