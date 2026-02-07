@@ -6060,199 +6060,353 @@ app.get('/api/nhl/summary/:gameId', async (req, res) => {
 });
 
 // ============================================
-// BACKGROUND JOBS - AUTO CACHE UPDATES (30 second interval)
+// ADAPTIVE POLLING SYSTEM - INTELLIGENT CACHE UPDATES
 // ============================================
 // These background jobs are the ONLY way data is fetched from ESPN.
 // Client API requests NEVER trigger ESPN calls - they only read from cache.
+//
+// Polling intervals are dynamically adjusted based on game state:
+// - No games today: Skip entirely
+// - All games upcoming (>1hr): Every 5 minutes
+// - Games starting soon (<1hr): Every 2 minutes
+// - Games in progress: Every 30 seconds
+// - Critical moments (close game, final 2 min, OT): Every 15 seconds
+// - All games completed: Stop polling
 
-// Update NFL cache every 30 seconds for active weeks
-cron.schedule('*/30 * * * * *', async () => {
-  if (sportsCache.nfl.activeWeeks.size === 0) return;
+// Polling interval constants (in milliseconds)
+const POLL_INTERVALS = {
+  CRITICAL: 15000,    // 15 seconds - close games, final minutes, overtime
+  LIVE: 30000,        // 30 seconds - games in progress
+  STARTING_SOON: 120000, // 2 minutes - games starting within 1 hour
+  UPCOMING: 300000,   // 5 minutes - games more than 1 hour away
+  IDLE: 600000        // 10 minutes - fallback when no games scheduled
+};
 
-  let hadSuccess = false;
-  let hadFailure = false;
+// Track polling state for each sport
+const adaptivePolling = {
+  nfl: { timeout: null, lastInterval: null, running: false },
+  ncaa: { timeout: null, lastInterval: null, running: false },
+  nba: { timeout: null, lastInterval: null, running: false },
+  ncaab: { timeout: null, lastInterval: null, running: false },
+  mlb: { timeout: null, lastInterval: null, running: false },
+  nhl: { timeout: null, lastInterval: null, running: false }
+};
 
-  for (const cacheKey of sportsCache.nfl.activeWeeks) {
-    try {
-      const isPostseason = cacheKey.startsWith('postseason-');
-      const weekMatch = cacheKey.match(/week-(\d+)/);
-      const weekNum = parseInt(weekMatch ? weekMatch[1] : '1');
-      const seasonType = isPostseason ? 3 : 2;
+/**
+ * Analyze game states and determine optimal polling interval
+ * @param {Object} data - Scoreboard data with events array
+ * @param {string} sport - Sport type for sport-specific logic
+ * @returns {Object} { interval: number, reason: string, stats: Object }
+ */
+function analyzeGameStates(data, sport) {
+  if (!data?.events || data.events.length === 0) {
+    return { interval: POLL_INTERVALS.IDLE, reason: 'no-games', stats: { total: 0 } };
+  }
 
-      const data = await fetchNFLDataForCache(cacheKey, seasonType, weekNum);
+  const now = Date.now();
+  const events = data.events;
 
-      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      if (liveGames > 0) {
-        console.log(`[NFL Background] ${cacheKey} - Live: ${liveGames}`);
-        // Pre-fetch stats for live games
-        prefetchLiveGameStats('nfl', data).catch(() => {});
+  let liveGames = 0;
+  let criticalGames = 0;
+  let upcomingWithin1Hr = 0;
+  let upcomingLater = 0;
+  let completedGames = 0;
+
+  for (const event of events) {
+    const state = event.status?.type?.state;
+    const comp = event.competitions?.[0];
+
+    if (state === 'post') {
+      completedGames++;
+      continue;
+    }
+
+    if (state === 'in') {
+      liveGames++;
+
+      // Check for critical moments
+      if (isCriticalMoment(event, sport)) {
+        criticalGames++;
       }
-      hadSuccess = true;
-    } catch (error) {
-      console.error(`[NFL Background] Failed to update ${cacheKey}:`, error.message);
-      hadFailure = true;
+      continue;
+    }
+
+    if (state === 'pre') {
+      const startTime = new Date(event.date).getTime();
+      const timeUntilStart = startTime - now;
+
+      if (timeUntilStart <= 3600000) { // Within 1 hour
+        upcomingWithin1Hr++;
+      } else {
+        upcomingLater++;
+      }
     }
   }
 
-  // Record heartbeat
-  recordCronRun('nfl', hadSuccess && !hadFailure);
-});
+  const stats = {
+    total: events.length,
+    live: liveGames,
+    critical: criticalGames,
+    startingSoon: upcomingWithin1Hr,
+    upcoming: upcomingLater,
+    completed: completedGames
+  };
 
-// Update NCAA (college football) cache every 30 seconds for active weeks
-cron.schedule('*/30 * * * * *', async () => {
-  if (sportsCache.ncaa.activeWeeks.size === 0) return;
-
-  let hadSuccess = false;
-  let hadFailure = false;
-
-  for (const cacheKey of sportsCache.ncaa.activeWeeks) {
-    try {
-      // Check for bowl season - cache key is 'bowl-season' (not 'bowls-')
-      const isBowlSeason = cacheKey === 'bowl-season' || cacheKey.startsWith('bowl');
-      const weekMatch = cacheKey.match(/week-(\d+)/);
-      const weekNum = parseInt(weekMatch ? weekMatch[1] : '1');
-      const seasonType = isBowlSeason ? 3 : 2;
-
-      console.log(`[NCAA Background] Refreshing ${cacheKey} (bowl: ${isBowlSeason}, seasonType: ${seasonType})`);
-
-      const data = await fetchNCAADataForCache(cacheKey, seasonType, weekNum);
-
-      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      if (liveGames > 0) {
-        console.log(`[NCAA Background] ${cacheKey} - Live: ${liveGames}`);
-        // Pre-fetch stats for live games
-        prefetchLiveGameStats('ncaa', data).catch(() => {});
-      }
-      hadSuccess = true;
-    } catch (error) {
-      console.error(`[NCAA Background] Failed to update ${cacheKey}:`, error.message);
-      hadFailure = true;
-    }
+  // Determine interval based on priority
+  if (criticalGames > 0) {
+    return { interval: POLL_INTERVALS.CRITICAL, reason: 'critical-moments', stats };
   }
 
-  recordCronRun('ncaa', hadSuccess && !hadFailure);
-});
-
-// Update NBA cache every 30 seconds for active dates
-cron.schedule('*/30 * * * * *', async () => {
-  if (sportsCache.nba.activeDates.size === 0) return;
-
-  let hadSuccess = false;
-  let hadFailure = false;
-
-  for (const date of sportsCache.nba.activeDates) {
-    try {
-      const data = await fetchNBADataForCache(date);
-
-      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      if (liveGames > 0) {
-        console.log(`[NBA Background] ${date} - Live: ${liveGames}`);
-        // Pre-fetch stats for live games
-        prefetchLiveGameStats('nba', data).catch(() => {});
-      }
-      hadSuccess = true;
-    } catch (error) {
-      console.error(`[NBA Background] Failed to update ${date}:`, error.message);
-      hadFailure = true;
-    }
+  if (liveGames > 0) {
+    return { interval: POLL_INTERVALS.LIVE, reason: 'live-games', stats };
   }
 
-  recordCronRun('nba', hadSuccess && !hadFailure);
-});
-
-// Update MLB cache every 30 seconds for active dates
-cron.schedule('*/30 * * * * *', async () => {
-  if (sportsCache.mlb.activeDates.size === 0) return;
-
-  let hadSuccess = false;
-  let hadFailure = false;
-
-  for (const date of sportsCache.mlb.activeDates) {
-    try {
-      const data = await fetchMLBDataForCache(date);
-
-      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      if (liveGames > 0) {
-        console.log(`[MLB Background] ${date} - Live: ${liveGames}`);
-        // Pre-fetch stats for live games
-        prefetchLiveGameStats('mlb', data).catch(() => {});
-      }
-      hadSuccess = true;
-    } catch (error) {
-      console.error(`[MLB Background] Failed to update ${date}:`, error.message);
-      hadFailure = true;
-    }
+  if (upcomingWithin1Hr > 0) {
+    return { interval: POLL_INTERVALS.STARTING_SOON, reason: 'starting-soon', stats };
   }
 
-  recordCronRun('mlb', hadSuccess && !hadFailure);
-});
-
-// Update NHL cache every 30 seconds for active dates
-cron.schedule('*/30 * * * * *', async () => {
-  if (sportsCache.nhl.activeDates.size === 0) return;
-
-  let hadSuccess = false;
-  let hadFailure = false;
-
-  for (const date of sportsCache.nhl.activeDates) {
-    try {
-      const data = await fetchNHLDataForCache(date);
-
-      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      if (liveGames > 0) {
-        console.log(`[NHL Background] ${date} - Live: ${liveGames}`);
-        // Pre-fetch stats for live games
-        prefetchLiveGameStats('nhl', data).catch(() => {});
-      }
-      hadSuccess = true;
-    } catch (error) {
-      console.error(`[NHL Background] Failed to update ${date}:`, error.message);
-      hadFailure = true;
-    }
+  if (upcomingLater > 0) {
+    return { interval: POLL_INTERVALS.UPCOMING, reason: 'upcoming', stats };
   }
 
-  recordCronRun('nhl', hadSuccess && !hadFailure);
-});
+  // All games completed
+  return { interval: 0, reason: 'all-completed', stats };
+}
 
-// Update NCAAB cache every 15 seconds for active dates
-cron.schedule('*/15 * * * * *', async () => {
-  if (sportsCache.ncaab.activeDates.size === 0) return;
+/**
+ * Check if a game is in a critical moment (close score, final minutes, overtime)
+ * @param {Object} event - Game event data
+ * @param {string} sport - Sport type
+ * @returns {boolean}
+ */
+function isCriticalMoment(event, sport) {
+  const comp = event.competitions?.[0];
+  if (!comp) return false;
 
-  let hadSuccess = false;
-  let hadFailure = false;
+  const status = event.status;
+  const period = status?.period || 0;
+  const clock = status?.displayClock || '';
+  const clockSeconds = parseClockToSeconds(clock);
 
-  for (const date of sportsCache.ncaab.activeDates) {
-    try {
-      const data = await fetchNCAABDataForCache(date);
+  // Get scores
+  const home = comp.competitors?.find(c => c.homeAway === 'home');
+  const away = comp.competitors?.find(c => c.homeAway === 'away');
+  const homeScore = parseInt(home?.score || 0);
+  const awayScore = parseInt(away?.score || 0);
+  const scoreDiff = Math.abs(homeScore - awayScore);
 
-      const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
-      if (liveGames > 0) {
-        console.log(`[NCAAB Background] ${date} - Live: ${liveGames}`);
-        // Pre-fetch stats for live games
-        prefetchLiveGameStats('ncaab', data).catch(() => {});
-      }
-      hadSuccess = true;
-    } catch (error) {
-      console.error(`[NCAAB Background] Failed to update ${date}:`, error.message);
-      hadFailure = true;
+  // Sport-specific critical moment detection
+  switch (sport) {
+    case 'nfl':
+    case 'ncaa':
+      // Football: 4th quarter with <5 min and close score, or overtime
+      const isFootballCritical = (period >= 4 && clockSeconds <= 300 && scoreDiff <= 8) ||
+                                  period > 4; // Overtime
+      return isFootballCritical;
+
+    case 'nba':
+    case 'ncaab':
+      // Basketball: 4th quarter/2nd half with <3 min and close score, or overtime
+      const isBballCritical = (period >= 4 && clockSeconds <= 180 && scoreDiff <= 6) ||
+                              period > 4; // Overtime
+      return isBballCritical;
+
+    case 'nhl':
+      // Hockey: 3rd period with <5 min and close score, or overtime
+      const isHockeyCritical = (period >= 3 && clockSeconds <= 300 && scoreDiff <= 1) ||
+                                period > 3; // Overtime/Shootout
+      return isHockeyCritical;
+
+    case 'mlb':
+      // Baseball: 9th inning or later with close score
+      const isBaseballCritical = period >= 9 && scoreDiff <= 2;
+      return isBaseballCritical;
+
+    default:
+      return false;
+  }
+}
+
+/**
+ * Parse clock string to seconds
+ * @param {string} clock - Clock display string (e.g., "5:23", "0:45")
+ * @returns {number} Total seconds
+ */
+function parseClockToSeconds(clock) {
+  if (!clock) return 0;
+  const parts = clock.split(':');
+  if (parts.length === 2) {
+    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  }
+  return parseInt(clock) || 0;
+}
+
+/**
+ * Format interval for logging
+ */
+function formatInterval(ms) {
+  if (ms >= 60000) return `${ms / 60000}min`;
+  return `${ms / 1000}s`;
+}
+
+/**
+ * Create adaptive polling function for a sport
+ */
+function createAdaptivePoller(sport, fetchFunction, getActiveKeys, getCacheKey) {
+  const poller = adaptivePolling[sport];
+
+  async function poll() {
+    poller.running = true;
+
+    const activeKeys = getActiveKeys();
+    if (activeKeys.size === 0) {
+      // No active data, schedule next check in 1 minute
+      poller.running = false;
+      poller.timeout = setTimeout(poll, 60000);
+      return;
     }
+
+    let hadSuccess = false;
+    let hadFailure = false;
+    let combinedAnalysis = { interval: POLL_INTERVALS.UPCOMING, reason: 'default', stats: {} };
+
+    for (const key of activeKeys) {
+      try {
+        const data = await fetchFunction(key);
+
+        // Analyze game states for this data
+        const analysis = analyzeGameStates(data, sport);
+
+        // Use the most urgent interval
+        if (analysis.interval > 0 && analysis.interval < combinedAnalysis.interval) {
+          combinedAnalysis = analysis;
+        } else if (analysis.interval === 0 && combinedAnalysis.reason !== 'critical-moments' &&
+                   combinedAnalysis.reason !== 'live-games') {
+          // All completed for this key, but might have other active keys
+        }
+
+        const liveGames = data.events?.filter(e => e.status?.type?.state === 'in').length || 0;
+        if (liveGames > 0) {
+          console.log(`[${sport.toUpperCase()} Adaptive] ${key} - Live: ${liveGames}, Critical: ${analysis.stats.critical || 0}`);
+          prefetchLiveGameStats(sport, data).catch(() => {});
+        }
+        hadSuccess = true;
+      } catch (error) {
+        console.error(`[${sport.toUpperCase()} Adaptive] Failed to update ${key}:`, error.message);
+        hadFailure = true;
+      }
+    }
+
+    recordCronRun(sport, hadSuccess && !hadFailure);
+
+    // Determine next poll interval
+    let nextInterval = combinedAnalysis.interval;
+    if (nextInterval === 0) {
+      // All games completed, check again in 5 minutes in case new games added
+      nextInterval = POLL_INTERVALS.UPCOMING;
+    }
+
+    // Log interval changes
+    if (poller.lastInterval !== nextInterval) {
+      console.log(`[${sport.toUpperCase()} Adaptive] Interval changed: ${formatInterval(poller.lastInterval || 30000)} → ${formatInterval(nextInterval)} (${combinedAnalysis.reason})`);
+      poller.lastInterval = nextInterval;
+    }
+
+    poller.running = false;
+    poller.timeout = setTimeout(poll, nextInterval);
   }
 
-  recordCronRun('ncaab', hadSuccess && !hadFailure);
-});
+  return poll;
+}
 
-// Log cron job initialization
-console.log('');
-console.log('🔄 ====== BACKGROUND CRON JOBS INITIALIZED ======');
-console.log('✅ NFL cache updater: 30-second interval');
-console.log('✅ NCAA cache updater: 30-second interval');
-console.log('✅ NBA cache updater: 30-second interval');
-console.log('✅ MLB cache updater: 30-second interval');
-console.log('✅ NHL cache updater: 30-second interval');
-console.log('✅ NCAAB cache updater: 15-second interval');
-console.log('📊 Heartbeat monitoring: ACTIVE');
-console.log('🔄 ==================================================');
-console.log('');
+// ============================================
+// SPORT-SPECIFIC POLLING INITIALIZERS
+// ============================================
+
+// NFL Adaptive Polling
+const pollNFL = createAdaptivePoller(
+  'nfl',
+  async (cacheKey) => {
+    const isPostseason = cacheKey.startsWith('postseason-');
+    const weekMatch = cacheKey.match(/week-(\d+)/);
+    const weekNum = parseInt(weekMatch ? weekMatch[1] : '1');
+    const seasonType = isPostseason ? 3 : 2;
+    return await fetchNFLDataForCache(cacheKey, seasonType, weekNum);
+  },
+  () => sportsCache.nfl.activeWeeks,
+  (key) => key
+);
+
+// NCAA Football Adaptive Polling
+const pollNCAA = createAdaptivePoller(
+  'ncaa',
+  async (cacheKey) => {
+    const isBowlSeason = cacheKey === 'bowl-season' || cacheKey.startsWith('bowl');
+    const weekMatch = cacheKey.match(/week-(\d+)/);
+    const weekNum = parseInt(weekMatch ? weekMatch[1] : '1');
+    const seasonType = isBowlSeason ? 3 : 2;
+    return await fetchNCAADataForCache(cacheKey, seasonType, weekNum);
+  },
+  () => sportsCache.ncaa.activeWeeks,
+  (key) => key
+);
+
+// NBA Adaptive Polling
+const pollNBA = createAdaptivePoller(
+  'nba',
+  async (date) => await fetchNBADataForCache(date),
+  () => sportsCache.nba.activeDates,
+  (date) => `date-${date}`
+);
+
+// NCAAB Adaptive Polling
+const pollNCAAB = createAdaptivePoller(
+  'ncaab',
+  async (date) => await fetchNCAABDataForCache(date),
+  () => sportsCache.ncaab.activeDates,
+  (date) => `date-${date}`
+);
+
+// MLB Adaptive Polling
+const pollMLB = createAdaptivePoller(
+  'mlb',
+  async (date) => await fetchMLBDataForCache(date),
+  () => sportsCache.mlb.activeDates,
+  (date) => `date-${date}`
+);
+
+// NHL Adaptive Polling
+const pollNHL = createAdaptivePoller(
+  'nhl',
+  async (date) => await fetchNHLDataForCache(date),
+  () => sportsCache.nhl.activeDates,
+  (date) => `date-${date}`
+);
+
+// Start all pollers
+function startAdaptivePolling() {
+  console.log('');
+  console.log('🔄 ====== ADAPTIVE POLLING SYSTEM INITIALIZED ======');
+  console.log('📊 Polling intervals adjust based on game state:');
+  console.log('   • Critical (close/final/OT): 15 seconds');
+  console.log('   • Live games: 30 seconds');
+  console.log('   • Starting soon (<1hr): 2 minutes');
+  console.log('   • Upcoming (>1hr): 5 minutes');
+  console.log('   • No games: Idle check every 10 minutes');
+  console.log('🔄 ==================================================');
+  console.log('');
+
+  // Start each poller with slight offset to avoid thundering herd
+  setTimeout(pollNFL, 1000);
+  setTimeout(pollNCAA, 2000);
+  setTimeout(pollNBA, 3000);
+  setTimeout(pollNCAAB, 4000);
+  setTimeout(pollMLB, 5000);
+  setTimeout(pollNHL, 6000);
+}
+
+// Initialize adaptive polling
+startAdaptivePolling();
 
 // ============================================
 // WATCHDOG TIMER - AUTO RECOVERY
