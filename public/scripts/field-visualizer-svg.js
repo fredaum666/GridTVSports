@@ -353,10 +353,11 @@ class SVGFieldVisualizer {
   }
 
   getOneYardLines() {
-    // Generate 1-yard lines with perspective
+    // TV Performance: Only generate 5-yard lines (9 lines instead of 90)
+    // This reduces SVG complexity significantly for better rendering performance
     const lines = [];
-    for (let yard = 1; yard <= 99; yard++) {
-      if (yard % 10 === 0) continue; // Skip 10-yard lines
+    for (let yard = 5; yard <= 95; yard += 5) {
+      if (yard % 10 === 0) continue; // Skip 10-yard lines (already drawn separately)
 
       const { topX, bottomX } = this.yardToCoords(yard);
       lines.push(`<line class="oneYardLine" x1="${topX}" y1="26" x2="${bottomX}" y2="86"/>`);

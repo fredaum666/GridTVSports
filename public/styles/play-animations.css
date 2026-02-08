@@ -132,6 +132,7 @@
   100% { opacity: 0; }
 }
 
+/* TV Performance: Use pseudo-element glow instead of expensive filter animations */
 .touchdown-container {
   position: relative;
   display: flex;
@@ -145,14 +146,35 @@
   width: clamp(80px, 20vmin, 200px);
   height: clamp(80px, 20vmin, 200px);
   object-fit: contain;
-  animation: touchdownLogoEntry 0.8s ease-out, touchdownLogoPulse 1.5s ease-in-out infinite 0.8s;
-  filter: drop-shadow(0 0 30px #fbbf24) drop-shadow(0 0 60px #22c55e);
+  animation: touchdownLogoEntry 0.8s ease-out, touchdownLogoPulseOptimized 1.5s ease-in-out infinite 0.8s;
+  position: relative;
+  z-index: 2;
 }
 
 .touchdown-fallback-icon {
   font-size: clamp(4rem, 18vmin, 10rem);
-  animation: touchdownLogoEntry 0.8s ease-out, touchdownLogoPulse 1.5s ease-in-out infinite 0.8s;
-  filter: drop-shadow(0 0 30px #fbbf24) drop-shadow(0 0 60px #22c55e);
+  animation: touchdownLogoEntry 0.8s ease-out, touchdownLogoPulseOptimized 1.5s ease-in-out infinite 0.8s;
+  position: relative;
+  z-index: 2;
+}
+
+/* GPU-friendly glow using pseudo-element with radial gradient */
+.touchdown-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(ellipse at center,
+    rgba(251, 191, 36, 0.5) 0%,
+    rgba(34, 197, 94, 0.3) 35%,
+    transparent 70%);
+  z-index: 1;
+  pointer-events: none;
+  animation: touchdownGlowPulse 1.5s ease-in-out infinite 0.8s;
+  border-radius: 50%;
 }
 
 @keyframes touchdownLogoEntry {
@@ -161,15 +183,16 @@
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
-@keyframes touchdownLogoPulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 20px #fbbf24) drop-shadow(0 0 40px #22c55e);
-  }
-  50% {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 35px #fbbf24) drop-shadow(0 0 60px #22c55e);
-  }
+/* Transform-only animation for GPU acceleration */
+@keyframes touchdownLogoPulseOptimized {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Opacity-based glow pulse (GPU-friendly) */
+@keyframes touchdownGlowPulse {
+  0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
 }
 
 /* ============================================
@@ -185,6 +208,7 @@
   text-shadow: 0 0 20px #3b82f6;
 }
 
+/* TV Performance: Field goal with GPU-friendly pseudo-element glow */
 .field-goal-container {
   position: relative;
   display: flex;
@@ -193,34 +217,60 @@
   justify-content: center;
 }
 
+.field-goal-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at center,
+    rgba(59, 130, 246, 0.4) 0%,
+    rgba(96, 165, 250, 0.2) 40%,
+    transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+  animation: fieldGoalGlowPulse 1s ease-in-out infinite alternate;
+  border-radius: 50%;
+}
+
 .yframe-image {
   width: clamp(60px, 12vmin, 120px);
   height: auto;
-  filter: drop-shadow(0 0 20px #3b82f6) drop-shadow(0 0 40px #3b82f6);
-  animation: yframeGlow 1s ease-in-out infinite alternate;
+  position: relative;
+  z-index: 1;
 }
 
 .spinning-football {
   position: absolute;
   font-size: clamp(1.5rem, 4vmin, 3rem);
-  animation: footballSpin 0.5s linear infinite, footballArc 1.5s ease-out forwards;
-  filter: drop-shadow(0 0 10px #8b4513);
+  bottom: -50px;
+  left: 50%;
+  z-index: 2;
+  animation: footballSpinAndArc 1.5s ease-out forwards;
 }
 
-@keyframes yframeGlow {
-  0% { filter: drop-shadow(0 0 20px #3b82f6) drop-shadow(0 0 40px #3b82f6); }
-  100% { filter: drop-shadow(0 0 30px #60a5fa) drop-shadow(0 0 60px #60a5fa); }
+/* GPU-friendly glow pulse using opacity */
+@keyframes fieldGoalGlowPulse {
+  0% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
 }
 
-@keyframes footballSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes footballArc {
-  0% { bottom: -50px; opacity: 1; }
-  50% { bottom: 30%; opacity: 1; }
-  100% { bottom: 80%; opacity: 0; }
+/* Combined spin and arc using transform only (GPU-accelerated) */
+@keyframes footballSpinAndArc {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50%) translateY(calc(-30vh - 50px)) rotate(540deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(calc(-80vh - 50px)) rotate(1080deg);
+    opacity: 0;
+  }
 }
 
 /* ============================================
@@ -475,10 +525,12 @@
   margin-bottom: clamp(10px, 2vmin, 20px);
 }
 
+/* TV Performance: Sack icon with reduced filter complexity */
 .sack-icon {
   font-size: clamp(3rem, 14vmin, 8rem);
   animation: sackImpact 0.6s ease-out, sackShake 0.5s ease-in-out 0.6s;
-  filter: drop-shadow(0 0 20px #a855f7) drop-shadow(0 0 40px #ef4444);
+  /* Simpler text-shadow instead of expensive drop-shadow */
+  text-shadow: 0 0 15px #a855f7, 0 0 25px #ef4444;
 }
 
 .sack-stars {
@@ -575,56 +627,45 @@
   pointer-events: none;
 }
 
+/* TV Performance: Punt ball using transform-only animation (GPU-accelerated) */
 .punt-ball {
   position: absolute;
   font-size: clamp(2rem, 6vmin, 4rem);
   left: 5%;
   bottom: 30%;
-  animation: puntBallFly 2s ease-in-out forwards;
-  filter: drop-shadow(0 0 20px #f59e0b) drop-shadow(0 0 40px #f59e0b);
+  animation: puntBallFlyOptimized 2s ease-in-out forwards;
+  /* Reduced blur for better performance */
+  text-shadow: 0 0 15px #f59e0b;
 }
 
-@keyframes puntBallFly {
+/* Transform-only animation for GPU acceleration */
+@keyframes puntBallFlyOptimized {
   0% {
-    left: 5%;
-    bottom: 30%;
-    transform: rotate(0deg) scale(1);
+    transform: translate(0, 0) rotate(0deg) scale(1);
     opacity: 0;
   }
   10% {
-    left: 10%;
-    bottom: 35%;
-    transform: rotate(90deg) scale(1.1);
+    transform: translate(5vw, -5vh) rotate(90deg) scale(1.1);
     opacity: 1;
   }
   30% {
-    left: 30%;
-    bottom: 70%;
-    transform: rotate(270deg) scale(1.2);
+    transform: translate(25vw, -40vh) rotate(270deg) scale(1.2);
     opacity: 1;
   }
   50% {
-    left: 50%;
-    bottom: 80%;
-    transform: rotate(450deg) scale(1.1);
+    transform: translate(45vw, -50vh) rotate(450deg) scale(1.1);
     opacity: 1;
   }
   70% {
-    left: 70%;
-    bottom: 65%;
-    transform: rotate(630deg) scale(1);
+    transform: translate(65vw, -35vh) rotate(630deg) scale(1);
     opacity: 1;
   }
   90% {
-    left: 85%;
-    bottom: 35%;
-    transform: rotate(810deg) scale(0.9);
+    transform: translate(80vw, -5vh) rotate(810deg) scale(0.9);
     opacity: 1;
   }
   100% {
-    left: 92%;
-    bottom: 25%;
-    transform: rotate(900deg) scale(0.8);
+    transform: translate(87vw, 5vh) rotate(900deg) scale(0.8);
     opacity: 0;
   }
 }
@@ -641,7 +682,9 @@
   text-shadow: 0 0 20px #fbbf24;
 }
 
+/* TV Performance: Timeout with GPU-friendly animation */
 .timeout-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -649,12 +692,31 @@
   gap: clamp(10px, 2vh, 20px);
 }
 
+.timeout-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130%;
+  height: 130%;
+  background: radial-gradient(ellipse at center,
+    rgba(251, 191, 36, 0.4) 0%,
+    rgba(251, 191, 36, 0.15) 50%,
+    transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+  animation: timeoutGlowPulse 1s ease-in-out infinite;
+  border-radius: 50%;
+}
+
 .timeout-team-logo {
   width: clamp(60px, 15vmin, 150px);
   height: clamp(60px, 15vmin, 150px);
   object-fit: contain;
-  animation: timeoutPulse 1s ease-in-out infinite;
-  filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.8));
+  animation: timeoutPulseOptimized 1s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
 }
 
 .timeout-team-name {
@@ -662,11 +724,19 @@
   font-weight: 700;
   color: #fbbf24;
   text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  position: relative;
+  z-index: 1;
 }
 
-@keyframes timeoutPulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.8)); }
-  50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(251, 191, 36, 1)); }
+/* Transform-only animation (GPU-accelerated) */
+@keyframes timeoutPulseOptimized {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes timeoutGlowPulse {
+  0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
 }
 
 /* ============================================
@@ -925,19 +995,21 @@
   height: clamp(80px, 20vmin, 160px);
 }
 
+/* TV Performance: Home run ball with text-shadow instead of filter */
 .home-run-ball {
   font-size: clamp(2.5rem, 8vmin, 5rem);
   position: absolute;
   animation: homeRunBallFly 1.5s ease-out forwards;
-  filter: drop-shadow(0 0 15px #fbbf24);
+  text-shadow: 0 0 10px #fbbf24;
 }
 
+/* TV Performance: Home run explosion with text-shadow instead of filter */
 .home-run-explosion {
   font-size: clamp(4rem, 12vmin, 8rem);
   position: absolute;
   opacity: 0;
   animation: homeRunExplosion 1.5s ease-out 0.8s forwards;
-  filter: drop-shadow(0 0 30px #fbbf24) drop-shadow(0 0 60px #f59e0b);
+  text-shadow: 0 0 20px #fbbf24, 0 0 40px #f59e0b;
 }
 
 @keyframes homeRunBallFly {

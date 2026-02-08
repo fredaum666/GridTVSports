@@ -151,10 +151,17 @@
   contain: layout style paint;
 }
 
+/* Remove static will-change to reduce GPU memory usage on TV devices */
+/* will-change should only be applied during active animations */
 .fullscreen-game-card,
 .fullscreen-game-slot {
   contain: layout style;
-  will-change: transform, opacity;
+  /* REMOVED: will-change: transform, opacity; - causes 50+ GPU layers on 8-game grid */
+}
+
+/* Only apply will-change during active animations */
+.fullscreen-game-card.animating {
+  will-change: transform;
 }
 
 /* TV Mode - Optimized transitions for smoother animations */
@@ -169,10 +176,10 @@ body.tv-mode .fullscreen-game-card.focused {
   transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
 }
 
-/* GPU-accelerated transforms for card elements */
+/* GPU-accelerated transforms for card elements - use translateZ(0) for promotion */
 .fs-card-team-logo,
 .fullscreen-team-logo {
-  will-change: transform;
+  /* REMOVED: will-change: transform; - memory overhead on TV */
   transform: translateZ(0);
 }
 

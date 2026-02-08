@@ -5986,6 +5986,49 @@
         let prevGameData = new Map(); // Store previous game state for animation detection
         let isFirstRefresh = true; // Skip animations on first refresh (data baseline)
 
+        // ============================================
+        // TV PERFORMANCE OPTIMIZATIONS
+        // ============================================
+
+        // Debounced localStorage writes - prevents synchronous I/O blocking main thread
+        let localStorageWriteTimeout = null;
+        const LOCALSTORAGE_DEBOUNCE_MS = 5000; // Write at most every 5 seconds
+
+        function debouncedLocalStorageSave() {
+            if (localStorageWriteTimeout) {
+                clearTimeout(localStorageWriteTimeout);
+            }
+            localStorageWriteTimeout = setTimeout(() => {
+                try {
+                    localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));
+                } catch (e) {
+                    console.warn('[SportsBar] localStorage write failed:', e);
+                }
+                localStorageWriteTimeout = null;
+            }, LOCALSTORAGE_DEBOUNCE_MS);
+        }
+
+        // Clean up finished games from prevGameData to prevent memory leak
+        function cleanupFinishedGameData() {
+            const activeGameIds = new Set(games.map(g => g.id));
+            let cleanedCount = 0;
+
+            for (const [gameId] of prevGameData) {
+                if (!activeGameIds.has(gameId)) {
+                    prevGameData.delete(gameId);
+                    // Also clean up animation queues if they exist
+                    if (typeof animationQueues !== 'undefined' && animationQueues.has(gameId)) {
+                        animationQueues.delete(gameId);
+                    }
+                    cleanedCount++;
+                }
+            }
+
+            if (cleanedCount > 0) {
+                console.log(`[SportsBar] Cleaned up ${cleanedCount} finished game(s) from memory`);
+            }
+        }
+
         function startAutoRefresh() {
             // Initialize Socket.io for real-time updates
             initGameSocketForSportsBar();
@@ -6141,8 +6184,11 @@
             // Update stats modals
             updateStatsModals();
 
-            // Update localStorage
-            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));
+            // TV Performance: Debounced localStorage write
+            debouncedLocalStorageSave();
+
+            // Clean up memory from finished games
+            cleanupFinishedGameData();
 
             // Check if all games are finished
             const activeGames = games.filter(g => g.state !== 'post');
@@ -6293,8 +6339,11 @@
             // Update stats modals for NFL games (show/hide based on play state)
             updateStatsModals();
 
-            // Update localStorage so TV Home has latest data
-            localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(games));
+            // TV Performance: Debounced localStorage write
+            debouncedLocalStorageSave();
+
+            // Clean up memory from finished games
+            cleanupFinishedGameData();
 
             // After first refresh, enable animations for subsequent refreshes
             if (isFirstRefresh) {

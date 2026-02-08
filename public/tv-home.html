@@ -4185,6 +4185,7 @@
         let currentRowIndex = 0;
         let currentColIndex = 0;
         let rows = []; // Array of { name: string, elements: HTMLElement[] }
+        let previouslyFocusedElement = null; // Track for O(1) focus removal (INP optimization)
 
         // Auth state
         let socket = null;
@@ -4914,8 +4915,11 @@
         }
 
         function setHomeFocus() {
-            // Remove all focus
-            document.querySelectorAll('.focusable').forEach(el => el.classList.remove('focused'));
+            // INP Optimization: Only remove focus from the previously focused element (O(1))
+            // Instead of querying all focusable elements which caused 744ms input lag
+            if (previouslyFocusedElement) {
+                previouslyFocusedElement.classList.remove('focused');
+            }
 
             // Clear any existing league focus timer
             if (leagueFocusTimer) {
@@ -4934,6 +4938,7 @@
             const el = row.elements[currentColIndex];
             if (el) {
                 el.classList.add('focused');
+                previouslyFocusedElement = el; // Track for next focus change
                 el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
                 // Auto-filter: If focused on a league card, start timer to auto-select after 1s

@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import android.os.SystemClock
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
@@ -206,8 +207,8 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Screen: ${screenWidth}x${screenHeight}, Density: $density")
         Log.d("MainActivity", "CSS Viewport will be: ${(screenWidth / density).toInt()}x${(screenHeight / density).toInt()}")
 
-        // Enable hardware acceleration for smoother rendering
-        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+        // Hardware acceleration enabled via manifest android:hardwareAccelerated="true"
+        // Removed explicit LAYER_TYPE_HARDWARE to avoid doubling VRAM usage on TV devices
 
         // Enable WebView debugging only for debug builds
         if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
@@ -240,8 +241,9 @@ class MainActivity : AppCompatActivity() {
             // Disable text auto-sizing
             textZoom = 100
 
-            // Performance: Pre-raster tiles for smoother scrolling (API 23+)
-            offscreenPreRaster = true
+            // Performance: Disable pre-raster for TV (fullscreen, no scrolling)
+            // Saves GPU memory on low-RAM TV devices
+            offscreenPreRaster = false
 
             // Performance: Disable safe browsing for faster page loads
             safeBrowsingEnabled = false
@@ -381,8 +383,14 @@ class MainActivity : AppCompatActivity() {
         }, 5000)
     }
 
-    // Handle D-pad remote control
+    // D-pad debouncing to prevent rapid-fire events from freezing UI
+    private var lastDpadEventTime = 0L
+    private val dpadDebounceMs = 150L
+
+    // Handle D-pad remote control with debouncing for TV performance
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        val now = SystemClock.elapsedRealtime()
+
         when (keyCode) {
             KeyEvent.KEYCODE_BACK -> {
                 if (webView.canGoBack()) {
@@ -390,11 +398,19 @@ class MainActivity : AppCompatActivity() {
                     return true
                 }
             }
-            // Pass D-pad events to WebView
+            // D-pad navigation keys - debounce to prevent UI thrashing
             KeyEvent.KEYCODE_DPAD_UP,
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_DPAD_LEFT,
-            KeyEvent.KEYCODE_DPAD_RIGHT,
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (now - lastDpadEventTime < dpadDebounceMs) {
+                    return true // Swallow rapid repeats
+                }
+                lastDpadEventTime = now
+                webView.dispatchKeyEvent(event)
+                return true
+            }
+            // Selection keys - pass through immediately (no debounce)
             KeyEvent.KEYCODE_DPAD_CENTER,
             KeyEvent.KEYCODE_ENTER -> {
                 webView.dispatchKeyEvent(event)

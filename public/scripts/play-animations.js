@@ -10,6 +10,14 @@ const animationQueues = new Map();
 // Track when fullscreen was entered to skip initial animations
 let fullscreenEnteredAt = null;
 
+// ============================================
+// TV PERFORMANCE: Global Animation Throttling
+// ============================================
+// Limit concurrent animations to prevent GPU overload on TV devices
+const MAX_CONCURRENT_ANIMATIONS = 3;
+let activeAnimationCount = 0;
+const pendingAnimationCards = new Set();
+
 /**
  * Set the fullscreen entry time (call this when entering fullscreen mode)
  * @param {number} timestamp - The timestamp when fullscreen was entered
@@ -188,11 +196,25 @@ function hasQueuedAnimations(cardId) {
 
 function processNextAnimation(card, cardId) {
   const queue = animationQueues.get(cardId);
-  if (!queue || queue.length === 0) return;
+  if (!queue || queue.length === 0) {
+    pendingAnimationCards.delete(cardId);
+    return;
+  }
+
+  // TV Performance: Check global animation limit
+  if (activeAnimationCount >= MAX_CONCURRENT_ANIMATIONS) {
+    pendingAnimationCards.add(cardId);
+    return; // Will be triggered when another animation completes
+  }
+
+  activeAnimationCount++;
+  pendingAnimationCards.delete(cardId);
 
   const anim = queue[0];
   showPlayAnimationDirect(card, anim.playType, anim.playText, anim.teamName, anim.recoveryInfo, anim.recoveryLogo, anim.isNegated, () => {
-    // Animation finished, remove from queue and process next
+    // Animation finished, decrement counter and remove from queue
+    activeAnimationCount--;
+
     queue.shift();
     if (queue.length > 0) {
       processNextAnimation(card, cardId);
@@ -201,6 +223,7 @@ function processNextAnimation(card, cardId) {
       // BUT if there's a pending turnover callback, wait for play text modal instead
       if (pendingTurnoverCallbacks.has(cardId)) {
         // Don't call callback now - play text modal's onComplete will handle it
+        triggerNextPendingAnimation();
         return;
       }
       const callback = animationCompleteCallbacks.get(cardId);
@@ -208,8 +231,24 @@ function processNextAnimation(card, cardId) {
         callback();
         animationCompleteCallbacks.delete(cardId); // Clear callback after calling
       }
+      // Trigger next pending card's animation
+      triggerNextPendingAnimation();
     }
   });
+}
+
+// TV Performance: Trigger the next pending card's animation when one completes
+function triggerNextPendingAnimation() {
+  if (pendingAnimationCards.size === 0) return;
+
+  const nextCardId = pendingAnimationCards.values().next().value;
+  const nextCard = document.querySelector(`.fullscreen-game-card[data-game-id="${nextCardId}"]`);
+  if (nextCard) {
+    processNextAnimation(nextCard, nextCardId);
+  } else {
+    pendingAnimationCards.delete(nextCardId);
+    triggerNextPendingAnimation(); // Try next one
+  }
 }
 
 /**
