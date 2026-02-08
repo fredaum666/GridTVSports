@@ -4219,7 +4219,7 @@
             }
         }
 
-        // NBA Team Colors
+        // NBA Team Colors (with ESPN abbreviation aliases)
         const nbaTeamColors = {
             'ATL': '#E03A3E', 'BOS': '#007A33', 'BKN': '#000000', 'CHA': '#1D1160',
             'CHI': '#CE1141', 'CLE': '#6F263D', 'DAL': '#00538C', 'DEN': '#0E2240',
@@ -4228,14 +4228,17 @@
             'MIL': '#00471B', 'MIN': '#0C2340', 'NOP': '#0C2340', 'NYK': '#006BB6',
             'OKC': '#007AC1', 'ORL': '#0077C0', 'PHI': '#006BB6', 'PHX': '#1D1160',
             'POR': '#E03A3E', 'SAC': '#5A2D81', 'SAS': '#C4CED4', 'TOR': '#CE1141',
-            'UTA': '#002B5C', 'WAS': '#002B5C'
+            'UTA': '#002B5C', 'WAS': '#002B5C',
+            // ESPN abbreviation aliases
+            'BRK': '#000000', 'NO': '#0C2340', 'PHO': '#1D1160', 'GS': '#1D428A',
+            'SA': '#C4CED4', 'NY': '#006BB6', 'UTAH': '#002B5C', 'WSH': '#002B5C'
         };
 
         function getNbaTeamColor(abbr) {
             return nbaTeamColors[abbr] || '#6366f1';
         }
 
-        // NFL Team Colors
+        // NFL Team Colors (with ESPN abbreviation aliases)
         const nflTeamColors = {
             'ARI': '#97233F', 'ATL': '#A71930', 'BAL': '#241773', 'BUF': '#00338D',
             'CAR': '#0085CA', 'CHI': '#C83803', 'CIN': '#FB4F14', 'CLE': '#311D00',
@@ -4244,14 +4247,16 @@
             'LAC': '#0080C6', 'LAR': '#003594', 'LV': '#000000', 'MIA': '#008E97',
             'MIN': '#4F2683', 'NE': '#002244', 'NO': '#D3BC8D', 'NYG': '#0B2265',
             'NYJ': '#125740', 'PHI': '#004C54', 'PIT': '#FFB612', 'SF': '#AA0000',
-            'SEA': '#002244', 'TB': '#D50A0A', 'TEN': '#0C2340', 'WSH': '#5A1414'
+            'SEA': '#002244', 'TB': '#D50A0A', 'TEN': '#0C2340', 'WSH': '#5A1414',
+            // ESPN abbreviation aliases
+            'LA': '#003594', 'WAS': '#5A1414', 'JAC': '#006778'
         };
 
         function getNflTeamColor(abbr) {
             return nflTeamColors[abbr] || '#6366f1';
         }
 
-        // NHL Team Colors
+        // NHL Team Colors (with ESPN abbreviation aliases)
         const nhlTeamColors = {
             'ANA': '#CF4520', 'ARI': '#8C2633', 'BOS': '#FFB81C', 'BUF': '#002654',
             'CGY': '#C8102E', 'CAR': '#CC0000', 'CHI': '#CF0A2C', 'COL': '#6F263D',
@@ -4260,14 +4265,18 @@
             'NSH': '#FFB81C', 'NJD': '#CE1126', 'NYI': '#00539B', 'NYR': '#0038A8',
             'OTT': '#C8102E', 'PHI': '#F74902', 'PIT': '#FCB514', 'SJS': '#006D75',
             'SEA': '#001628', 'STL': '#002F87', 'TBL': '#002868', 'TOR': '#00205B',
-            'VAN': '#00205B', 'VGK': '#B4975A', 'WSH': '#C8102E', 'WPG': '#041E42'
+            'VAN': '#00205B', 'VGK': '#B4975A', 'WSH': '#C8102E', 'WPG': '#041E42',
+            'UTA': '#71AFE5', // Utah Hockey Club
+            // ESPN abbreviation aliases
+            'LA': '#A2AAAD', 'NJ': '#CE1126', 'TB': '#002868', 'SJ': '#006D75',
+            'VEG': '#B4975A', 'WAS': '#C8102E'
         };
 
         function getNhlTeamColor(abbr) {
             return nhlTeamColors[abbr] || '#6366f1';
         }
 
-        // MLB Team Colors
+        // MLB Team Colors (with ESPN abbreviation aliases)
         const mlbTeamColors = {
             'ARI': '#A71930', 'ATL': '#CE1141', 'BAL': '#DF4601', 'BOS': '#BD3039',
             'CHC': '#0E3386', 'CWS': '#27251F', 'CIN': '#C6011F', 'CLE': '#00385D',
@@ -4276,7 +4285,9 @@
             'MIN': '#002B5C', 'NYM': '#002D72', 'NYY': '#003087', 'OAK': '#003831',
             'PHI': '#E81828', 'PIT': '#27251F', 'SD': '#2F241D', 'SF': '#FD5A1E',
             'SEA': '#0C2C56', 'STL': '#C41E3A', 'TB': '#092C5C', 'TEX': '#003278',
-            'TOR': '#134A8E', 'WSH': '#AB0003'
+            'TOR': '#134A8E', 'WSH': '#AB0003',
+            // ESPN abbreviation aliases
+            'CHW': '#27251F', 'WAS': '#AB0003', 'TBR': '#092C5C', 'AZ': '#A71930'
         };
 
         function getMlbTeamColor(abbr) {

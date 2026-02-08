@@ -42,7 +42,9 @@ export const NFL_TEAM_COLORS = {
     'TB': { primary: '#D50A0A', secondary: '#FF7900' },
     'TEN': { primary: '#0C2340', secondary: '#4B92DB' },
     'WSH': { primary: '#5A1414', secondary: '#FFB612' },
-    'WAS': { primary: '#5A1414', secondary: '#FFB612' } // Alias for WSH (ESPN API uses WAS)
+    'WAS': { primary: '#5A1414', secondary: '#FFB612' }, // Alias for WSH
+    // ESPN abbreviation aliases
+    'JAC': { primary: '#006778', secondary: '#9F792C' } // Alias for JAX (Jacksonville)
 };
 
 // NCAA Football/Basketball Team Colors (100+ teams)
@@ -194,7 +196,16 @@ export const NBA_TEAM_COLORS = {
     'SAS': { primary: '#C4CED4', secondary: '#000000' },
     'TOR': { primary: '#CE1141', secondary: '#000000' },
     'UTA': { primary: '#002B5C', secondary: '#00471B' },
-    'WAS': { primary: '#002B5C', secondary: '#E31837' }
+    'WAS': { primary: '#002B5C', secondary: '#E31837' },
+    // ESPN abbreviation aliases
+    'BRK': { primary: '#000000', secondary: '#FFFFFF' },
+    'NO': { primary: '#0C2340', secondary: '#C8102E' },
+    'PHO': { primary: '#1D1160', secondary: '#E56020' },
+    'GS': { primary: '#1D428A', secondary: '#FFC72C' },
+    'SA': { primary: '#C4CED4', secondary: '#000000' },
+    'NY': { primary: '#006BB6', secondary: '#F58426' },
+    'UTAH': { primary: '#002B5C', secondary: '#00471B' },
+    'WSH': { primary: '#002B5C', secondary: '#E31837' }
 };
 
 // NHL Team Colors (32 teams)
@@ -231,7 +242,14 @@ export const NHL_TEAM_COLORS = {
     'VAN': { primary: '#00205B', secondary: '#00843D' },
     'VGK': { primary: '#B4975A', secondary: '#333F42' },
     'WSH': { primary: '#C8102E', secondary: '#041E42' },
-    'WPG': { primary: '#041E42', secondary: '#004C97' }
+    'WPG': { primary: '#041E42', secondary: '#004C97' },
+    // ESPN abbreviation aliases
+    'LA': { primary: '#111111', secondary: '#A2AAAD' },  // Alias for LAK (Los Angeles Kings)
+    'NJ': { primary: '#CE1126', secondary: '#000000' },  // Alias for NJD (New Jersey Devils)
+    'TB': { primary: '#002868', secondary: '#FFFFFF' },  // Alias for TBL (Tampa Bay Lightning)
+    'SJ': { primary: '#006D75', secondary: '#EA7200' },  // Alias for SJS (San Jose Sharks)
+    'VEG': { primary: '#B4975A', secondary: '#333F42' }, // Alias for VGK (Vegas Golden Knights)
+    'WAS': { primary: '#C8102E', secondary: '#041E42' }  // Alias for WSH (Washington Capitals)
 };
 
 // MLB Team Colors (30 teams)
@@ -265,7 +283,12 @@ export const MLB_TEAM_COLORS = {
     'TB': { primary: '#092C5C', secondary: '#8FBCE6' },
     'TEX': { primary: '#003278', secondary: '#C0111F' },
     'TOR': { primary: '#134A8E', secondary: '#E8291C' },
-    'WSH': { primary: '#AB0003', secondary: '#14225A' }
+    'WSH': { primary: '#AB0003', secondary: '#14225A' },
+    // ESPN abbreviation aliases
+    'CHW': { primary: '#27251F', secondary: '#C4CED4' }, // Alias for CWS (Chicago White Sox)
+    'WAS': { primary: '#AB0003', secondary: '#14225A' }, // Alias for WSH (Washington Nationals)
+    'TBR': { primary: '#092C5C', secondary: '#8FBCE6' }, // Alias for TB (Tampa Bay Rays)
+    'AZ': { primary: '#A71930', secondary: '#E3D4AD' }   // Alias for ARI (Arizona Diamondbacks)
 };
 
 // Default colors for unknown teams

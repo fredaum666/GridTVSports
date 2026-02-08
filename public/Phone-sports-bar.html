@@ -895,6 +895,64 @@
             letter-spacing: 1px;
         }
 
+        /* Score increment animation */
+        .fs-sb-score.score-fading-out {
+            animation: scoreFadeOut 0.3s ease forwards;
+        }
+
+        .fs-sb-score.score-fading-in {
+            animation: scoreFadeIn 0.4s ease forwards;
+        }
+
+        @keyframes scoreFadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+
+        @keyframes scoreFadeIn {
+            0% { opacity: 0; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .score-increment {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(1rem, 3vmin, 1.6rem);
+            font-weight: 900;
+            color: #22c55e;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+            text-shadow:
+                0 0 10px #22c55e,
+                0 0 20px #22c55e,
+                0 0 30px #22c55e,
+                0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .score-increment.active {
+            animation: scoreIncrementSequence 2.8s ease forwards;
+        }
+
+        @keyframes scoreIncrementSequence {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            10% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+            15% { transform: translate(-50%, -50%) scale(1); }
+            20% { text-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
+            35% { text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e, 0 0 30px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
+            50% { text-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
+            65% { text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e, 0 0 30px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
+            80% { text-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
+            85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        .fs-sb-score-box.score-animating {
+            overflow: visible;
+        }
+
         /* Team info sections inside scoreboard - team color backgrounds */
         .fs-sb-team-section {
             flex: 1;
@@ -2992,7 +3050,8 @@
             'TB': { primary: '#D50A0A', secondary: '#FF7900' },
             'TEN': { primary: '#0C2340', secondary: '#4B92DB' },
             'WSH': { primary: '#5A1414', secondary: '#FFB612' },
-            'WAS': { primary: '#5A1414', secondary: '#FFB612' } // ESPN uses WAS for Washington
+            'WAS': { primary: '#5A1414', secondary: '#FFB612' }, // ESPN uses WAS for Washington
+            'JAC': { primary: '#006778', secondary: '#9F792C' } // ESPN alias for JAX
         };
 
         // NCAA Football Team Colors (College)
@@ -3150,7 +3209,16 @@
             'SAS': { primary: '#C4CED4', secondary: '#000000' },
             'TOR': { primary: '#CE1141', secondary: '#000000' },
             'UTA': { primary: '#002B5C', secondary: '#00471B' },
-            'WAS': { primary: '#002B5C', secondary: '#E31837' }
+            'WAS': { primary: '#002B5C', secondary: '#E31837' },
+            // ESPN abbreviation aliases
+            'BRK': { primary: '#000000', secondary: '#FFFFFF' },
+            'NO': { primary: '#0C2340', secondary: '#C8102E' },
+            'PHO': { primary: '#1D1160', secondary: '#E56020' },
+            'GS': { primary: '#1D428A', secondary: '#FFC72C' },
+            'SA': { primary: '#C4CED4', secondary: '#000000' },
+            'NY': { primary: '#006BB6', secondary: '#F58426' },
+            'UTAH': { primary: '#002B5C', secondary: '#00471B' },
+            'WSH': { primary: '#002B5C', secondary: '#E31837' }
         };
 
         const NHL_TEAM_COLORS = {
@@ -3186,7 +3254,14 @@
             'VAN': { primary: '#00205B', secondary: '#00843D' },
             'VGK': { primary: '#B4975A', secondary: '#333F42' },
             'WSH': { primary: '#C8102E', secondary: '#041E42' },
-            'WPG': { primary: '#041E42', secondary: '#004C97' }
+            'WPG': { primary: '#041E42', secondary: '#004C97' },
+            // ESPN abbreviation aliases
+            'LA': { primary: '#111111', secondary: '#A2AAAD' },   // Los Angeles Kings
+            'NJ': { primary: '#CE1126', secondary: '#000000' },   // New Jersey Devils
+            'TB': { primary: '#002868', secondary: '#FFFFFF' },   // Tampa Bay Lightning
+            'SJ': { primary: '#006D75', secondary: '#EA7200' },   // San Jose Sharks
+            'VEG': { primary: '#B4975A', secondary: '#333F42' },  // Vegas Golden Knights
+            'WAS': { primary: '#C8102E', secondary: '#041E42' }   // Washington Capitals
         };
 
         const MLB_TEAM_COLORS = {
@@ -3219,7 +3294,12 @@
             'TB': { primary: '#092C5C', secondary: '#8FBCE6' },
             'TEX': { primary: '#003278', secondary: '#C0111F' },
             'TOR': { primary: '#134A8E', secondary: '#E8291C' },
-            'WSH': { primary: '#AB0003', secondary: '#14225A' }
+            'WSH': { primary: '#AB0003', secondary: '#14225A' },
+            // ESPN abbreviation aliases
+            'CHW': { primary: '#27251F', secondary: '#C4CED4' },  // Chicago White Sox
+            'WAS': { primary: '#AB0003', secondary: '#14225A' },  // Washington Nationals
+            'TBR': { primary: '#092C5C', secondary: '#8FBCE6' },  // Tampa Bay Rays
+            'AZ': { primary: '#A71930', secondary: '#E3D4AD' }    // Arizona Diamondbacks
         };
 
         // Get team colors for scoreboard
@@ -3452,6 +3532,62 @@
         }
 
         // ============================================
+        // SCORE INCREMENT ANIMATION
+        // ============================================
+        /**
+         * Animate a score change with increment display
+         * @param {Element} scoreBox - The .fs-sb-score-box element
+         * @param {number} oldScore - Previous score value
+         * @param {number} newScore - New score value
+         */
+        function animateScoreIncrement(scoreBox, oldScore, newScore) {
+            if (!scoreBox || oldScore === newScore) return;
+
+            const increment = newScore - oldScore;
+            if (increment <= 0) return; // Only animate score increases
+
+            const scoreEl = scoreBox.querySelector('.fs-sb-score');
+            if (!scoreEl) return;
+
+            // Check if animation is already running
+            if (scoreBox.classList.contains('score-animating')) return;
+
+            // Create or get increment element
+            let incrementEl = scoreBox.querySelector('.score-increment');
+            if (!incrementEl) {
+                incrementEl = document.createElement('span');
+                incrementEl.className = 'score-increment';
+                scoreBox.appendChild(incrementEl);
+            }
+
+            incrementEl.textContent = `+${increment}`;
+            incrementEl.classList.remove('active');
+            scoreBox.classList.add('score-animating');
+
+            // Phase 1: Fade out current score (0-300ms)
+            scoreEl.classList.add('score-fading-out');
+
+            // Phase 2: Show increment after score fades (300ms)
+            setTimeout(() => {
+                incrementEl.classList.add('active');
+            }, 300);
+
+            // Phase 3: Update score text at 2.7s (before increment fades completely)
+            setTimeout(() => {
+                scoreEl.textContent = newScore;
+                scoreEl.classList.remove('score-fading-out');
+                scoreEl.classList.add('score-fading-in');
+            }, 2700);
+
+            // Phase 4: Clean up at 3.1s
+            setTimeout(() => {
+                scoreEl.classList.remove('score-fading-in');
+                scoreBox.classList.remove('score-animating');
+                incrementEl.classList.remove('active');
+            }, 3100);
+        }
+
+        // ============================================
         // RENDER GRID
         // ============================================
         // Mobile paging instance
@@ -3480,11 +3616,31 @@
                 const isFinal = game.state === 'post';
                 const isUpcoming = game.state === 'pre';
 
-                // Update scores
-                const awayScoreEl = card.querySelector('.fs-sb-score-box.away .fs-sb-score');
-                const homeScoreEl = card.querySelector('.fs-sb-score-box.home .fs-sb-score');
-                if (awayScoreEl) awayScoreEl.textContent = isUpcoming ? '-' : game.away.score;
-                if (homeScoreEl) homeScoreEl.textContent = isUpcoming ? '-' : game.home.score;
+                // Update scores with animation for score increases
+                const awayScoreBox = card.querySelector('.fs-sb-score-box.away');
+                const homeScoreBox = card.querySelector('.fs-sb-score-box.home');
+                const awayScoreEl = awayScoreBox?.querySelector('.fs-sb-score');
+                const homeScoreEl = homeScoreBox?.querySelector('.fs-sb-score');
+
+                if (awayScoreEl) {
+                    const oldAwayScore = parseInt(awayScoreEl.textContent) || 0;
+                    const newAwayScore = isUpcoming ? 0 : (parseInt(game.away.score) || 0);
+                    if (!isUpcoming && newAwayScore > oldAwayScore && awayScoreEl.textContent !== '-') {
+                        animateScoreIncrement(awayScoreBox, oldAwayScore, newAwayScore);
+                    } else {
+                        awayScoreEl.textContent = isUpcoming ? '-' : game.away.score;
+                    }
+                }
+
+                if (homeScoreEl) {
+                    const oldHomeScore = parseInt(homeScoreEl.textContent) || 0;
+                    const newHomeScore = isUpcoming ? 0 : (parseInt(game.home.score) || 0);
+                    if (!isUpcoming && newHomeScore > oldHomeScore && homeScoreEl.textContent !== '-') {
+                        animateScoreIncrement(homeScoreBox, oldHomeScore, newHomeScore);
+                    } else {
+                        homeScoreEl.textContent = isUpcoming ? '-' : game.home.score;
+                    }
+                }
 
                 // Update time/period
                 if (game.status) {
