@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GridTV Sports</title>
     <link rel="icon" type="image/png" href="/assets/logo.png">
+    <!-- TV Performance: Load only essential font weights -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=optional"
         rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <script src="/scripts/qrcode.min.js"></script>
@@ -20,10 +21,11 @@
         /* ================================ */
         :root {
             /* V2 Color Palette - Deep void with electric accents */
+            /* TV Performance: Solid colors instead of gradients */
             --bg-primary: #05080f;
             --bg-secondary: #0a1019;
-            --bg-card: linear-gradient(135deg, #0f1520 0%, #151d2d 100%);
-            --bg-card-hover: linear-gradient(135deg, #151d2d 0%, #1a2438 100%);
+            --bg-card: #0f1520;
+            --bg-card-hover: #151d2d;
             --accent: #00f0ff;
             --accent-light: #66f7ff;
             --accent-glow: rgba(0, 240, 255, 0.4);
@@ -98,22 +100,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* V2 Scanline effect */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 0, 0, 0.03) 2px,
-                    rgba(0, 0, 0, 0.03) 4px);
-            pointer-events: none;
-            z-index: 9998;
-        }
+        /* TV Performance: Removed scanline effect - unnecessary on TV devices */
 
         .hidden {
             display: none !important;
@@ -697,25 +684,13 @@
             color: white;
         }
 
+        /* TV Performance: Static dot instead of pulsing animation */
         .tv-row-badge.live::before {
             content: '';
             width: 6px;
             height: 6px;
             background: white;
             border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
         }
 
         .tv-row-count {
@@ -836,27 +811,27 @@
             }
         }
 
-        /* League Cards (2:3 aspect ratio) - V2 Magenta Design */
+        /* League Cards - TV Performance Optimized */
         .league-card {
             flex-shrink: 0;
             width: 120px;
             height: 160px;
-            background: linear-gradient(180deg, #0f1520 0%, #10081a 50%, #05080f 100%);
+            /* TV Performance: Solid color, no gradient */
+            background: #0f1520;
             border: 1px solid rgba(255, 0, 102, 0.15);
-            border-radius: var(--card-radius);
+            /* TV Performance: Simple border-radius instead of clip-path */
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            /* TV Performance: Only transition GPU-friendly properties, NOT clip-path */
+            /* TV Performance: Only transition GPU-friendly properties */
             transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
             position: relative;
-            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-            box-shadow:
-                0 4px 16px rgba(255, 0, 102, 0.06),
-                inset 0 1px 0 rgba(255, 0, 102, 0.08);
+            /* TV Performance: Single simple shadow */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .league-card:hover {
@@ -925,14 +900,11 @@
             animation: pulse 1.5s infinite;
         }
 
-        /* Selected league filter */
+        /* Selected league filter - TV Performance optimized */
         .league-card.selected {
             border-color: var(--accent);
-            background: linear-gradient(180deg, #2d2050 0%, #1f1540 50%, #150f30 100%);
-            box-shadow:
-                0 4px 16px rgba(99, 102, 241, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
+            background: #1f1540;
+            box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3);
         }
 
         .league-card.selected::after {
@@ -952,34 +924,24 @@
             flex-shrink: 0;
             width: 320px;
             height: 180px;
-            background: linear-gradient(135deg, #0f1520 0%, #12081a 100%);
+            /* TV Performance: Solid color, no gradient */
+            background: #0f1520;
             border: 1px solid rgba(255, 0, 102, 0.2);
-            border-radius: var(--card-radius);
+            /* TV Performance: Simple border-radius instead of expensive clip-path */
+            border-radius: 8px;
             padding: 20px;
             cursor: pointer;
-            /* TV Performance: Only transition GPU-friendly properties, NOT clip-path */
+            /* TV Performance: Only transition GPU-friendly properties */
             transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
             position: relative;
             display: flex;
             flex-direction: column;
-            clip-path: polygon(var(--clip-corner) 0, 100% 0, 100% calc(100% - var(--clip-corner)), calc(100% - var(--clip-corner)) 100%, 0 100%, 0 var(--clip-corner));
-            box-shadow:
-                0 4px 24px rgba(255, 0, 102, 0.08),
-                inset 0 1px 0 rgba(255, 0, 102, 0.1);
+            /* TV Performance: Single simple shadow */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
 
-        /* Diagonal accent stripe */
-        .game-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 80px;
-            height: 100%;
-            background: linear-gradient(135deg, transparent 0%, rgba(255, 0, 102, 0.08) 100%);
-            pointer-events: none;
-        }
+        /* TV Performance: Removed diagonal accent stripe pseudo-element */
 
         .game-card:hover {
             border-color: rgba(255, 0, 102, 0.4);
@@ -1019,28 +981,16 @@
             font-size: 10px;
             font-weight: 700;
             padding: 3px 10px;
-            border-radius: 2px;
+            /* TV Performance: Simple border-radius instead of clip-path */
+            border-radius: 4px;
             letter-spacing: 0.04em;
-            clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
         }
 
+        /* TV Performance: Static glow instead of animated pulse */
         .game-card-status.live {
             background: var(--accent-magenta);
             color: white;
-            box-shadow: 0 0 16px rgba(255, 0, 102, 0.5);
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-glow {
-
-            0%,
-            100% {
-                box-shadow: 0 0 12px rgba(255, 0, 102, 0.4);
-            }
-
-            50% {
-                box-shadow: 0 0 20px rgba(255, 0, 102, 0.6);
-            }
+            box-shadow: 0 0 12px rgba(255, 0, 102, 0.4);
         }
 
         .game-card-status.upcoming {
@@ -1286,7 +1236,7 @@
             width: 50px;
             height: 50px;
             object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            /* TV Performance: Removed drop-shadow filter */
             z-index: 2;
         }
 
@@ -1316,7 +1266,7 @@
         .nba-upcoming-vs-img {
             width: 70px;
             height: auto;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            /* TV Performance: Removed drop-shadow filter */
         }
 
         .nba-upcoming-header {
@@ -1337,8 +1287,8 @@
         }
 
         .nba-upcoming-header .game-card-status {
-            background: rgba(99, 102, 241, 0.8);
-            backdrop-filter: blur(4px);
+            background: rgba(99, 102, 241, 0.95);
+            /* TV Performance: Removed backdrop-filter */
         }
 
         .game-card.nba-upcoming.focused {
@@ -1429,7 +1379,7 @@
             width: 50px;
             height: 50px;
             object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            /* TV Performance: Removed drop-shadow filter */
             z-index: 2;
         }
 
@@ -1459,7 +1409,7 @@
         .nfl-upcoming-vs-img {
             width: 70px;
             height: auto;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            /* TV Performance: Removed drop-shadow filter */
         }
 
         .nfl-upcoming-footer {
@@ -1550,7 +1500,7 @@
             width: 50px;
             height: 50px;
             object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            /* TV Performance: Removed drop-shadow filter */
             z-index: 2;
         }
 
@@ -1580,7 +1530,7 @@
         .nhl-upcoming-vs-img {
             width: 70px;
             height: auto;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            /* TV Performance: Removed drop-shadow filter */
         }
 
         .nhl-upcoming-footer {
@@ -1671,7 +1621,7 @@
             width: 50px;
             height: 50px;
             object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            /* TV Performance: Removed drop-shadow filter */
             z-index: 2;
         }
 
@@ -1701,7 +1651,7 @@
         .mlb-upcoming-vs-img {
             width: 70px;
             height: auto;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            /* TV Performance: Removed drop-shadow filter */
         }
 
         .mlb-upcoming-footer {
@@ -1792,7 +1742,7 @@
             width: 50px;
             height: 50px;
             object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            /* TV Performance: Removed drop-shadow filter */
             z-index: 2;
         }
 
@@ -1822,7 +1772,7 @@
         .ncaa-upcoming-vs-img {
             width: 70px;
             height: auto;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            /* TV Performance: Removed drop-shadow filter */
         }
 
         .ncaa-upcoming-footer {
@@ -1913,7 +1863,7 @@
             width: 50px;
             height: 50px;
             object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            /* TV Performance: Removed drop-shadow filter */
             z-index: 2;
         }
 
@@ -1943,7 +1893,7 @@
         .ncaab-upcoming-vs-img {
             width: 70px;
             height: auto;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            /* TV Performance: Removed drop-shadow filter */
         }
 
         .ncaab-upcoming-footer {
@@ -2007,6 +1957,7 @@
             position: relative;
         }
 
+        /* TV Performance: Simple gold border instead of expensive animated shimmer */
         .superbowl-upcoming::before {
             content: '';
             position: absolute;
@@ -2014,24 +1965,10 @@
             left: -2px;
             right: -2px;
             bottom: -2px;
-            background: linear-gradient(45deg, #d4af37, #f4e5b8, #d4af37, #f4e5b8);
-            background-size: 400% 400%;
-            animation: goldShimmer 3s ease infinite;
+            background: #d4af37;
             border-radius: 10px;
             z-index: -1;
-            opacity: 0.3;
-        }
-
-        @keyframes goldShimmer {
-
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
+            opacity: 0.4;
         }
 
         .superbowl-upcoming-inner {
@@ -2060,8 +1997,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
-            filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5));
+            /* TV Performance: Removed text-shadow and filter */
         }
 
         .superbowl-upcoming-matchup {
@@ -2094,13 +2030,8 @@
             width: 55px;
             height: 55px;
             object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(212, 175, 55, 0.4));
             z-index: 2;
-            transition: transform 0.3s ease;
-        }
-
-        .game-card.superbowl-upcoming:hover .superbowl-upcoming-logo {
-            transform: scale(1.1);
+            /* TV Performance: Removed filter and hover transition */
         }
 
         .superbowl-upcoming-label {
@@ -2139,7 +2070,7 @@
         .superbowl-upcoming-vs-img {
             width: 75px;
             height: auto;
-            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+            /* TV Performance: Removed drop-shadow filter */
         }
 
         .superbowl-upcoming-vs-text {
@@ -3146,13 +3077,10 @@
             height: 42px;
             display: flex;
             align-items: stretch;
-            filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.5));
             border-radius: 4px;
             overflow: visible;
-            box-shadow:
-                0 3px 12px rgba(0, 0, 0, 0.4),
-                0 1px 4px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            /* TV Performance: Single simple shadow */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
         /* Score boxes on sides */
@@ -3286,7 +3214,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+            /* TV Performance: Removed drop-shadow filter */
         }
 
         .live-sb-team-name {
@@ -3542,12 +3470,12 @@
             position: absolute;
             top: calc(100% + 10px);
             right: 0;
-            background: rgba(26, 26, 46, 0.98);
+            background: rgba(15, 18, 30, 0.98);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             min-width: 280px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(20px);
+            /* TV Performance: Removed backdrop-filter blur(20px) */
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
@@ -3665,8 +3593,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(5, 8, 15, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(5, 8, 15, 0.95);
+            /* TV Performance: Removed backdrop-filter blur(8px) */
             z-index: 1000;
             display: flex;
             align-items: center;
