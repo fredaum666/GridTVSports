@@ -4344,9 +4344,9 @@
                 history.replaceState({}, '', '/tv-home');
             }
 
-            // Start time updates
+            // Start time updates - TV Performance: 30 second interval is sufficient
             updateTime();
-            setInterval(updateTime, 1000);
+            setInterval(updateTime, 30000);
 
             if (sessionToken) {
                 // If we have a session token, validate it before showing any screen
@@ -5179,7 +5179,6 @@
 
                     // If some games were removed, update the stored selections
                     if (validSelections.length !== savedSelections.length) {
-                        console.log(`Cleaned up ${savedSelections.length - validSelections.length} finished game(s) from selections`);
                         if (validSelections.length > 0) {
                             localStorage.setItem('gridtv_sports_bar_games', JSON.stringify(validSelections));
                         } else {
@@ -5885,19 +5884,6 @@
                 game.shortName?.includes('Super Bowl') ||
                 game.notes?.some(note => note.headline?.includes('Super Bowl'))
             );
-
-            // Debug logging for Super Bowl detection
-            if (game.league === 'nfl' && game.state === 'pre') {
-                console.log('🏈 NFL Upcoming Game:', {
-                    name: game.name,
-                    shortName: game.shortName,
-                    notes: game.notes,
-                    notesDetail: game.notes?.map(n => ({ type: n.type, headline: n.headline })),
-                    isSuperBowl: isSuperBowl,
-                    away: game.away?.abbr,
-                    home: game.home?.abbr
-                });
-            }
 
             if (isSuperBowl && game.state === 'pre') {
                 // Special upcoming Super Bowl card with gold/trophy theme
