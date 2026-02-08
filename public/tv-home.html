@@ -850,7 +850,8 @@
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            /* TV Performance: Only transition GPU-friendly properties, NOT clip-path */
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
             position: relative;
             clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
             box-shadow:
@@ -956,7 +957,8 @@
             border-radius: var(--card-radius);
             padding: 20px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            /* TV Performance: Only transition GPU-friendly properties, NOT clip-path */
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -4939,7 +4941,8 @@
             if (el) {
                 el.classList.add('focused');
                 previouslyFocusedElement = el; // Track for next focus change
-                el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                // TV Performance: Use 'instant' scroll to avoid expensive smooth animation
+                el.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' });
 
                 // Auto-filter: If focused on a league card, start timer to auto-select after 1s
                 const league = el.dataset.league;
