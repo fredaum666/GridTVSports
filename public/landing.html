@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Live Sports Scores - Watch Multiple Games at Once | GridTV Sports</title>
-    <meta name="description" content="Stream live NFL, NBA, MLB, NHL & NCAA scores on any screen. Watch up to 8 games simultaneously with our multi-sport scoreboard. Cast to TV, Roku, Apple TV & more. Free to start.">
-    <meta name="keywords" content="live sports scores, multi-sport scoreboard, watch multiple games, cast sports to TV, NFL live scores, NBA scores today, sports bar display, second screen sports app, real-time sports scores">
+    <meta name="description"
+        content="Stream live NFL, NBA, MLB, NHL & NCAA scores on any screen. Watch up to 8 games simultaneously with our multi-sport scoreboard. Cast to TV, Roku, Apple TV & more. Free to start.">
+    <meta name="keywords"
+        content="live sports scores, multi-sport scoreboard, watch multiple games, cast sports to TV, NFL live scores, NBA scores today, sports bar display, second screen sports app, real-time sports scores">
 
     <!-- Robots & Crawl -->
     <meta name="robots" content="index, follow, max-image-preview:large">
@@ -15,7 +17,8 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Live Sports Scores - Watch Multiple Games at Once | GridTV Sports">
-    <meta property="og:description" content="Stream NFL, NBA, MLB, NHL & NCAA scores in real-time. Multi-sport scoreboard with TV casting support.">
+    <meta property="og:description"
+        content="Stream NFL, NBA, MLB, NHL & NCAA scores in real-time. Multi-sport scoreboard with TV casting support.">
     <meta property="og:image" content="https://gridtvsports.com/assets/og-image.png">
     <meta property="og:url" content="https://gridtvsports.com/">
     <meta property="og:site_name" content="GridTV Sports">
@@ -151,6 +154,12 @@
             box-sizing: border-box;
         }
 
+        html,
+        body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
         html {
             scroll-behavior: smooth;
         }
@@ -160,9 +169,9 @@
             color: var(--text-white);
             font-family: var(--font-body);
             line-height: 1.6;
-            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
         }
 
         /* Scanline overlay - desktop only for performance */
@@ -375,6 +384,7 @@
         .hero-bg {
             position: absolute;
             inset: 0;
+            z-index: 0;
             background:
                 radial-gradient(ellipse 80% 50% at 20% 40%, var(--cyan-dim) 0%, transparent 50%),
                 radial-gradient(ellipse 60% 40% at 80% 60%, var(--magenta-dim) 0%, transparent 50%),
@@ -400,6 +410,7 @@
         .hero-grid {
             position: absolute;
             inset: 0;
+            z-index: 0;
             background-image:
                 linear-gradient(var(--cyan-dim) 1px, transparent 1px),
                 linear-gradient(90deg, var(--cyan-dim) 1px, transparent 1px);
@@ -1332,6 +1343,7 @@
         }
 
         @media (max-width: 480px) {
+
             /* Hero section mobile */
             .hero {
                 padding: 90px 20px 50px;
@@ -1372,9 +1384,14 @@
                 font-size: 16px;
             }
 
-            /* Navigation */
+            /* Navigation - ensure solid background on mobile */
             .nav {
                 padding: 12px 16px;
+                background: var(--bg-void);
+            }
+
+            .nav.scrolled {
+                background: var(--bg-void);
             }
 
             .nav-logo {
@@ -1536,6 +1553,8 @@
 
         .landing-content {
             transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+            overflow-x: hidden;
+            width: 100%;
         }
 
         .landing-content.fade-out {
@@ -1921,289 +1940,293 @@
     <!-- Landing Content Wrapper -->
     <div class="landing-content" id="landingContent">
 
-    <!-- Navigation -->
-    <nav class="nav" id="nav">
-        <a href="/" class="nav-brand">
-            <img src="/assets/logo.png" alt="GridTV Sports" class="nav-logo" width="40" height="40">
-            <span class="nav-title">GridTV Sports</span>
-        </a>
-        <div class="nav-links">
+        <!-- Navigation -->
+        <nav class="nav" id="nav">
+            <a href="/" class="nav-brand">
+                <img src="/assets/logo.png" alt="GridTV Sports" class="nav-logo" width="40" height="40">
+                <span class="nav-title">GridTV Sports</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#grids" class="nav-link">Grids</a>
+                <a href="#teams" class="nav-link">Teams</a>
+                <a href="#" class="nav-cta" onclick="showLogin(event)">Sign In</a>
+            </div>
+            <!-- Mobile hamburger -->
+            <button class="nav-hamburger" id="navHamburger" aria-label="Toggle navigation menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+        <!-- Mobile menu -->
+        <div class="nav-mobile-menu" id="navMobileMenu">
             <a href="#features" class="nav-link">Features</a>
             <a href="#grids" class="nav-link">Grids</a>
             <a href="#teams" class="nav-link">Teams</a>
             <a href="#" class="nav-cta" onclick="showLogin(event)">Sign In</a>
         </div>
-        <!-- Mobile hamburger -->
-        <button class="nav-hamburger" id="navHamburger" aria-label="Toggle navigation menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-    </nav>
-    <!-- Mobile menu -->
-    <div class="nav-mobile-menu" id="navMobileMenu">
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#grids" class="nav-link">Grids</a>
-        <a href="#teams" class="nav-link">Teams</a>
-        <a href="#" class="nav-cta" onclick="showLogin(event)">Sign In</a>
-    </div>
 
-    <!-- Hero Section -->
-    <section class="hero" id="hero">
-        <div class="hero-bg"></div>
-        <div class="hero-grid"></div>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-bg"></div>
+            <div class="hero-grid"></div>
 
-        <div class="hero-content">
-            <div class="hero-badge">
-                <span>Live Scores</span>
-            </div>
-
-            <h1 class="hero-title">
-                <span class="hero-title-line">Live Sports Scores</span>
-                <span class="hero-title-line"><span class="gradient-text">Multi-Game View</span></span>
-            </h1>
-
-            <p class="hero-subtitle">
-                Watch NFL, NBA, MLB, NHL & NCAA scores in real-time.<br>
-                Stream up to 8 games at once on any device.
-            </p>
-
-            <div class="hero-cta-group">
-                <a href="#" class="btn-primary" onclick="showLogin(event)">
-                    <span>Get Started Free</span>
-                </a>
-                <a href="#features" class="btn-secondary">
-                    <span>See How It Works</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="scroll-indicator">
-            <span>Scroll to explore</span>
-            <div class="scroll-mouse"></div>
-        </div>
-    </section>
-
-    <!-- Feature: Live Scores -->
-    <section class="section section-dark" id="features">
-        <div class="section-content">
-            <div class="feature-grid">
-                <div class="feature-text" data-reveal="slide-right">
-                    <span class="section-label">Real-Time Updates</span>
-                    <h2 class="section-title">Real-Time Sports Scores for NFL, NBA, MLB, NHL & NCAA</h2>
-                    <p class="section-description">
-                        Get instant score updates across 6 major sports leagues.
-                        Our 30-second refresh keeps you in sync with every play.
-                    </p>
-                    <h3 class="visually-hidden">Live Score Features</h3>
-                    <ul class="feature-list">
-                        <li>30-second live refresh across all games</li>
-                        <li>Play-by-play updates and game situations</li>
-                        <li>Score change animations and alerts</li>
-                        <li>Support for NFL, NBA, MLB, NHL & NCAA</li>
-                    </ul>
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span>Live Scores</span>
                 </div>
-                <div class="feature-visual" data-reveal="slide-left">
-                    <div class="screenshot-glow"></div>
-                    <div class="screenshot-frame screenshot-cycle">
-                        <img src="/assets/Home.png" alt="GridTV Sports Dashboard showing live NFL scores" class="screenshot-img active" width="900" height="562" fetchpriority="high">
-                        <img src="/assets/HomeGameSelection.png" alt="GridTV Sports Game Selection interface" class="screenshot-img" width="900" height="562" loading="lazy" decoding="async">
+
+                <h1 class="hero-title">
+                    <span class="hero-title-line">Live Sports Scores</span>
+                    <span class="hero-title-line"><span class="gradient-text">Multi-Game View</span></span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    Watch NFL, NBA, MLB, NHL & NCAA scores in real-time.<br>
+                    Stream up to 8 games at once on any device.
+                </p>
+
+                <div class="hero-cta-group">
+                    <a href="#" class="btn-primary" onclick="showLogin(event)">
+                        <span>Get Started Free</span>
+                    </a>
+                    <a href="#features" class="btn-secondary">
+                        <span>See How It Works</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="scroll-indicator">
+                <div class="scroll-mouse"></div>
+            </div>
+        </section>
+
+        <!-- Feature: Live Scores -->
+        <section class="section section-dark" id="features">
+            <div class="section-content">
+                <div class="feature-grid">
+                    <div class="feature-text" data-reveal="slide-right">
+                        <span class="section-label">Real-Time Updates</span>
+                        <h2 class="section-title">Real-Time Sports Scores for NFL, NBA, MLB, NHL & NCAA</h2>
+                        <p class="section-description">
+                            Get instant score updates across 6 major sports leagues.
+                            Our 30-second refresh keeps you in sync with every play.
+                        </p>
+                        <h3 class="visually-hidden">Live Score Features</h3>
+                        <ul class="feature-list">
+                            <li>30-second live refresh across all games</li>
+                            <li>Play-by-play updates and game situations</li>
+                            <li>Score change animations and alerts</li>
+                            <li>Support for NFL, NBA, MLB, NHL & NCAA</li>
+                        </ul>
+                    </div>
+                    <div class="feature-visual" data-reveal="slide-left">
+                        <div class="screenshot-glow"></div>
+                        <div class="screenshot-frame screenshot-cycle">
+                            <img src="/assets/Home.png" alt="GridTV Sports Dashboard showing live NFL scores"
+                                class="screenshot-img active" width="900" height="562" fetchpriority="high">
+                            <img src="/assets/HomeGameSelection.png" alt="GridTV Sports Game Selection interface"
+                                class="screenshot-img" width="900" height="562" loading="lazy" decoding="async">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Feature: Grid Layouts -->
-    <section class="section" id="grids">
-        <div class="section-content">
-            <div class="grids-showcase">
-                <div class="grids-header" data-reveal="fade-up">
-                    <span class="section-label">Multi-Sport Scoreboard</span>
-                    <h2 class="section-title">Watch Multiple Sports Games at Once</h2>
+        <!-- Feature: Grid Layouts -->
+        <section class="section" id="grids">
+            <div class="section-content">
+                <div class="grids-showcase">
+                    <div class="grids-header" data-reveal="fade-up">
+                        <span class="section-label">Multi-Sport Scoreboard</span>
+                        <h2 class="section-title">Watch Multiple Sports Games at Once</h2>
+                        <p class="section-description" style="margin: 0 auto;">
+                            Create your perfect viewing experience with flexible grid layouts.
+                            From single-game focus to full sports bar display mode.
+                        </p>
+                    </div>
+
+                    <h3 class="visually-hidden">Grid Layout Options for Live Sports</h3>
+                    <div class="grids-gallery">
+                        <div class="grid-card">
+                            <img src="/assets/nfl-grid.jpeg" alt="NFL Live Scores 4-Game Grid Layout" width="400"
+                                height="300" loading="lazy" decoding="async">
+                            <div class="grid-card-label"><span>4</span> Game Grid - NFL</div>
+                        </div>
+                        <div class="grid-card">
+                            <img src="/assets/nba-grid.jpeg" alt="NBA Live Scores 7-Game Grid Layout" width="400"
+                                height="300" loading="lazy" decoding="async">
+                            <div class="grid-card-label"><span>7</span> Game Grid - NBA</div>
+                        </div>
+                        <div class="grid-card">
+                            <img src="/assets/mix-grid.jpeg" alt="Multi-Sport Scoreboard 8-Game Grid Layout" width="400"
+                                height="300" loading="lazy" decoding="async">
+                            <div class="grid-card-label"><span>8</span> Game Grid - Mixed</div>
+                        </div>
+                    </div>
+
+                    <div class="grids-stats" data-reveal="cascade">
+                        <div class="stat-item" style="--index: 0">
+                            <div class="stat-value">8</div>
+                            <div class="stat-label">Max Games</div>
+                        </div>
+                        <div class="stat-item" style="--index: 1">
+                            <div class="stat-value">6</div>
+                            <div class="stat-label">Sports Leagues</div>
+                        </div>
+                        <div class="stat-item" style="--index: 2">
+                            <div class="stat-value">30s</div>
+                            <div class="stat-label">Refresh Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature: Teams -->
+        <section class="section section-dark" id="teams">
+            <div class="section-content teams-section">
+                <div data-reveal="fade-up">
+                    <span class="section-label">Team Notifications</span>
+                    <h2 class="section-title">Get Live Score Alerts for Your Favorite Teams</h2>
                     <p class="section-description" style="margin: 0 auto;">
-                        Create your perfect viewing experience with flexible grid layouts.
-                        From single-game focus to full sports bar display mode.
+                        Select your favorite teams and never miss a game.
+                        Get personalized push notifications when they play.
                     </p>
                 </div>
+            </div>
 
-                <h3 class="visually-hidden">Grid Layout Options for Live Sports</h3>
-                <div class="grids-gallery">
-                    <div class="grid-card">
-                        <img src="/assets/nfl-grid.jpeg" alt="NFL Live Scores 4-Game Grid Layout" width="400" height="300" loading="lazy" decoding="async">
-                        <div class="grid-card-label"><span>4</span> Game Grid - NFL</div>
-                    </div>
-                    <div class="grid-card">
-                        <img src="/assets/nba-grid.jpeg" alt="NBA Live Scores 7-Game Grid Layout" width="400" height="300" loading="lazy" decoding="async">
-                        <div class="grid-card-label"><span>7</span> Game Grid - NBA</div>
-                    </div>
-                    <div class="grid-card">
-                        <img src="/assets/mix-grid.jpeg" alt="Multi-Sport Scoreboard 8-Game Grid Layout" width="400" height="300" loading="lazy" decoding="async">
-                        <div class="grid-card-label"><span>8</span> Game Grid - Mixed</div>
+            <!-- Diagonal Scrolling Marquee -->
+            <div class="teams-marquee-container">
+                <!-- First diagonal strip - scrolling left (NFL + NBA) -->
+                <div class="marquee-strip marquee-strip-1">
+                    <div class="marquee-track marquee-track-left">
+                        <div class="marquee-content">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" alt="Chiefs">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/bos.png" alt="Celtics">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" alt="Eagles">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/lal.png" alt="Lakers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/sf.png" alt="49ers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/gsw.png" alt="Warriors">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/dal.png" alt="Cowboys">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/mil.png" alt="Bucks">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" alt="Bills">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/den.png" alt="Nuggets">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" alt="Dolphins">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/phx.png" alt="Suns">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/det.png" alt="Lions">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/mia.png" alt="Heat">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" alt="Ravens">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/phi.png" alt="76ers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" alt="Packers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="Knicks">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lar.png" alt="Rams">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/lac.png" alt="Clippers">
+                        </div>
+                        <div class="marquee-content" aria-hidden="true">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" alt="Chiefs">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/bos.png" alt="Celtics">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" alt="Eagles">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/lal.png" alt="Lakers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/sf.png" alt="49ers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/gsw.png" alt="Warriors">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/dal.png" alt="Cowboys">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/mil.png" alt="Bucks">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" alt="Bills">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/den.png" alt="Nuggets">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" alt="Dolphins">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/phx.png" alt="Suns">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/det.png" alt="Lions">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/mia.png" alt="Heat">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" alt="Ravens">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/phi.png" alt="76ers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" alt="Packers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="Knicks">
+                            <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lar.png" alt="Rams">
+                            <img src="https://a.espncdn.com/i/teamlogos/nba/500/lac.png" alt="Clippers">
+                        </div>
                     </div>
                 </div>
 
-                <div class="grids-stats" data-reveal="cascade">
-                    <div class="stat-item" style="--index: 0">
-                        <div class="stat-value">8</div>
-                        <div class="stat-label">Max Games</div>
-                    </div>
-                    <div class="stat-item" style="--index: 1">
-                        <div class="stat-value">6</div>
-                        <div class="stat-label">Sports Leagues</div>
-                    </div>
-                    <div class="stat-item" style="--index: 2">
-                        <div class="stat-value">30s</div>
-                        <div class="stat-label">Refresh Rate</div>
+                <!-- Second diagonal strip - scrolling right (MLB + NHL) -->
+                <div class="marquee-strip marquee-strip-2">
+                    <div class="marquee-track marquee-track-right">
+                        <div class="marquee-content">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="Yankees">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/vgk.png" alt="Golden Knights">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/lad.png" alt="Dodgers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/bos.png" alt="Bruins">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bos.png" alt="Red Sox">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/tor.png" alt="Maple Leafs">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/chc.png" alt="Cubs">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/edm.png" alt="Oilers">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/atl.png" alt="Braves">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/col.png" alt="Avalanche">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/hou.png" alt="Astros">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/nyr.png" alt="Rangers">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/phi.png" alt="Phillies">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/fla.png" alt="Panthers">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/sd.png" alt="Padres">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/car.png" alt="Hurricanes">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/tex.png" alt="Rangers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/dal.png" alt="Stars">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/sf.png" alt="Giants">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/tb.png" alt="Lightning">
+                        </div>
+                        <div class="marquee-content" aria-hidden="true">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="Yankees">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/vgk.png" alt="Golden Knights">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/lad.png" alt="Dodgers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/bos.png" alt="Bruins">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bos.png" alt="Red Sox">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/tor.png" alt="Maple Leafs">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/chc.png" alt="Cubs">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/edm.png" alt="Oilers">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/atl.png" alt="Braves">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/col.png" alt="Avalanche">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/hou.png" alt="Astros">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/nyr.png" alt="Rangers">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/phi.png" alt="Phillies">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/fla.png" alt="Panthers">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/sd.png" alt="Padres">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/car.png" alt="Hurricanes">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/tex.png" alt="Rangers">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/dal.png" alt="Stars">
+                            <img src="https://a.espncdn.com/i/teamlogos/mlb/500/sf.png" alt="Giants">
+                            <img src="https://a.espncdn.com/i/teamlogos/nhl/500/tb.png" alt="Lightning">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Feature: Teams -->
-    <section class="section section-dark" id="teams">
-        <div class="section-content teams-section">
-            <div data-reveal="fade-up">
-                <span class="section-label">Team Notifications</span>
-                <h2 class="section-title">Get Live Score Alerts for Your Favorite Teams</h2>
-                <p class="section-description" style="margin: 0 auto;">
-                    Select your favorite teams and never miss a game.
-                    Get personalized push notifications when they play.
+            <div class="section-content teams-section">
+                <p class="teams-cta" data-reveal="fade-up">
+                    <strong> NFL, NBA, MLB, NHL</strong> plus College Sports
                 </p>
             </div>
-        </div>
+        </section>
 
-        <!-- Diagonal Scrolling Marquee -->
-        <div class="teams-marquee-container">
-            <!-- First diagonal strip - scrolling left (NFL + NBA) -->
-            <div class="marquee-strip marquee-strip-1">
-                <div class="marquee-track marquee-track-left">
-                    <div class="marquee-content">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" alt="Chiefs">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/bos.png" alt="Celtics">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" alt="Eagles">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/lal.png" alt="Lakers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/sf.png" alt="49ers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/gsw.png" alt="Warriors">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/dal.png" alt="Cowboys">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/mil.png" alt="Bucks">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" alt="Bills">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/den.png" alt="Nuggets">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" alt="Dolphins">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/phx.png" alt="Suns">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/det.png" alt="Lions">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/mia.png" alt="Heat">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" alt="Ravens">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/phi.png" alt="76ers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" alt="Packers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="Knicks">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lar.png" alt="Rams">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/lac.png" alt="Clippers">
-                    </div>
-                    <div class="marquee-content" aria-hidden="true">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" alt="Chiefs">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/bos.png" alt="Celtics">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" alt="Eagles">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/lal.png" alt="Lakers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/sf.png" alt="49ers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/gsw.png" alt="Warriors">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/dal.png" alt="Cowboys">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/mil.png" alt="Bucks">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" alt="Bills">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/den.png" alt="Nuggets">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" alt="Dolphins">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/phx.png" alt="Suns">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/det.png" alt="Lions">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/mia.png" alt="Heat">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" alt="Ravens">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/phi.png" alt="76ers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" alt="Packers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="Knicks">
-                        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lar.png" alt="Rams">
-                        <img src="https://a.espncdn.com/i/teamlogos/nba/500/lac.png" alt="Clippers">
-                    </div>
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="cta-bg"></div>
+            <div class="cta-content">
+                <h2 class="cta-title" data-reveal="fade-up">Cast Sports Scores to Your TV</h2>
+                <p class="cta-subtitle" data-reveal="fade-up">
+                    Stream live scores on Roku, Apple TV, Chromecast & all your devices.
+                </p>
+                <div class="cta-buttons" data-reveal="fade-up">
+                    <a href="#" class="btn-primary" onclick="showLogin(event)">
+                        <span>Get Started Free</span>
+                    </a>
                 </div>
             </div>
+        </section>
 
-            <!-- Second diagonal strip - scrolling right (MLB + NHL) -->
-            <div class="marquee-strip marquee-strip-2">
-                <div class="marquee-track marquee-track-right">
-                    <div class="marquee-content">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="Yankees">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/vgk.png" alt="Golden Knights">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/lad.png" alt="Dodgers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/bos.png" alt="Bruins">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bos.png" alt="Red Sox">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/tor.png" alt="Maple Leafs">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/chc.png" alt="Cubs">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/edm.png" alt="Oilers">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/atl.png" alt="Braves">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/col.png" alt="Avalanche">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/hou.png" alt="Astros">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/nyr.png" alt="Rangers">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/phi.png" alt="Phillies">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/fla.png" alt="Panthers">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/sd.png" alt="Padres">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/car.png" alt="Hurricanes">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/tex.png" alt="Rangers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/dal.png" alt="Stars">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/sf.png" alt="Giants">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/tb.png" alt="Lightning">
-                    </div>
-                    <div class="marquee-content" aria-hidden="true">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="Yankees">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/vgk.png" alt="Golden Knights">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/lad.png" alt="Dodgers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/bos.png" alt="Bruins">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bos.png" alt="Red Sox">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/tor.png" alt="Maple Leafs">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/chc.png" alt="Cubs">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/edm.png" alt="Oilers">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/atl.png" alt="Braves">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/col.png" alt="Avalanche">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/hou.png" alt="Astros">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/nyr.png" alt="Rangers">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/phi.png" alt="Phillies">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/fla.png" alt="Panthers">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/sd.png" alt="Padres">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/car.png" alt="Hurricanes">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/tex.png" alt="Rangers">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/dal.png" alt="Stars">
-                        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/sf.png" alt="Giants">
-                        <img src="https://a.espncdn.com/i/teamlogos/nhl/500/tb.png" alt="Lightning">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-content teams-section">
-            <p class="teams-cta" data-reveal="fade-up">
-                <strong> NFL, NBA, MLB, NHL</strong> plus College Sports
-            </p>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section">
-        <div class="cta-bg"></div>
-        <div class="cta-content">
-            <h2 class="cta-title" data-reveal="fade-up">Cast Sports Scores to Your TV</h2>
-            <p class="cta-subtitle" data-reveal="fade-up">
-                Stream live scores on Roku, Apple TV, Chromecast & all your devices.
-            </p>
-            <div class="cta-buttons" data-reveal="fade-up">
-                <a href="#" class="btn-primary" onclick="showLogin(event)">
-                    <span>Get Started Free</span>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <p class="footer-text">&copy; 2025 GridTV Sports. All rights reserved.</p>
-    </footer>
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-text">&copy; 2025 GridTV Sports. All rights reserved.</p>
+        </footer>
 
     </div><!-- End landing-content -->
 
@@ -2331,11 +2354,11 @@
     <!-- Non-blocking font loading -->
     <script>
         // Load Google Fonts asynchronously after page render
-        (function() {
+        (function () {
             var link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;900&family=Source+Sans+3:wght@400;600&display=swap';
-            link.onload = function() {
+            link.onload = function () {
                 // Swap to web fonts once loaded
                 document.documentElement.style.setProperty('--font-display', "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif");
                 document.documentElement.style.setProperty('--font-body', "'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif");
