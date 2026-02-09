@@ -5,7 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Favorite Teams - GridTV Sports</title>
   <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-void: #05080f;
+      --bg-card: rgba(10, 16, 25, 0.9);
+      --bg-card-hover: rgba(15, 22, 35, 0.95);
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.3);
+      --magenta: #ff0066;
+      --text-primary: #ffffff;
+      --text-secondary: #8892a4;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(0, 240, 255, 0.3);
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Source Sans 3', sans-serif;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -13,19 +32,23 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+      font-family: var(--font-body);
+      background: var(--bg-void);
       min-height: 100vh;
-      color: #ffffff;
+      color: var(--text-primary);
     }
 
     .header {
-      background: rgba(26, 26, 46, 0.95);
+      background: rgba(5, 8, 15, 0.95);
+      backdrop-filter: blur(20px);
       padding: 15px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .header-left {
@@ -38,23 +61,25 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-secondary);
       text-decoration: none;
+      font-family: var(--font-display);
       font-size: 14px;
       padding: 8px 12px;
       border-radius: 8px;
-      transition: all 0.3s ease;
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .back-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #ffffff;
+      background: rgba(0, 240, 255, 0.1);
+      color: var(--cyan);
     }
 
     .page-title {
+      font-family: var(--font-display);
       font-size: 24px;
       font-weight: 700;
-      color: #ffffff;
+      color: var(--text-primary);
     }
 
     .container {
@@ -64,13 +89,18 @@
     }
 
     .section-title {
+      font-family: var(--font-display);
       font-size: 18px;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.9);
+      color: var(--text-primary);
       margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    .section-title svg {
+      color: var(--cyan);
     }
 
     .favorites-grid {
@@ -81,7 +111,7 @@
     }
 
     .favorite-card {
-      background: rgba(26, 26, 46, 0.95);
+      background: var(--bg-card);
       border-radius: 16px;
       padding: 20px;
       display: flex;
@@ -89,12 +119,14 @@
       align-items: center;
       gap: 12px;
       position: relative;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .favorite-card:hover {
-      border-color: rgba(99, 102, 241, 0.5);
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      box-shadow: 0 0 30px var(--cyan-glow);
     }
 
     .favorite-card.empty {
@@ -110,13 +142,15 @@
       left: 10px;
       width: 28px;
       height: 28px;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      background: var(--cyan);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 14px;
       font-weight: 700;
+      font-family: var(--font-display);
+      color: var(--bg-void);
     }
 
     .remove-btn {
@@ -152,27 +186,30 @@
     }
 
     .team-name {
+      font-family: var(--font-display);
       font-size: 14px;
       font-weight: 600;
       text-align: center;
-      color: #ffffff;
+      color: var(--text-primary);
     }
 
     .team-league {
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--text-secondary);
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .empty-icon {
       width: 50px;
       height: 50px;
-      color: rgba(255, 255, 255, 0.3);
+      color: var(--text-secondary);
+      opacity: 0.5;
     }
 
     .empty-text {
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-secondary);
     }
 
     /* League Tabs */
@@ -185,25 +222,27 @@
 
     .league-tab {
       padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
       border-radius: 10px;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-secondary);
+      font-family: var(--font-display);
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .league-tab:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #ffffff;
+      background: rgba(0, 240, 255, 0.1);
+      border-color: var(--border-accent);
+      color: var(--text-primary);
     }
 
     .league-tab.active {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      border-color: transparent;
-      color: #ffffff;
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: var(--bg-void);
     }
 
     /* Search */
@@ -215,22 +254,24 @@
     .search-input {
       width: 100%;
       padding: 14px 16px 14px 45px;
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-subtle);
       border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      color: #ffffff;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-primary);
+      font-family: var(--font-body);
       font-size: 16px;
       outline: none;
-      transition: all 0.3s ease;
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .search-input:focus {
-      border-color: #6366f1;
-      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--cyan);
+      background: rgba(0, 240, 255, 0.05);
+      box-shadow: 0 0 20px var(--cyan-glow);
     }
 
     .search-input::placeholder {
-      color: rgba(255, 255, 255, 0.3);
+      color: var(--text-secondary);
     }
 
     .search-icon {
@@ -238,7 +279,7 @@
       left: 15px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-secondary);
     }
 
     /* Teams Grid */
@@ -256,17 +297,17 @@
     }
 
     .teams-grid::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.02);
       border-radius: 3px;
     }
 
     .teams-grid::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
+      background: var(--cyan);
       border-radius: 3px;
     }
 
     .team-card {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.02);
       border-radius: 12px;
       padding: 15px;
       display: flex;
@@ -274,18 +315,19 @@
       align-items: center;
       gap: 10px;
       cursor: pointer;
-      border: 2px solid transparent;
-      transition: all 0.3s ease;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .team-card:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(99, 102, 241, 0.3);
+      background: rgba(0, 240, 255, 0.05);
+      border-color: var(--border-accent);
     }
 
     .team-card.selected {
-      background: rgba(99, 102, 241, 0.2);
-      border-color: #6366f1;
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--cyan);
+      box-shadow: 0 0 20px var(--cyan-glow);
     }
 
     .team-card .team-logo {
@@ -301,23 +343,23 @@
       grid-column: 1 / -1;
       text-align: center;
       padding: 40px;
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--text-secondary);
     }
 
     /* Loading */
     .loading {
       text-align: center;
       padding: 40px;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-secondary);
     }
 
     .loading-spinner {
       display: inline-block;
       width: 30px;
       height: 30px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
+      border: 3px solid var(--border-subtle);
       border-radius: 50%;
-      border-top-color: #6366f1;
+      border-top-color: var(--cyan);
       animation: spin 1s linear infinite;
     }
 
@@ -531,14 +573,14 @@
     .notification-settings {
       margin-top: 40px;
       padding-top: 30px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid var(--border-subtle);
     }
 
     .notification-card {
-      background: rgba(26, 26, 46, 0.95);
+      background: var(--bg-card);
       border-radius: 16px;
       padding: 24px;
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-subtle);
     }
 
     .notification-header {
@@ -579,16 +621,17 @@
       padding: 10px 20px;
       border-radius: 8px;
       border: none;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: white;
+      background: var(--cyan);
+      color: var(--bg-void);
+      font-family: var(--font-display);
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .notification-toggle-btn:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 4px 20px var(--cyan-glow);
     }
 
     .notification-toggle-btn:disabled {
@@ -601,13 +644,13 @@
     }
 
     .notification-description {
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-secondary);
       font-size: 14px;
       margin-bottom: 20px;
     }
 
     .notification-options {
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid var(--border-subtle);
       padding-top: 20px;
     }
 
@@ -619,7 +662,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      color: rgba(255, 255, 255, 0.9);
+      color: var(--text-primary);
       font-size: 14px;
       cursor: pointer;
     }
@@ -631,15 +674,15 @@
     .checkbox-custom {
       width: 20px;
       height: 20px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      border: 2px solid var(--border-subtle);
       border-radius: 4px;
       position: relative;
-      transition: all 0.2s ease;
+      transition: all 0.3s var(--ease-out-expo);
     }
 
     .option-label input[type="checkbox"]:checked + .checkbox-custom {
-      background: #6366f1;
-      border-color: #6366f1;
+      background: var(--cyan);
+      border-color: var(--cyan);
     }
 
     .option-label input[type="checkbox"]:checked + .checkbox-custom::after {
@@ -657,11 +700,17 @@
     .option-select {
       padding: 8px 12px;
       border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(0, 0, 0, 0.3);
-      color: white;
+      border: 1px solid var(--border-subtle);
+      background: rgba(5, 8, 15, 0.8);
+      color: var(--text-primary);
+      font-family: var(--font-body);
       font-size: 14px;
       margin-left: 10px;
+    }
+
+    .option-select:focus {
+      outline: none;
+      border-color: var(--cyan);
     }
 
     .leagues-group {
@@ -680,13 +729,13 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-primary);
       font-size: 13px;
       cursor: pointer;
     }
 
     .league-checkbox input {
-      accent-color: #6366f1;
+      accent-color: var(--cyan);
     }
 
     .option-actions {
@@ -694,7 +743,7 @@
       gap: 12px;
       margin-top: 20px;
       padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid var(--border-subtle);
     }
 
     .test-notification-btn,
@@ -702,28 +751,31 @@
       padding: 10px 20px;
       border-radius: 8px;
       border: none;
+      font-family: var(--font-display);
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .test-notification-btn {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
     }
 
     .test-notification-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--border-accent);
     }
 
     .save-preferences-btn {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      background: var(--magenta);
       color: white;
     }
 
     .save-preferences-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+      box-shadow: 0 4px 20px rgba(255, 0, 102, 0.4);
     }
 
     @media (max-width: 600px) {
@@ -1117,7 +1169,7 @@
         const response = await fetch('/api/favorites');
         if (!response.ok) {
           if (response.status === 401) {
-            window.location.href = '/login.html';
+            window.location.href = '/landing';
             return;
           }
           throw new Error('Failed to fetch favorites');
@@ -1325,14 +1377,14 @@
       try {
         const response = await fetch('/api/auth/check');
         if (!response.ok) {
-          window.location.href = '/login.html';
+          window.location.href = '/landing';
           return;
         }
         await fetchFavorites();
         // Initialize push notifications UI after auth check
         initPushNotificationsUI();
       } catch (error) {
-        window.location.href = '/login.html';
+        window.location.href = '/landing';
       }
     }
 

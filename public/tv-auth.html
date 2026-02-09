@@ -371,7 +371,7 @@
                 } else {
                     // Not logged in, show login prompt
                     const returnUrl = encodeURIComponent(window.location.href);
-                    document.getElementById('login-link').href = `/login.html?return=${returnUrl}`;
+                    document.getElementById('login-link').href = `/landing?return=${returnUrl}`;
                     showState('login-prompt');
                 }
             } catch (error) {

@@ -1183,10 +1183,392 @@
                 transform: none;
             }
         }
+
+        /* ═══════════════════════════════════════════════════════════════
+           LOGIN OVERLAY
+           ═══════════════════════════════════════════════════════════════ */
+
+        .landing-content {
+            transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+        }
+
+        .landing-content.fade-out {
+            opacity: 0;
+            transform: scale(0.98);
+            pointer-events: none;
+        }
+
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s var(--ease-out-expo), visibility 0.5s;
+            background: radial-gradient(ellipse 80% 50% at 20% 40%, var(--cyan-dim) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, var(--magenta-dim) 0%, transparent 50%),
+                var(--bg-void);
+        }
+
+        .login-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .login-container {
+            background: rgba(15, 20, 32, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(0, 240, 255, 0.2),
+                0 0 60px rgba(0, 240, 255, 0.1);
+            backdrop-filter: blur(20px);
+            transform: translateY(30px) scale(0.95);
+            transition: transform 0.6s var(--ease-out-expo);
+        }
+
+        .login-overlay.show .login-container {
+            transform: translateY(0) scale(1);
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+
+        .login-app-title {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 5px;
+        }
+
+        .login-app-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .login-form,
+        .register-form,
+        .forgot-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .register-form,
+        .forgot-form {
+            display: none;
+        }
+
+        .register-form.show,
+        .forgot-form.show {
+            display: flex;
+        }
+
+        .login-form.hide {
+            display: none;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-family: var(--font-display);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            padding: 14px 16px;
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(0, 240, 255, 0.05);
+            color: var(--text-white);
+            font-family: var(--font-body);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--cyan);
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .login-btn {
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--cyan) 0%, #00c4cc 100%);
+            color: var(--bg-void);
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--cyan-glow);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: rgba(255, 0, 102, 0.2);
+            border: 1px solid rgba(255, 0, 102, 0.4);
+            color: #ff6699;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .register-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .register-section p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .register-link {
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .register-link:hover {
+            color: var(--magenta);
+        }
+
+        .forgot-link {
+            color: var(--text-muted);
+            font-size: 13px;
+            text-decoration: none;
+            text-align: right;
+            margin-top: -10px;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-link:hover {
+            color: var(--cyan);
+        }
+
+        .back-to-login,
+        .back-to-landing {
+            color: var(--text-muted);
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .back-to-login:hover,
+        .back-to-landing:hover {
+            color: var(--cyan);
+        }
+
+        .back-to-landing {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .privacy-checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .privacy-checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--cyan);
+        }
+
+        .privacy-checkbox-group input[type="checkbox"]:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .privacy-checkbox-group label {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .privacy-checkbox-group a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        .privacy-checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        .privacy-checkbox-group a.clicked {
+            color: #22c55e;
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            font-size: 12px;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--cyan);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(5, 8, 15, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--bg-void);
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .install-app-btn {
+            display: none;
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            font-family: var(--font-display);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .install-app-btn:hover {
+            background: rgba(34, 197, 94, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .install-app-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .install-app-btn.show {
+            display: flex;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+
+            .login-logo {
+                width: 70px;
+                height: 70px;
+            }
+
+            .login-app-title {
+                font-size: 24px;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- Landing Content Wrapper -->
+    <div class="landing-content" id="landingContent">
+
     <!-- Navigation -->
     <nav class="nav" id="nav">
         <a href="/" class="nav-brand">
@@ -1197,7 +1579,7 @@
             <a href="#features" class="nav-link">Features</a>
             <a href="#grids" class="nav-link">Grids</a>
             <a href="#teams" class="nav-link">Teams</a>
-            <a href="/login.html" class="nav-cta">Sign In</a>
+            <a href="#" class="nav-cta" onclick="showLogin(event)">Sign In</a>
         </div>
     </nav>
 
@@ -1222,7 +1604,7 @@
             </p>
 
             <div class="hero-cta-group">
-                <a href="/login.html" class="btn-primary">
+                <a href="#" class="btn-primary" onclick="showLogin(event)">
                     <span>Get Started Free</span>
                 </a>
                 <a href="#features" class="btn-secondary">
@@ -1445,7 +1827,7 @@
                 Start streaming live scores on all your devices today.
             </p>
             <div class="cta-buttons" data-reveal="fade-up">
-                <a href="/login.html" class="btn-primary">
+                <a href="#" class="btn-primary" onclick="showLogin(event)">
                     <span>Get Started Free</span>
                 </a>
             </div>
@@ -1457,8 +1839,452 @@
         <p class="footer-text">&copy; 2025 GridTV Sports. All rights reserved.</p>
     </footer>
 
+    </div><!-- End landing-content -->
+
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <a href="#" class="back-to-landing" onclick="hideLogin(event)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Back to landing
+        </a>
+
+        <div class="login-container">
+            <div class="logo-section">
+                <img src="/assets/logo.png" alt="GridTV Sports Logo" class="login-logo">
+                <h1 class="login-app-title">GridTV Sports</h1>
+                <p class="login-app-subtitle">Live Sports Streaming Platform</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <!-- Login Form -->
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required
+                        autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required
+                        autocomplete="current-password">
+                </div>
+                <a href="#" class="forgot-link" id="showForgot">Forgot password?</a>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    Sign In
+                </button>
+            </form>
+
+            <!-- Forgot Password Form -->
+            <form class="forgot-form" id="forgotForm">
+                <a href="#" class="back-to-login" id="backToLoginFromForgot">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    Back to login
+                </a>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 10px;">
+                    Enter your email address and we'll send you a link to reset your password.
+                </p>
+                <div class="form-group">
+                    <label for="forgotEmail">Email Address</label>
+                    <input type="email" id="forgotEmail" name="email" placeholder="Enter your email" required
+                        autocomplete="email">
+                </div>
+                <button type="submit" class="login-btn" id="forgotBtn">
+                    Send Reset Link
+                </button>
+            </form>
+
+            <div class="register-section" id="registerSection">
+                <p>Don't have an account? <a href="#" class="register-link" id="showRegister">Create one</a></p>
+            </div>
+
+            <!-- Register Form -->
+            <form class="register-form" id="registerForm">
+                <a href="#" class="back-to-login" id="backToLogin">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    Back to login
+                </a>
+                <div class="form-group">
+                    <label for="regName">Display Name</label>
+                    <input type="text" id="regName" name="displayName" placeholder="Enter your name" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email Address</label>
+                    <input type="email" id="regEmail" name="email" placeholder="Enter your email" required
+                        autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" name="password"
+                        placeholder="Create a password (min 8 characters)" required minlength="8"
+                        autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Confirm Password</label>
+                    <input type="password" id="regConfirmPassword" name="confirmPassword"
+                        placeholder="Confirm your password" required minlength="8" autocomplete="new-password">
+                </div>
+                <div class="privacy-checkbox-group">
+                    <input type="checkbox" id="privacyAgree" name="privacyAgree" disabled required>
+                    <label for="privacyAgree">
+                        I have read and agree to the <a href="/privacy-policy" target="_blank" id="privacyLink">Privacy
+                            Policy</a>
+                    </label>
+                </div>
+                <button type="submit" class="login-btn" id="registerBtn" disabled>
+                    Create Account
+                </button>
+            </form>
+
+            <!-- Install App Button (Android/Chrome) -->
+            <button class="install-app-btn" id="installAppBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Install App
+            </button>
+
+            <!-- Footer Links -->
+            <div class="footer-links">
+                <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+                <a href="/delete-account" target="_blank">Delete Account</a>
+            </div>
+        </div>
+    </div>
+
     <!-- Scroll Animation Script -->
     <script src="/scripts/landing-animations.js"></script>
+
+    <!-- Login/Register Script -->
+    <script>
+        // ============================================
+        // LOGIN OVERLAY TRANSITIONS
+        // ============================================
+        const landingContent = document.getElementById('landingContent');
+        const loginOverlay = document.getElementById('loginOverlay');
+
+        function showLogin(e) {
+            if (e) e.preventDefault();
+            landingContent.classList.add('fade-out');
+            setTimeout(() => {
+                loginOverlay.classList.add('show');
+            }, 300);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideLogin(e) {
+            if (e) e.preventDefault();
+            loginOverlay.classList.remove('show');
+            setTimeout(() => {
+                landingContent.classList.remove('fade-out');
+            }, 300);
+            document.body.style.overflow = '';
+            // Reset to login form view
+            resetToLoginForm();
+        }
+
+        function resetToLoginForm() {
+            loginForm.classList.remove('hide');
+            registerForm.classList.remove('show');
+            forgotForm.classList.remove('show');
+            registerSection.style.display = 'block';
+            hideMessages();
+            privacyAgree.disabled = true;
+            privacyAgree.checked = false;
+            privacyLink.classList.remove('clicked');
+            registerBtn.disabled = true;
+        }
+
+        // ============================================
+        // FORM ELEMENTS
+        // ============================================
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const forgotForm = document.getElementById('forgotForm');
+        const registerSection = document.getElementById('registerSection');
+        const showRegisterLink = document.getElementById('showRegister');
+        const showForgotLink = document.getElementById('showForgot');
+        const backToLoginLink = document.getElementById('backToLogin');
+        const backToLoginFromForgot = document.getElementById('backToLoginFromForgot');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const forgotBtn = document.getElementById('forgotBtn');
+        const privacyLink = document.getElementById('privacyLink');
+        const privacyAgree = document.getElementById('privacyAgree');
+
+        // ============================================
+        // FORM SWITCHING
+        // ============================================
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hide');
+            registerSection.style.display = 'none';
+            forgotForm.classList.remove('show');
+            registerForm.classList.add('show');
+            hideMessages();
+        });
+
+        showForgotLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hide');
+            registerSection.style.display = 'none';
+            registerForm.classList.remove('show');
+            forgotForm.classList.add('show');
+            hideMessages();
+        });
+
+        backToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            resetToLoginForm();
+        });
+
+        backToLoginFromForgot.addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotForm.classList.remove('show');
+            loginForm.classList.remove('hide');
+            registerSection.style.display = 'block';
+            hideMessages();
+        });
+
+        // ============================================
+        // PRIVACY POLICY
+        // ============================================
+        privacyLink.addEventListener('click', (e) => {
+            privacyAgree.disabled = false;
+            privacyLink.classList.add('clicked');
+        });
+
+        privacyAgree.addEventListener('change', () => {
+            registerBtn.disabled = !privacyAgree.checked;
+        });
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            successMessage.classList.remove('show');
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('show');
+            errorMessage.classList.remove('show');
+        }
+
+        function hideMessages() {
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+        }
+
+        function setLoading(button, loading) {
+            if (loading) {
+                button.disabled = true;
+                button.innerHTML = '<span class="loading-spinner"></span>Please wait...';
+            } else {
+                button.disabled = false;
+                if (button.id === 'loginBtn') {
+                    button.textContent = 'Sign In';
+                } else if (button.id === 'registerBtn') {
+                    button.textContent = 'Create Account';
+                } else if (button.id === 'forgotBtn') {
+                    button.textContent = 'Send Reset Link';
+                }
+            }
+        }
+
+        // ============================================
+        // FORM SUBMISSIONS
+        // ============================================
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+            setLoading(loginBtn, true);
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const returnUrl = urlParams.get('return');
+                        if (returnUrl && returnUrl.includes('/tv-auth')) {
+                            window.location.href = decodeURIComponent(returnUrl);
+                        } else {
+                            window.location.href = '/home';
+                        }
+                    }, 1000);
+                } else {
+                    showError(data.error || 'Invalid email or password');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                setLoading(loginBtn, false);
+            }
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+
+            const displayName = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters');
+                return;
+            }
+
+            setLoading(registerBtn, true);
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ displayName, email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Account created successfully! Please login.');
+                    localStorage.setItem('gridtv-first-login', 'true');
+                    setTimeout(() => {
+                        backToLoginLink.click();
+                        document.getElementById('email').value = email;
+                    }, 1500);
+                } else {
+                    showError(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                setLoading(registerBtn, false);
+            }
+        });
+
+        forgotForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+
+            const email = document.getElementById('forgotEmail').value;
+            setLoading(forgotBtn, true);
+
+            try {
+                const response = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('If an account exists with this email, a password reset link has been sent.');
+                    document.getElementById('forgotEmail').value = '';
+                } else {
+                    showError(data.error || 'Failed to send reset link');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                setLoading(forgotBtn, false);
+            }
+        });
+
+        // ============================================
+        // AUTH CHECK
+        // ============================================
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/check');
+                const data = await response.json();
+                if (response.ok && data.authenticated) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const returnUrl = urlParams.get('return');
+                    if (returnUrl && returnUrl.includes('/tv-auth')) {
+                        window.location.href = decodeURIComponent(returnUrl);
+                    } else {
+                        window.location.href = '/home';
+                    }
+                }
+            } catch (error) {
+                // Not logged in, stay on landing page
+            }
+        }
+
+        // Check auth on page load (optional - remove if you want logged-in users to see landing)
+        // checkAuth();
+
+        // ============================================
+        // PWA INSTALL
+        // ============================================
+        let deferredPrompt = null;
+        const installAppBtn = document.getElementById('installAppBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installAppBtn.classList.add('show');
+        });
+
+        installAppBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            installAppBtn.classList.remove('show');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+            installAppBtn.classList.remove('show');
+        });
+
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            installAppBtn.classList.remove('show');
+        }
+
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && loginOverlay.classList.contains('show')) {
+                hideLogin();
+            }
+        });
+    </script>
 </body>
 
 </html>

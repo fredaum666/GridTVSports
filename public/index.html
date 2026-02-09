@@ -4400,7 +4400,7 @@
             }
 
             // Redirect to login page if not authenticated
-            window.location.href = '/login';
+            window.location.href = '/landing';
         });
 
         // ============================================
@@ -4650,20 +4650,20 @@
                 if (response.ok) {
                     localStorage.removeItem('gridtv_session_token');
                     sessionToken = null;
-                    window.location.href = '/login';
+                    window.location.href = '/landing';
                 } else {
                     console.error('Logout failed with status:', response.status);
                     // Force redirect anyway
                     localStorage.removeItem('gridtv_session_token');
                     sessionToken = null;
-                    window.location.href = '/login';
+                    window.location.href = '/landing';
                 }
             } catch (error) {
                 console.error('Logout error:', error);
                 // Force redirect even on error
                 localStorage.removeItem('gridtv_session_token');
                 sessionToken = null;
-                window.location.href = '/login';
+                window.location.href = '/landing';
             }
         }
 

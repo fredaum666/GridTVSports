@@ -567,8 +567,8 @@ function requireAuth(req, res, next) {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  // Redirect to login for page requests
-  return res.redirect('/login.html');
+  // Redirect to landing page for page requests
+  return res.redirect('/landing');
 }
 
 // ============================================
@@ -2664,7 +2664,8 @@ const pageRoutes = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab', 'LiveGames', 'c
 // Protected static files (require auth)
 app.use((req, res, next) => {
   // Skip auth check for public pages, assets, auth API, and OPTIONS requests
-  if (req.path === '/landing' ||
+  if (req.path === '/' ||
+    req.path === '/landing' ||
     req.path === '/landing.html' ||
     req.path === '/login' ||
     req.path === '/login.html' ||
@@ -2761,11 +2762,11 @@ app.use((req, res, next) => {
     pageRoutes.includes(cleanPath);
 
   if (isPageRequest) {
-    // If TV mode, redirect to tv-home instead of login
+    // If TV mode, redirect to tv-home instead of landing
     if (isTV) {
       return res.redirect('/tv-home');
     }
-    return res.redirect('/login');
+    return res.redirect('/landing');
   }
   // For API requests, return 401
   if (req.path.startsWith('/api/')) {
@@ -2808,7 +2809,7 @@ async function checkLeagueAccess(req, res, next) {
   const isTV = req.query.tv === '1' || !!req.tvUserId;
 
   if (!userId) {
-    return res.redirect(isTV ? '/tv-home' : '/login');
+    return res.redirect(isTV ? '/tv-home' : '/landing');
   }
 
   try {
@@ -2819,7 +2820,7 @@ async function checkLeagueAccess(req, res, next) {
     );
 
     if (result.rows.length === 0) {
-      return res.redirect(isTV ? '/tv-home' : '/login');
+      return res.redirect(isTV ? '/tv-home' : '/landing');
     }
 
     const user = result.rows[0];
@@ -7539,8 +7540,13 @@ app.post('/api/account/delete-request', async (req, res) => {
 // Serve public folder for all other static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve index.html for root path and /index
+// Redirect root to landing page
 app.get('/', (req, res) => {
+  res.redirect('/landing');
+});
+
+// Serve index.html for /home (authenticated app)
+app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
