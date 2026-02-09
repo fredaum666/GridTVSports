@@ -220,6 +220,19 @@
             --font-family: var(--font-body);
         }
 
+        /* Visually hidden but accessible for SEO and screen readers */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         /* Tablet (768px - 1024px) */
         @media (max-width: 1024px) {
             :root {
@@ -4064,8 +4077,8 @@
 
         <header class="tv-header">
             <div class="tv-logo">
-                <img src="/assets/logo.png" alt="GridTV Sports" onerror="this.style.display='none'">
-                <h1>GridTV Sports</h1>
+                <img src="/assets/logo.png" alt="GridTV Sports - Live Sports Scores" onerror="this.style.display='none'">
+                <h1>GridTV Sports <span class="visually-hidden">- Live Scores for NFL, NBA, MLB, NHL & NCAA</span></h1>
             </div>
             <div class="tv-header-right">
                 <div class="tv-time" id="current-time"></div>
@@ -4103,7 +4116,7 @@
         <main class="tv-content" id="tv-content">
             <!-- Leagues Row -->
             <section class="tv-row" data-row="leagues">
-
+                <h2 class="visually-hidden">Browse Sports Leagues - NFL, NBA, MLB, NHL, NCAA</h2>
                 <div class="tv-row-scroll" id="leagues-row">
                     <div class="league-card focusable selected" data-row="leagues" data-league="all">
                         <img src="/assets/logo.png" alt="All">
@@ -4175,6 +4188,7 @@
             <div id="status-rows-container">
                 <!-- Live Games Row -->
                 <section class="tv-row" data-row="live" id="live-section">
+                    <h2 class="visually-hidden">Live Sports Scores Now Playing</h2>
                     <div class="tv-row-header">
                         <span class="tv-row-badge live">LIVE</span>
                         <span class="tv-row-count" id="live-count"></span>
@@ -4196,6 +4210,7 @@
 
                 <!-- Upcoming Games Row -->
                 <section class="tv-row" data-row="upcoming" id="upcoming-section">
+                    <h2 class="visually-hidden">Upcoming Games Schedule</h2>
                     <div class="tv-row-header">
                         <span class="tv-row-title">Upcoming</span>
                         <span class="tv-row-count" id="upcoming-count"></span>
@@ -4217,6 +4232,7 @@
 
                 <!-- Final Games Row -->
                 <section class="tv-row" data-row="final" id="final-section">
+                    <h2 class="visually-hidden">Final Scores and Game Results</h2>
                     <div class="tv-row-header">
                         <span class="tv-row-title">Final</span>
                         <span class="tv-row-count" id="final-count"></span>

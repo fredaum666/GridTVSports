@@ -4,8 +4,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GridTV Sports - Your Personal Sports Bar</title>
+    <title>Live Sports Scores - Watch Multiple Games at Once | GridTV Sports</title>
+    <meta name="description" content="Stream live NFL, NBA, MLB, NHL & NCAA scores on any screen. Watch up to 8 games simultaneously with our multi-sport scoreboard. Cast to TV, Roku, Apple TV & more. Free to start.">
+    <meta name="keywords" content="live sports scores, multi-sport scoreboard, watch multiple games, cast sports to TV, NFL live scores, NBA scores today, sports bar display, second screen sports app, real-time sports scores">
+
+    <!-- Robots & Crawl -->
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://gridtvsports.com/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Live Sports Scores - Watch Multiple Games at Once | GridTV Sports">
+    <meta property="og:description" content="Stream NFL, NBA, MLB, NHL & NCAA scores in real-time. Multi-sport scoreboard with TV casting support.">
+    <meta property="og:image" content="https://gridtvsports.com/assets/og-image.png">
+    <meta property="og:url" content="https://gridtvsports.com/">
+    <meta property="og:site_name" content="GridTV Sports">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Live Sports Scores - Multi-Game View | GridTV Sports">
+    <meta name="twitter:description" content="Watch up to 8 games at once. NFL, NBA, MLB, NHL & NCAA live scores.">
+    <meta name="twitter:image" content="https://gridtvsports.com/assets/twitter-card.png">
+
+    <!-- Theme & App -->
+    <meta name="theme-color" content="#00f0ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="GridTV Sports">
+
     <link rel="icon" type="image/png" href="/assets/logo.png">
+    <link rel="apple-touch-icon" href="/assets/logo.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "GridTV Sports",
+        "alternateName": "Live Sports Scores Multi-Game View",
+        "url": "https://gridtvsports.com",
+        "description": "Stream live NFL, NBA, MLB, NHL & NCAA scores. Watch up to 8 games simultaneously with multi-sport scoreboard and TV casting.",
+        "applicationCategory": "SportsApplication",
+        "operatingSystem": "Web, iOS, Android, Android TV, Apple TV, Roku, Samsung TV, LG TV",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "Live sports scores for NFL, NBA, MLB, NHL, NCAA",
+            "Watch multiple games at once (1-8 games)",
+            "Multi-sport scoreboard display",
+            "Cast sports to TV (Chromecast, Roku, Apple TV)",
+            "Sports bar display mode",
+            "Real-time score updates every 30 seconds",
+            "Second screen sports app"
+        ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "How can I watch multiple sports games at once?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "GridTV Sports lets you view up to 8 live games simultaneously with flexible grid layouts. Choose from NFL, NBA, MLB, NHL, and NCAA sports to create your perfect multi-game viewing experience."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I cast live sports scores to my TV?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes! GridTV Sports supports TV casting to Roku, Apple TV, Chromecast, Android TV, Samsung TV, and LG TV. Perfect for sports bar displays or home viewing."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which sports leagues are supported?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "GridTV Sports provides live scores for NFL, NBA, MLB, NHL, NCAA Football, and NCAA Basketball with real-time updates every 30 seconds."
+                }
+            }
+        ]
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -948,6 +1038,19 @@
             color: var(--text-dim);
         }
 
+        /* Visually hidden but accessible for SEO */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         /* ═══════════════════════════════════════════════════════════════
            REVEAL ANIMATIONS
            ═══════════════════════════════════════════════════════════════ */
@@ -1594,13 +1697,13 @@
             </div>
 
             <h1 class="hero-title">
-                <span class="hero-title-line">Your Personal</span>
-                <span class="hero-title-line"><span class="gradient-text">Sports Bar</span></span>
+                <span class="hero-title-line">Live Sports Scores</span>
+                <span class="hero-title-line"><span class="gradient-text">Multi-Game View</span></span>
             </h1>
 
             <p class="hero-subtitle">
-                Live scores for NFL, NBA, MLB, NHL & College Sports.<br>
-                Watch multiple games at once on any screen.
+                Watch NFL, NBA, MLB, NHL & NCAA scores in real-time.<br>
+                Stream up to 8 games at once on any device.
             </p>
 
             <div class="hero-cta-group">
@@ -1625,11 +1728,12 @@
             <div class="feature-grid">
                 <div class="feature-text" data-reveal="slide-right">
                     <span class="section-label">Real-Time Updates</span>
-                    <h2 class="section-title">Live Scores That Move With the Game</h2>
+                    <h2 class="section-title">Real-Time Sports Scores for NFL, NBA, MLB, NHL & NCAA</h2>
                     <p class="section-description">
                         Get instant score updates across 6 major sports leagues.
                         Our 30-second refresh keeps you in sync with every play.
                     </p>
+                    <h3 class="visually-hidden">Live Score Features</h3>
                     <ul class="feature-list">
                         <li>30-second live refresh across all games</li>
                         <li>Play-by-play updates and game situations</li>
@@ -1654,25 +1758,26 @@
         <div class="section-content">
             <div class="grids-showcase">
                 <div class="grids-header" data-reveal="fade-up">
-                    <span class="section-label">Multi-Game View</span>
-                    <h2 class="section-title">Watch 1 to 8 Games at Once</h2>
+                    <span class="section-label">Multi-Sport Scoreboard</span>
+                    <h2 class="section-title">Watch Multiple Sports Games at Once</h2>
                     <p class="section-description" style="margin: 0 auto;">
                         Create your perfect viewing experience with flexible grid layouts.
-                        From single-game focus to full sports bar mode.
+                        From single-game focus to full sports bar display mode.
                     </p>
                 </div>
 
+                <h3 class="visually-hidden">Grid Layout Options for Live Sports</h3>
                 <div class="grids-gallery">
                     <div class="grid-card">
-                        <img src="/assets/nfl-grid.jpeg" alt="NFL 4-Game Grid">
+                        <img src="/assets/nfl-grid.jpeg" alt="NFL Live Scores 4-Game Grid Layout">
                         <div class="grid-card-label"><span>4</span> Game Grid - NFL</div>
                     </div>
                     <div class="grid-card">
-                        <img src="/assets/nba-grid.jpeg" alt="NBA 7-Game Grid">
+                        <img src="/assets/nba-grid.jpeg" alt="NBA Live Scores 7-Game Grid Layout">
                         <div class="grid-card-label"><span>7</span> Game Grid - NBA</div>
                     </div>
                     <div class="grid-card">
-                        <img src="/assets/mix-grid.jpeg" alt="Mixed 8-Game Grid">
+                        <img src="/assets/mix-grid.jpeg" alt="Multi-Sport Scoreboard 8-Game Grid Layout">
                         <div class="grid-card-label"><span>8</span> Game Grid - Mixed</div>
                     </div>
                 </div>
@@ -1699,11 +1804,11 @@
     <section class="section section-dark" id="teams">
         <div class="section-content teams-section">
             <div data-reveal="fade-up">
-                <span class="section-label">Your Favorites</span>
-                <h2 class="section-title">Follow Your Teams</h2>
+                <span class="section-label">Team Notifications</span>
+                <h2 class="section-title">Get Live Score Alerts for Your Favorite Teams</h2>
                 <p class="section-description" style="margin: 0 auto;">
                     Select your favorite teams and never miss a game.
-                    Get personalized notifications when they play.
+                    Get personalized push notifications when they play.
                 </p>
             </div>
         </div>
@@ -1822,9 +1927,9 @@
     <section class="cta-section">
         <div class="cta-bg"></div>
         <div class="cta-content">
-            <h2 class="cta-title" data-reveal="fade-up">Ready to Watch?</h2>
+            <h2 class="cta-title" data-reveal="fade-up">Cast Sports Scores to Your TV</h2>
             <p class="cta-subtitle" data-reveal="fade-up">
-                Start streaming live scores on all your devices today.
+                Stream live scores on Roku, Apple TV, Chromecast & all your devices.
             </p>
             <div class="cta-buttons" data-reveal="fade-up">
                 <a href="#" class="btn-primary" onclick="showLogin(event)">
