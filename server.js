@@ -1200,12 +1200,25 @@ app.post('/api/push/subscribe', async (req, res) => {
       RETURNING id
     `, [req.session.userId, subscription.endpoint, subscription.keys.p256dh, subscription.keys.auth, userAgent]);
 
-    // If no rows updated, insert new record
+    // If no rows updated, insert new record (with race condition handling)
     if (updateResult.rowCount === 0) {
-      await pool.query(`
-        INSERT INTO push_subscriptions (user_id, endpoint, p256dh_key, auth_key, user_agent, updated_at)
-        VALUES ($1, $2, $3, $4, $5, NOW())
-      `, [req.session.userId, subscription.endpoint, subscription.keys.p256dh, subscription.keys.auth, userAgent]);
+      try {
+        await pool.query(`
+          INSERT INTO push_subscriptions (user_id, endpoint, p256dh_key, auth_key, user_agent, updated_at)
+          VALUES ($1, $2, $3, $4, $5, NOW())
+        `, [req.session.userId, subscription.endpoint, subscription.keys.p256dh, subscription.keys.auth, userAgent]);
+      } catch (insertError) {
+        // Handle race condition: if another request inserted the same endpoint, update instead
+        if (insertError.code === '23505') { // unique_violation
+          await pool.query(`
+            UPDATE push_subscriptions
+            SET user_id = $1, p256dh_key = $3, auth_key = $4, user_agent = $5, is_active = TRUE, updated_at = NOW()
+            WHERE endpoint = $2
+          `, [req.session.userId, subscription.endpoint, subscription.keys.p256dh, subscription.keys.auth, userAgent]);
+        } else {
+          throw insertError;
+        }
+      }
     }
 
     // Create default notification preferences if not exists
@@ -1276,12 +1289,25 @@ app.post('/api/push/fcm/register', async (req, res) => {
       RETURNING id
     `, [req.session.userId, fcm_token, device_id || null, deviceInfoJson, userAgent]);
 
-    // If no rows updated, insert new record
+    // If no rows updated, insert new record (with race condition handling)
     if (updateResult.rowCount === 0) {
-      await pool.query(`
-        INSERT INTO push_subscriptions (user_id, subscription_type, fcm_token, device_id, device_info, user_agent, updated_at)
-        VALUES ($1, 'fcm', $2, $3, $4::jsonb, $5, NOW())
-      `, [req.session.userId, fcm_token, device_id || null, deviceInfoJson, userAgent]);
+      try {
+        await pool.query(`
+          INSERT INTO push_subscriptions (user_id, subscription_type, fcm_token, device_id, device_info, user_agent, updated_at)
+          VALUES ($1, 'fcm', $2, $3, $4::jsonb, $5, NOW())
+        `, [req.session.userId, fcm_token, device_id || null, deviceInfoJson, userAgent]);
+      } catch (insertError) {
+        // Handle race condition: if another request inserted the same token, update instead
+        if (insertError.code === '23505') { // unique_violation
+          await pool.query(`
+            UPDATE push_subscriptions
+            SET user_id = $1, device_id = $3, device_info = $4::jsonb, user_agent = $5, is_active = TRUE, updated_at = NOW()
+            WHERE fcm_token = $2
+          `, [req.session.userId, fcm_token, device_id || null, deviceInfoJson, userAgent]);
+        } else {
+          throw insertError;
+        }
+      }
     }
 
     // Create default notification preferences if not exists
