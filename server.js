@@ -2619,7 +2619,22 @@ app.post('/api/admin/grid-config', requireLocalhost, async (req, res) => {
 // ============================================
 
 // Public routes (no auth required)
-app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets'), {
+  setHeaders: (res, filePath) => {
+    // Ensure correct MIME types for images
+    if (filePath.endsWith('.jpeg') || filePath.endsWith('.jpg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (filePath.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (filePath.endsWith('.gif')) {
+      res.setHeader('Content-Type', 'image/gif');
+    } else if (filePath.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    } else if (filePath.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    }
+  }
+}));
 app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/dist', express.static(path.join(__dirname, 'public', 'dist'), {
   setHeaders: (res, filePath) => {
@@ -2648,9 +2663,13 @@ const pageRoutes = ['nfl', 'nba', 'mlb', 'nhl', 'ncaa', 'ncaab', 'LiveGames', 'c
 
 // Protected static files (require auth)
 app.use((req, res, next) => {
-  // Skip auth check for login page, assets, auth API, and OPTIONS requests
-  if (req.path === '/login' ||
+  // Skip auth check for public pages, assets, auth API, and OPTIONS requests
+  if (req.path === '/landing' ||
+    req.path === '/landing.html' ||
+    req.path === '/login' ||
     req.path === '/login.html' ||
+    req.path === '/pricing' ||
+    req.path === '/pricing.html' ||
     req.path === '/reset-password.html' ||
     req.path === '/tv-receiver' ||
     req.path === '/tv-receiver.html' ||
@@ -2762,6 +2781,11 @@ app.use('/api/', apiLimiter);
 // ============================================
 // CLEAN URL ROUTES (no .html extension)
 // ============================================
+
+// Landing page (public)
+app.get('/landing', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+});
 
 // Login page (public)
 app.get('/login', (req, res) => {
