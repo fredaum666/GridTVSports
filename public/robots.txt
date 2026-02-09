@@ -1,0 +1,47 @@
+# GridTV Sports robots.txt
+# Live Sports Scores App - https://gridtvsports.com
+
+# Allow all search engine crawlers
+User-agent: *
+Allow: /
+Allow: /login.html
+Allow: /tv-sports-bar.html
+Allow: /Phone-sports-bar.html
+Allow: /Desktop-tv-sports-bar.html
+
+# Block admin and API routes
+Disallow: /admin/
+Disallow: /admin-*
+Disallow: /api/
+Disallow: /debug/
+Disallow: /test-*
+Disallow: /replay-*
+Disallow: /grid-config/
+
+# Block internal scripts
+Disallow: /scripts/
+Disallow: /socket.io/
+
+# Allow static assets for rich results
+Allow: /assets/*.png
+Allow: /assets/*.jpg
+Allow: /assets/*.jpeg
+Allow: /assets/*.svg
+Allow: /assets/*.webp
+
+# Specific rules for Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Specific rules for Googlebot-Image
+User-agent: Googlebot-Image
+Allow: /assets/
+
+# Specific rules for Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://gridtvsports.com/sitemap.xml

@@ -2,17 +2,179 @@
 <html lang="en">
 
 <head>
+    <!-- === CRITICAL META TAGS === -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GridTV Sports</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- === SEO TITLE & DESCRIPTION === -->
+    <title>Live Sports Scores App | NFL, NBA, MLB, NHL, NCAA | GridTV Sports</title>
+    <meta name="description" content="Watch live sports scores for NFL, NBA, MLB, NHL, NCAA Football & Basketball. Real-time score tracking with multi-game grid layouts. Stream on any device free.">
+    <meta name="keywords" content="live sports scores, live scores, score tracker, real-time scoreboard, NFL live scores, NBA live scores, MLB live scores, NHL live scores, NCAA scores, sports app">
+    <meta name="author" content="GridTV Sports">
+
+    <!-- === ROBOTS & CRAWL DIRECTIVES === -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow">
+    <link rel="canonical" href="https://gridtvsports.com/">
+
+    <!-- === OPEN GRAPH (FACEBOOK/SOCIAL SHARING) === -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Live Sports Scores Tracker | NFL, NBA, MLB, NHL | GridTV Sports">
+    <meta property="og:description" content="Real-time live sports scores for NFL, NBA, MLB, NHL & College Sports. Watch up to 8 games simultaneously with customizable grid layouts.">
+    <meta property="og:image" content="https://gridtvsports.com/assets/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://gridtvsports.com/">
+    <meta property="og:site_name" content="GridTV Sports">
+    <meta property="og:locale" content="en_US">
+
+    <!-- === TWITTER CARD === -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Live Sports Scores Tracker | GridTV Sports">
+    <meta name="twitter:description" content="Real-time live scores for NFL, NBA, MLB, NHL & NCAA on all your devices.">
+    <meta name="twitter:image" content="https://gridtvsports.com/assets/twitter-card.png">
+    <meta name="twitter:site" content="@GridTVSports">
+
+    <!-- === THEME & APP META === -->
+    <meta name="theme-color" content="#00f0ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GridTV Sports">
+    <meta name="application-name" content="GridTV Sports">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- === LANGUAGE & GEOGRAPHIC === -->
+    <link rel="alternate" hreflang="en-US" href="https://gridtvsports.com/">
+    <link rel="alternate" hreflang="x-default" href="https://gridtvsports.com/">
+
+    <!-- === FAVICON & APP ICONS === -->
     <link rel="icon" type="image/png" href="/assets/logo.png">
+    <link rel="apple-touch-icon" href="/assets/logo.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- === PRECONNECT & RESOURCE HINTS === -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap"
-        rel="stylesheet">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/scripts/game-socket.js"></script>
+    <link rel="dns-prefetch" href="https://a.espncdn.com">
+
+    <!-- === STYLESHEETS === -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- === SCRIPTS === -->
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="/scripts/game-socket.js" defer></script>
+
+    <!-- === JSON-LD STRUCTURED DATA === -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "GridTV Sports",
+        "url": "https://gridtvsports.com",
+        "description": "Live sports scores tracker for NFL, NBA, MLB, NHL, NCAA Football & Basketball with real-time updates and multi-game grid layouts",
+        "image": "https://gridtvsports.com/assets/logo.png",
+        "applicationCategory": "SportsApplication",
+        "operatingSystem": "Web, iOS, Android, Android TV, Apple TV, Roku",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/OnlineOnly"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "GridTV Sports",
+            "url": "https://gridtvsports.com",
+            "logo": "https://gridtvsports.com/assets/logo.png"
+        },
+        "featureList": [
+            "Real-time live sports scores",
+            "Multi-game grid layouts (1-8 games)",
+            "30-second refresh rate",
+            "NFL, NBA, MLB, NHL, NCAA support",
+            "Cross-device synchronization",
+            "Play-by-play animations",
+            "Push notifications"
+        ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "GridTV Sports",
+        "url": "https://gridtvsports.com",
+        "logo": "https://gridtvsports.com/assets/logo.png",
+        "description": "Real-time live sports scores tracking application for NFL, NBA, MLB, NHL, and NCAA sports",
+        "sameAs": [
+            "https://twitter.com/gridtvsports",
+            "https://facebook.com/gridtvsports"
+        ],
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "Customer Support",
+            "url": "https://gridtvsports.com/support"
+        }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What sports does GridTV Sports cover?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "GridTV Sports provides live scores for NFL, NBA, MLB, NHL, NCAA Football, and NCAA Basketball with real-time updates every 30 seconds."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How many games can I watch at once?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "GridTV Sports allows you to view up to 8 games simultaneously with flexible grid layouts from 1 to 8 games."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which devices are supported?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "GridTV Sports works on all devices including desktop, tablet, mobile, Android TV, iOS, Apple TV, Roku, Samsung TV, and LG TV."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is GridTV Sports free?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "GridTV Sports offers a free tier with core features and premium subscription options for advanced features like ad-free experience and priority updates."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://gridtvsports.com/"
+            }
+        ]
+    }
+    </script>
     <style>
         /* ================================ */
         /* BROADCAST CONTROL ROOM THEME     */

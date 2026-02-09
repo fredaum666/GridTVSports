@@ -1495,6 +1495,7 @@ app.post('/api/push/test', async (req, res) => {
 
     let sent = 0;
     let failed = 0;
+    const errors = [];
 
     for (const sub of subscriptions.rows) {
       try {
@@ -1546,10 +1547,22 @@ app.post('/api/push/test', async (req, res) => {
         }
       } catch (error) {
         console.error('[Push] Failed to send test notification:', error.message);
+        console.error('[Push] Error details:', JSON.stringify({
+          code: error.code,
+          errorInfo: error.errorInfo,
+          statusCode: error.statusCode
+        }, null, 2));
         failed++;
+        errors.push({
+          type: sub.subscription_type,
+          code: error.code || 'unknown',
+          message: error.message
+        });
         // If subscription is invalid, mark it as inactive
         if (error.statusCode === 410 || error.statusCode === 404 ||
-            (error.code === 'messaging/registration-token-not-registered')) {
+            error.code === 'messaging/registration-token-not-registered' ||
+            error.code === 'messaging/invalid-registration-token' ||
+            error.code === 'messaging/mismatched-credential') {
           if (sub.subscription_type === 'fcm') {
             await pool.query(
               'UPDATE push_subscriptions SET is_active = FALSE WHERE fcm_token = $1',
@@ -1565,7 +1578,7 @@ app.post('/api/push/test', async (req, res) => {
       }
     }
 
-    res.json({ success: true, sent, failed });
+    res.json({ success: sent > 0, sent, failed, errors: errors.length > 0 ? errors : undefined });
   } catch (error) {
     console.error('Error sending test notification:', error);
     res.status(500).json({ error: 'Failed to send test notification' });

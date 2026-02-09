@@ -1,12 +1,13 @@
 {
-  "name": "GridTV Sports",
-  "short_name": "GridTV",
-  "description": "Live Sports Streaming Platform - Watch multiple games at once",
+  "name": "GridTV Sports - Live Sports Scores",
+  "short_name": "GridTV Sports",
+  "description": "Live sports scores tracker for NFL, NBA, MLB, NHL, NCAA Football and Basketball. Real-time score updates with multi-game grid layouts. Watch up to 8 games at once.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0f0f1a",
-  "theme_color": "#6366f1",
   "orientation": "any",
+  "background_color": "#05080f",
+  "theme_color": "#00f0ff",
   "icons": [
     {
       "src": "/assets/icon-192.png",
@@ -33,23 +34,40 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["sports", "entertainment"],
+  "categories": ["sports", "entertainment", "news"],
   "screenshots": [],
   "shortcuts": [
     {
-      "name": "NFL Games",
-      "url": "/nfl.html",
-      "description": "Watch NFL games"
+      "name": "NFL Live Scores",
+      "short_name": "NFL",
+      "url": "/?league=nfl",
+      "description": "View live NFL football scores and game updates"
     },
     {
-      "name": "NBA Games",
-      "url": "/nba.html",
-      "description": "Watch NBA games"
+      "name": "NBA Live Scores",
+      "short_name": "NBA",
+      "url": "/?league=nba",
+      "description": "View live NBA basketball scores and game updates"
     },
     {
-      "name": "Live Games",
-      "url": "/LiveGames.html",
-      "description": "Watch all live games"
+      "name": "MLB Live Scores",
+      "short_name": "MLB",
+      "url": "/?league=mlb",
+      "description": "View live MLB baseball scores and game updates"
+    },
+    {
+      "name": "NHL Live Scores",
+      "short_name": "NHL",
+      "url": "/?league=nhl",
+      "description": "View live NHL hockey scores and game updates"
+    },
+    {
+      "name": "NCAA Live Scores",
+      "short_name": "NCAA",
+      "url": "/?league=ncaa",
+      "description": "View live NCAA college sports scores and game updates"
     }
-  ]
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
 }
