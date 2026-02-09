@@ -1,7 +1,7 @@
 /**
  * GridTV Sports - Landing Page Scroll Animations
  * Uses IntersectionObserver for performant scroll-triggered reveals
- * Inspired by benjaminjochims.de animation patterns
+ * Optimized to avoid forced reflows
  */
 
 (function() {
@@ -9,6 +9,9 @@
 
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Cache nav height to avoid forced reflows
+    let cachedNavHeight = 80;
 
     /**
      * Initialize all scroll animations
@@ -19,11 +22,23 @@
             return;
         }
 
+        // Cache nav height once on load
+        requestAnimationFrame(() => {
+            const nav = document.querySelector('.nav');
+            if (nav) cachedNavHeight = nav.offsetHeight;
+        });
+
         setupRevealObserver();
         setupHeroAnimation();
         setupNavScrollEffect();
         setupSmoothScroll();
-        setupScreenshotCycle();
+
+        // Defer non-critical setup
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(setupScreenshotCycle);
+        } else {
+            setTimeout(setupScreenshotCycle, 200);
+        }
     }
 
     /**
@@ -127,6 +142,7 @@
 
     /**
      * Smooth scroll for anchor links
+     * Uses cached nav height to avoid forced reflows
      */
     function setupSmoothScroll() {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -139,8 +155,8 @@
 
                 e.preventDefault();
 
-                const navHeight = document.querySelector('.nav')?.offsetHeight || 80;
-                const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight;
+                // Use cached height - no reflow triggered
+                const targetPosition = target.getBoundingClientRect().top + window.scrollY - cachedNavHeight;
 
                 window.scrollTo({
                     top: targetPosition,

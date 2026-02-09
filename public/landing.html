@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Live Sports Scores - Watch Multiple Games at Once | GridTV Sports</title>
     <meta name="description" content="Stream live NFL, NBA, MLB, NHL & NCAA scores on any screen. Watch up to 8 games simultaneously with our multi-sport scoreboard. Cast to TV, Roku, Apple TV & more. Free to start.">
     <meta name="keywords" content="live sports scores, multi-sport scoreboard, watch multiple games, cast sports to TV, NFL live scores, NBA scores today, sports bar display, second screen sports app, real-time sports scores">
@@ -96,11 +96,17 @@
     }
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Resource Hints -->
+    <link rel="dns-prefetch" href="https://a.espncdn.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600&display=swap"
-        rel="stylesheet">
+    <link rel="preconnect" href="https://a.espncdn.com">
+
+    <!-- Preload critical assets -->
+    <link rel="preload" as="image" href="/assets/logo.png">
+    <link rel="preload" as="image" href="/assets/Home.png" fetchpriority="high">
     <style>
         /* ═══════════════════════════════════════════════════════════════
            GRIDTV SPORTS - LANDING PAGE
@@ -128,8 +134,9 @@
             --text-dim: #4a5568;
 
             /* Typography */
-            --font-display: 'Outfit', sans-serif;
-            --font-body: 'Source Sans 3', sans-serif;
+            /* System fonts first for instant render, web fonts swap in */
+            --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 
             /* Animation */
             --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -154,23 +161,25 @@
             font-family: var(--font-body);
             line-height: 1.6;
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Scanline overlay for broadcast feel */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 0, 0, 0.03) 2px,
-                    rgba(0, 0, 0, 0.03) 4px);
-            pointer-events: none;
-            z-index: 9999;
+        /* Scanline overlay - desktop only for performance */
+        @media (min-width: 1024px) {
+            body::before {
+                content: '';
+                position: fixed;
+                inset: 0;
+                background: repeating-linear-gradient(0deg,
+                        transparent,
+                        transparent 2px,
+                        rgba(0, 0, 0, 0.02) 2px,
+                        rgba(0, 0, 0, 0.02) 4px);
+                pointer-events: none;
+                z-index: 9999;
+                opacity: 0.5;
+            }
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -192,9 +201,15 @@
         }
 
         .nav.scrolled {
-            background: rgba(5, 8, 15, 0.95);
-            backdrop-filter: blur(20px);
+            background: rgba(5, 8, 15, 0.98);
             border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        @media (min-width: 769px) {
+            .nav.scrolled {
+                background: rgba(5, 8, 15, 0.95);
+                backdrop-filter: blur(12px);
+            }
         }
 
         .nav-brand {
@@ -257,6 +272,88 @@
             background: var(--cyan);
             color: var(--bg-void);
             box-shadow: 0 0 30px var(--cyan-glow);
+        }
+
+        /* Mobile Hamburger Menu */
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            min-width: 44px;
+            min-height: 44px;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .nav-hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--cyan);
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translateY(10px);
+        }
+
+        .nav-hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .nav-hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translateY(-10px);
+        }
+
+        .nav-mobile-menu {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: rgba(5, 8, 15, 0.98);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            padding: 20px;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 999;
+        }
+
+        .nav-mobile-menu.show {
+            display: flex;
+        }
+
+        .nav-mobile-menu .nav-link {
+            display: block;
+            padding: 14px 16px;
+            text-align: center;
+            min-height: 44px;
+            font-size: 16px;
+        }
+
+        .nav-mobile-menu .nav-cta {
+            display: block;
+            text-align: center;
+            padding: 14px 24px;
+            min-height: 48px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-hamburger {
+                display: flex;
+            }
+
+            .nav-links .nav-link,
+            .nav-links .nav-cta {
+                display: none;
+            }
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -637,9 +734,11 @@
             display: block;
         }
 
-        /* Screenshot cycling animation */
+        /* Screenshot cycling animation - CLS optimized */
         .screenshot-cycle {
             position: relative;
+            aspect-ratio: 900 / 562;
+            overflow: hidden;
         }
 
         .screenshot-cycle .screenshot-img {
@@ -647,15 +746,13 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: auto;
+            height: 100%;
+            object-fit: contain;
             opacity: 0;
             transition: opacity 1s ease-in-out;
         }
 
-        .screenshot-cycle .screenshot-img:first-child {
-            position: relative;
-        }
-
+        .screenshot-cycle .screenshot-img:first-child,
         .screenshot-cycle .screenshot-img.active {
             opacity: 1;
         }
@@ -1235,24 +1332,87 @@
         }
 
         @media (max-width: 480px) {
+            /* Hero section mobile */
+            .hero {
+                padding: 90px 20px 50px;
+            }
+
+            .hero-badge {
+                padding: 6px 14px;
+                font-size: 11px;
+                margin-bottom: 24px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+                margin-bottom: 32px;
+            }
+
             .hero-cta-group {
                 flex-direction: column;
                 width: 100%;
             }
 
+            /* Touch targets - minimum 44px */
             .btn-primary,
             .btn-secondary {
                 width: 100%;
                 justify-content: center;
+                min-height: 52px;
+                padding: 16px 28px;
+                font-size: 15px;
+            }
+
+            /* Section spacing */
+            .section {
+                padding: 60px 20px;
+            }
+
+            .section-description {
+                font-size: 16px;
+            }
+
+            /* Navigation */
+            .nav {
+                padding: 12px 16px;
+            }
+
+            .nav-logo {
+                width: 36px;
+                height: 36px;
+            }
+
+            .nav-title {
+                font-size: 18px;
+            }
+
+            /* Grid stats */
+            .grids-stats {
+                gap: 20px;
+            }
+
+            .stat-value {
+                font-size: 32px;
+            }
+
+            /* Teams marquee */
+            .teams-marquee-container {
+                height: 200px;
+                margin: 24px 0;
             }
 
             .marquee-content img {
-                width: 35px;
-                height: 35px;
+                width: 32px;
+                height: 32px;
             }
 
             .marquee-content {
-                gap: 24px;
+                gap: 20px;
+            }
+
+            /* CTA section */
+            .cta-section {
+                padding: 80px 20px;
             }
 
             .cta-buttons {
@@ -1264,6 +1424,89 @@
             .cta-buttons .btn-secondary {
                 width: 100%;
                 justify-content: center;
+            }
+
+            /* Login container */
+            .login-container {
+                padding: 24px 16px;
+            }
+
+            .login-logo {
+                width: 60px;
+                height: 60px;
+            }
+
+            .login-app-title {
+                font-size: 22px;
+            }
+
+            /* Form inputs - prevent iOS zoom */
+            .form-group input {
+                font-size: 16px;
+                padding: 14px 12px;
+            }
+
+            /* Touch targets for links */
+            .forgot-link,
+            .register-link,
+            .back-to-login,
+            .back-to-landing {
+                padding: 12px 0;
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .footer-links a {
+                padding: 12px 10px;
+                font-size: 14px;
+            }
+
+            /* Checkbox touch target */
+            .privacy-checkbox-group input[type="checkbox"] {
+                width: 24px;
+                height: 24px;
+            }
+
+            .privacy-checkbox-group label {
+                font-size: 14px;
+            }
+
+            /* Login button */
+            .login-btn {
+                min-height: 52px;
+                font-size: 15px;
+            }
+
+            /* Performance - disable expensive effects */
+            .hero-bg {
+                animation: none;
+            }
+
+            .hero-grid {
+                background-size: 40px 40px;
+                opacity: 0.08;
+            }
+
+            .screenshot-glow {
+                display: none;
+            }
+
+            .screenshot-frame {
+                transform: none;
+            }
+
+            .screenshot-frame:hover {
+                transform: translateY(-4px);
+            }
+
+            .grid-highlight {
+                display: none;
+            }
+
+            /* Scroll margin for anchors */
+            .section {
+                scroll-margin-top: 70px;
             }
         }
 
@@ -1326,7 +1569,7 @@
         }
 
         .login-container {
-            background: rgba(15, 20, 32, 0.95);
+            background: rgba(15, 20, 32, 0.98);
             border-radius: 20px;
             padding: 40px;
             width: 100%;
@@ -1334,9 +1577,15 @@
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
                 0 0 0 1px rgba(0, 240, 255, 0.2),
                 0 0 60px rgba(0, 240, 255, 0.1);
-            backdrop-filter: blur(20px);
             transform: translateY(30px) scale(0.95);
             transition: transform 0.6s var(--ease-out-expo);
+        }
+
+        @media (min-width: 769px) {
+            .login-container {
+                background: rgba(15, 20, 32, 0.95);
+                backdrop-filter: blur(12px);
+            }
         }
 
         .login-overlay.show .login-container {
@@ -1675,7 +1924,7 @@
     <!-- Navigation -->
     <nav class="nav" id="nav">
         <a href="/" class="nav-brand">
-            <img src="/assets/logo.png" alt="GridTV Sports" class="nav-logo">
+            <img src="/assets/logo.png" alt="GridTV Sports" class="nav-logo" width="40" height="40">
             <span class="nav-title">GridTV Sports</span>
         </a>
         <div class="nav-links">
@@ -1684,7 +1933,20 @@
             <a href="#teams" class="nav-link">Teams</a>
             <a href="#" class="nav-cta" onclick="showLogin(event)">Sign In</a>
         </div>
+        <!-- Mobile hamburger -->
+        <button class="nav-hamburger" id="navHamburger" aria-label="Toggle navigation menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </nav>
+    <!-- Mobile menu -->
+    <div class="nav-mobile-menu" id="navMobileMenu">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#grids" class="nav-link">Grids</a>
+        <a href="#teams" class="nav-link">Teams</a>
+        <a href="#" class="nav-cta" onclick="showLogin(event)">Sign In</a>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero" id="hero">
@@ -1744,9 +2006,8 @@
                 <div class="feature-visual" data-reveal="slide-left">
                     <div class="screenshot-glow"></div>
                     <div class="screenshot-frame screenshot-cycle">
-                        <img src="/assets/Home.png" alt="GridTV Sports Dashboard" class="screenshot-img active">
-                        <img src="/assets/HomeGameSelection.png" alt="GridTV Sports Game Selection"
-                            class="screenshot-img">
+                        <img src="/assets/Home.png" alt="GridTV Sports Dashboard showing live NFL scores" class="screenshot-img active" width="900" height="562" fetchpriority="high">
+                        <img src="/assets/HomeGameSelection.png" alt="GridTV Sports Game Selection interface" class="screenshot-img" width="900" height="562" loading="lazy" decoding="async">
                     </div>
                 </div>
             </div>
@@ -1769,15 +2030,15 @@
                 <h3 class="visually-hidden">Grid Layout Options for Live Sports</h3>
                 <div class="grids-gallery">
                     <div class="grid-card">
-                        <img src="/assets/nfl-grid.jpeg" alt="NFL Live Scores 4-Game Grid Layout">
+                        <img src="/assets/nfl-grid.jpeg" alt="NFL Live Scores 4-Game Grid Layout" width="400" height="300" loading="lazy" decoding="async">
                         <div class="grid-card-label"><span>4</span> Game Grid - NFL</div>
                     </div>
                     <div class="grid-card">
-                        <img src="/assets/nba-grid.jpeg" alt="NBA Live Scores 7-Game Grid Layout">
+                        <img src="/assets/nba-grid.jpeg" alt="NBA Live Scores 7-Game Grid Layout" width="400" height="300" loading="lazy" decoding="async">
                         <div class="grid-card-label"><span>7</span> Game Grid - NBA</div>
                     </div>
                     <div class="grid-card">
-                        <img src="/assets/mix-grid.jpeg" alt="Multi-Sport Scoreboard 8-Game Grid Layout">
+                        <img src="/assets/mix-grid.jpeg" alt="Multi-Sport Scoreboard 8-Game Grid Layout" width="400" height="300" loading="lazy" decoding="async">
                         <div class="grid-card-label"><span>8</span> Game Grid - Mixed</div>
                     </div>
                 </div>
@@ -2067,8 +2328,24 @@
         </div>
     </div>
 
-    <!-- Scroll Animation Script -->
-    <script src="/scripts/landing-animations.js"></script>
+    <!-- Non-blocking font loading -->
+    <script>
+        // Load Google Fonts asynchronously after page render
+        (function() {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;900&family=Source+Sans+3:wght@400;600&display=swap';
+            link.onload = function() {
+                // Swap to web fonts once loaded
+                document.documentElement.style.setProperty('--font-display', "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif");
+                document.documentElement.style.setProperty('--font-body', "'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif");
+            };
+            document.head.appendChild(link);
+        })();
+    </script>
+
+    <!-- Scroll Animation Script - deferred -->
+    <script src="/scripts/landing-animations.js" defer></script>
 
     <!-- Login/Register Script -->
     <script>
@@ -2382,11 +2659,46 @@
         }
 
         // ============================================
+        // MOBILE NAVIGATION
+        // ============================================
+        const navHamburger = document.getElementById('navHamburger');
+        const navMobileMenu = document.getElementById('navMobileMenu');
+
+        if (navHamburger && navMobileMenu) {
+            navHamburger.addEventListener('click', () => {
+                navHamburger.classList.toggle('active');
+                navMobileMenu.classList.toggle('show');
+            });
+
+            // Close menu when clicking links
+            navMobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navHamburger.classList.remove('active');
+                    navMobileMenu.classList.remove('show');
+                });
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navHamburger.contains(e.target) && !navMobileMenu.contains(e.target)) {
+                    navHamburger.classList.remove('active');
+                    navMobileMenu.classList.remove('show');
+                }
+            });
+        }
+
+        // ============================================
         // KEYBOARD SHORTCUTS
         // ============================================
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && loginOverlay.classList.contains('show')) {
-                hideLogin();
+            if (e.key === 'Escape') {
+                if (loginOverlay.classList.contains('show')) {
+                    hideLogin();
+                }
+                if (navMobileMenu && navMobileMenu.classList.contains('show')) {
+                    navHamburger.classList.remove('active');
+                    navMobileMenu.classList.remove('show');
+                }
             }
         });
     </script>
