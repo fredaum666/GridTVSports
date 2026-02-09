@@ -1188,24 +1188,25 @@ app.post('/api/push/subscribe', async (req, res) => {
   }
 
   try {
-    // Upsert subscription (update if endpoint exists, insert if not)
-    await pool.query(`
-      INSERT INTO push_subscriptions (user_id, endpoint, p256dh_key, auth_key, user_agent, updated_at)
-      VALUES ($1, $2, $3, $4, $5, NOW())
-      ON CONFLICT (endpoint) DO UPDATE SET
-        user_id = $1,
-        p256dh_key = $3,
-        auth_key = $4,
-        user_agent = $5,
-        is_active = TRUE,
-        updated_at = NOW()
-    `, [
-      req.session.userId,
-      subscription.endpoint,
-      subscription.keys.p256dh,
-      subscription.keys.auth,
-      req.headers['user-agent'] || null
-    ]);
+    // Upsert subscription using UPDATE-then-INSERT pattern
+    // (ON CONFLICT requires UNIQUE constraint which may not exist)
+    const userAgent = req.headers['user-agent'] || null;
+
+    // First try to update existing record
+    const updateResult = await pool.query(`
+      UPDATE push_subscriptions
+      SET user_id = $1, p256dh_key = $3, auth_key = $4, user_agent = $5, is_active = TRUE, updated_at = NOW()
+      WHERE endpoint = $2
+      RETURNING id
+    `, [req.session.userId, subscription.endpoint, subscription.keys.p256dh, subscription.keys.auth, userAgent]);
+
+    // If no rows updated, insert new record
+    if (updateResult.rowCount === 0) {
+      await pool.query(`
+        INSERT INTO push_subscriptions (user_id, endpoint, p256dh_key, auth_key, user_agent, updated_at)
+        VALUES ($1, $2, $3, $4, $5, NOW())
+      `, [req.session.userId, subscription.endpoint, subscription.keys.p256dh, subscription.keys.auth, userAgent]);
+    }
 
     // Create default notification preferences if not exists
     await pool.query(`
@@ -1262,25 +1263,26 @@ app.post('/api/push/fcm/register', async (req, res) => {
   }
 
   try {
-    // Upsert FCM subscription (update if token exists, insert if not)
-    // For JSONB column, pass the object directly (pg driver handles serialization)
-    await pool.query(`
-      INSERT INTO push_subscriptions (user_id, subscription_type, fcm_token, device_id, device_info, user_agent, updated_at)
-      VALUES ($1, 'fcm', $2, $3, $4::jsonb, $5, NOW())
-      ON CONFLICT (fcm_token) DO UPDATE SET
-        user_id = $1,
-        device_id = $3,
-        device_info = $4::jsonb,
-        user_agent = $5,
-        is_active = TRUE,
-        updated_at = NOW()
-    `, [
-      req.session.userId,
-      fcm_token,
-      device_id || null,
-      device_info ? JSON.stringify(device_info) : null,
-      req.headers['user-agent'] || null
-    ]);
+    // Upsert FCM subscription using UPDATE-then-INSERT pattern
+    // (ON CONFLICT requires UNIQUE constraint which may not exist)
+    const deviceInfoJson = device_info ? JSON.stringify(device_info) : null;
+    const userAgent = req.headers['user-agent'] || null;
+
+    // First try to update existing record
+    const updateResult = await pool.query(`
+      UPDATE push_subscriptions
+      SET user_id = $1, device_id = $3, device_info = $4::jsonb, user_agent = $5, is_active = TRUE, updated_at = NOW()
+      WHERE fcm_token = $2
+      RETURNING id
+    `, [req.session.userId, fcm_token, device_id || null, deviceInfoJson, userAgent]);
+
+    // If no rows updated, insert new record
+    if (updateResult.rowCount === 0) {
+      await pool.query(`
+        INSERT INTO push_subscriptions (user_id, subscription_type, fcm_token, device_id, device_info, user_agent, updated_at)
+        VALUES ($1, 'fcm', $2, $3, $4::jsonb, $5, NOW())
+      `, [req.session.userId, fcm_token, device_id || null, deviceInfoJson, userAgent]);
+    }
 
     // Create default notification preferences if not exists
     await pool.query(`
