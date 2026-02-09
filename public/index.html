@@ -3215,37 +3215,6 @@
             background: rgba(239, 68, 68, 0.15);
         }
 
-        .subscription-status-row {
-            padding: 8px 20px 12px 56px;
-        }
-
-        .subscription-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .subscription-badge.trial {
-            background: rgba(99, 102, 241, 0.2);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            color: #a5b4fc;
-        }
-
-        .subscription-badge.active {
-            background: rgba(34, 197, 94, 0.2);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #4ade80;
-        }
-
-        .subscription-badge.expired {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171;
-        }
-
         /* ================================ */
         /* PROFILE MODAL                    */
         /* ================================ */
@@ -3953,13 +3922,6 @@
                                     <span class="dropdown-item-icon">👤</span>
                                     <span>Edit Profile</span>
                                 </button>
-                                <a href="#" class="dropdown-item" id="subscriptionLink">
-                                    <span class="dropdown-item-icon">💳</span>
-                                    <span id="subscriptionLinkText">Manage Subscription</span>
-                                </a>
-                                <div class="subscription-status-row" id="subscriptionStatusRow">
-                                    <span class="subscription-badge trial" id="subscriptionBadge">Trial</span>
-                                </div>
                                 <a href="/favorites" class="dropdown-item">
                                     <span class="dropdown-item-icon">⭐</span>
                                     <span>Favorite Teams</span>
@@ -4457,42 +4419,10 @@
                         const userAvatar = document.getElementById('userAvatar');
                         const dropdownUserName = document.getElementById('dropdownUserName');
                         const dropdownUserEmail = document.getElementById('dropdownUserEmail');
-                        const subscriptionBadge = document.getElementById('subscriptionBadge');
-                        const subscriptionLink = document.getElementById('subscriptionLink');
-                        const subscriptionLinkText = document.getElementById('subscriptionLinkText');
-
                         userMenu.style.display = 'flex';
                         userAvatar.textContent = (data.user.displayName || data.user.email).charAt(0).toUpperCase();
                         dropdownUserName.textContent = data.user.displayName || data.user.email.split('@')[0];
                         dropdownUserEmail.textContent = data.user.email;
-
-                        // Update subscription badge and link
-                        if (data.subscription) {
-                            const sub = data.subscription;
-                            subscriptionBadge.className = 'subscription-badge';
-
-                            if (sub.status === 'active') {
-                                subscriptionBadge.classList.add('active');
-                                subscriptionBadge.textContent = sub.plan ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Pro';
-                                subscriptionLink.href = '/subscription';
-                                subscriptionLinkText.textContent = 'Manage Subscription';
-                            } else if (sub.status === 'trial') {
-                                subscriptionBadge.classList.add('trial');
-                                subscriptionBadge.textContent = sub.daysRemaining > 0 ? `Trial: ${sub.daysRemaining}d` : 'Trial';
-                                subscriptionLink.href = '/pricing';
-                                subscriptionLinkText.textContent = 'Upgrade Plan';
-                            } else if (sub.status === 'expired' || sub.status === 'canceled') {
-                                subscriptionBadge.classList.add('expired');
-                                subscriptionBadge.textContent = 'Subscribe';
-                                subscriptionLink.href = '/pricing';
-                                subscriptionLinkText.textContent = 'Subscribe Now';
-                            } else {
-                                subscriptionBadge.classList.add('trial');
-                                subscriptionBadge.textContent = 'Trial';
-                                subscriptionLink.href = '/pricing';
-                                subscriptionLinkText.textContent = 'Upgrade Plan';
-                            }
-                        }
 
                         setUserBadge(data.user.email, data.user.displayName);
                         return { authenticated: true };
@@ -6562,9 +6492,6 @@
         const profileMessage = document.getElementById('profileMessage');
         const saveProfileBtn = document.getElementById('saveProfileBtn');
         const logoutBtn = document.getElementById('logoutBtn');
-        const subscriptionBadge = document.getElementById('subscriptionBadge');
-        const subscriptionLink = document.getElementById('subscriptionLink');
-        const subscriptionLinkText = document.getElementById('subscriptionLinkText');
 
         // Toggle dropdown menu
         userMenuTrigger.addEventListener('click', (e) => {
@@ -6660,54 +6587,6 @@
         // Logout handler (replaces old sign-out)
         logoutBtn.addEventListener('click', async () => {
             signOut();
-        });
-
-        // Check subscription status
-        async function updateSubscriptionStatus() {
-            try {
-                const response = await fetch('/api/subscription/access', { credentials: 'same-origin' });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.subscription) {
-                        const sub = data.subscription;
-                        subscriptionBadge.className = 'subscription-badge';
-
-                        if (sub.status === 'active') {
-                            subscriptionBadge.classList.add('active');
-                            subscriptionBadge.textContent = sub.plan ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Pro';
-                            subscriptionLink.href = '/subscription';
-                            subscriptionLinkText.textContent = 'Manage Subscription';
-                        } else if (sub.status === 'trial') {
-                            subscriptionBadge.classList.add('trial');
-                            subscriptionBadge.textContent = sub.daysRemaining > 0 ? `Trial: ${sub.daysRemaining}d` : 'Trial';
-                            subscriptionLink.href = '/pricing';
-                            subscriptionLinkText.textContent = 'Upgrade Plan';
-                        } else if (sub.status === 'expired' || sub.status === 'canceled') {
-                            subscriptionBadge.classList.add('expired');
-                            subscriptionBadge.textContent = 'Subscribe';
-                            subscriptionLink.href = '/pricing';
-                            subscriptionLinkText.textContent = 'Subscribe Now';
-                        } else {
-                            subscriptionBadge.classList.add('trial');
-                            subscriptionBadge.textContent = 'Trial';
-                            subscriptionLink.href = '/pricing';
-                            subscriptionLinkText.textContent = 'Upgrade Plan';
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to get subscription status:', error);
-            }
-        }
-
-        // Update subscription status when user menu is shown
-        userMenuTrigger.addEventListener('click', updateSubscriptionStatus);
-
-        // Handle subscription link click
-        subscriptionLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            userDropdown.classList.remove('show');
-            window.location.href = subscriptionLink.href;
         });
 
         // ============================================
