@@ -10,6 +10,9 @@
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // Detect search engine crawlers (Googlebot, etc.)
+    const isCrawler = /Googlebot|bingbot|Baiduspider|YandexBot|DuckDuckBot/i.test(navigator.userAgent);
+
     // Cache nav height to avoid forced reflows
     let cachedNavHeight = 80;
 
@@ -17,10 +20,15 @@
      * Initialize all scroll animations
      */
     function init() {
-        if (prefersReducedMotion) {
+        // Reveal immediately for reduced motion or search crawlers
+        if (prefersReducedMotion || isCrawler) {
             revealAllImmediately();
             return;
         }
+
+        // Fallback: Reveal all content after 1.5s for any crawler we missed
+        // This ensures Google's renderer sees content even without scroll
+        setTimeout(revealAllImmediately, 1500);
 
         // Cache nav height once on load
         requestAnimationFrame(() => {
