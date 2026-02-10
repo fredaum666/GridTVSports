@@ -5057,6 +5057,9 @@
             const mockSelector = document.getElementById('mock-game-selector');
             const clearBtn = document.getElementById('clear-selections-btn');
 
+            // Track if sports-mode row was visible before this update
+            const wasVisible = container.classList.contains('visible');
+
             if (selectedGamesForSportsBar.length > 0) {
                 container.classList.add('visible');
                 const plural = selectedGamesForSportsBar.length === 1 ? 'game' : 'games';
@@ -5071,13 +5074,31 @@
                 countEl.textContent = '(Mock Data)';
                 // Show mock selector to choose number of games
                 mockSelector.classList.add('visible');
-                // Clear button is gray when no selections
+                // Clear button stays gray when no real selections
                 clearBtn.classList.remove('active');
             } else {
                 container.classList.remove('visible');
                 mockSelector.classList.remove('visible');
                 // Clear button is gray when no selections
                 clearBtn.classList.remove('active');
+            }
+
+            const isVisible = container.classList.contains('visible');
+
+            // Adjust currentRowIndex when sports-mode row visibility changes
+            // The sports-mode row is inserted at index 2 (after header and leagues)
+            if (!wasVisible && isVisible) {
+                // Row was inserted - shift index down if we're at or below the insertion point
+                if (currentRowIndex >= 2) {
+                    currentRowIndex++;
+                }
+            } else if (wasVisible && !isVisible) {
+                // Row was removed - shift index up if we're below the removal point
+                if (currentRowIndex > 2) {
+                    currentRowIndex--;
+                } else if (currentRowIndex === 2) {
+                    // Was focused on sports-mode row that's now gone - stay at index 2 (first game row)
+                }
             }
 
             // Update navigation rows to include/exclude the button
