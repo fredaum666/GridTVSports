@@ -399,12 +399,6 @@
             margin-bottom: 16px;
         }
 
-        .exit-modal-content p {
-            color: var(--tv-text-secondary);
-            font-size: 16px;
-            margin-bottom: 32px;
-        }
-
         .exit-modal-buttons {
             display: flex;
             gap: 20px;
@@ -531,8 +525,6 @@
             align-items: center;
             justify-content: center;
             padding: clamp(8px, 2vmin, 16px);
-            /* border: 1px solid red; */
-            /* Debug */
         }
 
         /* Center spacer - matches time box width */
@@ -1232,6 +1224,104 @@
             background: #fbbf24;
             border-color: #f59e0b;
             box-shadow: 0 0 12px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+
+        /* ============================================
+           NBA SCORER NOTIFICATION (Floating Box)
+           ============================================ */
+        .nba-scorer-notification {
+            position: absolute;
+            bottom: 5%;
+            padding: clamp(8px, 1.5vmin, 14px) clamp(14px, 2.5vmin, 24px);
+            background: linear-gradient(135deg, rgba(20, 20, 35, 0.95) 0%, rgba(35, 35, 55, 0.95) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 6px;
+            font-family: var(--sb-font-display, 'Oswald', sans-serif);
+            font-size: clamp(0.9rem, 2vmin, 1.3rem);
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            z-index: 50;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.05);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.5px;
+        }
+
+        .nba-scorer-notification.away {
+            left: 18%;
+            transform: translateX(-50%) translateY(20px);
+            border-color: var(--sb-away-primary, rgba(255, 255, 255, 0.25));
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px color-mix(in srgb, var(--sb-away-primary) 30%, transparent);
+        }
+
+        .nba-scorer-notification.home {
+            right: 18%;
+            left: auto;
+            transform: translateX(50%) translateY(20px);
+            border-color: var(--sb-home-primary, rgba(255, 255, 255, 0.25));
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px color-mix(in srgb, var(--sb-home-primary) 30%, transparent);
+        }
+
+        .nba-scorer-notification .scorer-points {
+            display: inline-block;
+            margin-left: clamp(8px, 1.5vmin, 12px);
+            padding: clamp(3px, 0.6vmin, 5px) clamp(8px, 1.2vmin, 12px);
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            font-size: clamp(0.75rem, 1.6vmin, 1rem);
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        /* Animation for away team scorer */
+        @keyframes scorerSlideUpAway {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            12% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            80% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(-40px);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-50px);
+            }
+        }
+
+        /* Animation for home team scorer */
+        @keyframes scorerSlideUpHome {
+            0% {
+                opacity: 0;
+                transform: translateX(50%) translateY(20px);
+            }
+            12% {
+                opacity: 1;
+                transform: translateX(50%) translateY(0);
+            }
+            80% {
+                opacity: 1;
+                transform: translateX(50%) translateY(-40px);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(50%) translateY(-50px);
+            }
+        }
+
+        .nba-scorer-notification.away.animate {
+            animation: scorerSlideUpAway 3s ease-out forwards;
+        }
+
+        .nba-scorer-notification.home.animate {
+            animation: scorerSlideUpHome 3s ease-out forwards;
         }
 
         /* Status text above scoreboard */
@@ -4269,7 +4359,7 @@
     <button class="back-btn focused" id="back-btn">Back to TV Home</button>
 
     <!-- Fullscreen Grid Container -->
-    <div class="fullscreen-container active" id="fullscreen-container">
+    <div class="fullscreen-container" id="fullscreen-container">
         <div class="fullscreen-grid" id="fullscreen-grid">
             <!-- Game cards rendered dynamically -->
         </div>
@@ -4293,7 +4383,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const isReceiverMode = urlParams.get('mode') === 'receiver';
         const receiverSessionId = urlParams.get('sessionId');
-        const receiverPIN = urlParams.get('pin');
 
         // ============================================
         // STATE
@@ -4315,6 +4404,10 @@
         // Each game tracks: { noPlayStartTime, isShowingStats, showStartTime, currentPhase, cachedStats }
         // currentPhase: 0 = away team, 1 = home team
         const statsModalState = new Map();
+
+        // NBA Scorer Notification State
+        const nbaScoreTracker = new Map(); // gameId -> { away: score, home: score }
+        const nbaScorerQueue = new Map(); // gameId -> timeout ID (prevents duplicate fetches)
 
         // League logos
         const leagueLogos = {
@@ -5149,6 +5242,198 @@
         }
 
         // ============================================
+        // NBA SCORER NOTIFICATION SYSTEM
+        // ============================================
+
+        /**
+         * Check for NBA score changes and trigger scorer notification
+         */
+        function checkNbaScoreChange(gameId, awayScore, homeScore) {
+            const prev = nbaScoreTracker.get(gameId);
+
+            if (!prev) {
+                // First time seeing this game, just store the score
+                nbaScoreTracker.set(gameId, { away: awayScore, home: homeScore });
+                return;
+            }
+
+            // Check if score changed
+            const awayScored = awayScore > prev.away;
+            const homeScored = homeScore > prev.home;
+
+            // Update stored score
+            nbaScoreTracker.set(gameId, { away: awayScore, home: homeScore });
+
+            // If either team scored, fetch the last scoring play
+            if (awayScored || homeScored) {
+                const scoringTeam = homeScored ? 'home' : 'away';
+                const pointsScored = homeScored ? (homeScore - prev.home) : (awayScore - prev.away);
+                fetchLastScoringPlay(gameId, scoringTeam, pointsScored);
+            }
+        }
+
+        /**
+         * Fetch the last scoring play from NBA summary API
+         */
+        async function fetchLastScoringPlay(gameId, scoringTeam, pointsScored) {
+            // Debounce: prevent multiple fetches for same game within 3 seconds
+            if (nbaScorerQueue.has(gameId)) {
+                return;
+            }
+
+            nbaScorerQueue.set(gameId, setTimeout(() => {
+                nbaScorerQueue.delete(gameId);
+            }, 3000));
+
+            try {
+                const response = await fetch(`/api/nba/summary/${gameId}`);
+                const data = await response.json();
+
+                if (data._cache && data._cache.retryAfter) {
+                    // Cache miss, retry after delay
+                    setTimeout(() => {
+                        fetchLastScoringPlay(gameId, scoringTeam, pointsScored);
+                    }, data._cache.retryAfter * 1000);
+                    return;
+                }
+
+                // Find the last scoring play
+                const plays = data.plays || [];
+                let lastScoringPlay = null;
+
+                // Search from end to find most recent scoring play
+                for (let i = plays.length - 1; i >= 0; i--) {
+                    const play = plays[i];
+                    if (play.scoringPlay && play.scoreValue > 0) {
+                        lastScoringPlay = play;
+                        break;
+                    }
+                }
+
+                if (lastScoringPlay) {
+                    // Extract player name from play text
+                    const playerName = extractPlayerName(lastScoringPlay.text);
+                    const playType = extractPlayType(lastScoringPlay.text, lastScoringPlay.scoreValue);
+                    showScorerNotification(gameId, scoringTeam, playerName, playType, lastScoringPlay.scoreValue);
+                } else {
+                    // Fallback: just show the points scored
+                    showScorerNotification(gameId, scoringTeam, 'Score', '', pointsScored);
+                }
+            } catch (error) {
+                console.error('Error fetching NBA scoring play:', error);
+            }
+        }
+
+        /**
+         * Extract player name from ESPN play description
+         * Example: "Stephen Curry makes 26-foot three point jumper" -> "S. Curry"
+         */
+        function extractPlayerName(playText) {
+            if (!playText) return 'Score';
+
+            // Common patterns: "FirstName LastName makes/misses..."
+            const match = playText.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z'-]+)+)\s+(?:makes|hits|dunks|scores)/i);
+            if (match) {
+                const fullName = match[1];
+                const parts = fullName.split(' ');
+                if (parts.length >= 2) {
+                    // Return "F. LastName" format
+                    return `${parts[0][0]}. ${parts[parts.length - 1]}`;
+                }
+                return fullName;
+            }
+
+            // Try to extract any name at start
+            const nameMatch = playText.match(/^([A-Z][a-z]+\s+[A-Z][a-z'-]+)/);
+            if (nameMatch) {
+                const parts = nameMatch[1].split(' ');
+                return `${parts[0][0]}. ${parts[1]}`;
+            }
+
+            return 'Score';
+        }
+
+        /**
+         * Extract play type from description
+         */
+        function extractPlayType(playText, scoreValue) {
+            if (!playText) {
+                return scoreValue === 3 ? '3PT' : scoreValue === 2 ? '2PT' : 'FT';
+            }
+
+            const text = playText.toLowerCase();
+
+            if (text.includes('three point') || text.includes('3-point') || text.includes('3-pt')) {
+                return '3PT';
+            }
+            if (text.includes('free throw')) {
+                return 'FT';
+            }
+            if (text.includes('dunk')) {
+                return 'DUNK';
+            }
+            if (text.includes('layup') || text.includes('lay-up')) {
+                return 'LAYUP';
+            }
+            if (text.includes('alley oop') || text.includes('alley-oop')) {
+                return 'ALLEY-OOP';
+            }
+            if (text.includes('hook')) {
+                return 'HOOK';
+            }
+            if (text.includes('floater')) {
+                return 'FLOATER';
+            }
+            if (text.includes('jumper') || text.includes('jump shot')) {
+                return 'JUMPER';
+            }
+            if (text.includes('tip-in') || text.includes('tip in')) {
+                return 'TIP-IN';
+            }
+            if (text.includes('putback')) {
+                return 'PUTBACK';
+            }
+
+            // Default based on score value
+            return scoreValue === 3 ? '3PT' : scoreValue === 2 ? '2PT' : 'FT';
+        }
+
+        /**
+         * Show the scorer notification animation
+         */
+        function showScorerNotification(gameId, team, playerName, playType, points) {
+            // Find the game card
+            const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+            if (!card) return;
+
+            // Find the notification element
+            const notification = card.querySelector(`.nba-scorer-notification.${team}`);
+            if (!notification) return;
+
+            // Format the display text
+            const pointsText = points === 1 ? '+1' : points === 2 ? '+2' : `+${points}`;
+            const displayName = playerName || 'Score';
+            const typeDisplay = playType ? ` ${playType}` : '';
+
+            notification.innerHTML = `${displayName}<span class="scorer-points">${pointsText}${typeDisplay}</span>`;
+
+            // Remove any existing animation class
+            notification.classList.remove('animate');
+
+            // Force reflow to restart animation
+            void notification.offsetWidth;
+
+            // Add animation class
+            notification.classList.add('animate');
+
+            // Remove animation class after it completes
+            setTimeout(() => {
+                notification.classList.remove('animate');
+                notification.innerHTML = '';
+            }, 3100);
+        }
+
+        // ============================================
         // RENDER GRID
         // ============================================
         // Update all game cards in place without destroying/recreating DOM
@@ -5197,6 +5482,15 @@
                     } else {
                         homeScoreEl.textContent = isUpcoming ? '-' : game.home.score;
                     }
+                }
+
+                // Check for NBA score changes (for scorer notifications)
+                if (game.league === 'nba' && isLive) {
+                    checkNbaScoreChange(
+                        game.id,
+                        parseInt(game.away.score) || 0,
+                        parseInt(game.home.score) || 0
+                    );
                 }
 
                 // Update time/period (update ALL clock elements)
@@ -5564,6 +5858,12 @@
                         </div>
 
                         ${fieldVisualizerHTML}
+
+                        ${(game.league === 'nba' && isLive) ? `
+                        <!-- NBA Scorer Notifications -->
+                        <div class="nba-scorer-notification away" data-team="away"></div>
+                        <div class="nba-scorer-notification home" data-team="home"></div>
+                        ` : ''}
                     </div>
 
                     ${(game.league === 'nfl' && isLive) ? `

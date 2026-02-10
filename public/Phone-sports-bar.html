@@ -1356,6 +1356,75 @@
             box-shadow: 0 0 12px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.3);
         }
 
+        /* ============================================
+           NBA SCORER NOTIFICATION (Floating Box)
+           ============================================ */
+        .nba-scorer-notification {
+            position: absolute;
+            bottom: 5%;
+            padding: clamp(6px, 1.2vmin, 10px) clamp(10px, 2vmin, 18px);
+            background: linear-gradient(135deg, rgba(20, 20, 35, 0.95) 0%, rgba(35, 35, 55, 0.95) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 5px;
+            font-family: var(--sb-font-display, 'Oswald', sans-serif);
+            font-size: clamp(0.8rem, 1.8vmin, 1.1rem);
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(15px);
+            pointer-events: none;
+            z-index: 50;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.4px;
+        }
+
+        .nba-scorer-notification.away {
+            left: 18%;
+            transform: translateX(-50%) translateY(15px);
+            border-color: var(--sb-away-primary, rgba(255, 255, 255, 0.25));
+        }
+
+        .nba-scorer-notification.home {
+            right: 18%;
+            left: auto;
+            transform: translateX(50%) translateY(15px);
+            border-color: var(--sb-home-primary, rgba(255, 255, 255, 0.25));
+        }
+
+        .nba-scorer-notification .scorer-points {
+            display: inline-block;
+            margin-left: clamp(6px, 1.2vmin, 10px);
+            padding: clamp(2px, 0.5vmin, 4px) clamp(6px, 1vmin, 10px);
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            font-size: clamp(0.65rem, 1.4vmin, 0.9rem);
+            font-weight: 700;
+        }
+
+        @keyframes scorerSlideUpAway {
+            0% { opacity: 0; transform: translateX(-50%) translateY(15px); }
+            12% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80% { opacity: 1; transform: translateX(-50%) translateY(-30px); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-40px); }
+        }
+
+        @keyframes scorerSlideUpHome {
+            0% { opacity: 0; transform: translateX(50%) translateY(15px); }
+            12% { opacity: 1; transform: translateX(50%) translateY(0); }
+            80% { opacity: 1; transform: translateX(50%) translateY(-30px); }
+            100% { opacity: 0; transform: translateX(50%) translateY(-40px); }
+        }
+
+        .nba-scorer-notification.away.animate {
+            animation: scorerSlideUpAway 3s ease-out forwards;
+        }
+
+        .nba-scorer-notification.home.animate {
+            animation: scorerSlideUpHome 3s ease-out forwards;
+        }
+
         /* Status text above scoreboard */
         .fs-status-container {
             margin-bottom: 4px;
@@ -2203,38 +2272,6 @@
             padding: clamp(2px, 0.5vmin, 4px) 0;
         }
 
-        /* Desktop hover states */
-        .league-card:hover,
-        .league-card.hovered {
-            transform: scale(1.05);
-            border-color: var(--accent, #6366f1);
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
-        }
-
-        .game-card:hover,
-        .game-card.hovered {
-            transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        .sports-mode-btn:hover,
-        .clear-selections-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
-        }
-
-        /* Cursor pointer for clickable elements */
-        .league-card,
-        .game-card,
-        .sports-mode-btn,
-        .clear-selections-btn,
-        .sign-out-link,
-        .login-option,
-        .login-btn,
-        .back-link {
-            cursor: pointer;
-        }
-
         /* ================================ */
         /* MOBILE RESPONSIVE STYLES         */
         /* ================================ */
@@ -2970,6 +3007,10 @@
         // currentPhase: 0 = away team, 1 = home team
         const statsModalState = new Map();
 
+        // NBA Scorer Notification State
+        const nbaScoreTracker = new Map(); // gameId -> { away: score, home: score }
+        const nbaScorerQueue = new Map(); // gameId -> timeout ID (prevents duplicate fetches)
+
         // League logos
         const leagueLogos = {
             'nfl': '/assets/nfl-logo.png',
@@ -3588,6 +3629,95 @@
         }
 
         // ============================================
+        // NBA SCORER NOTIFICATION SYSTEM
+        // ============================================
+
+        function checkNbaScoreChange(gameId, awayScore, homeScore) {
+            const prev = nbaScoreTracker.get(gameId);
+            if (!prev) {
+                nbaScoreTracker.set(gameId, { away: awayScore, home: homeScore });
+                return;
+            }
+            const awayScored = awayScore > prev.away;
+            const homeScored = homeScore > prev.home;
+            nbaScoreTracker.set(gameId, { away: awayScore, home: homeScore });
+            if (awayScored || homeScored) {
+                const scoringTeam = homeScored ? 'home' : 'away';
+                const pointsScored = homeScored ? (homeScore - prev.home) : (awayScore - prev.away);
+                fetchLastScoringPlay(gameId, scoringTeam, pointsScored);
+            }
+        }
+
+        async function fetchLastScoringPlay(gameId, scoringTeam, pointsScored) {
+            if (nbaScorerQueue.has(gameId)) return;
+            nbaScorerQueue.set(gameId, setTimeout(() => nbaScorerQueue.delete(gameId), 3000));
+            try {
+                const response = await fetch(`/api/nba/summary/${gameId}`);
+                const data = await response.json();
+                if (data._cache && data._cache.retryAfter) {
+                    setTimeout(() => fetchLastScoringPlay(gameId, scoringTeam, pointsScored), data._cache.retryAfter * 1000);
+                    return;
+                }
+                const plays = data.plays || [];
+                let lastScoringPlay = null;
+                for (let i = plays.length - 1; i >= 0; i--) {
+                    if (plays[i].scoringPlay && plays[i].scoreValue > 0) {
+                        lastScoringPlay = plays[i];
+                        break;
+                    }
+                }
+                if (lastScoringPlay) {
+                    const playerName = extractPlayerName(lastScoringPlay.text);
+                    const playType = extractPlayType(lastScoringPlay.text, lastScoringPlay.scoreValue);
+                    showScorerNotification(gameId, scoringTeam, playerName, playType, lastScoringPlay.scoreValue);
+                } else {
+                    showScorerNotification(gameId, scoringTeam, 'Score', '', pointsScored);
+                }
+            } catch (error) {
+                console.error('Error fetching NBA scoring play:', error);
+            }
+        }
+
+        function extractPlayerName(playText) {
+            if (!playText) return 'Score';
+            const match = playText.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z'-]+)+)\s+(?:makes|hits|dunks|scores)/i);
+            if (match) {
+                const parts = match[1].split(' ');
+                return parts.length >= 2 ? `${parts[0][0]}. ${parts[parts.length - 1]}` : match[1];
+            }
+            const nameMatch = playText.match(/^([A-Z][a-z]+\s+[A-Z][a-z'-]+)/);
+            return nameMatch ? `${nameMatch[1].split(' ')[0][0]}. ${nameMatch[1].split(' ')[1]}` : 'Score';
+        }
+
+        function extractPlayType(playText, scoreValue) {
+            if (!playText) return scoreValue === 3 ? '3PT' : scoreValue === 2 ? '2PT' : 'FT';
+            const text = playText.toLowerCase();
+            if (text.includes('three point') || text.includes('3-point')) return '3PT';
+            if (text.includes('free throw')) return 'FT';
+            if (text.includes('dunk')) return 'DUNK';
+            if (text.includes('layup')) return 'LAYUP';
+            if (text.includes('alley oop')) return 'ALLEY-OOP';
+            if (text.includes('jumper') || text.includes('jump shot')) return 'JUMPER';
+            return scoreValue === 3 ? '3PT' : scoreValue === 2 ? '2PT' : 'FT';
+        }
+
+        function showScorerNotification(gameId, team, playerName, playType, points) {
+            const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+            if (!card) return;
+            const notification = card.querySelector(`.nba-scorer-notification.${team}`);
+            if (!notification) return;
+            const pointsText = points === 1 ? '+1' : `+${points}`;
+            notification.innerHTML = `${playerName || 'Score'}<span class="scorer-points">${pointsText}${playType ? ` ${playType}` : ''}</span>`;
+            notification.classList.remove('animate');
+            void notification.offsetWidth;
+            notification.classList.add('animate');
+            setTimeout(() => {
+                notification.classList.remove('animate');
+                notification.innerHTML = '';
+            }, 3100);
+        }
+
+        // ============================================
         // RENDER GRID
         // ============================================
         // Mobile paging instance
@@ -3640,6 +3770,11 @@
                     } else {
                         homeScoreEl.textContent = isUpcoming ? '-' : game.home.score;
                     }
+                }
+
+                // Check for NBA score changes (for scorer notifications)
+                if (game.league === 'nba' && isLive) {
+                    checkNbaScoreChange(game.id, parseInt(game.away.score) || 0, parseInt(game.home.score) || 0);
                 }
 
                 // Update time/period
@@ -4013,6 +4148,12 @@
                         </div>
 
                         ${fieldVisualizerHTML}
+
+                        ${(game.league === 'nba' && isLive) ? `
+                        <!-- NBA Scorer Notifications -->
+                        <div class="nba-scorer-notification away" data-team="away"></div>
+                        <div class="nba-scorer-notification home" data-team="home"></div>
+                        ` : ''}
                     </div>
 
                     ${(game.league === 'nfl' && isLive) ? `
@@ -5275,14 +5416,12 @@
         function showExitModal() {
             isModalOpen = true;
             document.getElementById('exit-modal').classList.add('visible');
-            document.getElementById('back-btn')// focused class removed for desktop;
             setModalFocus(0);
         }
 
         function hideExitModal() {
             isModalOpen = false;
             document.getElementById('exit-modal').classList.remove('visible');
-            document.getElementById('back-btn')// focused class removed for desktop;
             document.getElementById('back-btn').focus();
         }
 
@@ -5291,14 +5430,9 @@
             const confirmBtn = document.getElementById('confirm-exit');
             const cancelBtn = document.getElementById('cancel-exit');
 
-            confirmBtn// focused class removed for desktop;
-            cancelBtn// focused class removed for desktop;
-
             if (index === 0) {
-                confirmBtn// focused class removed for desktop;
                 confirmBtn.focus();
             } else {
-                cancelBtn// focused class removed for desktop;
                 cancelBtn.focus();
             }
         }
@@ -5378,64 +5512,6 @@
             }
         }
 
-        // ============================================
-        // DESKTOP MOUSE/TOUCH EVENT HANDLERS
-        // ============================================
-        document.addEventListener('click', function (e) {
-            // Handle league card clicks
-            const leagueCard = e.target.closest('.league-card');
-            if (leagueCard) {
-                const league = leagueCard.dataset.league;
-                const action = leagueCard.dataset.action;
-                if (action === 'phone-connect') {
-                    openPage('/tv-receiver.html');
-                } else if (league) {
-                    selectLeague(league);
-                }
-                return;
-            }
-
-            // Handle game card clicks
-            const gameCard = e.target.closest('.game-card');
-            if (gameCard && gameCard.dataset.game) {
-                const game = JSON.parse(gameCard.dataset.game);
-                toggleGameSelection(gameCard, game);
-                return;
-            }
-
-            // Handle sports mode button
-            if (e.target.closest('#sports-mode-btn')) {
-                enterSportsBarMode();
-                return;
-            }
-
-            // Handle clear selections button
-            if (e.target.closest('#clear-selections-btn')) {
-                clearSportsBarSelections();
-                return;
-            }
-
-            // Handle sign out
-            if (e.target.closest('#sign-out-btn')) {
-                signOut();
-                return;
-            }
-        });
-
-        // Add hover effects for desktop
-        document.addEventListener('mouseover', function (e) {
-            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .clear-selections-btn');
-            if (card) {
-                card.classList.add('hovered');
-            }
-        });
-
-        document.addEventListener('mouseout', function (e) {
-            const card = e.target.closest('.league-card, .game-card, .sports-mode-btn, .clear-selections-btn');
-            if (card) {
-                card.classList.remove('hovered');
-            }
-        });
 
     </script>
 

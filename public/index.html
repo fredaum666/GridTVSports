@@ -380,37 +380,6 @@
             font-size: 14px;
         }
 
-        .user-badge {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-magenta) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-display);
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--bg-primary);
-            text-transform: uppercase;
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        .sign-out-link {
-            color: var(--accent);
-            cursor: pointer;
-            padding: 8px 16px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .sign-out-link.focused {
-            border-color: var(--accent);
-            background: rgba(99, 102, 241, 0.1);
-            transform: scale(1.05);
-        }
-
         /* Main Content - Scrollable Rows */
         .tv-content {
             flex: 1;
@@ -632,15 +601,6 @@
             transform: translateY(-2px);
         }
 
-        .league-card.focused {
-            border: 1px solid var(--accent-magenta);
-            transform: scale(var(--hover-scale));
-            box-shadow:
-                0 0 0 1px rgba(255, 0, 102, 0.4),
-                0 6px 28px rgba(255, 0, 102, 0.2);
-            z-index: 10;
-        }
-
         .league-card img {
             height: 50px;
             width: auto;
@@ -752,15 +712,6 @@
                 0 8px 40px rgba(255, 0, 102, 0.15),
                 inset 0 1px 0 rgba(255, 0, 102, 0.15);
             transform: translateY(-2px);
-        }
-
-        .game-card.focused {
-            border: 1px solid var(--accent-magenta);
-            transform: scale(var(--hover-scale));
-            box-shadow:
-                0 0 0 1px rgba(255, 0, 102, 0.5),
-                0 8px 40px rgba(255, 0, 102, 0.25);
-            z-index: 10;
         }
 
         .game-card-header {
@@ -1003,15 +954,6 @@
             white-space: nowrap;
         }
 
-        .game-card.live-card.focused {
-            border: 3px solid var(--accent);
-            transform: scale(var(--hover-scale));
-            box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
-            z-index: 10;
-        }
-
         /* NBA Upcoming Card - Special VS Design */
         .game-card.nba-upcoming {
             padding: 0;
@@ -1104,13 +1046,6 @@
         .nba-upcoming-header .game-card-status {
             background: rgba(99, 102, 241, 0.8);
             backdrop-filter: blur(4px);
-        }
-
-        .game-card.nba-upcoming.focused {
-            border: 3px solid var(--accent);
-            box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         .nba-upcoming-footer {
@@ -1244,13 +1179,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
-        .game-card.nfl-upcoming.focused {
-            border: 3px solid var(--accent);
-            box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-
         /* NFL Final Card with Winner Watermark */
         .game-card.nfl-final {
             position: relative;
@@ -1363,13 +1291,6 @@
             border-radius: 8px;
             border: 1px solid #333a4a;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-        }
-
-        .game-card.nhl-upcoming.focused {
-            border: 3px solid var(--accent);
-            box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         /* NHL Final Card with Winner Watermark */
@@ -1486,13 +1407,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
-        .game-card.mlb-upcoming.focused {
-            border: 3px solid var(--accent);
-            box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-
         /* MLB Final Card with Winner Watermark */
         .game-card.mlb-final {
             position: relative;
@@ -1607,13 +1521,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
-        .game-card.ncaa-upcoming.focused {
-            border: 3px solid var(--accent);
-            box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-
         /* NCAA Football Final Card with Winner Watermark */
         .game-card.ncaa-final {
             position: relative;
@@ -1726,13 +1633,6 @@
             border-radius: 8px;
             border: 1px solid #333a4a;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-        }
-
-        .game-card.ncaab-upcoming.focused {
-            border: 3px solid var(--accent);
-            box-shadow:
-                0 0 0 2px rgba(99, 102, 241, 0.5),
-                0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         /* NCAAB Final Card with Winner Watermark */
@@ -1927,13 +1827,6 @@
             color: #f4e5b8;
             z-index: 4;
             border-top: 1px solid rgba(212, 175, 55, 0.3);
-        }
-
-        .game-card.superbowl-upcoming.focused {
-            border: 3px solid #f4e5b8;
-            box-shadow:
-                0 0 0 2px rgba(212, 175, 55, 0.5),
-                0 0 30px rgba(212, 175, 55, 0.5);
         }
 
         .game-card-footer {
@@ -2154,15 +2047,6 @@
                 inset 0 -2px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .game-card.selected-for-sports-bar.focused {
-            border-color: #4fdf7a !important;
-            box-shadow:
-                0 8px 24px rgba(34, 197, 94, 0.3),
-                0 0 20px rgba(34, 197, 94, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -2px 6px rgba(0, 0, 0, 0.2);
-        }
-
         .game-card .selection-number {
             position: absolute;
             top: 50%;
@@ -2242,8 +2126,7 @@
                 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .sports-mode-btn:hover,
-        .sports-mode-btn.focused {
+        .sports-mode-btn:hover {
             background: linear-gradient(180deg, #66f7ff 0%, var(--accent) 100%);
             transform: translateY(-2px);
             box-shadow:
@@ -2296,8 +2179,7 @@
                 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .cast-to-tv-btn:hover,
-        .cast-to-tv-btn.focused {
+        .cast-to-tv-btn:hover {
             background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
             transform: translateY(-2px);
             box-shadow:
@@ -2330,13 +2212,11 @@
                 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .clear-selections-btn:hover,
-        .clear-selections-btn.focused {
+        .clear-selections-btn:hover {
             transform: translateY(-2px);
         }
 
-        .clear-selections-btn.active:hover,
-        .clear-selections-btn.active.focused {
+        .clear-selections-btn.active:hover {
             background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
             box-shadow:
                 0 6px 20px rgba(239, 68, 68, 0.5),
@@ -4293,8 +4173,6 @@
         // STATE MANAGEMENT
         // ============================================
         let currentScreen = 'login';
-        let currentRowIndex = 0;
-        let currentColIndex = 0;
         let rows = []; // Array of { name: string, elements: HTMLElement[] }
 
         // Auth state
@@ -4306,7 +4184,6 @@
         let allGames = { live: [], upcoming: [], final: [] };
         let allGamesUnfiltered = { live: [], upcoming: [], final: [] };
         let selectedLeague = 'all';
-        let leagueFocusTimer = null; // Timer for auto-filtering on focus
 
         // Sports Bar Mode - Multi-select state
         let selectedGamesForSportsBar = [];
@@ -4850,15 +4727,6 @@
         // ============================================
         function initHomeNavigation() {
             updateRows();
-            // Start on leagues row (row 1), first item is "All"
-            currentRowIndex = 1;
-            currentColIndex = 0;
-            // setHomeFocus removed for desktop
-
-            // D-pad navigation removed for desktop
-            // D-pad navigation removed for desktop
-            // D-pad navigation removed for desktop
-            // D-pad navigation removed for desktop
         }
 
         function updateRows() {
@@ -4910,45 +4778,6 @@
                 if (finalRow.length > 0) {
                     rows.push({ name: 'final', elements: Array.from(finalRow) });
                 }
-            }
-        }
-
-        function setHomeFocus() {
-            // Focus management removed for desktop - using mouse/touch instead
-        }
-
-        function handleHomeKeyDown(e) {
-            // D-pad navigation removed for desktop - using mouse/touch instead
-        }
-
-        function selectCurrentHomeItem() {
-            if (rows.length === 0) return;
-            const row = rows[currentRowIndex];
-            const el = row.elements[currentColIndex];
-            if (!el) return;
-
-            const league = el.dataset.league;
-            const action = el.dataset.action;
-            const gameData = el.dataset.game;
-
-            if (el.id === 'sign-out-btn') {
-                signOut();
-            } else if (el.id === 'sports-mode-btn') {
-                // Enter Sports Bar Mode
-                enterSportsBarMode();
-            } else if (el.id === 'cast-to-tv-btn') {
-                // Open Cast to TV modal
-                openCastModal();
-            } else if (el.id === 'clear-selections-btn') {
-                // Clear all selections
-                clearSportsBarSelections();
-            } else if (league) {
-                // League card - filter games
-                selectLeague(league);
-            } else if (gameData) {
-                // Game card - toggle selection for Sports Bar Mode
-                const game = JSON.parse(gameData);
-                toggleGameSelection(el, game);
             }
         }
 
@@ -5586,14 +5415,6 @@
             currentFullscreenGame = null;
 
             // Remove keyboard handler
-            // D-pad navigation removed for desktop
-
-            // Restore focus to the game card
-            // setHomeFocus removed for desktop
-        }
-
-        function handleFullscreenKeyDown(e) {
-            // D-pad navigation removed for desktop - using mouse/touch instead
         }
 
         // Set up close button click handler
@@ -5838,7 +5659,6 @@
 
             // Update navigation
             updateRows();
-            // setHomeFocus removed for desktop
 
             // Re-apply any existing game selections after rendering
             reapplyGameSelections();
