@@ -4396,7 +4396,8 @@
 
         // NBA Scorer Notification State
         const nbaScoreTracker = new Map(); // gameId -> { away: score, home: score }
-        const nbaScorerQueue = new Map(); // gameId -> timeout ID (prevents duplicate fetches)
+        const nbaAnimationQueue = new Map(); // gameId -> { queue: [], isPlaying: boolean }
+        const nbaFetchLock = new Map(); // gameId -> boolean (prevents concurrent API fetches)
 
         // League logos
         const leagueLogos = {
@@ -5236,6 +5237,7 @@
 
         /**
          * Check for NBA score changes and trigger scorer notification
+         * Handles both teams scoring simultaneously by queuing notifications
          */
         function checkNbaScoreChange(gameId, awayScore, homeScore) {
             const prev = nbaScoreTracker.get(gameId);
@@ -5253,26 +5255,31 @@
             // Update stored score
             nbaScoreTracker.set(gameId, { away: awayScore, home: homeScore });
 
-            // If either team scored, fetch the last scoring play
-            if (awayScored || homeScored) {
-                const scoringTeam = homeScored ? 'home' : 'away';
-                const pointsScored = homeScored ? (homeScore - prev.home) : (awayScore - prev.away);
-                fetchLastScoringPlay(gameId, scoringTeam, pointsScored);
+            // Queue notifications for each team that scored
+            const scoringEvents = [];
+            if (awayScored) {
+                scoringEvents.push({ team: 'away', points: awayScore - prev.away });
+            }
+            if (homeScored) {
+                scoringEvents.push({ team: 'home', points: homeScore - prev.home });
+            }
+
+            if (scoringEvents.length > 0) {
+                fetchScoringPlays(gameId, scoringEvents);
             }
         }
 
         /**
-         * Fetch the last scoring play from NBA summary API
+         * Fetch scoring plays from NBA summary API and queue notifications
          */
-        async function fetchLastScoringPlay(gameId, scoringTeam, pointsScored) {
-            // Debounce: prevent multiple fetches for same game within 3 seconds
-            if (nbaScorerQueue.has(gameId)) {
+        async function fetchScoringPlays(gameId, scoringEvents) {
+            // Prevent concurrent fetches for the same game
+            if (nbaFetchLock.get(gameId)) {
+                // Queue the events and let the current fetch handle them
                 return;
             }
 
-            nbaScorerQueue.set(gameId, setTimeout(() => {
-                nbaScorerQueue.delete(gameId);
-            }, 3000));
+            nbaFetchLock.set(gameId, true);
 
             try {
                 const response = await fetch(`/api/nba/summary/${gameId}`);
@@ -5280,34 +5287,78 @@
 
                 if (data._cache && data._cache.retryAfter) {
                     // Cache miss, retry after delay
+                    nbaFetchLock.set(gameId, false);
                     setTimeout(() => {
-                        fetchLastScoringPlay(gameId, scoringTeam, pointsScored);
+                        fetchScoringPlays(gameId, scoringEvents);
                     }, data._cache.retryAfter * 1000);
                     return;
                 }
 
-                // Find the last scoring play
+                // Get all recent scoring plays
                 const plays = data.plays || [];
-                let lastScoringPlay = null;
+                const recentScoringPlays = [];
 
-                // Search from end to find most recent scoring play
-                for (let i = plays.length - 1; i >= 0; i--) {
-                    const play = plays[i];
-                    if (play.scoringPlay && play.scoreValue > 0) {
-                        lastScoringPlay = play;
-                        break;
+                // Collect the last few scoring plays (up to scoringEvents.length + 1)
+                const maxPlays = scoringEvents.length + 1;
+                for (let i = plays.length - 1; i >= 0 && recentScoringPlays.length < maxPlays; i--) {
+                    if (plays[i].scoringPlay && plays[i].scoreValue > 0) {
+                        recentScoringPlays.push(plays[i]);
                     }
                 }
 
-                if (lastScoringPlay) {
-                    const playerName = extractPlayerName(lastScoringPlay.text);
-                    showScorerNotification(gameId, scoringTeam, playerName);
-                } else {
-                    showScorerNotification(gameId, scoringTeam, 'Score');
-                }
+                // Match scoring events to plays (best effort)
+                scoringEvents.forEach((event, index) => {
+                    const play = recentScoringPlays[index];
+                    const playerName = play ? extractPlayerName(play.text) : 'Score';
+                    queueScorerNotification(gameId, event.team, playerName);
+                });
+
             } catch (error) {
                 console.error('Error fetching NBA scoring play:', error);
+                // Still show generic notifications on error
+                scoringEvents.forEach(event => {
+                    queueScorerNotification(gameId, event.team, 'Score');
+                });
+            } finally {
+                nbaFetchLock.set(gameId, false);
             }
+        }
+
+        /**
+         * Queue a scorer notification to play after any current animations
+         */
+        function queueScorerNotification(gameId, team, playerName) {
+            if (!nbaAnimationQueue.has(gameId)) {
+                nbaAnimationQueue.set(gameId, { queue: [], isPlaying: false });
+            }
+
+            const gameQueue = nbaAnimationQueue.get(gameId);
+            gameQueue.queue.push({ team, playerName });
+
+            // Start processing if not already playing
+            if (!gameQueue.isPlaying) {
+                processAnimationQueue(gameId);
+            }
+        }
+
+        /**
+         * Process the animation queue for a game
+         */
+        function processAnimationQueue(gameId) {
+            const gameQueue = nbaAnimationQueue.get(gameId);
+            if (!gameQueue || gameQueue.queue.length === 0) {
+                if (gameQueue) gameQueue.isPlaying = false;
+                return;
+            }
+
+            gameQueue.isPlaying = true;
+            const notification = gameQueue.queue.shift();
+
+            // Show the notification (with delay for score animation)
+            showScorerNotification(gameId, notification.team, notification.playerName, () => {
+                // Process next notification after this one finishes
+                processAnimationQueue(gameId);
+            });
         }
 
         /**
@@ -5341,15 +5392,25 @@
 
         /**
          * Show the scorer notification animation (delayed to appear after score animation)
+         * @param {string} gameId - Game ID
+         * @param {string} team - 'home' or 'away'
+         * @param {string} playerName - Player name to display
+         * @param {function} onComplete - Callback when animation finishes
          */
-        function showScorerNotification(gameId, team, playerName) {
+        function showScorerNotification(gameId, team, playerName, onComplete) {
             // Delay notification to appear after score animation finishes (3.1s)
             setTimeout(() => {
                 const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
-                if (!card) return;
+                if (!card) {
+                    if (onComplete) onComplete();
+                    return;
+                }
 
                 const notification = card.querySelector(`.nba-scorer-notification.${team}`);
-                if (!notification) return;
+                if (!notification) {
+                    if (onComplete) onComplete();
+                    return;
+                }
 
                 // Only show player name
                 notification.textContent = playerName || 'Score';
@@ -5361,6 +5422,7 @@
                 setTimeout(() => {
                     notification.classList.remove('animate');
                     notification.textContent = '';
+                    if (onComplete) onComplete();
                 }, 3100);
             }, 3100);
         }
