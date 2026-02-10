@@ -1,5 +1,5 @@
 # GridTV Sports robots.txt
-# Live Sports Scores App - https://gridtvsports.com
+# Live Sports Scores App - https://www.gridtvsports.com
 
 # Allow all search engine crawlers
 User-agent: *
@@ -44,4 +44,4 @@ Allow: /
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://gridtvsports.com/sitemap.xml
+Sitemap: https://www.gridtvsports.com/sitemap.xml
