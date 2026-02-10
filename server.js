@@ -6640,7 +6640,7 @@ const sentGameNotifications = new Set();
 
 // Check for upcoming games and send notifications every minute
 cron.schedule('* * * * *', async () => {
-  if (!webPushConfigured) return;
+  if (!webPushConfigured && !fcmConfigured) return;
 
   try {
     // Get all users with active push subscriptions and their preferences
@@ -6718,6 +6718,9 @@ cron.schedule('* * * * *', async () => {
 
     if (upcomingGames.length === 0) return;
 
+    console.log(`[Push] Found ${upcomingGames.length} games starting within 30 min:`,
+      upcomingGames.map(g => `${g.shortName} (${g.league}) in ${g.minutesUntilStart}m`).join(', '));
+
     // Process each user
     for (const user of usersResult.rows) {
       // Skip if user disabled game start alerts
@@ -6746,6 +6749,9 @@ cron.schedule('* * * * *', async () => {
           [user.user_id]
         );
         favoriteTeamIds = favResult.rows.map(r => r.team_id || r.team_abbreviation);
+        if (favoriteTeamIds.length > 0) {
+          console.log(`[Push] User ${user.user_id} favorite teams: ${favoriteTeamIds.join(', ')}`);
+        }
       }
 
       // Get user's push subscriptions (both web push and FCM)
@@ -6771,7 +6777,10 @@ cron.schedule('* * * * *', async () => {
           const awayTeamMatch = favoriteTeamIds.includes(game.awayTeam.id) ||
             favoriteTeamIds.includes(game.awayTeam.abbreviation);
 
-          if (!homeTeamMatch && !awayTeamMatch) continue;
+          if (!homeTeamMatch && !awayTeamMatch) {
+            console.log(`[Push] User ${user.user_id}: ${game.shortName} not a favorite team match. Home: ${game.homeTeam.id}/${game.homeTeam.abbreviation}, Away: ${game.awayTeam.id}/${game.awayTeam.abbreviation}`);
+            continue;
+          }
         }
 
         // Create unique key for this user/game combo
