@@ -1265,17 +1265,6 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px color-mix(in srgb, var(--sb-home-primary) 30%, transparent);
         }
 
-        .nba-scorer-notification .scorer-points {
-            display: inline-block;
-            margin-left: clamp(8px, 1.5vmin, 12px);
-            padding: clamp(3px, 0.6vmin, 5px) clamp(8px, 1.2vmin, 12px);
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 4px;
-            font-size: clamp(0.75rem, 1.6vmin, 1rem);
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-
         /* Animation for away team scorer */
         @keyframes scorerSlideUpAway {
             0% {
@@ -5311,13 +5300,10 @@
                 }
 
                 if (lastScoringPlay) {
-                    // Extract player name from play text
                     const playerName = extractPlayerName(lastScoringPlay.text);
-                    const playType = extractPlayType(lastScoringPlay.text, lastScoringPlay.scoreValue);
-                    showScorerNotification(gameId, scoringTeam, playerName, playType, lastScoringPlay.scoreValue);
+                    showScorerNotification(gameId, scoringTeam, playerName);
                 } else {
-                    // Fallback: just show the points scored
-                    showScorerNotification(gameId, scoringTeam, 'Score', '', pointsScored);
+                    showScorerNotification(gameId, scoringTeam, 'Score');
                 }
             } catch (error) {
                 console.error('Error fetching NBA scoring play:', error);
@@ -5354,82 +5340,28 @@
         }
 
         /**
-         * Extract play type from description
+         * Show the scorer notification animation (delayed to appear after score animation)
          */
-        function extractPlayType(playText, scoreValue) {
-            if (!playText) {
-                return scoreValue === 3 ? '3PT' : scoreValue === 2 ? '2PT' : 'FT';
-            }
-
-            const text = playText.toLowerCase();
-
-            if (text.includes('three point') || text.includes('3-point') || text.includes('3-pt')) {
-                return '3PT';
-            }
-            if (text.includes('free throw')) {
-                return 'FT';
-            }
-            if (text.includes('dunk')) {
-                return 'DUNK';
-            }
-            if (text.includes('layup') || text.includes('lay-up')) {
-                return 'LAYUP';
-            }
-            if (text.includes('alley oop') || text.includes('alley-oop')) {
-                return 'ALLEY-OOP';
-            }
-            if (text.includes('hook')) {
-                return 'HOOK';
-            }
-            if (text.includes('floater')) {
-                return 'FLOATER';
-            }
-            if (text.includes('jumper') || text.includes('jump shot')) {
-                return 'JUMPER';
-            }
-            if (text.includes('tip-in') || text.includes('tip in')) {
-                return 'TIP-IN';
-            }
-            if (text.includes('putback')) {
-                return 'PUTBACK';
-            }
-
-            // Default based on score value
-            return scoreValue === 3 ? '3PT' : scoreValue === 2 ? '2PT' : 'FT';
-        }
-
-        /**
-         * Show the scorer notification animation
-         */
-        function showScorerNotification(gameId, team, playerName, playType, points) {
-            // Find the game card
-            const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
-            if (!card) return;
-
-            // Find the notification element
-            const notification = card.querySelector(`.nba-scorer-notification.${team}`);
-            if (!notification) return;
-
-            // Format the display text
-            const pointsText = points === 1 ? '+1' : points === 2 ? '+2' : `+${points}`;
-            const displayName = playerName || 'Score';
-            const typeDisplay = playType ? ` ${playType}` : '';
-
-            notification.innerHTML = `${displayName}<span class="scorer-points">${pointsText}${typeDisplay}</span>`;
-
-            // Remove any existing animation class
-            notification.classList.remove('animate');
-
-            // Force reflow to restart animation
-            void notification.offsetWidth;
-
-            // Add animation class
-            notification.classList.add('animate');
-
-            // Remove animation class after it completes
+        function showScorerNotification(gameId, team, playerName) {
+            // Delay notification to appear after score animation finishes (3.1s)
             setTimeout(() => {
+                const card = document.querySelector(`.fullscreen-game-card[data-game-id="${gameId}"]`);
+                if (!card) return;
+
+                const notification = card.querySelector(`.nba-scorer-notification.${team}`);
+                if (!notification) return;
+
+                // Only show player name
+                notification.textContent = playerName || 'Score';
+
                 notification.classList.remove('animate');
-                notification.innerHTML = '';
+                void notification.offsetWidth;
+                notification.classList.add('animate');
+
+                setTimeout(() => {
+                    notification.classList.remove('animate');
+                    notification.textContent = '';
+                }, 3100);
             }, 3100);
         }
 
