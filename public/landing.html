@@ -1170,14 +1170,16 @@
 
         /* SEO FALLBACK: Ensure content visible for search engine crawlers */
         /* Googlebot and other crawlers may not execute JS animations fully */
-        @media print, (prefers-reduced-motion: reduce) {
+        @media print,
+        (prefers-reduced-motion: reduce) {
+
             [data-reveal],
             [data-reveal="fade-up"],
             [data-reveal="slide-left"],
             [data-reveal="slide-right"],
             [data-reveal="scale"],
             [data-reveal="cascade"],
-            [data-reveal="cascade"] > *,
+            [data-reveal="cascade"]>*,
             .hero-badge,
             .hero-title-line,
             .hero-subtitle,
@@ -1958,9 +1960,18 @@
     <!-- Fallback for crawlers/no-JS: Force all content visible -->
     <noscript>
         <style>
-            [data-reveal], [data-reveal] *, .hero-badge, .hero-title-line,
-            .hero-subtitle, .hero-cta-group, .feature-card, .grid-demo,
-            .team-slider, .cta-section, .section-title, .section-subtitle {
+            [data-reveal],
+            [data-reveal] *,
+            .hero-badge,
+            .hero-title-line,
+            .hero-subtitle,
+            .hero-cta-group,
+            .feature-card,
+            .grid-demo,
+            .team-slider,
+            .cta-section,
+            .section-title,
+            .section-subtitle {
                 opacity: 1 !important;
                 transform: none !important;
                 animation: none !important;
@@ -2100,20 +2111,7 @@
                         </div>
                     </div>
 
-                    <div class="grids-stats" data-reveal="cascade">
-                        <div class="stat-item" style="--index: 0">
-                            <div class="stat-value">8</div>
-                            <div class="stat-label">Max Games</div>
-                        </div>
-                        <div class="stat-item" style="--index: 1">
-                            <div class="stat-value">6</div>
-                            <div class="stat-label">Sports Leagues</div>
-                        </div>
-                        <div class="stat-item" style="--index: 2">
-                            <div class="stat-value">30s</div>
-                            <div class="stat-label">Refresh Rate</div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </section>
