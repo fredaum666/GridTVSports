@@ -3414,33 +3414,35 @@ function cleanupActiveDates() {
 // DATE HELPERS (NBA, MLB, NHL)
 // ============================================
 
-function getTodayDate() {
-  // Use local time zone instead of UTC to get correct date
+// Use US Eastern time for all date calculations so the server
+// returns the correct "today" regardless of where it is hosted.
+function getUSEasternDate(offsetDays = 0) {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const dateStr = `${year}${month}${day}`;
-  console.log(`📅 Current Date: ${dateStr} (${now.toLocaleDateString()})`);
+  if (offsetDays) now.setDate(now.getDate() + offsetDays);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(now);
+  const year = parts.find(p => p.type === 'year').value;
+  const month = parts.find(p => p.type === 'month').value;
+  const day = parts.find(p => p.type === 'day').value;
+  return `${year}${month}${day}`;
+}
+
+function getTodayDate() {
+  const dateStr = getUSEasternDate(0);
+  console.log(`📅 Current Date (US Eastern): ${dateStr}`);
   return dateStr; // YYYYMMDD
 }
 
 function getYesterdayDate() {
-  const now = new Date();
-  now.setDate(now.getDate() - 1); // Subtract one day
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}${month}${day}`; // YYYYMMDD
+  return getUSEasternDate(-1); // YYYYMMDD
 }
 
 function getTomorrowDate() {
-  const now = new Date();
-  now.setDate(now.getDate() + 1); // Add one day
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}${month}${day}`; // YYYYMMDD
+  return getUSEasternDate(1); // YYYYMMDD
 }
 
 // ============================================
