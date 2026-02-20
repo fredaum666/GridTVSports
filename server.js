@@ -6328,13 +6328,21 @@ function createAdaptivePoller(sport, fetchFunction, getActiveKeys, getCacheKey) 
 
     let activeKeys = getActiveKeys();
 
-    // For date-based sports (NBA, NHL, MLB, NCAAB), always check today/tomorrow
+    // For date-based sports (NBA, NHL, MLB, NCAAB), always ensure today/tomorrow are being checked
     // even if activeDates is empty to discover newly scheduled games
     if (activeKeys.size === 0 && ['nba', 'nhl', 'mlb', 'ncaab'].includes(sport)) {
       const today = getTodayDate();
       const tomorrow = getTomorrowDate();
+
+      // Add to the persistent activeDates Set so they persist across polls
+      const cache = sportsCache[sport];
+      if (cache.activeDates) {
+        cache.activeDates.add(today);
+        cache.activeDates.add(tomorrow);
+      }
+
       activeKeys = new Set([today, tomorrow]);
-      console.log(`[${sport.toUpperCase()} Adaptive] No active dates, checking today/tomorrow: ${today}, ${tomorrow}`);
+      console.log(`[${sport.toUpperCase()} Adaptive] No active dates, adding today/tomorrow: ${today}, ${tomorrow}`);
     }
 
     if (activeKeys.size === 0) {
