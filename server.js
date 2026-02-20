@@ -1585,6 +1585,145 @@ app.post('/api/push/test', async (req, res) => {
   }
 });
 
+// Debug endpoint to check notification configuration
+app.get('/api/push/debug', async (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const userId = req.session.userId;
+    const now = Date.now();
+
+    // Get user's notification preferences
+    const prefsResult = await pool.query(
+      'SELECT * FROM notification_preferences WHERE user_id = $1',
+      [userId]
+    );
+
+    // Get user's favorite teams
+    const favTeamsResult = await pool.query(
+      'SELECT team_id, team_name, team_abbreviation, league, rank FROM favorite_teams WHERE user_id = $1 ORDER BY rank',
+      [userId]
+    );
+
+    // Get active push subscriptions
+    const subsResult = await pool.query(
+      'SELECT subscription_type, is_active, created_at FROM push_subscriptions WHERE user_id = $1',
+      [userId]
+    );
+
+    // Get upcoming games (same logic as cron job)
+    const upcomingGames = [];
+    const maxMinutesBefore = 30;
+
+    const extractUpcomingGames = (cache, sport) => {
+      for (const [key, cachedData] of cache.data.entries()) {
+        if (!cachedData?.data?.events) continue;
+        for (const event of cachedData.data.events) {
+          const competition = event.competitions?.[0];
+          if (!competition) continue;
+
+          const gameTime = new Date(event.date || competition.date);
+          const minutesUntilStart = (gameTime.getTime() - now) / (1000 * 60);
+
+          if (minutesUntilStart > 0 && minutesUntilStart <= maxMinutesBefore) {
+            const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+            const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+
+            if (homeTeam && awayTeam) {
+              upcomingGames.push({
+                gameId: event.id,
+                sport: sport.toUpperCase(),
+                homeTeam: {
+                  id: homeTeam.team?.id,
+                  name: homeTeam.team?.displayName,
+                  abbreviation: homeTeam.team?.abbreviation
+                },
+                awayTeam: {
+                  id: awayTeam.team?.id,
+                  name: awayTeam.team?.displayName,
+                  abbreviation: awayTeam.team?.abbreviation
+                },
+                gameTime: gameTime.toISOString(),
+                minutesUntilStart: Math.round(minutesUntilStart),
+                shortName: event.shortName || `${awayTeam.team?.abbreviation} @ ${homeTeam.team?.abbreviation}`
+              });
+            }
+          }
+        }
+      }
+    };
+
+    extractUpcomingGames(sportsCache.nfl, 'NFL');
+    extractUpcomingGames(sportsCache.nba, 'NBA');
+    extractUpcomingGames(sportsCache.mlb, 'MLB');
+    extractUpcomingGames(sportsCache.nhl, 'NHL');
+    extractUpcomingGames(sportsCache.ncaa, 'NCAAF');
+    extractUpcomingGames(sportsCache.ncaab, 'NCAAB');
+
+    // Check which games match user's favorite teams
+    const prefs = prefsResult.rows[0] || {};
+    // Include BOTH team_id and team_abbreviation for flexible matching
+    const favoriteTeamIds = favTeamsResult.rows.flatMap(r => {
+      const ids = [];
+      if (r.team_id) ids.push(r.team_id);
+      if (r.team_abbreviation) ids.push(r.team_abbreviation);
+      return ids;
+    });
+    const minutesBefore = prefs.minutes_before_game || 15;
+    const notifyLeagues = prefs.notify_leagues || ['NFL', 'NBA', 'MLB', 'NHL', 'NCAAF', 'NCAAB'];
+
+    const matchingGames = upcomingGames.filter(game => {
+      // Check league filter
+      if (!notifyLeagues.includes(game.sport)) return false;
+
+      // Check notification window
+      if (game.minutesUntilStart > minutesBefore) return false;
+
+      // Check favorite team match (if enabled)
+      if (prefs.notify_favorite_teams_only !== false && favoriteTeamIds.length > 0) {
+        // Check multiple ID formats (same logic as cron job):
+        const homeMatch = favoriteTeamIds.includes(game.homeTeam.id) ||
+          favoriteTeamIds.includes(`${game.sport}-${game.homeTeam.id}`) ||
+          favoriteTeamIds.includes(game.homeTeam.abbreviation);
+        const awayMatch = favoriteTeamIds.includes(game.awayTeam.id) ||
+          favoriteTeamIds.includes(`${game.sport}-${game.awayTeam.id}`) ||
+          favoriteTeamIds.includes(game.awayTeam.abbreviation);
+        return homeMatch || awayMatch;
+      }
+
+      return true;
+    });
+
+    res.json({
+      userId,
+      pushConfigured: {
+        webPush: webPushConfigured,
+        fcm: fcmConfigured
+      },
+      preferences: prefsResult.rows[0] || { message: 'No preferences set (using defaults)' },
+      favoriteTeams: favTeamsResult.rows,
+      subscriptions: subsResult.rows,
+      upcomingGames,
+      matchingGames,
+      analysis: {
+        hasActiveSubscriptions: subsResult.rows.some(s => s.is_active),
+        hasFavoriteTeams: favTeamsResult.rows.length > 0,
+        gameStartAlertsEnabled: prefs.game_start_alerts !== false,
+        notificationWindow: `${minutesBefore} minutes before game`,
+        favoriteTeamsOnly: prefs.notify_favorite_teams_only !== false,
+        enabledLeagues: notifyLeagues,
+        gamesInWindow: upcomingGames.length,
+        gamesMatchingPreferences: matchingGames.length
+      }
+    });
+  } catch (error) {
+    console.error('Error in debug endpoint:', error);
+    res.status(500).json({ error: 'Failed to get debug info', details: error.message });
+  }
+});
+
 // ============================================
 // SUBSCRIPTION MIDDLEWARE
 // ============================================
@@ -2917,7 +3056,7 @@ openLeagues.forEach(league => {
 });
 
 // Other pages (no access control)
-const otherPages = ['LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin', 'favorites', 'reset-password', 'scoreboard-demo'];
+const otherPages = ['LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin', 'favorites', 'reset-password', 'scoreboard-demo', 'notification-debug'];
 otherPages.forEach(page => {
   app.get(`/${page}`, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', `${page}.html`));
@@ -6768,9 +6907,15 @@ cron.schedule('* * * * *', async () => {
           'SELECT team_id, team_abbreviation FROM favorite_teams WHERE user_id = $1',
           [user.user_id]
         );
-        favoriteTeamIds = favResult.rows.map(r => r.team_id || r.team_abbreviation);
+        // Include BOTH team_id and team_abbreviation for flexible matching
+        favoriteTeamIds = favResult.rows.flatMap(r => {
+          const ids = [];
+          if (r.team_id) ids.push(r.team_id);
+          if (r.team_abbreviation) ids.push(r.team_abbreviation);
+          return ids;
+        });
         if (favoriteTeamIds.length > 0) {
-          console.log(`[Push] User ${user.user_id} favorite teams: ${favoriteTeamIds.join(', ')}`);
+          console.log(`[Push] User ${user.user_id} favorite teams (IDs + abbrevs): ${favoriteTeamIds.join(', ')}`);
         }
       }
 
@@ -6792,23 +6937,36 @@ cron.schedule('* * * * *', async () => {
 
         // Check if this is a favorite team game (if required)
         if (user.notify_favorite_teams_only !== false && favoriteTeamIds.length > 0) {
+          // Check multiple ID formats for home team:
+          // 1. Direct ESPN ID (e.g., "10")
+          // 2. Prefixed format (e.g., "MLB-10")
+          // 3. Team abbreviation (e.g., "NYY")
           const homeTeamMatch = favoriteTeamIds.includes(game.homeTeam.id) ||
+            favoriteTeamIds.includes(`${game.league}-${game.homeTeam.id}`) ||
             favoriteTeamIds.includes(game.homeTeam.abbreviation);
+
           const awayTeamMatch = favoriteTeamIds.includes(game.awayTeam.id) ||
+            favoriteTeamIds.includes(`${game.league}-${game.awayTeam.id}`) ||
             favoriteTeamIds.includes(game.awayTeam.abbreviation);
 
           if (!homeTeamMatch && !awayTeamMatch) {
-            console.log(`[Push] User ${user.user_id}: ${game.shortName} not a favorite team match. Home: ${game.homeTeam.id}/${game.homeTeam.abbreviation}, Away: ${game.awayTeam.id}/${game.awayTeam.abbreviation}`);
+            console.log(`[Push] User ${user.user_id}: ${game.shortName} not a favorite team match. Home: ${game.homeTeam.id}/${game.homeTeam.abbreviation}, Away: ${game.awayTeam.id}/${game.awayTeam.abbreviation}. Favorites: ${favoriteTeamIds.join(', ')}`);
             continue;
+          } else {
+            console.log(`[Push] User ${user.user_id}: ${game.shortName} IS a favorite! Match found.`);
           }
         }
 
         // Create unique key for this user/game combo
         const notificationKey = `${user.user_id}-${game.gameId}`;
-        if (sentGameNotifications.has(notificationKey)) continue;
+        if (sentGameNotifications.has(notificationKey)) {
+          console.log(`[Push] User ${user.user_id}: Already sent notification for ${game.shortName}`);
+          continue;
+        }
 
         // Mark as sent
         sentGameNotifications.add(notificationKey);
+        console.log(`[Push] User ${user.user_id}: Sending notification for ${game.shortName} (${game.minutesUntilStart}m before)`);
 
         // Create notification title and body
         const notificationTitle = `${game.league}: ${game.shortName}`;

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notification Debug - GridTV Sports</title>
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-card: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --accent-primary: #FF6B00;
+      --success: #22c55e;
+      --error: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, var(--accent-primary), #ff8c3a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .card h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-badge.success {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+    }
+
+    .status-badge.error {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--error);
+    }
+
+    .status-badge.warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .info-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .team-list, .game-list {
+      margin-top: 12px;
+    }
+
+    .team-item, .game-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .team-item img {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+    }
+
+    .team-info, .game-info {
+      flex: 1;
+    }
+
+    .team-name, .game-name {
+      font-weight: 600;
+    }
+
+    .team-league, .game-time {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--error);
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+
+    button {
+      background: var(--accent-primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      color: var(--accent-primary);
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/favorites.html" class="back-link">← Back to Favorites</a>
+
+    <h1>Notification Debug</h1>
+    <p class="subtitle">Diagnose why automatic notifications aren't working</p>
+
+    <div id="loading" class="loading">
+      <p>Loading debug information...</p>
+    </div>
+
+    <div id="content" style="display: none;">
+      <!-- Push Configuration -->
+      <div class="card">
+        <h2>Push Service Configuration</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Web Push</div>
+            <div class="info-value" id="webPushStatus">-</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">FCM (Firebase)</div>
+            <div class="info-value" id="fcmStatus">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Status -->
+      <div class="card">
+        <h2>Your Configuration</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Active Subscriptions</div>
+            <div class="info-value" id="subscriptionCount">-</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Favorite Teams</div>
+            <div class="info-value" id="favoriteTeamsCount">-</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Game Start Alerts</div>
+            <div class="info-value" id="gameStartAlerts">-</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Notification Window</div>
+            <div class="info-value" id="notificationWindow">-</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Favorite Teams Only</div>
+            <div class="info-value" id="favoriteTeamsOnly">-</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Enabled Leagues</div>
+            <div class="info-value" id="enabledLeagues">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Favorite Teams -->
+      <div class="card">
+        <h2>Your Favorite Teams</h2>
+        <div id="favoriteTeamsList" class="team-list">
+          <div class="empty-state">No favorite teams configured</div>
+        </div>
+      </div>
+
+      <!-- Upcoming Games -->
+      <div class="card">
+        <h2>Upcoming Games (Next 30 Minutes)</h2>
+        <div id="upcomingGamesList" class="game-list">
+          <div class="empty-state">No upcoming games</div>
+        </div>
+      </div>
+
+      <!-- Matching Games -->
+      <div class="card">
+        <h2>Games Matching Your Preferences</h2>
+        <div id="matchingGamesList" class="game-list">
+          <div class="empty-state">No matching games</div>
+        </div>
+      </div>
+
+      <!-- Analysis -->
+      <div class="card">
+        <h2>Analysis & Recommendations</h2>
+        <div id="analysisContent"></div>
+      </div>
+
+      <!-- Raw Data -->
+      <div class="card">
+        <h2>Raw Debug Data</h2>
+        <button onclick="toggleRawData()">Show/Hide Raw Data</button>
+        <pre id="rawData" style="display: none; margin-top: 16px;"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let debugData = null;
+
+    async function loadDebugInfo() {
+      try {
+        const response = await fetch('/api/push/debug', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        debugData = await response.json();
+        displayDebugInfo(debugData);
+      } catch (error) {
+        console.error('Failed to load debug info:', error);
+        document.getElementById('loading').innerHTML = `
+          <div class="error-message">
+            Failed to load debug information: ${error.message}
+            <br><br>
+            Make sure you're logged in and the server is running.
+          </div>
+        `;
+      }
+    }
+
+    function displayDebugInfo(data) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+
+      // Push Configuration
+      document.getElementById('webPushStatus').innerHTML =
+        data.pushConfigured.webPush ? '<span class="status-badge success">Enabled</span>' : '<span class="status-badge error">Disabled</span>';
+      document.getElementById('fcmStatus').innerHTML =
+        data.pushConfigured.fcm ? '<span class="status-badge success">Enabled</span>' : '<span class="status-badge error">Disabled</span>';
+
+      // User Configuration
+      const analysis = data.analysis;
+      document.getElementById('subscriptionCount').textContent = data.subscriptions.length;
+      document.getElementById('favoriteTeamsCount').textContent = data.favoriteTeams.length;
+      document.getElementById('gameStartAlerts').innerHTML =
+        analysis.gameStartAlertsEnabled ? '<span class="status-badge success">Enabled</span>' : '<span class="status-badge error">Disabled</span>';
+      document.getElementById('notificationWindow').textContent = analysis.notificationWindow;
+      document.getElementById('favoriteTeamsOnly').innerHTML =
+        analysis.favoriteTeamsOnly ? '<span class="status-badge warning">Yes</span>' : '<span class="status-badge success">All Games</span>';
+      document.getElementById('enabledLeagues').textContent = analysis.enabledLeagues.join(', ');
+
+      // Favorite Teams
+      if (data.favoriteTeams.length > 0) {
+        document.getElementById('favoriteTeamsList').innerHTML = data.favoriteTeams.map(team => `
+          <div class="team-item">
+            <div class="team-info">
+              <div class="team-name">${team.team_name} (${team.team_abbreviation})</div>
+              <div class="team-league">${team.league} • Rank ${team.rank} • ID: ${team.team_id}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Upcoming Games
+      if (data.upcomingGames.length > 0) {
+        document.getElementById('upcomingGamesList').innerHTML = data.upcomingGames.map(game => `
+          <div class="game-item">
+            <div class="game-info">
+              <div class="game-name">${game.shortName}</div>
+              <div class="game-time">${game.sport} • Starts in ${game.minutesUntilStart} minutes</div>
+              <div class="game-time" style="font-size: 12px; margin-top: 4px;">
+                Home: ${game.homeTeam.name} (${game.homeTeam.abbreviation}, ID: ${game.homeTeam.id})<br>
+                Away: ${game.awayTeam.name} (${game.awayTeam.abbreviation}, ID: ${game.awayTeam.id})
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Matching Games
+      if (data.matchingGames.length > 0) {
+        document.getElementById('matchingGamesList').innerHTML = data.matchingGames.map(game => `
+          <div class="game-item" style="border-left: 3px solid var(--success);">
+            <div class="game-info">
+              <div class="game-name">${game.shortName}</div>
+              <div class="game-time">${game.sport} • Starts in ${game.minutesUntilStart} minutes</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Analysis
+      const issues = [];
+      const recommendations = [];
+
+      if (!analysis.hasActiveSubscriptions) {
+        issues.push('No active push subscriptions found');
+        recommendations.push('Enable push notifications on the Favorites page');
+      }
+
+      if (!data.pushConfigured.webPush && !data.pushConfigured.fcm) {
+        issues.push('Push notifications are not configured on the server');
+        recommendations.push('Contact administrator to set up VAPID keys or Firebase Cloud Messaging');
+      }
+
+      if (!analysis.gameStartAlertsEnabled) {
+        issues.push('Game start alerts are disabled in your preferences');
+        recommendations.push('Enable "Game Start Alerts" on the Favorites page');
+      }
+
+      if (analysis.favoriteTeamsOnly && !analysis.hasFavoriteTeams) {
+        issues.push('You have "Favorite Teams Only" enabled but no favorite teams selected');
+        recommendations.push('Either add favorite teams or disable "Favorite Teams Only"');
+      }
+
+      if (data.upcomingGames.length > 0 && data.matchingGames.length === 0) {
+        issues.push(`Found ${data.upcomingGames.length} upcoming games but none match your preferences`);
+
+        if (analysis.favoriteTeamsOnly) {
+          const upcomingTeams = data.upcomingGames.flatMap(g => [
+            `${g.homeTeam.abbreviation} (${g.homeTeam.id})`,
+            `${g.awayTeam.abbreviation} (${g.awayTeam.id})`
+          ]);
+          const favoriteTeamIds = data.favoriteTeams.map(t => `${t.team_abbreviation} (${t.team_id})`);
+
+          recommendations.push('Check if your favorite team IDs match the ESPN team IDs:');
+          recommendations.push(`Your favorites: ${favoriteTeamIds.join(', ') || 'None'}`);
+          recommendations.push(`Upcoming game teams: ${upcomingTeams.join(', ')}`);
+        }
+      }
+
+      if (issues.length === 0 && data.matchingGames.length === 0 && data.upcomingGames.length === 0) {
+        recommendations.push('Everything is configured correctly! Notifications will be sent when games are about to start (within ' + analysis.notificationWindow + ')');
+      }
+
+      const analysisHTML = `
+        ${issues.length > 0 ? `
+          <div style="margin-bottom: 16px;">
+            <h3 style="color: var(--error); margin-bottom: 8px;">Issues Found:</h3>
+            <ul style="margin-left: 20px; color: var(--text-secondary);">
+              ${issues.map(issue => `<li>${issue}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+        ${recommendations.length > 0 ? `
+          <div>
+            <h3 style="color: var(--accent-primary); margin-bottom: 8px;">Recommendations:</h3>
+            <ul style="margin-left: 20px; color: var(--text-secondary);">
+              ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+        ${issues.length === 0 && recommendations.length === 0 ? `
+          <div style="color: var(--success);">
+            ✓ Everything looks good! You should receive notifications for matching games.
+          </div>
+        ` : ''}
+      `;
+
+      document.getElementById('analysisContent').innerHTML = analysisHTML;
+
+      // Raw Data
+      document.getElementById('rawData').textContent = JSON.stringify(data, null, 2);
+    }
+
+    function toggleRawData() {
+      const rawData = document.getElementById('rawData');
+      rawData.style.display = rawData.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Load debug info on page load
+    loadDebugInfo();
+  </script>
+</body>
+</html>
