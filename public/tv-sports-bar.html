@@ -8,10 +8,13 @@
     <link rel="icon" type="image/png" href="/assets/logo.png">
     <link rel="stylesheet" href="/styles/fullscreen-cards.css">
     <link rel="stylesheet" href="/styles/play-animations.css">
+    <link rel="stylesheet" href="/styles/mlb-livecast.css">
     <script src="/socket.io/socket.io.js"></script>
     <script src="/scripts/game-socket.js"></script>
     <script src="/scripts/play-animations.js"></script>
     <script src="/scripts/field-visualizer-svg.js"></script>
+    <script src="/scripts/mlb-strike-zone.js"></script>
+    <script src="/scripts/mlb-livecast.js"></script>
     <style>
         /* ================================ */
         /* TV SPORTS BAR MODE - BASE        */
@@ -1224,6 +1227,57 @@
             background: #fbbf24;
             border-color: #f59e0b;
             box-shadow: 0 0 12px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+
+        /* ============================================
+           MLB LIVE CAST CONTAINER
+           ============================================ */
+        .mlb-livecast-container {
+            width: 88%;
+            max-width: 88%;
+            margin: clamp(12px, 2.5vmin, 24px) auto 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Grid 1 - Match scoreboard width */
+        .fullscreen-grid.grid-1 .mlb-livecast-container {
+            width: 88%;
+            max-width: 88%;
+        }
+
+        /* Grid 2 - Match scoreboard width */
+        .fullscreen-grid.grid-2 .mlb-livecast-container {
+            width: 85%;
+            max-width: 85%;
+        }
+
+        /* Grid 3-4 - Match scoreboard width */
+        .fullscreen-grid.grid-3 .mlb-livecast-container,
+        .fullscreen-grid.grid-4 .mlb-livecast-container {
+            width: 90%;
+            max-width: 90%;
+        }
+
+        /* Grid 5-6 - Match scoreboard width */
+        .fullscreen-grid.grid-5 .mlb-livecast-container,
+        .fullscreen-grid.grid-6 .mlb-livecast-container {
+            width: 92%;
+            max-width: 92%;
+        }
+
+        /* Grid 7-8 Featured Card - Match scoreboard width */
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .mlb-livecast-container,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:first-child .mlb-livecast-container {
+            width: 88%;
+            max-width: 88%;
+        }
+
+        /* Grid 7-8 Smaller Cards - Match scoreboard width */
+        .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:not(:first-child) .mlb-livecast-container,
+        .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:not(:first-child) .mlb-livecast-container {
+            width: 92%;
+            max-width: 92%;
         }
 
         /* ============================================
@@ -4389,6 +4443,9 @@
         // Exposed globally so play-animations.js can access visualizers
         window.fieldVisualizers = new Map();
 
+        // MLB LiveCast instances map (gameId -> MLBLiveCast instance)
+        window.mlbLiveCasts = new Map();
+
         // Stats modal timing state per game
         // Each game tracks: { noPlayStartTime, isShowingStats, showStartTime, currentPhase, cachedStats }
         // currentPhase: 0 = away team, 1 = home team
@@ -5608,6 +5665,9 @@
             // Initialize SVG field visualizers for football games
             initFieldVisualizers();
 
+            // Initialize MLB LiveCast for baseball games
+            initMLBLiveCasts();
+
             // Update ball positions for football games
             games.forEach((game, index) => {
                 if ((game.league === 'nfl' || game.league === 'ncaa') && game.state === 'in' && game.fieldPosition) {
@@ -5648,6 +5708,28 @@
                 });
 
                 window.fieldVisualizers.set(gameId, visualizer);
+            });
+        }
+
+        // Initialize MLB LiveCast for all baseball game cards
+        function initMLBLiveCasts() {
+            // Clear old instances
+            window.mlbLiveCasts.forEach(livecast => {
+                if (livecast.destroy) livecast.destroy();
+            });
+            window.mlbLiveCasts.clear();
+
+            // Find all MLB livecast containers and initialize
+            document.querySelectorAll('.mlb-livecast-container').forEach(container => {
+                const gameId = container.dataset.gameId;
+                if (gameId && typeof MLBLiveCast !== 'undefined') {
+                    try {
+                        const livecast = new MLBLiveCast(gameId, container);
+                        window.mlbLiveCasts.set(gameId, livecast);
+                    } catch (error) {
+                        console.error(`[MLB LiveCast] Error initializing for game ${gameId}:`, error);
+                    }
+                }
             });
         }
 
@@ -5762,6 +5844,9 @@
                             </div>
                             <div class="mlb-base home"></div>
                         </div>
+                    </div>
+                    <div class="mlb-livecast-container" id="mlb-livecast-${game.id}" data-game-id="${game.id}">
+                        <!-- MLB Live Cast will be initialized here -->
                     </div>
                 `;
             } else if (isFootball && isLive && game.downDistance && game.fieldPosition && !isIntermission) {
