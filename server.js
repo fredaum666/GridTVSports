@@ -1391,7 +1391,8 @@ app.get('/api/push/preferences', async (req, res) => {
         notify_favorite_teams_only: true,
         notify_leagues: ['NFL', 'NBA', 'MLB', 'NHL', 'NCAAF', 'NCAAB'],
         quiet_hours_start: null,
-        quiet_hours_end: null
+        quiet_hours_end: null,
+        score_update_alerts: false
       });
     }
 
@@ -1414,16 +1415,17 @@ app.put('/api/push/preferences', async (req, res) => {
     notify_favorite_teams_only,
     notify_leagues,
     quiet_hours_start,
-    quiet_hours_end
+    quiet_hours_end,
+    score_update_alerts
   } = req.body;
 
   try {
     await pool.query(`
       INSERT INTO notification_preferences (
         user_id, game_start_alerts, minutes_before_game, notify_favorite_teams_only,
-        notify_leagues, quiet_hours_start, quiet_hours_end, updated_at
+        notify_leagues, quiet_hours_start, quiet_hours_end, score_update_alerts, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
       ON CONFLICT (user_id) DO UPDATE SET
         game_start_alerts = COALESCE($2, notification_preferences.game_start_alerts),
         minutes_before_game = COALESCE($3, notification_preferences.minutes_before_game),
@@ -1431,6 +1433,7 @@ app.put('/api/push/preferences', async (req, res) => {
         notify_leagues = COALESCE($5, notification_preferences.notify_leagues),
         quiet_hours_start = $6,
         quiet_hours_end = $7,
+        score_update_alerts = COALESCE($8, notification_preferences.score_update_alerts),
         updated_at = NOW()
     `, [
       req.session.userId,
@@ -1439,7 +1442,8 @@ app.put('/api/push/preferences', async (req, res) => {
       notify_favorite_teams_only,
       notify_leagues ? JSON.stringify(notify_leagues) : null,
       quiet_hours_start || null,
-      quiet_hours_end || null
+      quiet_hours_end || null,
+      score_update_alerts
     ]);
 
     res.json({ success: true, message: 'Preferences updated' });
@@ -6972,18 +6976,23 @@ cron.schedule('* * * * *', async () => {
         const notificationTitle = `${game.league}: ${game.shortName}`;
         const notificationBody = `Game starts in ${game.minutesUntilStart} minutes!`;
 
-        // Create web push payload
+        // Create web push payload with team logos for rich notification
         const webPushPayload = JSON.stringify({
+          type: 'game_start',
           title: notificationTitle,
           body: notificationBody,
-          icon: game.homeTeam.logo || '/logos/gridtv-icon-192.png',
-          badge: '/logos/gridtv-badge-72.png',
+          icon: game.awayTeam.logo || game.homeTeam.logo || '/assets/icon-192.png',
+          badge: '/assets/icon-192.png',
+          // image shows a wider banner - use home team logo for visual impact
+          image: game.homeTeam.logo || null,
           tag: `game-${game.gameId}`,
           gameId: game.gameId,
           league: game.league,
           url: `/${game.league.toLowerCase()}.html`,
           homeTeam: game.homeTeam.abbreviation,
-          awayTeam: game.awayTeam.abbreviation
+          awayTeam: game.awayTeam.abbreviation,
+          homeLogo: game.homeTeam.logo || null,
+          awayLogo: game.awayTeam.logo || null
         });
 
         // Send to all user's devices (both web push and FCM)
@@ -7078,6 +7087,231 @@ cron.schedule('* * * * *', async () => {
 
   } catch (error) {
     console.error('[Push] Error in game notification scheduler:', error);
+  }
+});
+
+// ============================================
+// LIVE SCORE UPDATE NOTIFICATIONS
+// ============================================
+
+// Track last sent score per game to avoid duplicate notifications
+// Key: `${userId}-${gameId}`, Value: `${homeScore}-${awayScore}`
+const sentScoreStates = new Map();
+
+// Check for score changes in live games every 2 minutes
+cron.schedule('*/2 * * * *', async () => {
+  if (!webPushConfigured && !fcmConfigured) return;
+
+  try {
+    // Get users who have score_update_alerts enabled
+    const usersResult = await pool.query(`
+      SELECT DISTINCT
+        ps.user_id,
+        np.score_update_alerts,
+        np.notify_leagues,
+        np.quiet_hours_start,
+        np.quiet_hours_end
+      FROM push_subscriptions ps
+      LEFT JOIN notification_preferences np ON ps.user_id = np.user_id
+      WHERE ps.is_active = TRUE
+        AND np.score_update_alerts = TRUE
+    `);
+
+    if (usersResult.rows.length === 0) return;
+
+    // Collect all live (in-progress) games from caches
+    const liveGames = [];
+
+    const extractLiveGames = (cache, sport) => {
+      for (const [key, cachedData] of cache.data.entries()) {
+        if (!cachedData?.data?.events) continue;
+        for (const event of cachedData.data.events) {
+          const competition = event.competitions?.[0];
+          if (!competition) continue;
+
+          // Only include live/in-progress games
+          const status = competition.status?.type?.name || event.status?.type?.name;
+          const isLive = status === 'STATUS_IN_PROGRESS' ||
+                         status === 'STATUS_HALFTIME' ||
+                         status === 'STATUS_END_PERIOD';
+          if (!isLive) continue;
+
+          const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+          const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+          if (!homeTeam || !awayTeam) continue;
+
+          const homeScore = homeTeam.score || '0';
+          const awayScore = awayTeam.score || '0';
+          const period = competition.status?.period || event.status?.period;
+          const clock = competition.status?.displayClock || event.status?.displayClock || '';
+
+          liveGames.push({
+            gameId: event.id,
+            sport: sport.toUpperCase(),
+            league: sport.toUpperCase(),
+            homeTeam: {
+              id: homeTeam.team?.id,
+              name: homeTeam.team?.displayName,
+              abbreviation: homeTeam.team?.abbreviation,
+              logo: homeTeam.team?.logo
+            },
+            awayTeam: {
+              id: awayTeam.team?.id,
+              name: awayTeam.team?.displayName,
+              abbreviation: awayTeam.team?.abbreviation,
+              logo: awayTeam.team?.logo
+            },
+            homeScore,
+            awayScore,
+            period,
+            clock,
+            shortName: event.shortName || `${awayTeam.team?.abbreviation} @ ${homeTeam.team?.abbreviation}`
+          });
+        }
+      }
+    };
+
+    extractLiveGames(sportsCache.nfl, 'NFL');
+    extractLiveGames(sportsCache.nba, 'NBA');
+    extractLiveGames(sportsCache.mlb, 'MLB');
+    extractLiveGames(sportsCache.nhl, 'NHL');
+    extractLiveGames(sportsCache.ncaa, 'NCAAF');
+    extractLiveGames(sportsCache.ncaab, 'NCAAB');
+
+    if (liveGames.length === 0) return;
+
+    // Process each user
+    for (const user of usersResult.rows) {
+      const notifyLeagues = user.notify_leagues || ['NFL', 'NBA', 'MLB', 'NHL', 'NCAAF', 'NCAAB'];
+
+      // Check quiet hours
+      if (user.quiet_hours_start && user.quiet_hours_end) {
+        const currentTime = new Date();
+        const hours = currentTime.getHours();
+        const minutes = currentTime.getMinutes();
+        const currentTimeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        if (currentTimeStr >= user.quiet_hours_start || currentTimeStr < user.quiet_hours_end) {
+          continue;
+        }
+      }
+
+      // Get user's favorite teams
+      const favResult = await pool.query(
+        'SELECT team_id, team_abbreviation FROM favorite_teams WHERE user_id = $1',
+        [user.user_id]
+      );
+      const favoriteTeamIds = favResult.rows.flatMap(r => {
+        const ids = [];
+        if (r.team_id) ids.push(r.team_id);
+        if (r.team_abbreviation) ids.push(r.team_abbreviation);
+        return ids;
+      });
+
+      if (favoriteTeamIds.length === 0) continue;
+
+      // Get user's push subscriptions
+      const subsResult = await pool.query(
+        'SELECT subscription_type, endpoint, p256dh_key, auth_key, fcm_token FROM push_subscriptions WHERE user_id = $1 AND is_active = TRUE',
+        [user.user_id]
+      );
+      if (subsResult.rows.length === 0) continue;
+
+      for (const game of liveGames) {
+        if (!notifyLeagues.includes(game.league)) continue;
+
+        // Only notify for favorite teams
+        const homeMatch = favoriteTeamIds.includes(game.homeTeam.id) ||
+          favoriteTeamIds.includes(`${game.league}-${game.homeTeam.id}`) ||
+          favoriteTeamIds.includes(game.homeTeam.abbreviation);
+        const awayMatch = favoriteTeamIds.includes(game.awayTeam.id) ||
+          favoriteTeamIds.includes(`${game.league}-${game.awayTeam.id}`) ||
+          favoriteTeamIds.includes(game.awayTeam.abbreviation);
+
+        if (!homeMatch && !awayMatch) continue;
+
+        // Check if score has changed since last notification
+        const stateKey = `${user.user_id}-${game.gameId}`;
+        const currentState = `${game.homeScore}-${game.awayScore}`;
+        const lastState = sentScoreStates.get(stateKey);
+
+        if (lastState === currentState) continue; // No change
+
+        sentScoreStates.set(stateKey, currentState);
+
+        // Don't notify on first check (no previous state to compare)
+        if (!lastState) continue;
+
+        // Build notification
+        const clockStr = game.clock ? ` • ${game.clock}` : '';
+        const periodStr = game.period ? ` Q${game.period}` : '';
+        const notificationTitle = `${game.awayTeam.abbreviation} ${game.awayScore} — ${game.homeTeam.abbreviation} ${game.homeScore}`;
+        const notificationBody = `${game.league}${periodStr}${clockStr}`;
+
+        const webPushPayload = JSON.stringify({
+          type: 'score_update',
+          title: notificationTitle,
+          body: notificationBody,
+          icon: game.awayTeam.logo || game.homeTeam.logo || '/assets/icon-192.png',
+          badge: '/assets/icon-192.png',
+          tag: `score-${game.gameId}`,
+          gameId: game.gameId,
+          league: game.league,
+          url: `/${game.league.toLowerCase()}.html`,
+          homeTeam: game.homeTeam.abbreviation,
+          awayTeam: game.awayTeam.abbreviation,
+          homeScore: game.homeScore,
+          awayScore: game.awayScore,
+          homeLogo: game.homeTeam.logo || null,
+          awayLogo: game.awayTeam.logo || null,
+          period: game.period,
+          clock: game.clock
+        });
+
+        for (const sub of subsResult.rows) {
+          try {
+            if (sub.subscription_type === 'fcm' && sub.fcm_token && fcmConfigured) {
+              const admin = require('firebase-admin');
+              await admin.messaging().send({
+                token: sub.fcm_token,
+                notification: { title: notificationTitle, body: notificationBody },
+                data: {
+                  type: 'score_update',
+                  gameId: game.gameId,
+                  league: game.league,
+                  url: `/${game.league.toLowerCase()}.html`,
+                  homeTeam: game.homeTeam.abbreviation,
+                  awayTeam: game.awayTeam.abbreviation,
+                  homeScore: String(game.homeScore),
+                  awayScore: String(game.awayScore)
+                },
+                android: {
+                  priority: 'normal',
+                  notification: { channelId: 'gridtv_score_updates', icon: 'ic_notification', color: '#FF6B00' }
+                }
+              });
+            } else if (sub.subscription_type === 'web' || (!sub.subscription_type && sub.endpoint)) {
+              const pushSubscription = { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh_key, auth: sub.auth_key } };
+              await webpush.sendNotification(pushSubscription, webPushPayload);
+            }
+          } catch (error) {
+            console.error(`[ScoreUpdate] Failed to send notification:`, error.message);
+            if (error.statusCode === 410 || error.statusCode === 404) {
+              await pool.query('UPDATE push_subscriptions SET is_active = FALSE WHERE endpoint = $1', [sub.endpoint]);
+            } else if (error.code === 'messaging/registration-token-not-registered' || error.code === 'messaging/invalid-registration-token') {
+              await pool.query('UPDATE push_subscriptions SET is_active = FALSE WHERE fcm_token = $1', [sub.fcm_token]);
+            }
+          }
+        }
+      }
+    }
+
+    // Cleanup stale score states for finished games
+    if (sentScoreStates.size > 5000) {
+      sentScoreStates.clear();
+    }
+
+  } catch (error) {
+    console.error('[ScoreUpdate] Error in score update scheduler:', error);
   }
 });
 

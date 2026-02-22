@@ -347,9 +347,13 @@ CREATE TABLE IF NOT EXISTS notification_preferences (
   notify_leagues JSONB DEFAULT '["NFL", "NBA", "MLB", "NHL", "NCAAF", "NCAAB"]'::jsonb,
   quiet_hours_start TIME,
   quiet_hours_end TIME,
+  score_update_alerts BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Add score_update_alerts column if upgrading existing DB
+ALTER TABLE notification_preferences ADD COLUMN IF NOT EXISTS score_update_alerts BOOLEAN DEFAULT FALSE;
 
 -- Create index for notification_preferences
 CREATE INDEX IF NOT EXISTS idx_notification_prefs_user ON notification_preferences(user_id);
