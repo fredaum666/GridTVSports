@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLB Live Cast Demo - GridTV Sports</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png">
+    <!-- Scoreboard Typography (same as Desktop-tv-sports-bar) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap">
+    <!-- MLB Live Cast Styles -->
+    <link rel="stylesheet" href="/styles/mlb-livecast.css">
+
+    <style>
+        /* ================================ */
+        /* DEMO PAGE - Same vars as Desktop TV Sports Bar */
+        /* ================================ */
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --success: #22c55e;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --card-radius: 12px;
+
+            /* Scoreboard typography */
+            --sb-font-score: 'Oswald', 'Impact', 'Arial Black', sans-serif;
+            --sb-font-display: 'Oswald', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+            --sb-font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --sb-score-weight: 700;
+            --sb-score-letter-spacing: -0.02em;
+            --sb-team-weight: 600;
+            --sb-team-letter-spacing: 0.04em;
+            --sb-skew-angle: -4deg;
+            --sb-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+            --sb-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--sb-font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* ================================ */
+        /* FULLSCREEN GAME CARD (from Desktop-tv-sports-bar) */
+        /* ================================ */
+        .fullscreen-game-card {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: visible;
+        }
+
+        /* MLB background - same as Desktop-tv-sports-bar .fs-mlb */
+        .fullscreen-game-card.fs-mlb {
+            background: linear-gradient(180deg, rgba(26, 34, 53, 0.85) 0%, rgba(15, 21, 37, 0.9) 100%),
+                url('/assets/MLBFiled.png') center center / cover no-repeat;
+        }
+
+        /* Sport logo indicator (top-left corner) */
+        .sport-logo-indicator {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            opacity: 0.6;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        /* ================================ */
+        /* CARD WRAPPER */
+        /* ================================ */
+        .fs-card-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            gap: 20px;
+            overflow: visible;
+        }
+
+        /* ================================ */
+        /* SCOREBOARD (exact copy from Desktop-tv-sports-bar) */
+        /* ================================ */
+        .fs-scoreboard {
+            /* Default fallback colors */
+            --sb-away-primary: #4b5563;
+            --sb-away-secondary: #374151;
+            --sb-home-primary: #6b7280;
+            --sb-home-secondary: #4b5563;
+            --sb-center-bg: #1f2937;
+            --sb-text-color: #ffffff;
+            --sb-subtext-color: rgba(255, 255, 255, 0.7);
+            /* Logo size variable for responsive sizing */
+            --sb-logo-size: clamp(80px, 12vmin, 140px);
+
+            position: relative;
+            width: 90%;
+            max-width: 900px;
+            height: clamp(70px, 10vmin, 100px);
+            display: flex;
+            align-items: stretch;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+            border-radius: 6px;
+            overflow: visible;
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                0 2px 6px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            /* Space for logos floating above */
+            margin-top: calc(var(--sb-logo-size) + 12px);
+            flex-shrink: 0;
+        }
+
+        /* Score boxes on sides - NEW SCOREBOARD DESIGN */
+        .fs-sb-score-box {
+            width: clamp(56px, 12vmin, 96px);
+            height: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            /* Dark background with skew for premium broadcast look */
+            background: linear-gradient(180deg,
+                    rgba(0, 0, 0, 0.7) 0%,
+                    rgba(0, 0, 0, 0.85) 100%);
+            transform: skewX(var(--sb-skew-angle));
+            box-shadow: var(--sb-shadow-md);
+            overflow: hidden;
+        }
+
+        /* Chrome edge highlight at top */
+        .fs-sb-score-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            opacity: 0.6;
+        }
+
+        .fs-sb-score-box.away {
+            border-radius: 4px 0 0 4px;
+            /* Team color accent on left edge */
+            border-left: 3px solid var(--sb-away-primary);
+        }
+
+        .fs-sb-score-box.home {
+            border-radius: 0 4px 4px 0;
+            /* Team color accent on right edge */
+            border-right: 3px solid var(--sb-home-primary);
+        }
+
+        .fs-sb-score {
+            font-family: var(--sb-font-score);
+            font-size: clamp(1.5rem, 6vmin, 3.5rem);
+            font-weight: var(--sb-score-weight);
+            color: #fff;
+            letter-spacing: var(--sb-score-letter-spacing);
+            line-height: 1;
+            /* Counter-skew to keep text straight */
+            transform: skewX(calc(var(--sb-skew-angle) * -1));
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .fs-sb-team-section {
+            flex: 1;
+            align-self: stretch;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Away team - uses team color gradient */
+        .fs-sb-team-section.away {
+            padding-left: clamp(60px, 10vmin, 90px);
+            padding-right: clamp(40px, 6vmin, 60px);
+            background: linear-gradient(135deg,
+                    var(--sb-away-primary) 0%,
+                    color-mix(in srgb, var(--sb-away-primary) 85%, var(--sb-away-secondary)) 60%,
+                    color-mix(in srgb, var(--sb-away-primary) 70%, #000) 100%);
+        }
+
+        /* Away score box - far left */
+        .fs-sb-team-section.away .fs-sb-score-box {
+            position: absolute;
+            left: 4px;
+            top: 50%;
+            transform: translateY(-50%) skewX(var(--sb-skew-angle));
+        }
+
+        /* Home team - uses team color gradient */
+        .fs-sb-team-section.home {
+            padding-left: clamp(40px, 6vmin, 60px);
+            padding-right: clamp(60px, 10vmin, 90px);
+            background: linear-gradient(135deg,
+                    color-mix(in srgb, var(--sb-home-primary) 70%, #000) 0%,
+                    color-mix(in srgb, var(--sb-home-primary) 85%, var(--sb-home-secondary)) 40%,
+                    var(--sb-home-primary) 100%);
+        }
+
+        /* Home score box - far right */
+        .fs-sb-team-section.home .fs-sb-score-box {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%) skewX(var(--sb-skew-angle));
+        }
+
+        /* Floating team logo (above scoreboard) */
+        .fs-sb-team-logo {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: clamp(6px, 1vmin, 12px);
+            width: var(--sb-logo-size);
+            height: var(--sb-logo-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .fs-sb-team-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+        }
+
+        .fs-sb-team-name {
+            font-family: var(--sb-font-display);
+            font-size: clamp(0.8rem, 7vmin, 2.1rem);
+            font-weight: var(--sb-team-weight);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: var(--sb-team-letter-spacing);
+            line-height: 1.1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .fs-sb-team-record {
+            font-size: clamp(0.55rem, 1.3vmin, 0.85rem);
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            margin-left: 6px;
+        }
+
+        /* Center section with clock */
+        .fs-sb-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fs-sb-time-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: clamp(6px, 1.2vmin, 12px) clamp(12px, 2.5vmin, 24px);
+            background: linear-gradient(180deg,
+                    rgba(20, 25, 35, 0.95) 0%,
+                    rgba(10, 12, 18, 0.98) 100%);
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+            min-width: clamp(60px, 10vmin, 100px);
+            text-align: center;
+        }
+
+        .fs-sb-time-label {
+            font-family: var(--sb-font-display);
+            font-size: clamp(1.1rem, 2.5vmin, 1.8rem);
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .fs-sb-time {
+            font-family: var(--sb-font-display);
+            font-size: clamp(0.6rem, 1.2vmin, 0.9rem);
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-variant-numeric: tabular-nums;
+        }
+
+
+        /* ================================ */
+        /* MLB LIVE CAST CONTAINER */
+        /* ================================ */
+        .mlb-livecast-container {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(238, 238, 238, 0.064);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 0px solid rgba(96, 165, 250, 0.3);
+        }
+
+
+        /* ================================ */
+        /* RESPONSIVE */
+        /* ================================ */
+        @media (max-width: 768px) {
+            .fs-card-wrapper {
+                padding: 10px;
+                gap: 12px;
+            }
+
+            .fs-scoreboard {
+                --sb-logo-size: clamp(40px, 12vw, 70px);
+                width: 98%;
+                height: clamp(45px, 12vw, 65px);
+            }
+
+            .fs-sb-score-box {
+                width: clamp(40px, 11vw, 56px);
+            }
+
+            .fs-sb-score {
+                font-size: clamp(1.2rem, 5vw, 1.8rem);
+            }
+
+            .fs-sb-team-name {
+                font-size: clamp(0.65rem, 2.5vw, 0.9rem);
+            }
+
+            .fs-sb-team-record {
+                font-size: clamp(0.5rem, 2vw, 0.7rem);
+            }
+
+            .fs-sb-time-label {
+                font-size: clamp(1.1rem, 4vw, 1.4rem);
+            }
+
+            .fs-sb-time {
+                font-size: clamp(0.6rem, 2.5vw, 0.85rem);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fullscreen Game Card (same structure as Desktop-tv-sports-bar.html) -->
+    <div class="fullscreen-game-card fs-mlb" id="demoCard">
+        <img class="sport-logo-indicator" src="/assets/mlb-logo.png" alt="MLB" onerror="this.src='/assets/logo.png'">
+
+        <div class="fs-card-wrapper">
+            <!-- MLB Live Cast -->
+            <div class="mlb-livecast-container" id="mlb-livecast-demo"></div>
+        </div>
+    </div>
+
+    <!-- MLB Live Cast Scripts -->
+    <script src="/scripts/mlb-strike-zone.js"></script>
+    <script src="/scripts/mlb-livecast.js"></script>
+
+    <script>
+        // Find the first live MLB game from our API
+        async function findLiveMLBGame() {
+            try {
+                const res = await fetch('/api/mlb/scoreboard');
+                const data = await res.json();
+                let games = data.games || data.events || data;
+
+                // Ensure games is an array
+                if (!Array.isArray(games)) {
+                    console.warn('[Demo] API response is not an array, trying to extract games');
+                    return null;
+                }
+
+                // Find a live game first
+                let game = games.find(g => g.state === 'in');
+                // If no live game, use any game with a gamePk
+                if (!game) game = games.find(g => g.gamePk);
+
+                return game;
+            } catch (err) {
+                console.error('Failed to fetch MLB games from our API:', err);
+                return null;
+            }
+        }
+
+        // Main initialization
+        async function init() {
+            const container = document.getElementById('mlb-livecast-demo');
+
+            // Try to find a live MLB game from our API
+            const game = await findLiveMLBGame();
+
+            let gamePk = null;
+
+            if (game && game.gamePk) {
+                gamePk = game.gamePk;
+                console.log('[Demo] Found MLB game:', gamePk, game.away?.abbr, 'vs', game.home?.abbr);
+            } else {
+                // Fallback: fetch today's schedule directly from MLB API
+                try {
+                    const today = new Date().toISOString().split('T')[0];
+                    const schedRes = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}`);
+                    const schedData = await schedRes.json();
+                    if (schedData.dates && schedData.dates[0] && schedData.dates[0].games) {
+                        const mlbGames = schedData.dates[0].games;
+                        // Prefer live game, then any game
+                        const liveGame = mlbGames.find(g => g.status.abstractGameState === 'Live');
+                        const anyGame = mlbGames[0];
+                        gamePk = (liveGame || anyGame)?.gamePk;
+                        console.log('[Demo] Found MLB game from schedule:', gamePk);
+                    }
+                } catch (err) {
+                    console.error('[Demo] Failed to fetch MLB schedule:', err);
+                }
+            }
+
+            if (!gamePk) {
+                container.innerHTML = '<div style="padding:40px;text-align:center;color:#666;">No MLB games found today. Try again during the MLB season.</div>';
+                return;
+            }
+
+            // Initialize MLB Live Cast
+            if (typeof MLBLiveCast !== 'undefined' && typeof MLBStrikeZone !== 'undefined') {
+                const livecast = new MLBLiveCast(gamePk, container);
+            } else {
+                container.innerHTML = '<div style="padding:40px;text-align:center;color:#d32f2f;">MLB Live Cast scripts not loaded.</div>';
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -183,8 +183,8 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://cdn.jsdelivr.net"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      imgSrc: ["'self'", "data:", "https://a.espncdn.com", "https://*.espncdn.com", "https://*.stripe.com"],
-      connectSrc: ["'self'", "https://api.stripe.com", "wss:", "ws:"],
+      imgSrc: ["'self'", "data:", "https://a.espncdn.com", "https://*.espncdn.com", "https://*.stripe.com", "https://www.mlbstatic.com"],
+      connectSrc: ["'self'", "https://api.stripe.com", "https://statsapi.mlb.com", "wss:", "ws:"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -3056,7 +3056,7 @@ openLeagues.forEach(league => {
 });
 
 // Other pages (no access control)
-const otherPages = ['LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin', 'favorites', 'reset-password', 'scoreboard-demo', 'notification-debug'];
+const otherPages = ['LiveGames', 'customize-colors', 'pricing', 'subscription', 'admin', 'favorites', 'reset-password', 'scoreboard-demo', 'notification-debug', 'mlb-livecast-demo'];
 otherPages.forEach(page => {
   app.get(`/${page}`, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', `${page}.html`));
