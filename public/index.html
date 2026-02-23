@@ -1854,6 +1854,95 @@
             font-size: 14px;
         }
 
+        /* Big league cards for "no live games" upcoming view */
+        .upcoming-league-big-card {
+            flex-shrink: 0;
+            width: 320px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .upcoming-league-big-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .upcoming-league-big-card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .upcoming-league-big-card-grid .game-card {
+            width: auto;
+            height: auto;
+            aspect-ratio: 4 / 3;
+            font-size: 11px;
+            padding: 4px;
+            cursor: default;
+            pointer-events: none;
+            clip-path: none;
+            border: none !important;
+        }
+
+        .upcoming-league-big-card-grid .nfl-upcoming-logo,
+        .upcoming-league-big-card-grid .nba-upcoming-logo,
+        .upcoming-league-big-card-grid .mlb-upcoming-logo,
+        .upcoming-league-big-card-grid .nhl-upcoming-logo,
+        .upcoming-league-big-card-grid .ncaa-upcoming-logo,
+        .upcoming-league-big-card-grid .ncaab-upcoming-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .upcoming-league-big-card-grid .nfl-upcoming-abbr,
+        .upcoming-league-big-card-grid .nba-upcoming-abbr,
+        .upcoming-league-big-card-grid .mlb-upcoming-abbr,
+        .upcoming-league-big-card-grid .nhl-upcoming-abbr,
+        .upcoming-league-big-card-grid .ncaa-upcoming-abbr,
+        .upcoming-league-big-card-grid .ncaab-upcoming-abbr {
+            font-size: 9px;
+        }
+
+        .upcoming-league-big-card-grid .nfl-upcoming-footer,
+        .upcoming-league-big-card-grid .nba-upcoming-footer,
+        .upcoming-league-big-card-grid .mlb-upcoming-footer,
+        .upcoming-league-big-card-grid .nhl-upcoming-footer,
+        .upcoming-league-big-card-grid .ncaa-upcoming-footer,
+        .upcoming-league-big-card-grid .ncaab-upcoming-footer {
+            font-size: 8px;
+            padding: 2px 5px;
+        }
+
+        /* superbowl card inside big grid */
+        .upcoming-league-big-card-grid .superbowl-upcoming-title {
+            font-size: 9px;
+        }
+        .upcoming-league-big-card-grid .superbowl-upcoming-logo {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* Hide VS divider inside mini cards */
+        .upcoming-league-big-card-grid .nfl-upcoming-vs-container,
+        .upcoming-league-big-card-grid .nba-upcoming-vs-container,
+        .upcoming-league-big-card-grid .mlb-upcoming-vs-container,
+        .upcoming-league-big-card-grid .nhl-upcoming-vs-container,
+        .upcoming-league-big-card-grid .ncaa-upcoming-vs-container,
+        .upcoming-league-big-card-grid .ncaab-upcoming-vs-container,
+        .upcoming-league-big-card-grid .superbowl-upcoming-vs-container {
+            display: none;
+        }
+
         /* Loading Overlay */
         .loading-overlay {
             position: fixed;
@@ -5680,19 +5769,71 @@
             const hasAnyLiveGames = Object.keys(liveGamesByLeague).length > 0;
 
             if (!hasAnyLiveGames) {
+                // Group upcoming games by league (max 6 per league)
+                const upcomingByLeague = {};
+                allGamesUnfiltered.upcoming.forEach(game => {
+                    if (!upcomingByLeague[game.league]) {
+                        upcomingByLeague[game.league] = [];
+                    }
+                    if (upcomingByLeague[game.league].length < 6) {
+                        upcomingByLeague[game.league].push(game);
+                    }
+                });
+
+                const leaguesWithUpcoming = leagueOrder
+                    .filter(id => upcomingByLeague[id]?.length > 0)
+                    .slice(0, 6);
+
+                if (leaguesWithUpcoming.length === 0) {
+                    container.innerHTML = `
+                        <section class="tv-row">
+                            <div class="tv-row-header">
+                                <span class="tv-row-title">Upcoming Games</span>
+                            </div>
+                            <div class="tv-row-scroll-wrapper">
+                                <div class="tv-row-scroll">
+                                    <div class="empty-row">No live games at the moment</div>
+                                </div>
+                            </div>
+                        </section>
+                    `;
+                    return;
+                }
+
+                const bigCardsHtml = leaguesWithUpcoming.map(leagueId => {
+                    const games = upcomingByLeague[leagueId];
+                    const leagueName = leagueDisplayNames[leagueId] || leagueId.toUpperCase();
+                    const rowId = `upcoming-big-${leagueId}`;
+                    const miniCards = games.map(game => createGameCard(game, rowId)).join('');
+                    return `
+                        <div class="upcoming-league-big-card">
+                            <div class="upcoming-league-big-card-title">${leagueName}</div>
+                            <div class="upcoming-league-big-card-grid">
+                                ${miniCards}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
                 container.innerHTML = `
-                    <section class="tv-row">
+                    <section class="tv-row" id="upcoming-no-live-section">
                         <div class="tv-row-header">
-                            <span class="tv-row-title">Live Now</span>
-                            <span class="tv-row-badge live">LIVE</span>
+                            <span class="tv-row-title">Upcoming Games</span>
                         </div>
                         <div class="tv-row-scroll-wrapper">
-                            <div class="tv-row-scroll">
-                                <div class="empty-row">No live games at the moment</div>
+                            <span class="scroll-handle handle-prev" data-scroll-target="upcoming-no-live-row" role="button" aria-label="See previous">
+                                <span class="handle-icon">‹</span>
+                            </span>
+                            <div class="tv-row-scroll" id="upcoming-no-live-row">
+                                ${bigCardsHtml}
                             </div>
+                            <span class="scroll-handle handle-next" data-scroll-target="upcoming-no-live-row" role="button" aria-label="See more">
+                                <span class="handle-icon">›</span>
+                            </span>
                         </div>
                     </section>
                 `;
+                initScrollHandles();
                 return;
             }
 
