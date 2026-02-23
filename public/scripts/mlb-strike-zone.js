@@ -82,15 +82,15 @@ class MLBStrikeZone {
     const x = -zoneWidth / 2;
     const y = -zoneHeight / 2;
 
-    // Main strike zone box (ESPN style: gray border, light fill)
+    // Main strike zone box
     const zone = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     zone.setAttribute('x', x);
     zone.setAttribute('y', y);
     zone.setAttribute('width', zoneWidth);
     zone.setAttribute('height', zoneHeight);
-    zone.setAttribute('fill', 'rgba(0, 0, 0, 0.02)');
-    zone.setAttribute('stroke', '#999999');
-    zone.setAttribute('stroke-width', 2);
+    zone.setAttribute('fill', 'rgba(255, 255, 255, 0.03)');
+    zone.setAttribute('stroke', 'rgba(255, 255, 255, 0.22)');
+    zone.setAttribute('stroke-width', 1.5);
     zone.setAttribute('rx', 2);
     zone.classList.add('strike-zone-box');
     this.strikeZoneGroup.appendChild(zone);
@@ -103,9 +103,9 @@ class MLBStrikeZone {
       vLine.setAttribute('y1', y);
       vLine.setAttribute('x2', x + (zoneWidth / 3) * i);
       vLine.setAttribute('y2', y + zoneHeight);
-      vLine.setAttribute('stroke', '#cccccc');
+      vLine.setAttribute('stroke', 'rgba(255, 255, 255, 0.1)');
       vLine.setAttribute('stroke-width', 1);
-      vLine.setAttribute('stroke-dasharray', '4 4');
+      vLine.setAttribute('stroke-dasharray', '3 4');
       vLine.classList.add('zone-line');
       this.strikeZoneGroup.appendChild(vLine);
 
@@ -115,9 +115,9 @@ class MLBStrikeZone {
       hLine.setAttribute('y1', y + (zoneHeight / 3) * i);
       hLine.setAttribute('x2', x + zoneWidth);
       hLine.setAttribute('y2', y + (zoneHeight / 3) * i);
-      hLine.setAttribute('stroke', '#cccccc');
+      hLine.setAttribute('stroke', 'rgba(255, 255, 255, 0.1)');
       hLine.setAttribute('stroke-width', 1);
-      hLine.setAttribute('stroke-dasharray', '4 4');
+      hLine.setAttribute('stroke-dasharray', '3 4');
       hLine.classList.add('zone-line');
       this.strikeZoneGroup.appendChild(hLine);
     }
@@ -141,7 +141,7 @@ class MLBStrikeZone {
       text.setAttribute('y', zone.y);
       text.setAttribute('text-anchor', 'middle');
       text.setAttribute('dominant-baseline', 'middle');
-      text.setAttribute('fill', '#e0e0e0');
+      text.setAttribute('fill', 'rgba(255, 255, 255, 0.13)');
       text.setAttribute('font-size', '14');
       text.setAttribute('font-weight', '700');
       text.setAttribute('font-family', 'Roboto, sans-serif');
@@ -229,6 +229,8 @@ class MLBStrikeZone {
     const pitchGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     pitchGroup.setAttribute('class', 'pitch-marker');
     pitchGroup.setAttribute('opacity', '0');
+    pitchGroup.style.transformBox = 'fill-box';
+    pitchGroup.style.transformOrigin = 'center';
 
     // Outer ring (subtle border for ESPN style)
     const outerRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');

@@ -1,20 +1,82 @@
 /**
- * MLB Live Cast Styles - Compact Translucent Layout
+ * MLB Live Cast Styles — Dark Glass Edition
+ * Premium pitch-by-pitch visualization with cinematic depth
+ * Fully fluid — scales from a single full-screen card down to grid-8 thumbnail
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ============================================
-   MAIN CONTAINER
+   TOKENS
+   ============================================ */
+
+.mlb-livecast {
+  --lc-bg: rgba(10, 12, 18, 0.82);
+  --lc-surface: rgba(255, 255, 255, 0.04);
+  --lc-surface-2: rgba(255, 255, 255, 0.07);
+  --lc-border: rgba(255, 255, 255, 0.08);
+  --lc-border-hover: rgba(255, 107, 0, 0.5);
+  --lc-text-primary: #f0f2f5;
+  --lc-text-muted: rgba(240, 242, 245, 0.45);
+  --lc-text-label: rgba(240, 242, 245, 0.3);
+  --lc-accent: #ff6b00;
+  --lc-accent-glow: rgba(255, 107, 0, 0.25);
+  --lc-occupied: #ff6b00;
+  --lc-radius: 10px;
+  --lc-radius-sm: 6px;
+  --lc-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Fluid scale tokens — overridden per grid count via .lc-compact-* class */
+  --lc-header-h: 60px;
+  --lc-subheader-h: 30px;
+  --lc-body-min-h: 200px;
+  --lc-side-panel-w: 130px;
+  --lc-svg-w: 150px;
+  --lc-player-name-size: 13px;
+  --lc-player-role-size: 8.5px;
+  --lc-player-stats-size: 10px;
+  --lc-subheader-font: 9.5px;
+  --lc-pitch-result-size: 10.5px;
+  --lc-pitch-meta-size: 9px;
+  --lc-runner-name-size: 10px;
+  --lc-logo-size: 38px;
+}
+
+/* ============================================
+   ROOT CONTAINER
    ============================================ */
 
 .mlb-livecast {
   position: relative;
   width: 100%;
-  color: #333333;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   display: flex;
   flex-direction: column;
+  gap: 1px;
+  font-family: var(--lc-font);
+  color: var(--lc-text-primary);
+  background: rgba(8, 10, 16, 0.78);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-radius: var(--lc-radius);
+  border: 1px solid var(--lc-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.07) inset;
+}
+
+/* Accent top edge */
+.mlb-livecast::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 0, 0.4), transparent);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* ============================================
@@ -23,19 +85,56 @@
 
 .matchup-header {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 10px;
-  padding: 8px 16px;
-  background: rgba(245, 245, 245, 0.85);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  align-items: center;
-  position: relative;
+  grid-template-columns: 1fr 44px 1fr;
+  align-items: stretch;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--lc-border);
+  min-height: var(--lc-header-h);
 }
 
-/* Team Logo Inside Header */
+.pitcher-section,
+.batter-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  transition: background 0.35s ease;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.pitcher-section {
+  justify-content: flex-end;
+  border-right: 1px solid var(--lc-border);
+}
+
+.batter-section {
+  justify-content: flex-start;
+  border-left: 1px solid var(--lc-border);
+}
+
+/* Subtle team-color bleed behind each side */
+.pitcher-section::before,
+.batter-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.pitcher-section,
+.batter-section {
+  background-clip: padding-box;
+}
+
+/* Team logo */
 .team-logo-container {
-  width: 40px;
-  height: 40px;
+  width: var(--lc-logo-size);
+  height: var(--lc-logo-size);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,38 +145,15 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
 }
 
-.pitcher-section {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 4px 0 0 4px;
-  transition: background 0.3s ease;
-}
-
-.batter-section {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 0 4px 4px 0;
-  transition: background 0.3s ease;
-}
-
-.batter-section {
-  display: flex;
-  justify-content: flex-start;
-}
-
+/* Player info */
 .player-details {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
+  min-width: 0;
 }
 
 .pitcher-section .player-details {
@@ -89,184 +165,193 @@
 }
 
 .player-role {
-  font-size: 9px;
+  font-size: var(--lc-player-role-size);
   font-weight: 700;
-  color: #999999;
+  color: var(--lc-text-label);
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 1.2px;
+  white-space: nowrap;
 }
 
 .player-name {
-  font-size: 13px;
+  font-size: var(--lc-player-name-size);
   font-weight: 700;
-  color: #222222;
+  color: var(--lc-text-primary);
   line-height: 1.2;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .player-stats {
-  font-size: 10px;
-  color: #777777;
+  font-size: var(--lc-player-stats-size);
+  font-weight: 500;
+  color: var(--lc-text-muted);
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* VS pill */
 .vs-divider {
-  font-size: 12px;
-  font-weight: 700;
-  color: #aaaaaa;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--lc-text-label);
+  letter-spacing: 1px;
+  background: var(--lc-surface);
+  border-left: 1px solid var(--lc-border);
+  border-right: 1px solid var(--lc-border);
+  flex-shrink: 0;
 }
 
 /* ============================================
-   SUB HEADER (Pitch Count & On Deck)
+   INFO BAR  (Pitch Count · On Deck)
    ============================================ */
 
 .sub-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 4px 16px;
-  background: rgba(255, 255, 255, 0.6);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  font-size: 10px;
-  color: #888888;
-  gap: 40px;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--lc-border);
+  min-height: var(--lc-subheader-h);
 }
 
+.sub-header-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  font-size: var(--lc-subheader-font);
+  font-weight: 600;
+  color: var(--lc-text-label);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-right: 1px solid var(--lc-border);
+  white-space: nowrap;
+}
+
+.sub-header-item:last-child {
+  border-right: none;
+}
+
+.sub-header-item span {
+  font-weight: 700;
+  color: var(--lc-text-primary);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Legacy selectors kept for compatibility */
 .pitch-count-info,
 .ondeck-info {
-  font-weight: 400;
-  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  font-size: var(--lc-subheader-font);
+  font-weight: 600;
+  color: var(--lc-text-label);
+  letter-spacing: 0.4px;
+  border-right: 1px solid var(--lc-border);
+  white-space: nowrap;
+  flex: 1;
+  justify-content: center;
+}
+
+.ondeck-info {
+  border-right: none;
 }
 
 .pitch-count-info span,
 .ondeck-info span {
   font-weight: 700;
-  color: #333333;
-  margin-left: 3px;
+  color: var(--lc-text-primary);
+  letter-spacing: 0;
+  text-transform: none;
+  margin-left: 2px;
 }
 
 /* ============================================
-   COUNT BAR (Centered B/S/O)
-   ============================================ */
-
-.count-bar {
-  display: flex;
-  gap: 16px;
-  padding: 6px 16px;
-  background: rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  align-items: center;
-  justify-content: center;
-}
-
-.count-section {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.count-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #888888;
-}
-
-.count-dots {
-  display: flex;
-  gap: 3px;
-}
-
-.count-dots .dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.08);
-  border: 1.5px solid rgba(0, 0, 0, 0.12);
-  transition: all 0.2s ease;
-}
-
-[data-count="balls"] .dot.active {
-  background: #00AA00;
-  border-color: #00AA00;
-}
-
-[data-count="strikes"] .dot.active {
-  background: #CC0000;
-  border-color: #CC0000;
-}
-
-[data-count="outs"] .dot.active {
-  background: #CC0000;
-  border-color: #CC0000;
-}
-
-/* ============================================
-   LIVECAST BODY (3-Column: Bases | Zone | Pitches)
+   LIVECAST BODY
    ============================================ */
 
 .livecast-body {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  padding: 8px 0;
-  gap: 0;
+  grid-template-columns: var(--lc-side-panel-w) 1fr var(--lc-side-panel-w);
+  min-height: var(--lc-body-min-h);
+  background: transparent;
 }
 
-/* Base Runners Panel - Left */
+/* ============================================
+   BASES PANEL — Left
+   ============================================ */
+
 .bases-panel {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px 4px;
-  gap: 0;
+  padding: 10px 6px;
+  gap: 8px;
+  border-right: 1px solid var(--lc-border);
 }
 
+/* Diamond */
 .base-diamond-display {
   position: relative;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 6px;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
 }
 
 .base-node {
   position: absolute;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   transform: rotate(45deg);
-  border: 2px solid rgba(0, 0, 0, 0.15);
-  background: rgba(0, 0, 0, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
   border-radius: 3px;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .base-node.occupied {
-  background: #ff6b00;
-  border-color: #ff6b00;
-  box-shadow: 0 0 8px rgba(255, 107, 0, 0.4);
+  background: var(--lc-occupied);
+  border-color: var(--lc-occupied);
+  box-shadow: 0 0 10px var(--lc-accent-glow), 0 0 3px var(--lc-occupied);
 }
 
-/* Diamond positions: 2B=top, 3B=left, 1B=right */
 .base-node[data-base="2"] {
-  top: 9px;
+  top: 4px;
   left: 55%;
   transform: rotate(45deg) translateX(-50%);
 }
 
 .base-node[data-base="3"] {
-  left: 9px;
-  top: 40%;
+  left: 4px;
+  top: 50%;
   transform: rotate(45deg) translateY(-50%);
 }
 
 .base-node[data-base="1"] {
-  right: 9px;
-  top: 40%;
+  right: 4px;
+  top: 50%;
   transform: rotate(45deg) translateY(-50%);
 }
 
+/* Runner list */
 .base-runner-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   width: 100%;
 }
 
@@ -274,84 +359,118 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 6px;
-  font-size: 10px;
-  color: #666666;
-  min-height: 16px;
+  padding: 2px 5px;
+  border-radius: var(--lc-radius-sm);
+  transition: background 0.2s ease;
+}
+
+.base-runner-row:not(.empty) {
+  background: rgba(255, 107, 0, 0.1);
+  border: 1px solid rgba(255, 107, 0, 0.2);
 }
 
 .base-runner-label {
-  font-weight: 700;
-  color: #999999;
-  font-size: 9px;
-  width: 20px;
+  font-size: 8px;
+  font-weight: 800;
+  color: var(--lc-text-label);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 16px;
   flex-shrink: 0;
 }
 
+.base-runner-row:not(.empty) .base-runner-label {
+  color: var(--lc-accent);
+}
+
 .base-runner-name {
+  font-size: var(--lc-runner-name-size);
   font-weight: 600;
-  color: #333333;
+  color: var(--lc-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 10px;
 }
 
-.base-runner-row.empty .base-runner-name {
-  color: #cccccc;
-}
-
-/* Strike Zone - Center */
-.strike-zone-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4px 8px;
-}
-
-#strikeZoneSVG {
-  width: 160px;
-  height: auto;
-}
-
-/* Strike Zone SVG Styles */
-.strike-zone-box {
-  stroke: #999999;
-  stroke-width: 2;
-  fill: rgba(0, 0, 0, 0.02);
-}
-
-.zone-line {
-  stroke: #cccccc;
-  stroke-width: 1;
-  stroke-dasharray: 4 4;
-}
-
-.zone-number {
-  fill: #e0e0e0;
-  font-family: 'Roboto', sans-serif;
-  font-weight: 700;
+.base-runner-row:not(.empty) .base-runner-name {
+  color: var(--lc-text-primary);
 }
 
 /* ============================================
-   PITCH HISTORY PANEL - Right Side
+   STRIKE ZONE — Center
    ============================================ */
 
-.pitch-history-panel {
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 260px;
-  padding: 4px 8px;
+.strike-zone-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  padding: 8px 10px;
+  gap: 0;
+  position: relative;
+}
+
+/* Subtle vignette framing the zone */
+.strike-zone-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.25) 100%);
+  pointer-events: none;
+}
+
+#strikeZoneSVG,
+.strike-zone-svg {
+  width: var(--lc-svg-w);
+  height: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* SVG element styles */
+.strike-zone-box {
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 1.5;
+  fill: rgba(255, 255, 255, 0.02);
+}
+
+.zone-line {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.zone-number {
+  fill: rgba(255, 255, 255, 0.12);
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+
+/* SVG scale fix for pitch highlights */
+.pitch-marker {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* ============================================
+   PITCH HISTORY — Right
+   ============================================ */
+
+.pitch-history-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   gap: 3px;
-  border-left: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 6px 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 260px;
+  border-left: 1px solid var(--lc-border);
 }
 
 .pitch-history-panel::-webkit-scrollbar {
-  width: 3px;
+  width: 2px;
 }
 
 .pitch-history-panel::-webkit-scrollbar-track {
@@ -359,39 +478,41 @@
 }
 
 .pitch-history-panel::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 2px;
 }
 
 .pitch-card {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   padding: 4px 6px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 5px;
+  background: var(--lc-surface);
+  border: 1px solid var(--lc-border);
+  border-radius: var(--lc-radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
+  animation: lc-slide-in 0.2s ease-out;
 }
 
 .pitch-card:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: #ff6b00;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  background: var(--lc-surface-2);
+  border-color: var(--lc-border-hover);
+  transform: translateX(-1px);
 }
 
 .pitch-card-number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  font-size: 10px;
-  font-weight: 700;
-  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
   flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .pitch-card-info {
@@ -400,188 +521,223 @@
 }
 
 .pitch-card-result {
-  font-size: 11px;
+  font-size: var(--lc-pitch-result-size);
   font-weight: 600;
-  color: #333333;
+  color: var(--lc-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .pitch-card-meta {
-  font-size: 9px;
-  color: #888888;
+  font-size: var(--lc-pitch-meta-size);
+  font-weight: 500;
+  color: var(--lc-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 /* ============================================
-   PITCH COLORS
+   PITCH TYPE COLORS
    ============================================ */
 
-.pitch-ff {
-  background: #d32f2f;
+.pitch-ff  { background: #dc2626; } /* 4-seam fastball  */
+.pitch-si  { background: #e57373; } /* Sinker           */
+.pitch-fc  { background: #f87171; } /* Cutter           */
+.pitch-sl  { background: #2563eb; } /* Slider           */
+.pitch-cu  { background: #60a5fa; } /* Curveball        */
+.pitch-ch  { background: #16a34a; } /* Changeup         */
+.pitch-fs  { background: #4ade80; } /* Splitter         */
+.pitch-kn  { background: #f59e0b; } /* Knuckleball      */
+.pitch-sw  { background: #1d4ed8; } /* Sweeper          */
+.pitch-st  { background: #1d4ed8; } /* Slow curve       */
+.pitch-xx  { background: #6b7280; } /* Unknown          */
+
+/* ============================================
+   COMPACT MODES
+   Applied as a class on .mlb-livecast by JS
+   based on the grid count of the parent card.
+   ============================================ */
+
+/* Medium compact — grids 3-4 */
+.mlb-livecast.lc-compact-md {
+  --lc-header-h: 50px;
+  --lc-subheader-h: 24px;
+  --lc-body-min-h: 160px;
+  --lc-side-panel-w: 108px;
+  --lc-svg-w: 120px;
+  --lc-player-name-size: 11px;
+  --lc-player-role-size: 7.5px;
+  --lc-player-stats-size: 9px;
+  --lc-subheader-font: 8.5px;
+  --lc-pitch-result-size: 9.5px;
+  --lc-pitch-meta-size: 8px;
+  --lc-runner-name-size: 9px;
+  --lc-logo-size: 30px;
 }
 
-.pitch-si {
-  background: #e57373;
+.mlb-livecast.lc-compact-md .base-diamond-display {
+  width: 58px;
+  height: 58px;
 }
 
-.pitch-fc {
-  background: #ef9a9a;
+.mlb-livecast.lc-compact-md .base-node {
+  width: 15px;
+  height: 15px;
 }
 
-.pitch-sl {
-  background: #1976d2;
+.mlb-livecast.lc-compact-md .pitch-history-panel {
+  max-height: 190px;
 }
 
-.pitch-cu {
-  background: #64b5f6;
+/* Small compact — grids 5-6 */
+.mlb-livecast.lc-compact-sm {
+  --lc-header-h: 42px;
+  --lc-subheader-h: 20px;
+  --lc-body-min-h: 130px;
+  --lc-side-panel-w: 88px;
+  --lc-svg-w: 96px;
+  --lc-player-name-size: 10px;
+  --lc-player-role-size: 7px;
+  --lc-player-stats-size: 8px;
+  --lc-subheader-font: 7.5px;
+  --lc-pitch-result-size: 8.5px;
+  --lc-pitch-meta-size: 7.5px;
+  --lc-runner-name-size: 8px;
+  --lc-logo-size: 24px;
 }
 
-.pitch-ch {
-  background: #388e3c;
+.mlb-livecast.lc-compact-sm .matchup-header {
+  grid-template-columns: 1fr 34px 1fr;
 }
 
-.pitch-fs {
-  background: #81c784;
+.mlb-livecast.lc-compact-sm .pitcher-section,
+.mlb-livecast.lc-compact-sm .batter-section {
+  gap: 5px;
+  padding: 5px 8px;
 }
 
-.pitch-kn {
-  background: #f57c00;
+.mlb-livecast.lc-compact-sm .base-diamond-display {
+  width: 48px;
+  height: 48px;
 }
 
-.pitch-sw {
-  background: #0d47a1;
+.mlb-livecast.lc-compact-sm .base-node {
+  width: 13px;
+  height: 13px;
 }
 
-.pitch-st {
-  background: #0d47a1;
+.mlb-livecast.lc-compact-sm .bases-panel {
+  padding: 6px 4px;
+  gap: 4px;
 }
 
-.pitch-xx {
-  background: #999999;
+.mlb-livecast.lc-compact-sm .pitch-history-panel {
+  max-height: 155px;
+  gap: 2px;
+  padding: 4px 4px;
+}
+
+.mlb-livecast.lc-compact-sm .pitch-card {
+  padding: 3px 5px;
+  gap: 4px;
+}
+
+.mlb-livecast.lc-compact-sm .pitch-card-number {
+  width: 15px;
+  height: 15px;
+  font-size: 8px;
+}
+
+/* Micro compact — grids 7-8 (non-featured cards) */
+.mlb-livecast.lc-compact-xs {
+  --lc-header-h: 36px;
+  --lc-subheader-h: 18px;
+  --lc-body-min-h: 108px;
+  --lc-side-panel-w: 72px;
+  --lc-svg-w: 78px;
+  --lc-player-name-size: 9px;
+  --lc-player-role-size: 6.5px;
+  --lc-player-stats-size: 7.5px;
+  --lc-subheader-font: 7px;
+  --lc-pitch-result-size: 8px;
+  --lc-pitch-meta-size: 7px;
+  --lc-runner-name-size: 7.5px;
+  --lc-logo-size: 20px;
+}
+
+.mlb-livecast.lc-compact-xs .matchup-header {
+  grid-template-columns: 1fr 28px 1fr;
+}
+
+.mlb-livecast.lc-compact-xs .pitcher-section,
+.mlb-livecast.lc-compact-xs .batter-section {
+  gap: 4px;
+  padding: 4px 6px;
+}
+
+.mlb-livecast.lc-compact-xs .vs-divider {
+  font-size: 7.5px;
+}
+
+.mlb-livecast.lc-compact-xs .base-diamond-display {
+  width: 40px;
+  height: 40px;
+}
+
+.mlb-livecast.lc-compact-xs .base-node {
+  width: 11px;
+  height: 11px;
+}
+
+.mlb-livecast.lc-compact-xs .bases-panel {
+  padding: 5px 3px;
+  gap: 3px;
+}
+
+/* hide runner names at micro size — diamond only */
+.mlb-livecast.lc-compact-xs .base-runner-list {
+  display: none;
+}
+
+.mlb-livecast.lc-compact-xs .pitch-history-panel {
+  max-height: 130px;
+  gap: 2px;
+  padding: 3px 3px;
+}
+
+.mlb-livecast.lc-compact-xs .pitch-card {
+  padding: 2px 4px;
+  gap: 3px;
+}
+
+.mlb-livecast.lc-compact-xs .pitch-card-number {
+  width: 13px;
+  height: 13px;
+  font-size: 7px;
+}
+
+/* hide pitch type/speed line at micro size */
+.mlb-livecast.lc-compact-xs .pitch-card-meta {
+  display: none;
+}
+
+.mlb-livecast.lc-compact-xs .pitch-count-info,
+.mlb-livecast.lc-compact-xs .ondeck-info {
+  padding: 3px 8px;
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
+   ANIMATIONS
    ============================================ */
 
-@media (max-width: 768px) {
-  .matchup-header {
-    padding: 6px 12px;
-  }
-
-  .player-name {
-    font-size: 12px;
-  }
-
-  .player-role {
-    font-size: 8px;
-  }
-
-  .count-bar {
-    gap: 10px;
-    padding: 5px 12px;
-  }
-
-  .count-dots .dot {
-    width: 10px;
-    height: 10px;
-  }
-
-  .bases-panel {
-    flex: 0 0 90px;
-  }
-
-  .base-diamond-display {
-    width: 65px;
-    height: 65px;
-  }
-
-  .base-node {
-    width: 18px;
-    height: 18px;
-  }
-
-  .base-node[data-base="2"] {
-    top: 0;
-    left: 50%;
-  }
-
-  .base-node[data-base="3"] {
-    left: 0;
-    top: 50%;
-  }
-
-  .base-node[data-base="1"] {
-    right: 0;
-    top: 50%;
-  }
-
-  #strikeZoneSVG {
-    width: 130px;
-  }
-
-  .pitch-card {
-    padding: 3px 5px;
-    gap: 5px;
-  }
-
-  .pitch-card-number {
-    width: 18px;
-    height: 18px;
-    font-size: 9px;
-  }
-
-  .pitch-card-result {
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .livecast-body {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .bases-panel {
-    flex-direction: row;
-    flex: 0 0 auto;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .strike-zone-section {
-    width: 100%;
-  }
-
-  #strikeZoneSVG {
-    width: 140px;
-  }
-
-  .pitch-history-panel {
-    border-left: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-    max-height: 120px;
-    width: 100%;
-  }
-}
-
-/* ============================================
-   LOADING / ANIMATIONS
-   ============================================ */
-
-.loading {
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-@keyframes fadeIn {
+@keyframes lc-slide-in {
   from {
     opacity: 0;
-    transform: translateX(10px);
+    transform: translateX(8px);
   }
 
   to {
@@ -590,6 +746,55 @@
   }
 }
 
-.pitch-card {
-  animation: fadeIn 0.2s ease-out;
+/* ============================================
+   RESPONSIVE (standalone / mobile fallback)
+   ============================================ */
+
+@media (max-width: 768px) {
+  .mlb-livecast {
+    --lc-side-panel-w: 108px;
+    --lc-svg-w: 130px;
+    --lc-player-name-size: 12px;
+  }
+
+  .mlb-livecast .base-diamond-display {
+    width: 62px;
+    height: 62px;
+  }
+
+  .mlb-livecast .base-node {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+@media (max-width: 480px) {
+  .livecast-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .bases-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--lc-border);
+    flex-direction: row;
+    justify-content: center;
+    padding: 10px 16px;
+    gap: 16px;
+  }
+
+  .strike-zone-section {
+    padding: 12px;
+  }
+
+  #strikeZoneSVG,
+  .strike-zone-svg {
+    width: 150px;
+  }
+
+  .pitch-history-panel {
+    border-left: none;
+    border-top: 1px solid var(--lc-border);
+    max-height: 110px;
+  }
 }

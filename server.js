@@ -3720,11 +3720,155 @@ async function fetchNCAABDataForCache(date) {
   return data;
 }
 
-async function fetchMLBDataForCache(date) {
-  const url = `${ESPN_BASE}/baseball/mlb/scoreboard?dates=${date}`;
-  console.log(`[MLB Cache] Fetching: ${url}`);
+// MLB logo URL builder using mlbstatic.com (no ESPN needed)
+function mlbLogoUrl(teamId) {
+  return `https://www.mlbstatic.com/team-logos/${teamId}.svg`;
+}
 
-  const data = await fetchESPN(url);
+// Convert a Statsapi game object into the ESPN competition event shape
+// that the rest of the app (updateGameFromEvent, notification cron, etc.) expects.
+function statsapiGameToESPNEvent(g) {
+  const awayTeam = g.teams?.away;
+  const homeTeam = g.teams?.home;
+  const ls = g.linescore || {};
+
+  // Map Statsapi abstractGameState → ESPN state
+  const stateMap = { Preview: 'pre', Live: 'in', Final: 'post' };
+  const state = stateMap[g.status?.abstractGameState] || 'pre';
+
+  // Build shortDetail string matching ESPN format (e.g. "Top 3rd", "Bot 7th", "Final")
+  let shortDetail = g.status?.detailedState || '';
+  if (state === 'in' && ls.currentInningOrdinal) {
+    const half = ls.isTopInning ? 'Top' : 'Bot';
+    shortDetail = `${half} ${ls.currentInningOrdinal}`;
+  } else if (state === 'post') {
+    shortDetail = 'Final';
+  } else if (state === 'pre' && g.gameDate) {
+    // Format start time for display
+    const d = new Date(g.gameDate);
+    const h = d.getUTCHours();
+    const m = d.getUTCMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = ((h % 12) || 12);
+    shortDetail = `${h12}:${m.toString().padStart(2, '0')} ${ampm} ET`;
+  }
+
+  // Build per-inning linescore arrays for BaseballScoreboard
+  const awayInnings = (ls.innings || []).map(inn => inn.away?.runs ?? '-');
+  const homeInnings = (ls.innings || []).map(inn => inn.home?.runs ?? '-');
+
+  // Build situation block (live games only)
+  let situation = null;
+  if (state === 'in' && ls) {
+    const offense = ls.offense || {};
+    const defense = ls.defense || {};
+    situation = {
+      balls: ls.balls || 0,
+      strikes: ls.strikes || 0,
+      outs: ls.outs || 0,
+      onFirst: !!offense.first,
+      onSecond: !!offense.second,
+      onThird: !!offense.third,
+      periodType: ls.isTopInning ? 'top' : 'bot',
+      batter: offense.batter ? { athlete: { shortName: offense.batter.fullName, displayName: offense.batter.fullName } } : null,
+      pitcher: defense.pitcher ? { athlete: { shortName: defense.pitcher.fullName, displayName: defense.pitcher.fullName } } : null
+    };
+  }
+
+  const awayId = awayTeam?.team?.id;
+  const homeId = homeTeam?.team?.id;
+
+  const competitors = [
+    {
+      homeAway: 'away',
+      id: String(awayId || ''),
+      score: String(awayTeam?.score ?? 0),
+      winner: state === 'post' && (awayTeam?.score ?? 0) > (homeTeam?.score ?? 0),
+      hits: ls.teams?.away?.hits ?? 0,
+      errors: ls.teams?.away?.errors ?? 0,
+      linescores: awayInnings,
+      team: {
+        id: String(awayId || ''),
+        abbreviation: awayTeam?.team?.abbreviation || '',
+        displayName: awayTeam?.team?.name || '',
+        logo: awayId ? mlbLogoUrl(awayId) : '',
+        logos: awayId ? [{ href: mlbLogoUrl(awayId) }] : []
+      }
+    },
+    {
+      homeAway: 'home',
+      id: String(homeId || ''),
+      score: String(homeTeam?.score ?? 0),
+      winner: state === 'post' && (homeTeam?.score ?? 0) > (awayTeam?.score ?? 0),
+      hits: ls.teams?.home?.hits ?? 0,
+      errors: ls.teams?.home?.errors ?? 0,
+      linescores: homeInnings,
+      team: {
+        id: String(homeId || ''),
+        abbreviation: homeTeam?.team?.abbreviation || '',
+        displayName: homeTeam?.team?.name || '',
+        logo: homeId ? mlbLogoUrl(homeId) : '',
+        logos: homeId ? [{ href: mlbLogoUrl(homeId) }] : []
+      }
+    }
+  ];
+
+  const awayAbbr = awayTeam?.team?.abbreviation || '';
+  const homeAbbr = homeTeam?.team?.abbreviation || '';
+
+  return {
+    id: String(g.gamePk),
+    name: `${awayTeam?.team?.name || awayAbbr} at ${homeTeam?.team?.name || homeAbbr}`,
+    shortName: `${awayAbbr}@${homeAbbr}`,
+    date: g.gameDate,
+    status: {
+      type: {
+        state,
+        shortDetail,
+        detail: shortDetail,
+        name: g.status?.abstractGameState || 'pre'
+      },
+      period: ls.currentInning || 1,
+      displayClock: ''
+    },
+    competitions: [
+      {
+        status: {
+          type: {
+            state,
+            shortDetail,
+            detail: shortDetail
+          },
+          period: ls.currentInning || 1,
+          displayClock: ''
+        },
+        competitors,
+        situation
+      }
+    ]
+  };
+}
+
+async function fetchMLBDataForCache(date) {
+  // date is YYYYMMDD (e.g. "20260222") — convert to MM/DD/YYYY for Statsapi
+  const year = date.slice(0, 4);
+  const month = date.slice(4, 6);
+  const day = date.slice(6, 8);
+  const statsapiDate = `${month}/${day}/${year}`;
+  const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${statsapiDate}&hydrate=team,linescore,flags`;
+  console.log(`[MLB Cache] Fetching Statsapi: ${url}`);
+
+  let data;
+  try {
+    const response = await axios.get(url, { timeout: 10000 });
+    const games = response.data?.dates?.[0]?.games || [];
+    const events = games.map(statsapiGameToESPNEvent);
+    data = { events };
+  } catch (error) {
+    console.error(`[MLB Cache] Statsapi fetch failed for ${date}:`, error.message);
+    data = { events: [] };
+  }
+
   const isComplete = areAllGamesComplete(data);
   const now = Date.now();
 
@@ -6151,6 +6295,23 @@ app.get('/api/mlb/summary/:gameId', async (req, res) => {
   }
 });
 
+// MLB LiveCast proxy - forwards to Statsapi feed/live endpoint
+// Avoids CORS issues and keeps Statsapi calls server-side
+app.get('/api/mlb/livecast/:gamePk', async (req, res) => {
+  try {
+    const { gamePk } = req.params;
+    if (!gamePk || !/^\d+$/.test(gamePk)) {
+      return res.status(400).json({ error: 'Invalid gamePk' });
+    }
+    const url = `https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`;
+    const response = await axios.get(url, { timeout: 8000 });
+    res.json(response.data);
+  } catch (error) {
+    console.error(`[MLB LiveCast] Proxy error for ${req.params.gamePk}:`, error.message);
+    res.status(502).json({ error: 'Failed to fetch live game data' });
+  }
+});
+
 // ============================================
 // API ROUTES - NHL
 // ============================================
@@ -7130,10 +7291,13 @@ cron.schedule('*/2 * * * *', async () => {
           if (!competition) continue;
 
           // Only include live/in-progress games
-          const status = competition.status?.type?.name || event.status?.type?.name;
-          const isLive = status === 'STATUS_IN_PROGRESS' ||
-                         status === 'STATUS_HALFTIME' ||
-                         status === 'STATUS_END_PERIOD';
+          // Accepts both ESPN status names and Statsapi-normalized state ('in')
+          const statusName = competition.status?.type?.name || event.status?.type?.name;
+          const statusState = competition.status?.type?.state || event.status?.type?.state;
+          const isLive = statusState === 'in' ||
+                         statusName === 'STATUS_IN_PROGRESS' ||
+                         statusName === 'STATUS_HALFTIME' ||
+                         statusName === 'STATUS_END_PERIOD';
           if (!isLive) continue;
 
           const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');

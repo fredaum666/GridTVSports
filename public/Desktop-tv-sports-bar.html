@@ -368,6 +368,25 @@
                 display: none;
             }
 
+            /* MLB cards at grid-3/4: hide center clock to avoid crowding the BSO badge */
+            .fullscreen-grid.grid-3 .fs-mlb .fs-sb-center,
+            .fullscreen-grid.grid-4 .fs-mlb .fs-sb-center {
+                display: none;
+            }
+
+            /* MLB cards at grid-3/4: show tablet-top-clock (replaces hidden center clock) */
+            .fullscreen-grid.grid-3 .fs-mlb .tablet-top-clock,
+            .fullscreen-grid.grid-4 .fs-mlb .tablet-top-clock {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                top: 16px;
+                left: 0;
+                right: 0;
+                height: clamp(24px, 4vmin, 36px);
+            }
+
             /* Grid 5 small cards & Grid 6 all cards: Adjust card wrapper padding to accommodate top clock */
             .fullscreen-grid.grid-5 .fullscreen-game-card:nth-child(n+3) .fs-card-wrapper,
             .fullscreen-grid.grid-6 .fullscreen-game-card .fs-card-wrapper,
@@ -1548,13 +1567,27 @@
         }
 
         @keyframes scoreFadeOut {
-            0% { opacity: 1; transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1); }
-            100% { opacity: 0; transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(0.8); }
+            0% {
+                opacity: 1;
+                transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(0.8);
+            }
         }
 
         @keyframes scoreFadeIn {
-            0% { opacity: 0; transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1.2); }
-            100% { opacity: 1; transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1); }
+            0% {
+                opacity: 0;
+                transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1.2);
+            }
+
+            100% {
+                opacity: 1;
+                transform: skewX(calc(var(--sb-skew-angle) * -1)) scale(1);
+            }
         }
 
         .score-increment {
@@ -1580,16 +1613,49 @@
         }
 
         @keyframes scoreIncrementSequence {
-            0% { opacity: 0; transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(0.5); }
-            10% { opacity: 1; transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(1.3); }
-            15% { transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(1); }
-            20% { text-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
-            35% { text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e, 0 0 30px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
-            50% { text-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
-            65% { text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e, 0 0 30px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
-            80% { text-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5); }
-            85% { opacity: 1; transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(0.8); }
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(0.5);
+            }
+
+            10% {
+                opacity: 1;
+                transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(1.3);
+            }
+
+            15% {
+                transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(1);
+            }
+
+            20% {
+                text-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            35% {
+                text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e, 0 0 30px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            50% {
+                text-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            65% {
+                text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e, 0 0 30px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            80% {
+                text-shadow: 0 0 15px #22c55e, 0 0 30px #22c55e, 0 0 45px #22c55e, 0 2px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            85% {
+                opacity: 1;
+                transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) skewX(calc(var(--sb-skew-angle) * -1)) scale(0.8);
+            }
         }
 
         .fs-sb-score-box.score-animating {
@@ -1992,6 +2058,49 @@
             padding: clamp(4px, 1vmin, 8px) clamp(8px, 2vmin, 16px);
         }
 
+        /* All grids: MLB situation badge sits fully below the scoreboard. */
+        .fs-mlb .fs-sb-situation.mlb-situation {
+            transform: translateX(-50%) translateY(100%);
+            bottom: -2px;
+        }
+
+        /* MLB scoreboard: reduce team section paddings at compact widths */
+        .fullscreen-grid.grid-3 .fs-mlb .fs-sb-team-section.away,
+        .fullscreen-grid.grid-4 .fs-mlb .fs-sb-team-section.away {
+            padding-left: clamp(48px, 5vmin, 72px);
+            padding-right: clamp(8px, 1vmin, 20px);
+        }
+
+        .fullscreen-grid.grid-3 .fs-mlb .fs-sb-team-section.home,
+        .fullscreen-grid.grid-4 .fs-mlb .fs-sb-team-section.home {
+            padding-left: clamp(8px, 1vmin, 20px);
+            padding-right: clamp(48px, 5vmin, 72px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-mlb .fs-sb-team-section.away,
+        .fullscreen-grid.grid-6 .fs-mlb .fs-sb-team-section.away {
+            padding-left: clamp(44px, 4.5vmin, 64px);
+            padding-right: clamp(6px, 0.8vmin, 16px);
+        }
+
+        .fullscreen-grid.grid-5 .fs-mlb .fs-sb-team-section.home,
+        .fullscreen-grid.grid-6 .fs-mlb .fs-sb-team-section.home {
+            padding-left: clamp(6px, 0.8vmin, 16px);
+            padding-right: clamp(44px, 4.5vmin, 64px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-mlb .fs-sb-team-section.away,
+        .fullscreen-grid.grid-8 .fs-mlb .fs-sb-team-section.away {
+            padding-left: clamp(40px, 4vmin, 58px);
+            padding-right: clamp(4px, 0.5vmin, 12px);
+        }
+
+        .fullscreen-grid.grid-7 .fs-mlb .fs-sb-team-section.home,
+        .fullscreen-grid.grid-8 .fs-mlb .fs-sb-team-section.home {
+            padding-left: clamp(4px, 0.5vmin, 12px);
+            padding-right: clamp(40px, 4vmin, 58px);
+        }
+
         .mlb-count {
             display: flex;
             align-items: center;
@@ -2088,49 +2197,56 @@
         .mlb-livecast-container {
             width: 88%;
             max-width: 88%;
-            margin: clamp(12px, 2.5vmin, 24px) auto 0;
+            /* Base margin — matches field-visualizer clearance for BSO badge overhang */
+            margin: clamp(24px, 4vmin, 40px) auto 0;
             display: flex;
             justify-content: center;
         }
 
-        /* Grid 1 - Match scoreboard width */
+        /* Grid 1 — generous clearance */
         .fullscreen-grid.grid-1 .mlb-livecast-container {
             width: 88%;
             max-width: 88%;
+            margin-top: clamp(32px, 5vmin, 50px);
         }
 
-        /* Grid 2 - Match scoreboard width */
+        /* Grid 2 */
         .fullscreen-grid.grid-2 .mlb-livecast-container {
             width: 85%;
             max-width: 85%;
+            margin-top: clamp(28px, 4.5vmin, 45px);
         }
 
-        /* Grid 3-4 - Match scoreboard width */
+        /* Grid 3-4 — badge now translateY(100%) so needs ~badge-height clearance */
         .fullscreen-grid.grid-3 .mlb-livecast-container,
         .fullscreen-grid.grid-4 .mlb-livecast-container {
             width: 90%;
             max-width: 90%;
+            margin-top: clamp(34px, 5vmin, 48px);
         }
 
-        /* Grid 5-6 - Match scoreboard width */
+        /* Grid 5-6 */
         .fullscreen-grid.grid-5 .mlb-livecast-container,
         .fullscreen-grid.grid-6 .mlb-livecast-container {
             width: 92%;
             max-width: 92%;
+            margin-top: clamp(28px, 4vmin, 40px);
         }
 
-        /* Grid 7-8 Featured Card - Match scoreboard width */
+        /* Grid 7-8 Featured Card */
         .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:first-child .mlb-livecast-container,
         .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:first-child .mlb-livecast-container {
             width: 88%;
             max-width: 88%;
+            margin-top: clamp(18px, 2.8vmin, 30px);
         }
 
-        /* Grid 7-8 Smaller Cards - Match scoreboard width */
+        /* Grid 7-8 Smaller Cards */
         .fullscreen-grid.grid-7:not([data-page]) .fullscreen-game-card:not(:first-child) .mlb-livecast-container,
         .fullscreen-grid.grid-8:not([data-page]) .fullscreen-game-card:not(:first-child) .mlb-livecast-container {
             width: 92%;
             max-width: 92%;
+            margin-top: clamp(16px, 2.5vmin, 26px);
         }
 
         /* ============================================
@@ -2171,17 +2287,47 @@
         }
 
         @keyframes scorerSlideUpAway {
-            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            12% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            80% { opacity: 1; transform: translateX(-50%) translateY(-40px); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-50px); }
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+
+            12% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(-40px);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-50px);
+            }
         }
 
         @keyframes scorerSlideUpHome {
-            0% { opacity: 0; transform: translateX(50%) translateY(20px); }
-            12% { opacity: 1; transform: translateX(50%) translateY(0); }
-            80% { opacity: 1; transform: translateX(50%) translateY(-40px); }
-            100% { opacity: 0; transform: translateX(50%) translateY(-50px); }
+            0% {
+                opacity: 0;
+                transform: translateX(50%) translateY(20px);
+            }
+
+            12% {
+                opacity: 1;
+                transform: translateX(50%) translateY(0);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translateX(50%) translateY(-40px);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateX(50%) translateY(-50px);
+            }
         }
 
         .nba-scorer-notification.away.animate {
@@ -5788,7 +5934,7 @@
                 // Add click handlers for page dots
                 setTimeout(() => {
                     document.querySelectorAll('.page-dot').forEach(dot => {
-                        dot.addEventListener('click', function() {
+                        dot.addEventListener('click', function () {
                             const newPage = parseInt(this.dataset.page);
                             if (newPage !== window.currentGridPage) {
                                 window.currentGridPage = newPage;
@@ -5940,6 +6086,14 @@
             });
             window.mlbLiveCasts.clear();
 
+            // Determine current grid count from the fullscreen-grid element
+            const gridEl = document.querySelector('.fullscreen-grid');
+            let gridCount = 1;
+            if (gridEl) {
+                const match = [...gridEl.classList].find(c => /^grid-\d+$/.test(c));
+                if (match) gridCount = parseInt(match.replace('grid-', ''), 10);
+            }
+
             // Find all MLB livecast containers and initialize
             document.querySelectorAll('.mlb-livecast-container').forEach(container => {
                 const gameId = container.dataset.gameId;
@@ -5947,6 +6101,22 @@
                     try {
                         const livecast = new MLBLiveCast(gameId, container);
                         window.mlbLiveCasts.set(gameId, livecast);
+
+                        // Apply compact class based on grid count
+                        const lcEl = container.querySelector('.mlb-livecast');
+                        if (lcEl) {
+                            lcEl.classList.remove('lc-compact-md', 'lc-compact-sm', 'lc-compact-xs');
+                            if (gridCount >= 7) {
+                                // For grid-7/8, featured card (first child) gets sm, others get xs
+                                const card = container.closest('.fullscreen-game-card');
+                                const isFirst = card && card === card.parentElement.firstElementChild;
+                                lcEl.classList.add(isFirst ? 'lc-compact-sm' : 'lc-compact-xs');
+                            } else if (gridCount >= 5) {
+                                lcEl.classList.add('lc-compact-sm');
+                            } else if (gridCount >= 3) {
+                                lcEl.classList.add('lc-compact-md');
+                            }
+                        }
                     } catch (error) {
                         console.error(`[MLB LiveCast] Error initializing for game ${gameId}:`, error);
                     }
@@ -6056,22 +6226,9 @@
             // Build field visualizer for NFL/NCAA (only show when situation box is showing, hide during intermissions)
             let fieldVisualizerHTML = '';
 
-            // MLB diamond visualizer
+            // MLB LiveCast
             if (isMLB && isLive) {
-                const onFirst = game.onFirst ? 'occupied' : '';
-                const onSecond = game.onSecond ? 'occupied' : '';
-                const onThird = game.onThird ? 'occupied' : '';
                 fieldVisualizerHTML = `
-                    <div class="mlb-diamond-visualizer">
-                        <div class="mlb-diamond">
-                            <div class="mlb-base second ${onSecond}"></div>
-                            <div class="mlb-base-row">
-                                <div class="mlb-base third ${onThird}"></div>
-                                <div class="mlb-base first ${onFirst}"></div>
-                            </div>
-                            <div class="mlb-base home"></div>
-                        </div>
-                    </div>
                     <div class="mlb-livecast-container" id="mlb-livecast-${game.id}" data-game-id="${game.id}">
                         <!-- MLB Live Cast will be initialized here -->
                     </div>
@@ -7119,7 +7276,30 @@
 
                     // Update game objects with fresh data
                     gamesByLeague[league].forEach(game => {
-                        const updated = events.find(e => e.id === game.id);
+                        // Extract numeric ID (handles both "401547643" and "nfl:401547643" formats)
+                        const gameNumericId = game.id.includes(':') ? game.id.split(':')[1] : game.id;
+                        let updated = events.find(e => e.id === gameNumericId);
+
+                        // MLB fallback: match by team abbreviations (handles stale ESPN IDs in localStorage)
+                        if (!updated && league === 'mlb') {
+                            updated = events.find(e => {
+                                const comps = e.competitions?.[0]?.competitors || e.competitors || [];
+                                const abbrs = comps.map(c => c.team?.abbreviation);
+                                return abbrs.includes(game.away.abbr) && abbrs.includes(game.home.abbr);
+                            });
+                            if (updated) {
+                                // Migrate game.id to Statsapi gamePk so future refreshes work by ID
+                                game.id = updated.id;
+                                // Update livecast container's data-game-id too
+                                const lcContainer = document.getElementById(`mlb-livecast-${gameNumericId}`);
+                                if (lcContainer) {
+                                    lcContainer.id = `mlb-livecast-${updated.id}`;
+                                    lcContainer.dataset.gameId = updated.id;
+                                    initMLBLiveCasts();
+                                }
+                            }
+                        }
+
                         if (updated) {
                             // Store previous data for animation detection
                             const prevData = prevGameData.get(game.id) || {};

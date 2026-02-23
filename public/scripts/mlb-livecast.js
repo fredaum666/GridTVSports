@@ -63,6 +63,7 @@ class MLBLiveCast {
   createUI() {
     const html = `
       <div class="mlb-livecast">
+
         <!-- Matchup Header -->
         <div class="matchup-header">
           <div class="pitcher-section">
@@ -70,7 +71,7 @@ class MLBLiveCast {
               <img class="team-logo-img" data-pitcher-logo src="" alt="Pitcher Team" style="display: none;">
             </div>
             <div class="player-details">
-              <div class="player-role">PITCHER</div>
+              <div class="player-role">Pitcher</div>
               <div class="player-name" data-pitcher-name>Loading...</div>
               <div class="player-stats" data-pitcher-stats>-</div>
             </div>
@@ -80,7 +81,7 @@ class MLBLiveCast {
 
           <div class="batter-section">
             <div class="player-details">
-              <div class="player-role">BATTER</div>
+              <div class="player-role">Batter</div>
               <div class="player-name" data-batter-name>Loading...</div>
               <div class="player-stats" data-batter-stats>-</div>
             </div>
@@ -90,41 +91,20 @@ class MLBLiveCast {
           </div>
         </div>
 
-        <!-- Sub Header (Pitch Count & On Deck) -->
+        <!-- Info Bar: Pitch Count · On Deck -->
         <div class="sub-header">
           <div class="pitch-count-info">
-            PITCH COUNT: <span data-pitch-count>--</span>
+            Pitches <span data-pitch-count>--</span>
           </div>
           <div class="ondeck-info">
-            ON DECK: <span data-ondeck>-</span>
+            On Deck <span data-ondeck>—</span>
           </div>
         </div>
 
-        <!-- Count Display (Centered) -->
-        <div class="count-bar">
-          <div class="count-section">
-            <span class="count-label">B</span>
-            <div class="count-dots" data-count="balls">
-              <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            </div>
-          </div>
-          <div class="count-section">
-            <span class="count-label">S</span>
-            <div class="count-dots" data-count="strikes">
-              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            </div>
-          </div>
-          <div class="count-section">
-            <span class="count-label">O</span>
-            <div class="count-dots" data-count="outs">
-              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Main Content: Bases | Strike Zone | Pitch History -->
+        <!-- Body: Bases | Strike Zone | Pitch History -->
         <div class="livecast-body">
-          <!-- Base Runners Panel (Left) -->
+
+          <!-- Base Runners (Left) -->
           <div class="bases-panel">
             <div class="base-diamond-display">
               <div class="base-node" data-base="2"></div>
@@ -134,15 +114,15 @@ class MLBLiveCast {
             <div class="base-runner-list">
               <div class="base-runner-row empty" data-runner-row="1">
                 <span class="base-runner-label">1B</span>
-                <span class="base-runner-name" data-runner-name="1">---</span>
+                <span class="base-runner-name" data-runner-name="1">—</span>
               </div>
               <div class="base-runner-row empty" data-runner-row="2">
                 <span class="base-runner-label">2B</span>
-                <span class="base-runner-name" data-runner-name="2">---</span>
+                <span class="base-runner-name" data-runner-name="2">—</span>
               </div>
               <div class="base-runner-row empty" data-runner-row="3">
                 <span class="base-runner-label">3B</span>
-                <span class="base-runner-name" data-runner-name="3">---</span>
+                <span class="base-runner-name" data-runner-name="3">—</span>
               </div>
             </div>
           </div>
@@ -154,6 +134,7 @@ class MLBLiveCast {
 
           <!-- Pitch History (Right) -->
           <div class="pitch-history-panel" data-pitch-list></div>
+
         </div>
       </div>
     `;
@@ -172,9 +153,6 @@ class MLBLiveCast {
       batterSection: this.container.querySelector('.batter-section'),
       pitchCount: this.container.querySelector('[data-pitch-count]'),
       ondeck: this.container.querySelector('[data-ondeck]'),
-      ballsIndicator: this.container.querySelector('[data-count="balls"]'),
-      strikesIndicator: this.container.querySelector('[data-count="strikes"]'),
-      outsIndicator: this.container.querySelector('[data-count="outs"]'),
       pitchList: this.container.querySelector('[data-pitch-list]'),
       baseNodes: {
         1: this.container.querySelector('.base-node[data-base="1"]'),
@@ -205,7 +183,7 @@ class MLBLiveCast {
 
   async fetchGameData() {
     try {
-      const response = await fetch(`https://statsapi.mlb.com/api/v1.1/game/${this.gameId}/feed/live`);
+      const response = await fetch(`/api/mlb/livecast/${this.gameId}`);
       const data = await response.json();
 
       this.gameData = data;
@@ -225,13 +203,6 @@ class MLBLiveCast {
     const awayTeam = data.gameData?.teams?.away;
     const homeTeam = data.gameData?.teams?.home;
 
-    // Update count display
-    if (linescore) {
-      this.updateCount('balls', linescore.balls || 0);
-      this.updateCount('strikes', linescore.strikes || 0);
-      this.updateCount('outs', linescore.outs || 0);
-    }
-
     // Update matchup
     if (currentPlay && currentPlay.matchup) {
       const { pitcher, batter } = currentPlay.matchup;
@@ -250,7 +221,7 @@ class MLBLiveCast {
       const battingTeam = inningHalf === 'Top' ? awayTeam : homeTeam;
 
       if (pitchingTeam && this.elements.pitcherLogo) {
-        const logoPath = `/assets/mlb/${pitchingTeam.abbreviation}.png`;
+        const logoPath = `https://www.mlbstatic.com/team-logos/${pitchingTeam.id}.svg`;
         this.elements.pitcherLogo.style.display = '';
         this.elements.pitcherLogo.src = logoPath;
         this.elements.pitcherLogo.onerror = () => {
@@ -265,7 +236,7 @@ class MLBLiveCast {
       }
 
       if (battingTeam && this.elements.batterLogo) {
-        const logoPath = `/assets/mlb/${battingTeam.abbreviation}.png`;
+        const logoPath = `https://www.mlbstatic.com/team-logos/${battingTeam.id}.svg`;
         this.elements.batterLogo.style.display = '';
         this.elements.batterLogo.src = logoPath;
         this.elements.batterLogo.onerror = () => {
@@ -285,8 +256,10 @@ class MLBLiveCast {
         this.elements.pitcherStats.textContent = pitcherStats;
       }
 
-      if (this.elements.batterStats) {
-        this.elements.batterStats.textContent = '0-0';
+      // Get batter stats from boxscore
+      if (data.liveData.boxscore && this.elements.batterStats) {
+        const batterStats = this.getBatterStats(data.liveData.boxscore, batter.id);
+        this.elements.batterStats.textContent = batterStats;
       }
     } else if (data.gameData) {
       // Pre-game: show probable pitchers if available
@@ -458,7 +431,47 @@ class MLBLiveCast {
   }
 
   getPitcherStats(boxscore, pitcherId) {
-    return '0.2 IP, H, 0 ER, 0 R, 0 BB';
+    // Search both teams' pitchers in boxscore
+    const teams = boxscore.teams || {};
+    for (const side of ['away', 'home']) {
+      const players = teams[side]?.players || {};
+      const key = `ID${pitcherId}`;
+      const player = players[key];
+      if (player && player.stats && player.stats.pitching) {
+        const p = player.stats.pitching;
+        // inningsPitched may be "0.1", "1.2", etc.
+        const ip = p.inningsPitched !== undefined ? p.inningsPitched : '-';
+        const h = p.hits !== undefined ? p.hits : '-';
+        const er = p.earnedRuns !== undefined ? p.earnedRuns : '-';
+        const bb = p.baseOnBalls !== undefined ? p.baseOnBalls : '-';
+        const k = p.strikeOuts !== undefined ? p.strikeOuts : '-';
+        return `${ip} IP  ${h} H  ${er} ER  ${bb} BB  ${k} K`;
+      }
+    }
+    return '-';
+  }
+
+  getBatterStats(boxscore, batterId) {
+    const teams = boxscore.teams || {};
+    for (const side of ['away', 'home']) {
+      const players = teams[side]?.players || {};
+      const key = `ID${batterId}`;
+      const player = players[key];
+      if (player && player.stats && player.stats.batting) {
+        const b = player.stats.batting;
+        const h = b.hits !== undefined ? b.hits : 0;
+        const ab = b.atBats !== undefined ? b.atBats : 0;
+        const hr = b.homeRuns || 0;
+        const rbi = b.rbi !== undefined ? b.rbi : 0;
+        const bb = b.baseOnBalls !== undefined ? b.baseOnBalls : 0;
+        let line = `${h}-${ab}`;
+        if (hr > 0) line += `  ${hr} HR`;
+        if (rbi > 0) line += `  ${rbi} RBI`;
+        if (bb > 0) line += `  ${bb} BB`;
+        return line;
+      }
+    }
+    return '-';
   }
 
   startAutoUpdate() {
