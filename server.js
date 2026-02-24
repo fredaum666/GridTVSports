@@ -3433,6 +3433,18 @@ function getNFLSeasonInfo() {
   // If we're in Jan-Feb, we're in the previous year's season
   const seasonYear = (month >= 9) ? year : year - 1;
 
+  // Offseason: mid-February through August — no NFL games
+  if ((month === 2 && day > 15) || (month >= 3 && month <= 8)) {
+    return {
+      seasonType: 2,
+      week: 0,
+      seasonYear: seasonYear,
+      isPostseason: false,
+      isOffseason: true,
+      postseasonRound: null
+    };
+  }
+
   // Check if we're in postseason (January through early February)
   // Week 18 is typically first weekend of January (Jan 4-5)
   // Wild Card starts second weekend (Jan 11-12)
@@ -4250,6 +4262,11 @@ app.get('/api/nfl/scoreboard', async (req, res) => {
     const seasonInfo = getNFLSeasonInfo();
     const requestedWeek = req.query.week;
     const requestedSeasonType = req.query.seasontype;
+
+    // NFL offseason — return empty scoreboard
+    if (seasonInfo.isOffseason && !requestedWeek) {
+      return res.json({ events: [], _offseason: true });
+    }
 
     // Determine cache key
     let week, seasonType, cacheKey;
