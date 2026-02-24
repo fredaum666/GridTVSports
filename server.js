@@ -6352,6 +6352,33 @@ app.get('/api/mlb/livecast/:gamePk', async (req, res) => {
   }
 });
 
+// MLB Win Probability proxy - fetches from Baseball Savant
+app.get('/api/mlb/win-probability/:gamePk', async (req, res) => {
+  try {
+    const { gamePk } = req.params;
+    if (!gamePk || !/^\d+$/.test(gamePk)) {
+      return res.status(400).json({ error: 'Invalid gamePk' });
+    }
+    const url = `https://baseballsavant.mlb.com/gf?game_pk=${gamePk}`;
+    const response = await axios.get(url, {
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Referer': 'https://baseballsavant.mlb.com/'
+      }
+    });
+    // Live games: scoreboard.stats.wpa.gameWpa; completed games: stats.wpa.gameWpa
+    const wpa = response.data?.scoreboard?.stats?.wpa?.gameWpa
+      || response.data?.stats?.wpa?.gameWpa;
+    if (!wpa || !wpa.length) return res.json({ wpa: [] });
+    res.json({ wpa });
+  } catch (error) {
+    console.error(`[MLB WP] Proxy error for ${req.params.gamePk}:`, error.message);
+    res.status(502).json({ error: 'Failed to fetch win probability data' });
+  }
+});
+
 // ============================================
 // API ROUTES - NHL
 // ============================================

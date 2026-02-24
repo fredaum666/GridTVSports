@@ -1260,56 +1260,6 @@
         /* ================================ */
         /* MLB SITUATION & DIAMOND STYLES   */
         /* ================================ */
-        .fs-sb-situation.mlb-situation {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-            border: 2px solid #065f46;
-            padding: clamp(4px, 1vmin, 8px) clamp(8px, 2vmin, 16px);
-        }
-
-        .mlb-count {
-            display: flex;
-            align-items: center;
-            gap: clamp(4px, 1vmin, 8px);
-        }
-
-        .mlb-count-label {
-            font-size: clamp(0.6rem, 1.4vmin, 0.85rem);
-            font-weight: 700;
-            color: #94a3b8;
-            min-width: clamp(10px, 2vmin, 16px);
-        }
-
-        .mlb-count-dots {
-            display: flex;
-            gap: clamp(2px, 0.5vmin, 4px);
-        }
-
-        .mlb-dot {
-            width: clamp(8px, 1.5vmin, 12px);
-            height: clamp(8px, 1.5vmin, 12px);
-            border-radius: 50%;
-            background: rgba(100, 116, 139, 0.4);
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            transition: all 0.2s ease;
-        }
-
-        .mlb-dot.ball.active {
-            background: #22c55e;
-            border-color: #16a34a;
-            box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
-        }
-
-        .mlb-dot.strike.active {
-            background: #eab308;
-            border-color: #ca8a04;
-            box-shadow: 0 0 6px rgba(234, 179, 8, 0.5);
-        }
-
-        .mlb-dot.out.active {
-            background: #ef4444;
-            border-color: #dc2626;
-            box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
-        }
 
         /* MLB Diamond Visualizer */
         .mlb-diamond-visualizer {
@@ -3878,15 +3828,6 @@
 
                 // Update MLB-specific elements
                 if (game.league === 'mlb' && isLive) {
-                    // Update outs
-                    const outsEl = card.querySelector('.mlb-outs');
-                    if (outsEl) {
-                        const outs = game.outs || 0;
-                        outsEl.querySelectorAll('.out-dot').forEach((dot, i) => {
-                            dot.classList.toggle('active', i < outs);
-                        });
-                    }
-
                     // Update base runners
                     const basesEl = card.querySelector('.mlb-bases');
                     if (basesEl) {
@@ -4056,23 +3997,6 @@
                         <span class="fs-sb-down-distance">${game.specialPlayText}</span>
                     </div>
                 `;
-            } else if (isMLB && isLive) {
-                // MLB situation box with count and outs
-                const balls = game.balls || 0;
-                const strikes = game.strikes || 0;
-                const outs = game.outs || 0;
-                situationHTML = `
-                    <div class="fs-sb-situation mlb-situation">
-                        <div class="mlb-count">
-                            <span class="mlb-count-label">B</span>
-                            <span class="mlb-count-dots">${createCountDots(balls, 4, 'ball')}</span>
-                            <span class="mlb-count-label">S</span>
-                            <span class="mlb-count-dots">${createCountDots(strikes, 3, 'strike')}</span>
-                            <span class="mlb-count-label">O</span>
-                            <span class="mlb-count-dots">${createCountDots(outs, 3, 'out')}</span>
-                        </div>
-                    </div>
-                `;
             }
 
             // Build field visualizer for NFL/NCAA (only show when situation box is showing, hide during intermissions)
@@ -4222,15 +4146,6 @@
                 bars += `<div class="fs-sb-timeout-bar ${usedClass}"></div>`;
             }
             return bars;
-        }
-
-        function createCountDots(count, max, type) {
-            let dots = '';
-            for (let i = 0; i < max; i++) {
-                const active = i < count ? 'active' : '';
-                dots += `<span class="mlb-dot ${type} ${active}"></span>`;
-            }
-            return dots;
         }
 
         function formatStartTime(dateStr) {

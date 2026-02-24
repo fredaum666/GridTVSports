@@ -183,7 +183,6 @@ export class BaseballScoreboard extends Scoreboard {
             <div class="scoreboard__baseball-situation">
                 ${this.renderInningIndicator()}
                 ${this.renderDiamond()}
-                ${this.renderCount()}
             </div>
         `;
     }
@@ -243,50 +242,6 @@ export class BaseballScoreboard extends Scoreboard {
     }
 
     /**
-     * Render balls, strikes, outs count
-     * @returns {string} HTML string
-     */
-    renderCount() {
-        const situation = this.gameData.situation || {};
-        const balls = situation.balls ?? 0;
-        const strikes = situation.strikes ?? 0;
-        const outs = situation.outs ?? 0;
-
-        return `
-            <div class="scoreboard__count">
-                ${this.renderCountRow('B', balls, 4, 'ball')}
-                ${this.renderCountRow('S', strikes, 3, 'strike')}
-                ${this.renderCountRow('O', outs, 3, 'out')}
-            </div>
-        `;
-    }
-
-    /**
-     * Render a single count row (balls, strikes, or outs)
-     * @param {string} label - Row label (B, S, O)
-     * @param {number} count - Current count
-     * @param {number} max - Maximum dots
-     * @param {string} type - Type for styling (ball, strike, out)
-     * @returns {string} HTML string
-     */
-    renderCountRow(label, count, max, type) {
-        let dots = '';
-        for (let i = 0; i < max; i++) {
-            const activeClass = i < count
-                ? `scoreboard__count-dot--${type} scoreboard__count-dot--active`
-                : '';
-            dots += `<div class="scoreboard__count-dot ${activeClass}"></div>`;
-        }
-
-        return `
-            <div class="scoreboard__count-row">
-                <span class="scoreboard__count-label">${label}</span>
-                <div class="scoreboard__count-dots">${dots}</div>
-            </div>
-        `;
-    }
-
-    /**
      * Format period for baseball (innings)
      * @param {number|string} period - Inning number
      * @returns {string} Formatted inning string
@@ -336,29 +291,6 @@ export class BaseballScoreboard extends Scoreboard {
         }
 
         return super.getStatusInfo();
-    }
-
-    /**
-     * Update count (balls, strikes, outs)
-     * @param {number} balls - Ball count
-     * @param {number} strikes - Strike count
-     * @param {number} outs - Out count
-     */
-    setCount(balls, strikes, outs) {
-        if (!this.gameData) return;
-
-        this.gameData.situation = {
-            ...this.gameData.situation,
-            balls,
-            strikes,
-            outs
-        };
-
-        // Update count display
-        const countEl = this.element.querySelector('.scoreboard__count');
-        if (countEl) {
-            countEl.outerHTML = this.renderCount();
-        }
     }
 
     /**

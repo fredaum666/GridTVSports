@@ -47,6 +47,9 @@ class MLBLiveCast {
     this.updateInterval = null;
     this.isActive = false;
     this.totalPitches = 0;
+    this.lastAtBatIndex = null;
+    this.lastPitchCount = 0;
+    this.wpData = [];
 
     // UI elements
     this.elements = {};
@@ -56,7 +59,7 @@ class MLBLiveCast {
 
   async init() {
     this.createUI();
-    await this.fetchGameData();
+    await Promise.all([this.fetchGameData(), this.fetchWinProbability()]);
     this.startAutoUpdate();
   }
 
@@ -87,6 +90,35 @@ class MLBLiveCast {
             </div>
             <div class="team-logo-container batter-logo">
               <img class="team-logo-img" data-batter-logo src="" alt="Batter Team" style="display: none;">
+            </div>
+          </div>
+        </div>
+
+        <!-- BSO Count -->
+        <div class="bso-row">
+          <div class="bso-group">
+            <span class="bso-label">B</span>
+            <div class="bso-dots" data-ball-indicator>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+          <div class="bso-group">
+            <span class="bso-label">S</span>
+            <div class="bso-dots" data-strike-indicator>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+          <div class="bso-group">
+            <span class="bso-label">O</span>
+            <div class="bso-dots" data-out-indicator>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
             </div>
           </div>
         </div>
@@ -153,6 +185,9 @@ class MLBLiveCast {
       batterSection: this.container.querySelector('.batter-section'),
       pitchCount: this.container.querySelector('[data-pitch-count]'),
       ondeck: this.container.querySelector('[data-ondeck]'),
+      ballIndicator: this.container.querySelector('[data-ball-indicator]'),
+      strikeIndicator: this.container.querySelector('[data-strike-indicator]'),
+      outIndicator: this.container.querySelector('[data-out-indicator]'),
       pitchList: this.container.querySelector('[data-pitch-list]'),
       baseNodes: {
         1: this.container.querySelector('.base-node[data-base="1"]'),
@@ -178,6 +213,20 @@ class MLBLiveCast {
       height: 260
     });
 
+    // Inject win probability chart watermark as first child of .fs-scoreboard
+    // .fs-scoreboard has position:relative and overflow:visible so the chart
+    // can extend upward (negative top) behind the team logos
+    const scoreboard = this.container.closest('.fullscreen-game-card')?.querySelector('.fs-scoreboard');
+    if (scoreboard) {
+      const wpEl = document.createElement('div');
+      wpEl.className = 'wp-chart-watermark';
+      wpEl.setAttribute('data-wp-chart', '');
+      scoreboard.insertBefore(wpEl, scoreboard.firstChild);
+      this.wpChartEl = wpEl;
+    } else {
+      console.warn('[MLB LiveCast] Could not find .fs-scoreboard for win probability chart');
+    }
+
     this.isActive = true;
   }
 
@@ -190,6 +239,22 @@ class MLBLiveCast {
       this.updateUI(data);
     } catch (error) {
       console.error('[MLB LiveCast] Error fetching game data:', error);
+    }
+  }
+
+  async fetchWinProbability() {
+    try {
+      const response = await fetch(`/api/mlb/win-probability/${this.gameId}`);
+      const data = await response.json();
+      console.log(`[WP] game ${this.gameId}: ${data.wpa?.length ?? 0} points`);
+      if (Array.isArray(data.wpa) && data.wpa.length > 0) {
+        this.wpData = data.wpa;
+        // gameData may not be set yet on first parallel load — teams come from updateWinProbability call in updateUI instead
+        const teams = this.gameData?.gameData?.teams;
+        this.updateWinProbability(teams);
+      }
+    } catch (error) {
+      console.error('[WP] fetch error:', error);
     }
   }
 
@@ -293,12 +358,18 @@ class MLBLiveCast {
 
     // Update pitch history
     if (currentPlay && currentPlay.playEvents) {
-      this.updatePitchHistory(currentPlay.playEvents);
+      this.updatePitchHistory(currentPlay.playEvents, currentPlay.atBatIndex);
 
       // Update pitch count
       const pitchEvents = currentPlay.playEvents.filter(e => e.isPitch);
       this.elements.pitchCount.textContent = pitchEvents.length;
     }
+
+    // Update BSO count
+    const count = currentPlay?.count || {};
+    this.updateCount('ball', count.balls ?? 0);
+    this.updateCount('strike', count.strikes ?? 0);
+    this.updateCount('out', linescore?.outs ?? count.outs ?? 0);
 
     // Update base runners
     if (linescore && linescore.offense) {
@@ -314,6 +385,94 @@ class MLBLiveCast {
     } else {
       this.elements.ondeck.textContent = '-';
     }
+
+    // Re-render chart if wpData is already loaded (handles timing gap between parallel fetches)
+    if (this.wpData.length > 0) {
+      this.updateWinProbability(data.gameData?.teams);
+    }
+  }
+
+  updateWinProbability(teams) {
+    if (!this.wpChartEl || !this.wpData.length) return;
+
+    // wpData is Baseball Savant gameWpa array: [{ homeTeamWinProbability, atBatIndex, i }, ...]
+    const points = this.wpData
+      .filter(p => typeof p.homeTeamWinProbability === 'number')
+      .map(p => ({ homeWP: p.homeTeamWinProbability }));
+
+    if (points.length < 2) {
+      this.wpChartEl.innerHTML = '';
+      return;
+    }
+
+
+    // Get team abbreviations for coloring
+    const awayAbbr = teams?.away?.abbreviation || 'AWAY';
+    const homeAbbr = teams?.home?.abbreviation || 'HOME';
+    const awayColor = MLB_COLORS[awayAbbr]?.primary || '#6b7280';
+    const homeColor = MLB_COLORS[homeAbbr]?.primary || '#6b7280';
+
+    // Vertical chart: time flows bottom→top (first play at bottom, latest at top)
+    // x-axis = win probability (0=away wins left, 100=home wins right, 50=center)
+    // away color fills left of center line, home color fills right of center line
+    const W = 100, H = 240;
+    const n = points.length;
+    const yScale = i => H - (i / (n - 1)) * H;      // play index → y (bottom=start, top=now)
+    const xScale = v => (v / 100) * W;               // homeWP% → x (0=left, 100=right)
+    const mid = xScale(50).toFixed(1);               // x=50 (center)
+
+    // Away fill: left of center line (away winning = homeWP < 50)
+    const awayFillPts = [
+      `${mid},0`,
+      ...points.map((p, i) => `${xScale(p.homeWP).toFixed(1)},${yScale(i).toFixed(1)}`),
+      `${mid},${H}`
+    ].join(' ');
+
+    // Home fill: right of center line (home winning = homeWP > 50)
+    const homeFillPts = [
+      `${mid},0`,
+      ...points.map((p, i) => `${xScale(p.homeWP).toFixed(1)},${yScale(i).toFixed(1)}`),
+      `${mid},${H}`
+    ].join(' ');
+
+    const linePts = points.map((p, i) => `${xScale(p.homeWP).toFixed(1)},${yScale(i).toFixed(1)}`).join(' ');
+
+    // Use unique gradient IDs per game to avoid DOM collisions with multiple live games
+    const uid = `wp-${this.gameId}`;
+    this.wpChartEl.innerHTML = `
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
+           style="background:transparent;display:block;width:100%;height:100%"
+           xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="${uid}-away-grad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="${awayColor}" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="${awayColor}" stop-opacity="0.05"/>
+          </linearGradient>
+          <linearGradient id="${uid}-home-grad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="${homeColor}" stop-opacity="0.05"/>
+            <stop offset="100%" stop-color="${homeColor}" stop-opacity="0.8"/>
+          </linearGradient>
+          <clipPath id="${uid}-away-clip">
+            <rect x="0" y="0" width="${mid}" height="${H}"/>
+          </clipPath>
+          <clipPath id="${uid}-home-clip">
+            <rect x="${mid}" y="0" width="${W - parseFloat(mid)}" height="${H}"/>
+          </clipPath>
+        </defs>
+        <!-- Away fill (left of center) -->
+        <polygon points="${awayFillPts}" fill="url(#${uid}-away-grad)" clip-path="url(#${uid}-away-clip)"/>
+        <!-- Home fill (right of center) -->
+        <polygon points="${homeFillPts}" fill="url(#${uid}-home-grad)" clip-path="url(#${uid}-home-clip)"/>
+        <!-- WP line -->
+        <polyline points="${linePts}" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- 50% center line -->
+        <line x1="${mid}" y1="0" x2="${mid}" y2="${H}" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="8 5"/>
+        <!-- Title — uses userSpaceOnUse to avoid preserveAspectRatio distortion -->
+        <text x="${mid}" y="60" text-anchor="middle"
+              font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="1"
+              fill="rgba(255,255,255,0.55)">WIN %</text>
+      </svg>
+    `;
   }
 
   updateCount(type, value) {
@@ -331,42 +490,77 @@ class MLBLiveCast {
     });
   }
 
-  updatePitchHistory(playEvents) {
+  updatePitchHistory(playEvents, atBatIndex) {
     // Filter only pitch events
     const pitchEvents = playEvents.filter(event => event.isPitch);
+    const pitchCount = pitchEvents.length;
 
-    // Store total count for hover handlers
-    this.totalPitches = pitchEvents.length;
+    const atBatChanged = atBatIndex !== undefined && atBatIndex !== this.lastAtBatIndex;
+    const newPitches = pitchCount - this.lastPitchCount;
 
-    // Clear strike zone
-    this.strikeZone.clearPitches();
+    // Nothing changed — skip all DOM work to prevent flickering
+    if (!atBatChanged && newPitches <= 0) return;
 
-    // Clear pitch list
-    this.elements.pitchList.innerHTML = '';
+    if (atBatChanged) {
+      // New at-bat: full reset of strike zone and pitch list
+      this.strikeZone.clearPitches();
+      this.elements.pitchList.innerHTML = '';
+      this.lastAtBatIndex = atBatIndex;
+      this.lastPitchCount = 0;
 
-    // Add pitches in reverse order (newest first)
-    pitchEvents.reverse().forEach((event, index) => {
-      const pitchNumber = pitchEvents.length - index;
+      // Draw all pitches from scratch
+      this.totalPitches = pitchCount;
+      pitchEvents.forEach((event, index) => {
+        if (event.pitchData && event.pitchData.coordinates) {
+          this.strikeZone.addPitch({
+            type: event.details.type?.code || 'XX',
+            callCode: event.details.call?.code || '',
+            speed: event.pitchData.startSpeed || 0,
+            result: event.details.call?.description || 'Unknown',
+            coordinates: {
+              pX: event.pitchData.coordinates.pX || 0,
+              pZ: event.pitchData.coordinates.pZ || 2.5
+            },
+            count: event.count
+          });
+        }
+      });
 
-      // Add to strike zone
-      if (event.pitchData && event.pitchData.coordinates) {
-        this.strikeZone.addPitch({
-          type: event.details.type?.code || 'XX',
-          callCode: event.details.call?.code || '',
-          speed: event.pitchData.startSpeed || 0,
-          result: event.details.call?.description || 'Unknown',
-          coordinates: {
-            pX: event.pitchData.coordinates.pX || 0,
-            pZ: event.pitchData.coordinates.pZ || 2.5
-          },
-          count: event.count
-        });
+      // Build list newest-first
+      for (let i = pitchCount - 1; i >= 0; i--) {
+        const pitchItem = this.createPitchHistoryItem(pitchEvents[i], i + 1);
+        this.elements.pitchList.appendChild(pitchItem);
       }
+    } else {
+      // Same at-bat, only new pitches appended — add incrementally
+      this.totalPitches = pitchCount;
 
-      // Add to pitch list
-      const pitchItem = this.createPitchHistoryItem(event, pitchNumber);
-      this.elements.pitchList.appendChild(pitchItem);
-    });
+      // Add new pitch marks to strike zone (they were appended at the end)
+      const startIndex = this.lastPitchCount;
+      for (let i = startIndex; i < pitchCount; i++) {
+        const event = pitchEvents[i];
+        if (event.pitchData && event.pitchData.coordinates) {
+          this.strikeZone.addPitch({
+            type: event.details.type?.code || 'XX',
+            callCode: event.details.call?.code || '',
+            speed: event.pitchData.startSpeed || 0,
+            result: event.details.call?.description || 'Unknown',
+            coordinates: {
+              pX: event.pitchData.coordinates.pX || 0,
+              pZ: event.pitchData.coordinates.pZ || 2.5
+            },
+            count: event.count
+          });
+        }
+
+        // Prepend to pitch list (newest pitch goes on top)
+        const pitchItem = this.createPitchHistoryItem(event, i + 1);
+        this.elements.pitchList.insertBefore(pitchItem, this.elements.pitchList.firstChild);
+      }
+    }
+
+    this.lastPitchCount = pitchCount;
+    if (atBatIndex !== undefined) this.lastAtBatIndex = atBatIndex;
   }
 
   getPitchResultClass(callCode) {
@@ -506,6 +700,13 @@ class MLBLiveCast {
         this.fetchGameData();
       }
     }, 3000);
+
+    // Win probability updates less frequently — once per 30s is enough
+    this.wpInterval = setInterval(() => {
+      if (this.isActive) {
+        this.fetchWinProbability();
+      }
+    }, 30000);
   }
 
   stopAutoUpdate() {
@@ -513,11 +714,19 @@ class MLBLiveCast {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
     }
+    if (this.wpInterval) {
+      clearInterval(this.wpInterval);
+      this.wpInterval = null;
+    }
   }
 
   destroy() {
     this.isActive = false;
     this.stopAutoUpdate();
+    if (this.wpChartEl) {
+      this.wpChartEl.remove();
+      this.wpChartEl = null;
+    }
     this.container.innerHTML = '';
   }
 }

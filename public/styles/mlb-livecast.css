@@ -248,6 +248,64 @@
   text-transform: none;
 }
 
+/* ============================================
+   BSO ROW
+   ============================================ */
+
+.bso-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 5px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--lc-border);
+}
+
+.bso-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.bso-label {
+  font-size: var(--lc-subheader-font);
+  font-weight: 700;
+  color: var(--lc-text-label);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  min-width: 10px;
+}
+
+.bso-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.bso-dots .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+[data-ball-indicator] .dot.active {
+  background: #22c55e;
+  border-color: #22c55e;
+}
+
+[data-strike-indicator] .dot.active {
+  background: #f59e0b;
+  border-color: #f59e0b;
+}
+
+[data-out-indicator] .dot.active {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
 /* Legacy selectors kept for compatibility */
 .pitch-count-info,
 .ondeck-info {
@@ -284,7 +342,7 @@
 
 .livecast-body {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: minmax(90px, 1.2fr) 1fr minmax(80px, 1fr);
   min-height: var(--lc-body-min-h);
   background: transparent;
 }
@@ -298,7 +356,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px 6px;
+  padding: 10px 8px;
   gap: 8px;
   border-right: 1px solid var(--lc-border);
   min-width: 0;
@@ -353,17 +411,20 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
-  width: 72px;
+  width: auto;
   align-self: center;
+  box-sizing: border-box;
 }
 
 .base-runner-row {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 5px;
+  padding: 2px 8px 2px 5px;
   border-radius: var(--lc-radius-sm);
   transition: background 0.2s ease;
+  width: auto;
+  box-sizing: border-box;
 }
 
 .base-runner-row:not(.empty) {
@@ -599,7 +660,7 @@
 }
 
 .mlb-livecast.lc-compact-md .base-runner-list {
-  width: 58px;
+  width: auto;
 }
 
 .mlb-livecast.lc-compact-md .pitch-history-panel {
@@ -643,7 +704,7 @@
 }
 
 .mlb-livecast.lc-compact-sm .base-runner-list {
-  width: 48px;
+  width: auto;
 }
 
 .mlb-livecast.lc-compact-sm .bases-panel {
@@ -743,6 +804,33 @@
 .mlb-livecast.lc-compact-xs .pitch-count-info,
 .mlb-livecast.lc-compact-xs .ondeck-info {
   padding: 3px 8px;
+}
+
+/* ============================================
+   WIN PROBABILITY WATERMARK CHART
+   Inside .fs-scoreboard (position:relative, overflow:visible)
+   Extends upward to cover the logo area above the scoreboard bar
+   ============================================ */
+
+.wp-chart-watermark {
+  position: absolute;
+  /* Centered above the scoreboard, fills the logo area */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 100%;
+  /* viewBox is 100x240 — keep aspect ratio by sizing via height */
+  height: 160px;
+  width: calc(160px * 100 / 240); /* ~67px — matches viewBox ratio */
+  pointer-events: none;
+  opacity: 0.28;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.wp-chart-watermark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* ============================================
