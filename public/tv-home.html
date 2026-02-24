@@ -6590,12 +6590,7 @@
             if (diffMins <= 0) return 'About to Start';
             if (diffMins < 60) return `${diffMins}m`;
 
-            // If game is today, just show time
-            if (date.toDateString() === now.toDateString()) {
-                return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-            }
-
-            // Otherwise show day and time
+            // Always show day and time
             return date.toLocaleDateString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true });
         }
 
