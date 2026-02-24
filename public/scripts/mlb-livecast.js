@@ -352,6 +352,7 @@ class MLBLiveCast {
       if (event.pitchData && event.pitchData.coordinates) {
         this.strikeZone.addPitch({
           type: event.details.type?.code || 'XX',
+          callCode: event.details.call?.code || '',
           speed: event.pitchData.startSpeed || 0,
           result: event.details.call?.description || 'Unknown',
           coordinates: {
@@ -368,17 +369,42 @@ class MLBLiveCast {
     });
   }
 
+  getPitchResultClass(callCode) {
+    // Map MLB Statsapi call codes to result color classes
+    // B=Ball, C=Called Strike, S=Swinging Strike, F=Foul, T=Foul Tip,
+    // X=In play out, D=In play no out, E=In play error, H=Hit by pitch,
+    // L=Foul bunt, O=Swinging bunt out, R=Foul bunt out, W=Swinging pitchout
+    const map = {
+      'B': 'pitch-result-ball',
+      'H': 'pitch-result-hbp',
+      'C': 'pitch-result-strike',
+      'S': 'pitch-result-swinging',
+      'W': 'pitch-result-swinging',
+      'O': 'pitch-result-swinging',
+      'Q': 'pitch-result-swinging',
+      'F': 'pitch-result-foul',
+      'T': 'pitch-result-foultip',
+      'L': 'pitch-result-foultipbunt',
+      'R': 'pitch-result-foultipbunt',
+      'M': 'pitch-result-foultipbunt',
+      'X': 'pitch-result-inplay',
+      'D': 'pitch-result-inplay',
+      'E': 'pitch-result-inplay',
+    };
+    return map[callCode] || 'pitch-result-unknown';
+  }
+
   createPitchHistoryItem(event, number) {
     const div = document.createElement('div');
     div.className = 'pitch-card';
 
-    const pitchType = event.details.type?.code || 'XX';
     const pitchSpeed = event.pitchData?.startSpeed || 0;
     const result = event.details.call?.description || 'Unknown';
-    const pitchTypeClass = `pitch-${pitchType.toLowerCase()}`;
+    const callCode = event.details.call?.code || '';
+    const resultClass = this.getPitchResultClass(callCode);
 
     div.innerHTML = `
-      <div class="pitch-card-number ${pitchTypeClass}">${number}</div>
+      <div class="pitch-card-number ${resultClass}">${number}</div>
       <div class="pitch-card-info">
         <div class="pitch-card-result">${result}</div>
         <div class="pitch-card-meta">${event.details.type?.description || 'Unknown'} &middot; ${Math.round(pitchSpeed)} mph</div>

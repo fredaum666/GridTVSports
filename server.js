@@ -3376,8 +3376,9 @@ async function fetchESPN(url, retries = 3) {
             continue; // Retry
           }
         } else if (status === 404) {
-          console.error(`🔍 404 Not Found - Check if endpoint/parameters are valid`);
-          console.error(`URL: ${url}`);
+          console.error(`🔍 404 Not Found - Skipping retries (game may not exist yet): ${url}`);
+          espnMetrics.failedCalls++;
+          throw error; // Don't retry 404s - they won't recover
         }
 
         // Log response data for debugging
@@ -3778,6 +3779,11 @@ function statsapiGameToESPNEvent(g) {
   const awayId = awayTeam?.team?.id;
   const homeId = homeTeam?.team?.id;
 
+  const awayLR = awayTeam?.leagueRecord;
+  const homeLR = homeTeam?.leagueRecord;
+  const awayRecordStr = awayLR ? `${awayLR.wins}-${awayLR.losses}` : '';
+  const homeRecordStr = homeLR ? `${homeLR.wins}-${homeLR.losses}` : '';
+
   const competitors = [
     {
       homeAway: 'away',
@@ -3787,6 +3793,7 @@ function statsapiGameToESPNEvent(g) {
       hits: ls.teams?.away?.hits ?? 0,
       errors: ls.teams?.away?.errors ?? 0,
       linescores: awayInnings,
+      records: awayRecordStr ? [{ summary: awayRecordStr, displayValue: awayRecordStr, type: 'total' }] : [],
       team: {
         id: String(awayId || ''),
         abbreviation: awayTeam?.team?.abbreviation || '',
@@ -3803,6 +3810,7 @@ function statsapiGameToESPNEvent(g) {
       hits: ls.teams?.home?.hits ?? 0,
       errors: ls.teams?.home?.errors ?? 0,
       linescores: homeInnings,
+      records: homeRecordStr ? [{ summary: homeRecordStr, displayValue: homeRecordStr, type: 'total' }] : [],
       team: {
         id: String(homeId || ''),
         abbreviation: homeTeam?.team?.abbreviation || '',
@@ -3925,13 +3933,28 @@ async function fetchGameStatsForCache(league, gameId, isComplete = false) {
     return null;
   }
 
+  // MLB uses Statsapi (gamePk-based), not ESPN - ESPN doesn't recognize Statsapi gamePk IDs
+  if (league === 'mlb') {
+    try {
+      const url = `https://statsapi.mlb.com/api/v1.1/game/${gameId}/feed/live`;
+      const response = await axios.get(url, { timeout: 8000 });
+      const data = response.data;
+      const now = Date.now();
+      gameStatsCache.data.set(cacheKey, { data, timestamp: now, isComplete, league, gameId });
+      cacheStats.statsUpdates++;
+      return data;
+    } catch (error) {
+      console.error(`[Stats Cache] Failed to fetch MLB stats for ${cacheKey}:`, error.message);
+      return null;
+    }
+  }
+
   // Determine the correct ESPN endpoint based on league
   const leagueEndpoints = {
     'nfl': `${ESPN_BASE}/football/nfl/summary?event=${gameId}`,
     'ncaa': `${ESPN_BASE}/football/college-football/summary?event=${gameId}`,
     'nba': `${ESPN_BASE}/basketball/nba/summary?event=${gameId}`,
     'ncaab': `${ESPN_BASE}/basketball/mens-college-basketball/summary?event=${gameId}`,
-    'mlb': `${ESPN_BASE}/baseball/mlb/summary?event=${gameId}`,
     'nhl': `${ESPN_BASE}/hockey/nhl/summary?event=${gameId}`
   };
 

@@ -5685,11 +5685,19 @@
 
                 // Update MLB-specific elements
                 if (game.league === 'mlb' && isLive) {
-                    // Update outs
-                    const outsEl = card.querySelector('.mlb-outs');
-                    if (outsEl) {
+                    // Update BSO dots in the scoreboard situation badge
+                    const situationEl = card.querySelector('.fs-sb-situation.mlb-situation');
+                    if (situationEl) {
+                        const balls = game.balls || 0;
+                        const strikes = game.strikes || 0;
                         const outs = game.outs || 0;
-                        outsEl.querySelectorAll('.out-dot').forEach((dot, i) => {
+                        situationEl.querySelectorAll('.mlb-dot.ball').forEach((dot, i) => {
+                            dot.classList.toggle('active', i < balls);
+                        });
+                        situationEl.querySelectorAll('.mlb-dot.strike').forEach((dot, i) => {
+                            dot.classList.toggle('active', i < strikes);
+                        });
+                        situationEl.querySelectorAll('.mlb-dot.out').forEach((dot, i) => {
                             dot.classList.toggle('active', i < outs);
                         });
                     }

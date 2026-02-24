@@ -30,7 +30,6 @@
   --lc-header-h: 60px;
   --lc-subheader-h: 30px;
   --lc-body-min-h: 200px;
-  --lc-side-panel-w: 130px;
   --lc-svg-w: 150px;
   --lc-player-name-size: 13px;
   --lc-player-role-size: 8.5px;
@@ -285,7 +284,7 @@
 
 .livecast-body {
   display: grid;
-  grid-template-columns: var(--lc-side-panel-w) 1fr var(--lc-side-panel-w);
+  grid-template-columns: 1fr 1fr 1fr;
   min-height: var(--lc-body-min-h);
   background: transparent;
 }
@@ -302,6 +301,8 @@
   padding: 10px 6px;
   gap: 8px;
   border-right: 1px solid var(--lc-border);
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Diamond */
@@ -352,7 +353,8 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
-  width: 100%;
+  width: 72px;
+  align-self: center;
 }
 
 .base-runner-row {
@@ -408,6 +410,8 @@
   padding: 8px 10px;
   gap: 0;
   position: relative;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Subtle vignette framing the zone */
@@ -421,7 +425,8 @@
 
 #strikeZoneSVG,
 .strike-zone-svg {
-  width: var(--lc-svg-w);
+  width: 100%;
+  max-width: var(--lc-svg-w);
   height: auto;
   position: relative;
   z-index: 1;
@@ -467,6 +472,7 @@
   overflow-x: hidden;
   max-height: 260px;
   border-left: 1px solid var(--lc-border);
+  min-width: 0;
 }
 
 .pitch-history-panel::-webkit-scrollbar {
@@ -525,8 +531,6 @@
   font-weight: 600;
   color: var(--lc-text-primary);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   line-height: 1.3;
 }
 
@@ -535,26 +539,32 @@
   font-weight: 500;
   color: var(--lc-text-muted);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   line-height: 1.3;
 }
 
 /* ============================================
-   PITCH TYPE COLORS
+   PITCH RESULT COLORS  (number dot in history list)
+   Colored by CALL RESULT, not pitch type — matches ESPN
    ============================================ */
 
-.pitch-ff  { background: #dc2626; } /* 4-seam fastball  */
-.pitch-si  { background: #e57373; } /* Sinker           */
-.pitch-fc  { background: #f87171; } /* Cutter           */
-.pitch-sl  { background: #2563eb; } /* Slider           */
-.pitch-cu  { background: #60a5fa; } /* Curveball        */
-.pitch-ch  { background: #16a34a; } /* Changeup         */
-.pitch-fs  { background: #4ade80; } /* Splitter         */
-.pitch-kn  { background: #f59e0b; } /* Knuckleball      */
-.pitch-sw  { background: #1d4ed8; } /* Sweeper          */
-.pitch-st  { background: #1d4ed8; } /* Slow curve       */
-.pitch-xx  { background: #6b7280; } /* Unknown          */
+/* Ball outcomes */
+.pitch-result-ball      { background: #22c55e; } /* Ball            */
+.pitch-result-hbp       { background: #22c55e; } /* Hit by pitch    */
+
+/* Strike outcomes */
+.pitch-result-strike    { background: #dd0000; } /* Called strike   */
+.pitch-result-swinging  { background: #dd0000; } /* Swinging strike */
+
+/* Foul outcomes */
+.pitch-result-foul      { background: #f59e0b; } /* Foul ball       */
+.pitch-result-foultip   { background: #f59e0b; } /* Foul tip        */
+.pitch-result-foultipbunt { background: #f59e0b; }
+
+/* In-play outcomes */
+.pitch-result-inplay    { background: #3b82f6; } /* In play         */
+
+/* Default */
+.pitch-result-unknown   { background: #6b7280; }
 
 /* ============================================
    COMPACT MODES
@@ -567,7 +577,6 @@
   --lc-header-h: 50px;
   --lc-subheader-h: 24px;
   --lc-body-min-h: 160px;
-  --lc-side-panel-w: 108px;
   --lc-svg-w: 120px;
   --lc-player-name-size: 11px;
   --lc-player-role-size: 7.5px;
@@ -589,6 +598,10 @@
   height: 15px;
 }
 
+.mlb-livecast.lc-compact-md .base-runner-list {
+  width: 58px;
+}
+
 .mlb-livecast.lc-compact-md .pitch-history-panel {
   max-height: 190px;
 }
@@ -598,7 +611,6 @@
   --lc-header-h: 42px;
   --lc-subheader-h: 20px;
   --lc-body-min-h: 130px;
-  --lc-side-panel-w: 88px;
   --lc-svg-w: 96px;
   --lc-player-name-size: 10px;
   --lc-player-role-size: 7px;
@@ -630,6 +642,10 @@
   height: 13px;
 }
 
+.mlb-livecast.lc-compact-sm .base-runner-list {
+  width: 48px;
+}
+
 .mlb-livecast.lc-compact-sm .bases-panel {
   padding: 6px 4px;
   gap: 4px;
@@ -657,7 +673,6 @@
   --lc-header-h: 36px;
   --lc-subheader-h: 18px;
   --lc-body-min-h: 108px;
-  --lc-side-panel-w: 72px;
   --lc-svg-w: 78px;
   --lc-player-name-size: 9px;
   --lc-player-role-size: 6.5px;
@@ -752,7 +767,6 @@
 
 @media (max-width: 768px) {
   .mlb-livecast {
-    --lc-side-panel-w: 108px;
     --lc-svg-w: 130px;
     --lc-player-name-size: 12px;
   }

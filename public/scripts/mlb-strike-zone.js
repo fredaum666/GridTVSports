@@ -175,54 +175,76 @@ class MLBStrikeZone {
     this.strikeZoneGroup.appendChild(plate);
   }
 
-  getPitchColor(pitchType) {
-    // ESPN-style pitch colors (matching screenshot)
-    const colors = {
-      'FF': '#d32f2f', // Four-seam fastball - Red
-      'SI': '#e57373', // Sinker - Light Red
-      'FC': '#ef9a9a', // Cutter - Pale Red
-      'SL': '#1976d2', // Slider - Blue
-      'CU': '#64b5f6', // Curveball - Light Blue
-      'CH': '#388e3c', // Changeup - Green
-      'FS': '#81c784', // Splitter - Light Green
-      'KN': '#f57c00', // Knuckleball - Orange
-      'default': '#999999'
-    };
-    return colors[pitchType] || colors.default;
+  getPitchColor(pitchType, callCode) {
+    // Color by RESULT (call code), not pitch type — matches ESPN HitMap
+    // B=Ball, C=Called Strike, S=Swinging Strike, F=Foul, T=Foul Tip,
+    // X/D/E=In play, H=Hit by pitch
+    if (callCode) {
+      const resultColors = {
+        'B': '#22c55e', // Ball — green
+        'H': '#22c55e', // Hit by pitch — green
+        'C': '#dd0000', // Called strike — red
+        'S': '#dd0000', // Swinging strike — red
+        'W': '#dd0000', // Swinging strikeout — red
+        'O': '#dd0000', // Swinging bunt strikeout — red
+        'Q': '#dd0000', // Swinging pitchout strikeout — red
+        'F': '#f59e0b', // Foul — amber
+        'T': '#f59e0b', // Foul tip — amber
+        'L': '#f59e0b', // Foul bunt — amber
+        'R': '#f59e0b', // Foul bunt out — amber
+        'M': '#f59e0b', // Missed bunt — amber
+        'X': '#3b82f6', // In play, out — blue
+        'D': '#3b82f6', // In play, no out — blue
+        'E': '#3b82f6', // In play, error — blue
+      };
+      if (resultColors[callCode]) return resultColors[callCode];
+    }
+    return '#6b7280'; // Unknown — gray
   }
 
   mapMLBCoordinatesToSVG(mlbX, mlbZ) {
     // MLB StatCast coordinates (from catcher's perspective):
-    // pX: horizontal location in feet (negative = inside to RHB, positive = outside to RHB)
-    //     Strike zone plate is 17" = 1.417 feet wide
-    //     Narrower range to spread pitches across display (matches ESPN)
+    // pX: horizontal feet from plate center — negative = inside to RHB, positive = outside to RHB
+    //     Half-plate = 0.708 ft (17"/2), display range ±1.5 ft to include balls off plate
     // pZ: height above ground in feet
-    //     Strike zone: typically 1.5 to 3.5 feet (varies by batter)
-    //     Centered on strike zone for better spread
+    //     Strike zone top ~3.5 ft, bottom ~1.6 ft (varies by batter)
+    //     Display range covers 0.5 ft below zone to 0.5 ft above for context
 
-    const pxMin = -1.5;  // Left boundary (narrower for better spread)
-    const pxMax = 1.5;   // Right boundary (narrower for better spread)
-    const pzMin = 1.0;   // Bottom boundary (centered on strike zone)
-    const pzMax = 4.5;   // Top boundary (centered on strike zone)
+    // Horizontal mapping: plate center = SVG center
+    // Display range: -1.5 (catcher's left = hitter's right/outside for LHB) to +1.5
+    // ESPN catcher-view: pX negative = right side of display (inside to RHB)
+    const pxMin = -1.5;
+    const pxMax = 1.5;
 
-    const pxRange = pxMax - pxMin;  // 3 feet horizontal
-    const pzRange = pzMax - pzMin;  // 3.5 feet vertical
+    // Vertical mapping: bottom of display to top
+    // Strike zone is roughly 1.6-3.5 ft, add 0.5 ft padding each side
+    const pzMin = 1.1;   // bottom of display (slightly below zone bottom)
+    const pzMax = 4.0;   // top of display (slightly above zone top)
 
-    // Map pX to SVG X coordinate (flip horizontally to match ESPN's display)
-    const svgX = this.zoneBox.x + ((pxMax - mlbX) / pxRange) * this.zoneBox.width;
+    const pxRange = pxMax - pxMin;  // 3.0 ft
+    const pzRange = pzMax - pzMin;  // 2.9 ft
 
-    // Map pZ to SVG Y coordinate (flip vertical: higher pZ = lower Y in SVG)
-    const svgY = this.zoneBox.y + this.zoneBox.height - ((mlbZ - pzMin) / pzRange) * this.zoneBox.height;
+    // Clamp to display range
+    const clampedX = Math.max(pxMin - 0.3, Math.min(pxMax + 0.3, mlbX));
+    const clampedZ = Math.max(pzMin - 0.3, Math.min(pzMax + 0.3, mlbZ));
+
+    // pX: flip horizontally — ESPN shows catcher's perspective
+    // negative pX (inside to RHB) = right side of display
+    // positive pX (outside to RHB) = left side of display
+    const svgX = this.zoneBox.x + ((pxMax - clampedX) / pxRange) * this.zoneBox.width;
+
+    // pZ: flip vertically — higher pZ = higher on display = lower SVG Y
+    const svgY = this.zoneBox.y + this.zoneBox.height - ((clampedZ - pzMin) / pzRange) * this.zoneBox.height;
 
     return { x: svgX, y: svgY };
   }
 
   addPitch(pitchData) {
-    const { type, speed, result, coordinates, count } = pitchData;
+    const { type, speed, result, coordinates, count, callCode } = pitchData;
     const { pX, pZ } = coordinates;
 
     const svgCoords = this.mapMLBCoordinatesToSVG(pX, pZ);
-    const color = this.getPitchColor(type);
+    const color = this.getPitchColor(type, callCode);
     const pitchNumber = this.pitches.length + 1;
 
     // Create pitch marker with animation
