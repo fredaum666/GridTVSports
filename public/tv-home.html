@@ -2155,8 +2155,9 @@
         }
 
         .upcoming-league-big-card-grid .game-card {
-            width: auto;
-            height: auto;
+            width: auto !important;
+            height: auto !important;
+            min-height: unset !important;
             aspect-ratio: 4 / 3;
             font-size: 11px;
             padding: 4px;
@@ -2164,6 +2165,7 @@
             pointer-events: none;
             clip-path: none;
             border: none !important;
+            flex-shrink: unset !important;
         }
 
         .upcoming-league-big-card-grid .nfl-upcoming-logo,
@@ -2733,6 +2735,26 @@
                 font-size: 13px;
                 border-radius: 10px;
             }
+
+            /* Big league cards - tablet */
+            .upcoming-league-big-card {
+                width: 280px;
+                padding: 12px;
+            }
+
+            .upcoming-league-big-card-title {
+                font-size: 14px;
+            }
+
+            .upcoming-league-big-card-grid .nfl-upcoming-logo,
+            .upcoming-league-big-card-grid .nba-upcoming-logo,
+            .upcoming-league-big-card-grid .mlb-upcoming-logo,
+            .upcoming-league-big-card-grid .nhl-upcoming-logo,
+            .upcoming-league-big-card-grid .ncaa-upcoming-logo,
+            .upcoming-league-big-card-grid .ncaab-upcoming-logo {
+                width: 26px;
+                height: 26px;
+            }
         }
 
         /* ================================ */
@@ -3082,6 +3104,70 @@
             /* Selection number smaller */
             .game-card .selection-number {
                 font-size: 36px;
+            }
+
+            /* Big league cards - mobile */
+            .upcoming-league-big-card {
+                width: calc(85vw);
+                padding: 10px;
+                gap: 8px;
+            }
+
+            .upcoming-league-big-card-title {
+                font-size: 13px;
+            }
+
+            .upcoming-league-big-card-grid {
+                gap: 6px;
+            }
+
+            .upcoming-league-big-card-grid .nfl-upcoming-logo,
+            .upcoming-league-big-card-grid .nba-upcoming-logo,
+            .upcoming-league-big-card-grid .mlb-upcoming-logo,
+            .upcoming-league-big-card-grid .nhl-upcoming-logo,
+            .upcoming-league-big-card-grid .ncaa-upcoming-logo,
+            .upcoming-league-big-card-grid .ncaab-upcoming-logo {
+                width: 22px;
+                height: 22px;
+            }
+
+            .upcoming-league-big-card-grid .nfl-upcoming-footer,
+            .upcoming-league-big-card-grid .nba-upcoming-footer,
+            .upcoming-league-big-card-grid .mlb-upcoming-footer,
+            .upcoming-league-big-card-grid .nhl-upcoming-footer,
+            .upcoming-league-big-card-grid .ncaa-upcoming-footer,
+            .upcoming-league-big-card-grid .ncaab-upcoming-footer {
+                font-size: 7px;
+                padding: 2px 4px;
+            }
+        }
+
+        /* ================================ */
+        /* SMALL MOBILE (up to 375px)       */
+        /* ================================ */
+        @media screen and (max-width: 375px) {
+            .upcoming-league-big-card {
+                width: calc(80vw);
+                padding: 8px;
+                gap: 6px;
+            }
+
+            .upcoming-league-big-card-title {
+                font-size: 12px;
+            }
+
+            .upcoming-league-big-card-grid {
+                gap: 5px;
+            }
+
+            .upcoming-league-big-card-grid .nfl-upcoming-logo,
+            .upcoming-league-big-card-grid .nba-upcoming-logo,
+            .upcoming-league-big-card-grid .mlb-upcoming-logo,
+            .upcoming-league-big-card-grid .nhl-upcoming-logo,
+            .upcoming-league-big-card-grid .ncaa-upcoming-logo,
+            .upcoming-league-big-card-grid .ncaab-upcoming-logo {
+                width: 18px;
+                height: 18px;
             }
         }
 
