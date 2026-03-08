@@ -8331,6 +8331,44 @@ setInterval(() => {
   }
 }, 60000);
 
+// Prune stale gameStatsCache and broadcastHashes entries every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  let pruned = 0;
+  for (const [key, entry] of gameStatsCache.data.entries()) {
+    const maxAge = entry.isComplete
+      ? gameStatsCache.COMPLETED_STATS_CACHE_DURATION
+      : gameStatsCache.STATS_CACHE_DURATION;
+    // Keep completed game stats for 2 hours max, live stats for 5 minutes max
+    const hardLimit = entry.isComplete ? 7200000 : 300000;
+    if (now - entry.timestamp > hardLimit) {
+      gameStatsCache.data.delete(key);
+      pruned++;
+    }
+  }
+  // broadcastHashes only needs the last known hash per key - cap at 200 entries
+  if (broadcastHashes.size > 200) {
+    const toDelete = broadcastHashes.size - 200;
+    let deleted = 0;
+    for (const key of broadcastHashes.keys()) {
+      broadcastHashes.delete(key);
+      if (++deleted >= toDelete) break;
+    }
+    pruned += deleted;
+  }
+  if (pruned > 0) {
+    console.log(`🧹 Memory cleanup: removed ${pruned} stale cache entries`);
+  }
+  // Log memory usage for monitoring
+  const mem = process.memoryUsage();
+  const heapMB = Math.round(mem.heapUsed / 1024 / 1024);
+  const rssMB = Math.round(mem.rss / 1024 / 1024);
+  console.log(`📊 Memory: heap=${heapMB}MB rss=${rssMB}MB | statsCache=${gameStatsCache.data.size} broadcastHashes=${broadcastHashes.size}`);
+  if (heapMB > 400) {
+    console.warn(`⚠️ High memory usage: ${heapMB}MB heap - consider restarting`);
+  }
+}, 600000);
+
 // Socket.IO authentication middleware - REMOVED
 // TV Receivers need to connect without authentication
 // Controllers are authenticated when they join a session (userId check in 'cast:join-session')
