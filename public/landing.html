@@ -2429,6 +2429,7 @@
             }, 300);
             document.body.style.overflow = '';
             // Reset to login form view
+            clearRegistrationState();
             resetToLoginForm();
         }
 
@@ -2486,6 +2487,7 @@
 
         backToLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
+            clearRegistrationState();
             resetToLoginForm();
         });
 
@@ -2498,11 +2500,64 @@
         });
 
         // ============================================
+        // REGISTRATION STATE PERSISTENCE
+        // (handles browsers that open privacy policy in same tab)
+        // ============================================
+        function saveRegistrationState() {
+            const state = {
+                showingRegister: true,
+                regName: document.getElementById('regName').value,
+                regEmail: document.getElementById('regEmail').value,
+                privacyRead: !privacyAgree.disabled
+            };
+            localStorage.setItem('registrationState', JSON.stringify(state));
+        }
+
+        function clearRegistrationState() {
+            localStorage.removeItem('registrationState');
+        }
+
+        function restoreRegistrationState() {
+            const savedState = localStorage.getItem('registrationState');
+            if (savedState) {
+                try {
+                    const state = JSON.parse(savedState);
+                    if (state.showingRegister) {
+                        // Open login overlay and show register form
+                        landingContent.classList.add('fade-out');
+                        loginOverlay.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+
+                        loginForm.classList.add('hide');
+                        registerSection.style.display = 'none';
+                        forgotForm.classList.remove('show');
+                        registerForm.classList.add('show');
+
+                        if (state.regName) document.getElementById('regName').value = state.regName;
+                        if (state.regEmail) document.getElementById('regEmail').value = state.regEmail;
+
+                        if (state.privacyRead) {
+                            privacyAgree.disabled = false;
+                            privacyLink.classList.add('clicked');
+                        }
+                    }
+                } catch (e) {
+                    // ignore corrupt state
+                }
+            }
+        }
+
+        // Restore state on page load (in case privacy policy opened in same tab)
+        restoreRegistrationState();
+
+        // ============================================
         // PRIVACY POLICY
         // ============================================
         privacyLink.addEventListener('click', (e) => {
             privacyAgree.disabled = false;
             privacyLink.classList.add('clicked');
+            // Save state before navigating (in case browser opens in same tab)
+            saveRegistrationState();
         });
 
         privacyAgree.addEventListener('change', () => {
@@ -2619,6 +2674,7 @@
                 if (response.ok) {
                     showSuccess('Account created successfully! Please login.');
                     localStorage.setItem('gridtv-first-login', 'true');
+                    clearRegistrationState();
                     setTimeout(() => {
                         backToLoginLink.click();
                         document.getElementById('email').value = email;
